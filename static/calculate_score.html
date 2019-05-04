@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title class="lead">Polygenic Risk Scores</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">Calculate Risk Scores</a>
+		
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+		<!-- The justify-content-end command in the next line aligns the menu to the right.-->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+        <ul class="navbar-nav">
+			
+          <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
+				
+		  <div class="active-page">
+          <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
+			  </div>
+          <li class="nav-item"> <a class="nav-link" href="upload_gwas.html">Upload GWAS</a> </li>
+			<li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
+			<li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
+			 </ul>
+			 </div>
+		  </nav>
+   <header>
+	<div class="one">
+ <div class="text-center">
+	 <img src="images/Ollie.jpg" id="videosubstitute" alt="" >
+  <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop" id="video2">
+    <source src="images/testVid_1.mp4" type="video/mp4">
+  </video>
+ 
+    </div>
+  <div class="text-center text-white my-auto"> 
+
+
+        <h1 class="display-1 font-weight-bold "><br>Calculate Polygenic Risk Scores<br>Using the reference SNP<br>ID number (rs#) and<br>the Genotype</h1>
+      
+
+  	</div>
+		
+	</div>
+</header>	
+  <!--
+    <header>
+      <div class="jumbotron">
+        <div class="container">
+          <div class="row">
+            <div class="col-12">
+              <h1 class="text-center">The Polygenic Risk Score Knowledge Base</h1>
+              <p class="lead"><br>The purpose of the PRS Knowledge Base is to allow researchers to quickly calculate polygenic risk scores for various diseases based on published genome-wide association studies (GWAS).<br><br>The PRS Knowledge Base also facilitates the use and distribution of GWAS results by allowing researchers to upload results from their own studies to be included in future polygenic risk score calculations. </p>
+              <p>&nbsp;</p>
+              <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <section>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2>Calculate Polygenic Risk Scores</h2>
+			  <p class="lead"><br>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p>
+              <p>&nbsp;</p>
+              <p class="text-center"><a class="btn btn-primary btn-lg" href="calculate_score.html" role="button">Upload VCF</a> </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="jumbotron">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-12 mb-4 mt-2 text-center">
+				<h2>Add GWAS to the PRS Knowledge Base</h2>
+              <p class="lead"><br>We invite you to upload the odds ratios and p-values from your association studies to the knowledge base. Please visit the submission page by clicking on the link below to see the required submission format and to upload your study.<br><br>Thank you for supporting the PRS Knowledge Base!</p>
+				<p>&nbsp;</p>
+            </div>
+          </div>
+          
+            <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
+          
+        </div>
+      </div>
+		
+
+	<div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2>How To Cite the PRS Knowledge Base</h2>
+			  <p class="lead"><br>The PRS Knowledge Base would not be possible without the many genome-wide association studies that have been published. We ask that if you use the PRS Knowledge Base for published work, you cite the PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of all publications used by the PRS Knowledge Base, organized by disease, please follow the link below.</p>
+              <p>&nbsp;</p>
+              <p class="text-center"><a class="btn btn-primary btn-lg" href="citations.html" role="button">Citations</a> </p>
+          </div>
+        </div>
+      </div>
+		
+		<div class="jumbotron">
+		<div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2>API</h2>
+			  <p class="lead"><br>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line. </p>
+              <p>&nbsp;</p>
+              <p class="text-center"><a class="btn btn-primary btn-lg" href="api.html" role="button">API Documentation</a> </p>
+          </div>
+        </div>
+      </div>
+		</div>
+</section>
+	  -->
+	  <div class="jumbotron">
+    <div class="container">		
+      <div class="row">
+        <div class="col-12 col-md-8 mx-auto">
+         
+            <div class="row text-center">
+              <div class="text-center col-12">
+                <h2>How to Input List of RS IDs</h2>
+				  <p1>RS ids can be input with or without a genotype. If an rs id is input without a genotype, all risk alleles at that position will be used in calculating the polygenic risk scores and in the subsequent risk score matrices. If genotypes are available, each allele must be specified on a separate line. RS IDs and genotypes are separated by a colon. Separate RS IDs by either a comma, space, or an end-of-line character, as shown below.</p1>
+				  <h2><br>Input RS IDs and Genotypes</h2>
+              
+
+				  </div>
+              <div class="text-center col-12">
+                <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+                <form id="feedbackForm" class="text-center">
+                
+                  <div class="form-text font-weight-bold">
+                
+                    <textarea rows="10" cols="100" class="form-control" id="input" name="input" placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
+                    <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
+                  </div>
+					 </form>
+				  
+		<form class="md-form">
+  			<div class="file-field">
+    			<div class="btn btn-secondary btn-sm float-right btn-light"> 
+  			    <input type="file">
+  			  </div>
+
+ 			 </div>
+			</form>
+					<div class="text-black-50 float-left">
+						<a class="example" href="#">Example</a>
+			
+					</div>
+		
+				  <p>&nbsp;</p>
+				
+	<div class="container">
+        <div class="row">
+          <div class="col-lg-6 mb-4 mt-2 text-center">				  
+		    <h5>Select P-value Cutoff&nbsp;</h5>
+				  <div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="pvalue" id="inlineRadio1" value="option1" checked>
+  <label class="form-check-label" for="inlineRadio1">1x10<sup>-3</sup></label>
+</div>
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="pvalue" id="inlineRadio2" value="option2">
+  <label class="form-check-label" for="inlineRadio2">1x10<sup>-5</sup></label>
+</div>
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="pvalue" id="inlineRadio3" value="option3">
+  <label class="form-check-label" for="inlineRadio3">1x10<sup>-8</sup></label>
+</div>
+			</div>
+			          <div class="col-lg-6 mb-4 mt-2 text-center">				  
+		    <h5>Disease&nbsp;</h5>
+						  <h5>
+
+							  <input class="awesomplete" list="mylist" placeholder="All" />
+<datalist id="mylist">
+	<option>All</option>
+	<option>ADHD</option>
+	<option>Alcheimer's disease</option>
+	<option>Depression</option>
+	<option>Heart disease</option>
+	
+</datalist>
+							  </h5>
+			</div>
+			
+		</div>
+				  </div>
+				    <p>&nbsp;</p>
+                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Calculate Risk Scores</button>
+               
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+       <div class="container">		
+      <div class="row">
+        <div class="col-12 col-md-8 mx-auto">
+         
+            <div class="row text-center">
+              <div class="text-center col-12">
+                <h2><br>Results</h2>
+				  
+              </div>
+              <div class="text-center col-12">
+                <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+                <form id="responseBox" class="text-center">
+                
+                  <div class="form-text font-weight-bold">
+                   
+                    <textarea rows="10" cols="100" class="form-control" id="response" name="response" placeholder="Example Results&#10;You are going to die!" aria-describedby="response to query"></textarea>
+					  
+                  </div>
+                </form>
+				  <div class="text-black-50 float-left">
+						<a class="example" href="#">Example</a>
+					
+			
+					</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+	  </div>
+    <footer class="text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+			  <p>&nbsp;</p>
+            <p>Copyright © Miller et al. (2019) All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
+    <script src="js/jquery-3.3.1.min.js"></script> 
+    <!-- Include all compiled plugins (below), or include individual files as needed --> 
+    <script src="js/popper.min.js"></script> 
+    <script src="js/bootstrap-4.2.1.js"></script>
+  </body>
+</html>
+			<!--
+			Adds a dropdown menu item
+			<li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Dropdown </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a>
+
+
+             Adds a divider between the last item in the dropdown menu and the other items. 
+
+				<div class="dropdown-divider"></div>   
+              <a class="dropdown-item" href="#">Something else here</a> 
+            </div>
+          </li>
+		-->
+			
+         <!-- 
+		This was a disabled menu button.
+		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li> 
+		-->
+       
+       <!-- 
+		This was a search bar and search button
+		<form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form> -->
+  
+		<!--
+		Traditional About me content with pictures of people. Dynamic 1 photo for phone, 2 for tablet, 3 for desktop.
+      <div class="container ">
+        <div class="row">
+          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
+            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
+            <h3>Lorem ipsum</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
+            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
+            <h3>Lorem ipsum dolor</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
+            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
+            <h3>Lorem ipsum dolor</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
+            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
+            <h3>Lorem ipsum</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
+            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
+            <h3>Lorem ipsum dolor</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
+            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
+            <h3>Lorem ipsum</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12 mt-4 mb-2 text-center">
+            <h2>TESTIMONIALS</h2>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-6 col-lg-6">
+            <blockquote class="blockquote">
+              <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+            </blockquote>
+          </div>
+          <div class="col-sm-6 col-lg-6">
+            <blockquote class="blockquote">
+              <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+            </blockquote>
+          </div>
+          <div class="col-sm-6 col-lg-6">
+            <blockquote class="blockquote">
+              <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small> 
+            </blockquote>
+          </div>
+          <div class="col-sm-6 col-lg-6">
+            <blockquote class="blockquote">
+              <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+            </blockquote>
+          </div>
+        </div>
+      </div>
+		-->
+		<!--
+      <div class="container">
+        <div class="row">
+          <div class="col-12 mb-2 text-center">
+            <h2>OUR SERVICES</h2>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-6 col-lg-4">
+            <h3>Feature Description</h3>
+            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt impedit est voluptatem doloremque architecto corporis suscipit quidem ratione! Quis laborum nam optio dolorem doloremque ex nobis quibusdam ad quo dolores? </p>
+            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <h3>Feature Description</h3>
+            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptate, illo, libero esse assumenda culpa consequatur exercitationem beatae odio praesentium nihil iste ipsum reiciendis pariatur. Recusandae, reiciendis quidem eaque aut ab. </p>
+            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <h3>Feature Description</h3>
+            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis, adipisci recusandae veniam laudantium distinctio temporibus eveniet dolorum earum iusto veritatis provident ducimus minima dolore quas vel omnis cumque voluptas quibusdam.</p>
+            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <h3>Feature Description</h3>
+            <p> <em class="icon-desktop "></em> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde, earum rem nostrum provident repellat inventore laborum deleniti quas facere Quasi impedit autem qui cupiditate modi vero vitae dolorum nisi explicabo ea dolores animi. Inventore, omnis.</p>
+            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <h3>Feature Description</h3>
+            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Similique, iure, perspiciatis, ab ad quia animi esse repudiandae tempore quisquam dolorem sequi voluptatum qui fugiat. Quasi impedit autem qui cupiditate iusto?</p>
+            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <h3>Feature Description</h3>
+            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quia, aut, hic laudantium reprehenderit sapiente nemo consequatur corrupti accusantium! Hic, non rerum nihil reprehenderit excepturi explicabo error tempore aliquam eveniet odit.</p>
+            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
+          </div>
+        </div>
+      </div>
+    
+	  -->
