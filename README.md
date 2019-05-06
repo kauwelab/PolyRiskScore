@@ -1,6 +1,6 @@
 # Problems 
 
-We have this lines: 
+We have this line: 
 
 ```js
 app.use('/', express.static(path.join(__dirname, 'static')))
