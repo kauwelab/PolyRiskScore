@@ -2,6 +2,7 @@ const sql = require('mssql')
 var express = require('express');
 const path = require('path')
 var app = express();
+<<<<<<< HEAD
 const port = 3000
 //app.listen(port)
 
@@ -83,6 +84,46 @@ app.get('/test', function (req, res) {
 //   console.log('Example app listening on port 3000!');
 // });
 
+=======
+const port = 3000 
+
+//THESE TWO LINES WILL OPEN THE PORT AND OUTPUT "HELLO, WORLD!"
+app.listen(port)
+app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
+
+//THESE TWO LINES WILL UPLOAD JUSTIN'S FILES AS STATIC FILES
+//app.use('/', express.static(path.join(__dirname, 'static')))
+//app.listen(port, ()=>console.log(path.join(__dirname, 'static'))) //prints path to console
+
+
+//EXPERIMENTAL CODE FROM EXPRESS WEBSITE. 
+//  app.get('/', function (req, res) {
+//      res.send('Hello World!')
+//    })
+
+//    app.post('/', function (req, res) {
+//     res.send('Got a POST request')
+//   })
+
+//   app.put('/user', function (req, res) {
+//     res.send('Got a PUT request at /user')
+//   })
+  
+//THIS CODE CONNECTS TO THE SQL SERVER DATABASE
+// app.get('/', async (req, res) => {
+//     sql.close()
+//     await sql.connect('mssql://SA:Constitution1787@localhost/PolyScore')
+//     const result = await sql.query`select Name from sys.Databases`
+//     console.dir(result)
+//     console.log(result)
+//     sql.close() 
+//     res.send(result); //loads static folder
+// });
+// app.listen(3000, function () {
+//   console.log('Example app listening on port 3000!');
+// });
+ 
+>>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 // async () => {
 //     try {
 //         await sql.connect('mssql://admin:Constitution1787@localhost/tempdb')
@@ -95,6 +136,10 @@ app.get('/test', function (req, res) {
 //     }
 // }
 
+<<<<<<< HEAD
+=======
+//UNCOMMENT ALL THE CODE BELOW TO USE SEQUELIZER TO CONNECT WITH SQL SERVER
+>>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 // const Sequelize = require('sequelize'); 
 
 // const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
@@ -126,7 +171,11 @@ app.get('/test', function (req, res) {
 //     type: Sequelize.STRING,
 //     allowNull: false
 //   },
+<<<<<<< HEAD
 //   lastName: {
+=======
+//   bestFriend: {
+>>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 //     type: Sequelize.STRING
 //     // allowNull defaults to true
 //   }
@@ -136,6 +185,7 @@ app.get('/test', function (req, res) {
 //   // options
 // });
 
+<<<<<<< HEAD
 // User.sequelize.sync({ force: true }).then(() => {
 //     // Now the `users` table in the database corresponds to the model definition
 //     return User.create({
@@ -153,3 +203,33 @@ app.get('/test', function (req, res) {
 // User.create({ firstName: "Jane", lastName: "Doe" }).then(jane => {
 //   console.log("Jane's auto-generated ID:", jane.id);
 // });
+=======
+// User.sequelize.sync().then(() => {
+//     Now the `users` table in the database corresponds to the model definition
+//     return User.create({
+//       firstName: 'Hobbes',
+//       bestFriend: 'Calvin'
+//     });
+//   });
+
+// User.create({ firstName: "Jane", bestFriend: "John" }).then(jane => {
+//   console.log("Jane's auto-generated ID:", jane.id);
+// });
+
+//  User.findAll().then(tiger => {
+//    console.log("All users:", JSON.stringify(tiger, null, 3));
+//  });
+
+//  User.destroy({
+//     where: {},
+//     truncate : true
+//   }).then(() => {
+//     console.log("Done");
+//   });
+
+// User.update({ bestFriend: null }, {
+//     where: {}
+//   }).then(() => {
+//     console.log("Done");
+//   });
+>>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
