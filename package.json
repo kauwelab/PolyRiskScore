@@ -5,15 +5,10 @@
   "dependencies": {
     "express": "^4.16.4",
     "mssql": "^5.1.0",
-<<<<<<< HEAD
     "npm": "^6.9.0",
     "sequelize": "^5.8.5",
     "tedious": "^6.1.1",
     "update": "^0.7.4"
-=======
-    "sequelize": "^5.8.2",
-    "tedious": "^6.1.1"
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
   },
   "devDependencies": {},
   "scripts": {
@@ -21,9 +16,5 @@
   },
   "author": "",
   "license": "ISC",
-<<<<<<< HEAD
   "description": "We have this lines:"
-=======
-  "description": ""
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 }

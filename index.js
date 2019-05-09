@@ -2,7 +2,6 @@ const sql = require('mssql')
 var express = require('express');
 const path = require('path')
 var app = express();
-<<<<<<< HEAD
 const port = 3000
 //app.listen(port)
 
@@ -84,12 +83,11 @@ app.get('/test', function (req, res) {
 //   console.log('Example app listening on port 3000!');
 // });
 
-=======
-const port = 3000 
+//const port = 3000 
 
 //THESE TWO LINES WILL OPEN THE PORT AND OUTPUT "HELLO, WORLD!"
-app.listen(port)
-app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
+//app.listen(port)
+//app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
 
 //THESE TWO LINES WILL UPLOAD JUSTIN'S FILES AS STATIC FILES
 //app.use('/', express.static(path.join(__dirname, 'static')))
@@ -123,7 +121,6 @@ app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to th
 //   console.log('Example app listening on port 3000!');
 // });
  
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 // async () => {
 //     try {
 //         await sql.connect('mssql://admin:Constitution1787@localhost/tempdb')
@@ -136,10 +133,7 @@ app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to th
 //     }
 // }
 
-<<<<<<< HEAD
-=======
 //UNCOMMENT ALL THE CODE BELOW TO USE SEQUELIZER TO CONNECT WITH SQL SERVER
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 // const Sequelize = require('sequelize'); 
 
 // const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
@@ -171,11 +165,8 @@ app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to th
 //     type: Sequelize.STRING,
 //     allowNull: false
 //   },
-<<<<<<< HEAD
 //   lastName: {
-=======
 //   bestFriend: {
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 //     type: Sequelize.STRING
 //     // allowNull defaults to true
 //   }
@@ -185,7 +176,6 @@ app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to th
 //   // options
 // });
 
-<<<<<<< HEAD
 // User.sequelize.sync({ force: true }).then(() => {
 //     // Now the `users` table in the database corresponds to the model definition
 //     return User.create({
@@ -203,7 +193,6 @@ app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to th
 // User.create({ firstName: "Jane", lastName: "Doe" }).then(jane => {
 //   console.log("Jane's auto-generated ID:", jane.id);
 // });
-=======
 // User.sequelize.sync().then(() => {
 //     Now the `users` table in the database corresponds to the model definition
 //     return User.create({
@@ -232,4 +221,3 @@ app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to th
 //   }).then(() => {
 //     console.log("Done");
 //   });
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
