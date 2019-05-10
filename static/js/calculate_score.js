@@ -1,5 +1,5 @@
 function SubmitFormData() {
-    $('#response').html("test");
+    //$('#response').html("You should never see this line.");
     //gets the snps from the form
     var input = document.getElementsByName("input")[0].value;
     // get value of selected 'pvalue' radio button in 'radioButtons'
@@ -11,7 +11,9 @@ function SubmitFormData() {
         function (data, status) {
             //data contains the info received by going to "/test"
             //TODO fix formating- currently just printing test variables
-            $('#response').html("data:" + data + " variableType: " + typeof(data) + " status: " + status);
+            var fullPValue = "1e" + pValue;
+            //TODO edit data here
+            $('#response').html("input: " + input + " &#13;&#10pvalue: " + fullPValue + " &#13;&#10disease: " + disease + " &#13;&#10data:" + data); // + " variableType: " + typeof(data) + " status: " + status);
             //$('#response').html(data);
             //$('#myForm')[0].reset();
         }, "html");

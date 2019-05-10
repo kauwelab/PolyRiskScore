@@ -12,6 +12,10 @@ app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints pat
 
 app.get('/test', function (req, res) {
     //TODO how to get variables from req (aka request)?
+    var input = req.query.input;
+    var snpArray = input.split(",");
+    var pValue = req.query.pValue;
+    var disease = req.query.disease;
     var sql = require("mssql");
 
     // config for your database
@@ -21,10 +25,19 @@ app.get('/test', function (req, res) {
         server: 'localhost',
         database: 'TutorialDB'
     };
-
+    /*
+//got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
     new sql.ConnectionPool(config).connect().then(pool => {
         //TODO change query to get snps
-        return pool.request().query("select SNP from ALS_OR2")
+        
+        var snpArray = input.split(",");
+        var sql = "SELECT * FROM ALS_OR2 where SNP IN ?";
+        var test = pool.request().query(sql, [snpArray], function (err, result) {
+            if (err) throw err;
+            console.log(result);
+        });
+        return test;
+        //return pool.request().query("select SNP from ALS_OR2")
     }).then(result => {
         let rows = result.recordset
         res.setHeader('Access-Control-Allow-Origin', '*')
@@ -34,9 +47,9 @@ app.get('/test', function (req, res) {
         res.status(500).send({ message: "${err}" })
         sql.close();
     });
+    */
 
     // connect to your database
-    /*
     sql.connect(config, function (err) {
 
         if (err) console.log(err);
@@ -44,17 +57,25 @@ app.get('/test', function (req, res) {
         // create Request object
         var request = new sql.Request();
 
+        //look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
+        //may make this more efficient for large input data
+        var stmt = 'SELECT * FROM ALS_OR2 where snp IN (';
+        for (var i = 0; i < snpArray.length; ++i) {
+            if (i != 0) {
+                stmt += ', ';
+            }
+            stmt += "'" + snpArray[i] + "'";
+        }
+        stmt += ')';
         // query to the database and get the records
-        request.query('select SNP from ALS_OR2', function (err, recordset) {
+        request.query(stmt, function (err, recordset) {
 
             if (err) console.log(err)
 
             // send records as a response
             res.send(recordset);
-
         });
     });
-    */
 });
 
 /* app.get('/um', function (req, res) {
@@ -106,7 +127,7 @@ app.get('/test', function (req, res) {
 //   app.put('/user', function (req, res) {
 //     res.send('Got a PUT request at /user')
 //   })
-  
+
 //THIS CODE CONNECTS TO THE SQL SERVER DATABASE
 // app.get('/', async (req, res) => {
 //     sql.close()
@@ -120,7 +141,7 @@ app.get('/test', function (req, res) {
 // app.listen(3000, function () {
 //   console.log('Example app listening on port 3000!');
 // });
- 
+
 // async () => {
 //     try {
 //         await sql.connect('mssql://admin:Constitution1787@localhost/tempdb')
