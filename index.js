@@ -10,6 +10,34 @@ app.use('/', express.static(path.join(__dirname, 'static')))
 
 app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints path to console
 
+//API End Point
+var busboy = require('connect-busboy'); //middleware for form/file upload
+var fs = require('fs-extra');       //File System - for file manipulation
+app.use(busboy());
+
+/* ========================================================== 
+Create a Route (/upload) to handle the Form submission 
+(handle POST requests to /upload)
+Express v4  Route definition
+============================================================ */
+app.route('/upload')
+    .post(function (req, res, next) {
+
+        var fstream;
+        req.pipe(req.busboy);
+        req.busboy.on('file', function (fieldname, file, filename) {
+            console.log("Uploading: " + filename);
+
+            //Path where image will be uploaded
+            fstream = fs.createWriteStream(__dirname + '/img/' + filename);
+            file.pipe(fstream);
+            fstream.on('close', function () {    
+                console.log("Upload Finished of " + filename);              
+                res.redirect('back');           //where to go next
+            });
+        });
+    });
+    
 app.get('/test', function (req, res) {
     //TODO how to get variables from req (aka request)?
     var input = req.query.input;
@@ -25,6 +53,10 @@ app.get('/test', function (req, res) {
         server: 'localhost',
         database: 'TutorialDB'
     };
+
+      
+// var document = "static/calculate_score.html";
+// var submitButton = document.getElementById("submit_file"); 
     /*
 //got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
     new sql.ConnectionPool(config).connect().then(pool => {

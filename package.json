@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
+    "connect-busboy": "0.0.2",
     "express": "^4.16.4",
+    "fs-extra": "^8.0.1",
     "mssql": "^5.1.0",
     "npm": "^6.9.0",
     "sequelize": "^5.8.5",
