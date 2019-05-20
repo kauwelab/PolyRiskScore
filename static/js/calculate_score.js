@@ -1,20 +1,35 @@
 function SubmitFormData() {
-    //$('#response').html("You should never see this line.");
     //gets the snps from the form
-    var input = document.getElementsByName("input")[0].value;
+    var snpArrayString = document.getElementsByName("input")[0].value;
+    var snpArray = snpArrayString.split(",");
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
     //gets the disease name from the drop down list
     var e = document.getElementById("diseaseSelect");
     var disease = e.options[e.selectedIndex].text;
-    $.get("/test", { input: input, pValue: pValue, disease: disease },
+    $.get("/test", { snpArray: snpArray, pValue: pValue, disease: disease },
         function (data, status) {
             //data contains the info received by going to "/test"
-            //TODO fix formating- currently just printing test variables
             var fullPValue = "1e" + pValue;
-            //TODO edit data here
-            $('#response').html("input: " + input + " &#13;&#10pvalue: " + fullPValue + " &#13;&#10disease: " + disease + " &#13;&#10data:" + data); // + " variableType: " + typeof(data) + " status: " + status);
-            //$('#response').html(data);
-            //$('#myForm')[0].reset();
-        }, "html");
+            combinedOR = getCombinedOR(JSON.parse(data).recordset);
+            $('#response').html("# SNPs: " + snpArray.length + " &#13;&#10P Value Cutoff: " + fullPValue + " &#13;&#10Disease(s): " + disease + " &#13;&#10Combined Odds Ratio: " + combinedOR);
+        }, "html").fail(function (jqXHR) {
+            $('#response').html('There was an error computing the risk score. ' + 
+                'Please send the following error to the website administrators:&#13;&#10&#13;&#10' + jqXHR.responseText);
+        });
+}
+
+function getCombinedOR(recordset) {
+    //get the odds ratio values from the recordset objects
+    var ORs = [];
+    recordset.forEach(function (element) {
+        ORs.push(element.OR);
+    });
+    //calculate the commbined odds ratio from the odds ratio array (ORs)
+    var combinedOR = 0;
+    ORs.forEach(function (element) {
+        combinedOR += Math.log(element);
+    });
+    combinedOR = Math.exp(combinedOR);
+    return combinedOR;
 }

@@ -1,5 +1,6 @@
 const sql = require('mssql')
 var express = require('express');
+var SqlString = require('sqlstring');
 const path = require('path')
 var app = express();
 const port = 3000
@@ -39,11 +40,9 @@ app.route('/upload')
     });
     
 app.get('/test', function (req, res) {
-    //TODO how to get variables from req (aka request)?
-    var input = req.query.input;
-    var snpArray = input.split(",");
-    var pValue = req.query.pValue;
-    var disease = req.query.disease;
+    var snpArray = req.query.snpArray;
+    var pValue = Math.pow(10, req.query.pValue);
+    var disease = req.query.disease.toLowerCase();
     var sql = require("mssql");
 
     // config for your database
@@ -53,6 +52,7 @@ app.get('/test', function (req, res) {
         server: 'localhost',
         database: 'TutorialDB'
     };
+<<<<<<< HEAD
 
       
 // var document = "static/calculate_score.html";
@@ -80,6 +80,8 @@ app.get('/test', function (req, res) {
         sql.close();
     });
     */
+=======
+>>>>>>> b167d6880c112a132103af0cd14097d4e42f371f
 
     // connect to your database
     sql.connect(config, function (err) {
@@ -89,9 +91,15 @@ app.get('/test', function (req, res) {
         // create Request object
         var request = new sql.Request();
 
-        //look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
-        //may make this more efficient for large input data
-        var stmt = 'SELECT * FROM ALS_OR2 where snp IN (';
+        /* TODO
+         * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
+         * may make this more efficient for large input data
+         */
+        //TODO add correct disease table names to diseaseEnum!
+        var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "lou gehrig's disease": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+        var diseaseTable = diseaseEnum[disease];
+        //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
+        var stmt = 'SELECT "OR" FROM ' + diseaseTable + ' WHERE CONVERT(FLOAT, [pValue]) <= ' + SqlString.escape(pValue) + 'AND snp IN (';
         for (var i = 0; i < snpArray.length; ++i) {
             if (i != 0) {
                 stmt += ', ';
@@ -102,13 +110,44 @@ app.get('/test', function (req, res) {
         // query to the database and get the records
         request.query(stmt, function (err, recordset) {
 
-            if (err) console.log(err)
+            if (err) {
+                res.status(500).send(err)
+                console.log(err)
+            }
+            else {
+                // send records as a response
+                res.send(recordset);
+            }
 
-            // send records as a response
-            res.send(recordset);
+            //TODO is this where this goes?
+            sql.close();
         });
     });
+    /*
+//got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
+new sql.ConnectionPool(config).connect().then(pool => {
+    //TODO change query to get snps
+    
+    var snpArray = input.split(",");
+    var sql = "SELECT * FROM ALS_OR2 where SNP IN ?";
+    var test = pool.request().query(sql, [snpArray], function (err, result) {
+        if (err) throw err;
+        console.log(result);
+    });
+    return test;
+    //return pool.request().query("select SNP from ALS_OR2")
+}).then(result => {
+    let rows = result.recordset
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.status(200).json(rows);
+    sql.close();
+}).catch(err => {
+    res.status(500).send({ message: "${err}" })
+    sql.close();
 });
+*/
+});
+
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')
