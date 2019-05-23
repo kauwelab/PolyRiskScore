@@ -4,11 +4,7 @@ const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const sql = require('mssql')
 const app = express();
-<<<<<<< HEAD
 const SqlString = require('sqlstring');
-=======
-var SqlString = require('sqlstring');
->>>>>>> 57fcfe78a3c550ba0e791e0b28e97538a3be8129
 const port = 3000
 
 //app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
@@ -16,13 +12,8 @@ app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json())
 
-<<<<<<< HEAD
-app.set('view engine', 'pug')
-
-=======
 //app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
 app.use('/', express.static(path.join(__dirname, 'static')))
->>>>>>> 57fcfe78a3c550ba0e791e0b28e97538a3be8129
 
 app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints path to console
 
@@ -31,11 +22,8 @@ var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 57fcfe78a3c550ba0e791e0b28e97538a3be8129
 // POST route from contact form
 app.post('/contact', function (req, res) {
     let mailOpts, smptTrans;
