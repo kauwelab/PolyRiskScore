@@ -44,9 +44,8 @@ app.post('/contact', function (req, res) {
     };
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {
-            res.json({
-                msg: 'fail'
-            })
+            res.writeHead(301, { Location: 'fail.html'});
+            res.end();
         } else {
             res.writeHead(301, { Location: 'success.html'});
             res.end();
