@@ -153,11 +153,47 @@
               <form class="md-form">
                 <div class="file-field">
                   <div class="btn btn-secondary btn-sm float-right btn-light">
-                    <input type="file">
+                    <input type="file" id="files" name="files[]" multiple />
+                    <input type="submit" id="submit_file">
+                    <output id="list"></output>
+
+<script>
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    var output = []; 
+    for (var i = 0, f; f = files[i]; i++) {
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+      var reader = new FileReader(); 
+      reader.onload = (function(theFile){
+        return function(e) {
+          var span = document.createElement('span');
+          span.innerHTML = ['<img class="thumb" src="', e.target.result,
+                            '" title="', escape(theFile.name), '"/>'].join('');
+          document.getElementById('list').insertBefore(span, null);
+        }
+      })(f); 
+      var text = reader.readAsText(f); 
+    }
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+  }
+  document.getElementById("submit_file").addEventListener("click", handleButtonClick); 
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+  function handleButtonClick(){
+    console.log("Button clicked"); 
+  }
+</script>
                   </div>
 
                 </div>
               </form>
+
               <div class="text-black-50 float-left">
                 <a class="example" href="#">Example</a>
 
@@ -191,6 +227,7 @@
                         <option>Alcheimer's disease</option>
                         <option>Depression</option>
                         <option>Heart disease</option>
+                        <option>Lou Gehrig's Disease</option>
                       </select>
                     </h5>
                   </div>
@@ -254,6 +291,7 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
+
 </body>
 
 </html>
@@ -272,15 +310,6 @@
             </div>
           </li>
 		-->
-<<<<<<< HEAD
-
-<!-- 
-		This was a disabled menu button.
-		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li> 
-		-->
-
-<!-- 
-=======
 			
          <!-- 
 		This was a disabled menu button.
@@ -288,19 +317,13 @@
 		-->
        
        <!-- 
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 		This was a search bar and search button
 		<form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form> -->
-<<<<<<< HEAD
-
-<!--
-=======
   
 		<!--
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
 		Traditional About me content with pictures of people. Dynamic 1 photo for phone, 2 for tablet, 3 for desktop.
       <div class="container ">
         <div class="row">
@@ -368,11 +391,7 @@
         </div>
       </div>
 		-->
-<<<<<<< HEAD
-<!--
-=======
 		<!--
->>>>>>> affea03d9323d19a7d95d73bbb5926860b38a5ce
       <div class="container">
         <div class="row">
           <div class="col-12 mb-2 text-center">

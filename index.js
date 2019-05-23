@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
+const sql = require('mssql')
+const SqlString = require('sqlstring');
 const app = express();
 const port = 3000
 
@@ -51,6 +53,38 @@ app.post('/contact', function (req, res) {
     var snpArray = input.split(",");
     var pValue = req.query.pValue;
     var disease = req.query.disease;
+//API End Point
+var busboy = require('connect-busboy'); //middleware for form/file upload
+var fs = require('fs-extra');       //File System - for file manipulation
+app.use(busboy());
+
+/* ========================================================== 
+Create a Route (/upload) to handle the Form submission 
+(handle POST requests to /upload)
+Express v4  Route definition
+============================================================ */
+app.route('/upload')
+    .post(function (req, res, next) {
+
+        var fstream;
+        req.pipe(req.busboy);
+        req.busboy.on('file', function (fieldname, file, filename) {
+            console.log("Uploading: " + filename);
+
+            //Path where image will be uploaded
+            fstream = fs.createWriteStream(__dirname + '/img/' + filename);
+            file.pipe(fstream);
+            fstream.on('close', function () {    
+                console.log("Upload Finished of " + filename);              
+                res.redirect('back');           //where to go next
+            });
+        });
+    });
+    
+app.get('/test', function (req, res) {
+    var snpArray = req.query.snpArray;
+    var pValue = Math.pow(10, req.query.pValue);
+    var disease = req.query.disease.toLowerCase();
     var sql = require("mssql");
 
     // config for your database
@@ -59,7 +93,16 @@ app.post('/contact', function (req, res) {
         password: '12345',
         server: 'localhost',
         database: 'TutorialDB'
-    };*/
+
+    }
+
+ });
+
+
+      
+// var document = "static/calculate_score.html";
+// var submitButton = document.getElementById("submit_file"); 
+
     /*
 //got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
     new sql.ConnectionPool(config).connect().then(pool => {
@@ -83,6 +126,7 @@ app.post('/contact', function (req, res) {
         sql.close();
     });
     
+>>>>>>> 2d6c52fd3117484cc455339e20976da677272034
 
     // connect to your database
     sql.connect(config, function (err) {
@@ -92,9 +136,15 @@ app.post('/contact', function (req, res) {
         // create Request object
         var request = new sql.Request();
 
-        //look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
-        //may make this more efficient for large input data
-        var stmt = 'SELECT * FROM ALS_OR2 where snp IN (';
+        /* TODO
+         * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
+         * may make this more efficient for large input data
+         */
+        //TODO add correct disease table names to diseaseEnum!
+        var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "lou gehrig's disease": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+        var diseaseTable = diseaseEnum[disease];
+        //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
+        var stmt = 'SELECT "OR" FROM ' + diseaseTable + ' WHERE CONVERT(FLOAT, [pValue]) <= ' + SqlString.escape(pValue) + 'AND snp IN (';
         for (var i = 0; i < snpArray.length; ++i) {
             if (i != 0) {
                 stmt += ', ';
@@ -105,13 +155,44 @@ app.post('/contact', function (req, res) {
         // query to the database and get the records
         request.query(stmt, function (err, recordset) {
 
-            if (err) console.log(err)
+            if (err) {
+                res.status(500).send(err)
+                console.log(err)
+            }
+            else {
+                // send records as a response
+                res.send(recordset);
+            }
 
-            // send records as a response
-            res.send(recordset);
+            //TODO is this where this goes?
+            sql.close();
         });
+   
+    /*
+//got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
+new sql.ConnectionPool(config).connect().then(pool => {
+    //TODO change query to get snps
+    
+    var snpArray = input.split(",");
+    var sql = "SELECT * FROM ALS_OR2 where SNP IN ?";
+    var test = pool.request().query(sql, [snpArray], function (err, result) {
+        if (err) throw err;
+        console.log(result);
     });
+    return test;
+    //return pool.request().query("select SNP from ALS_OR2")
+}).then(result => {
+    let rows = result.recordset
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.status(200).json(rows);
+    sql.close();
+}).catch(err => {
+    res.status(500).send({ message: "${err}" })
+    sql.close();
 });
+*/
+
+
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')
