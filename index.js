@@ -1,10 +1,17 @@
+const express = require('express');
+const path = require('path');
+const nodeMailer = require('nodemailer');
+const bodyParser = require('body-parser');
 const sql = require('mssql')
-var express = require('express');
+const app = express();
 var SqlString = require('sqlstring');
 const path = require('path')
-var app = express();
 const port = 3000
-//app.listen(port)
+
+//app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
+app.use('/', express.static(path.join(__dirname, 'static')))
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json())
 
 //app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
 app.use('/', express.static(path.join(__dirname, 'static')))
@@ -15,6 +22,34 @@ app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints pat
 var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
+
+// POST route from contact form
+app.post('/contact', function (req, res) {
+    let mailOpts, smptTrans;
+    smptTrans = nodeMailer.createTransport ({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'kauwelab19@gmail.com',
+            pass: 'kauwelab2019!'
+        }
+    });
+    mailOpts = {
+        from: req.body.name + ' &lt;' + req.body.email + '&gt;',
+        to: 'kauwelab19@gmail.com',
+        subject: 'New message from contact form at PRS.byu.edu',
+        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`
+    };
+    smptTrans.sendMail(mailOpts, (error, info) => {
+        if (error) {
+            return console.log(error)
+        }
+        console.log('Message %s sent: %s', info.messageId, info.response);
+    });
+    res.writeHead(301, { Location: 'index.html'});
+    res.end();
+}); 
 
 /* ========================================================== 
 Create a Route (/upload) to handle the Form submission 
@@ -66,7 +101,6 @@ app.get('/test', function (req, res) {
              * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
              * may make this more efficient for large input data
              */
-            
             //TODO
             /*
                 for ()
