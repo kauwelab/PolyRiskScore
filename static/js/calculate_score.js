@@ -5,7 +5,13 @@ function SubmitFormData() {
     //If this is empty, get it from file. 
     //Figure out how to deal with empty file and input...
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
+<<<<<<< HEAD
     //Map = function that does all the stuff. 
+=======
+    //TODO
+    //make a map!! :)
+
+>>>>>>> 57fcfe78a3c550ba0e791e0b28e97538a3be8129
     var snpArray = snpArrayString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
