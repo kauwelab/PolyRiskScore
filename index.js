@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const sql = require('mssql')
 const app = express();
 var SqlString = require('sqlstring');
-const path = require('path')
 const port = 3000
 
 //app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
