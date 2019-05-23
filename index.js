@@ -1,6 +1,6 @@
 const sql = require('mssql')
 var express = require('express');
-//var SqlString = require('sqlstring');
+var SqlString = require('sqlstring');
 const path = require('path')
 var app = express();
 const port = 3000
@@ -32,13 +32,13 @@ app.route('/upload')
             //Path where image will be uploaded
             fstream = fs.createWriteStream(__dirname + '/img/' + filename);
             file.pipe(fstream);
-            fstream.on('close', function () {    
-                console.log("Upload Finished of " + filename);              
+            fstream.on('close', function () {
+                console.log("Upload Finished of " + filename);
                 res.redirect('back');           //where to go next
             });
         });
     });
-    
+
 app.get('/test', function (req, res) {
     var snpArray = req.query.snpArray;
     if (snpArray.length > 0) {
@@ -66,6 +66,17 @@ app.get('/test', function (req, res) {
              * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
              * may make this more efficient for large input data
              */
+            
+            //TODO
+            /*
+                for ()
+                if (line contains ##)
+                continue
+                else if #
+                find column numbers
+                else
+            */
+
             //TODO add correct disease table names to diseaseEnum!
             var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "lou gehrig's disease": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
             var diseaseTable = diseaseEnum[disease];
@@ -85,12 +96,13 @@ app.get('/test', function (req, res) {
                 var allele;
                 //TODO make cases for if has allele and if doesn't
                 stmt += "(snp = " + "'"
+                //TODO find snp and allele
                 if (snp.includes(":")) {
                     snp = snpArray[i].substring(0, snpArray[i].indexOf(":"));
                     snp = snp.trim();
                     allele = snpArray[i].substring(snpArray[i].indexOf(":") + 1);
                     allele = allele.trim();
-                    stmt += snp + "' " + "AND riskAllele = " + "'" + allele + "')";
+                    stmt += snp + "' " + "AND riskAllele = " + "'" + allele + "')"; //this one
                 }
                 else {
                     stmt += snp + "')";
