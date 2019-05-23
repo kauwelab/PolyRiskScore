@@ -4,10 +4,7 @@ const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const sql = require('mssql')
 const app = express();
-var express = require('express');
-//var SqlString = require('sqlstring');
-const path = require('path')
-var app = express();
+const SqlString = require('sqlstring');
 const port = 3000
 
 //app.listen(port)
@@ -18,6 +15,8 @@ app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json())
 
+app.set('view engine', 'pug')
+
 
 app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints path to console
 
@@ -25,6 +24,7 @@ app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints pat
 var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
+
 
 
 // POST route from contact form
@@ -45,14 +45,18 @@ app.post('/contact', function (req, res) {
         subject: 'New message from contact form at PRS.byu.edu',
         text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`
     };
-    smptTrans.sendMail(mailOpts, (error, info) => {
-        if (error) {
-            return console.log(error)
+    smptTrans.sendMail(mailOpts, (err, data) => {
+        if (err) {
+            res.json({
+                msg: 'fail'
+            })
+        } else {
+            res.writeHead(301, { Location: 'success.html'});
+            res.end();
         }
-        console.log('Message %s sent: %s', info.messageId, info.response);
     });
-    res.writeHead(301, { Location: 'index.html'});
-    res.end();
+    //res.writeHead(301, { Location: 'learn_more.html'});
+    //res.end();
 }); 
 
 
