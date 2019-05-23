@@ -1,6 +1,6 @@
 const sql = require('mssql')
 var express = require('express');
-var SqlString = require('sqlstring');
+//var SqlString = require('sqlstring');
 const path = require('path')
 var app = express();
 const port = 3000
@@ -52,7 +52,6 @@ app.get('/test', function (req, res) {
         server: 'localhost',
         database: 'TutorialDB'
     };
-<<<<<<< HEAD
 
       
 // var document = "static/calculate_score.html";
@@ -80,8 +79,6 @@ app.get('/test', function (req, res) {
         sql.close();
     });
     */
-=======
->>>>>>> b167d6880c112a132103af0cd14097d4e42f371f
 
     // connect to your database
     sql.connect(config, function (err) {
@@ -228,6 +225,7 @@ new sql.ConnectionPool(config).connect().then(pool => {
 //UNCOMMENT ALL THE CODE BELOW TO USE SEQUELIZER TO CONNECT WITH SQL SERVER
 // const Sequelize = require('sequelize'); 
 
+//Database name, username, and password. 
 // const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
 //     host: 'localhost',
 //     dialect: 'mssql',
