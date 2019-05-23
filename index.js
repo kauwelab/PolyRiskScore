@@ -13,58 +13,85 @@ app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints pat
 
 app.get('/test', function (req, res) {
     var snpArray = req.query.snpArray;
-    var pValue = Math.pow(10, req.query.pValue);
-    var disease = req.query.disease.toLowerCase();
-    var sql = require("mssql");
+    if (snpArray.length > 0) {
+        var pValue = Math.pow(10, req.query.pValue);
+        var disease = req.query.disease.toLowerCase();
+        var sql = require("mssql");
 
-    // config for your database
-    var config = {
-        user: 'root',
-        password: '12345',
-        server: 'localhost',
-        database: 'TutorialDB'
-    };
+        // config for your database
+        var config = {
+            user: 'root',
+            password: '12345',
+            server: 'localhost',
+            database: 'TutorialDB'
+        };
 
-    // connect to your database
-    sql.connect(config, function (err) {
+        // connect to your database
+        sql.connect(config, function (err) {
 
-        if (err) console.log(err);
+            if (err) console.log(err);
 
-        // create Request object
-        var request = new sql.Request();
+            // create Request object
+            var request = new sql.Request();
 
-        /* TODO
-         * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
-         * may make this more efficient for large input data
-         */
-        //TODO add correct disease table names to diseaseEnum!
-        var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "lou gehrig's disease": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
-        var diseaseTable = diseaseEnum[disease];
-        //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
-        var stmt = 'SELECT "OR" FROM ' + diseaseTable + ' WHERE CONVERT(FLOAT, [pValue]) <= ' + SqlString.escape(pValue) + 'AND snp IN (';
-        for (var i = 0; i < snpArray.length; ++i) {
-            if (i != 0) {
-                stmt += ', ';
+            /* TODO
+             * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
+             * may make this more efficient for large input data
+             */
+            //TODO add correct disease table names to diseaseEnum!
+            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "lou gehrig's disease": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+            var diseaseTable = diseaseEnum[disease];
+            //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
+            var stmt = "SELECT oddsRatio " +
+                "FROM " + diseaseTable + " " +
+                "WHERE (CONVERT(FLOAT, [pValue]) <= " + SqlString.escape(pValue) + ")"
+            for (var i = 0; i < snpArray.length; ++i) {
+                if (i == 0) {
+                    stmt += " AND (";
+                }
+                else if (i != 0) {
+                    stmt += ' OR ';
+                }
+                //TODO format tester required
+                var snp = snpArray[i];
+                var allele;
+                //TODO make cases for if has allele and if doesn't
+                stmt += "(snp = " + "'"
+                if (snp.includes(":")) {
+                    snp = snpArray[i].substring(0, snpArray[i].indexOf(":"));
+                    snp = snp.trim();
+                    allele = snpArray[i].substring(snpArray[i].indexOf(":") + 1);
+                    allele = allele.trim();
+                    stmt += snp + "' " + "AND riskAllele = " + "'" + allele + "')";
+                }
+                else {
+                    stmt += snp + "')";
+                }
+                if (i == snpArray.length - 1) {
+                    stmt += ')';
+                }
             }
-            stmt += "'" + snpArray[i] + "'";
-        }
-        stmt += ')';
-        // query to the database and get the records
-        request.query(stmt, function (err, recordset) {
 
-            if (err) {
-                res.status(500).send(err)
-                console.log(err)
-            }
-            else {
-                // send records as a response
-                res.send(recordset);
-            }
+            // query to the database and get the records
+            request.query(stmt, function (err, recordset) {
 
-            //TODO is this where this goes?
-            sql.close();
+                if (err) {
+                    res.status(500).send(err)
+                    console.log(err)
+                }
+                else {
+                    // send records as a response
+                    res.send(recordset);
+                }
+
+                //TODO is this where this goes?
+                sql.close();
+            });
         });
-    });
+    }
+    else {
+        res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
+    }
     /*
 //got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
 new sql.ConnectionPool(config).connect().then(pool => {
