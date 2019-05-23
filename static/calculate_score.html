@@ -158,11 +158,16 @@
               <form class="md-form">
                 <div class="file-field">
                   <div class="btn btn-secondary btn-sm float-right btn-light">
-                    <input type="file">
+                      <script src="js/calculate_score.js"></script>
+                    <input type="file" id="files" name="files[]" />
+                    <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
+                    <output id="list"></output>
+
                   </div>
 
                 </div>
               </form>
+
               <div class="text-black-50 float-left">
                 <a class="example" href="#">Example</a>
 
@@ -260,6 +265,7 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
+
 </body>
 
 </html>

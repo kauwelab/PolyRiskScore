@@ -35,3 +35,32 @@ function getCombinedOR(recordset) {
     combinedOR = Math.exp(combinedOR);
     return combinedOR;
 }
+
+function handleFileSelect(evt) {
+    var vcfText; 
+    var f = evt.target.files[0]; // FileList object
+    var output = [];    
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+      var reader = new FileReader(); 
+      reader.readAsText(f);
+      reader.onload = (function(theFile){
+          //TO DO: If the file is really large, make a queue
+          vcfText = reader.result; 
+          $('#input').html(vcfText);
+          manipulateText(vcfText);
+      })      
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>'; 
+  }
+
+  function manipulateText(vcfText) {
+    console.log(vcfText); 
+    var vcfLines = vcfText.split('\n');
+    console.log(vcfLines[0]);
+    console.log(vcfLines[2]); 
+  }
+
+
+  
