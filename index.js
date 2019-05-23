@@ -1,16 +1,51 @@
-const sql = require('mssql')
-var express = require('express');
-const path = require('path')
-var app = express();
+//const sql = require('mssql')
+const express = require('express');
+const path = require('path');
+const nodeMailer = require('nodemailer');
+const bodyParser = require('body-parser');
+const app = express();
 const port = 3000
+
 //app.listen(port)
+
 
 //app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
 app.use('/', express.static(path.join(__dirname, 'static')))
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json())
+
 
 app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints path to console
 
-app.get('/test', function (req, res) {
+// POST route from contact form
+app.post('/contact', function (req, res) {
+    let mailOpts, smptTrans;
+    smptTrans = nodeMailer.createTransport ({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'kauwelab19@gmail.com',
+            pass: 'kauwelab2019!'
+        }
+    });
+    mailOpts = {
+        from: req.body.name + ' &lt;' + req.body.email + '&gt;',
+        to: 'kauwelab19@gmail.com',
+        subject: 'New message from contact form at PRS.byu.edu',
+        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`
+    };
+    smptTrans.sendMail(mailOpts, (error, info) => {
+        if (error) {
+            return console.log(error)
+        }
+        console.log('Message %s sent: %s', info.messageId, info.response);
+    });
+    res.writeHead(301, { Location: 'index.html'});
+    res.end();
+}); 
+
+/*app.get('/test', function (req, res) {
     //TODO how to get variables from req (aka request)?
     var input = req.query.input;
     var snpArray = input.split(",");
@@ -24,7 +59,7 @@ app.get('/test', function (req, res) {
         password: '12345',
         server: 'localhost',
         database: 'TutorialDB'
-    };
+    };*/
     /*
 //got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
     new sql.ConnectionPool(config).connect().then(pool => {
@@ -47,7 +82,7 @@ app.get('/test', function (req, res) {
         res.status(500).send({ message: "${err}" })
         sql.close();
     });
-    */
+    
 
     // connect to your database
     sql.connect(config, function (err) {
