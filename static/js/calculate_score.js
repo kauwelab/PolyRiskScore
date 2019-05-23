@@ -3,6 +3,9 @@ function SubmitFormData() {
     //gets the snps from the form
     var snpArrayString = document.getElementsByName("input")[0].value;
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
+    //TODO
+    //make a map!! :)
+
     var snpArray = snpArrayString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
