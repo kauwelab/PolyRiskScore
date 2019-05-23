@@ -2,14 +2,18 @@ function SubmitFormData() {
     console.log("test");
     //gets the snps from the form
     var snpArrayString = document.getElementsByName("input")[0].value;
+    //If this is empty, get it from file. 
+    //Figure out how to deal with empty file and input...
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
+    //Map = function that does all the stuff. 
     var snpArray = snpArrayString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
     //gets the disease name from the drop down list
     var e = document.getElementById("diseaseSelect");
     var disease = e.options[e.selectedIndex].text;
-    
+    //Make snpArray a map. 
+
     $.get("/test", { snpArray: snpArray, pValue: pValue, disease: disease },
         function (data, status) {
             //data contains the info received by going to "/test"
@@ -60,6 +64,12 @@ function handleFileSelect(evt) {
     var vcfLines = vcfText.split('\n');
     console.log(vcfLines[0]);
     console.log(vcfLines[2]); 
+    //Get the column of ID & REF
+    //Right now looks like id:allele,id:allele
+    //Send it to index.js or manipulate it here. 
+    //Make a map of snp:[allele]
+    //1. Upload a file with the same format above, and get it.
+    //2. Upload a file with VCF format, and get it into the format we want. 
   }
 
 

@@ -40,6 +40,7 @@ app.route('/upload')
     });
     
 app.get('/test', function (req, res) {
+    //String of everything in the file.
     var snpArray = req.query.snpArray;
     if (snpArray.length > 0) {
         var pValue = Math.pow(10, req.query.pValue);
@@ -72,7 +73,7 @@ app.get('/test', function (req, res) {
             //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
             var stmt = "SELECT oddsRatio " +
                 "FROM " + diseaseTable + " " +
-                "WHERE (CONVERT(FLOAT, [pValue]) <= " + SqlString.escape(pValue) + ")"
+                "WHERE (CONVERT(FLOAT, [pValue]) <= " + SqlString.escape(pValue) + ")" //MIGHT NEED TO DOWNLOAD SQLSTRING
             for (var i = 0; i < snpArray.length; ++i) {
                 if (i == 0) {
                     stmt += " AND (";
