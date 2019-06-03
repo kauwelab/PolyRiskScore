@@ -1,17 +1,15 @@
 function SubmitFormData() {
-    console.log("test");
     //gets the snps from the form
     var snpArrayString = document.getElementsByName("input")[0].value;
+
+    var vcfFile = document.getElementById("files").files[0]; 
+    var vcfMap = fileToMap(vcfFile); 
+    //console.log(vcfMap); 
     //If this is empty, get it from file. 
     //Figure out how to deal with empty file and input...
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
-<<<<<<< HEAD
-    //Map = function that does all the stuff. 
-=======
-    //TODO
-    //make a map!! :)
 
->>>>>>> 57fcfe78a3c550ba0e791e0b28e97538a3be8129
+    //Map = function that does all the stuff. 
     var snpArray = snpArrayString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
@@ -46,6 +44,7 @@ function getCombinedOR(recordset) {
     return combinedOR;
 }
 
+//Outputs some file information when the user selects a file. 
 function handleFileSelect(evt) {
     var vcfText; 
     var f = evt.target.files[0]; // FileList object
@@ -54,29 +53,47 @@ function handleFileSelect(evt) {
                   f.size, ' bytes, last modified: ',
                   f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
                   '</li>');
-      var reader = new FileReader(); 
-      reader.readAsText(f);
-      reader.onload = (function(theFile){
-          //TO DO: If the file is really large, make a queue
-          vcfText = reader.result; 
-          $('#input').html(vcfText);
-          manipulateText(vcfText);
-      })      
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>'; 
   }
 
-  function manipulateText(vcfText) {
-    console.log(vcfText); 
+  //Uses a FileReader Object to get the file's text. 
+  //Then calls textToMap to convert the text to a map. 
+  function fileToMap(vcfFile){ 
+    // var reader = new FileReader();
+    // reader.readAsText(vcfFile); 
+    // reader.onload = (function(){
+    //    return reader.result;  
+    // });  
+    const readFile = async() => {
+        var reader = new FileReader();
+      var reader = new FileReader(); 
+        var reader = new FileReader();
+        reader.readAsText(vcfFile);
+        // return reader.onload = () => {
+        // return reader.result;
+        // }
+        // } 
+        var random = await reader.onload; 
+        console.log(random); 
+        // readFile(vcfFile).then(text => console.log(text));
+    //Return reader.result here
+  }
+
+  //Takes the file's text and returns a map of id:[alleles]
+  function textToMap(vcfText) {
+    console.log("From t2m: " + vcfText); 
     var vcfLines = vcfText.split('\n');
-    console.log(vcfLines[0]);
-    console.log(vcfLines[2]); 
     //Get the column of ID & REF
     //Right now looks like id:allele,id:allele
     //Send it to index.js or manipulate it here. 
     //Make a map of snp:[allele]
     //1. Upload a file with the same format above, and get it.
-    //2. Upload a file with VCF format, and get it into the format we want. 
+    //2. Upload a file with VCF format, and get it into the format we want.
+    var snpMap = new Map(); 
+    snpMap.set("rs6054257", ["G"]);
+    snpMap.set("rs6040355", ["A"]);
+    return snpMap; 
   }
 
-
+  }
   
