@@ -1,9 +1,7 @@
 function SubmitFormData() {
     //gets the snps from the form
     var snpArrayString = document.getElementsByName("input")[0].value;
-
-    var vcfFile = document.getElementById("files").files[0]; 
-    var vcfMap = fileToMap(vcfFile); 
+    fileToMap(); 
     //console.log(vcfMap); 
     //If this is empty, get it from file. 
     //Figure out how to deal with empty file and input...
@@ -46,7 +44,6 @@ function getCombinedOR(recordset) {
 
 //Outputs some file information when the user selects a file. 
 function handleFileSelect(evt) {
-    var vcfText; 
     var f = evt.target.files[0]; // FileList object
     var output = [];    
       output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
@@ -58,42 +55,76 @@ function handleFileSelect(evt) {
 
   //Uses a FileReader Object to get the file's text. 
   //Then calls textToMap to convert the text to a map. 
-  function fileToMap(vcfFile){ 
-    // var reader = new FileReader();
+  var readFile = async() => { 
+
+    var vcfFile = document.getElementById("files").files[0]; 
+    console.log(vcfFile); 
+    var output = document.getElementById("uploadText"); 
+    
+    var reader = new Response(vcfFile); 
+    output.value = await reader.text();
+        // reader.readAsText(vcfFile); 
     // reader.readAsText(vcfFile); 
-    // reader.onload = (function(){
-    //    return reader.result;  
-    // });  
-    const readFile = async() => {
-        var reader = new FileReader();
-      var reader = new FileReader(); 
-        var reader = new FileReader();
-        reader.readAsText(vcfFile);
-        // return reader.onload = () => {
-        // return reader.result;
+        // reader.readAsText(vcfFile); 
+            
+        // reader.onload = () => { 
+        //     output.value = reader.result; 
         // }
-        // } 
-        var random = await reader.onload; 
-        console.log(random); 
-        // readFile(vcfFile).then(text => console.log(text));
-    //Return reader.result here
+
+    //console.log(output.value);   
+    return output.value; 
+ 
   }
 
-  //Takes the file's text and returns a map of id:[alleles]
-  function textToMap(vcfText) {
-    console.log("From t2m: " + vcfText); 
-    var vcfLines = vcfText.split('\n');
-    //Get the column of ID & REF
-    //Right now looks like id:allele,id:allele
-    //Send it to index.js or manipulate it here. 
-    //Make a map of snp:[allele]
-    //1. Upload a file with the same format above, and get it.
-    //2. Upload a file with VCF format, and get it into the format we want.
-    var snpMap = new Map(); 
-    snpMap.set("rs6054257", ["G"]);
-    snpMap.set("rs6040355", ["A"]);
-    return snpMap; 
+  function fileToMap(){
+//   var fileToMap = async() => {
+//     var text = await readFile(); 
+//     console.log(text); 
+    //readFile().then(function(text){ console.log(text)} ); 
+    var vcfFile = document.getElementById("files").files[0]; 
+    var cabbage = 'cabbage'; 
+    //console.log(vcfFile); 
+    var reader = new FileReader();
+    reader.readAsText(vcfFile);
+    var readerRes = new Response(vcfFile); 
+    // var plainOl = []; 
+    // console.log(jQuery.isPlainObject(reader));
+    // console.log(jQuery.isPlainObject(vcfFile)); 
+    // console.log(jQuery.isPlainObject(readerRes)); 
+    // console.log(jQuery.isPlainObject(plainOl)); 
+    //var str = $("files").serialize();
+    // var form = $(this); 
+    // console.log(form); 
+    var myFile = $('input[id="files"]');
+    var serFile = myFile.serialize();  
+    //var recursiveEncoded = $.param( vcfFile );
+    //var recursiveDecoded = decodeURIComponent( $.param( vcfFile ) );
+    // console.log(myFile); 
+    // console.log(serFile); 
+    //console.log(recursiveEncoded); 
+    //console.log(recursiveDecoded);
+    
+    var form = $(this),
+        formData = new FormData()
+        formParams = form.serializeArray();
+
+    $.each(form.find('input[type="file"]'), function(i, tag) {
+      $.each($(tag)[0].files, function(i, file) {
+        formData.append(tag.name, file);
+      });
+    });
+
+    $.each(formParams, function(i, val) {
+      formData.append(val.name, val.value);
+    });
+
+    console.log(formData); 
+    $.get("/parse_vcf", {carnage : cabbage} , 
+        function(data, status){
+            console.log(data); 
+        });
   }
 
-  }
+ 
+
   

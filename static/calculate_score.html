@@ -161,9 +161,11 @@
                   <div class="btn btn-secondary btn-sm float-right btn-light">
                     <input type="file" id="files" name="files[]" />
                     <script src="js/calculate_score.js"></script>
+                    <button type="button" value="Submit" onclick="fileToMap();"  class="btn btn-secondary btn-light">Test</button>
+                    
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
+                    <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
-
                   </div>
 
                 </div>
@@ -203,13 +205,13 @@
                         <option>Depression</option>
                         <option>Heart disease</option>
                         <option>Lou Gehrig's Disease</option>
-                      </select>
+                      </select><script src="js/calculate_score.js"></script>
                     </h5>
                   </div>
                 </div>
               </div>
               <p>&nbsp;</p>
-              <script src="js/calculate_score.js"></script>
+              <!--<script src="js/calculate_score.js"></script>-->
               <!--<button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Calculate Risk Scores</button>-->
               <button type="button" id="feedbackSubmit" onclick="SubmitFormData();"
                 class="btn btn-primary btn-lg">Calculate Risk Scores</button>
