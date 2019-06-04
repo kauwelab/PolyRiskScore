@@ -1,30 +1,38 @@
+function TestFileSendWithoutForm() {
+    var vcfString ="rs6054257:G rs6054257:A " +
+    "rs17330:T rs17330:A rs6040355:A rs6040355:G";
+    console.log(vcfString);
+    var requestStr = "/test/" + 1e-3 + "/Lou Gehrig's Disease";
+    $.get(requestStr, {"snpArrayString": vcfString},
+    function(data) {
+        $('#response').html(data);
+    });
+}
+
 function SubmitFormData() {
-    console.log("test");
+    $('#response').html("Calculating. Please wait...")
     //gets the snps from the form
-    var snpArrayString = document.getElementsByName("input")[0].value;
+    var fileString = document.getElementsByName("input")[0].value;
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
     //TODO
     //make a map!! :)
 
-    var snpArray = snpArrayString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
     //gets the disease name from the drop down list
-    var e = document.getElementById("diseaseSelect");
-    var disease = e.options[e.selectedIndex].text;
-    
-    $.get("/test", { snpArray: snpArray, pValue: pValue, disease: disease },
-        function (data, status) {
+    var diseaseSelectElement = document.getElementById("diseaseSelect");
+    var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
+
+    $.get("/test/", {pValue: pValue, disease: disease, fileString: fileString},
+        function (data) {
             //data contains the info received by going to "/test"
-            var fullPValue = "1e" + pValue;
-            combinedOR = getCombinedOR(JSON.parse(data).recordset);
-            $('#response').html("# SNPs: " + snpArray.length + " &#13;&#10P Value Cutoff: " + fullPValue + " &#13;&#10Disease(s): " + disease + " &#13;&#10Combined Odds Ratio: " + combinedOR + " &#13;&#10Data: " + data);
+            $('#response').html("# SNPs: " + JSON.parse(data).numSNPs + " &#13;&#10P Value Cutoff: " + JSON.parse(data).pValueCutoff + " &#13;&#10Disease(s): " + JSON.parse(data).disease + " &#13;&#10Combined Odds Ratio: " + JSON.parse(data).combinedOR);
         }, "html").fail(function (jqXHR) {
             $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
         });
 }
 
-function getCombinedOR(recordset) {
+exports.getCombinedOR = function (recordset) {
     //get the odds ratio values from the recordset objects
     var ORs = [];
     recordset.forEach(function (element) {
@@ -40,30 +48,27 @@ function getCombinedOR(recordset) {
 }
 
 function handleFileSelect(evt) {
-    var vcfText; 
+    var vcfText;
     var f = evt.target.files[0]; // FileList object
-    var output = [];    
-      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-                  f.size, ' bytes, last modified: ',
-                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-                  '</li>');
-      var reader = new FileReader(); 
-      reader.readAsText(f);
-      reader.onload = (function(theFile){
-          //TO DO: If the file is really large, make a queue
-          vcfText = reader.result; 
-          $('#input').html(vcfText);
-          manipulateText(vcfText);
-      })      
-    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>'; 
-  }
+    var output = [];
+    output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+        f.size, ' bytes, last modified: ',
+        f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+        '</li>');
+    var reader = new FileReader();
+    reader.readAsText(f);
+    reader.onload = (function (theFile) {
+        //TODO: If the file is really large, make a queue
+        vcfText = reader.result;
+        $('#input').html(vcfText);
+        manipulateText(vcfText);
+    })
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+}
 
-  function manipulateText(vcfText) {
-    console.log(vcfText); 
+function manipulateText(vcfText) {
+    console.log(vcfText);
     var vcfLines = vcfText.split('\n');
     console.log(vcfLines[0]);
-    console.log(vcfLines[2]); 
-  }
-
-
-  
+    console.log(vcfLines[2]);
+}
