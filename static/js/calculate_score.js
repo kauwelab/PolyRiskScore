@@ -13,9 +13,11 @@ function SubmitFormData() {
     $('#response').html("Calculating. Please wait...")
     //gets the snps from the form
     var fileString = document.getElementsByName("input")[0].value;
+    fileToMap(); 
+    //console.log(vcfMap); 
+    //If this is empty, get it from file. 
+    //Figure out how to deal with empty file and input...
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
-    //TODO
-    //make a map!! :)
 
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
@@ -23,8 +25,8 @@ function SubmitFormData() {
     var diseaseSelectElement = document.getElementById("diseaseSelect");
     var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
 
-    $.get("/test/", {pValue: pValue, disease: disease, fileString: fileString},
-        function (data) {
+    $.get("/test", { snpArray: snpArray, pValue: pValue, disease: disease },
+        function (data, status) {
             //data contains the info received by going to "/test"
             $('#response').html("# SNPs: " + JSON.parse(data).numSNPs + " &#13;&#10P Value Cutoff: " + JSON.parse(data).pValueCutoff + " &#13;&#10Disease(s): " + JSON.parse(data).disease + " &#13;&#10Combined Odds Ratio: " + JSON.parse(data).combinedOR);
         }, "html").fail(function (jqXHR) {
@@ -47,28 +49,89 @@ exports.getCombinedOR = function (recordset) {
     return combinedOR;
 }
 
+//Outputs some file information when the user selects a file. 
 function handleFileSelect(evt) {
-    var vcfText;
     var f = evt.target.files[0]; // FileList object
-    var output = [];
-    output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-        f.size, ' bytes, last modified: ',
-        f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-        '</li>');
-    var reader = new FileReader();
-    reader.readAsText(f);
-    reader.onload = (function (theFile) {
-        //TODO: If the file is really large, make a queue
-        vcfText = reader.result;
-        $('#input').html(vcfText);
-        manipulateText(vcfText);
-    })
-    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-}
+    var output = [];    
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>'; 
+  }
 
-function manipulateText(vcfText) {
-    console.log(vcfText);
-    var vcfLines = vcfText.split('\n');
-    console.log(vcfLines[0]);
-    console.log(vcfLines[2]);
-}
+  //Uses a FileReader Object to get the file's text. 
+  //Then calls textToMap to convert the text to a map. 
+  var readFile = async() => { 
+
+    var vcfFile = document.getElementById("files").files[0]; 
+    console.log(vcfFile); 
+    var output = document.getElementById("uploadText"); 
+    
+    var reader = new Response(vcfFile); 
+    output.value = await reader.text();
+        // reader.readAsText(vcfFile); 
+    // reader.readAsText(vcfFile); 
+        // reader.readAsText(vcfFile); 
+            
+        // reader.onload = () => { 
+        //     output.value = reader.result; 
+        // }
+
+    //console.log(output.value);   
+    return output.value; 
+ 
+  }
+
+  function fileToMap(){
+//   var fileToMap = async() => {
+//     var text = await readFile(); 
+//     console.log(text); 
+    //readFile().then(function(text){ console.log(text)} ); 
+    var vcfFile = document.getElementById("files").files[0]; 
+    var cabbage = 'cabbage'; 
+    //console.log(vcfFile); 
+    var reader = new FileReader();
+    reader.readAsText(vcfFile);
+    var readerRes = new Response(vcfFile); 
+    // var plainOl = []; 
+    // console.log(jQuery.isPlainObject(reader));
+    // console.log(jQuery.isPlainObject(vcfFile)); 
+    // console.log(jQuery.isPlainObject(readerRes)); 
+    // console.log(jQuery.isPlainObject(plainOl)); 
+    //var str = $("files").serialize();
+    // var form = $(this); 
+    // console.log(form); 
+    var myFile = $('input[id="files"]');
+    var serFile = myFile.serialize();  
+    //var recursiveEncoded = $.param( vcfFile );
+    //var recursiveDecoded = decodeURIComponent( $.param( vcfFile ) );
+    // console.log(myFile); 
+    // console.log(serFile); 
+    //console.log(recursiveEncoded); 
+    //console.log(recursiveDecoded);
+    
+    var form = $(this),
+        formData = new FormData()
+        formParams = form.serializeArray();
+
+    $.each(form.find('input[type="file"]'), function(i, tag) {
+      $.each($(tag)[0].files, function(i, file) {
+        formData.append(tag.name, file);
+      });
+    });
+
+    $.each(formParams, function(i, val) {
+      formData.append(val.name, val.value);
+    });
+
+    console.log(formData); 
+    $.get("/parse_vcf", {carnage : cabbage} , 
+        function(data, status){
+            console.log(data); 
+        });
+  }
+
+ 
+
+  

@@ -29,6 +29,7 @@
         <li class="nav-item"> <a class="nav-link" href="upload_gwas.html">Upload GWAS</a> </li>
         <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
         <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
+        <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>  
       </ul>
     </div>
   </nav>
@@ -153,9 +154,12 @@
               <form class="md-form">
                 <div class="file-field">
                   <div class="btn btn-secondary btn-sm float-right btn-light">
-                    <script src="js/calculate_score.js"></script>
                     <input type="file" id="files" name="files[]" />
+                    <script src="js/calculate_score.js"></script>
+                    <button type="button" value="Submit" onclick="fileToMap();"  class="btn btn-secondary btn-light">Test</button>
+                    
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
+                    <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>
                 </div>

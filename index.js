@@ -2,8 +2,9 @@ const express = require('express');
 const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
+var vcf = require('bionode-vcf');
 const app = express();
-var SqlString = require('sqlstring');
+const SqlString = require('sqlstring');
 const port = 3000
 
 //app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
@@ -17,6 +18,35 @@ app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints pat
 var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
+
+
+app.get('/parse_vcf', function (req, res) {
+    //Find out how we'll handle vcf files with multiple people's info
+    //Make sure this works with .gz files.
+    //Will this work with a file object?
+    var myFile = req.query.filePath; 
+    console.log(myFile); 
+    vcf.read("/home/louisad/Documents/sample.vcf");
+    var vcfMap = new Map(); 
+    vcf.on('data', function (feature){
+        vcfMap.set(feature['id'], feature['ref']); 
+        console.log(feature); 
+    })  
+ 
+    vcf.on('end', function(){
+        console.log('end of file')
+        console.log(vcfMap); 
+        //res.send(vcfMap); 
+    })
+ 
+    vcf.on('error', function(err){
+        console.error('it\'s not a vcf', err)
+    })
+        res.send('hello world')
+    })
+
+
+
 
 // POST route from contact form
 app.post('/contact', function (req, res) {
@@ -36,11 +66,14 @@ app.post('/contact', function (req, res) {
         subject: 'New message from contact form at PRS.byu.edu',
         text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`
     };
-    smptTrans.sendMail(mailOpts, (error, info) => {
-        if (error) {
-            return console.log(error)
+    smptTrans.sendMail(mailOpts, (err, data) => {
+        if (err) {
+            res.writeHead(301, { Location: 'fail.html'});
+            res.end();
+        } else {
+            res.writeHead(301, { Location: 'success.html'});
+            res.end();
         }
-        console.log('Message %s sent: %s', info.messageId, info.response);
     });
     res.writeHead(301, { Location: 'index.html' });
     res.end();
