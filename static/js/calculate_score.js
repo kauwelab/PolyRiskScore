@@ -61,7 +61,10 @@ function handleFileSelect(evt) {
   }
 
   //Uses a FileReader Object to get the file's text. 
-  //Then calls textToMap to convert the text to a map. 
+  //Then calls textToMap to convert the text to a map.
+  //If you want to get the return value from this function,
+  //Make an asyncronous function that says
+  //var text = await readFile... 
   var readFile = async() => { 
 
     var vcfFile = document.getElementById("files").files[0]; 
@@ -70,96 +73,29 @@ function handleFileSelect(evt) {
     
     var reader = new Response(vcfFile); 
     output.value = await reader.text();
-        // reader.readAsText(vcfFile); 
-    // reader.readAsText(vcfFile); 
-        // reader.readAsText(vcfFile); 
-            
-        // reader.onload = () => { 
-        //     output.value = reader.result; 
-        // }
 
-    //console.log(output.value);   
     return output.value; 
  
   }
 
   function fileToMap(){
-    var formData = new FormData();
-    console.log($('#files')[0].files[0]);
-    formData.append('file', $('#files')[0].files[0]);
-    console.log(formData);
-    $.ajax({
-           url : '/parse_vcf',
-           type : 'GET',
-           data : formData,
-           processData: false,  // tell jQuery not to process the data
-           contentType: false,  // tell jQuery not to set contentType
-           success : function(data) {
-               console.log(data);
-               alert(data);
-           }
-    });
-//   var fileToMap = async() => {
-//     var text = await readFile(); 
-//     console.log(text); 
-    //readFile().then(function(text){ console.log(text)} ); 
-    // var vcfFile = document.getElementById("files").files[0]; 
-    // var formData = new FormData();
-    // formData.append('file', vcfFile);
-    // console.log(formData); 
-    // //serData = formData.stringify(); 
-    // var form = $('#file-form'); 
-    // console.log(form); 
-    //console.log(vcfFile); 
-    //var reader = new FileReader();
-    //reader.readAsText(vcfFile);
-    //var readerRes = new Response(vcfFile); 
-    //var serReader = JSON.stringify(readerRes);
-    //console.log(serReader); 
-    // var plainOl = []; 
-    // console.log(jQuery.isPlainObject(reader));
-    // console.log(jQuery.isPlainObject(vcfFile)); 
-    // console.log(jQuery.isPlainObject(readerRes)); 
-    // console.log(jQuery.isPlainObject(plainOl)); 
-    //var str = $("files").serialize();
-    //var form = $(this); 
-    //console.log(form); 
-    // var formInfo = document.getElementById('file-form');
-    // var formData = new FormData(formInfo);
-    // console.log(formInfo);
-    // console.log(formData); 
-    //var myFile = $('input[id="files"]'); //C:\fakepath\sample.vcf
-    //var serFile = myFile.serialize();  
-    //var recursiveEncoded = $.param( vcfFile );
-    //var recursiveDecoded = decodeURIComponent( $.param( vcfFile ) );
-    //  console.log(myFile); 
-    //  console.log(serFile); 
-    //console.log(recursiveEncoded); 
-    //console.log(recursiveDecoded);
-    
-    // var form = $(this),
-    //     formData = new FormData()
-    //     formParams = form.serializeArray();
 
-    // $.each(form.find('input[type="file"]'), function(i, tag) {
-    //   $.each($(tag)[0].files, function(i, file) {
-    //     formData.append(tag.name, file);
-    //   });
-    // });
+    var vcfFile = document.getElementById("files").files[0]; 
 
-    // $.each(formParams, function(i, val) {
-    //   formData.append(val.name, val.value);
-    // });
+    var reader = new FileReader();
+    reader.readAsText(vcfFile, 'UTF-8');
+    reader.onload = shipoff; 
 
-    //console.log(formData); 
-    //console.log(vcfFile); 
-    //var encodeData = encodeFormData(vcfFile); 
-    //console.log(encodeData); 
-    // $.get("/parse_vcf", {fileData : form.serialize()} , 
-    // function(data, status){
-    //     console.log(JSON.stringify(data)); 
-    // });
-    //console.log(form.serialize().innerText); 
+    function shipoff(event){
+        var result = event.target.result; 
+        var filename = vcfFile.name; 
+
+        $.post('/parse_vcf', {data : result, name : filename})
+            .done(function(response, status, error){
+                console.log(response); 
+            })
+    }
+
   }
  
   function encodeFormData(data) {
