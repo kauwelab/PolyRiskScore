@@ -31,6 +31,7 @@ app.post('/parse_vcf', function (req, res) {
     vcf.readStream(s); 
     var vcfArray = new Array(); 
     vcf.on('data', function (feature){
+        console.log(feature); 
         vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
     })  
  
