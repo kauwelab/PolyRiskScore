@@ -59,8 +59,7 @@ function handleFileSelect(evt) {
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>'; 
   }
 
-  //Uses a FileReader Object to get the file's text. 
-  //Then calls textToMap to convert the text to a map.
+ 
   //If you want to get the return value from this function,
   //Make an asyncronous function that says
   //var text = await readFile... 
@@ -91,7 +90,6 @@ function handleFileSelect(evt) {
 
     function shipoff(event){
         var result = event.target.result; 
-        console.log(result); 
         var filename = vcfFile.name; 
         var vcfMap = new Map(); 
         $.post('/parse_vcf', {data : result, name : filename})
