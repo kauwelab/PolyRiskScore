@@ -98,27 +98,5 @@ function handleFileSelect(evt) {
 
   }
  
-  function encodeFormData(data) {
-    if (!data){ 
-        console.log("No data!");
-        return "";  
-    }    // Always return a string
-    var pairs = [];          // To hold name=value pairs
-    for(var name in data) {    
-        //console.log(name);                                 // For each name
-        // if (!data.hasOwnProperty(name)){
-        //     console.log("No own property!");
-        //     continue;
-        // }               // Skip inherited
-        if (typeof data[name] === "function"){
-            console.log("Type was function.");
-            continue; 
-        }        // Skip methods
-        var value = data[name].toString();                     // Value as string
-        name = encodeURIComponent(name).replace("%20","+");    // Encode name
-        value = encodeURIComponent(value).replace("%20", "+"); // Encode value
-        pairs.push(name + "=" + value);   // Remember name=value pair
-    }
-    return pairs.join('&'); // Return joined pairs separated with &
-}
+
   
