@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
-const sql = require('mssql')
 var vcf = require('bionode-vcf');
 const app = express();
 const SqlString = require('sqlstring');
@@ -10,11 +9,8 @@ const port = 3000
 
 //app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
 app.use('/', express.static(path.join(__dirname, 'static')))
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
-
-//app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
-app.use('/', express.static(path.join(__dirname, 'static')))
 
 app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints path to console
 
@@ -56,7 +52,7 @@ app.get('/parse_vcf', function (req, res) {
 // POST route from contact form
 app.post('/contact', function (req, res) {
     let mailOpts, smptTrans;
-    smptTrans = nodeMailer.createTransport ({
+    smptTrans = nodeMailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
@@ -80,39 +76,23 @@ app.post('/contact', function (req, res) {
             res.end();
         }
     });
-    //res.writeHead(301, { Location: 'learn_more.html'});
-    //res.end();
-}); 
+    res.writeHead(301, { Location: 'index.html' });
+    res.end();
+});
 
-/* ========================================================== 
-Create a Route (/upload) to handle the Form submission 
-(handle POST requests to /upload)
-Express v4  Route definition
-============================================================ */
-app.route('/upload')
-    .post(function (req, res, next) {
+app.get('/test/', function (req, res) {
+    //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    var calculateScoreFunctions = require('./static/js/calculate_score');
+    //TODO testing purposes 
+    var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    console.log(fullUrl);
 
-        var fstream;
-        req.pipe(req.busboy);
-        req.busboy.on('file', function (fieldname, file, filename) {
-            console.log("Uploading: " + filename);
-
-            //Path where image will be uploaded
-            fstream = fs.createWriteStream(__dirname + '/img/' + filename);
-            file.pipe(fstream);
-            fstream.on('close', function () {
-                console.log("Upload Finished of " + filename);
-                res.redirect('back');           //where to go next
-            });
-        });
-    });
-
-
-app.get('/test', function (req, res) {
-
-    var snpArray = req.query.snpArray;
-    if (snpArray.length > 0) {
-        var pValue = Math.pow(10, req.query.pValue);
+    //TODO get the fileString and boil it down to the snps and alleles instead of just spliting the file
+    //var snpArray = req.query.fileString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
+    var snpMap = getMapFromFileString(req.query.fileString);
+    if (snpMap.size > 0) {
+        var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
         var sql = require("mssql");
 
@@ -147,38 +127,48 @@ app.get('/test', function (req, res) {
             */
 
             //TODO add correct disease table names to diseaseEnum!
-            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "lou gehrig's disease": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
             var diseaseTable = diseaseEnum[disease];
             //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
             var stmt = "SELECT oddsRatio " +
                 "FROM " + diseaseTable + " " +
                 "WHERE (CONVERT(FLOAT, [pValue]) <= " + SqlString.escape(pValue) + ")"
-            for (var i = 0; i < snpArray.length; ++i) {
+            var i = 0;
+            //TODO messy foreach- use forloop instead
+            //TODO duplicate snps don't return OR value twice (makes combinedOR too small)
+            for (const [snp, alleleArray] of snpMap.entries()) {
                 if (i == 0) {
                     stmt += " AND (";
                 }
                 else if (i != 0) {
                     stmt += ' OR ';
                 }
-                //TODO format tester required
-                var snp = snpArray[i];
-                var allele;
-                //TODO make cases for if has allele and if doesn't
-                stmt += "(snp = " + "'"
-                //TODO find snp and allele
-                if (snp.includes(":")) {
-                    snp = snpArray[i].substring(0, snpArray[i].indexOf(":"));
-                    snp = snp.trim();
-                    allele = snpArray[i].substring(snpArray[i].indexOf(":") + 1);
-                    allele = allele.trim();
-                    stmt += snp + "' " + "AND riskAllele = " + "'" + allele + "')"; //this one
+
+                //add a new snp with allele given
+                if (alleleArray.length > 0) {
+                    var j;
+                    for (j = 0; j < alleleArray.length; ++j) {
+                        if (alleleArray[j] !== null) {
+                            if (j != 0) {
+                                stmt += ' OR ';
+                            }
+                            stmt += "(snp = " + "'" + snp + "' " + "AND riskAllele = '" + alleleArray[j] + "')";
+                        }
+                        else {
+                            if (j != 0) {
+                                stmt += ' OR ';
+                            }
+                            stmt += "(snp = " + "'" + snp + "')";
+                        }
+                    }
                 }
                 else {
-                    stmt += snp + "')";
+                    stmt += "(snp = " + "'" + snp + "')";
                 }
-                if (i == snpArray.length - 1) {
+                if (i == snpMap.size - 1) {
                     stmt += ')';
                 }
+                ++i;
             }
 
             // query to the database and get the records
@@ -190,7 +180,11 @@ app.get('/test', function (req, res) {
                 }
                 else {
                     // send records as a response
-                    res.send(recordset);
+                    //$('#response').html("# SNPs: " + snpArray.length + " &#13;&#10P Value Cutoff: " + fullPValue + " &#13;&#10Disease(s): " + disease + " &#13;&#10Combined Odds Ratio: " + combinedOR + " &#13;&#10Data: " + data);
+                    var combinedOR = calculateScoreFunctions.getCombinedOR(recordset.recordset);
+                    var results = { numSNPs: snpMap.size, pValueCutoff: pValue, disease: disease, combinedOR: combinedOR }
+                    var jsonResults = JSON.stringify(results);
+                    res.send(jsonResults);
                 }
 
                 //TODO is this where this goes?
@@ -201,31 +195,31 @@ app.get('/test', function (req, res) {
     else {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
     }
-    /*
-//got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
-new sql.ConnectionPool(config).connect().then(pool => {
-    //TODO change query to get snps
-    
-    var snpArray = input.split(",");
-    var sql = "SELECT * FROM ALS_OR2 where SNP IN ?";
-    var test = pool.request().query(sql, [snpArray], function (err, result) {
-        if (err) throw err;
-        console.log(result);
-    });
-    return test;
-    //return pool.request().query("select SNP from ALS_OR2")
-}).then(result => {
-    let rows = result.recordset
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.status(200).json(rows);
-    sql.close();
-}).catch(err => {
-    res.status(500).send({ message: "${err}" })
-    sql.close();
-});
-*/
 });
 
+function getMapFromFileString(fileString) {
+    var snpMap = new Map();
+    var snpStringArray = fileString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
+    snpStringArray.forEach(snpString => {
+        var snp = snpString;
+        var allele = null;
+        if (snpString.includes(":")) {
+            snp = snpString.substring(0, snpString.indexOf(":"));
+            snp = snp.trim();
+            allele = snpString.substring(snpString.indexOf(":") + 1);
+            allele = allele.trim();
+        }
+        if (!snpMap.has(snp)) {
+            snpMap.set(snp, [allele])
+        }
+        else {
+            var alleleArray = snpMap.get(snp);
+            alleleArray.push(allele);
+            snpMap.set(snp, alleleArray)
+        }
+    });
+    return snpMap;
+}
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')

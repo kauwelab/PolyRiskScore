@@ -149,11 +149,6 @@
                   <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
                     message.</span>
                 </div>
-                <script>
-                  jQuery(document).ready(function () {
-                    $("input").tabby();
-                  });
-                </script>
               </form>
 
               <form class="md-form" id="file-form">
@@ -167,7 +162,6 @@
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>
-
                 </div>
               </form>
 
@@ -184,13 +178,13 @@
                     <h5>Select P-value Cutoff&nbsp;</h5>
                     <form action="#" method="post" class="radioButtons" id="radioButtons">
                       <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="-3" checked /> 1x10<sup>-3</sup></label>
+                        <label><input type="radio" name="pvalue" value="1e-3" checked /> 1x10<sup>-3</sup></label>
                       </div>
                       <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="-5" /> 1x10<sup>-5</sup></label>
+                        <label><input type="radio" name="pvalue" value="1e-5" /> 1x10<sup>-5</sup></label>
                       </div>
                       <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="-8" /> 1x10<sup>-8</sup></label>
+                        <label><input type="radio" name="pvalue" value="1e-8" /> 1x10<sup>-8</sup></label>
                       </div>
                     </form>
 
@@ -202,20 +196,21 @@
                         <option selected="selected">All</option>
                         <option>ADHD</option>
                         <option>Alcheimer's disease</option>
+                        <option>ALS</option>
                         <option>Depression</option>
                         <option>Heart disease</option>
-                        <option>Lou Gehrig's Disease</option>
-                      </select><script src="js/calculate_score.js"></script>
+                      </select>
                     </h5>
                   </div>
                 </div>
               </div>
               <p>&nbsp;</p>
-              <!--<script src="js/calculate_score.js"></script>-->
-              <!--<button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Calculate Risk Scores</button>-->
+              <!--uses "js/calculate_score.js"-->
               <button type="button" id="feedbackSubmit" onclick="SubmitFormData();"
                 class="btn btn-primary btn-lg">Calculate Risk Scores</button>
-
+                <!--TODO
+                <button type="button" id="testButton" onclick="TestFileSendWithoutForm();"
+                class="btn btn-primary btn-lg">Test Button</button>-->
             </div>
           </div>
         </div>

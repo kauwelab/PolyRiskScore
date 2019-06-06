@@ -1,3 +1,4 @@
+//TODO this can be deleted?
 var dbConnection = SQL.connect({
   Driver: "MySQL",
   Host: "localhost",
