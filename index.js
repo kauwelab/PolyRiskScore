@@ -127,7 +127,7 @@ app.get('/test/', function (req, res) {
             */
 
             //TODO add correct disease table names to diseaseEnum!
-            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
             var diseaseTable = diseaseEnum[disease];
             //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
             var stmt = "SELECT oddsRatio " +

@@ -24,7 +24,7 @@ function SubmitFormData() {
     var diseaseSelectElement = document.getElementById("diseaseSelect");
     var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
 
-    $.get("/test", { snpArray: snpArray, pValue: pValue, disease: disease },
+    $.get("/test", { fileString: fileString, pValue: pValue, disease: disease },
         function (data, status) {
             //data contains the info received by going to "/test"
             $('#response').html("# SNPs: " + JSON.parse(data).numSNPs + " &#13;&#10P Value Cutoff: " + JSON.parse(data).pValueCutoff + " &#13;&#10Disease(s): " + JSON.parse(data).disease + " &#13;&#10Combined Odds Ratio: " + JSON.parse(data).combinedOR);
