@@ -3,11 +3,12 @@ const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 var vcf = require('bionode-vcf');
+var fs = require('fs');
+const stream = require('stream') 
 const app = express();
 const SqlString = require('sqlstring');
 const port = 3000
 
-//app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
@@ -20,30 +21,29 @@ var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
 
 
-app.get('/parse_vcf', function (req, res) {
+app.post('/parse_vcf', function (req, res) {
     //Find out how we'll handle vcf files with multiple people's info
     //Make sure this works with .gz files.
-    //Will this work with a file object?
-    var myFile = req.query.filePath; 
-    console.log(myFile); 
-    vcf.read("/home/louisad/Documents/sample.vcf");
-    var vcfMap = new Map(); 
+    var Readable = stream.Readable; 
+    const s = new Readable();
+    s.push(req.body.data);
+    s.push(null);
+    vcf.readStream(s); 
+    var vcfArray = new Array(); 
     vcf.on('data', function (feature){
-        vcfMap.set(feature['id'], feature['ref']); 
-        console.log(feature); 
+        vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
     })  
  
     vcf.on('end', function(){
         console.log('end of file')
-        console.log(vcfMap); 
-        //res.send(vcfMap); 
+        console.log(vcfArray); 
+        res.send(vcfArray); 
     })
  
     vcf.on('error', function(err){
         console.error('it\'s not a vcf', err)
     })
-        res.send('hello world')
-    })
+})
 
 
 

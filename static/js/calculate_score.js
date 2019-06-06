@@ -14,7 +14,6 @@ function SubmitFormData() {
     //gets the snps from the form
     var fileString = document.getElementsByName("input")[0].value;
     fileToMap(); 
-    //console.log(vcfMap); 
     //If this is empty, get it from file. 
     //Figure out how to deal with empty file and input...
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
@@ -61,7 +60,10 @@ function handleFileSelect(evt) {
   }
 
   //Uses a FileReader Object to get the file's text. 
-  //Then calls textToMap to convert the text to a map. 
+  //Then calls textToMap to convert the text to a map.
+  //If you want to get the return value from this function,
+  //Make an asyncronous function that says
+  //var text = await readFile... 
   var readFile = async() => { 
 
     var vcfFile = document.getElementById("files").files[0]; 
@@ -70,67 +72,43 @@ function handleFileSelect(evt) {
     
     var reader = new Response(vcfFile); 
     output.value = await reader.text();
-        // reader.readAsText(vcfFile); 
-    // reader.readAsText(vcfFile); 
-        // reader.readAsText(vcfFile); 
-            
-        // reader.onload = () => { 
-        //     output.value = reader.result; 
-        // }
 
-    //console.log(output.value);   
     return output.value; 
  
   }
 
   function fileToMap(){
-//   var fileToMap = async() => {
-//     var text = await readFile(); 
-//     console.log(text); 
-    //readFile().then(function(text){ console.log(text)} ); 
-    var vcfFile = document.getElementById("files").files[0]; 
-    var cabbage = 'cabbage'; 
-    //console.log(vcfFile); 
-    var reader = new FileReader();
-    reader.readAsText(vcfFile);
-    var readerRes = new Response(vcfFile); 
-    // var plainOl = []; 
-    // console.log(jQuery.isPlainObject(reader));
-    // console.log(jQuery.isPlainObject(vcfFile)); 
-    // console.log(jQuery.isPlainObject(readerRes)); 
-    // console.log(jQuery.isPlainObject(plainOl)); 
-    //var str = $("files").serialize();
-    // var form = $(this); 
-    // console.log(form); 
-    var myFile = $('input[id="files"]');
-    var serFile = myFile.serialize();  
-    //var recursiveEncoded = $.param( vcfFile );
-    //var recursiveDecoded = decodeURIComponent( $.param( vcfFile ) );
-    // console.log(myFile); 
-    // console.log(serFile); 
-    //console.log(recursiveEncoded); 
-    //console.log(recursiveDecoded);
-    
-    var form = $(this),
-        formData = new FormData()
-        formParams = form.serializeArray();
-
-    $.each(form.find('input[type="file"]'), function(i, tag) {
-      $.each($(tag)[0].files, function(i, file) {
-        formData.append(tag.name, file);
-      });
-    });
-
-    $.each(formParams, function(i, val) {
-      formData.append(val.name, val.value);
-    });
-
-    console.log(formData); 
-    $.get("/parse_vcf", {carnage : cabbage} , 
-        function(data, status){
-            console.log(data); 
-        });
+    createMap(); 
   }
+
+   function createMap(){
+   
+    var vcfFile = document.getElementById("files").files[0]; 
+
+    var reader = new FileReader();
+    reader.readAsText(vcfFile, 'UTF-8');
+    reader.onload = shipoff; 
+
+    function shipoff(event){
+        var result = event.target.result; 
+        console.log(result); 
+        var filename = vcfFile.name; 
+        var vcfMap = new Map(); 
+        $.post('/parse_vcf', {data : result, name : filename})
+            .done(function(response, status){ 
+                vcfMap = convertToMap(response); 
+                console.log(vcfMap)
+            })
+            .fail(function(error){
+                $('#response').html(error.responseText);
+            })
+    }
+}
+
+function convertToMap(vcfArray){
+    const vcfMap = new Map(vcfArray.map(obj => [ obj.key, obj.val ]));
+    return vcfMap; 
+}
 
  
 
