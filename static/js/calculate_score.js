@@ -14,7 +14,6 @@ function SubmitFormData() {
     //gets the snps from the form
     var fileString = document.getElementsByName("input")[0].value;
     fileToMap(); 
-    //console.log(vcfMap); 
     //If this is empty, get it from file. 
     //Figure out how to deal with empty file and input...
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
@@ -79,7 +78,11 @@ function handleFileSelect(evt) {
   }
 
   function fileToMap(){
+    createMap(); 
+  }
 
+   function createMap(){
+   
     var vcfFile = document.getElementById("files").files[0]; 
 
     var reader = new FileReader();
@@ -88,15 +91,25 @@ function handleFileSelect(evt) {
 
     function shipoff(event){
         var result = event.target.result; 
+        console.log(result); 
         var filename = vcfFile.name; 
-
+        var vcfMap = new Map(); 
         $.post('/parse_vcf', {data : result, name : filename})
-            .done(function(response, status, error){
-                console.log(response); 
+            .done(function(response, status){ 
+                vcfMap = convertToMap(response); 
+                console.log(vcfMap)
+            })
+            .fail(function(error){
+                $('#response').html(error.responseText);
             })
     }
+}
 
-  }
+function convertToMap(vcfArray){
+    const vcfMap = new Map(vcfArray.map(obj => [ obj.key, obj.val ]));
+    return vcfMap; 
+}
+
  
 
   

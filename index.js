@@ -24,24 +24,20 @@ app.use(busboy());
 app.post('/parse_vcf', function (req, res) {
     //Find out how we'll handle vcf files with multiple people's info
     //Make sure this works with .gz files.
-    //Will this work with a file object?
     var Readable = stream.Readable; 
     const s = new Readable();
     s.push(req.body.data);
     s.push(null);
-    var myFile = req.body.data; 
-    //vcf.read("/home/louisad/Documents/sample.vcf");
     vcf.readStream(s); 
-    var vcfMap = new Map(); 
+    var vcfArray = new Array(); 
     vcf.on('data', function (feature){
-        vcfMap.set(feature['id'], feature['ref']); 
+        vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
     })  
  
     vcf.on('end', function(){
         console.log('end of file')
-        console.log(vcfMap); 
-        res.set('Content-Type', 'application/json')
-        res.send(vcfMap)
+        console.log(vcfArray); 
+        res.send(vcfArray); 
     })
  
     vcf.on('error', function(err){
