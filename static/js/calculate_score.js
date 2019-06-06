@@ -77,54 +77,105 @@ function handleFileSelect(evt) {
   }
 
   function fileToMap(){
+    var formData = new FormData();
+    console.log($('#files')[0].files[0]);
+    formData.append('file', $('#files')[0].files[0]);
+    console.log(formData);
+    $.ajax({
+           url : '/parse_vcf',
+           type : 'GET',
+           data : formData,
+           processData: false,  // tell jQuery not to process the data
+           contentType: false,  // tell jQuery not to set contentType
+           success : function(data) {
+               console.log(data);
+               alert(data);
+           }
+    });
 //   var fileToMap = async() => {
 //     var text = await readFile(); 
 //     console.log(text); 
     //readFile().then(function(text){ console.log(text)} ); 
-    var vcfFile = document.getElementById("files").files[0]; 
-    var cabbage = 'cabbage'; 
+    // var vcfFile = document.getElementById("files").files[0]; 
+    // var formData = new FormData();
+    // formData.append('file', vcfFile);
+    // console.log(formData); 
+    // //serData = formData.stringify(); 
+    // var form = $('#file-form'); 
+    // console.log(form); 
     //console.log(vcfFile); 
-    var reader = new FileReader();
-    reader.readAsText(vcfFile);
-    var readerRes = new Response(vcfFile); 
+    //var reader = new FileReader();
+    //reader.readAsText(vcfFile);
+    //var readerRes = new Response(vcfFile); 
+    //var serReader = JSON.stringify(readerRes);
+    //console.log(serReader); 
     // var plainOl = []; 
     // console.log(jQuery.isPlainObject(reader));
     // console.log(jQuery.isPlainObject(vcfFile)); 
     // console.log(jQuery.isPlainObject(readerRes)); 
     // console.log(jQuery.isPlainObject(plainOl)); 
     //var str = $("files").serialize();
-    // var form = $(this); 
-    // console.log(form); 
-    var myFile = $('input[id="files"]');
-    var serFile = myFile.serialize();  
+    //var form = $(this); 
+    //console.log(form); 
+    // var formInfo = document.getElementById('file-form');
+    // var formData = new FormData(formInfo);
+    // console.log(formInfo);
+    // console.log(formData); 
+    //var myFile = $('input[id="files"]'); //C:\fakepath\sample.vcf
+    //var serFile = myFile.serialize();  
     //var recursiveEncoded = $.param( vcfFile );
     //var recursiveDecoded = decodeURIComponent( $.param( vcfFile ) );
-    // console.log(myFile); 
-    // console.log(serFile); 
+    //  console.log(myFile); 
+    //  console.log(serFile); 
     //console.log(recursiveEncoded); 
     //console.log(recursiveDecoded);
     
-    var form = $(this),
-        formData = new FormData()
-        formParams = form.serializeArray();
+    // var form = $(this),
+    //     formData = new FormData()
+    //     formParams = form.serializeArray();
 
-    $.each(form.find('input[type="file"]'), function(i, tag) {
-      $.each($(tag)[0].files, function(i, file) {
-        formData.append(tag.name, file);
-      });
-    });
+    // $.each(form.find('input[type="file"]'), function(i, tag) {
+    //   $.each($(tag)[0].files, function(i, file) {
+    //     formData.append(tag.name, file);
+    //   });
+    // });
 
-    $.each(formParams, function(i, val) {
-      formData.append(val.name, val.value);
-    });
+    // $.each(formParams, function(i, val) {
+    //   formData.append(val.name, val.value);
+    // });
 
-    console.log(formData); 
-    $.get("/parse_vcf", {carnage : cabbage} , 
-        function(data, status){
-            console.log(data); 
-        });
+    //console.log(formData); 
+    //console.log(vcfFile); 
+    //var encodeData = encodeFormData(vcfFile); 
+    //console.log(encodeData); 
+    // $.get("/parse_vcf", {fileData : form.serialize()} , 
+    // function(data, status){
+    //     console.log(JSON.stringify(data)); 
+    // });
+    //console.log(form.serialize().innerText); 
   }
-
  
-
+  function encodeFormData(data) {
+    if (!data){ 
+        console.log("No data!");
+        return "";  
+    }    // Always return a string
+    var pairs = [];          // To hold name=value pairs
+    for(var name in data) {    
+        //console.log(name);                                 // For each name
+        // if (!data.hasOwnProperty(name)){
+        //     console.log("No own property!");
+        //     continue;
+        // }               // Skip inherited
+        if (typeof data[name] === "function"){
+            console.log("Type was function.");
+            continue; 
+        }        // Skip methods
+        var value = data[name].toString();                     // Value as string
+        name = encodeURIComponent(name).replace("%20","+");    // Encode name
+        value = encodeURIComponent(value).replace("%20", "+"); // Encode value
+        pairs.push(name + "=" + value);   // Remember name=value pair
+    }
+    return pairs.join('&'); // Return joined pairs separated with &
+}
   

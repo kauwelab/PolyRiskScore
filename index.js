@@ -28,13 +28,14 @@ app.get('/parse_vcf', function (req, res) {
     //Find out how we'll handle vcf files with multiple people's info
     //Make sure this works with .gz files.
     //Will this work with a file object?
-    var myFile = req.query.filePath; 
+    var myFile = req; 
     console.log(myFile); 
+    //console.log(vcf); 
     vcf.read("/home/louisad/Documents/sample.vcf");
     var vcfMap = new Map(); 
     vcf.on('data', function (feature){
         vcfMap.set(feature['id'], feature['ref']); 
-        console.log(feature); 
+        //console.log(feature); 
     })  
  
     vcf.on('end', function(){
@@ -46,7 +47,7 @@ app.get('/parse_vcf', function (req, res) {
     vcf.on('error', function(err){
         console.error('it\'s not a vcf', err)
     })
-        res.send('hello world')
+        //res.send('hello world')
     })
 
 
