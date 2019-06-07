@@ -4,7 +4,7 @@ const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 var vcf = require('bionode-vcf');
 var fs = require('fs');
-const stream = require('stream') 
+const stream = require('stream')
 const app = express();
 const SqlString = require('sqlstring');
 const port = 3000
@@ -20,34 +20,50 @@ var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
 
-
-app.post('/parse_vcf', function (req, res) {
-    //Find out how we'll handle vcf files with multiple people's info
-    //Make sure this works with .gz files.
-    var Readable = stream.Readable; 
+function createMap(fileContents) {
+    var Readable = stream.Readable;
     const s = new Readable();
-    s.push(req.body.data);
+    s.push(fileContents);
     s.push(null);
-    vcf.readStream(s); 
-    var vcfArray = new Array(); 
-    vcf.on('data', function (feature){
-        console.log(feature); 
-        vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
-    })  
- 
-    vcf.on('end', function(){
-        console.log('end of file')
-        console.log(vcfArray); 
-        res.send(vcfArray); 
+    vcf.readStream(s);
+    var vcfMap = new Map();
+    //var vcfArray = new Array(); 
+    vcf.on('data', function (feature) {
+        //console.log(feature); 
+        //vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
+        vcfMap.set(feature['id'], feature['alt']);
     })
- 
-    vcf.on('error', function(err){
+    vcf.on('end', function () {
+        console.log('end of file')
+        console.log(vcfMap);
+        //return vcfArray; 
+    })
+    vcf.on('error', function (err) {
         console.error('it\'s not a vcf', err)
     })
-})
 
+    //TODO manually created map
+    vcfMap.set("rs10438933", ["G", "C"]);
+    vcfMap.set("rs10192369", ["T", null]);
+    return vcfMap;
+    //let result = await stuff; 
+    //console.log(result); 
+}
 
-
+function getCombinedOR(recordset) {
+    //get the odds ratio values from the recordset objects
+    var ORs = [];
+    recordset.forEach(function (element) {
+        ORs.push(element.oddsRatio);
+    });
+    //calculate the commbined odds ratio from the odds ratio array (ORs)
+    var combinedOR = 0;
+    ORs.forEach(function (element) {
+        combinedOR += Math.log(element);
+    });
+    combinedOR = Math.exp(combinedOR);
+    return combinedOR;
+}
 
 // POST route from contact form
 app.post('/contact', function (req, res) {
@@ -69,10 +85,10 @@ app.post('/contact', function (req, res) {
     };
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {
-            res.writeHead(301, { Location: 'fail.html'});
+            res.writeHead(301, { Location: 'fail.html' });
             res.end();
         } else {
-            res.writeHead(301, { Location: 'success.html'});
+            res.writeHead(301, { Location: 'success.html' });
             res.end();
         }
     });
@@ -80,17 +96,16 @@ app.post('/contact', function (req, res) {
     res.end();
 });
 
-app.get('/test/', function (req, res) {
+app.get('/calculate_score/', function (req, res) {
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
-    var calculateScoreFunctions = require('./static/js/calculate_score');
-    //TODO testing purposes 
-    var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-    console.log(fullUrl);
 
-    //TODO get the fileString and boil it down to the snps and alleles instead of just spliting the file
-    //var snpArray = req.query.fileString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
-    var snpMap = getMapFromFileString(req.query.fileString);
+    //TODO this code prints the URL- length may be an issue 
+    //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    //console.log(fullUrl);
+
+    var snpMap = createMap();
+    
     if (snpMap.size > 0) {
         var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
@@ -111,20 +126,6 @@ app.get('/test/', function (req, res) {
 
             // create Request object
             var request = new sql.Request();
-
-            /* TODO
-             * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
-             * may make this more efficient for large input data
-             */
-            //TODO
-            /*
-                for ()
-                if (line contains ##)
-                continue
-                else if #
-                find column numbers
-                else
-            */
 
             //TODO add correct disease table names to diseaseEnum!
             var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
@@ -165,6 +166,7 @@ app.get('/test/', function (req, res) {
                 else {
                     stmt += "(snp = " + "'" + snp + "')";
                 }
+
                 if (i == snpMap.size - 1) {
                     stmt += ')';
                 }
@@ -180,8 +182,7 @@ app.get('/test/', function (req, res) {
                 }
                 else {
                     // send records as a response
-                    //$('#response').html("# SNPs: " + snpArray.length + " &#13;&#10P Value Cutoff: " + fullPValue + " &#13;&#10Disease(s): " + disease + " &#13;&#10Combined Odds Ratio: " + combinedOR + " &#13;&#10Data: " + data);
-                    var combinedOR = calculateScoreFunctions.getCombinedOR(recordset.recordset);
+                    var combinedOR = getCombinedOR(recordset.recordset);
                     var results = { numSNPs: snpMap.size, pValueCutoff: pValue, disease: disease, combinedOR: combinedOR }
                     var jsonResults = JSON.stringify(results);
                     res.send(jsonResults);
@@ -196,30 +197,6 @@ app.get('/test/', function (req, res) {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
     }
 });
-
-function getMapFromFileString(fileString) {
-    var snpMap = new Map();
-    var snpStringArray = fileString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
-    snpStringArray.forEach(snpString => {
-        var snp = snpString;
-        var allele = null;
-        if (snpString.includes(":")) {
-            snp = snpString.substring(0, snpString.indexOf(":"));
-            snp = snp.trim();
-            allele = snpString.substring(snpString.indexOf(":") + 1);
-            allele = allele.trim();
-        }
-        if (!snpMap.has(snp)) {
-            snpMap.set(snp, [allele])
-        }
-        else {
-            var alleleArray = snpMap.get(snp);
-            alleleArray.push(allele);
-            snpMap.set(snp, alleleArray)
-        }
-    });
-    return snpMap;
-}
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')
