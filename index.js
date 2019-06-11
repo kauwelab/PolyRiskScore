@@ -6,6 +6,7 @@ const sql = require('mssql')
 const app = express();
 const SqlString = require('sqlstring');
 const port = 3000
+const Sequelize = require('sequelize')
 
 //app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
 app.use('/', express.static(path.join(__dirname, 'static')))
@@ -40,7 +41,13 @@ app.post('/contact', function (req, res) {
         from: req.body.name + ' &lt;' + req.body.email + '&gt;',
         to: 'kauwelab19@gmail.com',
         subject: 'New message from contact form at PRS.byu.edu',
-        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`
+        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
+        attachments: [
+            {
+                filename: req.file.orginialname,
+                path: req.file.path
+            }
+        ]
     };
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {

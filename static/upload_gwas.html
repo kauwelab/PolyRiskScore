@@ -126,72 +126,67 @@
               <div class="text-center col-12">
                 <h2>How to Upload GWAS</h2>
 				  <p1>Thank you for adding to the PRS Knowledge Base! All GWAS uploads are manually analyzed to ensure that they follow our quality standards. We utilize the following criteria to analyze each submission:<br><br>1. Ensure that the study is not already included in the PRS Knowledge Base (please check the "Cite" tab above to see if the study is already included in the PRS Knowledge Base).<br><br>2. Ensure that the study has been peer reviewed and published<br><br>3. Ensure that rs IDs are included<br><br>4.Ensure that the alternate allele is included<br><br>5. Ensure that the odds ratio or the log odds ratio is included </p1>
-				  <h2><br>Input RS IDs and Genotypes</h2>
-              
-
 				  </div>
               <div class="text-center col-12">
                 <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                <form id="feedbackForm" class="text-center">
+                <!--<form id="feedbackForm" class="text-center">
                 
                   <div class="form-text font-weight-bold">
                 
                     <textarea rows="10" cols="100" class="form-control" id="input" name="input" placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
                     <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
                   </div>
-					 </form>
+					 </form>-->
 				  
-		<form class="md-form">
-  			<div class="file-field">
-    			<div class="btn btn-secondary btn-sm float-right btn-light"> 
-  			    <input type="file">
-  			  </div>
-
- 			 </div>
-			</form>
-					<div class="text-black-50 float-left">
-						<a class="example" href="#">Example</a>
-			
-					</div>
-				    <p>&nbsp;</p>
-				  <p>&nbsp;</p>
-                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Calculate Risk Scores</button>
-               
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-       <div class="container">		
-      <div class="row">
-        <div class="col-12 col-md-8 mx-auto">
-         
-            <div class="row text-center">
-              <div class="text-center col-12">
-                <h2><br>Results</h2>
-				  
-              </div>
-              <div class="text-center col-12">
-                <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                <form id="responseBox" class="text-center">
-                
-                  <div class="form-text font-weight-bold">
-                   
-                    <textarea rows="10" cols="100" class="form-control" id="response" name="response" placeholder="Example Results&#10;You are going to die!" aria-describedby="response to query"></textarea>
-					  
-                  </div>
-                </form>
-				  <div class="text-black-50 float-left">
-						<a class="example" href="#">Example</a>
+	
 					
-			
-					</div>
-              </div>
             </div>
           </div>
         </div>
       </div>
-	  </div>
+
+      <div class="container">		
+        <div class="row">
+          <div class="col-12 col-md-8 mx-auto">
+           
+              <div class="row text-center">
+                <div class="text-center col-12">
+                  <h1 class="font-weight-bold">Send us your GWAS file</h1>
+                </div>
+                <div class="text-center col-12">
+                  <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+                  <form action="/contact" id="feedbackForm" class="text-center" method="post" role = "form">
+                    <div class="form-group">
+                      <label for="name"><br>Name</label>
+                      <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
+                      <span id="nameHelp" class="form-text text-muted" style="display: none">Please enter your name.</span>
+                    </div>
+                    <div class="form-group">
+                      <label for="email">E-Mail</label>
+                      <input type="email" class="form-control" id="email" name="email" placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
+                      <span id="emailHelp" class="form-text text-muted" style="display: none">Please enter a valid e-mail address.</span>
+                    </div>
+                    <form class="md-form">
+                      <div class="file-field">
+                        <div class="btn btn-secondary btn-sm float-right btn-light"> 
+                          <input type="file">
+                        </div>
+              
+                      </div>
+                    </form>
+                    <div class="form-group">
+                      <label for="message">Message</label>
+                      <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
+                      <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a message.</span>
+                    </div>
+                    <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg"> Send</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+     
     <footer class="text-center">
       <div class="container">
         <div class="row">
