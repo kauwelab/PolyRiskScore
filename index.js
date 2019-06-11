@@ -2,19 +2,19 @@ const express = require('express');
 const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
-const sql = require('mssql')
+var vcf = require('bionode-vcf');
+var fs = require('fs');
+const stream = require('stream')
 const app = express();
 const SqlString = require('sqlstring');
+const Sequelize = require('sequelize');
+const mssql = require('mssql')
 const port = 3000
 const Sequelize = require('sequelize')
 
-//app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
 app.use('/', express.static(path.join(__dirname, 'static')))
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
-
-//app.get('/test', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
-app.use('/', express.static(path.join(__dirname, 'static')))
 
 app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints path to console
 
@@ -23,12 +23,55 @@ var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
 
+function createMap(fileContents) {
+    var Readable = stream.Readable;
+    const s = new Readable();
+    s.push(fileContents);
+    s.push(null);
+    vcf.readStream(s);
+    var vcfMap = new Map();
+    //var vcfArray = new Array(); 
+    vcf.on('data', function (feature) {
+        //console.log(feature); 
+        //vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
+        vcfMap.set(feature['id'], feature['alt']);
+    })
+    vcf.on('end', function () {
+        console.log('end of file')
+        console.log(vcfMap);
+        //return vcfArray; 
+    })
+    vcf.on('error', function (err) {
+        console.error('it\'s not a vcf', err)
+    })
 
+    //TODO manually created map
+    vcfMap.set("rs10438933", ["G", "C"]);
+    vcfMap.set("rs10192369", ["T", null]);
+    return vcfMap;
+    //let result = await stuff; 
+    //console.log(result); 
+}
+
+function getCombinedOR(recordset) {
+    //get the odds ratio values from the recordset objects
+    var ORs = [];
+    recordset.forEach(function (element) {
+        ORs.push(element.oddsRatio);
+    });
+    //calculate the commbined odds ratio from the odds ratio array (ORs)
+    var combinedOR = 0;
+    ORs.forEach(function (element) {
+        combinedOR += Math.log(element);
+    });
+    combinedOR = Math.exp(combinedOR);
+    return combinedOR;
+}
 
 // POST route from contact form
 app.post('/contact', function (req, res) {
     let mailOpts, smptTrans;
-    smptTrans = nodeMailer.createTransport ({
+    smptTrans = nodeMailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
@@ -51,54 +94,96 @@ app.post('/contact', function (req, res) {
     };
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {
-            res.writeHead(301, { Location: 'fail.html'});
+            res.writeHead(301, { Location: 'fail.html' });
             res.end();
         } else {
-            res.writeHead(301, { Location: 'success.html'});
+            res.writeHead(301, { Location: 'success.html' });
             res.end();
         }
     });
-    //res.writeHead(301, { Location: 'learn_more.html'});
-    //res.end();
-}); 
+    res.writeHead(301, { Location: 'index.html' });
+    res.end();
+});
 
-/* ========================================================== 
-Create a Route (/upload) to handle the Form submission 
-(handle POST requests to /upload)
-Express v4  Route definition
-============================================================ */
-app.route('/upload')
-    .post(function (req, res, next) {
+app.get('/calculate_score/', function (req, res) {
+    //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
-        var fstream;
-        req.pipe(req.busboy);
-        req.busboy.on('file', function (fieldname, file, filename) {
-            console.log("Uploading: " + filename);
+    //TODO this code prints the URL- length may be an issue 
+    //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    //console.log(fullUrl);
 
-            //Path where image will be uploaded
-            fstream = fs.createWriteStream(__dirname + '/img/' + filename);
-            file.pipe(fstream);
-            fstream.on('close', function () {
-                console.log("Upload Finished of " + filename);
-                res.redirect('back');           //where to go next
-            });
-        });
-    });
+    var snpMap = createMap();
 
-app.get('/test', function (req, res) {
-    var snpArray = req.query.snpArray;
-    if (snpArray.length > 0) {
-        var pValue = Math.pow(10, req.query.pValue);
+    if (snpMap.size > 0) {
+        var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
         var sql = require("mssql");
 
         // config for your database
+        // Option 1: Passing parameters separately
+        const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+            host: 'localhost',
+            dialect: 'mssql',
+            pool: {
+                max: 5,
+                min: 0,
+                acquire: 30000,
+                idle: 10000
+            }
+        });
+
         var config = {
             user: 'root',
             password: '12345',
             server: 'localhost',
             database: 'TutorialDB'
         };
+
+        /*
+        sequelize
+            .authenticate()
+            .then(() => {
+                console.log('YAY, partay!!');
+                const Model = Sequelize.Model;
+                class TEST extends Model { }
+                TEST.init({
+                    // attributes
+                    snp: {
+                        type: Sequelize.STRING,
+                        allowNull: false,
+                    },
+                    riskAllele: {
+                        type: Sequelize.CHAR,
+                        allowNull: false
+                    },
+                    pValue: {
+                        type: Sequelize.FLOAT,
+                        allowNull: false
+                    },
+                    oddsRatio: {
+                        type: Sequelize.FLOAT,
+                        allowNull: false
+                    }
+                }, {
+                        sequelize,
+                        modelName: 'TEST',
+                        freezeTableName: true,
+                        logging: true
+                        // options
+                    });
+
+                    TEST.findAll({
+                        where: {
+                            snp: 'rs10438933'
+                        }
+                    });
+                    console.log("I think it worked?")
+            })
+            .catch(err => {
+                console.error('You done messed up:', err);
+            });
+            */
 
         // connect to your database
         sql.connect(config, function (err) {
@@ -108,53 +193,50 @@ app.get('/test', function (req, res) {
             // create Request object
             var request = new sql.Request();
 
-            /* TODO
-             * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
-             * may make this more efficient for large input data
-             */
-            //TODO
-            /*
-                for ()
-                if (line contains ##)
-                continue
-                else if #
-                find column numbers
-                else
-            */
-
             //TODO add correct disease table names to diseaseEnum!
-            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "lou gehrig's disease": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
             var diseaseTable = diseaseEnum[disease];
             //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
             var stmt = "SELECT oddsRatio " +
                 "FROM " + diseaseTable + " " +
                 "WHERE (CONVERT(FLOAT, [pValue]) <= " + SqlString.escape(pValue) + ")"
-            for (var i = 0; i < snpArray.length; ++i) {
+            var i = 0;
+            //TODO messy foreach- use forloop instead
+            //TODO duplicate snps don't return OR value twice (makes combinedOR too small)
+            for (const [snp, alleleArray] of snpMap.entries()) {
                 if (i == 0) {
                     stmt += " AND (";
                 }
                 else if (i != 0) {
                     stmt += ' OR ';
                 }
-                //TODO format tester required
-                var snp = snpArray[i];
-                var allele;
-                //TODO make cases for if has allele and if doesn't
-                stmt += "(snp = " + "'"
-                //TODO find snp and allele
-                if (snp.includes(":")) {
-                    snp = snpArray[i].substring(0, snpArray[i].indexOf(":"));
-                    snp = snp.trim();
-                    allele = snpArray[i].substring(snpArray[i].indexOf(":") + 1);
-                    allele = allele.trim();
-                    stmt += snp + "' " + "AND riskAllele = " + "'" + allele + "')"; //this one
+
+                //add a new snp with allele given
+                if (alleleArray.length > 0) {
+                    var j;
+                    for (j = 0; j < alleleArray.length; ++j) {
+                        if (alleleArray[j] !== null) {
+                            if (j != 0) {
+                                stmt += ' OR ';
+                            }
+                            stmt += "(snp = " + "'" + snp + "' " + "AND riskAllele = '" + alleleArray[j] + "')";
+                        }
+                        else {
+                            if (j != 0) {
+                                stmt += ' OR ';
+                            }
+                            stmt += "(snp = " + "'" + snp + "')";
+                        }
+                    }
                 }
                 else {
-                    stmt += snp + "')";
+                    stmt += "(snp = " + "'" + snp + "')";
                 }
-                if (i == snpArray.length - 1) {
+
+                if (i == snpMap.size - 1) {
                     stmt += ')';
                 }
+                ++i;
             }
 
             // query to the database and get the records
@@ -166,7 +248,10 @@ app.get('/test', function (req, res) {
                 }
                 else {
                     // send records as a response
-                    res.send(recordset);
+                    var combinedOR = getCombinedOR(recordset.recordset);
+                    var results = { numSNPs: snpMap.size, pValueCutoff: pValue, disease: disease, combinedOR: combinedOR }
+                    var jsonResults = JSON.stringify(results);
+                    res.send(jsonResults);
                 }
 
                 //TODO is this where this goes?
@@ -177,31 +262,7 @@ app.get('/test', function (req, res) {
     else {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
     }
-    /*
-//got some of this code from: https://stackoverflow.com/questions/44744946/node-js-global-connection-already-exists-call-sql-close-first
-new sql.ConnectionPool(config).connect().then(pool => {
-    //TODO change query to get snps
-    
-    var snpArray = input.split(",");
-    var sql = "SELECT * FROM ALS_OR2 where SNP IN ?";
-    var test = pool.request().query(sql, [snpArray], function (err, result) {
-        if (err) throw err;
-        console.log(result);
-    });
-    return test;
-    //return pool.request().query("select SNP from ALS_OR2")
-}).then(result => {
-    let rows = result.recordset
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.status(200).json(rows);
-    sql.close();
-}).catch(err => {
-    res.status(500).send({ message: "${err}" })
-    sql.close();
 });
-*/
-});
-
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')
