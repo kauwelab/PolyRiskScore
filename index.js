@@ -7,8 +7,6 @@ var fs = require('fs');
 const stream = require('stream')
 const app = express();
 const SqlString = require('sqlstring');
-const Sequelize = require('sequelize');
-const mssql = require('mssql')
 const port = 3000
 const Sequelize = require('sequelize')
 
@@ -114,76 +112,19 @@ app.get('/calculate_score/', function (req, res) {
     //console.log(fullUrl);
 
     var snpMap = createMap();
-
+    
     if (snpMap.size > 0) {
         var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
         var sql = require("mssql");
 
         // config for your database
-        // Option 1: Passing parameters separately
-        const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-            host: 'localhost',
-            dialect: 'mssql',
-            pool: {
-                max: 5,
-                min: 0,
-                acquire: 30000,
-                idle: 10000
-            }
-        });
-
         var config = {
             user: 'root',
             password: '12345',
             server: 'localhost',
             database: 'TutorialDB'
         };
-
-        /*
-        sequelize
-            .authenticate()
-            .then(() => {
-                console.log('YAY, partay!!');
-                const Model = Sequelize.Model;
-                class TEST extends Model { }
-                TEST.init({
-                    // attributes
-                    snp: {
-                        type: Sequelize.STRING,
-                        allowNull: false,
-                    },
-                    riskAllele: {
-                        type: Sequelize.CHAR,
-                        allowNull: false
-                    },
-                    pValue: {
-                        type: Sequelize.FLOAT,
-                        allowNull: false
-                    },
-                    oddsRatio: {
-                        type: Sequelize.FLOAT,
-                        allowNull: false
-                    }
-                }, {
-                        sequelize,
-                        modelName: 'TEST',
-                        freezeTableName: true,
-                        logging: true
-                        // options
-                    });
-
-                    TEST.findAll({
-                        where: {
-                            snp: 'rs10438933'
-                        }
-                    });
-                    console.log("I think it worked?")
-            })
-            .catch(err => {
-                console.error('You done messed up:', err);
-            });
-            */
 
         // connect to your database
         sql.connect(config, function (err) {
