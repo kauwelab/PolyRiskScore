@@ -117,6 +117,10 @@ app.get('/calculate_score/', function (req, res) {
         var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
         var sql = require("mssql");
+        
+            //TODO add correct disease table names to diseaseEnum!
+            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+            var diseaseTable = diseaseEnum[disease];
 
         // config for your database
         var config = {
@@ -148,8 +152,8 @@ app.get('/calculate_score/', function (req, res) {
             .then(() => {
                 console.log('YAY, partay!!');
                 const Model = Sequelize.Model;
-                class ALS extends Model { }
-                ALS.init({
+                class Table extends Model { }
+                Table.init({
                     // attributes
                     snp: {
                         type: Sequelize.STRING,
@@ -169,7 +173,7 @@ app.get('/calculate_score/', function (req, res) {
                     }
                 }, {
                         sequelize,
-                        modelName: 'ALS',
+                        modelName: diseaseTable,
                         name: {
                             primaryKey: true,
                             type: Sequelize.STRING
@@ -179,7 +183,7 @@ app.get('/calculate_score/', function (req, res) {
                         logging: false
                         // options
                     });
-                    var result = ALS.findAll({
+                    var result = Table.findAll({
                         attributes: ['oddsRatio'],
                         where: {
                             snp: 'rs10438933',
@@ -199,9 +203,6 @@ app.get('/calculate_score/', function (req, res) {
             // create Request object
             var request = new sql.Request();
 
-            //TODO add correct disease table names to diseaseEnum!
-            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
-            var diseaseTable = diseaseEnum[disease];
             //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
             var stmt = "SELECT oddsRatio " +
                 "FROM " + diseaseTable + " " +
