@@ -8,17 +8,11 @@ test('mock', function (t) {
     var files = {};
     files[path.resolve('/foo/bar/baz.js')] = 'beep';
 
-    var dirs = {};
-    dirs[path.resolve('/foo/bar')] = true;
-
     function opts(basedir) {
         return {
             basedir: path.resolve(basedir),
             isFile: function (file, cb) {
                 cb(null, Object.prototype.hasOwnProperty.call(files, path.resolve(file)));
-            },
-            isDirectory: function (dir, cb) {
-                cb(null, !!dirs[path.resolve(dir)]);
             },
             readFile: function (file, cb) {
                 cb(null, files[path.resolve(file)]);
@@ -55,17 +49,11 @@ test('mock from package', function (t) {
     var files = {};
     files[path.resolve('/foo/bar/baz.js')] = 'beep';
 
-    var dirs = {};
-    dirs[path.resolve('/foo/bar')] = true;
-
     function opts(basedir) {
         return {
             basedir: path.resolve(basedir),
             isFile: function (file, cb) {
                 cb(null, Object.prototype.hasOwnProperty.call(files, file));
-            },
-            isDirectory: function (dir, cb) {
-                cb(null, !!dirs[path.resolve(dir)]);
             },
             'package': { main: 'bar' },
             readFile: function (file, cb) {
@@ -106,18 +94,11 @@ test('mock package', function (t) {
         main: './baz.js'
     });
 
-    var dirs = {};
-    dirs[path.resolve('/foo')] = true;
-    dirs[path.resolve('/foo/node_modules')] = true;
-
     function opts(basedir) {
         return {
             basedir: path.resolve(basedir),
             isFile: function (file, cb) {
                 cb(null, Object.prototype.hasOwnProperty.call(files, path.resolve(file)));
-            },
-            isDirectory: function (dir, cb) {
-                cb(null, !!dirs[path.resolve(dir)]);
             },
             readFile: function (file, cb) {
                 cb(null, files[path.resolve(file)]);
@@ -141,18 +122,11 @@ test('mock package from package', function (t) {
         main: './baz.js'
     });
 
-    var dirs = {};
-    dirs[path.resolve('/foo')] = true;
-    dirs[path.resolve('/foo/node_modules')] = true;
-
     function opts(basedir) {
         return {
             basedir: path.resolve(basedir),
             isFile: function (file, cb) {
                 cb(null, Object.prototype.hasOwnProperty.call(files, path.resolve(file)));
-            },
-            isDirectory: function (dir, cb) {
-                cb(null, !!dirs[path.resolve(dir)]);
             },
             'package': { main: 'bar' },
             readFile: function (file, cb) {

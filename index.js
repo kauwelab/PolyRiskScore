@@ -8,7 +8,7 @@ const stream = require('stream')
 const app = express();
 const SqlString = require('sqlstring');
 const port = 3000
-const Sequelize = require('sequelize')
+const Sequelize = require('sequelize');
 
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,7 +36,7 @@ function createMap(fileContents) {
     })
     vcf.on('end', function () {
         console.log('end of file')
-        console.log(vcfMap);
+        //TODO console.log(vcfMap);
         //return vcfArray; 
     })
     vcf.on('error', function (err) {
@@ -125,6 +125,71 @@ app.get('/calculate_score/', function (req, res) {
             server: 'localhost',
             database: 'TutorialDB'
         };
+
+        // config for your database
+        // Option 1: Passing parameters separately
+        const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+            host: 'localhost',
+            dialect: 'mssql',
+            define: {
+                schema: "dbo"
+            },
+            pool: {
+                max: 5,
+                min: 0,
+                acquire: 30000,
+                idle: 10000
+            }
+        });
+
+        const Op = Sequelize.Op;
+        sequelize
+            .authenticate()
+            .then(() => {
+                console.log('YAY, partay!!');
+                const Model = Sequelize.Model;
+                class ALS extends Model { }
+                ALS.init({
+                    // attributes
+                    snp: {
+                        type: Sequelize.STRING,
+                        allowNull: false,
+                    },
+                    riskAllele: {
+                        type: Sequelize.CHAR,
+                        allowNull: false
+                    },
+                    pValue: {
+                        type: Sequelize.FLOAT,
+                        allowNull: false
+                    },
+                    oddsRatio: {
+                        type: Sequelize.FLOAT,
+                        allowNull: false
+                    }
+                }, {
+                        sequelize,
+                        modelName: 'ALS',
+                        name: {
+                            primaryKey: true,
+                            type: Sequelize.STRING
+                        },
+                        freezeTableName: true,
+                        timestamps: false,
+                        logging: false
+                        // options
+                    });
+                    var result = ALS.findAll({
+                        attributes: ['oddsRatio'],
+                        where: {
+                            snp: 'rs10438933',
+                        }
+                    }).then(data => console.log(data));
+                    //console.log(result);
+            })
+            .catch(err => {
+                console.error('You done messed up:', err);
+            });
 
         // connect to your database
         sql.connect(config, function (err) {

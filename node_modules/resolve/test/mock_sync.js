@@ -8,20 +8,14 @@ test('mock', function (t) {
     var files = {};
     files[path.resolve('/foo/bar/baz.js')] = 'beep';
 
-    var dirs = {};
-    dirs[path.resolve('/foo/bar')] = true;
-
     function opts(basedir) {
         return {
             basedir: path.resolve(basedir),
             isFile: function (file) {
-                return Object.prototype.hasOwnProperty.call(files, path.resolve(file));
-            },
-            isDirectory: function (dir) {
-                return !!dirs[path.resolve(dir)];
+                return Object.prototype.hasOwnProperty.call(files, file);
             },
             readFileSync: function (file) {
-                return files[path.resolve(file)];
+                return files[file];
             }
         };
     }
@@ -54,21 +48,14 @@ test('mock package', function (t) {
         main: './baz.js'
     });
 
-    var dirs = {};
-    dirs[path.resolve('/foo')] = true;
-    dirs[path.resolve('/foo/node_modules')] = true;
-
     function opts(basedir) {
         return {
             basedir: path.resolve(basedir),
             isFile: function (file) {
-                return Object.prototype.hasOwnProperty.call(files, path.resolve(file));
-            },
-            isDirectory: function (dir) {
-                return !!dirs[path.resolve(dir)];
+                return Object.prototype.hasOwnProperty.call(files, file);
             },
             readFileSync: function (file) {
-                return files[path.resolve(file)];
+                return files[file];
             }
         };
     }
