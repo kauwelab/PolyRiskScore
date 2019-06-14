@@ -85,7 +85,7 @@ app.post('/contact', function (req, res) {
         text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
         attachments: [
             {
-                filename: req.file.orginialname,
+                filename: req.files.gwas,
                 path: req.file.path
             }
         ]
