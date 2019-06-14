@@ -15,8 +15,18 @@ async function SubmitFormData() {
 
     $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease },
     function (data, status) {
-        //data contains the info received by going to "/test"
-        $('#response').html("# SNPs: " + JSON.parse(data).numSNPs + " &#13;&#10P Value Cutoff: " + JSON.parse(data).pValueCutoff + " &#13;&#10Disease(s): " + JSON.parse(data).disease + " &#13;&#10Combined Odds Ratio: " + JSON.parse(data).combinedOR);
+        //data contains the info received by going to "/calculate_score"
+        var jsonObject = JSON.parse(data);
+
+        var returnText = "";
+        //iterate through the list of people and print them each out seperately.
+        jsonObject.forEach(function (person){
+            returnText += "# SNPs: " + JSON.parse(person).numSNPs + 
+                            " &#13;&#10P Value Cutoff: " + JSON.parse(person).pValueCutoff + 
+                            " &#13;&#10Disease(s): " + JSON.parse(person).disease + 
+                            " &#13;&#10Combined Odds Ratio: " + JSON.parse(person).combinedOR + "&#13;&#10&#13;&#10";
+        });
+        $('#response').html(returnText);
     }, "html").fail(function (jqXHR) {
         $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
     });

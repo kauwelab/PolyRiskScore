@@ -44,20 +44,20 @@ function createMap(fileContents) {
     })
 
     //TODO manually created map
-    vcfMap.set("rs10438933", ["G", "C"]);
-    vcfMap.set("rs10192369", ["T", null]);
-    return vcfMap;
+    var vcfMapList = [];
+    var vcfMap1 = new Map();
+    vcfMap1.set("rs10438933", ["G", "C"]);
+    vcfMap1.set("rs10192369", ["T", null]);
+    vcfMapList.push(vcfMap1)
+    var vcfMap2 = new Map();
+    vcfMapList.push(vcfMap2)
+    return vcfMapList;
     //let result = await stuff; 
     //console.log(result); 
 }
 
-function getCombinedOR(recordset) {
-    //get the odds ratio values from the recordset objects
-    var ORs = [];
-    recordset.forEach(function (element) {
-        ORs.push(element.oddsRatio);
-    });
-    //calculate the commbined odds ratio from the odds ratio array (ORs)
+function getCombinedORFromArray(ORs) {
+    //calculate the combined odds ratio from the odds ratio array (ORs)
     var combinedOR = 0;
     ORs.forEach(function (element) {
         combinedOR += Math.log(element);
@@ -111,27 +111,16 @@ app.get('/calculate_score/', function (req, res) {
     //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
     //console.log(fullUrl);
 
-    var snpMap = createMap();
-    
-    if (snpMap.size > 0) {
+    var snpMapList = createMap();
+
+    if (snpMapList.length > 0) {
         var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
-        var sql = require("mssql");
-        
-            //TODO add correct disease table names to diseaseEnum!
-            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
-            var diseaseTable = diseaseEnum[disease];
+        //TODO add correct disease table names to diseaseEnum!
+        var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+        var diseaseTable = diseaseEnum[disease];
 
         // config for your database
-        var config = {
-            user: 'root',
-            password: '12345',
-            server: 'localhost',
-            database: 'TutorialDB'
-        };
-
-        // config for your database
-        // Option 1: Passing parameters separately
         const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
             host: 'localhost',
             dialect: 'mssql',
@@ -150,7 +139,6 @@ app.get('/calculate_score/', function (req, res) {
         sequelize
             .authenticate()
             .then(() => {
-                console.log('YAY, partay!!');
                 const Model = Sequelize.Model;
                 class Table extends Model { }
                 Table.init({
@@ -183,88 +171,67 @@ app.get('/calculate_score/', function (req, res) {
                         logging: false
                         // options
                     });
-                    var result = Table.findAll({
-                        attributes: ['oddsRatio'],
-                        where: {
-                            snp: 'rs10438933',
-                        }
-                    }).then(data => console.log(data));
-                    //console.log(result);
+                //jsons for each person in a list
+                var personResultJsons = [];
+                snpMapList.forEach(function (snpMap) {
+                    var resultsArray = [];
+                    for (const [snp, alleleArray] of snpMap.entries()) {
+                        alleleArray.forEach(function (allele) {
+                            //TODO how to make this more clean?
+                            if (allele !== null) {
+                                resultsArray.push(Table.findAll({
+                                    attributes: ['oddsRatio'],
+                                    where: {
+                                        pValue: {
+                                            [Op.lt]: pValue
+                                        },
+                                        snp: snp,
+                                        riskAllele: allele
+                                    }
+                                }));
+                            }
+                            else {
+                                resultsArray.push(Table.findAll({
+                                    attributes: ['oddsRatio'],
+                                    where: {
+                                        pValue: {
+                                            [Op.lt]: pValue
+                                        },
+                                        snp: snp,
+                                    }
+                                }));
+                            }
+                        });
+                    }
+                    //push the json promises of the person onto the personResultJsons array
+                    personResultJsons.push(Promise.all(resultsArray).then(resultsArray => {
+                        var ORs = [];
+                        //get results from each promise and combine them togther to get combined odds ratio
+                        resultsArray.forEach(function (response) {
+                            //TODO testing if results can return more than one odds ratio
+                            if (response.length > 1) {
+                                console.log("We have a result that is longer than 1: ");
+                                console.log(response);
+                            }
+                            if (response.length > 0) {
+                                ORs.push(response[0].oddsRatio);
+                                console.log(response[0].oddsRatio);
+                            }
+                        });
+                        var combinedOR = getCombinedORFromArray(ORs);
+                        var results = { numSNPs: snpMap.size, pValueCutoff: pValue, disease: disease.toUpperCase(), combinedOR: combinedOR }
+                        return JSON.stringify(results);
+                    }));
+                });
+                //final promise that sends all results
+                Promise.all(personResultJsons).then(jsons => {
+                    console.log(jsons);
+                    res.send(jsons);
+                });
             })
             .catch(err => {
                 console.error('You done messed up:', err);
             });
-
-        // connect to your database
-        sql.connect(config, function (err) {
-
-            if (err) console.log(err);
-
-            // create Request object
-            var request = new sql.Request();
-
-            //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
-            var stmt = "SELECT oddsRatio " +
-                "FROM " + diseaseTable + " " +
-                "WHERE (CONVERT(FLOAT, [pValue]) <= " + SqlString.escape(pValue) + ")"
-            var i = 0;
-            //TODO messy foreach- use forloop instead
-            //TODO duplicate snps don't return OR value twice (makes combinedOR too small)
-            for (const [snp, alleleArray] of snpMap.entries()) {
-                if (i == 0) {
-                    stmt += " AND (";
-                }
-                else if (i != 0) {
-                    stmt += ' OR ';
-                }
-
-                //add a new snp with allele given
-                if (alleleArray.length > 0) {
-                    var j;
-                    for (j = 0; j < alleleArray.length; ++j) {
-                        if (alleleArray[j] !== null) {
-                            if (j != 0) {
-                                stmt += ' OR ';
-                            }
-                            stmt += "(snp = " + "'" + snp + "' " + "AND riskAllele = '" + alleleArray[j] + "')";
-                        }
-                        else {
-                            if (j != 0) {
-                                stmt += ' OR ';
-                            }
-                            stmt += "(snp = " + "'" + snp + "')";
-                        }
-                    }
-                }
-                else {
-                    stmt += "(snp = " + "'" + snp + "')";
-                }
-
-                if (i == snpMap.size - 1) {
-                    stmt += ')';
-                }
-                ++i;
-            }
-
-            // query to the database and get the records
-            request.query(stmt, function (err, recordset) {
-
-                if (err) {
-                    res.status(500).send(err)
-                    console.log(err)
-                }
-                else {
-                    // send records as a response
-                    var combinedOR = getCombinedOR(recordset.recordset);
-                    var results = { numSNPs: snpMap.size, pValueCutoff: pValue, disease: disease, combinedOR: combinedOR }
-                    var jsonResults = JSON.stringify(results);
-                    res.send(jsonResults);
-                }
-
-                //TODO is this where this goes?
-                sql.close();
-            });
-        });
     }
     else {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
