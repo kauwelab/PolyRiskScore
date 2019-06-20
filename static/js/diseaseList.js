@@ -1,7 +1,7 @@
-var diseasesandStudies = {}
-diseasesandStudies['ADHD'] = ['High impact', 'Largest Cohort']
-diseasesandStudies['AD'] = ['Lambert et al.', 'largest cohort']
-diseasesandStudies['ALS'] = ['High impact', 'Largest Cohort'];
+var diseasesandStudies = {};
+diseasesandStudies['ADHD'] = ['High impact', 'Largest Cohort'];
+diseasesandStudies['AD'] = ['Lambert et al.', 'Largest cohort'];
+diseasesandStudies['ALS'] = ['van Rheenen W, 2016 (High impact)', 'van Rheenen W, 2016 (Largest Cohort)'];
 diseasesandStudies['Dep'] = ['High impact', 'Largest Cohort'];
 diseasesandStudies['HD'] = ['High impact', 'Largest Cohort'];
 
@@ -21,8 +21,8 @@ function ChangeDiseaseList() {
     if (diseases) {
         var i;
         for (i = 0; i < diseases.length; i++){
-            var disease = new Option(diseases[i], i);
-            studyList.options.add(disease);
+            var study = new Option(diseases[i], i);
+            studyList.options.add(study);
          }
     }
 }
