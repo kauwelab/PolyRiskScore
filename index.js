@@ -13,7 +13,20 @@ app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
 
-app.listen(port, () => console.log("The server is running!"/*path.join(__dirname, 'static')*/)) //prints path to console
+app.listen(port, () => {
+    var welcomeMessages = [];
+    welcomeMessages.push("Welcome to the Polyscore Server!");
+    welcomeMessages.push("Your faithful server up and ready to conquer!");
+    welcomeMessages.push("Here to serve!");
+    welcomeMessages.push("Service with a smile :D");
+    welcomeMessages.push("Running just for you!");
+    welcomeMessages.push("Polyscore server: at your service!");
+    console.log(welcomeMessages[getRandomInt(welcomeMessages.length)]/*path.join(__dirname, 'static')*/) //prints a happy message on startup
+});
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+  }
 
 //API End Point
 var busboy = require('connect-busboy'); //middleware for form/file upload
@@ -257,7 +270,6 @@ app.get('/calculate_score/', async function (req, res) {
                     personResultJsons.push(Promise.all(resultsArray).then(resultsArray => {
                         var ORs = [];
                         //get results from each promise and combine them togther to get combined odds ratio
-                        console.log(resultsArray);
                         resultsArray.forEach(function (response) {
                             //TODO testing if results can return more than one odds ratio- that would be a bad sign!
                             if (response.length > 1) {
