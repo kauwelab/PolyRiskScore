@@ -13,71 +13,59 @@ app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
 
-app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints path to console
+app.listen(port, () => console.log("The server is running!"/*path.join(__dirname, 'static')*/)) //prints path to console
 
 //API End Point
 var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
 
-function createMap(filePath) {
-    /*
+function createMap(fileContents) {
     var Readable = stream.Readable;
     const s = new Readable();
     s.push(fileContents);
     s.push(null);
-    */
-
-    //import { fs } from 'memfs';
-    /*
-    try {
-        fs.writeFileSync('/userVCF.vcf', fileContents);
-        fs.readFileSync('/userVCF.vcf', 'utf8'); // World!
-    }
-    catch(err) {
-        console.log(err)
-    }
     vcf.readStream(s);
-    */
-    vcf.read(filePath);
     var vcfMapMaps = new Map();
     var numSamples = 0;
-    vcf.on('data', function (feature) {
+    vcf.on('data', function (vcfLine) {
         if (numSamples === 0) {
-            numSamples = feature.sampleinfo.length;
-            feature.sampleinfo.forEach(function (sample) {
+            numSamples = vcfLine.sampleinfo.length;
+            vcfLine.sampleinfo.forEach(function (sample) {
                 vcfMapMaps.set(sample.NAME, new Map());
             });
         }
         //gets all possible alleles for the current id
         var possibleAlleles = [];
-        possibleAlleles.push(feature.ref);
-        possibleAlleles = possibleAlleles.concat(feature.alt.split(/[,]+/));
+        possibleAlleles.push(vcfLine.ref);
+        var altAlleles = vcfLine.alt.split(/[,]+/);
+        var i;
+        for (i = 0; i < altAlleles.length; i++) {
+            if (altAlleles[i] == ".") {
+                altAlleles.splice(i);
+            }
+        }
+        if (altAlleles.length > 0) {
+            possibleAlleles = possibleAlleles.concat(altAlleles);
+        }
 
-        feature.sampleinfo.forEach(function (sample) {
+        vcfLine.sampleinfo.forEach(function (sample) {
             var newMap = vcfMapMaps.get(sample.NAME);
             //gets the allele indices
-            //TODO should . be ignored too? (put . here)
-            var alleles = sample.GT.split(/[|/.]+/, 2);
-            //filters out empty elements
-            alleles = alleles.filter(function (element) {
-                return element != "";
-            });
-            //if the alleles are not both ".", add them to the return object
-            if (alleles.length > 0) {
-                //gets the alleles from the allele indices and replaces the indecies with the alleles.
-                var i;
-                for (i = 0; i < alleles.length; i++) {
-                    if (alleles[i] == ".") {
-                        alleles[i] = null;
-                    }
-                    else {
-                        alleles[i] = possibleAlleles[alleles[i]];
-                    }
+            var alleles = sample.GT.split(/[|/]+/, 2);
+            //gets the alleles from the allele indices and replaces the indices with the alleles.
+            var i;
+            for (i = 0; i < alleles.length; i++) {
+                //if the allele is ".", treat it as the ref allele
+                if (alleles[i] == ".") {
+                    alleles[i] = possibleAlleles[0];
                 }
-                newMap.set(feature.id, alleles);
-                vcfMapMaps.set(sample.NAME, newMap);
+                else {
+                    alleles[i] = possibleAlleles[alleles[i]];
+                }
             }
+            newMap.set(vcfLine.id, alleles);
+            vcfMapMaps.set(sample.NAME, newMap);
         });
     })
     vcf.on('error', function (err) {
@@ -89,19 +77,6 @@ function createMap(filePath) {
             resolve(vcfMapMaps);
         });
     });
-
-    //TODO manually created map
-    /*
-    var vcfMapList = [];
-    var vcfMap1 = new Map();
-    vcfMap1.set("rs10438933", ["G", "C"]);
-    vcfMap1.set("rs10192369", ["T", null]);
-    vcfMap1.set("rs74654358", ["A", null]);
-    vcfMapList.push(vcfMap1)
-    var vcfMap2 = new Map();
-    vcfMapList.push(vcfMap2)
-    return vcfMapList;
-    */
 }
 
 function getCombinedORFromArray(ORs) {
@@ -168,13 +143,11 @@ app.post('/uploadFile', function (req, res) {
 app.get('/calculate_score/', async function (req, res) {
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
-
     //TODO this code prints the URL- length may be an issue 
     //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
     //console.log(fullUrl);
 
-    var filePath = __dirname + '/uploads/sample.vcf';
-    var vcfMapMaps = await createMap(filePath);
+    var vcfMapMaps = await createMap(req.query.fileString);
 
     if (vcfMapMaps.size > 0) {
         var pValue = req.query.pValue;
@@ -190,7 +163,6 @@ app.get('/calculate_score/', async function (req, res) {
         else if (study.includes("(High impact)")) {
             study = trimWhitespace(study.replace("(High impact)", ""));
         }
-        //TODO make the sql statements also search for study 
 
         // config for your database
         const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
@@ -285,15 +257,14 @@ app.get('/calculate_score/', async function (req, res) {
                     personResultJsons.push(Promise.all(resultsArray).then(resultsArray => {
                         var ORs = [];
                         //get results from each promise and combine them togther to get combined odds ratio
+                        console.log(resultsArray);
                         resultsArray.forEach(function (response) {
-                            //TODO testing if results can return more than one odds ratio
+                            //TODO testing if results can return more than one odds ratio- that would be a bad sign!
                             if (response.length > 1) {
                                 console.log("We have a result that is longer than 1: ");
-                                //TODO testing purposes console.log(response);
                             }
                             if (response.length > 0) {
                                 ORs.push(response[0].oddsRatio);
-                                //TODO testing purposes console.log(response[0].oddsRatio);
                             }
                         });
                         var combinedOR = getCombinedORFromArray(ORs);
@@ -303,16 +274,15 @@ app.get('/calculate_score/', async function (req, res) {
                 }
                 //final promise that sends all results
                 Promise.all(personResultJsons).then(jsons => {
-                    //TODO testing purposes console.log(jsons);
                     res.send(jsons);
                 }).catch(err => {
-                    res.status(500).send(err);
                     console.error('Something went wrong. Error sent to client too.', err);
+                    res.status(500).send(err);
                 });
             })
             .catch(err => {
-                res.status(500).send(err);
                 console.error('Something went wrong. Error sent to client too.', err);
+                res.status(500).send(err);
             });
     }
     else {

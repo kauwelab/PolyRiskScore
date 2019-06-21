@@ -2,16 +2,11 @@ function SubmitFormData() {
     $('#response').html("Calculating. Please wait...")
 
     //file is already read into the input box
-    /*
-    var fileString = document.getElementsByName("input")[0];//.value;
+    var fileString = document.getElementsByName("input")[0].value;
     if (fileString === undefined || fileString === "") {
-        //if here, the vcf file was not read properly
+        //if here, the vcf file was not read properly- shouldn't ever happen
     }
-    */
 
-    var filePath = 'C:/Users/Matthew Cloward/Desktop/Home Work/Lab BioInfo/node-test/uploads';
-
-    //TODO debugger;
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
     //gets the disease name from the drop down list
@@ -27,8 +22,8 @@ function SubmitFormData() {
         $('#response').html('Please specify a specific disease and study using the drop down menus above.');
     }
     else {
-        $.get("/calculate_score", { filePath: filePath, pValue: pValue, disease: disease, study: study },
-            function (data, status) {
+        $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
+            function (data) {
                 //data contains the info received by going to "/calculate_score"
                 var jsonObject = JSON.parse(data);
 
@@ -65,5 +60,4 @@ function handleFileSelect(evt) {
         $('#input').html(vcfText);
     })
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-    $.post("/uploadFile", { file: f });
 }
