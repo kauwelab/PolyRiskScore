@@ -136,28 +136,16 @@
                     <textarea rows="10" cols="100" class="form-control" id="input" name="input" placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
                     <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
                   </div>
-					 </form>-->
-				  
-		<form class="md-form">
-  			<div class="file-field">
-    			<div class="btn btn-secondary btn-sm float-right btn-light"> 
-            <script src="js/upload_gwas.js"></script>
-            <input type="file" id="gwas">
-            <button type="button" onclick="uploadGWAS();"  class="btn btn-secondary btn-light">Submit Test</button>
-  			  </div>
-
- 			 </div>
-      </form>
-        <p>&nbsp;</p>
-				  <p>&nbsp;</p>
-                 
+					 </form>-->  
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="container">		
+    <div class="jumbotron-white"> 
+    <div class="container">		
         <div class="row">
           <div class="col-12 col-md-8 mx-auto">
            
@@ -166,8 +154,10 @@
                   <h1 class="font-weight-bold">Send us your GWAS file</h1>
                 </div>
                 <div class="text-center col-12">
+                    
+                    
                   <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                  <form action="/contact" id="feedbackForm" class="text-center" method="post" role = "form">
+                  <form action="/sendGwas" id="feedbackForm" class="text-center" method="post" role="form" novalidate enctype="multipart/form-data">
                     <div class="form-group">
                       <label for="name"><br>Name</label>
                       <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
@@ -178,20 +168,15 @@
                       <input type="email" class="form-control" id="email" name="email" placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
                       <span id="emailHelp" class="form-text text-muted" style="display: none">Please enter a valid e-mail address.</span>
                     </div>
-                    <form class="md-form">
-                      <div class="file-field">
-                        <div class="btn btn-secondary btn-sm float-right btn-light"> 
-                          <input type="file" name="gwas">
-                        </div>
-              
-                      </div>
-                    </form>
                     <div class="form-group">
                       <label for="message">Message</label>
                       <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
                       <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a message.</span>
                     </div>
-                    <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg"> Send</button>
+                    <div class="form-group">
+                      <input id="file" name="file" type="file" style="float:left"/><br>
+                    </div>
+                    <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Send</button>
                   </form>
                 </div>
               </div>
@@ -209,6 +194,7 @@
         </div>
       </div>
     </footer>
+  </div> 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
     <script src="js/jquery-3.3.1.min.js"></script> 
     <!-- Include all compiled plugins (below), or include individual files as needed --> 

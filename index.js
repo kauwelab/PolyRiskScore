@@ -2,12 +2,25 @@ const express = require('express');
 const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
+const exphbs = require('express-handlebars')
 var vcf = require('bionode-vcf');
 const stream = require('stream')
 const app = express();
 const port = 3000
 const Sequelize = require('sequelize');
 const formidable = require('formidable');
+const multer = require('multer');
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  })
+   
+  var upload = multer({ storage: storage })
+
 
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,6 +41,10 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
   }
 
+// View Engine setup
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
+ 
 //API End Point
 var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
@@ -119,10 +136,62 @@ app.post('/contact', function (req, res) {
         to: 'kauwelab19@gmail.com',
         subject: 'New message from contact form at PRS.byu.edu',
         text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
-        attachments: [
+       
+        
+        
+    };
+    smptTrans.sendMail(mailOpts, (err, data) => {
+        if (err) {
+            res.writeHead(301, { Location: 'fail.html' });
+            res.end();
+        } 
+    });
+    res.writeHead(301, { Location: 'success.html' });
+    res.end();
+});
+
+/*//Upload File POST
+app.post('/uploadFile', function(req, res){
+    console.log('in here')
+    var form = new formidable.IncomingForm();
+    form.parse(req);
+    form.on('fileBegin', function(name, file){
+        file.path = __dirname + '/uploads/' + file.name;
+    });
+    form.on('file', function(name, file){
+        console.log('Uploaded' + file.name);
+    });
+
+    res.send('upload successful!');
+});*/
+
+
+// POST route from contact form
+app.post('/sendGwas', upload.single('file'), (req, res) => {
+  const file = req.file;
+  if (!file) {
+    res.send("please select a file");
+  }
+  else {
+    let mailOpts, smptTrans;
+    smptTrans = nodeMailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'kauwelab19@gmail.com',
+            pass: 'kauwelab2019!'
+        }
+    });
+    mailOpts = {
+        from: req.body.name + ' &lt;' + req.body.email + '&gt;',
+        to: 'kauwelab19@gmail.com',
+        subject: 'New message from contact form at PRS.byu.edu',
+        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
+        attachments:[
             {
-                filename: req.files.gwas,
-                path: req.file.path
+                path: file.path,
+                filename: file.filename
             }
         ]
     };
@@ -130,14 +199,12 @@ app.post('/contact', function (req, res) {
         if (err) {
             res.writeHead(301, { Location: 'fail.html' });
             res.end();
-        } else {
-            res.writeHead(301, { Location: 'success.html' });
-            res.end();
-        }
+        } 
     });
-    res.writeHead(301, { Location: 'index.html' });
+    res.writeHead(301, { Location: 'success.html' });
     res.end();
-});
+  }
+  });
 
 app.post('/uploadFile', function (req, res) {
     console.log('in here')
