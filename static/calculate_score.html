@@ -150,7 +150,11 @@
                     message.</span>
                 </div>
               </form>
-
+              <!--<form action="/UploadFile" method="post" enctype="multipart/form-data">
+                <input type="file" id="files" name="upload" />
+                <input type="submit" value="upload" />
+              </form>-->
+              
               <form class="md-form" id="file-form">
                 <div class="file-field">
                   <div class="btn btn-secondary btn-sm float-right btn-light">
@@ -172,9 +176,9 @@
 
               <p>&nbsp;</p>
               <script src="js/getRadioVal.js"></script>
-              <div class="container">
+              <div class="container diseaseLists">
                 <div class="row">
-                  <div class="col-lg-6 mb-4 mt-2 text-center">
+                  <div class="col-lg-12 mb-.5 mt-2 text-left">
                     <h5>Select P-value Cutoff&nbsp;</h5>
                     <form action="#" method="post" class="radioButtons" id="radioButtons">
                       <div class="form-check form-check-inline">
@@ -189,22 +193,33 @@
                     </form>
 
                   </div>
-                  <div class="col-lg-6 mb-4 mt-2 text-center">
-                    <h5>Disease&nbsp;</h5>
-                    <h5>
-                      <select id="diseaseSelect">
-                        <option selected="selected">All</option>
-                        <option>ADHD</option>
-                        <option>Alcheimer's disease</option>
-                        <option>ALS</option>
-                        <option>Depression</option>
-                        <option>Heart disease</option>
-                      </select>
-                    </h5>
+                  <div class="col-lg-12 mb-0 mt-2 text-left">
+                    <script src="js/diseaseList.js"></script>
+                    <h8>
+                      <div class="diseaseLists"> 
+                          <select id="disease" onchange="ChangeDiseaseList()">
+                              <!--<option selected="selected">All</option>-->
+                              <option value="">--Disease--</option>
+                              <option value="ADHD">ADHD</option>
+                              <option value="AD">Alzheimer's disease</option>
+                              <option value="ALS">ALS</option>
+                              <option value="Dep">Depression</option>
+                              <option value="HD">Heart disease</option>
+                            </select>
+                          </div>
+                          
+      
+                      <div class="diseaseLists">  
+                          <select id="diseaseStudy">
+                              <option value="">--Study--</option>
+                            </select>
+                          </div>
+                    </h8>
                   </div>
                 </div>
               </div>
               <p>&nbsp;</p>
+              <script src="js/calculate_score.js"></script>
               <!--uses "js/calculate_score.js"-->
               <button type="button" id="feedbackSubmit" onclick="SubmitFormData();"
                 class="btn btn-primary btn-lg">Calculate Risk Scores</button>

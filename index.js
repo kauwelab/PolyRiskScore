@@ -3,17 +3,30 @@ const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 var vcf = require('bionode-vcf');
-var fs = require('fs');
-const stream = require('stream') 
+const stream = require('stream')
 const app = express();
-const SqlString = require('sqlstring');
 const port = 3000
+const Sequelize = require('sequelize');
+const formidable = require('formidable');
 
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
 
-app.listen(port, () => console.log(path.join(__dirname, 'static'))) //prints path to console
+app.listen(port, () => {
+    var welcomeMessages = [];
+    welcomeMessages.push("Welcome to the Polyscore Server!");
+    welcomeMessages.push("Your faithful server up and ready to conquer!");
+    welcomeMessages.push("Here to serve!");
+    welcomeMessages.push("Service with a smile :D");
+    welcomeMessages.push("Running just for you!");
+    welcomeMessages.push("Polyscore server: at your service!");
+    console.log(welcomeMessages[getRandomInt(welcomeMessages.length)]/*path.join(__dirname, 'static')*/) //prints a happy message on startup
+});
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+  }
 
 //API End Point
 var busboy = require('connect-busboy'); //middleware for form/file upload
@@ -58,8 +71,7 @@ function createMap(fileContents){
         console.log(vcfMap); 
         return vcfMap;  
     })
- 
-    vcf.on('error', function(err){
+    vcf.on('error', function (err) {
         console.error('it\'s not a vcf', err)
     })
 
@@ -74,6 +86,15 @@ function createMap(fileContents){
     
 }
 
+function getCombinedORFromArray(ORs) {
+    //calculate the combined odds ratio from the odds ratio array (ORs)
+    var combinedOR = 0;
+    ORs.forEach(function (element) {
+        combinedOR += Math.log(element);
+    });
+    combinedOR = Math.exp(combinedOR);
+    return combinedOR;
+}
 
 // POST route from contact form
 app.post('/contact', function (req, res) {
@@ -91,14 +112,20 @@ app.post('/contact', function (req, res) {
         from: req.body.name + ' &lt;' + req.body.email + '&gt;',
         to: 'kauwelab19@gmail.com',
         subject: 'New message from contact form at PRS.byu.edu',
-        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`
+        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
+        attachments: [
+            {
+                filename: req.files.gwas,
+                path: req.file.path
+            }
+        ]
     };
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {
-            res.writeHead(301, { Location: 'fail.html'});
+            res.writeHead(301, { Location: 'fail.html' });
             res.end();
         } else {
-            res.writeHead(301, { Location: 'success.html'});
+            res.writeHead(301, { Location: 'success.html' });
             res.end();
         }
     });
@@ -106,7 +133,21 @@ app.post('/contact', function (req, res) {
     res.end();
 });
 
-app.get('/test/', function (req, res) {
+app.post('/uploadFile', function (req, res) {
+    console.log('in here')
+    var form = new formidable.IncomingForm();
+    form.parse(req);
+    form.on('fileBegin', function (name, file) {
+        file.path = __dirname + '/uploads/' + file.name;
+    });
+    form.on('file', function (name, file) {
+        console.log('Uploaded' + file.name);
+    });
+
+    res.sendFile(__dirname + '/static/upload_gwas.html');
+});
+
+app.get('/calculate_score/', async function (req, res) {
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     var snpMap = createMap(req.body.fileData);
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -121,7 +162,17 @@ app.get('/test/', function (req, res) {
     if (snpMap.size > 0) {
         var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
-        var sql = require("mssql");
+        //TODO add correct disease table names to diseaseEnum!
+        var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alzheimer's disease": "ALZHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+        var diseaseTable = diseaseEnum[disease];
+
+        var study = req.query.study;
+        if (study.includes("(Largest Cohort)")) {
+            study = trimWhitespace(study.replace("(Largest Cohort)", ""));
+        }
+        else if (study.includes("(High impact)")) {
+            study = trimWhitespace(study.replace("(High impact)", ""));
+        }
 
         // config for your database
         var config = {
@@ -170,81 +221,117 @@ app.get('/test/', function (req, res) {
                     stmt += ' OR ';
                 }
 
-                //add a new snp with allele given
-                if (alleleArray.length > 0) {
-                    var j;
-                    for (j = 0; j < alleleArray.length; ++j) {
-                        if (alleleArray[j] !== null) {
-                            if (j != 0) {
-                                stmt += ' OR ';
-                            }
-                            stmt += "(snp = " + "'" + snp + "' " + "AND riskAllele = '" + alleleArray[j] + "')";
-                        }
-                        else {
-                            if (j != 0) {
-                                stmt += ' OR ';
-                            }
-                            stmt += "(snp = " + "'" + snp + "')";
-                        }
+        const Op = Sequelize.Op;
+        sequelize
+            .authenticate()
+            .then(() => {
+                const Model = Sequelize.Model;
+                class Table extends Model { }
+                Table.init({
+                    // attributes
+                    snp: {
+                        type: Sequelize.STRING,
+                        allowNull: false,
+                    },
+                    riskAllele: {
+                        type: Sequelize.CHAR,
+                        allowNull: false
+                    },
+                    pValue: {
+                        type: Sequelize.FLOAT,
+                        allowNull: false
+                    },
+                    oddsRatio: {
+                        type: Sequelize.FLOAT,
+                        allowNull: false
+                    },
+                    study: {
+                        type: Sequelize.STRING,
+                        allowNull: false,
                     }
+                }, {
+                        sequelize,
+                        modelName: diseaseTable,
+                        name: {
+                            primaryKey: true,
+                            type: Sequelize.STRING
+                        },
+                        freezeTableName: true,
+                        timestamps: false,
+                        // options
+                    });
+                //jsons for each person in a list
+                var personResultJsons = [];
+                for (const [sampleName, snpMap] of vcfMapMaps.entries()) {
+                    var resultsArray = [];
+                    for (const [snp, alleleArray] of snpMap.entries()) {
+                        alleleArray.forEach(function (allele) {
+                            //TODO how to make this more clean?
+                            if (allele !== null) {
+                                resultsArray.push(Table.findAll({
+                                    attributes: ['oddsRatio'],
+                                    where: {
+                                        pValue: {
+                                            [Op.lt]: pValue
+                                        },
+                                        snp: snp,
+                                        study: study,
+                                        riskAllele: allele
+                                    }
+                                }));
+                            }
+                            else {
+                                resultsArray.push(Table.findAll({
+                                    attributes: ['oddsRatio'],
+                                    where: {
+                                        pValue: {
+                                            [Op.lt]: pValue
+                                        },
+                                        snp: snp,
+                                        study: study
+                                    }
+                                }));
+                            }
+                        });
+                    }
+                    //push the json promises of the person onto the personResultJsons array
+                    personResultJsons.push(Promise.all(resultsArray).then(resultsArray => {
+                        var ORs = [];
+                        //get results from each promise and combine them togther to get combined odds ratio
+                        resultsArray.forEach(function (response) {
+                            //TODO testing if results can return more than one odds ratio- that would be a bad sign!
+                            if (response.length > 1) {
+                                console.log("We have a result that is longer than 1: ");
+                            }
+                            if (response.length > 0) {
+                                ORs.push(response[0].oddsRatio);
+                            }
+                        });
+                        var combinedOR = getCombinedORFromArray(ORs);
+                        var results = { sampleName: sampleName, numSNPsTested: snpMap.size, pValueCutoff: pValue, disease: disease.toUpperCase(), combinedOR: combinedOR }
+                        return JSON.stringify(results);
+                    }));
                 }
-                else {
-                    stmt += "(snp = " + "'" + snp + "')";
-                }
-                if (i == snpMap.size - 1) {
-                    stmt += ')';
-                }
-                ++i;
-            }
-
-            // query to the database and get the records
-            request.query(stmt, function (err, recordset) {
-
-                if (err) {
-                    res.status(500).send(err)
-                    console.log(err)
-                }
-                else {
-                    // send records as a response
-                    //$('#response').html("# SNPs: " + snpArray.length + " &#13;&#10P Value Cutoff: " + fullPValue + " &#13;&#10Disease(s): " + disease + " &#13;&#10Combined Odds Ratio: " + combinedOR + " &#13;&#10Data: " + data);
-                    var combinedOR = calculateScoreFunctions.getCombinedOR(recordset.recordset);
-                    var results = { numSNPs: snpMap.size, pValueCutoff: pValue, disease: disease, combinedOR: combinedOR }
-                    var jsonResults = JSON.stringify(results);
-                    res.send(jsonResults);
-                }
-
-                //TODO is this where this goes?
-                sql.close();
+                //final promise that sends all results
+                Promise.all(personResultJsons).then(jsons => {
+                    res.send(jsons);
+                }).catch(err => {
+                    console.error('Something went wrong. Error sent to client too.', err);
+                    res.status(500).send(err);
+                });
+            })
+            .catch(err => {
+                console.error('Something went wrong. Error sent to client too.', err);
+                res.status(500).send(err);
             });
-        });
     }
     else {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
     }
 });
 
-function getMapFromFileString(fileString) {
-    var snpMap = new Map();
-    var snpStringArray = fileString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
-    snpStringArray.forEach(snpString => {
-        var snp = snpString;
-        var allele = null;
-        if (snpString.includes(":")) {
-            snp = snpString.substring(0, snpString.indexOf(":"));
-            snp = snp.trim();
-            allele = snpString.substring(snpString.indexOf(":") + 1);
-            allele = allele.trim();
-        }
-        if (!snpMap.has(snp)) {
-            snpMap.set(snp, [allele])
-        }
-        else {
-            var alleleArray = snpMap.get(snp);
-            alleleArray.push(allele);
-            snpMap.set(snp, alleleArray)
-        }
-    });
-    return snpMap;
+function trimWhitespace(str) {
+    return str.replace(/^\s+|\s+$/gm, '');
 }
 
 /* app.get('/um', function (req, res) {
