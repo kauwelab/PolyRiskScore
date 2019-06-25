@@ -24,29 +24,55 @@ app.use(busboy());
 app.post('/parse_vcf', function (req, res) {
     //Find out how we'll handle vcf files with multiple people's info
     //Make sure this works with .gz files.
+    var vcfMap = createMap(req.body.fileData); 
+    console.log(vcfMap); 
+    res.send(''); 
+})
+
+function createMap(fileContents){
     var Readable = stream.Readable; 
     const s = new Readable();
-    s.push(req.body.data);
+
+    s.push(fileContents);
     s.push(null);
+    var oldVCF = vcf.emit; 
+    vcf.emit = function(){
+        var vcfMappie = new Map(); 
+        var emitArgs = arguments;
+        if(emitArgs['1']){
+            vcfMappie.set(emitArgs['1']['id'], emitArgs['1']['alt']);
+        }
+        
+    }
     vcf.readStream(s); 
-    var vcfArray = new Array(); 
+    var vcfMap = new Map(); 
+    //var vcfArray = new Array(); 
     vcf.on('data', function (feature){
-        console.log(feature); 
-        vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
+        //console.log(feature); 
+        //vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
+        vcfMap.set(feature['id'], feature['alt']);
     })  
  
     vcf.on('end', function(){
         console.log('end of file')
-        console.log(vcfArray); 
-        res.send(vcfArray); 
+        console.log(vcfMap); 
+        return vcfMap;  
     })
  
     vcf.on('error', function(err){
         console.error('it\'s not a vcf', err)
     })
-})
 
+    //return vcfMap; 
 
+    // vcfMap.set('rs11449', 'A'); 
+    // vcfMap.set('rs84825', 'C');
+    // vcfMap.set('rs84823', 'G'); 
+    // return vcfMap; 
+    //let result = await stuff; 
+    //console.log(result); 
+    
+}
 
 
 // POST route from contact form
@@ -82,6 +108,7 @@ app.post('/contact', function (req, res) {
 
 app.get('/test/', function (req, res) {
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
+    var snpMap = createMap(req.body.fileData);
     res.setHeader('Access-Control-Allow-Origin', '*');
     var calculateScoreFunctions = require('./static/js/calculate_score');
     //TODO testing purposes 
@@ -90,7 +117,7 @@ app.get('/test/', function (req, res) {
 
     //TODO get the fileString and boil it down to the snps and alleles instead of just spliting the file
     //var snpArray = req.query.fileString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
-    var snpMap = getMapFromFileString(req.query.fileString);
+    //var snpMap = getMapFromFileString(req.query.fileString);
     if (snpMap.size > 0) {
         var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
@@ -103,7 +130,6 @@ app.get('/test/', function (req, res) {
             server: 'localhost',
             database: 'TutorialDB'
         };
-
         // connect to your database
         sql.connect(config, function (err) {
 

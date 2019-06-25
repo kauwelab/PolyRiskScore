@@ -13,7 +13,6 @@ function SubmitFormData() {
     $('#response').html("Calculating. Please wait...")
     //gets the snps from the form
     var fileString = document.getElementsByName("input")[0].value;
-    fileToMap(); 
     //If this is empty, get it from file. 
     //Figure out how to deal with empty file and input...
     //the snpArray is then split on the ' ', ',' and '\n' characters and all empty items are removed
@@ -77,11 +76,11 @@ function handleFileSelect(evt) {
   }
 
   function fileToMap(){
-    createMap(); 
-  }
+    console.log("Got here"); 
+    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
+    var diseaseSelectElement = document.getElementById("diseaseSelect");
+    var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
 
-   function createMap(){
-   
     var vcfFile = document.getElementById("files").files[0]; 
 
     var reader = new FileReader();
@@ -92,10 +91,9 @@ function handleFileSelect(evt) {
         var result = event.target.result; 
         var filename = vcfFile.name; 
         var vcfMap = new Map(); 
-        $.post('/parse_vcf', {data : result, name : filename})
+        $.post('/parse_vcf', {fileData : result, name : filename, pVal : pValue, testDisease : disease})
             .done(function(response, status){ 
-                vcfMap = convertToMap(response); 
-                console.log(vcfMap)
+                console.log(response); 
             })
             .fail(function(error){
                 $('#response').html(error.responseText);
