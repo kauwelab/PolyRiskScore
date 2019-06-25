@@ -33,57 +33,63 @@ var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
 
-
-app.post('/parse_vcf', function (req, res) {
-    //Find out how we'll handle vcf files with multiple people's info
-    //Make sure this works with .gz files.
-    var vcfMap = createMap(req.body.fileData); 
-    console.log(vcfMap); 
-    res.send(''); 
-})
-
-function createMap(fileContents){
-    var Readable = stream.Readable; 
+function createMap(fileContents) {
+    var Readable = stream.Readable;
     const s = new Readable();
-
     s.push(fileContents);
     s.push(null);
-    var oldVCF = vcf.emit; 
-    vcf.emit = function(){
-        var vcfMappie = new Map(); 
-        var emitArgs = arguments;
-        if(emitArgs['1']){
-            vcfMappie.set(emitArgs['1']['id'], emitArgs['1']['alt']);
+    vcf.readStream(s);
+    var vcfMapMaps = new Map();
+    var numSamples = 0;
+    vcf.on('data', function (vcfLine) {
+        if (numSamples === 0) {
+            numSamples = vcfLine.sampleinfo.length;
+            vcfLine.sampleinfo.forEach(function (sample) {
+                vcfMapMaps.set(sample.NAME, new Map());
+            });
         }
-        
-    }
-    vcf.readStream(s); 
-    var vcfMap = new Map(); 
-    //var vcfArray = new Array(); 
-    vcf.on('data', function (feature){
-        //console.log(feature); 
-        //vcfArray.push({ key: feature['id'], val: feature['ref'] }); 
-        vcfMap.set(feature['id'], feature['alt']);
-    })  
- 
-    vcf.on('end', function(){
-        console.log('end of file')
-        console.log(vcfMap); 
-        return vcfMap;  
+        //gets all possible alleles for the current id
+        var possibleAlleles = [];
+        possibleAlleles.push(vcfLine.ref);
+        var altAlleles = vcfLine.alt.split(/[,]+/);
+        var i;
+        for (i = 0; i < altAlleles.length; i++) {
+            if (altAlleles[i] == ".") {
+                altAlleles.splice(i);
+            }
+        }
+        if (altAlleles.length > 0) {
+            possibleAlleles = possibleAlleles.concat(altAlleles);
+        }
+
+        vcfLine.sampleinfo.forEach(function (sample) {
+            var newMap = vcfMapMaps.get(sample.NAME);
+            //gets the allele indices
+            var alleles = sample.GT.split(/[|/]+/, 2);
+            //gets the alleles from the allele indices and replaces the indices with the alleles.
+            var i;
+            for (i = 0; i < alleles.length; i++) {
+                //if the allele is ".", treat it as the ref allele
+                if (alleles[i] == ".") {
+                    alleles[i] = possibleAlleles[0];
+                }
+                else {
+                    alleles[i] = possibleAlleles[alleles[i]];
+                }
+            }
+            newMap.set(vcfLine.id, alleles);
+            vcfMapMaps.set(sample.NAME, newMap);
+        });
     })
     vcf.on('error', function (err) {
         console.error('it\'s not a vcf', err)
     })
 
-    //return vcfMap; 
-
-    // vcfMap.set('rs11449', 'A'); 
-    // vcfMap.set('rs84825', 'C');
-    // vcfMap.set('rs84823', 'G'); 
-    // return vcfMap; 
-    //let result = await stuff; 
-    //console.log(result); 
-    
+    return new Promise(function (resolve, reject) {
+        vcf.on('end', function () {
+            resolve(vcfMapMaps);
+        });
+    });
 }
 
 function getCombinedORFromArray(ORs) {
@@ -149,17 +155,14 @@ app.post('/uploadFile', function (req, res) {
 
 app.get('/calculate_score/', async function (req, res) {
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
-    var snpMap = createMap(req.body.fileData);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    var calculateScoreFunctions = require('./static/js/calculate_score');
-    //TODO testing purposes 
-    var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-    console.log(fullUrl);
+    //TODO this code prints the URL- length may be an issue 
+    //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    //console.log(fullUrl);
 
-    //TODO get the fileString and boil it down to the snps and alleles instead of just spliting the file
-    //var snpArray = req.query.fileString.split(new RegExp('[, \n]', 'g')).filter(Boolean);
-    //var snpMap = getMapFromFileString(req.query.fileString);
-    if (snpMap.size > 0) {
+    var vcfMapMaps = await createMap(req.query.fileString);
+
+    if (vcfMapMaps.size > 0) {
         var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
         //TODO add correct disease table names to diseaseEnum!
@@ -175,51 +178,20 @@ app.get('/calculate_score/', async function (req, res) {
         }
 
         // config for your database
-        var config = {
-            user: 'root',
-            password: '12345',
-            server: 'localhost',
-            database: 'TutorialDB'
-        };
-        // connect to your database
-        sql.connect(config, function (err) {
-
-            if (err) console.log(err);
-
-            // create Request object
-            var request = new sql.Request();
-
-            /* TODO
-             * look into answer by Ritu here: https://stackoverflow.com/questions/5803472/sql-where-id-in-id1-id2-idn
-             * may make this more efficient for large input data
-             */
-            //TODO
-            /*
-                for ()
-                if (line contains ##)
-                continue
-                else if #
-                find column numbers
-                else
-            */
-
-            //TODO add correct disease table names to diseaseEnum!
-            var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS_OR", "alcheimer's disease": "ALCHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
-            var diseaseTable = diseaseEnum[disease];
-            //selects the "OR" from the disease table where the pValue is less than or equal to the value specified and where the snp is contained in the snps specified
-            var stmt = "SELECT oddsRatio " +
-                "FROM " + diseaseTable + " " +
-                "WHERE (CONVERT(FLOAT, [pValue]) <= " + SqlString.escape(pValue) + ")"
-            var i = 0;
-            //TODO messy foreach- use forloop instead
-            //TODO duplicate snps don't return OR value twice (makes combinedOR too small)
-            for (const [snp, alleleArray] of snpMap.entries()) {
-                if (i == 0) {
-                    stmt += " AND (";
-                }
-                else if (i != 0) {
-                    stmt += ' OR ';
-                }
+        const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+            host: 'localhost',
+            dialect: 'mssql',
+            define: {
+                schema: "dbo"
+            },
+            pool: {
+                max: 5,
+                min: 0,
+                acquire: 30000,
+                idle: 10000
+            },
+            logging: false
+        });
 
         const Op = Sequelize.Op;
         sequelize
