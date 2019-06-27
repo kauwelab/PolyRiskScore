@@ -27,15 +27,39 @@ function SubmitFormData() {
                 //data contains the info received by going to "/calculate_score"
                 var jsonObject = JSON.parse(data);
 
-                var returnText = "";
+                var returnText = "P Value Cutoff: " + jsonObject[0].pValueCutoff +
+                    " &#13;&#10Total Variants In File: " + jsonObject[0].totalVariants + " ";
                 //iterate through the list of people and print them each out seperately.
+                for (var i = 0; i < jsonObject.length; ++i) {
+                    if (i == 0) {
+                        continue;
+                    }
+
+                    returnText += "&#13;&#10Individual Name: " + jsonObject[i].individualName;
+                    jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
+                        returnText += " &#13;&#10  Disease: " + diseaseResult.disease;
+                        diseaseResult.studyResults.forEach(function (studyResult) {
+                            returnText += 
+                            " &#13;&#10    Study: " + studyResult.study +
+                            " &#13;&#10      Odds Ratio: " + studyResult.oddsRatio +
+                            " &#13;&#10      Percentile: " + studyResult.percentile +
+                            " &#13;&#10      # Variants In OR: " + studyResult.numVariantsIncluded +
+                            " &#13;&#10      Variants In OR: " + studyResult.variantsIncluded;
+                        });
+                    });
+                }
+                /*
                 jsonObject.forEach(function (sample) {
-                    returnText += "SampleName: " + JSON.parse(sample).sampleName + 
-                        " &#13;&#10# SNPs Tested: " + JSON.parse(sample).numSNPsTested +
-                        " &#13;&#10P Value Cutoff: " + JSON.parse(sample).pValueCutoff +
-                        " &#13;&#10Disease(s): " + JSON.parse(sample).disease +
-                        " &#13;&#10Combined Odds Ratio: " + JSON.parse(sample).combinedOR + "&#13;&#10&#13;&#10";
+                    returnText +=
+                        "&#13;&#10Sample Name: " + JSON.parse(sample).sampleName +
+                        " &#13;&#10  Disease: " + JSON.parse(sample).disease +
+                        " &#13;&#10    Study: " + JSON.parse(sample).study +
+                        " &#13;&#10      Odds Ratio: " + JSON.parse(sample).combinedOR +
+                        " &#13;&#10      Percentile: " + "" +
+                        " &#13;&#10      # Variants In OR: " + JSON.parse(sample).numPositiveSNPs +
+                        " &#13;&#10      Variants In OR: " + JSON.parse(sample).positiveSNPs + "&#13;&#10";
                 });
+                */
                 $('#response').html(returnText);
             }, "html").fail(function (jqXHR) {
                 $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
