@@ -16,7 +16,7 @@ app.use(bodyParser.json())
 app.listen(port, () => {
     var welcomeMessages = [];
     welcomeMessages.push("Welcome to the Polyscore Server!");
-    welcomeMessages.push("Your faithful server up and ready to conquer!");
+    welcomeMessages.push("Your faithful server is up and ready to conquer!");
     welcomeMessages.push("Here to serve!");
     welcomeMessages.push("Service with a smile :D");
     welcomeMessages.push("Running just for you!");
@@ -26,7 +26,7 @@ app.listen(port, () => {
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
-  }
+}
 
 //API End Point
 var busboy = require('connect-busboy'); //middleware for form/file upload
@@ -166,7 +166,7 @@ app.get('/calculate_score/', async function (req, res) {
         var pValue = req.query.pValue;
         var disease = req.query.disease.toLowerCase();
         //TODO add correct disease table names to diseaseEnum!
-        var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alzheimer's disease": "ALZHEIMERS_TABLE_NAME", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+        var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alzheimer's disease": "AD", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
         var diseaseTable = diseaseEnum[disease];
 
         var study = req.query.study;
@@ -234,28 +234,44 @@ app.get('/calculate_score/', async function (req, res) {
                         // options
                     });
                 //jsons for each person in a list
-                var personResultJsons = [];
-                for (const [sampleName, snpMap] of vcfMapMaps.entries()) {
+                var resultJsons = [];
+                resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfMapMaps.entries())[0][1].size }) //TODO this needs to be more clean and safe
+                for (const [individualName, snpMap] of vcfMapMaps.entries()) {
                     var resultsArray = [];
                     for (const [snp, alleleArray] of snpMap.entries()) {
                         alleleArray.forEach(function (allele) {
                             //TODO how to make this more clean?
                             if (allele !== null) {
-                                resultsArray.push(Table.findAll({
-                                    attributes: ['oddsRatio'],
-                                    where: {
-                                        pValue: {
-                                            [Op.lt]: pValue
-                                        },
-                                        snp: snp,
-                                        study: study,
-                                        riskAllele: allele
-                                    }
-                                }));
+                                if (study == "Lambert et al., 2013") {
+                                    resultsArray.push(Table.findAll({
+                                        attributes: ['oddsRatio', 'snp'],
+                                        where: {
+                                            pValue: {
+                                                [Op.lt]: pValue
+                                            },
+                                            snp: snp,
+                                            study: study,
+                                            minorAllele: allele
+                                        }
+                                    }));
+                                }
+                                else {
+                                    resultsArray.push(Table.findAll({
+                                        attributes: ['oddsRatio', 'snp'],
+                                        where: {
+                                            pValue: {
+                                                [Op.lt]: pValue
+                                            },
+                                            snp: snp,
+                                            study: study,
+                                            riskAllele: allele
+                                        }
+                                    }));
+                                }
                             }
                             else {
                                 resultsArray.push(Table.findAll({
-                                    attributes: ['oddsRatio'],
+                                    attributes: ['oddsRatio', 'snp'],
                                     where: {
                                         pValue: {
                                             [Op.lt]: pValue
@@ -268,8 +284,9 @@ app.get('/calculate_score/', async function (req, res) {
                         });
                     }
                     //push the json promises of the person onto the personResultJsons array
-                    personResultJsons.push(Promise.all(resultsArray).then(resultsArray => {
+                    resultJsons.push(Promise.all(resultsArray).then(resultsArray => {
                         var ORs = [];
+                        var snpORMap = new Map();
                         //get results from each promise and combine them togther to get combined odds ratio
                         resultsArray.forEach(function (response) {
                             //TODO testing if results can return more than one odds ratio- that would be a bad sign!
@@ -277,16 +294,59 @@ app.get('/calculate_score/', async function (req, res) {
                                 console.log("We have a result that is longer than 1: ");
                             }
                             if (response.length > 0) {
-                                ORs.push(response[0].oddsRatio);
+                                snpORMap.set(response[0].snp, response[0].oddsRatio);
+                                //ORs.push(response[0].oddsRatio);
                             }
                         });
-                        var combinedOR = getCombinedORFromArray(ORs);
-                        var results = { sampleName: sampleName, numSNPsTested: snpMap.size, pValueCutoff: pValue, disease: disease.toUpperCase(), combinedOR: combinedOR }
-                        return JSON.stringify(results);
+                        var combinedOR = getCombinedORFromArray(Array.from(snpORMap.values()));
+
+                        var studyResultTemp = {
+                            study: study,
+                            oddsRatio: combinedOR,
+                            percentile: "",
+                            numVariantsIncluded: snpORMap.size,
+                            variantsIncluded: Array.from(snpORMap.keys())
+                        }
+                        var diseaseResultTemp = {
+                            disease: disease.toUpperCase(),
+                            studyResults: [studyResultTemp]
+                        }
+                        var resultTemp = {
+                            individualName: individualName,
+                            diseaseResults: [diseaseResultTemp]
+                        };
+
+                        var foundIndividual = false;
+                        //see if the individual is in the array
+                        resultJsons.forEach(function (jsonObj) {
+                            //if the individual is already in the array
+                            if (jsonObj.individualName == individualName) {
+                                foundIndividual = true;
+                                var foundDisease = false;
+                                //see if the individual already has results for this disease
+                                jsonObj.diseaseResults.forEach(function (diseaseResult){
+                                    //if the disease is in the individual's array, add the study results to the disease array
+                                    if (diseaseResult.disease.toLowerCase() == disease.toLowerCase()) {
+                                        found = true;
+                                        diseaseResult.studyResults.push(studyResultTemp);
+                                        break;
+                                    }
+                                });
+                                //if the disease is not in the individual's array, add the disease and the study results to the individual
+                                if (foundDisease == false) {
+                                    jsonObj.push(diseaseResultTemp)
+                                }
+                            }
+                        });
+                        //if the individual is not in the array, add them
+                        if (foundIndividual == false) {
+                            return resultTemp; //JSON.stringify(resultTemp);
+                        }
+                        //Don't return anything? return JSON.stringify(result);
                     }));
                 }
                 //final promise that sends all results
-                Promise.all(personResultJsons).then(jsons => {
+                Promise.all(resultJsons).then(jsons => {
                     res.send(jsons);
                 }).catch(err => {
                     console.error('Something went wrong. Error sent to client too.', err);

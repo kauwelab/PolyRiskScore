@@ -1,6 +1,6 @@
 var diseasesandStudies = {};
 diseasesandStudies['ADHD'] = ['High impact', 'Largest Cohort'];
-diseasesandStudies['AD'] = ['Lambert et al.', 'Largest cohort'];
+diseasesandStudies['AD'] = ['Lambert et al., 2013 (High impact)', 'Largest cohort'];
 diseasesandStudies['ALS'] = ['van Rheenen W, 2016 (High impact)', 'van Rheenen W, 2016 (Largest Cohort)'];
 diseasesandStudies['Dep'] = ['High impact', 'Largest Cohort'];
 diseasesandStudies['HD'] = ['High impact', 'Largest Cohort'];
