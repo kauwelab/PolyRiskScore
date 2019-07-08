@@ -26,47 +26,86 @@ function SubmitFormData() {
             function (data) {
                 //data contains the info received by going to "/calculate_score"
                 var jsonObject = JSON.parse(data);
+                var outputVal = ""; 
+                var formatDropdown = document.getElementById("fileType");
+                var format = formatDropdown.options[formatDropdown.selectedIndex].value;
 
-                var returnText = "P Value Cutoff: " + jsonObject[0].pValueCutoff +
-                    " &#13;&#10Total Variants In File: " + jsonObject[0].totalVariants + " ";
-                //iterate through the list of people and print them each out seperately.
-                for (var i = 0; i < jsonObject.length; ++i) {
-                    if (i == 0) {
-                        continue;
-                    }
-
-                    returnText += "&#13;&#10Individual Name: " + jsonObject[i].individualName;
-                    jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
-                        returnText += " &#13;&#10  Disease: " + diseaseResult.disease;
-                        diseaseResult.studyResults.forEach(function (studyResult) {
-                            returnText += 
-                            " &#13;&#10    Study: " + studyResult.study +
-                            " &#13;&#10      Odds Ratio: " + studyResult.oddsRatio +
-                            " &#13;&#10      Percentile: " + studyResult.percentile +
-                            " &#13;&#10      # Variants In OR: " + studyResult.numVariantsIncluded +
-                            " &#13;&#10      Variants In OR: " + studyResult.variantsIncluded;
-                        });
-                    });
-                }
-                /*
-                jsonObject.forEach(function (sample) {
-                    returnText +=
-                        "&#13;&#10Sample Name: " + JSON.parse(sample).sampleName +
-                        " &#13;&#10  Disease: " + JSON.parse(sample).disease +
-                        " &#13;&#10    Study: " + JSON.parse(sample).study +
-                        " &#13;&#10      Odds Ratio: " + JSON.parse(sample).combinedOR +
-                        " &#13;&#10      Percentile: " + "" +
-                        " &#13;&#10      # Variants In OR: " + JSON.parse(sample).numPositiveSNPs +
-                        " &#13;&#10      Variants In OR: " + JSON.parse(sample).positiveSNPs + "&#13;&#10";
-                });
-                //csv:
-                //Sample Name, SNPs Tested, Value Cutoff : Header line
-                //Each value, separated by a comma. 
-                $('#response').html(returnText);
+                if(format === "text")
+                    outputVal += formatText(jsonObject); 
+                else if(format === "csv")
+                    outputVal += formatCSV(jsonObject); 
+                else if(format === "json")
+                    outputVal += JSON.stringify(jsonObject); 
+                else
+                    outputVal += "Please select a valid format."           
+                
+                $('#response').html(outputVal);
             }, "html").fail(function (jqXHR) {
                 $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
             });
     }
+    
+}
+
+function formatText(jsonObject){
+    var returnText = "P Value Cutoff: " + jsonObject[0].pValueCutoff +
+                    " &#13;&#10Total Variants In File: " + jsonObject[0].totalVariants + " ";
+
+    //iterate through the list of people and print them each out seperately.
+    for (var i = 0; i < jsonObject.length; ++i) {
+        if (i == 0) {
+            continue;
+        }
+
+        returnText += "&#13;&#10Individual Name: " + jsonObject[i].individualName;
+        jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
+            returnText += " &#13;&#10  Disease: " + diseaseResult.disease;
+            diseaseResult.studyResults.forEach(function (studyResult) {
+                returnText += 
+                " &#13;&#10    Study: " + studyResult.study +
+                " &#13;&#10      Odds Ratio: " + studyResult.oddsRatio +
+                " &#13;&#10      Percentile: " + studyResult.percentile +
+                " &#13;&#10      # Variants In OR: " + studyResult.numVariantsIncluded +
+                " &#13;&#10      Variants In OR: " + studyResult.variantsIncluded;
+            });
+        });
+    }
+
+    return returnText; 
+}
+
+function formatCSV(jsonObject){
+    var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # Variants in OR, Variants in OR";
+    
+    for (var i = 0; i < jsonObject.length; ++i) {
+        if (i == 0) {
+            continue;
+        }
+
+        jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
+            
+            diseaseResult.studyResults.forEach(function (studyResult) {
+                returnText += 
+                "&#13;&#10" + jsonObject[i].individualName +
+                ", " + diseaseResult.disease +
+                ", " + studyResult.study +
+                ", " + studyResult.oddsRatio +
+                ", " + studyResult.percentile +
+                ", " + studyResult.numVariantsIncluded +
+                ", " + studyResult.variantsIncluded;
+            });
+        });
+    }
+
+    return returnText; 
+}
+
+function downloadResults(){
+    var resultText = document.getElementById("response").value; 
+    $.post("/download_results", {resultText : resultText},
+    function(){
+        //Not sure what this function needs to do right now...
+    })
 }
 
 //Outputs some file information when the user selects a file. 
@@ -86,4 +125,4 @@ function handleFileSelect(evt) {
         $('#input').html(vcfText);
     })
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-}
+} 

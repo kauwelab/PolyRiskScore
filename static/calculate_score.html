@@ -160,7 +160,6 @@
                   <div class="btn btn-secondary btn-sm float-right btn-light">
                     <input type="file" id="files" name="file" />
                     <script src="js/calculate_score.js"></script>
-                    <button type="button" value="Submit" onclick="fileToMap();"  class="btn btn-secondary btn-light">Test</button>
                     
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
@@ -215,7 +214,17 @@
                             </select>
                           </div>
                     </h8>
+                    <p>&nbsp;</p>
+                  <div class="fileFormOptions"> 
+                    <select id="fileType">
+                        <!--<option selected="selected">All</option>-->
+                        <option value="">--Format Type--</option>
+                        <option value="text">Text</option>
+                        <option value="csv">CSV</option>
+                        <option value="json">JSON</option>
+                      </select>
                   </div>
+                </div>
                 </div>
               </div>
               <p>&nbsp;</p>
@@ -252,10 +261,10 @@
 
                 </div>
               </form>
-              <div class="text-black-50 float-left">
-                <a class="example" href="#">Example</a>
-
-
+              <p>&nbsp;</p>
+              <div class="downloadResults"> 
+                <button type="button" id="downloader" onclick="downloadResults();"
+                class="btn btn-primary">Download Results</button>
               </div>
             </div>
           </div>

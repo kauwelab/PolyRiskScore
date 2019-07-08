@@ -8,6 +8,7 @@ const app = express();
 const port = 3000
 const Sequelize = require('sequelize');
 const formidable = require('formidable');
+const fsys = require('fs');
 
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -154,6 +155,7 @@ app.post('/uploadFile', function (req, res) {
 });
 
 app.get('/calculate_score/', async function (req, res) {
+    
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
     //TODO this code prints the URL- length may be an issue 
@@ -371,12 +373,18 @@ function trimWhitespace(str) {
     res.send('Hello World!')
   }) */
 
-/* app.post('/post', function (req, res) {
-    res.send('Got a POST request')
-}) */
+app.post('/download_results', function (req, res) {
+    var DOWNLOAD_DIR = path.join(process.env.HOME || process.env.USERPROFILE, 'Downloads/');
+    var file_path = path.join(DOWNLOAD_DIR, "hello_world.txt");
+    fsys.writeFile(file_path, req.body.resultText, function (err) {
+        if (err) throw err;
+        console.log('Saved!');
+    });
+    res.end(); 
+}) 
 
 //   app.put('/user', function (req, res) {
-//     res.
+//     res.class="md-form" id="file-form">
 
 //send('Got a PUT request at /user')
 //   })
