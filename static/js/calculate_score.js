@@ -35,7 +35,7 @@ function SubmitFormData() {
                 else if(format === "csv")
                     outputVal += formatCSV(jsonObject); 
                 else if(format === "json")
-                    outputVal += JSON.stringify(jsonObject); 
+                    outputVal += data; 
                 else
                     outputVal += "Please select a valid format."           
                 
