@@ -216,9 +216,9 @@
                     </h8>
                     <p>&nbsp;</p>
                   <div class="fileFormOptions"> 
-                    <select id="fileType">
+                    <select id="fileType", onchange="changeFormat();">
                         <!--<option selected="selected">All</option>-->
-                        <option value="">--Format Type--</option>
+                        <option value="default">--Format Type--</option>
                         <option value="text">Text</option>
                         <option value="csv">CSV</option>
                         <option value="json">JSON</option>

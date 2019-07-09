@@ -373,15 +373,22 @@ function trimWhitespace(str) {
     res.send('Hello World!')
   }) */
 
-app.post('/download_results', function (req, res) {
-    var DOWNLOAD_DIR = path.join(process.env.HOME || process.env.USERPROFILE, 'Downloads/');
-    var file_path = path.join(DOWNLOAD_DIR, "hello_world.txt");
-    fsys.writeFile(file_path, req.body.resultText, function (err) {
-        if (err) throw err;
-        console.log('Saved!');
-    });
-    res.end(); 
-}) 
+// app.post('/download_results', function (req, res) {
+//     var DOWNLOAD_DIR = path.join(process.env.HOME || process.env.USERPROFILE, 'Downloads/');
+//     var file_name = "polyscore_" + getRandomInt(100000000);
+//     if(req.body.fileFormat === "csv"){
+//         file_name += ".csv";
+//     } 
+//     else{
+//         file_name += ".txt";
+//     }
+//     var file_path = path.join(DOWNLOAD_DIR, file_name);
+//     fsys.writeFile(file_path, req.body.resultText, function (err) {
+//         if (err) throw err;
+//         console.log('Saved!');
+//     });
+//     res.end(); 
+// }) 
 
 //   app.put('/user', function (req, res) {
 //     res.class="md-form" id="file-form">

@@ -1,6 +1,12 @@
 function SubmitFormData() {
     $('#response').html("Calculating. Please wait...")
 
+    var formatDropdown = document.getElementById("fileType");
+    var format = formatDropdown.options[formatDropdown.selectedIndex].value;
+    if (format === "default"){
+        $('#response').html("Please select a valid format"); 
+        return; 
+    }
     //file is already read into the input box
     var fileString = document.getElementsByName("input")[0].value;
     if (fileString === undefined || fileString === "") {
@@ -25,21 +31,8 @@ function SubmitFormData() {
         $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
             function (data) {
                 //data contains the info received by going to "/calculate_score"
-                var jsonObject = JSON.parse(data);
-                var outputVal = ""; 
-                var formatDropdown = document.getElementById("fileType");
-                var format = formatDropdown.options[formatDropdown.selectedIndex].value;
-
-                if(format === "text")
-                    outputVal += formatText(jsonObject); 
-                else if(format === "csv")
-                    outputVal += formatCSV(jsonObject); 
-                else if(format === "json")
-                    outputVal += data; 
-                else
-                    outputVal += "Please select a valid format."           
-                
-                $('#response').html(outputVal);
+                sessionStorage.setItem('riskResults', data);
+                setResultOutput(data);
             }, "html").fail(function (jqXHR) {
                 $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
             });
@@ -75,6 +68,7 @@ function formatText(jsonObject){
 }
 
 function formatCSV(jsonObject){
+    //Look for a csv writer npm module
     var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # Variants in OR, Variants in OR";
     
     for (var i = 0; i < jsonObject.length; ++i) {
@@ -87,29 +81,85 @@ function formatCSV(jsonObject){
             diseaseResult.studyResults.forEach(function (studyResult) {
                 returnText += 
                 "&#13;&#10" + jsonObject[i].individualName +
-                ", " + diseaseResult.disease +
-                ", " + studyResult.study +
-                ", " + studyResult.oddsRatio +
-                ", " + studyResult.percentile +
-                ", " + studyResult.numVariantsIncluded +
-                ", " + studyResult.variantsIncluded;
+                "," + diseaseResult.disease +
+                "," + studyResult.study +
+                "," + studyResult.oddsRatio +
+                "," + studyResult.percentile +
+                "," + studyResult.numVariantsIncluded +
+                "," + studyResult.variantsIncluded;
             });
         });
     }
-
+    var pattern = new RegExp("2016"); 
+    returnText.replace(pattern, "HELLO");
     return returnText; 
+}
+
+function changeFormat(){
+    if(!sessionStorage.getItem("riskResults")){
+        return
+    }
+    
+    var data = sessionStorage.getItem("riskResults");
+    setResultOutput(data); 
+}
+
+function setResultOutput(data){
+    var jsonObject = JSON.parse(data);
+    var outputVal = ""; 
+    var formatDropdown = document.getElementById("fileType");
+    var format = formatDropdown.options[formatDropdown.selectedIndex].value;
+
+    if(format === "text")
+        outputVal += formatText(jsonObject); 
+    else if(format === "csv")
+        outputVal += formatCSV(jsonObject); 
+    else if(format === "json")
+        outputVal += data; 
+    else
+        outputVal += "Please select a valid format."           
+                
+    $('#response').html(outputVal);
 }
 
 function downloadResults(){
     var resultText = document.getElementById("response").value; 
-    $.post("/download_results", {resultText : resultText},
-    function(){
-        //Not sure what this function needs to do right now...
-    })
+    var formatDropdown = document.getElementById("fileType");
+    var format = formatDropdown.options[formatDropdown.selectedIndex].value;
+    // $.post("/download_results", {resultText : resultText, fileFormat : format},
+    // function(){
+    //     //Not sure what this function needs to do right now...
+    // })
+    var fileName = "polyscore_" + getRandomInt(100000000);
+    if(format === "csv"){
+        fileName += ".csv";
+    } 
+    else{
+        fileName += ".txt";
+    }
+    download(fileName, resultText); 
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
 }
 
 //Outputs some file information when the user selects a file. 
 function handleFileSelect(evt) {
+    sessionStorage.removeItem("riskResults"); 
     var f = evt.target.files[0]; // FileList object
     var output = [];
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
