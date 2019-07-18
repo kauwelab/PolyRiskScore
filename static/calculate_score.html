@@ -144,7 +144,7 @@
 
                 <div class="form-text font-weight-bold">
 
-                  <textarea rows="10" cols="100" class="form-control" id="input" name="input"
+                  <textarea rows="10" cols="100" class="form-control nowrap"  id="input" name="input"
                     placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
                   <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
                     message.</span>
@@ -168,9 +168,8 @@
                   </div>
                 </div>
               </form>
-
               <div class="text-black-50 float-left">
-                <a class="example" href="#">Example</a>
+                <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
 
               </div>
 
@@ -246,14 +245,15 @@
 
                 <div class="form-text font-weight-bold">
 
-                  <textarea rows="10" cols="100" class="form-control" id="response" name="response"
+                  <textarea rows="10" cols="100" class="form-control nowrap" id="response" name="response"
                     placeholder="Example Results&#10;You are going to die!"
                     aria-describedby="response to query"></textarea>
 
                 </div>
               </form>
               <div class="text-black-50 float-left">
-                <a class="example" href="#">Example</a>
+                <button class="btn1 example" onclick="exampleOutput()">Example</button>
+
 
 
               </div>

@@ -7,9 +7,10 @@
     <title class="lead">Polygenic Risk Scores</title>
     <!-- Bootstrap -->
     <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <a class="navbar-brand" href="#">Learn More</a>
 		
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
@@ -35,17 +36,13 @@
         <div class="container">
           <div class="row">
             <div class="col-12">
-              <h1 class="text-center">The Polygenic Risk Score Knowledge Base</h1>
-              <p class="lead"><br>GWAS initially gave people false hopes for personalized medicine/disease risk predictions
-                <br>Common diseases are much more complex. 
-                <br>•	Define polygenic traits: more than one gene contributes to the phenotype
-                <br>•	The complexity of the genetic architecture of these diseases limits the direct utility of GWAS findings in predicting disease risk
-                <br>•	Most genetic testing focuses on single, rare mutations that can lead to certain diseases
-                <br>•	Many studies have implicated genetic variants in disease, but up until now, no centralized database currently exists to assess an individual genome against these previous studies. 
-                <br>•	Standardized disease risk scores relative to the rest of the population do not exist
-                <br>•	This tool assesses individual risk for all diseases based on common genetic variants
-                <br>•	This tool will impact the scientific community and potentially save lives by quickly screening and diagnosing people for increased risk for disease
-              </p>
+              <h1 class="text-center">What is a Polygenic Risk Score?</h1>
+                <h5 class = "text-center" style="font-style: oblique">Nature quote about the importance of PRS</h5><br>
+                <ul>
+                  <p class="drop-cap">For decades, most genetic research focused on single, common mutations significantly associated with certain diseases like breast cancer or Huntington’s disease. </p>
+                  <p style="font-size: 1.2em">The majority of complex traits, however, are determined by multiple variants with smaller effect sizes.</p>
+                  <p class="drop-cap">A polygenic risk score calculates an individual’s overall genetic risk for a condition.  and is the summation of the variants across their genome, weighted by the effect sizes on the disease or trait of interest.</p>
+                </ul>
               <p>&nbsp;</p>
               <p class="text-center"><a class="btn btn-primary btn-lg" href="images/Our PRS Paper.pdf" target="_blank" role="button">Miller et al. (2019)</a> </p>
             </div>
@@ -57,10 +54,10 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Calculating the Polygenic Risk Scores</h2>
-        <p class="lead"><br>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.
-              <br>•	Explain calculations
-          </p>
+            <h2>Calculating a Polygenic Risk Score</h2>
+        <p class="lead"><br>The score is derived by the data collected in <dfn data-info="an observational study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait.">genome-wide association studies</dfn>The odds ratios from the studies in our database are used as weights for each variant in order to compute a cumulative risk score for each sample.</p>
+        <p class="text-center">$$\sum_{k=1}^{\text{# loci}}\beta\text{k}\cdot\text{allele count}_{i,k}$$</p>
+        <p class="text-center" style="font-style: italic">Equation 1: The polygenic risk score for each sample is calculated by summing the total genetic risk of each associated variant multiplied by the number of alleles with that variant. The variable i denotes the individual. k denotes the locus of the variant. &beta; denotes the log odds ratio of that variant being associated with the specified disease.</p>
               <p>&nbsp;</p>
           </div>
         </div>
@@ -70,17 +67,60 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-12 mb-4 mt-2 text-center">
-				<h2>Additional Comments</h2>
-              <p class="lead"><br>•	Results will become more accurate as more GWAS studies are uploaded into the database
-                  <br>•	There’s current ethical bias in the genetic studies being performed. PRS will become more accurate for other ethnicities as the diversity in genetic studies increases.
-                <br>•	Obviously, environmental and lifestyle factors will still contribute to disease risk
-              </p>
+        <h2>Using a Polygenic Risk Score</h2><br>
+        <p class="text-center">
+            <ul class="prsList" style="text-align: left">
+              <li class="listItems" style="font-size: 1.5em"><a href="#">Disease prediction</a></li>
+              <li class="listItems" style="font-size: 1.5em"><a href="#">Clinical trial screening</a></li>
+              <li class="listItems" style="font-size: 1.5em"><a href="#">Additional filtering in genome-wide association studies</a></li>
+              <li class="listItems" style="font-size: 1.5em"><a href="#">Mendelian Randomization studies</a></li>
+              <li class="listItems" style="font-size: 1.5em"><a href="#">Infer disease status in cohorts lacking phenotypic data</a></li>
+            </ul>
+          </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+          <div class="row">
+            <div class="col-lg-12 mb-4 mt-2 text-center">
+              <h2>Benefits of the PRS Knowledge Base</h2><br><br>
+          <div id="flex-container">
+            <div class="flex-item">
+              <h5>User-Friendly</h5>
+              <p>Until now, the only tools available for calculating polygenic risk scores were on the command line. Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
+            </div>
+            <div class="flex-item">
+              <h5>Centralized Database</h5>
+              <p>Our Knowledge Base has a centralized database for all of the genome-wide association studies used to compute the scores. As new studies are performed, users can send us the studies through the website and we will manually review and add the information to our database.</p>
+            </div>
+            <div class="flex-item">
+              <h5>UK Bio-Bank</h5>
+              <p>We provide a tool for individual score results to be compared to average scores calculated from the UK Bio-Bank.</p>
+            </div>
+          </div>
+                <p>&nbsp;</p>
 				<p>&nbsp;</p>
             </div>
           </div>
-          
         </div>
-      </div>
+
+
+        <div class="jumbotron">
+            <div class="container">
+              <div class="row">
+                <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2>Additional Comments</h2><br>
+            <p style="text-align: left">The power of a polygenic risk score is contingent on the power and scope of the corresponding genome-wide association study data. One significant problem is the lack of diversity in the current genetic studies. 79% of all genome-wide association study data participants are of European descent. Scores for an individual are most accurate when computed from data of the same ethnicity. As such, the PRS Knowledge Base is currently more robust for studying subjects of European ancestry. As future studies begin incorporating greater diversity, the holistic accuracy of our Knowledge Base will similarly increase.              
+              </p>
+            <p style="text-align: left">
+              There are other environmental and genetic factors not measured in a polygenic risk score that can contribute to desase risk. Lifestyle factors, non-additive loci, epistasis, and gene by environment interactions play a role in actual disease phenotype.
+            </p>
+                </div>
+              </div>
+            </div>
+          </div>
 		
 <!--
   <div class="container">

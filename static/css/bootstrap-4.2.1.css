@@ -444,9 +444,9 @@ h6, .h6 {
 }
 
 .display-1 {
-  font-size: 6rem;
+  font-size: 8vw;
   font-weight: 300;
-  line-height: 1.2;
+  line-height: 1.0;
 }
 
 .display-2 {
@@ -466,6 +466,21 @@ h6, .h6 {
   font-weight: 300;
   line-height: 1.2;
 }
+
+.collapsible {
+  color: rgb(48, 60, 126);
+  cursor: pointer;
+  text-align: left;
+}
+
+.collapsible:hover {
+  color: rgb(133, 39, 120);
+}
+
+.content {
+  display: none;
+}
+
 
 hr {
   margin-top: 1rem;
@@ -502,6 +517,12 @@ mark,
 
 .list-inline-item:not(:last-child) {
   margin-right: 0.5rem;
+}
+
+.nowrap {
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: scroll;
 }
 
 .initialism {
@@ -2428,6 +2449,20 @@ textarea.form-control {
   .form-inline .custom-control-label {
     margin-bottom: 0;
   }
+}
+
+.btn1 {
+  border: none;
+  background-color: inherit;
+  padding: 0rem 0rem;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-block;
+  color: blue;
+}
+.btn1:hover {
+  color: #021e70;
+  text-decoration: underline;
 }
 
 .btn {
@@ -6132,6 +6167,106 @@ a.close.disabled {
   width: 0.5rem;
   height: 1rem;
   margin: 0.3rem 0;
+}
+.drop-cap:first-child:first-letter {
+  color: darkorange;
+  float: left;
+  font-family: Georgia;
+  font-size: 5em;
+  line-height: .3em;
+  padding-top: .04em;
+  padding-right: .05em;
+  
+}
+
+dfn {
+  background: rgba(0,0,0,0);
+  border-bottom: dashed 1px rgba(0,0,0,0.8);
+  padding: 0 0.4em;
+  cursor: help;
+  font-style: normal;
+  position: relative;
+  
+}
+dfn::after {
+  content: attr(data-info);
+  display: inline;
+  position: absolute;
+  top: 22px; left: 0;
+  opacity: 0;
+  width: 230px;
+  font-size: 13px;
+  font-weight: bolder;
+  line-height: 1.5em;
+  padding: 0.5em 0.8em;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  pointer-events: none; /* This prevents the box from apearing when hovered. */
+  transition: opacity 250ms, top 250ms;
+}
+dfn::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 12px; left: 20px;
+  opacity: 0;
+  width: 0; height: 0;
+  border: solid transparent 5px;
+  border-bottom-color: rgba(0,0,0,0.8);
+  transition: opacity 250ms, top 250ms;
+  font-weight: bolder;
+}
+dfn:hover {z-index: 2;} /* Keeps the info boxes on top of other elements */
+dfn:hover::after,
+dfn:hover::before {opacity: 1;}
+dfn:hover::after {top: 30px;}
+dfn:hover::before {top: 20px;}
+
+
+.prsList{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.listItems {
+  border-bottom: 1.5px solid #ccc;
+}
+
+.listItems:last-child {
+  border:none;
+}
+
+.listItems a {
+  text-decoration: none;
+  color: #000;
+
+  -webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
+  -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
+  -o-transition: font-size 0.3s ease, background-color 0.3s ease;
+  -ms-transition: font-size 0.3s ease, background-color 0.3s ease;
+  transition: font-size 0.3s ease, background-color 0.3s ease;
+}
+
+.listItems a:hover {
+  background: #f3f3f3dc;
+  font-size: 1.3em;
+}
+
+#flex-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin: 3 5;
+}
+
+.flex-item {
+  width: 28%;
+  height: 100%;
+  text-align: left;
+  border-bottom: rgb(168, 94, 3);
+  border-bottom-style: double;
 }
 
 .bs-popover-left .arrow::before, .bs-popover-auto[x-placement^="left"] .arrow::before,

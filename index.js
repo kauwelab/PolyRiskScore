@@ -1,31 +1,53 @@
+// Require all the Dependencies
 const express = require('express');
 const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars')
 var vcf = require('bionode-vcf');
-const stream = require('stream')
-const app = express();
-const port = 3000
+const stream = require('stream');
 const Sequelize = require('sequelize');
-const formidable = require('formidable');
 const multer = require('multer');
+const del = require('del');
+const fsExtra = require('fs-extra');
+
+//Define the port for app to listen on
+const port = 3000
+
+
+// Configure multer functionality
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'uploads')
     },
     filename: function (req, file, cb) {
-      cb(null, file.originalname)
+       cb(null, file.originalname)
     }
-  })
-   
-  var upload = multer({ storage: storage })
+  });
+const cleanFolder = function (folderPath) {
+      console.log("in clean folder");
+    // delete files inside folder but not the folder itself
+    del.sync([`${folderPath}/**`, `!${folderPath}`]);
+};
+const deleteFile = (file) => {
+    fs.unlink(__dirname + "/uploads/" + file.originalname, (err)  => {
+        if (err) throw err;
+    })
+};
+let timeOuts = [];
+var upload = multer({ storage: storage });
+cleanFolder(__dirname+"/uploads");
 
-
+// Configure middleware
+const app = express();
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json())
-
+app.use(bodyParser.json());
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
+var busboy = require('connect-busboy'); //middleware for form/file upload
+var fs = require('fs-extra');       //File System - for file manipulation
+app.use(busboy());
 app.listen(port, () => {
     var welcomeMessages = [];
     welcomeMessages.push("Welcome to the Polyscore Server!");
@@ -37,18 +59,11 @@ app.listen(port, () => {
     console.log(welcomeMessages[getRandomInt(welcomeMessages.length)]/*path.join(__dirname, 'static')*/) //prints a happy message on startup
 });
 
+
+// Helper Functions
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
   }
-
-// View Engine setup
-app.engine('handlebars', exphbs());
-app.set('view engine', 'handlebars');
- 
-//API End Point
-var busboy = require('connect-busboy'); //middleware for form/file upload
-var fs = require('fs-extra');       //File System - for file manipulation
-app.use(busboy());
 
 function createMap(fileContents) {
     var Readable = stream.Readable;
@@ -119,6 +134,13 @@ function getCombinedORFromArray(ORs) {
     return combinedOR;
 }
 
+function trimWhitespace(str) {
+    return str.replace(/^\s+|\s+$/gm, '');
+}
+
+
+// ROUTES
+
 // POST route from contact form
 app.post('/contact', function (req, res) {
     let mailOpts, smptTrans;
@@ -150,24 +172,10 @@ app.post('/contact', function (req, res) {
     res.end();
 });
 
-/*//Upload File POST
-app.post('/uploadFile', function(req, res){
-    console.log('in here')
-    var form = new formidable.IncomingForm();
-    form.parse(req);
-    form.on('fileBegin', function(name, file){
-        file.path = __dirname + '/uploads/' + file.name;
-    });
-    form.on('file', function(name, file){
-        console.log('Uploaded' + file.name);
-    });
-
-    res.send('upload successful!');
-});*/
-
-
-// POST route from contact form
+// POST route from upload GWAS form
 app.post('/sendGwas', upload.single('file'), (req, res) => {
+    console.log("in sendGWAS")
+    
   const file = req.file;
   if (!file) {
     res.send("please select a file");
@@ -187,7 +195,10 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
         from: req.body.name + ' &lt;' + req.body.email + '&gt;',
         to: 'kauwelab19@gmail.com',
         subject: 'New message from contact form at PRS.byu.edu',
-        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
+        text: `From ${req.body.name} at (${req.body.email})
+        Title: ${req.body.title}
+        Author: ${req.body.author}
+        Year: ${req.body.year}`,
         attachments:[
             {
                 path: file.path,
@@ -195,31 +206,23 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
             }
         ]
     };
+    console.log("after message")
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {
             res.writeHead(301, { Location: 'fail.html' });
             res.end();
+        }
+        else {
+            res.writeHead(301, { Location: 'success_upload.html' });
+            res.end();
+            cleanFolder(__dirname+"/uploads");
         } 
     });
-    res.writeHead(301, { Location: 'success.html' });
-    res.end();
   }
+  
   });
 
-app.post('/uploadFile', function (req, res) {
-    console.log('in here')
-    var form = new formidable.IncomingForm();
-    form.parse(req);
-    form.on('fileBegin', function (name, file) {
-        file.path = __dirname + '/uploads/' + file.name;
-    });
-    form.on('file', function (name, file) {
-        console.log('Uploaded' + file.name);
-    });
-
-    res.sendFile(__dirname + '/static/upload_gwas.html');
-});
-
+// GET route for calculating prs 
 app.get('/calculate_score/', async function (req, res) {
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -367,11 +370,9 @@ app.get('/calculate_score/', async function (req, res) {
     else {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
     }
-});
+}); 
 
-function trimWhitespace(str) {
-    return str.replace(/^\s+|\s+$/gm, '');
-}
+
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')
