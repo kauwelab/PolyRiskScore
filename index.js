@@ -180,8 +180,8 @@ app.get('/calculate_score/', async function (req, res) {
         }
 
         // config for your database
-        //const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-        const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+        const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+        //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
             host: 'localhost',
             dialect: 'mssql',
             define: {

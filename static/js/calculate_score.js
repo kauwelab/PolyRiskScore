@@ -156,23 +156,3 @@ function download(filename, text) {
   
     document.body.removeChild(element);
 }
-
-//Outputs some file information when the user selects a file. 
-function handleFileSelect(evt) {
-    sessionStorage.removeItem("riskResults"); 
-    var f = evt.target.files[0]; // FileList object
-    var output = [];
-    output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-        f.size, ' bytes, last modified: ',
-        f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-        '</li>');
-    var reader = new FileReader();
-    reader.readAsText(f);
-    reader.onload = (function (theFile) {
-        //TODO: If the file is really large, make a queue
-        vcfText = reader.result;
-        //reads the file into the input text box
-        $('#input').html(vcfText);
-    })
-    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-} 
