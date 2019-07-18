@@ -10,6 +10,14 @@ const Sequelize = require('sequelize');
 const formidable = require('formidable');
 const fsys = require('fs');
 
+var requirejs = require('requirejs');
+
+requirejs.config({
+    baseUrl: 'node_modules/requirejs',
+    nodeRequire: require
+});
+
+//requirejs(['static/js/calculate_score']);
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
