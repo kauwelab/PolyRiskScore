@@ -222,7 +222,8 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
   
   });
 
-// GET route for calculating prs 
+
+  // GET route for calculating prs 
 app.get('/calculate_score/', async function (req, res) {
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -371,6 +372,7 @@ app.get('/calculate_score/', async function (req, res) {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
     }
 }); 
+
 
 
 
