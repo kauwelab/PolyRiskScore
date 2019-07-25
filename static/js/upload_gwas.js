@@ -16,4 +16,5 @@
   var uploadGWAS = async() => {
       var text = await readFile(); 
       console.log(text); 
+      return text;
   }

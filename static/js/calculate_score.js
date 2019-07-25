@@ -344,7 +344,40 @@ function handleFileSelect(evt) {
         $('#input').html(vcfText);
     })
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-} 
+}
 
-document.getElementById('files').addEventListener('change', handleFileSelect, false);
+function exampleInput() {
+    var result = null;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open('GET', "ad_test.vcf", false);
+    xmlhttp.send();
+    if (xmlhttp.status==200) {
+        result = xmlhttp.responseText;
+    }
+    document.getElementById('input').value=(result);
 
+    document.getElementById('input').setAttribute("wrap", "soft");
+}
+
+function exampleOutput() {
+    var result1 = null;
+    var xmlhttp1 = new XMLHttpRequest();
+    xmlhttp1.open('GET', "ad_test.vcf", false);
+    xmlhttp1.send();
+    if (xmlhttp1.status==200) {
+        result1 = xmlhttp1.responseText;
+    }
+    document.getElementById('input').value=(result1);
+    document.getElementById('input').setAttribute("wrap", "soft");
+
+    var result2 = null;
+    var xmlhttp2 = new XMLHttpRequest();
+    xmlhttp2.open('GET', "ad_output.txt", false);
+    xmlhttp2.send();
+    if (xmlhttp2.status==200) {
+        result2 = xmlhttp2.responseText;
+    }
+    document.getElementById('response').value=(result2);
+
+
+}
