@@ -159,7 +159,12 @@
                 <div class="file-field">
                   <div class="btn btn-secondary btn-sm float-right btn-light">
                     <input type="file" id="files" name="file" />
+
                   
+
+                    <script src="js/handleFileSelect.js"></script>
+                    
+                    <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>

@@ -196,4 +196,3 @@ function handleFileSelect(evt) {
 
 document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
-
