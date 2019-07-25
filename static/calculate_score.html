@@ -159,10 +159,12 @@
                 <div class="file-field">
                   <div class="btn btn-secondary btn-sm float-right btn-light">
                     <input type="file" id="files" name="file" />
-                    <script src="js/calculate_score.js"></script>
-                    <button type="button" value="Submit" onclick="fileToMap();"  class="btn btn-secondary btn-light">Test</button>
+
+                  
+
+                    <script src="js/handleFileSelect.js"></script>
                     
-                    <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
+                    <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>
@@ -214,13 +216,26 @@
                             </select>
                           </div>
                     </h8>
+                    <p>&nbsp;</p>
+                  <script src="js/calculate_score.js"></script>
+                  <script src="js/vcf_parser.js"></script>
+                  <div class="fileFormOptions"> 
+                    <select id="fileType", onchange="changeFormat();">
+                        <!--<option selected="selected">All</option>-->
+                        <option value="default">--Format Type--</option>
+                        <option value="text">Text</option>
+                        <option value="csv">CSV</option>
+                        <option value="json">JSON</option>
+                      </select>
                   </div>
+                </div>
                 </div>
               </div>
               <p>&nbsp;</p>
-              <script src="js/calculate_score.js"></script>
+            
+              
               <!--uses "js/calculate_score.js"-->
-              <button type="button" id="feedbackSubmit" onclick="SubmitFormData();"
+              <button type="button" id="feedbackSubmit" onclick="calculatePolyScore();"
                 class="btn btn-primary btn-lg">Calculate Risk Scores</button>
                 <!--TODO
                 <button type="button" id="testButton" onclick="TestFileSendWithoutForm();"
@@ -251,11 +266,10 @@
 
                 </div>
               </form>
-              <div class="text-black-50 float-left">
-                <button class="btn1 example" onclick="exampleOutput()">Example</button>
-
-
-
+              <p>&nbsp;</p>
+              <div class="downloadResults"> 
+                <button type="button" id="downloader" onclick="downloadResults();"
+                class="btn btn-primary">Download Results</button>
               </div>
             </div>
           </div>

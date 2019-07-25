@@ -1,11 +1,13 @@
 var diseasesandStudies = {};
 diseasesandStudies['ADHD'] = ['High impact', 'Largest Cohort'];
-diseasesandStudies['AD'] = ['Lambert et al.', 'Largest cohort'];
+diseasesandStudies['AD'] = ['Lambert et al., 2013 (High impact)', 'Largest cohort'];
 diseasesandStudies['ALS'] = ['van Rheenen W, 2016 (High impact)', 'van Rheenen W, 2016 (Largest Cohort)'];
 diseasesandStudies['Dep'] = ['High impact', 'Largest Cohort'];
 diseasesandStudies['HD'] = ['High impact', 'Largest Cohort'];
 
 function ChangeDiseaseList() {
+    sessionStorage.removeItem("riskResults");
+    $('#response').html("");
     var diseaseList = document.getElementById("disease");
     var studyList = document.getElementById("diseaseStudy");
     var selDisease = diseaseList.options[diseaseList.selectedIndex].value;
@@ -26,3 +28,4 @@ function ChangeDiseaseList() {
          }
     }
 }
+
