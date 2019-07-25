@@ -10,6 +10,14 @@ const Sequelize = require('sequelize');
 const formidable = require('formidable');
 const fsys = require('fs');
 
+var requirejs = require('requirejs');
+
+requirejs.config({
+    baseUrl: 'node_modules/requirejs',
+    nodeRequire: require
+});
+
+//requirejs(['static/js/calculate_score']);
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
@@ -46,6 +54,7 @@ function createMap(fileContents) {
         if (numSamples === 0) {
             numSamples = vcfLine.sampleinfo.length;
             vcfLine.sampleinfo.forEach(function (sample) {
+                //console.log(sample); 
                 vcfMapMaps.set(sample.NAME, new Map());
             });
         }
@@ -88,6 +97,7 @@ function createMap(fileContents) {
 
     return new Promise(function (resolve, reject) {
         vcf.on('end', function () {
+            console.log(vcfMapMaps); 
             resolve(vcfMapMaps);
         });
     });

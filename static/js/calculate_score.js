@@ -1,3 +1,18 @@
+
+
+// requirejs(['bionode-vcf'],
+// function(bio_vcf) {
+//     console.log(bio_vcf); 
+//     //foo and bar are loaded according to requirejs
+//     //config, but if not found, then node's require
+//     //is used to load the module.
+// });
+function calculatePolyScore(){
+    var testMessage = new VCFParser(); 
+    var fileString = document.getElementsByName("input")[0].value;
+    testMessage.parseStream(fileString, "vcf"); 
+}
+
 function SubmitFormData() {
     $('#response').html("Calculating. Please wait...")
     //file should already be read into the input box at this point
@@ -309,3 +324,27 @@ function download(filename, text) {
 
     document.body.removeChild(element);
 }
+
+//Outputs some file information when the user selects a file. 
+function handleFileSelect(evt) {
+    sessionStorage.removeItem("riskResults"); 
+    $('#response').html("");
+    var f = evt.target.files[0]; // FileList object
+    var output = [];
+    output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+        f.size, ' bytes, last modified: ',
+        f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+        '</li>');
+    var reader = new FileReader();
+    reader.readAsText(f);
+    reader.onload = (function (theFile) {
+        //TODO: If the file is really large, make a queue
+        vcfText = reader.result;
+        //reads the file into the input text box
+        $('#input').html(vcfText);
+    })
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+} 
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
+

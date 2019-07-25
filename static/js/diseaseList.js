@@ -8,6 +8,7 @@ diseasesandStudies['HD'] = ['High impact', 'Largest Cohort'];
 
 function ChangeDiseaseList() {
     sessionStorage.removeItem("riskResults");
+    $('#response').html("");
     var diseaseList = document.getElementById("disease");
     var studyList = document.getElementById("diseaseStudy");
     var selDisease = diseaseList.options[diseaseList.selectedIndex].value;
@@ -28,3 +29,4 @@ function ChangeDiseaseList() {
          }
     }
 }
+

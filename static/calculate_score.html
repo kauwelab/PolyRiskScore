@@ -159,9 +159,13 @@
                 <div class="file-field">
                   <div class="btn btn-secondary btn-sm float-right btn-light">
                     <input type="file" id="files" name="file" />
+
+                  
+
                     <script src="js/handleFileSelect.js"></script>
 
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
+
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>
@@ -216,9 +220,10 @@
                       </div>
                     </h8>
                     <p>&nbsp;</p>
-                    <h5>Output Format&nbsp;</h5>
-                    <div class="fileFormOptions">
-                      <select id="fileType" , onchange="changeFormat();">
+                  <script src="js/calculate_score.js"></script>
+                  <script src="js/vcf_parser.js"></script>
+                  <div class="fileFormOptions"> 
+                    <select id="fileType", onchange="changeFormat();">
                         <!--<option selected="selected">All</option>-->
                         <!--<option value="default">--Format Type--</option>-->
                         <option value="text">Text</option>
@@ -230,9 +235,10 @@
                 </div>
               </div>
               <p>&nbsp;</p>
-              <script src="js/calculate_score.js"></script>
+            
+              
               <!--uses "js/calculate_score.js"-->
-              <button type="button" id="feedbackSubmit" onclick="SubmitFormData();"
+              <button type="button" id="feedbackSubmit" onclick="calculatePolyScore();"
                 class="btn btn-primary btn-lg">Calculate Risk Scores</button>
               <!--TODO
                 <button type="button" id="testButton" onclick="TestFileSendWithoutForm();"
