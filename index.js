@@ -154,8 +154,9 @@ app.post('/uploadFile', function (req, res) {
     res.sendFile(__dirname + '/static/upload_gwas.html');
 });
 
+//see calculate_score.js for the code that calls this function (currently not in use)
 app.get('/calculate_score/', async function (req, res) {
-    
+
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
     //TODO this code prints the URL- length may be an issue 
@@ -181,7 +182,7 @@ app.get('/calculate_score/', async function (req, res) {
 
         // config for your database
         const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-        //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+            //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
             host: 'localhost',
             dialect: 'mssql',
             define: {
@@ -253,7 +254,7 @@ app.get('/calculate_score/', async function (req, res) {
                                             },
                                             snp: snp,
                                             study: study,
-                                            minorAllele: allele
+                                            riskAllele: allele
                                         }
                                     }));
                                 }
@@ -326,7 +327,7 @@ app.get('/calculate_score/', async function (req, res) {
                                 foundIndividual = true;
                                 var foundDisease = false;
                                 //see if the individual already has results for this disease
-                                jsonObj.diseaseResults.forEach(function (diseaseResult){
+                                jsonObj.diseaseResults.forEach(function (diseaseResult) {
                                     //if the disease is in the individual's array, add the study results to the disease array
                                     if (diseaseResult.disease.toLowerCase() == disease.toLowerCase()) {
                                         found = true;
@@ -364,6 +365,162 @@ app.get('/calculate_score/', async function (req, res) {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
     }
 });
+
+//
+/**
+ * Returns a list of diseaseRow objects, each of which contain a disease name and a list of its corresponding studiesRows objects. 
+ * Each studyRow object contains a study name and its corresponding rows in the disease table with the given p-value.
+ * See calculate_score.js for the code that calls this function.
+ */
+app.get('/study_table/', async function (req, res) {
+    //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    //an array of diseases mapped to lists of studies asociated with each disease (most often it is one disease to a list of one study)
+    var diseaseStudyMapArray = JSON.parse(req.query.diseaseStudyMapArray);
+    var pValue = req.query.pValue;
+
+    //TODO add correct disease table names to diseaseEnum!
+    var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alzheimer's disease": "AD", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
+
+    // config for the database
+    const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+        //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+        host: 'localhost',
+        dialect: 'mssql',
+        define: {
+            schema: "dbo"
+        },
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        },
+        logging: false
+    });
+
+    sequelize
+        .authenticate()
+        .then(async function () {
+            //gets a diseaseRows list to send to the client
+            var diseaseRows = await getDiseaseRows(sequelize, diseaseEnum, pValue, diseaseStudyMapArray);
+            res.send(diseaseRows);
+        });
+});
+
+/**
+ * Returns a list of objects, each of which contains a disease name from the diseaseStudyMapArray 
+ * and a list of corresponding studyRow objects from the given table.
+ * @param {*} sequelize 
+ * @param {*} diseaseEnum 
+ * @param {*} pValue 
+ * @param {*} diseaseStudyMapArray 
+ * @return a diseaseRows object: a list of objects containing disease names and studyRow objects
+ */
+async function getDiseaseRows(sequelize, diseaseEnum, pValue, diseaseStudyMapArray) {
+    var diseaseRows = [];
+    //for each disease, get it's table from the database 
+    for (var i = 0; i < diseaseStudyMapArray.length; ++i) {
+        var disease = diseaseStudyMapArray[i].disease;
+        var studiesArray = diseaseStudyMapArray[i].studies;
+        const Model = Sequelize.Model;
+        class Table extends Model { }
+        Table.init({
+            // attributes
+            snp: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            riskAllele: {
+                type: Sequelize.CHAR,
+                allowNull: false
+            },
+            pValue: {
+                type: Sequelize.FLOAT,
+                allowNull: false
+            },
+            oddsRatio: {
+                type: Sequelize.FLOAT,
+                allowNull: false
+            },
+            study: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            }
+        }, {
+                sequelize,
+                modelName: diseaseEnum[disease.toLowerCase()],
+                name: {
+                    primaryKey: true,
+                    type: Sequelize.STRING
+                },
+                freezeTableName: true,
+                timestamps: false,
+                // options
+            });
+        //gets the ..............................................
+        var studiesRows = await getStudiesRows(pValue, studiesArray, Table)
+        diseaseRows.push({ disease: disease, studiesRows: studiesRows })
+    }
+    return diseaseRows;
+}
+
+/**
+ * Returns a list of objects, each of which contains a study name from the study array 
+ * and its corresponding rows in the given table.
+ * @param {*} pValue 
+ * @param {*} studiesArray 
+ * @param {*} table 
+ * @retunr a studyRows list: a list of objects containing study names and their corresponding table rows
+ */
+async function getStudiesRows(pValue, studiesArray, table) {
+    var studiesRows = [];
+    for (var i = 0; i < studiesArray.length; ++i) {
+        var study = studiesArray[i];
+        var rows = await getRows(pValue, study, table);
+        studiesRows.push({ study: study, rows: rows })
+    }
+    return studiesRows;
+}
+
+/**
+ * Returns a list of rows corresponding to the p-value cutoff and study in the given table
+ * @param {*} pValue 
+ * @param {*} study 
+ * @param {*} table
+ * @retrun a list of rows corresponding to the p-value and study in the table 
+ */
+async function getRows(pValue, study, table) {
+    const Op = Sequelize.Op;
+    var tableRows = [];
+    //first find the valid results from the table (tests for valid p-value and study)
+    tableRows.push(table.findAll({
+        attributes: ['snp', 'riskAllele', 'pValue', 'oddsRatio'],
+        where: {
+            pValue: {
+                [Op.lt]: pValue
+            },
+            study: study,
+        }
+    }));
+    var rows = [];
+    //loops through the valid found rows and converts them into objects which are stored in an array and returned.
+    return Promise.all(tableRows).then(tableRows => {
+        //Result seems to be an array of arrays. To reach the inner arrays (the actual rows), we have to go through the first array.
+        var tableRows = tableRows[0];
+        tableRows.forEach(function (tableRow) {
+            var row = {
+                snp: tableRow.snp,
+                riskAllele: tableRow.riskAllele,
+                pValue: tableRow.pValue,
+                oddsRatio: tableRow.oddsRatio
+            }
+            rows.push(row);
+        });
+        return rows;
+    })
+}
 
 function trimWhitespace(str) {
     return str.replace(/^\s+|\s+$/gm, '');
