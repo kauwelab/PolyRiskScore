@@ -214,6 +214,7 @@
                     </h8>
                     <p>&nbsp;</p>
                   <script src="js/calculate_score.js"></script>
+                  <script src="js/vcf_parser.js"></script>
                   <div class="fileFormOptions"> 
                     <select id="fileType", onchange="changeFormat();">
                         <!--<option selected="selected">All</option>-->
@@ -230,7 +231,7 @@
             
               
               <!--uses "js/calculate_score.js"-->
-              <button type="button" id="feedbackSubmit" onclick="SubmitFormData();"
+              <button type="button" id="feedbackSubmit" onclick="calculatePolyScore();"
                 class="btn btn-primary btn-lg">Calculate Risk Scores</button>
                 <!--TODO
                 <button type="button" id="testButton" onclick="TestFileSendWithoutForm();"

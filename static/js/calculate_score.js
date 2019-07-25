@@ -7,6 +7,11 @@
 //     //config, but if not found, then node's require
 //     //is used to load the module.
 // });
+function calculatePolyScore(){
+    var testMessage = new VCFParser(); 
+    var fileString = document.getElementsByName("input")[0].value;
+    testMessage.parseStream(fileString, "vcf"); 
+}
 
 function SubmitFormData() {
     $('#response').html("Calculating. Please wait...")

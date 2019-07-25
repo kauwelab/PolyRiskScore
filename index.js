@@ -54,6 +54,7 @@ function createMap(fileContents) {
         if (numSamples === 0) {
             numSamples = vcfLine.sampleinfo.length;
             vcfLine.sampleinfo.forEach(function (sample) {
+                //console.log(sample); 
                 vcfMapMaps.set(sample.NAME, new Map());
             });
         }
@@ -96,6 +97,7 @@ function createMap(fileContents) {
 
     return new Promise(function (resolve, reject) {
         vcf.on('end', function () {
+            console.log(vcfMapMaps); 
             resolve(vcfMapMaps);
         });
     });
