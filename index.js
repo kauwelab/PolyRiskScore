@@ -1,27 +1,54 @@
+// Require all the Dependencies
 const express = require('express');
 const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
+const exphbs = require('express-handlebars')
 var vcf = require('bionode-vcf');
-const stream = require('stream')
-const app = express();
-const port = 3000
+const stream = require('stream');
 const Sequelize = require('sequelize');
-const formidable = require('formidable');
-const fsys = require('fs');
+const multer = require('multer');
+const del = require('del');
+const fsExtra = require('fs-extra');
 
-var requirejs = require('requirejs');
+//Define the port for app to listen on
+const port = 3000
 
-requirejs.config({
-    baseUrl: 'node_modules/requirejs',
-    nodeRequire: require
-});
 
-//requirejs(['static/js/calculate_score']);
+// Configure multer functionality
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads')
+    },
+    filename: function (req, file, cb) {
+       cb(null, file.originalname)
+    }
+  });
+const cleanFolder = function (folderPath) {
+      console.log("in clean folder");
+    // delete files inside folder but not the folder itself
+    del.sync([`${folderPath}/**`, `!${folderPath}`]);
+};
+const deleteFile = (file) => {
+    fs.unlink(__dirname + "/uploads/" + file.originalname, (err)  => {
+        if (err) throw err;
+    })
+};
+let timeOuts = [];
+var upload = multer({ storage: storage });
+cleanFolder(__dirname+"/uploads");
+
+// Configure middleware
+const app = express();
+
 app.use('/', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json())
-
+app.use(bodyParser.json());
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
+var busboy = require('connect-busboy'); //middleware for form/file upload
+var fs = require('fs-extra');       //File System - for file manipulation
+app.use(busboy());
 app.listen(port, () => {
     var welcomeMessages = [];
     welcomeMessages.push("Welcome to the Polyscore Server!");
@@ -33,14 +60,11 @@ app.listen(port, () => {
     console.log(welcomeMessages[getRandomInt(welcomeMessages.length)]/*path.join(__dirname, 'static')*/) //prints a happy message on startup
 });
 
+
+// Helper Functions
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
-
-//API End Point
-var busboy = require('connect-busboy'); //middleware for form/file upload
-var fs = require('fs-extra');       //File System - for file manipulation
-app.use(busboy());
 
 function createMap(fileContents) {
     var Readable = stream.Readable;
@@ -113,6 +137,13 @@ function getCombinedORFromArray(ORs) {
     return combinedOR;
 }
 
+function trimWhitespace(str) {
+    return str.replace(/^\s+|\s+$/gm, '');
+}
+
+
+// ROUTES
+
 // POST route from contact form
 app.post('/contact', function (req, res) {
     let mailOpts, smptTrans;
@@ -130,40 +161,72 @@ app.post('/contact', function (req, res) {
         to: 'kauwelab19@gmail.com',
         subject: 'New message from contact form at PRS.byu.edu',
         text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
-        attachments: [
-            {
-                filename: req.files.gwas,
-                path: req.file.path
-            }
-        ]
+       
+        
+        
     };
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {
             res.writeHead(301, { Location: 'fail.html' });
             res.end();
-        } else {
-            res.writeHead(301, { Location: 'success.html' });
-            res.end();
-        }
+        } 
     });
-    res.writeHead(301, { Location: 'index.html' });
+    res.writeHead(301, { Location: 'success.html' });
     res.end();
 });
 
-app.post('/uploadFile', function (req, res) {
-    console.log('in here')
-    var form = new formidable.IncomingForm();
-    form.parse(req);
-    form.on('fileBegin', function (name, file) {
-        file.path = __dirname + '/uploads/' + file.name;
+// POST route from upload GWAS form
+app.post('/sendGwas', upload.single('file'), (req, res) => {
+    console.log("in sendGWAS")
+    
+  const file = req.file;
+  if (!file) {
+    res.send("please select a file");
+  }
+  else {
+    let mailOpts, smptTrans;
+    smptTrans = nodeMailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'kauwelab19@gmail.com',
+            pass: 'kauwelab2019!'
+        }
     });
-    form.on('file', function (name, file) {
-        console.log('Uploaded' + file.name);
+    mailOpts = {
+        from: req.body.name + ' &lt;' + req.body.email + '&gt;',
+        to: 'kauwelab19@gmail.com',
+        subject: 'New message from contact form at PRS.byu.edu',
+        text: `From ${req.body.name} at (${req.body.email})
+        Title: ${req.body.title}
+        Author: ${req.body.author}
+        Year: ${req.body.year}`,
+        attachments:[
+            {
+                path: file.path,
+                filename: file.filename
+            }
+        ]
+    };
+    console.log("after message")
+    smptTrans.sendMail(mailOpts, (err, data) => {
+        if (err) {
+            res.writeHead(301, { Location: 'fail.html' });
+            res.end();
+        }
+        else {
+            res.writeHead(301, { Location: 'success_upload.html' });
+            res.end();
+            cleanFolder(__dirname+"/uploads");
+        } 
     });
+  }
+  
+  });
 
-    res.sendFile(__dirname + '/static/upload_gwas.html');
-});
 
+  // GET route for calculating prs 
 app.get('/calculate_score/', async function (req, res) {
     
     //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
@@ -373,11 +436,10 @@ app.get('/calculate_score/', async function (req, res) {
     else {
         res.status(500).send("No SNPs were tested. Please upload a VCF file or type entries in the box above.")
     }
-});
+}); 
 
-function trimWhitespace(str) {
-    return str.replace(/^\s+|\s+$/gm, '');
-}
+
+
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')
