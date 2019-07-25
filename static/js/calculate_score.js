@@ -1,3 +1,18 @@
+
+
+// requirejs(['bionode-vcf'],
+// function(bio_vcf) {
+//     console.log(bio_vcf); 
+//     //foo and bar are loaded according to requirejs
+//     //config, but if not found, then node's require
+//     //is used to load the module.
+// });
+function calculatePolyScore(){
+    var testMessage = new VCFParser(); 
+    var fileString = document.getElementsByName("input")[0].value;
+    testMessage.parseStream(fileString, "vcf"); 
+}
+
 function SubmitFormData() {
     $('#response').html("Calculating. Please wait...")
 
@@ -30,6 +45,7 @@ function SubmitFormData() {
     else {
         $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
             function (data) {
+            
                 //data contains the info received by going to "/calculate_score"
                 sessionStorage.setItem('riskResults', data);
                 setResultOutput(data);
@@ -160,6 +176,7 @@ function download(filename, text) {
 //Outputs some file information when the user selects a file. 
 function handleFileSelect(evt) {
     sessionStorage.removeItem("riskResults"); 
+    $('#response').html("");
     var f = evt.target.files[0]; // FileList object
     var output = [];
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
@@ -176,3 +193,6 @@ function handleFileSelect(evt) {
     })
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 } 
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
