@@ -73,8 +73,9 @@ VCFParser.prototype.parseStream = function(instream, extension){
             if (info.length < 9) {
               //var err = new Error('number of columns in the file are less than expected in vcf')
               //vcf.emit('error', err)
+              //if vcfMapMaps is empty...
               this.error = true; 
-              //console.log(vcfMapMaps); 
+              console.log(vcfMapMaps); 
               return
             }
       
@@ -165,7 +166,6 @@ VCFParser.prototype.parseStream = function(instream, extension){
           }
   
           varData.sampleinfo.forEach(function (sample) {
-              var newMap = vcfMapMaps.get(sample.NAME);
               //gets the allele indices
               var alleles = sample.GT.split(/[|/]+/, 2);
               //gets the alleles from the allele indices and replaces the indices with the alleles.
@@ -179,8 +179,8 @@ VCFParser.prototype.parseStream = function(instream, extension){
                       alleles[i] = possibleAlleles[alleles[i]];
                   }
               }
-              newMap.set(varData.id, alleles);
-              vcfMapMaps.set(sample.NAME, newMap);
+              vcfMapMaps.get(sample.NAME).set(varData.id, alleles);
+              //vcfMapMaps.set(sample.NAME, newMap);
           });
           }
         }); 
