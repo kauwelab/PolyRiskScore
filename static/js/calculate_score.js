@@ -90,7 +90,6 @@ function ServerCalculateScore(){
         //data contains the info received by going to "/calculate_score"
         setResultOutput(data); 
         sessionStorage.setItem('riskResults', data);
-        setResultOutput(data);
     }, "html").fail(function (jqXHR) {
         $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
     });
