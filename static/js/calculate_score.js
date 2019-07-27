@@ -71,12 +71,7 @@ function ClientCalculateScore(extension) {
 
 function ServerCalculateScore(){
     var fileString = document.getElementsByName("input")[0].value;
-    var formatDropdown = document.getElementById("fileType");
-    var format = formatDropdown.options[formatDropdown.selectedIndex].value;
-    if (format === "default"){
-        $('#response').html("Please select a valid format"); 
-        return; 
-    }
+    
     if (fileString === undefined || fileString === "") {
         //if here, the vcf file was not read properly- shouldn't ever happen
         $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
