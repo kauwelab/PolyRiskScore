@@ -70,6 +70,7 @@ function ClientCalculateScore(extension) {
 }
 
 function ServerCalculateScore(){
+    var fileString = document.getElementsByName("input")[0].value;
     var formatDropdown = document.getElementById("fileType");
     var format = formatDropdown.options[formatDropdown.selectedIndex].value;
     if (format === "default"){
@@ -81,8 +82,14 @@ function ServerCalculateScore(){
         $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
         return; 
     }
+    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
+        //gets the disease name from the drop down list
+        var diseaseSelectElement = document.getElementById("disease");
+        var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
+        //gets the study name from the drop down list
+        var studySelectElement = document.getElementById("diseaseStudy");
+        var study = studySelectElement.options[studySelectElement.selectedIndex].text
     //file is already read into the input box
-    var fileString = document.getElementsByName("input")[0].value;
     $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
     function (data) {
         //data contains the info received by going to "/calculate_score"
