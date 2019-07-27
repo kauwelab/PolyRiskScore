@@ -2,6 +2,8 @@
 function handleFileSelect(evt) {
     var f = evt.target.files[0]; // FileList object
     var output = [];
+    sessionStorage.removeItem("filename"); 
+    sessionStorage.setItem("filename", f.name); 
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
         f.size, ' bytes, last modified: ',
         f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',

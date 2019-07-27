@@ -1,25 +1,29 @@
+//import { file } from "babel-types";
 
 
-// requirejs(['bionode-vcf'],
-// function(bio_vcf) {
-//     console.log(bio_vcf); 
-//     //foo and bar are loaded according to requirejs
-//     //config, but if not found, then node's require
-//     //is used to load the module.
-// });
+
 function calculatePolyScore(){
-    var testMessage = new VCFParser(); 
-    var fileString = document.getElementsByName("input")[0].value;
-    testMessage.parseStream(fileString, "vcf"); 
+    $('#response').html("Calculating. Please wait...")
+    var fileVal = document.getElementById("files").files[0]; 
+    var fileSize = fileVal.size; 
+    var extension = fileVal.name.split(".")[1];  
+    if (fileSize < 1500000 || extension === "gz" || extension === "zip"){
+        ServerCalculateScore(); 
+        return
+    }
+    
+    ClientCalculateScore(extension); 
+    
 }
 
-function SubmitFormData() {
-    $('#response').html("Calculating. Please wait...")
+function ClientCalculateScore(extension) {
+    
     //file should already be read into the input box at this point
     var fileString = document.getElementsByName("input")[0].value;
     if (fileString === undefined || fileString === "") {
         //if here, the vcf file was not read properly- shouldn't ever happen
         $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+        return; 
     }
     else {
         // get value of selected 'pvalue' radio button in 'radioButtons'
@@ -37,7 +41,9 @@ function SubmitFormData() {
         else {
             var diseaseStudyMapArray = makeDiseaseStudyMapArray(disease, study)
             //TODO insert vcf parser here and set vcfObj to it's return value
-            var vcfObj = parseVCF();
+            var vcfParser = new VCFParser(); 
+            var vcfObj = vcfParser.parseStream(fileString, extension); 
+            //var vcfObj = parseVCF();
             var diseaseStudyMapArray = JSON.stringify(diseaseStudyMapArray);
             $.get("study_table", { /*diseases: diseases, studies: studies*/diseaseStudyMapArray, pValue: pValue },
                 function (studyTableRows) {
@@ -61,6 +67,34 @@ function SubmitFormData() {
              */
         }
     }
+}
+
+function ServerCalculateScore(){
+    var fileString = document.getElementsByName("input")[0].value;
+    
+    if (fileString === undefined || fileString === "") {
+        //if here, the vcf file was not read properly- shouldn't ever happen
+        $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+        return; 
+    }
+    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
+        //gets the disease name from the drop down list
+        var diseaseSelectElement = document.getElementById("disease");
+        var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
+        //gets the study name from the drop down list
+        var studySelectElement = document.getElementById("diseaseStudy");
+        var study = studySelectElement.options[studySelectElement.selectedIndex].text
+    //file is already read into the input box
+    $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
+    function (data) {
+        //data contains the info received by going to "/calculate_score"
+        setResultOutput(data); 
+        sessionStorage.setItem('riskResults', data);
+        setResultOutput(data);
+    }, "html").fail(function (jqXHR) {
+        $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
+    });
+     
 }
 
 /**
