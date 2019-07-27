@@ -26,7 +26,7 @@ VCFParser.prototype.parseStream = function(instream, extension){
         //     })
         //     break
           case 'vcf':
-            console.log("VCF Extension!")
+            //console.log("VCF Extension!")
             //rl = readline.createInterface(instream, outstream)
             rl = instream.split("\n");
             break
@@ -73,10 +73,11 @@ VCFParser.prototype.parseStream = function(instream, extension){
             if (info.length < 9) {
               //var err = new Error('number of columns in the file are less than expected in vcf')
               //vcf.emit('error', err)
-              //if vcfMapMaps is empty...
-              this.error = true; 
-              console.log(vcfMapMaps); 
-              return
+              if(vcfMapMaps.size === 0){
+                this.error = true; 
+              }
+              
+              return vcfMapMaps; 
             }
       
             // format information ids
@@ -143,14 +144,14 @@ VCFParser.prototype.parseStream = function(instream, extension){
               attributes: vcfAttrib
             }
       
-            console.log('Variant data',varData);
+            //console.log('Variant data',varData);
             //vcf.emit('data', varData)
-            
+          if (vcfMapMaps.size === 0){
               varData.sampleinfo.forEach(function (sample) {
                  
                   vcfMapMaps.set(sample.NAME, new Map());
               });
-        
+            }
           //gets all possible alleles for the current id
           var possibleAlleles = [];
           possibleAlleles.push(varData.ref);
@@ -179,6 +180,9 @@ VCFParser.prototype.parseStream = function(instream, extension){
                       alleles[i] = possibleAlleles[alleles[i]];
                   }
               }
+              //console.log(sample.NAME); 
+              //console.log(varData.id); 
+              //console.log(alleles); 
               vcfMapMaps.get(sample.NAME).set(varData.id, alleles);
               //vcfMapMaps.set(sample.NAME, newMap);
           });
@@ -189,4 +193,5 @@ VCFParser.prototype.parseStream = function(instream, extension){
         //   vcf.emit('end')
         // })
         this.end = true; 
+        return vcfMapMaps; 
 }
