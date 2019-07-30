@@ -2,94 +2,73 @@
 
 
 
-function calculatePolyScore(){
+var calculatePolyScore = async() => {
     $('#response').html("Calculating. Please wait...")
+    var fileContents = await readFile(); 
+    if (fileContents === undefined || fileContents === "") {
+        //if here, the vcf file was not read properly- shouldn't ever happen
+        $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+        return; 
+    }
+    // get value of selected 'pvalue' radio button in 'radioButtons'
+    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
+    //gets the disease name from the drop down list
+    var diseaseSelectElement = document.getElementById("disease");
+    var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
+    //gets the study name from the drop down list
+    var studySelectElement = document.getElementById("diseaseStudy");
+    var study = studySelectElement.options[studySelectElement.selectedIndex].text
+    //if the user doesn't specify a disease or study, prompt them to do so
+    if (disease === "--Disease--" || study === "--Study--") {
+        $('#response').html('Please specify a specific disease and study using the drop down menus above.');
+        return
+    }
     var fileVal = document.getElementById("files").files[0]; 
     var fileSize = fileVal.size; 
     var extension = fileVal.name.split(".")[1];  
-    if (fileSize < 1500000 || extension === "gz" || extension === "zip"){
-        ServerCalculateScore(); 
+    if (fileSize > 1500000 || extension === "gz" || extension === "zip"){
+        ServerCalculateScore(fileContents, pValue, disease, study); 
         return
     }
     
-    ClientCalculateScore(extension); 
+    ClientCalculateScore(extension, fileContents, pValue, disease, study); 
     
 }
 
-function ClientCalculateScore(extension) {
+function ClientCalculateScore(extension, fileContents, pValue, disease, study) {
     
-    //file should already be read into the input box at this point
-    var fileString = document.getElementsByName("input")[0].value;
-    if (fileString === undefined || fileString === "") {
-        //if here, the vcf file was not read properly- shouldn't ever happen
-        $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+    var diseaseStudyMapArray = makeDiseaseStudyMapArray(disease, study)
+    //TODO insert vcf parser here and set vcfObj to it's return value
+    var vcfParser = new VCFParser(); 
+    var vcfObj;
+    try{
+        vcfObj = vcfParser.parseStream(fileContents, extension); 
+    }
+    catch(err){
+        $('#response').html(err);
         return; 
     }
-    else {
-        // get value of selected 'pvalue' radio button in 'radioButtons'
-        var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
-        //gets the disease name from the drop down list
-        var diseaseSelectElement = document.getElementById("disease");
-        var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
-        //gets the study name from the drop down list
-        var studySelectElement = document.getElementById("diseaseStudy");
-        var study = studySelectElement.options[studySelectElement.selectedIndex].text
-        //if the user doesn't specify a disease or study, prompt them to do so
-        if (disease === "--Disease--" || study === "--Study--") {
-            $('#response').html('Please specify a specific disease and study using the drop down menus above.');
-        }
-        else {
-            var diseaseStudyMapArray = makeDiseaseStudyMapArray(disease, study)
-            //TODO insert vcf parser here and set vcfObj to it's return value
-            var vcfParser = new VCFParser(); 
-            var vcfObj = vcfParser.parseStream(fileString, extension); 
-            //var vcfObj = parseVCF();
-            var diseaseStudyMapArray = JSON.stringify(diseaseStudyMapArray);
-            $.get("study_table", { /*diseases: diseases, studies: studies*/diseaseStudyMapArray, pValue: pValue },
-                function (studyTableRows) {
-                    var rowsObj = JSON.parse(studyTableRows);
+    //var vcfObj = parseVCF();
+    var diseaseStudyMapArray = JSON.stringify(diseaseStudyMapArray);
+    $.get("study_table", { /*diseases: diseases, studies: studies*/diseaseStudyMapArray, pValue: pValue },
+        function (studyTableRows) {
+            var rowsObj = JSON.parse(studyTableRows);
 
-                    var result = calculateScore(rowsObj, vcfObj, pValue);
-                    setResultOutput(result);
-                }, "html").fail(function (jqXHR) {
-                    $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-                });
-            /*TODO previous calculate_score code- use this when file is small? makes the server do the calculations
-             $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
-                 function (data) {
-                     debugger;
-                     //data contains the info received by going to "/calculate_score"
-                     sessionStorage.setItem('riskResults', data);
-                     setResultOutput(data);
-                 }, "html").fail(function (jqXHR) {
-                     $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-                 });
-             */
-        }
-    }
+            var result = calculateScore(rowsObj, vcfObj, pValue);
+            setResultOutput(result);
+            sessionStorage.setItem("riskResults", result); 
+        }, "html").fail(function (jqXHR) {
+            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
+        });    
 }
 
-function ServerCalculateScore(){
-    var fileString = document.getElementsByName("input")[0].value;
-    
-    if (fileString === undefined || fileString === "") {
-        //if here, the vcf file was not read properly- shouldn't ever happen
-        $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
-        return; 
-    }
-    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
-        //gets the disease name from the drop down list
-        var diseaseSelectElement = document.getElementById("disease");
-        var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
-        //gets the study name from the drop down list
-        var studySelectElement = document.getElementById("diseaseStudy");
-        var study = studySelectElement.options[studySelectElement.selectedIndex].text
-    //file is already read into the input box
-    $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
+function ServerCalculateScore(fileContents, pValue, disease, study){
+
+    $.get("/calculate_score", { fileString: fileContents, pValue: pValue, disease: disease, study: study },
     function (data) {
         //data contains the info received by going to "/calculate_score"
         setResultOutput(data); 
-        sessionStorage.setItem('riskResults', data);
+        sessionStorage.setItem("riskResults", data);
     }, "html").fail(function (jqXHR) {
         $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
     });

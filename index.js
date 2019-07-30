@@ -253,8 +253,8 @@ app.get('/calculate_score/', async function (req, res) {
         }
 
         // config for your database
-        const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-        //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+        //const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+        const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
             host: 'localhost',
             dialect: 'mssql',
             define: {
@@ -456,8 +456,8 @@ app.get('/study_table/', async function (req, res) {
     var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alzheimer's disease": "AD", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
 
     // config for the database
-    const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-        //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+    //const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+    const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
         host: 'localhost',
         dialect: 'mssql',
         define: {
