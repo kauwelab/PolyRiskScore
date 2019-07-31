@@ -1,29 +1,12 @@
-//import { file } from "babel-types";
-
-
-
-function calculatePolyScore(){
+function calculatePolyScore() {
     $('#response').html("Calculating. Please wait...")
-    var fileVal = document.getElementById("files").files[0]; 
-    var fileSize = fileVal.size; 
-    var extension = fileVal.name.split(".")[1];  
-    if (fileSize < 1500000 || extension === "gz" || extension === "zip"){
-        ServerCalculateScore(); 
-        return
-    }
-    
-    ClientCalculateScore(extension); 
-    
-}
 
-function ClientCalculateScore(extension) {
-    
     //file should already be read into the input box at this point
     var fileString = document.getElementsByName("input")[0].value;
     if (fileString === undefined || fileString === "") {
         //if here, the vcf file was not read properly- shouldn't ever happen
         $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
-        return; 
+        return;
     }
     else {
         // get value of selected 'pvalue' radio button in 'radioButtons'
@@ -39,61 +22,54 @@ function ClientCalculateScore(extension) {
             $('#response').html('Please specify a specific disease and study using the drop down menus above.');
         }
         else {
+            //create the disease to studies map (specifically for the all diseases option, 
+            //otherwise it's just one disease mapped to a study)
             var diseaseStudyMapArray = makeDiseaseStudyMapArray(disease, study)
-            //TODO insert vcf parser here and set vcfObj to it's return value
-            var vcfParser = new VCFParser(); 
-            var vcfObj = vcfParser.parseStream(fileString, extension); 
-            //var vcfObj = parseVCF();
             var diseaseStudyMapArray = JSON.stringify(diseaseStudyMapArray);
-            $.get("study_table", { /*diseases: diseases, studies: studies*/diseaseStudyMapArray, pValue: pValue },
-                function (studyTableRows) {
-                    var rowsObj = JSON.parse(studyTableRows);
+            var fileVal = document.getElementById("files").files[0];
+            var fileSize = fileVal.size;
+            var extension = fileVal.name.split(".")[1];
+            
+            if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
+                ServerCalculateScore(pValue, diseaseStudyMapArray);
+                return
+            }
+            
 
-                    var result = calculateScore(rowsObj, vcfObj, pValue);
-                    setResultOutput(result);
-                }, "html").fail(function (jqXHR) {
-                    $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-                });
-            /*TODO previous calculate_score code- use this when file is small? makes the server do the calculations
-             $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
-                 function (data) {
-                     debugger;
-                     //data contains the info received by going to "/calculate_score"
-                     sessionStorage.setItem('riskResults', data);
-                     setResultOutput(data);
-                 }, "html").fail(function (jqXHR) {
-                     $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-                 });
-             */
+            ClientCalculateScore(extension, pValue, diseaseStudyMapArray);
         }
     }
 }
 
-function ServerCalculateScore(){
+function ClientCalculateScore(extension, pValue, diseaseStudyMapArray) {
     var fileString = document.getElementsByName("input")[0].value;
-    
-    if (fileString === undefined || fileString === "") {
-        //if here, the vcf file was not read properly- shouldn't ever happen
-        $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
-        return; 
-    }
-    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
-        //gets the disease name from the drop down list
-        var diseaseSelectElement = document.getElementById("disease");
-        var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
-        //gets the study name from the drop down list
-        var studySelectElement = document.getElementById("diseaseStudy");
-        var study = studySelectElement.options[studySelectElement.selectedIndex].text
+    var vcfParser = new VCFParser();
+    var vcfObj = vcfParser.parseStream(fileString, extension);
+    //TODO don't forget to remove this temporary function
+    //var vcfObj = parseVCF();
+    $.get("study_table", { diseaseStudyMapArray, pValue: pValue },
+        function (studyTableRows) {
+            var rowsObj = JSON.parse(studyTableRows);
+
+            var result = calculateScore(rowsObj, vcfObj, pValue);
+            setResultOutput(result);
+        }, "html").fail(function (jqXHR) {
+            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
+        });
+}
+
+function ServerCalculateScore(pValue, diseaseStudyMapArray) {
     //file is already read into the input box
-    $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
-    function (data) {
-        //data contains the info received by going to "/calculate_score"
-        setResultOutput(data); 
-        sessionStorage.setItem('riskResults', data);
-    }, "html").fail(function (jqXHR) {
-        $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-    });
-     
+    var fileString = document.getElementsByName("input")[0].value;
+    $.get("/calculate_score", { fileString: fileString, pValue: pValue, diseaseStudyMapArray },
+        function (data) {
+            //data contains the info received by going to "/calculate_score"
+            setResultOutput(data);
+            sessionStorage.setItem('riskResults', data);
+        }, "html").fail(function (jqXHR) {
+            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
+        });
+
 }
 
 /**
@@ -360,7 +336,7 @@ function download(filename, text) {
 
 //Outputs some file information when the user selects a file. 
 function handleFileSelect(evt) {
-    sessionStorage.removeItem("riskResults"); 
+    sessionStorage.removeItem("riskResults");
     $('#response').html("");
     var f = evt.target.files[0]; // FileList object
     var output = [];
@@ -384,10 +360,10 @@ function exampleInput() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "ad_test.vcf", false);
     xmlhttp.send();
-    if (xmlhttp.status==200) {
+    if (xmlhttp.status == 200) {
         result = xmlhttp.responseText;
     }
-    document.getElementById('input').value=(result);
+    document.getElementById('input').value = (result);
 
     document.getElementById('input').setAttribute("wrap", "soft");
 }
@@ -397,20 +373,20 @@ function exampleOutput() {
     var xmlhttp1 = new XMLHttpRequest();
     xmlhttp1.open('GET', "ad_test.vcf", false);
     xmlhttp1.send();
-    if (xmlhttp1.status==200) {
+    if (xmlhttp1.status == 200) {
         result1 = xmlhttp1.responseText;
     }
-    document.getElementById('input').value=(result1);
+    document.getElementById('input').value = (result1);
     document.getElementById('input').setAttribute("wrap", "soft");
 
     var result2 = null;
     var xmlhttp2 = new XMLHttpRequest();
     xmlhttp2.open('GET', "ad_output.txt", false);
     xmlhttp2.send();
-    if (xmlhttp2.status==200) {
+    if (xmlhttp2.status == 200) {
         result2 = xmlhttp2.responseText;
     }
-    document.getElementById('response').value=(result2);
+    document.getElementById('response').value = (result2);
 
 
 }
