@@ -56,7 +56,7 @@ function ClientCalculateScore(extension, fileContents, pValue, diseaseStudyMapAr
 }
 
 function ServerCalculateScore(fileContents, pValue, diseaseStudyMapArray){
-    $.get("/calculate_score", { fileString: fileContents, pValue: pValue, disease: disease, study: study },
+    $.get("/calculate_score", { fileContents: fileContents, pValue: pValue, diseaseStudyMapArray },
     function (data) {
         //data contains the info received by going to "/calculate_score"
         setResultOutput(data); 
