@@ -29,7 +29,7 @@
         <li class="nav-item"> <a class="nav-link" href="upload_gwas.html">Upload GWAS</a> </li>
         <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
         <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>  
+        <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
       </ul>
     </div>
   </nav>
@@ -144,7 +144,7 @@
 
                 <div class="form-text font-weight-bold">
 
-                  <textarea rows="10" cols="100" class="form-control" id="input" name="input"
+                  <textarea rows="10" cols="100" class="form-control nowrap"  id="input" name="input"
                     placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
                   <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
                     message.</span>
@@ -154,22 +154,25 @@
                 <input type="file" id="files" name="upload" />
                 <input type="submit" value="upload" />
               </form>-->
-              
+
               <form class="md-form" id="file-form">
                 <div class="file-field">
                   <div class="btn btn-secondary btn-sm float-right btn-light">
                     <input type="file" id="files" name="file" />
-                    <script src="js/calculate_score.js"></script>
-                    
+
+                  
+
+                    <script src="js/handleFileSelect.js"></script>
+
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
+
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>
                 </div>
               </form>
-
               <div class="text-black-50 float-left">
-                <a class="example" href="#">Example</a>
+                <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
 
               </div>
 
@@ -195,44 +198,48 @@
                   <div class="col-lg-12 mb-0 mt-2 text-left">
                     <script src="js/diseaseList.js"></script>
                     <h8>
-                      <div class="diseaseLists"> 
-                          <select id="disease" onchange="ChangeDiseaseList()">
-                              <!--<option selected="selected">All</option>-->
-                              <option value="">--Disease--</option>
-                              <option value="ADHD">ADHD</option>
-                              <option value="AD">Alzheimer's disease</option>
-                              <option value="ALS">ALS</option>
-                              <option value="Dep">Depression</option>
-                              <option value="HD">Heart disease</option>
-                            </select>
-                          </div>
-                          
-      
-                      <div class="diseaseLists">  
-                          <select id="diseaseStudy">
-                              <option value="">--Study--</option>
-                            </select>
-                          </div>
+                      <div class="diseaseLists">
+                        <select id="disease" onchange="ChangeDiseaseList()">
+                          <!--<option selected="selected">All</option>-->
+                          <option value="">--Disease--</option>
+                          <option value="ALL">All Diseases </option>
+                          <option value="ADHD">ADHD</option>
+                          <option value="AD">Alzheimer's disease</option>
+                          <option value="ALS">ALS</option>
+                          <option value="Dep">Depression</option>
+                          <option value="HD">Heart disease</option>
+                        </select>
+                      </div>
+
+
+                      <div class="diseaseLists">
+                        <select id="diseaseStudy">
+                          <option value="">--Study--</option>
+                        </select>
+                      </div>
                     </h8>
                     <p>&nbsp;</p>
+                  <script src="js/calculate_score.js"></script>
+                  <script src="js/vcf_parser.js"></script>
                   <div class="fileFormOptions"> 
-                    <select id="fileType">
+                    <select id="fileType", onchange="changeFormat();">
                         <!--<option selected="selected">All</option>-->
-                        <option value="">--Format Type--</option>
+                        <!--<option value="default">--Format Type--</option>-->
                         <option value="text">Text</option>
                         <option value="csv">CSV</option>
                         <option value="json">JSON</option>
                       </select>
+                    </div>
                   </div>
-                </div>
                 </div>
               </div>
               <p>&nbsp;</p>
-              <script src="js/calculate_score.js"></script>
+            
+              
               <!--uses "js/calculate_score.js"-->
-              <button type="button" id="feedbackSubmit" onclick="SubmitFormData();"
+              <button type="button" id="feedbackSubmit" onclick="calculatePolyScore();"
                 class="btn btn-primary btn-lg">Calculate Risk Scores</button>
-                <!--TODO
+              <!--TODO
                 <button type="button" id="testButton" onclick="TestFileSendWithoutForm();"
                 class="btn btn-primary btn-lg">Test Button</button>-->
             </div>
@@ -255,16 +262,16 @@
 
                 <div class="form-text font-weight-bold">
 
-                  <textarea rows="10" cols="100" class="form-control" id="response" name="response"
+                  <textarea rows="10" cols="100" class="form-control nowrap" id="response" name="response"
                     placeholder="Example Results&#10;You are going to die!"
                     aria-describedby="response to query"></textarea>
 
                 </div>
               </form>
               <p>&nbsp;</p>
-              <div class="downloadResults"> 
-                <button type="button" id="downloader" onclick="downloadResults();"
-                class="btn btn-primary">Download Results</button>
+              <div class="downloadResults">
+                <button type="button" id="downloader" onclick="downloadResults();" class="btn btn-primary">Download
+                  Results</button>
               </div>
             </div>
           </div>

@@ -1,0 +1,16 @@
+P Value Cutoff: 1e-3 
+Total Variants In File: 3 
+Individual Name: SAMP001 
+  Disease: ALZHEIMER'S DISEASE 
+    Study: Lambert et al., 2013 
+      Odds Ratio: 1.1092 
+      Percentile:  
+      # Variants In OR: 2 
+      Variants In OR: rs6656401,rs3865444
+Individual Name: SAMP002 
+  Disease: ALZHEIMER'S DISEASE 
+    Study: Lambert et al., 2013 
+      Odds Ratio: 0.94 
+      Percentile:  
+      # Variants In OR: 1 
+      Variants In OR: rs3865444
