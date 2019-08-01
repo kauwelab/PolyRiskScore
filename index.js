@@ -235,7 +235,7 @@ app.get('/calculate_score/', async function (req, res) {
     //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
     //console.log(fullUrl);
 
-    var vcfMapMaps = await createMap(req.query.fileString);
+    var vcfMapMaps = await createMap(req.query.fileContents);
 
     if (vcfMapMaps.size > 0) {
         var diseaseStudyMapArray = JSON.parse(req.query.diseaseStudyMapArray);
@@ -334,8 +334,8 @@ app.get('/study_table/', async function (req, res) {
  */
 async function getValidTableRowsObj(pValue, diseaseStudyMapArray) {
     // config for the database
-    //const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-    const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+    const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+    //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
         host: 'localhost',
         dialect: 'mssql',
         define: {
