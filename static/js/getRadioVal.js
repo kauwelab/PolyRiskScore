@@ -12,3 +12,9 @@ function getRadioVal(form, name) {
     }
     return val; // return value of checked radio or undefined if none checked
 }
+
+function radioChange(){
+    sessionStorage.removeItem("riskResults");
+    $('#response').html("");
+}
+
