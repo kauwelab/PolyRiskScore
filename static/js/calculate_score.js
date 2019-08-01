@@ -1,66 +1,69 @@
-
-
-// requirejs(['bionode-vcf'],
-// function(bio_vcf) {
-//     console.log(bio_vcf); 
-//     //foo and bar are loaded according to requirejs
-//     //config, but if not found, then node's require
-//     //is used to load the module.
-// });
-function calculatePolyScore(){
-    var testMessage = new VCFParser(); 
-    var fileString = document.getElementsByName("input")[0].value;
-    testMessage.parseStream(fileString, "vcf"); 
-}
-
-function SubmitFormData() {
+var calculatePolyScore = async() => {
     $('#response').html("Calculating. Please wait...")
-    //file should already be read into the input box at this point
-    var fileString = document.getElementsByName("input")[0].value;
-    if (fileString === undefined || fileString === "") {
+    var fileContents = await readFile(); 
+    if (fileContents === undefined || fileContents === "") {
         //if here, the vcf file was not read properly- shouldn't ever happen
         $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+        return; 
     }
-    else {
-        // get value of selected 'pvalue' radio button in 'radioButtons'
-        var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
-        //gets the disease name from the drop down list
-        var diseaseSelectElement = document.getElementById("disease");
-        var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
-        //gets the study name from the drop down list
-        var studySelectElement = document.getElementById("diseaseStudy");
-        var study = studySelectElement.options[studySelectElement.selectedIndex].text
-        //if the user doesn't specify a disease or study, prompt them to do so
-        if (disease === "--Disease--" || study === "--Study--") {
-            $('#response').html('Please specify a specific disease and study using the drop down menus above.');
-        }
-        else {
-            var diseaseStudyMapArray = makeDiseaseStudyMapArray(disease, study)
-            //TODO insert vcf parser here and set vcfObj to it's return value
-            var vcfObj = parseVCF();
-            var diseaseStudyMapArray = JSON.stringify(diseaseStudyMapArray);
-            $.get("study_table", { /*diseases: diseases, studies: studies*/diseaseStudyMapArray, pValue: pValue },
-                function (studyTableRows) {
-                    var rowsObj = JSON.parse(studyTableRows);
+    // get value of selected 'pvalue' radio button in 'radioButtons'
+    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
+    //gets the disease name from the drop down list
+    var diseaseSelectElement = document.getElementById("disease");
+    var disease = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].text;
+    //gets the study name from the drop down list
+    var studySelectElement = document.getElementById("diseaseStudy");
+    var study = studySelectElement.options[studySelectElement.selectedIndex].text
+    //if the user doesn't specify a disease or study, prompt them to do so
+    if (disease === "--Disease--" || study === "--Study--") {
+        $('#response').html('Please specify a specific disease and study using the drop down menus above.');
+        return
+    }
+    //create the disease to studies map (specifically for the all diseases option, 
+    //otherwise it's just one disease mapped to a study)
+    var diseaseStudyMapArray = makeDiseaseStudyMapArray(disease, study)
+    var diseaseStudyMapArray = JSON.stringify(diseaseStudyMapArray);
+    var fileVal = document.getElementById("files").files[0]; 
+    var fileSize = fileVal.size; 
+    var extension = fileVal.name.split(".")[1];  
+    if (fileSize < 1500000 || extension === "gz" || extension === "zip"){
+        ServerCalculateScore(fileContents, pValue, diseaseStudyMapArray); 
+        return
+    }
+    
+    ClientCalculateScore(extension, fileContents, pValue, diseaseStudyMapArray); 
+}
 
-                    var result = calculateScore(rowsObj, vcfObj, pValue);
-                    setResultOutput(result);
-                }, "html").fail(function (jqXHR) {
-                    $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-                });
-            /*TODO previous calculate_score code- use this when file is small? makes the server do the calculations
-             $.get("/calculate_score", { fileString: fileString, pValue: pValue, disease: disease, study: study },
-                 function (data) {
-                     debugger;
-                     //data contains the info received by going to "/calculate_score"
-                     sessionStorage.setItem('riskResults', data);
-                     setResultOutput(data);
-                 }, "html").fail(function (jqXHR) {
-                     $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-                 });
-             */
-        }
+function ClientCalculateScore(extension, fileContents, pValue, diseaseStudyMapArray) {
+    var vcfParser = new VCFParser(); 
+    var vcfObj;
+    try{
+        vcfObj = vcfParser.parseStream(fileContents, extension); 
     }
+    catch(err){
+        $('#response').html(err);
+        return; 
+    }
+    $.get("study_table", { /*diseases: diseases, studies: studies*/diseaseStudyMapArray, pValue: pValue },
+        function (studyTableRows) {
+            var tableObj = JSON.parse(studyTableRows);
+            var result = calculateScore(tableObj, vcfObj, pValue);
+            setResultOutput(result);
+            sessionStorage.setItem("riskResults", result); 
+        }, "html").fail(function (jqXHR) {
+            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
+        });    
+}
+
+function ServerCalculateScore(fileContents, pValue, diseaseStudyMapArray){
+    $.get("/calculate_score", { fileContents: fileContents, pValue: pValue, diseaseStudyMapArray },
+    function (data) {
+        //data contains the info received by going to "/calculate_score"
+        setResultOutput(data); 
+        sessionStorage.setItem("riskResults", data);
+    }, "html").fail(function (jqXHR) {
+        $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
+    });
 }
 
 /**
@@ -112,32 +115,14 @@ function makeDiseaseStudyMapArray(disease, study) {
 }
 
 /**
- * TODO temporary. Creates sample vcfObject and returns it.
- */
-function parseVCF() {
-    var vcfObj = new Map();
-    var entry1 = new Map();
-    entry1.set("rs6656401", ["G", "A"]);
-    entry1.set("rs11771145", ["G", "G"]);
-    entry1.set("rs3865444", ["C", "A"]);
-    vcfObj.set("SAMP001", entry1);
-    var entry2 = new Map();
-    entry2.set("rs6656401", ["G", "G"]);
-    entry2.set("rs11771145", ["G", "G"]);
-    entry2.set("rs3865444", ["C", "A"]);
-    vcfObj.set("SAMP002", entry2)
-    return vcfObj;
-}
-
-/**
  * Calculates the polygenetic risk score using table rows from the database and the vcfObj. 
  * P-value is required so the result can also return information about the calculation.
- * @param {*} rowsObj 
+ * @param {*} tableObj 
  * @param {*} vcfObj 
  * @param {*} pValue 
  * @return a string in JSON format of each idividual, their scores, and other information about their scores.
  */
-function calculateScore(rowsObj, vcfObj, pValue) {
+function calculateScore(tableObj, vcfObj, pValue) {
     var resultJsons = [];
     //push information about the calculation to the result
     resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].size })
@@ -145,7 +130,7 @@ function calculateScore(rowsObj, vcfObj, pValue) {
     //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
     for (const [individualName, snpMap] of vcfObj.entries()) {
         var diseaseResults = [];
-        rowsObj.forEach(function (diseaseEntry) {
+        tableObj.forEach(function (diseaseEntry) {
             var studyResults;
             diseaseEntry.studiesRows.forEach(function (studyEntry) {
                 studyResults = [];
@@ -327,7 +312,7 @@ function download(filename, text) {
 
 //Outputs some file information when the user selects a file. 
 function handleFileSelect(evt) {
-    sessionStorage.removeItem("riskResults"); 
+    sessionStorage.removeItem("riskResults");
     $('#response').html("");
     var f = evt.target.files[0]; // FileList object
     var output = [];
@@ -351,10 +336,10 @@ function exampleInput() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "ad_test.vcf", false);
     xmlhttp.send();
-    if (xmlhttp.status==200) {
+    if (xmlhttp.status == 200) {
         result = xmlhttp.responseText;
     }
-    document.getElementById('input').value=(result);
+    document.getElementById('input').value = (result);
 
     document.getElementById('input').setAttribute("wrap", "soft");
 }
@@ -364,20 +349,20 @@ function exampleOutput() {
     var xmlhttp1 = new XMLHttpRequest();
     xmlhttp1.open('GET', "ad_test.vcf", false);
     xmlhttp1.send();
-    if (xmlhttp1.status==200) {
+    if (xmlhttp1.status == 200) {
         result1 = xmlhttp1.responseText;
     }
-    document.getElementById('input').value=(result1);
+    document.getElementById('input').value = (result1);
     document.getElementById('input').setAttribute("wrap", "soft");
 
     var result2 = null;
     var xmlhttp2 = new XMLHttpRequest();
     xmlhttp2.open('GET', "ad_output.txt", false);
     xmlhttp2.send();
-    if (xmlhttp2.status==200) {
+    if (xmlhttp2.status == 200) {
         result2 = xmlhttp2.responseText;
     }
-    document.getElementById('response').value=(result2);
+    document.getElementById('response').value = (result2);
 
 
 }

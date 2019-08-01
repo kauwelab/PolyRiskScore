@@ -2,6 +2,9 @@
 function handleFileSelect(evt) {
     var f = evt.target.files[0]; // FileList object
     var output = [];
+    sessionStorage.removeItem("riskResults");
+    $('#response').html("");
+
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
         f.size, ' bytes, last modified: ',
         f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
@@ -74,4 +77,13 @@ function readSomeLines(file, maxlines, forEachLine, onComplete) {
         var slice = file.slice(offset, offset + CHUNK_SIZE);
         fr.readAsArrayBuffer(slice);
     }
+}
+
+
+var readFile = async() => { 
+
+    var vcfFile = document.getElementById("files").files[0];     
+    var reader = new Response(vcfFile); 
+    fileContents = await reader.text();
+    return fileContents;  
 }
