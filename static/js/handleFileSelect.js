@@ -89,6 +89,7 @@ function readFile(){
             console.log("ERROR OCCURED");
         }
         if (contents.length > 0){
+            console.log(contents); 
             try{
                 vcfParser.parseStream(contents, "vcf"); 
             }
@@ -112,7 +113,7 @@ function readLineByLine(file, callback) {
     var offset = 0;
     var fr = new FileReader();
     fr.onload = function() {
-        console.log(fr.result); 
+        //console.log(fr.result); 
         var output = fr.result.split("\n"); 
         //If the last line is incomplete, save it until you read in the next chunk.
         //Then add that line to the beginning of the next chunk. 
@@ -130,7 +131,10 @@ function readLineByLine(file, callback) {
 
     function seek() {
         if (offset >= file.size) { //We've reached the end of the file.
-            //callback(1); ???
+            console.log(lag_line); 
+            if(lag_line){
+                callback(lag_line.split("\n")); 
+            } //???
             return;
         }
         var slice = file.slice(offset, offset + CHUNK_SIZE); //Take the next slice.
