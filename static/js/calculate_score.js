@@ -23,14 +23,13 @@ var calculatePolyScore = async() => {
     //otherwise it's just one disease mapped to a study)
     var diseaseStudyMapArray = makeDiseaseStudyMapArray(disease, study)
     var diseaseStudyMapArray = JSON.stringify(diseaseStudyMapArray);
-    var fileVal = document.getElementById("files").files[0]; 
-    var fileSize = fileVal.size; 
-    var extension = fileVal.name.split(".")[1];  
+    var vcfFile = document.getElementById("files").files[0]; 
+    var fileSize = vcfFile.size; 
+    var extension = vcfFile.name.split(".")[1];  
     if (fileSize < 1500000 || extension === "gz" || extension === "zip"){
-        ServerCalculateScore(fileContents, pValue, diseaseStudyMapArray); 
+        ServerCalculateScore(vcfFile, fileContents, pValue, diseaseStudyMapArray); 
         return
     }
-    
     ClientCalculateScore(extension, fileContents, pValue, diseaseStudyMapArray); 
 }
 
@@ -56,7 +55,7 @@ function ClientCalculateScore(extension, fileContents, pValue, diseaseStudyMapAr
 }
 
 function ServerCalculateScore(fileContents, pValue, diseaseStudyMapArray){
-    $.get("/calculate_score", { fileContents: fileContents, pValue: pValue, diseaseStudyMapArray },
+    $.get("calculate_score", { fileContents: fileContents, pValue: pValue, diseaseStudyMapArray },
     function (data) {
         //data contains the info received by going to "/calculate_score"
         setResultOutput(data); 
