@@ -1,8 +1,10 @@
 var calculatePolyScore = async () => {
     //user feedback while they are waiting for their score
     $('#response').html("Calculating. Please wait...")
-    var fileContents = await readFile();
-    if (fileContents === undefined || fileContents === "") {
+    var vcfFile = document.getElementById("files").files[0];
+    var fileSize = vcfFile.size;
+    var extension = vcfFile.name.split(".")[1];
+    if (!vcfFile) {
         //if here, the user did not import a vcf file or the the vcf file was not read properly
         $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
         return;
@@ -26,14 +28,13 @@ var calculatePolyScore = async () => {
     }
 // API-reformating
 
-    var fileVal = document.getElementById("files").files[0];
-    var fileSize = fileVal.size;
-    var extension = fileVal.name.split(".")[1];
-    if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
-        ServerCalculateScore(fileContents, diseaseArray, studyType, pValue);
+
+    if (fileSize > 1500000 || extension === "gz" || extension === "zip") {
+
+        ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue);
         return
     }
-    ClientCalculateScore(extension, fileContents, diseaseArray, studyType, pValue);
+    ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue);
 }
 
 /**
@@ -51,39 +52,15 @@ function getStudyTypeFromStudy(study) {
     return "";
 }
 
-function ClientCalculateScore(extension, fileContents, diseaseArray, studyType, pValue) {
-    var vcfParser = new VCFParser();
-    var vcfObj;
-    try {
-        vcfObj = vcfParser.parseStream(fileContents, extension);
-    }
-    catch (err) {
-        $('#response').html(err);
-        return;
-    }
-    $.get("study_table", { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
-/*=====
-    //create the disease to studies map (specifically for the all diseases option, 
-    //otherwise it's just one disease mapped to a study)
-    var diseaseStudyMapArray = makeDiseaseStudyMapArray(disease, study)
-    var diseaseStudyMapArray = JSON.stringify(diseaseStudyMapArray);
-    var vcfFile = document.getElementById("files").files[0]; 
-    var fileSize = vcfFile.size; 
-    var extension = vcfFile.name.split(".")[1];  
-    if (fileSize < 1500000 || extension === "gz" || extension === "zip"){
-        ServerCalculateScore(pValue, diseaseStudyMapArray); 
-        return
-    }
-    ClientCalculateScore(vcfFile, extension, pValue, diseaseStudyMapArray); 
-}
 
-var ClientCalculateScore = async(vcfFile, extension, pValue, diseaseStudyMapArray) => {
+var ClientCalculateScore = async(vcfFile, extension, diseaseArray, studyType, pValue) => {
     var vcfParser = new VCFParser();
     var vcfFile = document.getElementById("files").files[0]; 
-    var vcfObj = await vcfParser.populateMap(vcfFile, extension);
+    console.log(extension); 
+    var vcfObj = await vcfParser.populateMap(vcfFile, extension); 
     console.log(vcfObj); 
-    $.get("study_table", { /*diseases: diseases, studies: studies*/diseaseStudyMapArray, pValue: pValue },
-    */          
+    $.get("study_table", { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
+             
         function (studyTableRows) {
             var tableObj = JSON.parse(studyTableRows);
             var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
@@ -95,24 +72,14 @@ var ClientCalculateScore = async(vcfFile, extension, pValue, diseaseStudyMapArra
 }
 
 //API-reformating
-function ServerCalculateScore(fileContents, diseaseArray, studyType, pValue) {
-    $.get("/calculate_score", { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
-        function (data) {
-            //data contains the info received by going to "/calculate_score"
-            setResultOutput(data);
-            sessionStorage.setItem("riskResults", data);
-        }, "html").fail(function (jqXHR) {
-            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-        });
-/*
-var ServerCalculateScore = async(pValue, diseaseStudyMapArray) => {
-    var fileContents = await readFile(); 
-    if (fileContents === undefined || fileContents === "") {
+var ServerCalculateScore = async(vcfFile, diseaseArray, studyType, pValue) => {
+    var fileContents = await readFile(vcfFile); 
+    if (!fileContents) {
         //if here, the vcf file was not read properly- shouldn't ever happen
-        $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+        $('#response').html("Could not find file contents. Please double check the file you uploaded.");
         return; 
     }
-    $.get("calculate_score", { fileContents: fileContents, pValue: pValue, diseaseStudyMapArray },
+    $.get("calculate_score", { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
     function (data) {
         //data contains the info received by going to "/calculate_score"
         setResultOutput(data); 
@@ -120,7 +87,7 @@ var ServerCalculateScore = async(pValue, diseaseStudyMapArray) => {
     }, "html").fail(function (jqXHR) {
         $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
     });
-*/
+
 }
 
 /**
