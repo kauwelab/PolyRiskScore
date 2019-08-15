@@ -184,18 +184,22 @@
                     <h5>Select P-value Cutoff&nbsp;</h5>
                     <form action="#" method="post" class="radioButtons" id="radioButtons" name="pvalOptions">
                       <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-3" checked onclick="radioChange()"/> 1x10<sup>-3</sup></label>
+                        <label><input type="radio" name="pvalue" value="1e-3" checked onclick="radioChange()" />
+                          1x10<sup>-3</sup></label>
                       </div>
                       <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-5" onclick="radioChange()"/> 1x10<sup>-5</sup></label>
+                        <label><input type="radio" name="pvalue" value="1e-5" onclick="radioChange()" />
+                          1x10<sup>-5</sup></label>
                       </div>
                       <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-8" onclick="radioChange()"/> 1x10<sup>-8</sup></label>
+                        <label><input type="radio" name="pvalue" value="1e-8" onclick="radioChange()" />
+                          1x10<sup>-8</sup></label>
                       </div>
                     </form>
 
                   </div>
                   <div class="col-lg-12 mb-0 mt-2 text-left">
+                    <script src="js/sharedCode.js"></script>
                     <script src="js/diseaseList.js"></script>
                     <h8>
                       <div class="diseaseLists">
@@ -206,7 +210,7 @@
                           <option value="ADHD">ADHD</option>
                           <option value="AD">Alzheimer's disease</option>
                           <option value="ALS">ALS</option>
-                          <option value="Dep">Depression</option>
+                          <option value="DEP">Depression</option>
                           <option value="HD">Heart disease</option>
                         </select>
                       </div>
