@@ -10,15 +10,68 @@ VCFParser.prototype.getMap = function(){
   return this.vcfMap; 
 }
 
+//populate map function here
+VCFParser.prototype.populateMap = function(file, extension){
+  var vcfParser = this; 
+  var lag_line = ""; 
+  var CHUNK_SIZE = 1024; // 1 KB at a time.
+  var offset = 0;
+  var fr = new FileReader();
+  return new Promise((resolve, reject) => {
+    fr.onload = function() {
+      var output = fr.result.split("\n"); 
+      //If the last line is incomplete, save it until you read in the next chunk.
+      //Then add that line to the beginning of the next chunk. 
+      output[0] = lag_line + output[0]; 
+      lag_line = output.pop(); 
+      //callback(output); 
+      try{
+        vcfParser.parseStream(output, extension); 
+      }
+      catch(err){
+        $('#response').html(err);
+        return; 
+      }
+      //console.log(output); 
+      offset += CHUNK_SIZE;
+      return seek();
+  };
+  fr.onerror = function() {
+      callback(0);
+  };
+  seek();
+  function seek() {
+      if (offset >= file.size) { //We've reached the end of the file.
+          //return map here
+        if(lag_line){
+          try{
+            vcfParser.parseStream(lag_line.split("\n"), "vcf"); 
+          }
+          catch(err){
+            $('#response').html(err);
+            return; 
+          }
+        }
+        resolve(vcfParser.getMap()); 
+        return;
+          //callback(lag_line.split("\n"), 1); 
+      }
+      var slice = file.slice(offset, offset + CHUNK_SIZE); //Take the next slice.
+      fr.readAsText(slice);
+  }
+}); 
+   
+}
+
 VCFParser.prototype.parseStream = function(instream, extension){
   //var vcfMapMaps = new Map();
   //var numSamples = 0;
   //var sampleIndex = {}
   //var vcfAttrib = {}
   //var outstream = new Stream()
-  //var rl = manageByExtension(extension, instream);
+  var rl = manageByExtension(extension, instream);
   var that = this; 
-  instream.forEach(function (line, index) {
+  rl.forEach(function (line, index) {
     // check if line starts with hash and use them
     if (line.indexOf('#') === 0) {
       // #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsample1\tsample2\tsample3
@@ -69,7 +122,7 @@ function manageByExtension(extension, instream){
   switch (extension) {
     //  Figure out how to handle gz and zip
       case 'vcf':
-        rl = instream.split("\n");
+        rl = instream;
         break
       default:
         throw "Please upload a file of extension type vcf."
