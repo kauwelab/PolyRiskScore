@@ -177,6 +177,52 @@
      */
     exports.trim = function (str) {
         return str.replace(/^\s+|\s+$/gm, '');
-    }
+    };
+
+    exports.addLineToVcfObj = function (vcfObj, vcfLine) {
+        if (vcfObj.size === 0) {
+            vcfLine.sampleinfo.forEach(function (sample) {
+                vcfObj.set(sample.NAME, new Map());
+            });
+        }
+        //gets all possible alleles for the current id
+        var possibleAlleles = [];
+        possibleAlleles.push(vcfLine.ref);
+        var altAlleles = vcfLine.alt.split(/[,]+/);
+        for (var i = 0; i < altAlleles.length; i++) {
+            if (altAlleles[i] == ".") {
+                //TODO in the case of "".,A" for altAlleles (not a likely case), should "." be 
+                //index 1 (but be nothing) and "A" be 2? or should "A" be index 1?
+                altAlleles.splice(i, 1);
+                --i;
+            }
+        }
+        if (altAlleles.length > 0) {
+            possibleAlleles = possibleAlleles.concat(altAlleles);
+        }
+
+        vcfLine.sampleinfo.forEach(function (sample) {
+            var newMap = vcfObj.get(sample.NAME);
+            //gets the allele indices
+            var alleles = sample.GT.split(/[|/]+/, 2);
+            //gets the alleles from the allele indices and replaces the indices with the alleles.
+            for (var i = 0; i < alleles.length; i++) {
+                //if the allele is ".", ignore it
+                if (alleles[i] == ".") {
+                    //alleles[i] = possibleAlleles[0];
+                    alleles.splice(i, 1);
+                    --i;
+                }
+                else {
+                    alleles[i] = possibleAlleles[alleles[i]];
+                }
+            }
+            //event when alleles is empty, we still push it so that it can be included in 
+            //the totalVariants number of the output
+            newMap.set(vcfLine.id, alleles);
+            vcfObj.set(sample.NAME, newMap);
+        });
+        return vcfObj;
+    };
 
 })(typeof exports === 'undefined' ? this['sharedCode'] = {} : exports);

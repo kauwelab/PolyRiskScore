@@ -85,53 +85,8 @@ function parseVCFToObj(fileContents) {
     var vcf = require('bionode-vcf');
     vcf.readStream(s);
     var vcfObj = new Map();
-    var numSamples = 0;
     vcf.on('data', function (vcfLine) {
-        if (numSamples === 0) {
-            numSamples = vcfLine.sampleinfo.length;
-            vcfLine.sampleinfo.forEach(function (sample) {
-                //console.log(sample); 
-                vcfObj.set(sample.NAME, new Map());
-            });
-        }
-        //gets all possible alleles for the current id
-        var possibleAlleles = [];
-        possibleAlleles.push(vcfLine.ref);
-        var altAlleles = vcfLine.alt.split(/[,]+/);
-        var i;
-        for (i = 0; i < altAlleles.length; i++) {
-            if (altAlleles[i] == ".") {
-                //TODO in the case of "".,A" for altAlleles (not a likely case), should "." be 
-                //index 1 (but be nothing) and "A" be 2? or should "A" be index 1?
-                altAlleles.splice(i, 1);
-            }
-        }
-        if (altAlleles.length > 0) {
-            possibleAlleles = possibleAlleles.concat(altAlleles);
-        }
-
-        vcfLine.sampleinfo.forEach(function (sample) {
-            var newMap = vcfObj.get(sample.NAME);
-            //gets the allele indices
-            var alleles = sample.GT.split(/[|/]+/, 2);
-            //gets the alleles from the allele indices and replaces the indices with the alleles.
-            var i;
-            for (i = 0; i < alleles.length; i++) {
-                //if the allele is ".", ignore it
-                if (alleles[i] == ".") {
-                    //alleles[i] = possibleAlleles[0];
-                    alleles.splice(i, 1);
-                    --i;
-                }
-                else {
-                    alleles[i] = possibleAlleles[alleles[i]];
-                }
-            }
-            //event when alleles is empty, we still push it so that it can be included in 
-            //the totalVariants number of the output
-            newMap.set(vcfLine.id, alleles);
-            vcfObj.set(sample.NAME, newMap);
-        });
+        vcfObj = sharedCode.addLineToVcfObj(vcfObj, vcfLine)
     })
     vcf.on('error', function (err) {
         console.error('it\'s not a vcf', err)
@@ -236,7 +191,7 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
 app.get('/calculate_score/', async function (req, res) {
     //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
-  
+
     var vcfObj = await parseVCFToObj(req.query.fileContents);
 
     if (vcfObj.size > 0) {
