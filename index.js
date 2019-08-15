@@ -122,7 +122,7 @@ function createMap(fileContents) {
 
     return new Promise(function (resolve, reject) {
         vcf.on('end', function () {
-            console.log(vcfMapMaps);
+            //console.log(vcfMapMaps);
             resolve(vcfMapMaps);
         });
     });
@@ -234,7 +234,7 @@ app.get('/calculate_score/', async function (req, res) {
     //TODO this code prints the URL- length may be an issue 
     //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
     //console.log(fullUrl);
-
+    console.log(req.query.fileData); 
     var vcfMapMaps = await createMap(req.query.fileContents);
 
     if (vcfMapMaps.size > 0) {
@@ -334,8 +334,8 @@ app.get('/study_table/', async function (req, res) {
  */
 async function getValidTableRowsObj(pValue, diseaseStudyMapArray) {
     // config for the database
-    const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-    //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+    //const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+    const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
         host: 'localhost',
         dialect: 'mssql',
         define: {
