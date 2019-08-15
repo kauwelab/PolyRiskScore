@@ -236,7 +236,7 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
 app.get('/calculate_score/', async function (req, res) {
     //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
-
+  
     var vcfObj = await parseVCFToObj(req.query.fileContents);
 
     if (vcfObj.size > 0) {

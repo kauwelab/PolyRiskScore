@@ -79,6 +79,106 @@ function readSomeLines(file, maxlines, forEachLine, onComplete) {
     }
 }
 
+// function readFile(){
+//     var vcfFile = document.getElementById("files").files[0]; 
+//     //Initialize Map object
+//     var vcfParser = new VCFParser(); 
+    
+//     return readLineByLine(vcfFile, function callback(contents){
+//         if (!contents){ //Change this to throw an error later.
+//             console.log("ERROR OCCURED");
+//         }
+//         else{
+//             //console.log(contents); 
+//             try{
+//                 vcfParser.parseStream(contents, "vcf"); 
+//             }
+//             catch(err){
+//                 $('#response').html(err);
+//                 return; 
+//             }
+//             if (arguments[1]){
+//                 console.log(vcfParser.getMap()); 
+//                 return vcfParser.getMap();
+//             }
+//         }
+//         //console.log(vcfParser.getMap()); 
+//         //Add map value returned from vcf_parser onto Map object
+//     });   
+//     console.log(vcfParser.getMap()); 
+//     //console.log("At last..."); 
+//     //x console.log(vcfParser.getMap()); 
+//     //How to return the map object...???
+// }
+
+// function readLineByLine(file, callback) {
+//     //Should read the lines into an array. 
+//     var lag_line = ""; 
+//     var CHUNK_SIZE = 124; // 1 KB at a time.
+//     var offset = 0;
+//     var fr = new FileReader();
+//     fr.onload = function() {
+//         //console.log(fr.result); 
+//         var output = fr.result.split("\n"); 
+//         //If the last line is incomplete, save it until you read in the next chunk.
+//         //Then add that line to the beginning of the next chunk. 
+//         output[0] = lag_line + output[0]; 
+//         lag_line = output.pop(); 
+//         callback(output); 
+//         offset += CHUNK_SIZE;
+//         seek();
+//         //return here?
+//     };
+//     fr.onerror = function() {
+//         // Cannot read file... 
+//         callback(0);
+//     };
+//     seek();
+
+//     function seek() {
+//         if (offset >= file.size) { //We've reached the end of the file.
+//             //console.log(lag_line); 
+//             //if(lag_line){
+//             //return map here
+//             callback(lag_line.split("\n"), 1); 
+//             //} //???
+//             //return;
+//         }
+//         var slice = file.slice(offset, offset + CHUNK_SIZE); //Take the next slice.
+//         fr.readAsText(slice);
+//     }
+// }
+
+// function populateMap(){
+//     var vcfParser = new VCFParser(); 
+//     var lag_line = ""; 
+//     var CHUNK_SIZE = 124; // 1 KB at a time.
+//     var offset = 0;
+//     var fr = new FileReader();
+//     fr.onload = function() {
+//         var output = fr.result.split("\n"); 
+//         //If the last line is incomplete, save it until you read in the next chunk.
+//         //Then add that line to the beginning of the next chunk. 
+//         output[0] = lag_line + output[0]; 
+//         lag_line = output.pop(); 
+//         callback(output); 
+//         offset += CHUNK_SIZE;
+//         seek();
+//     };
+//     fr.onerror = function() {
+//         callback(0);
+//     };
+//     seek();
+
+//     function seek() {
+//         if (offset >= file.size) { //We've reached the end of the file.
+//             //return map here
+//             callback(lag_line.split("\n"), 1); 
+//         }
+//         var slice = file.slice(offset, offset + CHUNK_SIZE); //Take the next slice.
+//         fr.readAsText(slice);
+//     }
+// }
 
 var readFile = async () => {
 
