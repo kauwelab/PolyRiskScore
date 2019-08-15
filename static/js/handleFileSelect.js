@@ -80,10 +80,10 @@ function readSomeLines(file, maxlines, forEachLine, onComplete) {
 }
 
 
-var readFile = async() => { 
+var readFile = async () => {
 
-    var vcfFile = document.getElementById("files").files[0];     
-    var reader = new Response(vcfFile); 
+    var vcfFile = document.getElementById("files").files[0];
+    var reader = new Response(vcfFile);
     fileContents = await reader.text();
-    return fileContents;  
+    return fileContents;
 }

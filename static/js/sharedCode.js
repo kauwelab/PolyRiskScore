@@ -77,7 +77,6 @@
     exports.makeDiseaseStudyMapArray = function (diseaseArray, studyType) {
         var diseaseStudyMapArray = [];
         //if the user doesn't specify any diseases, do all of them
-        //TODO test this!
         if (diseaseArray == undefined || diseaseArray.length <= 0) {
             diseaseArray = [];
             for (var diseaseName in diseasesAndStudies) {
