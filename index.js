@@ -4,16 +4,16 @@ const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars')
-var vcf = require('bionode-vcf');
 const stream = require('stream');
 const Sequelize = require('sequelize');
 const multer = require('multer');
 const del = require('del');
 const fsExtra = require('fs-extra');
+//the shared code module between the browser and server
+const sharedCode = require('./static/js/sharedCode')
 
 //Define the port for app to listen on
 const port = 3000
-
 
 // Configure multer functionality
 var storage = multer.diskStorage({
@@ -59,28 +59,39 @@ app.listen(port, () => {
     welcomeMessages.push("Polyscore server: at your service!");
     console.log(welcomeMessages[getRandomInt(welcomeMessages.length)]/*path.join(__dirname, 'static')*/) //prints a happy message on startup
 });
-//TODO add correct disease table names to diseaseEnum!
-var diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "alzheimer's disease": "AD", "depression": "DEPRESSION_TABLE_NAME", "heart disease": "HEART_DISEASE_TABLE_NAME", });
 
 // Helper Functions
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-function createMap(fileContents) {
+//TODO add correct disease table names to diseaseEnum!
+global.diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "ad": "AD", "dep": "DEPRESSION_TABLE_NAME", "hd": "HEART_DISEASE_TABLE_NAME", });
+
+/**
+ * Parses the vcf fileContents into a vcfObj that is used to calculate the score
+ * @param {*} fileContents 
+ */
+function parseVCFToObj(fileContents) {
     var Readable = stream.Readable;
     const s = new Readable();
     s.push(fileContents);
     s.push(null);
+    //Deletes the previous vcf module and newly reloads it. This prevents the events 'data', 'error', and 'end' from being 
+    //added to the vcf module and stacking up over time. Previously, every time this method was called, these events would 
+    //be called +1 times. There's probably a way to set up these events just once somewhere else and call them here, but I'm
+    //not sure how to do that. -Matthew
+    delete require.cache[require.resolve('bionode-vcf')];
+    var vcf = require('bionode-vcf');
     vcf.readStream(s);
-    var vcfMapMaps = new Map();
+    var vcfObj = new Map();
     var numSamples = 0;
     vcf.on('data', function (vcfLine) {
         if (numSamples === 0) {
             numSamples = vcfLine.sampleinfo.length;
             vcfLine.sampleinfo.forEach(function (sample) {
                 //console.log(sample); 
-                vcfMapMaps.set(sample.NAME, new Map());
+                vcfObj.set(sample.NAME, new Map());
             });
         }
         //gets all possible alleles for the current id
@@ -90,7 +101,9 @@ function createMap(fileContents) {
         var i;
         for (i = 0; i < altAlleles.length; i++) {
             if (altAlleles[i] == ".") {
-                altAlleles.splice(i);
+                //TODO in the case of "".,A" for altAlleles (not a likely case), should "." be 
+                //index 1 (but be nothing) and "A" be 2? or should "A" be index 1?
+                altAlleles.splice(i, 1);
             }
         }
         if (altAlleles.length > 0) {
@@ -98,22 +111,26 @@ function createMap(fileContents) {
         }
 
         vcfLine.sampleinfo.forEach(function (sample) {
-            var newMap = vcfMapMaps.get(sample.NAME);
+            var newMap = vcfObj.get(sample.NAME);
             //gets the allele indices
             var alleles = sample.GT.split(/[|/]+/, 2);
             //gets the alleles from the allele indices and replaces the indices with the alleles.
             var i;
             for (i = 0; i < alleles.length; i++) {
-                //if the allele is ".", treat it as the ref allele
+                //if the allele is ".", ignore it
                 if (alleles[i] == ".") {
-                    alleles[i] = possibleAlleles[0];
+                    //alleles[i] = possibleAlleles[0];
+                    alleles.splice(i, 1);
+                    --i;
                 }
                 else {
                     alleles[i] = possibleAlleles[alleles[i]];
                 }
             }
+            //event when alleles is empty, we still push it so that it can be included in 
+            //the totalVariants number of the output
             newMap.set(vcfLine.id, alleles);
-            vcfMapMaps.set(sample.NAME, newMap);
+            vcfObj.set(sample.NAME, newMap);
         });
     })
     vcf.on('error', function (err) {
@@ -122,26 +139,10 @@ function createMap(fileContents) {
 
     return new Promise(function (resolve, reject) {
         vcf.on('end', function () {
-            //console.log(vcfMapMaps);
-            resolve(vcfMapMaps);
+            resolve(vcfObj);
         });
     });
 }
-
-function getCombinedORFromArray(ORs) {
-    //calculate the combined odds ratio from the odds ratio array (ORs)
-    var combinedOR = 0;
-    ORs.forEach(function (element) {
-        combinedOR += Math.log(element);
-    });
-    combinedOR = Math.exp(combinedOR);
-    return combinedOR;
-}
-
-function trimWhitespace(str) {
-    return str.replace(/^\s+|\s+$/gm, '');
-}
-
 
 // ROUTES
 
@@ -226,22 +227,23 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
 
 });
 
-//see calculate_score.js for the code that calls this function (currently not in use)
-// GET route for calculating prs 
+/** 
+ * Receives a vcf's fileContents, a diseaseArray, and a string representing the studyType ("high impact", "large cohort", or "") 
+ * and calculates a score obj to send to the browser. First, it parses the fileContents into a vcfObj, then gets a tableRowsObj
+ * and finally calculates the score object which is sent to the browser as an array of jsons (the first json representing useful data 
+ * for all of the calculations and the rest of the jsons representing scores for each disease for each individual)
+ */
 app.get('/calculate_score/', async function (req, res) {
-    //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
+    //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
-    //TODO this code prints the URL- length may be an issue 
-    //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-    //console.log(fullUrl);
-    console.log(req.query.fileData); 
-    var vcfMapMaps = await createMap(req.query.fileContents);
+  
+    var vcfObj = await parseVCFToObj(req.query.fileContents);
 
-    if (vcfMapMaps.size > 0) {
-        var diseaseStudyMapArray = JSON.parse(req.query.diseaseStudyMapArray);
+    if (vcfObj.size > 0) {
+        var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(req.query.diseaseArray, req.query.studyType);
         var pValue = req.query.pValue;
         var rowsObj = await getValidTableRowsObj(pValue, diseaseStudyMapArray);
-        var jsons = calculateScore(rowsObj, vcfMapMaps, pValue)
+        var jsons = sharedCode.calculateScore(rowsObj, vcfObj, pValue)
         res.send(jsons);
     }
     else {
@@ -249,77 +251,23 @@ app.get('/calculate_score/', async function (req, res) {
     }
 });
 
-/**TODO this is duplicate code from the calculate_score.js file. Duplicate code is BAD!
- * Calculates the polygenetic risk score using table rows from the database and the vcfObj. 
- * P-value is required so the result can also return information about the calculation.
- * @param {*} rowsObj 
- * @param {*} vcfObj 
- * @param {*} pValue 
- * @return a string in JSON format of each idividual, their scores, and other information about their scores.
- */
-function calculateScore(rowsObj, vcfObj, pValue) {
-    var resultJsons = [];
-    //push information about the calculation to the result
-    resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].size })
-    //for each individual and each disease and each study in each disease and each snp of each individual, 
-    //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
-    for (const [individualName, snpMap] of vcfObj.entries()) {
-        var diseaseResults = [];
-        rowsObj.forEach(function (diseaseEntry) {
-            var studyResults;
-            diseaseEntry.studiesRows.forEach(function (studyEntry) {
-                studyResults = [];
-                var ORs = []
-                var snpsUsed = [];
-                for (const [snp, alleleArray] of snpMap.entries()) {
-                    alleleArray.forEach(function (allele) {
-                        studyEntry.rows.forEach(function (row) {
-                            //by now, we don't have to check for study or pValue, because rowsObj already has only those values
-                            if (allele !== null) {
-                                if (snp == row.snp && row.riskAllele === allele) {
-                                    ORs.push(row.oddsRatio);
-                                    snpsUsed.push(row.snp);
-                                }
-                            }
-                            else {
-                                if (snp == row.snp) {
-                                    ORs.push(row.oddsRatio);
-                                    snpsUsed.push(row.snp);
-                                }
-                            }
-                        });
-                    });
-                }
-                studyResults.push({
-                    study: studyEntry.study,
-                    oddsRatio: getCombinedORFromArray(ORs),
-                    percentile: "",
-                    numVariantsIncluded: ORs.length,
-                    variantsIncluded: snpsUsed
-                });
-            });
-            diseaseResults.push({
-                disease: diseaseEntry.disease,
-                studyResults: studyResults
-            });
-        });
-        resultJsons.push({ individualName: individualName, diseaseResults: diseaseResults })
-    }
-    return JSON.stringify(resultJsons);
-}
-
-//
 /**
  * Returns a list of diseaseRow objects, each of which contain a disease name and a list of its corresponding studiesRows objects. 
  * Each studyRow object contains a study name and its corresponding rows in the disease table with the given p-value.
  * See calculate_score.js for the code that calls this function.
  */
 app.get('/study_table/', async function (req, res) {
-    //allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
+    //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
-
     //an array of diseases mapped to lists of studies asociated with each disease (most often it is one disease to a list of one study)
-    var diseaseStudyMapArray = JSON.parse(req.query.diseaseStudyMapArray);
+    var diseaseArray = req.query.diseaseArray
+    if (diseaseArray == undefined) {
+        diseaseArray = []
+    }
+    else if (diseaseArray.constructor !== Array) {
+        diseaseArray = [diseaseArray];
+    }
+    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, req.query.studyType);
     var pValue = req.query.pValue;
 
     var diseaseRows = await getValidTableRowsObj(pValue, diseaseStudyMapArray)
@@ -334,8 +282,8 @@ app.get('/study_table/', async function (req, res) {
  */
 async function getValidTableRowsObj(pValue, diseaseStudyMapArray) {
     // config for the database
-    //const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-    const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+    const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+        //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
         host: 'localhost',
         dialect: 'mssql',
         define: {
@@ -469,10 +417,6 @@ async function getRows(pValue, study, table) {
         });
         return rows;
     })
-}
-
-function trimWhitespace(str) {
-    return str.replace(/^\s+|\s+$/gm, '');
 }
 
 /* app.get('/um', function (req, res) {
