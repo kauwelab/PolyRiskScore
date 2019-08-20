@@ -3,7 +3,8 @@ var calculatePolyScore = async () => { //Doesn't need to be async any more
     $('#response').html("Calculating. Please wait...")
     var vcfFile = document.getElementById("files").files[0];
     var fileSize = vcfFile.size;
-    var extension = vcfFile.name.split(".")[1];
+    var fileExtension = vcfFile.name.split(".");
+    var extension = fileExtension[fileExtension.length -1];
     if (!vcfFile) {
         //if here, the user did not import a vcf file or the the vcf file was not read properly
         $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
@@ -56,9 +57,7 @@ function getStudyTypeFromStudy(study) {
 var ClientCalculateScore = async(vcfFile, extension, diseaseArray, studyType, pValue) => {
     var vcfParser = new VCFParser();
     var vcfFile = document.getElementById("files").files[0]; 
-    console.log(extension); 
     var vcfObj = await vcfParser.populateMap(vcfFile, extension); 
-    console.log(vcfObj); 
     $.get("study_table", { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
              
         function (studyTableRows) {
