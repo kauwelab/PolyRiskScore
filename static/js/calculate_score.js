@@ -1,4 +1,4 @@
-var calculatePolyScore = async () => {
+var calculatePolyScore = async () => { //Doesn't need to be async any more
     //user feedback while they are waiting for their score
     $('#response').html("Calculating. Please wait...")
     var vcfFile = document.getElementById("files").files[0];
