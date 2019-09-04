@@ -86,12 +86,19 @@ function printFileEnds(file, sizeToPrint) {
     var state = 0;
     var output = "";
     fr.onload = function() {
-        if (state == 1) {
-            output += "..."
+        //for small files, the elispses are not included and the end chunk reading is skipped
+        if (CHUNK_SIZE * 2 >= file.size) {
+            output += fr.result;
+            ++state;
         }
-        output += fr.result
-        if (state == 0) {
-            output += "...\n"
+        else {
+            if (state == 1) {
+                output += "..."
+            }
+            output += fr.result
+            if (state == 0) {
+                output += "...\n"
+            }
         }
         ++state;
         seek();
@@ -102,12 +109,21 @@ function printFileEnds(file, sizeToPrint) {
     };
     seek();
     function seek() {
+        //read the first chunk
         if (state == 0) {
-            fr.readAsText(file.slice(0, CHUNK_SIZE));
+            //if the CHUNK_SIZE * 2 is greater than the file size, read the entire file and skip to the printing state
+            if (CHUNK_SIZE * 2 >= file.size) {
+                fr.readAsText(file.slice(0, file.size));                
+            }
+            else {
+                fr.readAsText(file.slice(0, CHUNK_SIZE));
+            }
         }
+        //read the last chunk
         else if (state == 1) {
             fr.readAsText(file.slice(file.size - CHUNK_SIZE, file.size));
         }
+        //print both chunks
         else {
             $('#input').html(output);
             return;
