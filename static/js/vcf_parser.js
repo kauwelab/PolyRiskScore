@@ -11,7 +11,13 @@ VCFParser.prototype.getMap = function () {
 }
 
 //populate map function here
-VCFParser.prototype.populateMap = function (file, extension) {
+VCFParser.prototype.populateMap = function (file, extension, usefulSNPs) {
+  try {
+    manageByExtension(extension);
+  }
+  catch (err) {
+    throw err; 
+  }
   var vcfParser = this;
   var lag_line = "";
   var CHUNK_SIZE = 1024; // 1 KB at a time.
@@ -26,11 +32,10 @@ VCFParser.prototype.populateMap = function (file, extension) {
       lag_line = output.pop();
       //callback(output); 
       try {
-        vcfParser.parseStream(output, extension);
+        vcfParser.parseStream(output, extension, usefulSNPs);
       }
       catch (err) {
-        $('#response').html(err);
-        return;
+        throw err; 
       }
       //console.log(output); 
       offset += CHUNK_SIZE;
@@ -48,8 +53,7 @@ VCFParser.prototype.populateMap = function (file, extension) {
             vcfParser.parseStream(lag_line.split("\n"), "vcf");
           }
           catch (err) {
-            $('#response').html(err);
-            return;
+            throw err;
           }
         }
         resolve(vcfParser.getMap());
@@ -63,15 +67,10 @@ VCFParser.prototype.populateMap = function (file, extension) {
 
 }
 
-VCFParser.prototype.parseStream = function (instream, extension) {
-  //var vcfMapMaps = new Map();
-  //var numSamples = 0;
-  //var sampleIndex = {}
-  //var vcfAttrib = {}
-  //var outstream = new Stream()
-  var rl = manageByExtension(extension, instream);
+VCFParser.prototype.parseStream = function (instream, extension, usefulSNPs) {
+
   var that = this;
-  rl.forEach(function (line, index) {
+  instream.forEach(function (line, index) {
     // check if line starts with hash and use them
     if (line.indexOf('#') === 0) {
       // #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsample1\tsample2\tsample3
@@ -90,6 +89,10 @@ VCFParser.prototype.parseStream = function (instream, extension) {
     } else { // go through remaining lines
       // split line by tab character
       var info = line.split('\t')
+      if (!usefulSNPs.includes(info[2])){
+        return; 
+      }
+      //CHECK SNP HERE. IF INVALID, STOP.
       if (info.length < 9) {
         //Throw an error if vcfMapMaps is empty.
         //This probably means the user uploaded an empty file or a file in the wrong format. 
@@ -116,14 +119,16 @@ VCFParser.prototype.parseStream = function (instream, extension) {
   //return this.vcfMap; //To Delete
 }
 
-function manageByExtension(extension, instream) {
+function manageByExtension(extension) {
   var rl
 
   switch (extension) {
     //  Figure out how to handle gz and zip
     case 'vcf':
-      rl = instream;
+      //don't do anything. You're good!
       break
+    //handle .gz
+    //handle .zip
     default:
       throw "Please upload a file of extension type vcf."
   }
@@ -138,12 +143,12 @@ function defineVCFAttributes(vcfAttrib, line) {
   }
 
   // ##samtoolsVersion=0.1.19-44428cd
-  if (!vcfAttrib.samtools) {
+  else if (!vcfAttrib.samtools) {
     vcfAttrib.samtools = line.match(/^##samtoolsVersion=/) ? line.split('=')[1] : null
   }
 
   // ##reference=file://../index/Chalara_fraxinea_TGAC_s1v1_scaffolds.fa
-  if (!vcfAttrib.refseq) {
+  else if (!vcfAttrib.refseq) {
     vcfAttrib.refseq = line.match((/^##reference=file:/)) ? line.split('=')[1] : null
   }
 

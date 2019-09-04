@@ -8,7 +8,7 @@ var calculatePolyScore = async () => {
         return;
     }
     var fileSize = vcfFile.size;
-    var extension = vcfFile.name.split(".")[1];
+    var extension = vcfFile.name.split(".").pop(); 
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
     //gets the disease name from the drop down list
@@ -55,17 +55,59 @@ function getStudyTypeFromStudy(study) {
 var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue) => {
     var vcfParser = new VCFParser();
     var vcfFile = document.getElementById("files").files[0];
-    var vcfObj = await vcfParser.populateMap(vcfFile, extension);
+    var vcfObj;
+
     $.get("study_table", { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
 
-        function (studyTableRows) {
+        async (studyTableRows) => {
             var tableObj = JSON.parse(studyTableRows);
+            var usefulSNPs = getSNPArray(tableObj); 
+            try{
+                vcfObj = await vcfParser.populateMap(vcfFile, extension, usefulSNPs);
+                console.log(vcfObj); 
+                // What if it's empty?
+             } 
+             catch(err){
+                 $('#response').html(err);
+                 return;
+             }
             var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
             setResultOutput(result);
             sessionStorage.setItem("riskResults", result);
         }, "html").fail(function (jqXHR) {
             $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
         });
+}
+
+function getSNPArray(tableObj){
+    var usefulSNPs = []; 
+    // var tableObj = {'disease': 'ad', 'studiesRows': {'study': 'Lambert et al., 2013', 'rows': [
+    //     {'snp': 'rs6656401', 'riskAllele': 'A', 'pValue': 5.7e-24, 'oddsRatio': 1.18}, 
+    //     {'snp': 'rs11449', 'riskAllele': 'T', 'pValue': 6.9e-44, 'oddsRatio': 1.22}, 
+    //     {'snp': 'rs10948363', 'riskAllele': 'G', 'pValue': 5.2e-11, 'oddsRatio': 1.1}, 
+    //     {'snp': 'rs11771145', 'riskAllele': 'A', 'pValue': 1.1e-13, 'oddsRatio': 0.9}, 
+    //     {'snp': 'rs9331896', 'riskAllele': 'C', 'pValue': 2.8e-25, 'oddsRatio': 0.86}, 
+    //     {'snp': 'rs983392', 'riskAllele': 'G', 'pValue': 6.1e-16, 'oddsRatio': 0.9}, 
+    //     {'snp': 'rs10792832', 'riskAllele': 'A', 'pValue': 9.3e-26, 'oddsRatio': 0.87}, 
+    //     {'snp': 'rs4147929', 'riskAllele': 'A', 'pValue': 1.1e-15, 'oddsRatio': 1.15}, 
+    //     {'snp': 'rs3865444', 'riskAllele': 'A', 'pValue': 3e-06, 'oddsRatio': 0.94}, 
+    //     {'snp': 'rs9271192', 'riskAllele': 'C', 'pValue': 2.9e-12, 'oddsRatio': 1.11}, 
+    //     {'snp': 'rs28834970', 'riskAllele': 'C', 'pValue': 7.4e-14, 'oddsRatio': 1.1}, 
+    //     {'snp': 'rs11218343', 'riskAllele': 'C', 'pValue': 9.7e-15, 'oddsRatio': 0.77}, 
+    //     {'snp': 'rs10498633', 'riskAllele': 'T', 'pValue': 5.5e-09, 'oddsRatio': 0.91}, 
+    //     {'snp': 'rs8093731', 'riskAllele': 'T', 'pValue': 0.0001, 'oddsRatio': 0.73}, 
+    //     {'snp': 'rs35349669', 'riskAllele': 'T', 'pValue': 3.2e-08, 'oddsRatio': 1.08}, 
+    //     {'snp': 'rs190982', 'riskAllele': 'G', 'pValue': 3.2e-08, 'oddsRatio': 0.93}, 
+    //     {'snp': 's2718058', 'riskAllele': 'G', 'pValue': 4.8e-09, 'oddsRatio': 0.93}, 
+    //     {'snp': 'rs1476679', 'riskAllele': 'C', 'pValue': 5.6e-10, 'oddsRatio': 0.91}, 
+    //     {'snp': 'rs10838725', 'riskAllele': 'C', 'pValue': 1.1e-08, 'oddsRatio': 1.08}, 
+    //     {'snp': 'rs17125944', 'riskAllele': 'C', 'pValue': 7.9e-09, 'oddsRatio': 1.14}, 
+    //     {'snp': 'rs7274581', 'riskAllele': 'C', 'pValue': 2.5e-08, 'oddsRatio': 0.88}]}}
+    var rows = tableObj.studiesRows.rows; 
+    for (i = 0; i < rows.length; i += 1){
+        usefulSNPs.push(rows[i].snp);
+    }
+    return usefulSNPs;  
 }
 
 //API-reformating
@@ -149,8 +191,8 @@ function formatCSV(jsonObject) {
             });
         });
     }
-    var pattern = new RegExp("2016");
-    returnText.replace(pattern, "HELLO");
+    // var pattern = new RegExp("2016");
+    // returnText.replace(pattern, "HELLO");
     return returnText;
 }
 
