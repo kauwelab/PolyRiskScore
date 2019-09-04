@@ -10,12 +10,8 @@ function handleFileSelect(evt) {
         f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
         '</li>');
     var vcfText = "";
-    //TODO make number of lines configurable or make output size based instead of line based 
-    readSomeLines(f, 10, function (line) {
-        vcfText += line;
-    }, function onComplete() {
-        $('#input').html(vcfText);
-    });
+    //TODO make number of lines configurable or make output size based instead of line based
+    printFileEnds(f, 2048);
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 }
 
@@ -70,7 +66,7 @@ function readSomeLines(file, maxlines, forEachLine, onComplete) {
         }
         if (offset !== 0 && offset >= file.size) {
             // We did not find all lines, but there are no more lines.
-            forEachLine(results); // This is from lines.pop(), before.
+            //forEachLine(results); // This is from lines.pop(), before.
             onComplete(); // Done
             return;
         }
@@ -79,109 +75,47 @@ function readSomeLines(file, maxlines, forEachLine, onComplete) {
     }
 }
 
-// function readFile(){
-//     var vcfFile = document.getElementById("files").files[0]; 
-//     //Initialize Map object
-//     var vcfParser = new VCFParser(); 
-    
-//     return readLineByLine(vcfFile, function callback(contents){
-//         if (!contents){ //Change this to throw an error later.
-//             console.log("ERROR OCCURED");
-//         }
-//         else{
-//             //console.log(contents); 
-//             try{
-//                 vcfParser.parseStream(contents, "vcf"); 
-//             }
-//             catch(err){
-//                 $('#response').html(err);
-//                 return; 
-//             }
-//             if (arguments[1]){
-//                 console.log(vcfParser.getMap()); 
-//                 return vcfParser.getMap();
-//             }
-//         }
-//         //console.log(vcfParser.getMap()); 
-//         //Add map value returned from vcf_parser onto Map object
-//     });   
-//     console.log(vcfParser.getMap()); 
-//     //console.log("At last..."); 
-//     //x console.log(vcfParser.getMap()); 
-//     //How to return the map object...???
-// }
-
-// function readLineByLine(file, callback) {
-//     //Should read the lines into an array. 
-//     var lag_line = ""; 
-//     var CHUNK_SIZE = 124; // 1 KB at a time.
-//     var offset = 0;
-//     var fr = new FileReader();
-//     fr.onload = function() {
-//         //console.log(fr.result); 
-//         var output = fr.result.split("\n"); 
-//         //If the last line is incomplete, save it until you read in the next chunk.
-//         //Then add that line to the beginning of the next chunk. 
-//         output[0] = lag_line + output[0]; 
-//         lag_line = output.pop(); 
-//         callback(output); 
-//         offset += CHUNK_SIZE;
-//         seek();
-//         //return here?
-//     };
-//     fr.onerror = function() {
-//         // Cannot read file... 
-//         callback(0);
-//     };
-//     seek();
-
-//     function seek() {
-//         if (offset >= file.size) { //We've reached the end of the file.
-//             //console.log(lag_line); 
-//             //if(lag_line){
-//             //return map here
-//             callback(lag_line.split("\n"), 1); 
-//             //} //???
-//             //return;
-//         }
-//         var slice = file.slice(offset, offset + CHUNK_SIZE); //Take the next slice.
-//         fr.readAsText(slice);
-//     }
-// }
-
-// function populateMap(){
-//     var vcfParser = new VCFParser(); 
-//     var lag_line = ""; 
-//     var CHUNK_SIZE = 124; // 1 KB at a time.
-//     var offset = 0;
-//     var fr = new FileReader();
-//     fr.onload = function() {
-//         var output = fr.result.split("\n"); 
-//         //If the last line is incomplete, save it until you read in the next chunk.
-//         //Then add that line to the beginning of the next chunk. 
-//         output[0] = lag_line + output[0]; 
-//         lag_line = output.pop(); 
-//         callback(output); 
-//         offset += CHUNK_SIZE;
-//         seek();
-//     };
-//     fr.onerror = function() {
-//         callback(0);
-//     };
-//     seek();
-
-//     function seek() {
-//         if (offset >= file.size) { //We've reached the end of the file.
-//             //return map here
-//             callback(lag_line.split("\n"), 1); 
-//         }
-//         var slice = file.slice(offset, offset + CHUNK_SIZE); //Take the next slice.
-//         fr.readAsText(slice);
-//     }
-// }
+/**
+ * Prints the beginning and the end of the file specified with elipses in the middle. Each half of the file is half of sizeToPrint.
+ * @param {*} file the file from which to print its beginning and end
+ * @param {*} sizeToPrint the combined size in bites of the beginning and end to print
+ */
+function printFileEnds(file, sizeToPrint) {
+    var CHUNK_SIZE = sizeToPrint / 2;
+    var fr = new FileReader();
+    var state = 0;
+    var output = "";
+    fr.onload = function() {
+        if (state == 1) {
+            output += "..."
+        }
+        output += fr.result
+        if (state == 0) {
+            output += "...\n"
+        }
+        ++state;
+        seek();
+    }
+    fr.onerror = function() {
+        // Cannot read file... 
+        $('#input').html("There was an error reading the file.");
+    };
+    seek();
+    function seek() {
+        if (state == 0) {
+            fr.readAsText(file.slice(0, CHUNK_SIZE));
+        }
+        else if (state == 1) {
+            fr.readAsText(file.slice(file.size - CHUNK_SIZE, file.size));
+        }
+        else {
+            $('#input').html(output);
+            return;
+        }
+    }
+}
 
 var readFile = async (vcfFile) => {
-
     var reader = new Response(vcfFile);
     fileContents = await reader.text();
     return fileContents;

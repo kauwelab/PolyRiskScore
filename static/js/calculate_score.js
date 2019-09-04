@@ -28,11 +28,18 @@ var calculatePolyScore = async () => {
     }
     // API-reformating
 
-    if (fileSize > 1500000 || extension === "gz" || extension === "zip") {
+    if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
 
         ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue);
         return
     }
+    /*
+    else if () {
+        var new_zip = new JSZip();
+        new_zip.load(file);
+        new_zip.files["doc.xml"].asText() // this give you the text in the file
+    }
+    */
     ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue);
 }
 
@@ -53,6 +60,7 @@ function getStudyTypeFromStudy(study) {
 
 
 var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue) => {
+    debugger;
     var vcfParser = new VCFParser();
     var vcfFile = document.getElementById("files").files[0];
     var vcfObj = await vcfParser.populateMap(vcfFile, extension);
@@ -61,11 +69,20 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
         function (studyTableRows) {
             var tableObj = JSON.parse(studyTableRows);
             var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
+            //TODO simplify output here- take only the first 5 people
+            var simpleResult = simplifyResult(result);
             setResultOutput(result);
             sessionStorage.setItem("riskResults", result);
         }, "html").fail(function (jqXHR) {
             $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
         });
+}
+
+function simplifyResult(result) {
+    //TODO avoid having to parse again!
+    debugger;
+    var result = JSON.parse(result);
+    
 }
 
 //API-reformating
@@ -182,6 +199,7 @@ function setResultOutput(data) {
 }
 
 function downloadResults() {
+    //this needs to be a different value because the result is about to be truncated
     var resultText = document.getElementById("response").value;
     var formatDropdown = document.getElementById("fileType");
     var format = formatDropdown.options[formatDropdown.selectedIndex].value;
