@@ -28,7 +28,7 @@ var calculatePolyScore = async () => {
     }
     // API-reformating
 
-    if (fileSize > 1500000 || extension === "gz" || extension === "zip") {
+    if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
 
         ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue);
         return
