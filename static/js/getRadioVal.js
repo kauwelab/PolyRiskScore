@@ -14,7 +14,8 @@ function getRadioVal(form, name) {
 }
 
 function radioChange(){
-    sessionStorage.removeItem("riskResults");
+    //sessionStorage.removeItem("riskResults");
+    resultJSON = ""; 
     $('#response').html("");
 }
 
