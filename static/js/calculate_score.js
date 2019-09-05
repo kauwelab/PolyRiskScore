@@ -62,7 +62,6 @@ function getStudyTypeFromStudy(study) {
 
 
 var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue) => {
-    debugger;
     var vcfParser = new VCFParser();
     var vcfFile = document.getElementById("files").files[0];
     var vcfObj;
@@ -81,10 +80,10 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
                 $('#response').html(err);
                 return;
             }
+            debugger;
             var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
-            var outputVal = getResultOutput(result);
-            outputVal = simplifyResult(result);
-            $('#response').html(outputVal);
+            outputVal = getResultOutput(simplifyResult(result));
+            $('#response').html("Results preview:\n" + outputVal + "\n...");
             resultJSON = result; 
              
             //sessionStorage.setItem("riskResults", result);
@@ -93,11 +92,26 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
         });
 }
 
-//TODO not completed yet
+/**
+ * Truncates the result to just the informational obj and the results for the first two individuals
+ * @param {*} result the large resultJson to be truncated
+ */
 function simplifyResult(result) {
-    //TODO avoid having to parse again!
-    debugger;
-    var result = JSON.parse(result);
+    //TODO avoid having to parse again! -is there anyway to keep this in obj form instead of passing a string?
+    var resultObj = JSON.parse(result);
+    //if the resultJson is already truncated, return it
+    if (resultObj.size <= 3) {
+        return result;
+    }
+    //create a new array, add the first three objects from the resultJson, and return its string version
+    else {
+        var simpleResultObj = [];
+        simpleResultObj.push(resultObj[0]);
+        simpleResultObj.push(resultObj[1]);
+        simpleResultObj.push(resultObj[2]);
+        return JSON.stringify(simpleResultObj);
+    }
+
 }
 
 function getSNPArray(tableObj) {
@@ -124,8 +138,8 @@ function getSNPArray(tableObj) {
     //     {'snp': 'rs10838725', 'riskAllele': 'C', 'pValue': 1.1e-08, 'oddsRatio': 1.08}, 
     //     {'snp': 'rs17125944', 'riskAllele': 'C', 'pValue': 7.9e-09, 'oddsRatio': 1.14}, 
     //     {'snp': 'rs7274581', 'riskAllele': 'C', 'pValue': 2.5e-08, 'oddsRatio': 0.88}]}}
-    debugger;
-    var rows = tableObj.studiesRows.rows;
+    //TODO this needs to iterate over all entries of tableObj and studiesRows
+    var rows = tableObj[0].studiesRows[0].rows;
     for (i = 0; i < rows.length; i += 1) {
         usefulSNPs.push(rows[i].snp);
     }
@@ -230,8 +244,8 @@ function changeFormat() {
     if (!resultJSON){
         return;
     }
-    var outputVal = getResultOutput(resultJSON); 
-    $('#response').html(outputVal);
+    var outputVal = getResultOutput(simplifyResult(resultJSON));
+    $('#response').html("Results preview:\n" + outputVal + "\n...");
 }
 
 function getResultOutput(data) {
