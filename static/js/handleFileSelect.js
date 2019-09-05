@@ -2,7 +2,10 @@
 function handleFileSelect(evt) {
     var f = evt.target.files[0]; // FileList object
     var output = [];
-    sessionStorage.removeItem("riskResults");
+    //sessionStorage.removeItem("riskResults");
+
+    resultJSON = ""; 
+  
     $('#response').html("");
 
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',

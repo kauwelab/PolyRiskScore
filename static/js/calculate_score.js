@@ -1,3 +1,5 @@
+var resultJSON = ""; 
+
 var calculatePolyScore = async () => {
     //user feedback while they are waiting for their score
     $('#response').html("Calculating. Please wait...")
@@ -28,7 +30,7 @@ var calculatePolyScore = async () => {
     }
     // API-reformating
 
-    if (fileSize > 1500000 || extension === "gz" || extension === "zip") {
+    if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
 
         ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue);
         return
@@ -37,7 +39,7 @@ var calculatePolyScore = async () => {
 }
 
 /**
- * Get's whether the study is high impact, large cohort, or none and returns a string to represent it.
+ * Gets whether the study is high impact, large cohort, or none and returns a string to represent it.
  * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
  * @param {*} study 
  */
@@ -53,6 +55,7 @@ function getStudyTypeFromStudy(study) {
 
 
 var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue) => {
+ 
     var vcfParser = new VCFParser();
     var vcfFile = document.getElementById("files").files[0];
     var vcfObj = await vcfParser.populateMap(vcfFile, extension);
@@ -61,8 +64,11 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
         function (studyTableRows) {
             var tableObj = JSON.parse(studyTableRows);
             var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
-            setResultOutput(result);
-            sessionStorage.setItem("riskResults", result);
+            var outputVal = getResultOutput(result);
+            $('#response').html(outputVal);
+            resultJSON = result; 
+             
+            //sessionStorage.setItem("riskResults", result);
         }, "html").fail(function (jqXHR) {
             $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
         });
@@ -79,8 +85,10 @@ var ServerCalculateScore = async (vcfFile, diseaseArray, studyType, pValue) => {
     $.get("calculate_score", { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
         function (data) {
             //data contains the info received by going to "/calculate_score"
-            setResultOutput(data);
-            sessionStorage.setItem("riskResults", data);
+            var outputVal = getResultOutput(data);
+            $('#response').html(outputVal);
+            //sessionStorage.setItem("riskResults", data);
+            resultJSON = data; 
         }, "html").fail(function (jqXHR) {
             $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
         });
@@ -155,15 +163,20 @@ function formatCSV(jsonObject) {
 }
 
 function changeFormat() {
-    if (!sessionStorage.getItem("riskResults")) {
-        return
-    }
+    // if (!sessionStorage.getItem("riskResults")) {
+    //     return
+    // }
 
-    var data = sessionStorage.getItem("riskResults");
-    setResultOutput(data);
+    // var data = sessionStorage.getItem("riskResults");
+    // setResultOutput(data);
+    if (!resultJSON){
+        return;
+    }
+    var outputVal = getResultOutput(resultJSON); 
+    $('#response').html(outputVal);
 }
 
-function setResultOutput(data) {
+function getResultOutput(data) {
     var jsonObject = JSON.parse(data);
     var outputVal = "";
     var formatDropdown = document.getElementById("fileType");
@@ -178,11 +191,13 @@ function setResultOutput(data) {
     else
         outputVal += "Please select a valid format."
 
-    $('#response').html(outputVal);
+    //$('#response').html(outputVal);
+    return outputVal; 
 }
 
 function downloadResults() {
-    var resultText = document.getElementById("response").value;
+    //var resultText = document.getElementById("response").value;
+    var resultText = getResultOutput(resultJSON); 
     var formatDropdown = document.getElementById("fileType");
     var format = formatDropdown.options[formatDropdown.selectedIndex].value;
     // $.post("/download_results", {resultText : resultText, fileFormat : format},
