@@ -1,5 +1,6 @@
 function ChangeDiseaseList() {
-    sessionStorage.removeItem("riskResults");
+    //sessionStorage.removeItem("riskResults");
+    resultJSON = ""; 
     $('#response').html("");
     var diseaseList = document.getElementById("disease");
     var studyList = document.getElementById("diseaseStudy");
