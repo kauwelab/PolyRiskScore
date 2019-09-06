@@ -10,6 +10,7 @@ const Sequelize = require('sequelize');
 const multer = require('multer');
 const del = require('del');
 const fsExtra = require('fs-extra');
+const mysql = require('mysql')
 
 //Define the port for app to listen on
 const port = 3000
@@ -372,10 +373,11 @@ app.get('/get_studies/', function (req, res){
     studiesArray.push(studyObject3)
     
 
-    const sequelize = new Sequelize('PolyScore', 'joepete2', 'Petersme1', {
+    const sequelize = new Sequelize('studies', 'root', 'Petersme1', {
         host: 'localhost',
-        port: 1434,
-        dialect: 'mssql',
+        dialect: 'mysql',
+        dialectOptions:{
+            insecureAuth: true},
         logging: false
     })
 
