@@ -4,8 +4,8 @@ function handleFileSelect(evt) {
     var output = [];
     //sessionStorage.removeItem("riskResults");
 
-    resultJSON = ""; 
-  
+    resultJSON = "";
+
     $('#response').html("");
 
     output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
@@ -13,7 +13,6 @@ function handleFileSelect(evt) {
         f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
         '</li>');
     var vcfText = "";
-    //TODO make number of lines configurable or make output size based instead of line based
     printFileEnds(f, 2048);
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 }
@@ -88,7 +87,7 @@ function printFileEnds(file, sizeToPrint) {
     var fr = new FileReader();
     var state = 0;
     var output = "";
-    fr.onload = function() {
+    fr.onload = function () {
         //for small files, the elispses are not included and the end chunk reading is skipped
         if (CHUNK_SIZE * 2 >= file.size) {
             output += fr.result;
@@ -106,7 +105,7 @@ function printFileEnds(file, sizeToPrint) {
         ++state;
         seek();
     }
-    fr.onerror = function() {
+    fr.onerror = function () {
         // Cannot read file... 
         $('#input').html("There was an error reading the file.");
     };
@@ -116,7 +115,7 @@ function printFileEnds(file, sizeToPrint) {
         if (state == 0) {
             //if the CHUNK_SIZE * 2 is greater than the file size, read the entire file and skip to the printing state
             if (CHUNK_SIZE * 2 >= file.size) {
-                fr.readAsText(file.slice(0, file.size));                
+                fr.readAsText(file.slice(0, file.size));
             }
             else {
                 fr.readAsText(file.slice(0, CHUNK_SIZE));

@@ -1,4 +1,4 @@
-var resultJSON = ""; 
+var resultJSON = "";
 
 var calculatePolyScore = async () => {
     //user feedback while they are waiting for their score
@@ -77,38 +77,55 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
                 // What if it's empty?
             }
             catch (err) {
-                $('#response').html(err);
+                $('#response').html('There was an error computing the risk score:\n\n' + err);
                 return;
             }
-            debugger;
-            var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
-            outputVal = getResultOutput(simplifyResult(result));
-            $('#response').html("Results preview:\n" + outputVal + "\n...");
-            resultJSON = result; 
-             
+            try {
+                var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
+                outputVal = getSimpleOutput(result)
+                $('#response').html(outputVal);
+                resultJSON = result;
+            }
+            catch (err) {
+                $('#response').html('There was an error computing the risk score:\n\n' + err);
+            }
             //sessionStorage.setItem("riskResults", result);
         }, "html").fail(function (jqXHR) {
-            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
+            $('#response').html('There was an error computing the risk score:\n\n' + jqXHR.responseText);
         });
 }
 
 /**
- * Truncates the result to just the informational obj and the results for the first two individuals
- * @param {*} result the large resultJson to be truncated
+ * Returns a simplified output using the given json. The json is truncated and converted to the correct format. 
+ * Then, if a truncation occured, "Results preview:" is appended to the beginning and "..." is appended to the end.
+ * @param {*} resultJsonStr 
  */
-function simplifyResult(result) {
+function getSimpleOutput(resultJsonStr) {
+    var simpleJsonStr = simplifyResultJson(resultJsonStr);
+    var simpleOutput = getResultOutput(simpleJsonStr)
+    if (simpleJsonStr != resultJsonStr) {
+        simpleOutput = "Results preview:\n" + simpleOutput + "\n...";
+    }
+    return simpleOutput;
+}
+
+/**
+ * Truncates the result to include the results for the first two individuals, including calculation info ("resultJsonObj[0]").
+ * @param {*} resultJsonStr the large resultJson to be truncated
+ */
+function simplifyResultJson(resultJsonStr) {
     //TODO avoid having to parse again! -is there anyway to keep this in obj form instead of passing a string?
-    var resultObj = JSON.parse(result);
+    var resultJsonObj = JSON.parse(resultJsonStr);
     //if the resultJson is already truncated, return it
-    if (resultObj.size <= 3) {
-        return result;
+    if (resultJsonObj.size <= 3) {
+        return resultJsonStr;
     }
     //create a new array, add the first three objects from the resultJson, and return its string version
     else {
         var simpleResultObj = [];
-        simpleResultObj.push(resultObj[0]);
-        simpleResultObj.push(resultObj[1]);
-        simpleResultObj.push(resultObj[2]);
+        for (var i = 0; i < 3; ++i) {
+            simpleResultObj.push(resultJsonObj[i]);
+        }
         return JSON.stringify(simpleResultObj);
     }
 
@@ -157,12 +174,12 @@ var ServerCalculateScore = async (vcfFile, diseaseArray, studyType, pValue) => {
     $.get("calculate_score", { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
         function (data) {
             //data contains the info received by going to "/calculate_score"
-            var outputVal = getResultOutput(data);
+            var outputVal = getSimpleOutput(data);
             $('#response').html(outputVal);
             //sessionStorage.setItem("riskResults", data);
-            resultJSON = data; 
+            resultJSON = data;
         }, "html").fail(function (jqXHR) {
-            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
+            $('#response').html('There was an error computing the risk score:\n\n' + jqXHR.responseText);
         });
 
 }
@@ -182,23 +199,23 @@ function makeDiseaseArray(disease) {
 
 function formatText(jsonObject) {
     var returnText = "P Value Cutoff: " + jsonObject[0].pValueCutoff +
-        " &#13;&#10Total Variants In File: " + jsonObject[0].totalVariants + " ";
+        " \nTotal Variants In File: " + jsonObject[0].totalVariants + " ";
 
     //iterate through the list of people and print them each out seperately.
     for (var i = 0; i < jsonObject.length; ++i) {
         if (i == 0) {
             continue;
         }
-        returnText += "&#13;&#10Individual Name: " + jsonObject[i].individualName;
+        returnText += "\nIndividual Name: " + jsonObject[i].individualName;
         jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
-            returnText += " &#13;&#10  Disease: " + diseaseResult.disease;
+            returnText += " \n  Disease: " + diseaseResult.disease;
             diseaseResult.studyResults.forEach(function (studyResult) {
                 returnText +=
-                    " &#13;&#10    Study: " + studyResult.study +
-                    " &#13;&#10      Odds Ratio: " + studyResult.oddsRatio +
-                    " &#13;&#10      Percentile: " + studyResult.percentile +
-                    " &#13;&#10      # Variants In OR: " + studyResult.numVariantsIncluded +
-                    " &#13;&#10      Variants In OR: " + studyResult.variantsIncluded;
+                    " \n    Study: " + studyResult.study +
+                    " \n      Odds Ratio: " + studyResult.oddsRatio +
+                    " \n      Percentile: " + studyResult.percentile +
+                    " \n      # Variants In OR: " + studyResult.numVariantsIncluded +
+                    " \n      Variants In OR: " + studyResult.variantsIncluded;
             });
         });
     }
@@ -219,7 +236,7 @@ function formatCSV(jsonObject) {
 
             diseaseResult.studyResults.forEach(function (studyResult) {
                 returnText +=
-                    "&#13;&#10" + jsonObject[i].individualName +
+                    "\n" + jsonObject[i].individualName +
                     "," + diseaseResult.disease +
                     "," + studyResult.study +
                     "," + studyResult.oddsRatio +
@@ -241,41 +258,41 @@ function changeFormat() {
 
     // var data = sessionStorage.getItem("riskResults");
     // setResultOutput(data);
-    if (!resultJSON){
+    if (!resultJSON) {
         return;
     }
-    var outputVal = getResultOutput(simplifyResult(resultJSON));
-    $('#response').html("Results preview:\n" + outputVal + "\n...");
+    var outputVal = getSimpleOutput(resultJSON);
+    $('#response').html(outputVal);
 }
 
 function getResultOutput(data) {
-    var jsonObject = JSON.parse(data);
-    var outputVal = "";
-    var formatDropdown = document.getElementById("fileType");
-    var format = formatDropdown.options[formatDropdown.selectedIndex].value;
+    if (data == undefined || data == "") {
+        return "";
+    }
+    else {
+        var jsonObject = JSON.parse(data);
+        var outputVal = "";
+        var formatDropdown = document.getElementById("fileType");
+        var format = formatDropdown.options[formatDropdown.selectedIndex].value;
 
-    if (format === "text")
-        outputVal += formatText(jsonObject);
-    else if (format === "csv")
-        outputVal += formatCSV(jsonObject);
-    else if (format === "json")
-        outputVal += data;
-    else
-        outputVal += "Please select a valid format."
-
-    //$('#response').html(outputVal);
-    return outputVal; 
+        if (format === "text")
+            outputVal += formatText(jsonObject);
+        else if (format === "csv")
+            outputVal += formatCSV(jsonObject);
+        else if (format === "json")
+            outputVal += data;
+        else
+            outputVal += "Please select a valid format."
+        return outputVal;
+    }
 }
 
 function downloadResults() {
     //var resultText = document.getElementById("response").value;
-    var resultText = getResultOutput(resultJSON); 
+    var resultText = getResultOutput(resultJSON);
     var formatDropdown = document.getElementById("fileType");
     var format = formatDropdown.options[formatDropdown.selectedIndex].value;
-    // $.post("/download_results", {resultText : resultText, fileFormat : format},
-    // function(){
-    //     //Not sure what this function needs to do right now...
-    // })
+    //TODO better name?
     var fileName = "polyscore_" + getRandomInt(100000000);
     if (format === "csv") {
         fileName += ".csv";
@@ -290,14 +307,23 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
+/**
+ * This code was found here https://jsfiddle.net/ali_soltani/zsyn04qw/3/
+ * Creates an invisible element on the page that contains the string to be downloaded. 
+ * Once the element is downloaded, it is removed. May have a size limit- not sure what it is yet.
+ * @param {*} filename 
+ * @param {*} text 
+ */
 function download(filename, text) {
     var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
 
+    var dataBlob = new Blob([text], { type: "text/plain" });
+    var objUrl = URL.createObjectURL(dataBlob);
+
+    element.href = objUrl;
+    element.download = filename;
     element.style.display = 'none';
     document.body.appendChild(element);
-
     element.click();
 
     document.body.removeChild(element);
@@ -335,6 +361,4 @@ function exampleOutput() {
         result2 = xmlhttp2.responseText;
     }
     document.getElementById('response').value = (result2);
-
-
 }

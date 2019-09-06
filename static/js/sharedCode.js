@@ -102,7 +102,8 @@
     }
 
     /**
-     * Calculates the polygenetic risk score using table rows from the database and the vcfObj. 
+     * Calculates the polygenetic risk score using table rows from the database and the vcfObj.
+     * If the vcfObj is undefined, throws an error message that can be printed to the user.
      * P-value is required so the result can also return information about the calculation.
      * @param {*} tableObj 
      * @param {*} vcfObj 
@@ -111,53 +112,58 @@
      */
     exports.calculateScore = function (tableObj, vcfObj, pValue) {
         var resultJsons = [];
-        //push information about the calculation to the result
-        resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].size })
-        //for each individual and each disease and each study in each disease and each snp of each individual, 
-        //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
-        for (const [individualName, snpMap] of vcfObj.entries()) {
-            var diseaseResults = [];
-            tableObj.forEach(function (diseaseEntry) {
-                var studyResults;
-                diseaseEntry.studiesRows.forEach(function (studyEntry) {
-                    studyResults = [];
-                    var ORs = []
-                    var snpsUsed = [];
-                    for (const [snp, alleleArray] of snpMap.entries()) {
-                        alleleArray.forEach(function (allele) {
-                            studyEntry.rows.forEach(function (row) {
-                                //by now, we don't have to check for study or pValue, because rowsObj already has only those values
-                                if (allele !== null) {
-                                    if (snp == row.snp && row.riskAllele === allele) {
-                                        ORs.push(row.oddsRatio);
-                                        snpsUsed.push(row.snp);
+        if (vcfObj == undefined || vcfObj.size <= 0) {
+            throw "The vcf was undefined when calculating the score. Please choose a different vcf or reload the page and try again."
+        }
+        else {
+            //push information about the calculation to the result
+            resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].size })
+            //for each individual and each disease and each study in each disease and each snp of each individual, 
+            //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
+            for (const [individualName, snpMap] of vcfObj.entries()) {
+                var diseaseResults = [];
+                tableObj.forEach(function (diseaseEntry) {
+                    var studyResults;
+                    diseaseEntry.studiesRows.forEach(function (studyEntry) {
+                        studyResults = [];
+                        var ORs = []
+                        var snpsUsed = [];
+                        for (const [snp, alleleArray] of snpMap.entries()) {
+                            alleleArray.forEach(function (allele) {
+                                studyEntry.rows.forEach(function (row) {
+                                    //by now, we don't have to check for study or pValue, because rowsObj already has only those values
+                                    if (allele !== null) {
+                                        if (snp == row.snp && row.riskAllele === allele) {
+                                            ORs.push(row.oddsRatio);
+                                            snpsUsed.push(row.snp);
+                                        }
                                     }
-                                }
-                                else {
-                                    if (snp == row.snp) {
-                                        ORs.push(row.oddsRatio);
-                                        snpsUsed.push(row.snp);
+                                    else {
+                                        if (snp == row.snp) {
+                                            ORs.push(row.oddsRatio);
+                                            snpsUsed.push(row.snp);
+                                        }
                                     }
-                                }
+                                });
                             });
+                        }
+                        studyResults.push({
+                            study: studyEntry.study,
+                            oddsRatio: getCombinedORFromArray(ORs),
+                            percentile: "",
+                            numVariantsIncluded: ORs.length,
+                            variantsIncluded: snpsUsed
                         });
-                    }
-                    studyResults.push({
-                        study: studyEntry.study,
-                        oddsRatio: getCombinedORFromArray(ORs),
-                        percentile: "",
-                        numVariantsIncluded: ORs.length,
-                        variantsIncluded: snpsUsed
+                    });
+                    diseaseResults.push({
+                        disease: diseaseEntry.disease.toUpperCase(),
+                        studyResults: studyResults
                     });
                 });
-                diseaseResults.push({
-                    disease: diseaseEntry.disease.toUpperCase(),
-                    studyResults: studyResults
-                });
-            });
-            resultJsons.push({ individualName: this.trim(individualName), diseaseResults: diseaseResults })
+                resultJsons.push({ individualName: this.trim(individualName), diseaseResults: diseaseResults })
+            }
+            return JSON.stringify(resultJsons);
         }
-        return JSON.stringify(resultJsons);
     };
 
     //exports.getCombinedORFromArray = function(ORs) {
@@ -191,8 +197,6 @@
         var altAlleles = vcfLine.alt.split(/[,]+/);
         for (var i = 0; i < altAlleles.length; i++) {
             if (altAlleles[i] == ".") {
-                //TODO in the case of "".,A" for altAlleles (not a likely case), should "." be 
-                //index 1 (but be nothing) and "A" be 2? or should "A" be index 1?
                 altAlleles.splice(i, 1);
                 --i;
             }

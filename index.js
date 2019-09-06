@@ -198,8 +198,14 @@ app.get('/calculate_score/', async function (req, res) {
         var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(req.query.diseaseArray, req.query.studyType);
         var pValue = req.query.pValue;
         var rowsObj = await getValidTableRowsObj(pValue, diseaseStudyMapArray);
-        var jsons = sharedCode.calculateScore(rowsObj, vcfObj, pValue)
-        res.send(jsons);
+        try {
+            var jsons = sharedCode.calculateScore(rowsObj, vcfObj, pValue)
+            res.send(jsons);
+        }
+        catch (err) {
+            res.status(500).send(err)
+        }
+
     }
     else {
         res.status(500).send("No SNPs were tested. Please upload a valid VCF file.")
@@ -301,16 +307,16 @@ async function getDiseaseRows(sequelize, pValue, diseaseStudyMapArray) {
                 allowNull: false,
             }
         }, {
-                sequelize,
-                modelName: diseaseEnum[disease.toLowerCase()],
-                name: {
-                    primaryKey: true,
-                    type: Sequelize.STRING
-                },
-                freezeTableName: true,
-                timestamps: false,
-                // options
-            });
+            sequelize,
+            modelName: diseaseEnum[disease.toLowerCase()],
+            name: {
+                primaryKey: true,
+                type: Sequelize.STRING
+            },
+            freezeTableName: true,
+            timestamps: false,
+            // options
+        });
         //gets the ..............................................
         var studiesRows = await getStudiesRows(pValue, studiesArray, Table)
         diseaseRows.push({ disease: disease, studiesRows: studiesRows })
