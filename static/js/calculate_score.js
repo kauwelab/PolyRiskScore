@@ -103,10 +103,10 @@ function getSNPArray(tableObj){
     //     {'snp': 'rs10838725', 'riskAllele': 'C', 'pValue': 1.1e-08, 'oddsRatio': 1.08}, 
     //     {'snp': 'rs17125944', 'riskAllele': 'C', 'pValue': 7.9e-09, 'oddsRatio': 1.14}, 
     //     {'snp': 'rs7274581', 'riskAllele': 'C', 'pValue': 2.5e-08, 'oddsRatio': 0.88}]}}]
-    for (i = 0; i < tableObj.length; i +=1){
-        var rows = tableObj[0].studiesRows.rows; 
-        for (i = 0; i < rows.length; i += 1){
-            usefulSNPs.push(rows[i].snp);
+    for (var i = 0; i < tableObj.length; i +=1){
+        var rows = tableObj[i].studiesRows.rows; 
+        for (var j = 0; j < rows.length; j += 1){
+            usefulSNPs.push(rows[j].snp);
         }
     }
     console.log(usefulSNPs); 
