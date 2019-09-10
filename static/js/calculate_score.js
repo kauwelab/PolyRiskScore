@@ -67,7 +67,7 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
             var usefulSNPs = getSNPArray(tableObj); 
             try{
                 vcfObj = await vcfParser.populateMap(vcfFile, extension, usefulSNPs);
-                console.log(vcfObj); 
+                //console.log(vcfObj); 
                 // What if it's empty?
              } 
              catch(err){
@@ -87,7 +87,7 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
 
 function getSNPArray(tableObj){
     var usefulSNPs = []; 
-    // var tableObj = {'disease': 'ad', 'studiesRows': {'study': 'Lambert et al., 2013', 'rows': [
+    // var tableObj = [{'disease': 'ad', 'studiesRows': {'study': 'Lambert et al., 2013', 'rows': [
     //     {'snp': 'rs6656401', 'riskAllele': 'A', 'pValue': 5.7e-24, 'oddsRatio': 1.18}, 
     //     {'snp': 'rs11449', 'riskAllele': 'T', 'pValue': 6.9e-44, 'oddsRatio': 1.22}, 
     //     {'snp': 'rs10948363', 'riskAllele': 'G', 'pValue': 5.2e-11, 'oddsRatio': 1.1}, 
@@ -108,11 +108,14 @@ function getSNPArray(tableObj){
     //     {'snp': 'rs1476679', 'riskAllele': 'C', 'pValue': 5.6e-10, 'oddsRatio': 0.91}, 
     //     {'snp': 'rs10838725', 'riskAllele': 'C', 'pValue': 1.1e-08, 'oddsRatio': 1.08}, 
     //     {'snp': 'rs17125944', 'riskAllele': 'C', 'pValue': 7.9e-09, 'oddsRatio': 1.14}, 
-    //     {'snp': 'rs7274581', 'riskAllele': 'C', 'pValue': 2.5e-08, 'oddsRatio': 0.88}]}}
-    var rows = tableObj.studiesRows.rows; 
-    for (i = 0; i < rows.length; i += 1){
-        usefulSNPs.push(rows[i].snp);
+    //     {'snp': 'rs7274581', 'riskAllele': 'C', 'pValue': 2.5e-08, 'oddsRatio': 0.88}]}}]
+    for (var i = 0; i < tableObj.length; i +=1){
+        var rows = tableObj[i].studiesRows.rows; 
+        for (var j = 0; j < rows.length; j += 1){
+            usefulSNPs.push(rows[j].snp);
+        }
     }
+    console.log(usefulSNPs); 
     return usefulSNPs;  
 }
 
