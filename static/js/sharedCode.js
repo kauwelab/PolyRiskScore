@@ -117,10 +117,11 @@
         }
         else {
             //push information about the calculation to the result
-            resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].size })
+            resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].length })
             //for each individual and each disease and each study in each disease and each snp of each individual, 
             //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
-            for (const [individualName, snpMap] of vcfObj.entries()) {
+            //TODO change snpMap name to snpEntry or some equivalent name
+            for (const [individualName, snpObjs] of vcfObj.entries()) {
                 var diseaseResults = [];
                 tableObj.forEach(function (diseaseEntry) {
                     var studyResults;
@@ -128,25 +129,25 @@
                         studyResults = [];
                         var ORs = []
                         var snpsUsed = [];
-                        for (const [snp, alleleArray] of snpMap.entries()) {
-                            alleleArray.forEach(function (allele) {
+                        snpObjs.forEach(function (snpObj) {
+                            snpObj.alleleArray.forEach(function (allele) {
                                 studyEntry.rows.forEach(function (row) {
                                     //by now, we don't have to check for study or pValue, because rowsObj already has only those values
                                     if (allele !== null) {
-                                        if (snp == row.snp && row.riskAllele === allele) {
+                                        if (snpObj.snp == row.snp && row.riskAllele === allele) {
                                             ORs.push(row.oddsRatio);
                                             snpsUsed.push(row.snp);
                                         }
                                     }
                                     else {
-                                        if (snp == row.snp) {
+                                        if (snpObj.snp == row.snp) {
                                             ORs.push(row.oddsRatio);
                                             snpsUsed.push(row.snp);
                                         }
                                     }
                                 });
                             });
-                        }
+                        });
                         studyResults.push({
                             study: studyEntry.study,
                             oddsRatio: getCombinedORFromArray(ORs),
@@ -188,7 +189,7 @@
     exports.addLineToVcfObj = function (vcfObj, vcfLine) {
         if (vcfObj.size === 0) {
             vcfLine.sampleinfo.forEach(function (sample) {
-                vcfObj.set(sample.NAME, new Map());
+                vcfObj.set(sample.NAME, []);
             });
         }
         //gets all possible alleles for the current id
@@ -206,7 +207,7 @@
         }
 
         vcfLine.sampleinfo.forEach(function (sample) {
-            var newMap = vcfObj.get(sample.NAME);
+            var snpObjs = vcfObj.get(sample.NAME);
             //gets the allele indices
             var alleles = sample.GT.split(/[|/]+/, 2);
             //gets the alleles from the allele indices and replaces the indices with the alleles.
@@ -223,8 +224,15 @@
             }
             //event when alleles is empty, we still push it so that it can be included in 
             //the totalVariants number of the output
-            newMap.set(vcfLine.id, alleles);
-            vcfObj.set(sample.NAME, newMap);
+            //TODO
+            //newMap.set(vcfLine.id, alleles);
+            var snpObj = {
+                snp: vcfLine.id, 
+                pos: vcfLine.chr.concat(":", vcfLine.pos),
+                alleleArray: alleles
+            }
+            snpObjs.push(snpObj);
+            vcfObj.set(sample.NAME, snpObjs);
         });
         return vcfObj;
     };

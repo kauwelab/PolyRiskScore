@@ -286,6 +286,14 @@ async function getDiseaseRows(sequelize, pValue, diseaseStudyMapArray) {
         class Table extends Model { }
         Table.init({
             // attributes
+            chromosome: {
+                type: Sequelize.FLOAT,
+                allowNull: false,
+            },
+            location: {
+                type: Sequelize.FLOAT,
+                allowNull: false,
+            },
             snp: {
                 type: Sequelize.STRING,
                 allowNull: false,
@@ -354,7 +362,7 @@ async function getRows(pValue, study, table) {
     var tableRows = [];
     //first find the valid results from the table (tests for valid p-value and study)
     tableRows.push(table.findAll({
-        attributes: ['snp', 'riskAllele', 'pValue', 'oddsRatio'],
+        attributes: ['chromosome', 'location', 'snp', 'riskAllele', 'pValue', 'oddsRatio'],
         where: {
             pValue: {
                 [Op.lt]: pValue
@@ -369,6 +377,7 @@ async function getRows(pValue, study, table) {
         var tableRows = tableRows[0];
         tableRows.forEach(function (tableRow) {
             var row = {
+                pos: tableRow.chromosome.toString().concat(":", tableRow.location),
                 snp: tableRow.snp,
                 riskAllele: tableRow.riskAllele,
                 pValue: tableRow.pValue,
