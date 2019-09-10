@@ -94,12 +94,9 @@ function printFileEnds(file, sizeToPrint) {
             ++state;
         }
         else {
-            if (state == 1) {
-                output += "..."
-            }
             output += fr.result
             if (state == 0) {
-                output += "...\n"
+                output += "\n...\n"
             }
         }
         ++state;
