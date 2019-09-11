@@ -4,7 +4,7 @@ function handleFileSelect(evt) {
     var output = [];
     //sessionStorage.removeItem("riskResults");
 
-    resultJSON = "";
+    resetOutput();
 
     $('#response').html("");
 

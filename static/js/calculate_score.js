@@ -1,48 +1,77 @@
 var resultJSON = "";
+var canCalculate = true;
 
 var calculatePolyScore = async () => {
-    //user feedback while they are waiting for their score
-    $('#response').html("Calculating. Please wait...")
-    var vcfFile = document.getElementById("files").files[0];
-    if (!vcfFile) {
-        //if here, the user did not import a vcf file or the the vcf file was not read properly
-        $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
-        return;
-    }
-    var fileSize = vcfFile.size;
-    var extension = vcfFile.name.split(".").pop();
-    // get value of selected 'pvalue' radio button in 'radioButtons'
-    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
-    //gets the disease name from the drop down list
-    var diseaseSelectElement = document.getElementById("disease");
-    var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-    //create a disease array (usually just the one disease unless "All dieases" is selected)
-    var diseaseArray = makeDiseaseArray(diseaseSelected);
-    //gets the study name from the drop down list
-    var studySelectElement = document.getElementById("diseaseStudy");
-    var study = studySelectElement.options[studySelectElement.selectedIndex].text
-    //the type of study the study is ("high impact", "large cohort", or "")
-    var studyType = getStudyTypeFromStudy(study);
-    //if the user doesn't specify a disease or study, prompt them to do so
-    if (diseaseSelected === "--Disease--" || study === "--Study--") {
-        $('#response').html('Please specify a specific disease and study using the drop down menus above.');
-        return
-    }
-    // API-reformating
+    if (canCalculate) {
+        //user feedback while they are waiting for their score
+        $('#response').html("Calculating. Please wait...")
+        var vcfFile = document.getElementById("files").files[0];
+        if (!vcfFile) {
+            //if here, the user did not import a vcf file or the the vcf file was not read properly
+            $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+            return;
+        }
+        var fileSize = vcfFile.size;
+        var extension = vcfFile.name.split(".").pop();
+        // get value of selected 'pvalue' radio button in 'radioButtons'
+        var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
+        //gets the disease name from the drop down list
+        var diseaseSelectElement = document.getElementById("disease");
+        var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+        //create a disease array (usually just the one disease unless "All dieases" is selected)
+        var diseaseArray = makeDiseaseArray(diseaseSelected);
+        //gets the study name from the drop down list
+        var studySelectElement = document.getElementById("diseaseStudy");
+        var study = studySelectElement.options[studySelectElement.selectedIndex].text
+        //the type of study the study is ("high impact", "large cohort", or "")
+        var studyType = getStudyTypeFromStudy(study);
+        //if the user doesn't specify a disease or study, prompt them to do so
+        if (diseaseSelected === "--Disease--" || study === "--Study--") {
+            $('#response').html('Please specify a specific disease and study using the drop down menus above.');
+            return
+        }
+        canCalculate = false;
+        toggleCalculateButton(false);
+        if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
 
-    if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
+            ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue);
+            return
+        }
+        /*
+        else if () {
+            var new_zip = new JSZip();
+            new_zip.load(file);
+            new_zip.files["doc.xml"].asText() // this give you the text in the file
+        }
+        */
+        ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue);
+    }
+}
 
-        ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue);
-        return
+/**
+ * Turns the calculate button on and off.
+ * @param {*} canClick 
+ */
+function toggleCalculateButton(canClick) {
+    var button = document.getElementById("feedbackSubmit")
+    button.disabled = !canClick;
+    if (!canClick) {
+        button.style.background = "gray";
+        button.style.borderColor = "white"
     }
-    /*
-    else if () {
-        var new_zip = new JSZip();
-        new_zip.load(file);
-        new_zip.files["doc.xml"].asText() // this give you the text in the file
+    else {
+        button.style.background = "";
+        button.style.borderColor = ""
     }
-    */
-    ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue);
+}
+
+/**
+ * Resets resultJSON and allows the user to use the calculate score button again.
+ */
+function resetOutput() {
+    canCalculate = true;
+    toggleCalculateButton(true);
+    resultJSON = "";
 }
 
 /**
