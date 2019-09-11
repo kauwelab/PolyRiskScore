@@ -128,7 +128,8 @@
                     diseaseEntry.studiesRows.forEach(function (studyEntry) {
                         studyResults = [];
                         var ORs = []
-                        var snpsUsed = [];
+                        var snpsIncluded = [];
+                        var chromPositionsIncluded = []
                         snpObjs.forEach(function (snpObj) {
                             snpObj.alleleArray.forEach(function (allele) {
                                 studyEntry.rows.forEach(function (row) {
@@ -136,13 +137,15 @@
                                     if (allele !== null) {
                                         if (snpObj.snp == row.snp && row.riskAllele === allele) {
                                             ORs.push(row.oddsRatio);
-                                            snpsUsed.push(row.snp);
+                                            snpsIncluded.push(row.snp);
+                                            chromPositionsIncluded.push(row.pos);
                                         }
                                     }
                                     else {
                                         if (snpObj.snp == row.snp) {
                                             ORs.push(row.oddsRatio);
-                                            snpsUsed.push(row.snp);
+                                            snpsIncluded.push(row.snp);
+                                            chromPositionsIncluded.push(row.pos);
                                         }
                                     }
                                 });
@@ -152,8 +155,9 @@
                             study: studyEntry.study,
                             oddsRatio: getCombinedORFromArray(ORs),
                             percentile: "",
-                            numVariantsIncluded: ORs.length,
-                            variantsIncluded: snpsUsed
+                            numSNPsIncluded: ORs.length,
+                            chromPositionsIncluded: chromPositionsIncluded,
+                            snpsIncluded: snpsIncluded
                         });
                     });
                     diseaseResults.push({

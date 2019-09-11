@@ -199,7 +199,7 @@ function makeDiseaseArray(disease) {
 
 function formatText(jsonObject) {
     var returnText = "P Value Cutoff: " + jsonObject[0].pValueCutoff +
-        " \nTotal Variants In File: " + jsonObject[0].totalVariants + " ";
+        " \nTotal Variants in File: " + jsonObject[0].totalVariants + " ";
 
     //iterate through the list of people and print them each out seperately.
     for (var i = 0; i < jsonObject.length; ++i) {
@@ -214,8 +214,9 @@ function formatText(jsonObject) {
                     " \n    Study: " + studyResult.study +
                     " \n      Odds Ratio: " + studyResult.oddsRatio +
                     " \n      Percentile: " + studyResult.percentile +
-                    " \n      # Variants In OR: " + studyResult.numVariantsIncluded +
-                    " \n      Variants In OR: " + studyResult.variantsIncluded;
+                    " \n      # SNPs in OR: " + studyResult.numSNPsIncluded +
+                    " \n      Chrom Positions in OR: " + studyResult.chromPositionsIncluded +
+                    " \n      SNPs in OR: " + studyResult.snpsIncluded;
             });
         });
     }
@@ -225,7 +226,7 @@ function formatText(jsonObject) {
 
 function formatCSV(jsonObject) {
     //Look for a csv writer npm module
-    var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # Variants in OR, Variants in OR";
+    var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
 
     for (var i = 0; i < jsonObject.length; ++i) {
         if (i == 0) {
@@ -241,8 +242,9 @@ function formatCSV(jsonObject) {
                     "," + studyResult.study +
                     "," + studyResult.oddsRatio +
                     "," + studyResult.percentile +
-                    "," + studyResult.numVariantsIncluded +
-                    "," + studyResult.variantsIncluded;
+                    "," + studyResult.numSNPsIncluded +
+                    "," + studyResult.chromPositionsIncluded +
+                    "," + studyResult.snpsIncluded;
             });
         });
     }
