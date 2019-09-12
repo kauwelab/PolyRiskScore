@@ -121,7 +121,7 @@
             //for each individual and each disease and each study in each disease and each snp of each individual, 
             //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
             //TODO change snpMap name to snpEntry or some equivalent name
-            for (const [individualName, snpObjs] of vcfObj.entries()) {
+            for (const [individualName, vcfSNPObjs] of vcfObj.entries()) {
                 var diseaseResults = [];
                 tableObj.forEach(function (diseaseEntry) {
                     var studyResults;
@@ -130,22 +130,23 @@
                         var ORs = []
                         var snpsIncluded = [];
                         var chromPositionsIncluded = []
-                        snpObjs.forEach(function (snpObj) {
-                            snpObj.alleleArray.forEach(function (allele) {
-                                studyEntry.rows.forEach(function (row) {
+                        vcfSNPObjs.forEach(function (vcfSNPObj) {
+                            vcfSNPObj.alleleArray.forEach(function (allele) {
+                                studyEntry.rows.forEach(function (tableRow) {
+                                    //TODO can this be short stopped? Once it's found, break?
                                     //by now, we don't have to check for study or pValue, because rowsObj already has only those values
                                     if (allele !== null) {
-                                        if (snpObj.snp == row.snp && row.riskAllele === allele) {
-                                            ORs.push(row.oddsRatio);
-                                            snpsIncluded.push(row.snp);
-                                            chromPositionsIncluded.push(row.pos);
+                                        if ((vcfSNPObj.snp == tableRow.snp || vcfSNPObj.pos == tableRow.pos) && tableRow.riskAllele === allele) {
+                                            ORs.push(tableRow.oddsRatio);
+                                            snpsIncluded.push(tableRow.snp);
+                                            chromPositionsIncluded.push(tableRow.pos);
                                         }
                                     }
                                     else {
-                                        if (snpObj.snp == row.snp) {
-                                            ORs.push(row.oddsRatio);
-                                            snpsIncluded.push(row.snp);
-                                            chromPositionsIncluded.push(row.pos);
+                                        if (vcfSNPObj.snp == tableRow.snp || vcfSNPObj.pos == tableRow.pos) {
+                                            ORs.push(tableRow.oddsRatio);
+                                            snpsIncluded.push(tableRow.snp);
+                                            chromPositionsIncluded.push(tableRow.pos);
                                         }
                                     }
                                 });
@@ -211,7 +212,7 @@
         }
 
         vcfLine.sampleinfo.forEach(function (sample) {
-            var snpObjs = vcfObj.get(sample.NAME);
+            var vcfSNPObjs = vcfObj.get(sample.NAME);
             //gets the allele indices
             var alleles = sample.GT.split(/[|/]+/, 2);
             //gets the alleles from the allele indices and replaces the indices with the alleles.
@@ -230,13 +231,13 @@
             //the totalVariants number of the output
             //TODO
             //newMap.set(vcfLine.id, alleles);
-            var snpObj = {
-                snp: vcfLine.id, 
+            var vcfSNPObj = {
                 pos: vcfLine.chr.concat(":", vcfLine.pos),
+                snp: vcfLine.id, 
                 alleleArray: alleles
             }
-            snpObjs.push(snpObj);
-            vcfObj.set(sample.NAME, snpObjs);
+            vcfSNPObjs.push(vcfSNPObj);
+            vcfObj.set(sample.NAME, vcfSNPObjs);
         });
         return vcfObj;
     };
