@@ -29,7 +29,7 @@ VCFParser.prototype.populateMap = function (file, extension) {
         vcfParser.parseStream(output, extension);
       }
       catch (err) {
-        $('#response').html(err);
+        $('#response').html("There was an error computing the risk score:\n" + err);
         return;
       }
       //console.log(output); 
@@ -48,7 +48,7 @@ VCFParser.prototype.populateMap = function (file, extension) {
             vcfParser.parseStream(lag_line.split("\n"), "vcf");
           }
           catch (err) {
-            $('#response').html(err);
+            $('#response').html("There was an error computing the risk score:\n" + err);
             return;
           }
         }
@@ -94,10 +94,10 @@ VCFParser.prototype.parseStream = function (instream, extension) {
         //Throw an error if vcfMapMaps is empty.
         //This probably means the user uploaded an empty file or a file in the wrong format. 
         if (that.vcfMap === undefined) {
-          throw "An error occurred while parsing the file. Please make sure you uploaded the correct file."
+          throw "The file uploaded was not a valid vcf file. Please check your file and try again."
         }
         else if (that.vcfMap.size === 0) {
-          throw "An error occurred while parsing the file. Please make sure you uploaded the correct file."
+          throw "The file uploaded was not a valid vcf file. Please check your file and try again."
         }
         return; //I'm assuming this will be for files that have a blank line or two at the end???
       }

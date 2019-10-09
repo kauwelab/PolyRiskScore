@@ -1,5 +1,6 @@
 var resultJSON = "";
 var canCalculate = true;
+var validExtensions = ["vcf", "gzip", "zip"]
 
 var calculatePolyScore = async () => {
     if (canCalculate) {
@@ -13,6 +14,11 @@ var calculatePolyScore = async () => {
         }
         var fileSize = vcfFile.size;
         var extension = vcfFile.name.split(".").pop();
+        if (!validExtensions.includes(extension.toLowerCase())) {
+            //if here, the user uploded a file with an invalid format
+            $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+            return;
+        }
         // get value of selected 'pvalue' radio button in 'radioButtons'
         var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
         //gets the disease name from the drop down list
@@ -23,18 +29,24 @@ var calculatePolyScore = async () => {
         //gets the study name from the drop down list
         var studySelectElement = document.getElementById("diseaseStudy");
         var study = studySelectElement.options[studySelectElement.selectedIndex].text
-        //the type of study the study is ("high impact", "large cohort", or "")
+        //the type of study the study is ("high impact", "largest cohort", or "")
         var studyType = getStudyTypeFromStudy(study);
         //if the user doesn't specify a disease or study, prompt them to do so
         if (diseaseSelected === "--Disease--" || study === "--Study--") {
             $('#response').html('Please specify a specific disease and study using the drop down menus above.');
             return
         }
+        var refGenElement = document.getElementById("refGenome");
+        var refGen = refGenElement.options[refGenElement.selectedIndex].value
+        if (refGen == "--Reference Genome--") {
+            $('#response').html('Please select the reference genome corresponding to your file.');
+            return
+        }
         canCalculate = false;
         toggleCalculateButton(false);
         if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
 
-            ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue);
+            ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue, refGen);
             return
         }
         /*
@@ -44,7 +56,7 @@ var calculatePolyScore = async () => {
             new_zip.files["doc.xml"].asText() // this give you the text in the file
         }
         */
-        ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue);
+        ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue, refGen);
     }
 }
 
@@ -75,7 +87,7 @@ function resetOutput() {
 }
 
 /**
- * Gets whether the study is high impact, large cohort, or none and returns a string to represent it.
+ * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
  * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
  * @param {*} study 
  */
@@ -86,27 +98,26 @@ function getStudyTypeFromStudy(study) {
     else if (study.toLowerCase().includes("largest cohort")) {
         return "largest cohort";
     }
-    return "";
+    return "all";
 }
 
 
-var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue) => {
+var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue, refGen) => {
     var vcfParser = new VCFParser();
     var vcfFile = document.getElementById("files").files[0];
     var vcfObj;
-
-    $.get("study_table", { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
-
-        async (studyTableRows) => {
-            var tableObj = JSON.parse(studyTableRows);
+    $.ajax({
+        type: "GET",
+        url: "study_table",
+        data: { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
+        success: async function (studyTableRows) {
+            var tableObj = studyTableRows;
             var usefulSNPs = getSNPArray(tableObj);
             try {
                 vcfObj = await vcfParser.populateMap(vcfFile, extension, usefulSNPs);
-                console.log(vcfObj);
-                // What if it's empty?
             }
             catch (err) {
-                $('#response').html('There was an error computing the risk score:\n\n' + err);
+                $('#response').html('There was an error computing the risk score:\n' + err);
                 return;
             }
             try {
@@ -116,12 +127,13 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
                 resultJSON = result;
             }
             catch (err) {
-                $('#response').html('There was an error computing the risk score:\n\n' + err);
+                $('#response').html('There was an error computing the risk score:\n' + err);
             }
-            //sessionStorage.setItem("riskResults", result);
-        }, "html").fail(function (jqXHR) {
-            $('#response').html('There was an error computing the risk score:\n\n' + jqXHR.responseText);
-        });
+        },
+        error: function (XMLHttpRequest) {
+            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
+        }
+    });
 }
 
 /**
@@ -193,24 +205,28 @@ function getSNPArray(tableObj) {
 }
 
 //API-reformating
-var ServerCalculateScore = async (vcfFile, diseaseArray, studyType, pValue) => {
+var ServerCalculateScore = async (vcfFile, diseaseArray, studyType, pValue, refGen) => {
     var fileContents = await readFile(vcfFile);
     if (!fileContents) {
         //if here, the vcf file was not read properly- shouldn't ever happen
         $('#response').html("Could not find file contents. Please double check the file you uploaded.");
         return;
     }
-    $.get("calculate_score", { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
-        function (data) {
+    $.ajax({
+        type: "GET",
+        url: "calculate_score",
+        data: { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
+        success: function (data) {
             //data contains the info received by going to "/calculate_score"
             var outputVal = getSimpleOutput(data);
             $('#response').html(outputVal);
             //sessionStorage.setItem("riskResults", data);
             resultJSON = data;
-        }, "html").fail(function (jqXHR) {
-            $('#response').html('There was an error computing the risk score:\n\n' + jqXHR.responseText);
-        });
-
+        },
+        error: function (XMLHttpRequest) {
+            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
+        }
+    });
 }
 
 /**
@@ -325,13 +341,14 @@ function downloadResults() {
     var format = formatDropdown.options[formatDropdown.selectedIndex].value;
     //TODO better name?
     var fileName = "polyscore_" + getRandomInt(100000000);
+    var extension = "";
     if (format === "csv") {
-        fileName += ".csv";
+        extension = ".csv";
     }
     else {
-        fileName += ".txt";
+        extension = ".txt";
     }
-    download(fileName, resultText);
+    download(fileName, extension, resultText);
 }
 
 function getRandomInt(max) {
@@ -345,7 +362,23 @@ function getRandomInt(max) {
  * @param {*} filename 
  * @param {*} text 
  */
-function download(filename, text) {
+function download(filename, extension, text) {
+    var zip = new JSZip();
+    zip.file(filename + extension, text);
+    zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: {
+            //TODO let the user know that they've downloaded the file while they are waiting
+            /* compression level ranges from 1 (best speed) to 9 (best compression) */
+            level: 9
+        }
+    })
+        .then(function (content) {
+            // see FileSaver.js
+            saveAs(content, filename + ".zip");
+        });
+
     var element = document.createElement('a');
 
     var dataBlob = new Blob([text], { type: "text/plain" });

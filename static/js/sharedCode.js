@@ -3,11 +3,13 @@
     //a "map" of diseases to their respective studies. Made global for easy access
     var diseasesAndStudies = {};
     diseasesAndStudies['ALL'] = ['High Impact', 'Largest Cohort'];
-    diseasesAndStudies['ADHD'] = ['High Impact', 'Largest Cohort'];
-    diseasesAndStudies['AD'] = ['Lambert et al., 2013 (High Impact)', 'Largest Cohort'];
-    diseasesAndStudies['ALS'] = ['van Rheenen W, 2016 (High Impact)', 'van Rheenen W, 2016 (Largest Cohort)'];
-    diseasesAndStudies['DEP'] = ['High Impact', 'Largest Cohort'];
-    diseasesAndStudies['HD'] = ['High Impact', 'Largest Cohort'];
+    diseasesAndStudies['ADHD'] = ['Demontis et al. 2018'/*, 'Hawi et al. 2018', 'Hinney et al. 2011', 'Mick et al. 2010', 
+                                    'Stergiakouli et al. 2012', 'Zayats et al. 2015'*/];
+    diseasesAndStudies['AD'] = [/*'Lambert et al. 2013 (High Impact)'*/, 'Naj et al. 2011'/*, 'Largest Cohort'*/];
+    diseasesAndStudies['ALS'] = ['Ahmeti KB 2012'/*, 'Diekstra FP 2014', 'Landers JE 2009', 'van Rheenen W 2016 (High Impact)'*/];
+    diseasesAndStudies['DEP'] = [/*'Ripke et al. 2012 (High Impact)',*/ 'Wray et al. 2018 (Largest Cohort)'];
+    /*diseasesAndStudies['CHD'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011', 'Samani NJ 2007', 'Schunkert H 2011',
+                                     'Wild PS 2011'];*/
     //freeze the object so it can't be edited by the browser or server
     diseasesAndStudies = Object.freeze(diseasesAndStudies);
 
@@ -23,7 +25,6 @@
      * @param {*} disease 
      * @param {*} studyType 
      */
-    //exports.getStudiesFromDisease = function (disease, studyType) {
     function getStudiesFromDisease(disease, studyType) {
         disease = disease.toUpperCase();
         var possibleStudies = diseasesAndStudies[disease];
@@ -41,14 +42,14 @@
                 }
             }
             else if (studyType == "largest cohort") {
-                if (study.toLowerCase().includes("large cohort")) {
+                if (study.toLowerCase().includes("largest cohort")) {
                     study = getStudyNameFromStudyEntry(study);
                     if (study != "") {
                         relevantStudies.push(study);
                     }
                 }
             }
-            //if we don't have a studyType, just append all studies
+            //if we don't have a studyType, or the study type is "all", just append all studies
             else {
                 study = getStudyNameFromStudyEntry(study);
                 //test doesn't include to avoid duplicate studies
@@ -72,7 +73,7 @@
      * Creates an object with diseases requested mapped to their corresponding studies. 
      * studyType narrows down what studies are searched.
      * @param {*} diseaseArray an array of diseases for which the user wants the risk scores to be calculated.
-     * @param {*} studyType can be either "high impact", "large cohort", or "". If "", all studies for each disease are returned in the object.
+     * @param {*} studyType can be either "high impact", "largest cohort", or "". If "", all studies for each disease are returned in the object.
      */
     exports.makeDiseaseStudyMapArray = function (diseaseArray, studyType) {
         var diseaseStudyMapArray = [];
@@ -125,8 +126,8 @@
                 var diseaseResults = [];
                 tableObj.forEach(function (diseaseEntry) {
                     var studyResults;
+                    studyResults = [];
                     diseaseEntry.studiesRows.forEach(function (studyEntry) {
-                        studyResults = [];
                         var ORs = []
                         var snpsIncluded = [];
                         var chromPositionsIncluded = []
@@ -179,7 +180,7 @@
         ORs.forEach(function (element) {
             combinedOR += Math.log(element);
         });
-        combinedOR = Math.exp(combinedOR);
+        combinedOR = Math.exp(combinedOR / ORs.length);
         return combinedOR;
     }
 
@@ -233,7 +234,7 @@
             //newMap.set(vcfLine.id, alleles);
             var vcfSNPObj = {
                 pos: vcfLine.chr.concat(":", vcfLine.pos),
-                snp: vcfLine.id, 
+                snp: vcfLine.id,
                 alleleArray: alleles
             }
             vcfSNPObjs.push(vcfSNPObj);

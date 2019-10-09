@@ -41,6 +41,11 @@
   box-sizing: border-box;
 }
 
+/*this is code we added*/
+.inline-flex-parent {
+  display: inline-flex;
+}
+/******/
 
 .one {
     width: 100%;

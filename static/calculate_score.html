@@ -180,60 +180,87 @@
               <script src="js/getRadioVal.js"></script>
               <div class="container diseaseLists">
                 <div class="row">
-                  <div class="col-lg-12 mb-.5 mt-2 text-left">
-                    <h5>Select P-value Cutoff&nbsp;</h5>
-                    <form action="#" method="post" class="radioButtons" id="radioButtons" name="pvalOptions">
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-3" checked onclick="radioChange()" />
-                          1x10<sup>-3</sup></label>
+                  <div class='parent inline-flex-parent'>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-.5 mt-2 text-left">
+                        <h5>Select P-value Cutoff&nbsp;</h5>
+                        <form action="#" method="post" class="radioButtons" id="radioButtons" name="pvalOptions">
+                          <div class="form-check form-check-inline">
+                            <label><input type="radio" name="pvalue" value="1e-3" checked onclick="radioChange()" />
+                              1x10<sup>-3</sup></label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <label><input type="radio" name="pvalue" value="1e-5" onclick="radioChange()" />
+                              1x10<sup>-5</sup></label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <label><input type="radio" name="pvalue" value="1e-8" onclick="radioChange()" />
+                              1x10<sup>-8</sup></label>
+                          </div>
+                        </form>
                       </div>
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-5" onclick="radioChange()" />
-                          1x10<sup>-5</sup></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-8" onclick="radioChange()" />
-                          1x10<sup>-8</sup></label>
-                      </div>
-                    </form>
-
+                    </div>
                   </div>
-                  <div class="col-lg-12 mb-0 mt-2 text-left">
-                    <script src="js/sharedCode.js"></script>
-                    <script src="js/diseaseList.js"></script>
-                    <h8>
-                      <div class="diseaseLists">
-                        <select id="disease" onchange="ChangeDiseaseList()">
-                          <!--<option selected="selected">All</option>-->
-                          <option value="">--Disease--</option>
-                          <option value="ALL">All Diseases </option>
-                          <option value="ADHD">ADHD</option>
-                          <option value="AD">Alzheimer's disease</option>
-                          <option value="ALS">ALS</option>
-                          <option value="DEP">Depression</option>
-                          <option value="HD">Heart disease</option>
+                  <div class='child'>
+                    <div class="col-lg-12 mb-.5 mt-2 text-left">
+                      <h5>Reference Genome&nbsp;</h5>
+                      <div class="refGenomeOptions">
+                        <select id="refGenome">
+                          <option selected="selected" value="default">--Reference Genome--</option>
+                          <option value="hg38">GRCh38/hg38</option>
+                          <option value="hg19">GRCh37/hg19</option>
+                          <option value="hg18">NCBI36/hg18</option>
+                          <option value="hg17">NCBI35/hg17</option>
                         </select>
                       </div>
-
-
-                      <div class="diseaseLists">
-                        <select id="diseaseStudy">
-                          <option value="">--Study--</option>
-                        </select>
-                      </div>
-                    </h8>
+                    </div>
+                  </div>
+                  <div>
                     <p>&nbsp;</p>
-                    <h5>Output Format&nbsp;</h5>
-                    <script src="js/calculate_score.js"></script>
-                    <script src="js/vcf_parser.js"></script>
-                    <div class="fileFormOptions">
-                      <select id="fileType" , onchange="changeFormat();">
-                        <!--<option selected="selected">All</option>-->
-                        <!--<option value="default">--Format Type--</option>-->
-                        <option value="text">Text</option>
-                        <option value="csv">CSV</option>
-                        <option value="json">JSON</option>
-                      </select>
+                    <p>&nbsp;</p>
+                  </div>
+                  <div class='parent inline-flex-parent'>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-0 mt-2 text-left">
+                        <h5>Select Disease and Study&nbsp;</h5>
+                        <script src="js/sharedCode.js"></script>
+                        <script src="js/diseaseList.js"></script>
+                        <h8>
+                          <div class="diseaseLists">
+                            <select id="disease" onchange="ChangeDiseaseList()">
+                              <!--<option selected="selected">All</option>-->
+                              <option value="">--Disease--</option>
+                              <option value="ALL">All Diseases </option>
+                              <option value="ADHD">ADHD</option>
+                              <option value="AD">Alzheimer's disease</option>
+                              <option value="ALS">ALS</option>
+                              <option value="DEP">Depression</option>
+                              <option value="CHD">Coronary Heart disease</option>
+                            </select>
+                          </div>
+
+
+                          <div class="diseaseLists">
+                            <select id="diseaseStudy" onchange="changeStudiesList()">
+                              <option value="">--Study--</option>
+                            </select>
+                          </div>
+                        </h8>
+                      </div>
+                    </div>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-0 mt-2 text-left">
+                        <h5>Output Format&nbsp;</h5>
+                        <script src="js/calculate_score.js"></script>
+                        <script src="js/vcf_parser.js"></script>
+                        <div class="fileFormOptions">
+                          <select id="fileType" , onchange="changeFormat();">
+                            <option value="text">Text</option>
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -268,12 +295,13 @@
                 <div class="form-text font-weight-bold">
 
                   <textarea readonly rows="10" cols="100" class="form-control nowrap" id="response" name="response"
-                    placeholder="Results"
-                    aria-describedby="response to query"></textarea>
+                    placeholder="Results" aria-describedby="response to query"></textarea>
 
                 </div>
               </form>
               <p>&nbsp;</p>
+              <script type="text/javascript" src="js/dist/jszip.min.js"></script>
+              <script type="text/javascript" src="js/dist/FileSaver.min.js"></script>
               <div class="downloadResults">
                 <button type="button" id="downloader" onclick="downloadResults();" class="btn btn-primary">Download
                   Results</button>

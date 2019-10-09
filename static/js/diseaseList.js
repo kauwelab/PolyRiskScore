@@ -17,9 +17,15 @@ function ChangeDiseaseList() {
     }
     if (diseases) {
         var i;
+        studyList.options.add(new Option("All Studies", 0));
         for (i = 0; i < diseases.length; i++) {
-            var study = new Option(diseases[i], i);
+            var study = new Option(diseases[i], i+1); //we +1 here to make way for the "All Studies" category at index 0
             studyList.options.add(study);
         }
     }
+}
+
+function changeStudiesList() {
+    resetOutput();
+    $('#response').html("");
 }
