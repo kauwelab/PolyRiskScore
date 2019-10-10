@@ -177,33 +177,17 @@
               </div>
 
               <p>&nbsp;</p>
-              <script src="js/getRadioVal.js"></script>
               <script src="js/sliderFunctions.js"></script>
               <div class="container diseaseLists">
                 <div class="row">
                   <div class="col-lg-12 mb-.5 mt-2 text-left">
-                    <h5>Select P-value Cutoff&nbsp;</h5>
-                    <form action="#" method="post" class="radioButtons" id="radioButtons" name="pvalOptions">
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-3" checked onclick="radioChange()" />
-                          1x10<sup>-3</sup></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-5" onclick="radioChange()" />
-                          1x10<sup>-5</sup></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-8" onclick="radioChange()" />
-                          1x10<sup>-8</sup></label>
-                      </div>
-                    </form>
                       <h5>Slide to select P-Value Cutoff&nbsp;</h5>
                       <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
                         <div class="form-inline">
-                          <input type="range" min="-10" max="-1" value="-5" step="1" name="pvalue" class="slider" id="pvalInput" oninput="linkSliderToText()">
+                          <input type="range" min="-10" max="-1" value="-5" step="1" name="pvalInput" class="slider" id="pvalInput" oninput="linkSliderToText()">
                           <label>&nbsp;&nbsp;&nbsp;1x10
                             <sup>
-                              <output id="pval" name="pvalMagnigtude" for="pvalInput"></output>
+                              <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalInput"></output>
                             </sup>
                           </label>
                         </div>
@@ -212,13 +196,14 @@
                         p-value is synced with the slider-->
                       <script>
                         var slider = document.getElementById("pvalInput"); 
-                        var output = document.getElementById("pval"); 
+                        var output = document.getElementById("pvalMagnigtude"); 
                         output.innerHTML = slider.value; 
   
                         slider.oninput = function() { 
                           output.innerHTML = this.value; 
                         } 
                       </script>
+                      <p>&nbsp;</p>
                   </div>
                   <div class="col-lg-12 mb-0 mt-2 text-left">
                     <script src="js/sharedCode.js"></script>

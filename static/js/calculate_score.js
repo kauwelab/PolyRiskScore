@@ -13,7 +13,7 @@ var calculatePolyScore = async () => {
     var extension = vcfFile.name.split(".").pop(); 
     // get value of selected 'pvalue' radio button in 'radioButtons'
     var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
-    var pValue = getSliderPVal(document.getElementById('pvalSlider'), 'pvalue');
+    var pValue2 = getSliderPVal(document.getElementById('pvalSlider'), 'pvalInput');
     //gets the disease name from the drop down list
     var diseaseSelectElement = document.getElementById("disease");
     var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
