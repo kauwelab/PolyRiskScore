@@ -184,10 +184,10 @@
                       <h5>Slide to select P-Value Cutoff&nbsp;</h5>
                       <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
                         <div class="form-inline">
-                          <input type="range" min="-10" max="-1" value="-5" step="1" name="pvalInput" class="slider" id="pvalInput" oninput="linkSliderToText()">
+                          <input type="range" min="-10" max="-1" value="-5" step="1" name="pvalue" class="slider" id="pvalue">
                           <label>&nbsp;&nbsp;&nbsp;1x10
                             <sup>
-                              <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalInput"></output>
+                              <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
                             </sup>
                           </label>
                         </div>
@@ -195,7 +195,7 @@
                       <!--Below script ensures the display of the 
                         p-value is synced with the slider-->
                       <script>
-                        var slider = document.getElementById("pvalInput"); 
+                        var slider = document.getElementById("pvalue"); 
                         var output = document.getElementById("pvalMagnigtude"); 
                         output.innerHTML = slider.value; 
   

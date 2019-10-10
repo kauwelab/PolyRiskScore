@@ -11,9 +11,8 @@ var calculatePolyScore = async () => {
     }
     var fileSize = vcfFile.size;
     var extension = vcfFile.name.split(".").pop(); 
-    // get value of selected 'pvalue' radio button in 'radioButtons'
-    var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
-    var pValue2 = getSliderPVal(document.getElementById('pvalSlider'), 'pvalInput');
+    // get value of selected 'pvalue' from 'pvalSlider' 
+    var pValue = getSliderPVal(document.getElementById('pvalSlider'), 'pvalue');
     //gets the disease name from the drop down list
     var diseaseSelectElement = document.getElementById("disease");
     var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
