@@ -178,6 +178,7 @@
 
               <p>&nbsp;</p>
               <script src="js/getRadioVal.js"></script>
+              <script src="js/sliderFunctions.js"></script>
               <div class="container diseaseLists">
                 <div class="row">
                   <div class="col-lg-12 mb-.5 mt-2 text-left">
@@ -196,7 +197,28 @@
                           1x10<sup>-8</sup></label>
                       </div>
                     </form>
-
+                      <h5>Slide to select P-Value Cutoff&nbsp;</h5>
+                      <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
+                        <div class="form-inline">
+                          <input type="range" min="-10" max="-1" value="-5" step="1" name="pvalue" class="slider" id="pvalInput" oninput="linkSliderToText()">
+                          <label>&nbsp;&nbsp;&nbsp;1x10
+                            <sup>
+                              <output id="pval" name="pvalMagnigtude" for="pvalInput"></output>
+                            </sup>
+                          </label>
+                        </div>
+                      </form>
+                      <!--Below script ensures the display of the 
+                        p-value is synced with the slider-->
+                      <script>
+                        var slider = document.getElementById("pvalInput"); 
+                        var output = document.getElementById("pval"); 
+                        output.innerHTML = slider.value; 
+  
+                        slider.oninput = function() { 
+                          output.innerHTML = this.value; 
+                        } 
+                      </script>
                   </div>
                   <div class="col-lg-12 mb-0 mt-2 text-left">
                     <script src="js/sharedCode.js"></script>
