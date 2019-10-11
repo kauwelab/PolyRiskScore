@@ -905,7 +905,7 @@ pre code {
 
 .slider { 
   -webkit-appearance: none;
-  width: 80%;
+  width: 75%;
   height: 5px;
   background: #d3d3d3;
   outline: none;
@@ -924,7 +924,8 @@ pre code {
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #4CAF50;
+  background: #007bff;
+  border: #fff;
   cursor: pointer;
 }
 
@@ -932,7 +933,8 @@ pre code {
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #4CAF50;
+  background: #007bff;
+  border: #fff;
   cursor: pointer;
 }
 
