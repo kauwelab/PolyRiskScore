@@ -41,6 +41,11 @@
   box-sizing: border-box;
 }
 
+/*this is code we added*/
+.inline-flex-parent {
+  display: inline-flex;
+}
+/******/
 
 .one {
     width: 100%;
@@ -1993,7 +1998,7 @@ pre code {
 }
 
 .form-control:disabled, .form-control[readonly] {
-  background-color: #e9ecef;
+  background-color: #fff; 
   opacity: 1;
 }
 

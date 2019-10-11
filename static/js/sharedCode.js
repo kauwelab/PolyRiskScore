@@ -3,11 +3,13 @@
     //a "map" of diseases to their respective studies. Made global for easy access
     var diseasesAndStudies = {};
     diseasesAndStudies['ALL'] = ['High Impact', 'Largest Cohort'];
-    diseasesAndStudies['ADHD'] = ['High Impact', 'Largest Cohort'];
-    diseasesAndStudies['AD'] = ['Lambert et al., 2013 (High Impact)', 'Largest Cohort'];
-    diseasesAndStudies['ALS'] = ['van Rheenen W, 2016 (High Impact)', 'van Rheenen W, 2016 (Largest Cohort)'];
-    diseasesAndStudies['DEP'] = ['High Impact', 'Largest Cohort'];
-    diseasesAndStudies['HD'] = ['High Impact', 'Largest Cohort'];
+    diseasesAndStudies['ADHD'] = ['Demontis et al. 2018'/*, 'Hawi et al. 2018', 'Hinney et al. 2011', 'Mick et al. 2010', 
+                                    'Stergiakouli et al. 2012', 'Zayats et al. 2015'*/];
+    diseasesAndStudies['AD'] = [/*'Lambert et al. 2013 (High Impact)'*/, 'Naj et al. 2011'/*, 'Largest Cohort'*/];
+    diseasesAndStudies['ALS'] = ['Ahmeti KB 2012'/*, 'Diekstra FP 2014', 'Landers JE 2009', 'van Rheenen W 2016 (High Impact)'*/];
+    diseasesAndStudies['DEP'] = [/*'Ripke et al. 2012 (High Impact)',*/ 'Wray et al. 2018 (Largest Cohort)'];
+    /*diseasesAndStudies['CHD'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011', 'Samani NJ 2007', 'Schunkert H 2011',
+                                     'Wild PS 2011'];*/
     //freeze the object so it can't be edited by the browser or server
     diseasesAndStudies = Object.freeze(diseasesAndStudies);
 
@@ -23,7 +25,6 @@
      * @param {*} disease 
      * @param {*} studyType 
      */
-    //exports.getStudiesFromDisease = function (disease, studyType) {
     function getStudiesFromDisease(disease, studyType) {
         disease = disease.toUpperCase();
         var possibleStudies = diseasesAndStudies[disease];
@@ -41,14 +42,14 @@
                 }
             }
             else if (studyType == "largest cohort") {
-                if (study.toLowerCase().includes("large cohort")) {
+                if (study.toLowerCase().includes("largest cohort")) {
                     study = getStudyNameFromStudyEntry(study);
                     if (study != "") {
                         relevantStudies.push(study);
                     }
                 }
             }
-            //if we don't have a studyType, just append all studies
+            //if we don't have a studyType, or the study type is "all", just append all studies
             else {
                 study = getStudyNameFromStudyEntry(study);
                 //test doesn't include to avoid duplicate studies
@@ -72,7 +73,7 @@
      * Creates an object with diseases requested mapped to their corresponding studies. 
      * studyType narrows down what studies are searched.
      * @param {*} diseaseArray an array of diseases for which the user wants the risk scores to be calculated.
-     * @param {*} studyType can be either "high impact", "large cohort", or "". If "", all studies for each disease are returned in the object.
+     * @param {*} studyType can be either "high impact", "largest cohort", or "". If "", all studies for each disease are returned in the object.
      */
     exports.makeDiseaseStudyMapArray = function (diseaseArray, studyType) {
         var diseaseStudyMapArray = [];
@@ -102,7 +103,8 @@
     }
 
     /**
-     * Calculates the polygenetic risk score using table rows from the database and the vcfObj. 
+     * Calculates the polygenetic risk score using table rows from the database and the vcfObj.
+     * If the vcfObj is undefined, throws an error message that can be printed to the user.
      * P-value is required so the result can also return information about the calculation.
      * @param {*} tableObj 
      * @param {*} vcfObj 
@@ -111,53 +113,64 @@
      */
     exports.calculateScore = function (tableObj, vcfObj, pValue) {
         var resultJsons = [];
-        //push information about the calculation to the result
-        resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].size })
-        //for each individual and each disease and each study in each disease and each snp of each individual, 
-        //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
-        for (const [individualName, snpMap] of vcfObj.entries()) {
-            var diseaseResults = [];
-            tableObj.forEach(function (diseaseEntry) {
-                var studyResults;
-                diseaseEntry.studiesRows.forEach(function (studyEntry) {
+        if (vcfObj == undefined || vcfObj.size <= 0) {
+            throw "The vcf was undefined when calculating the score. Please choose a different vcf or reload the page and try again."
+        }
+        else {
+            //push information about the calculation to the result
+            resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].length })
+            //for each individual and each disease and each study in each disease and each snp of each individual, 
+            //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
+            //TODO change snpMap name to snpEntry or some equivalent name
+            for (const [individualName, vcfSNPObjs] of vcfObj.entries()) {
+                var diseaseResults = [];
+                tableObj.forEach(function (diseaseEntry) {
+                    var studyResults;
                     studyResults = [];
-                    var ORs = []
-                    var snpsUsed = [];
-                    for (const [snp, alleleArray] of snpMap.entries()) {
-                        alleleArray.forEach(function (allele) {
-                            studyEntry.rows.forEach(function (row) {
-                                //by now, we don't have to check for study or pValue, because rowsObj already has only those values
-                                if (allele !== null) {
-                                    if (snp == row.snp && row.riskAllele === allele) {
-                                        ORs.push(row.oddsRatio);
-                                        snpsUsed.push(row.snp);
+                    diseaseEntry.studiesRows.forEach(function (studyEntry) {
+                        var ORs = []
+                        var snpsIncluded = [];
+                        var chromPositionsIncluded = []
+                        vcfSNPObjs.forEach(function (vcfSNPObj) {
+                            vcfSNPObj.alleleArray.forEach(function (allele) {
+                                studyEntry.rows.forEach(function (tableRow) {
+                                    //TODO can this be short stopped? Once it's found, break?
+                                    //by now, we don't have to check for study or pValue, because rowsObj already has only those values
+                                    if (allele !== null) {
+                                        if ((vcfSNPObj.snp == tableRow.snp || vcfSNPObj.pos == tableRow.pos) && tableRow.riskAllele === allele) {
+                                            ORs.push(tableRow.oddsRatio);
+                                            snpsIncluded.push(tableRow.snp);
+                                            chromPositionsIncluded.push(tableRow.pos);
+                                        }
                                     }
-                                }
-                                else {
-                                    if (snp == row.snp) {
-                                        ORs.push(row.oddsRatio);
-                                        snpsUsed.push(row.snp);
+                                    else {
+                                        if (vcfSNPObj.snp == tableRow.snp || vcfSNPObj.pos == tableRow.pos) {
+                                            ORs.push(tableRow.oddsRatio);
+                                            snpsIncluded.push(tableRow.snp);
+                                            chromPositionsIncluded.push(tableRow.pos);
+                                        }
                                     }
-                                }
+                                });
                             });
                         });
-                    }
-                    studyResults.push({
-                        study: studyEntry.study,
-                        oddsRatio: getCombinedORFromArray(ORs),
-                        percentile: "",
-                        numVariantsIncluded: ORs.length,
-                        variantsIncluded: snpsUsed
+                        studyResults.push({
+                            study: studyEntry.study,
+                            oddsRatio: getCombinedORFromArray(ORs),
+                            percentile: "",
+                            numSNPsIncluded: ORs.length,
+                            chromPositionsIncluded: chromPositionsIncluded,
+                            snpsIncluded: snpsIncluded
+                        });
+                    });
+                    diseaseResults.push({
+                        disease: diseaseEntry.disease.toUpperCase(),
+                        studyResults: studyResults
                     });
                 });
-                diseaseResults.push({
-                    disease: diseaseEntry.disease.toUpperCase(),
-                    studyResults: studyResults
-                });
-            });
-            resultJsons.push({ individualName: this.trim(individualName), diseaseResults: diseaseResults })
+                resultJsons.push({ individualName: this.trim(individualName), diseaseResults: diseaseResults })
+            }
+            return JSON.stringify(resultJsons);
         }
-        return JSON.stringify(resultJsons);
     };
 
     //exports.getCombinedORFromArray = function(ORs) {
@@ -167,7 +180,7 @@
         ORs.forEach(function (element) {
             combinedOR += Math.log(element);
         });
-        combinedOR = Math.exp(combinedOR);
+        combinedOR = Math.exp(combinedOR / ORs.length);
         return combinedOR;
     }
 
@@ -182,7 +195,7 @@
     exports.addLineToVcfObj = function (vcfObj, vcfLine) {
         if (vcfObj.size === 0) {
             vcfLine.sampleinfo.forEach(function (sample) {
-                vcfObj.set(sample.NAME, new Map());
+                vcfObj.set(sample.NAME, []);
             });
         }
         //gets all possible alleles for the current id
@@ -191,8 +204,6 @@
         var altAlleles = vcfLine.alt.split(/[,]+/);
         for (var i = 0; i < altAlleles.length; i++) {
             if (altAlleles[i] == ".") {
-                //TODO in the case of "".,A" for altAlleles (not a likely case), should "." be 
-                //index 1 (but be nothing) and "A" be 2? or should "A" be index 1?
                 altAlleles.splice(i, 1);
                 --i;
             }
@@ -202,7 +213,7 @@
         }
 
         vcfLine.sampleinfo.forEach(function (sample) {
-            var newMap = vcfObj.get(sample.NAME);
+            var vcfSNPObjs = vcfObj.get(sample.NAME);
             //gets the allele indices
             var alleles = sample.GT.split(/[|/]+/, 2);
             //gets the alleles from the allele indices and replaces the indices with the alleles.
@@ -219,8 +230,15 @@
             }
             //event when alleles is empty, we still push it so that it can be included in 
             //the totalVariants number of the output
-            newMap.set(vcfLine.id, alleles);
-            vcfObj.set(sample.NAME, newMap);
+            //TODO
+            //newMap.set(vcfLine.id, alleles);
+            var vcfSNPObj = {
+                pos: vcfLine.chr.concat(":", vcfLine.pos),
+                snp: vcfLine.id,
+                alleleArray: alleles
+            }
+            vcfSNPObjs.push(vcfSNPObj);
+            vcfObj.set(sample.NAME, vcfSNPObjs);
         });
         return vcfObj;
     };

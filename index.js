@@ -65,8 +65,9 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-//TODO add correct disease table names to diseaseEnum!
-global.diseaseEnum = Object.freeze({ "all": "ALL_TABLE_NAME", "adhd": "ADHD_TABLE_NAME", "als": "ALS", "ad": "AD", "dep": "DEPRESSION_TABLE_NAME", "hd": "HEART_DISEASE_TABLE_NAME", });
+//TODO add correct disease table names to diseaseEnum! TODO- is this "enum" necessary?
+//website name to table name "enum"
+global.diseaseEnum = Object.freeze({ "adhd": "ADHD", "als": "ALS", "ad": "AD", "dep": "DEP", "chd": "CHD", });
 
 /**
  * Parses the vcf fileContents into a vcfObj that is used to calculate the score
@@ -83,13 +84,16 @@ function parseVCFToObj(fileContents) {
     //not sure how to do that. -Matthew
     delete require.cache[require.resolve('bionode-vcf')];
     var vcf = require('bionode-vcf');
-    vcf.readStream(s);
+    vcf.readStream(s)
+    //vcf.readStream(s);
     var vcfObj = new Map();
     vcf.on('data', function (vcfLine) {
         vcfObj = sharedCode.addLineToVcfObj(vcfObj, vcfLine)
     })
     vcf.on('error', function (err) {
-        console.error('it\'s not a vcf', err)
+        //TODO how can we make this error stop the rest of the vcf parse process? Save time here! Currently, the error return does nothing.
+        console.error("Not a vcf file", err)
+        return err;
     })
 
     return new Promise(function (resolve, reject) {
@@ -183,7 +187,7 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
 });
 
 /** 
- * Receives a vcf's fileContents, a diseaseArray, and a string representing the studyType ("high impact", "large cohort", or "") 
+ * Receives a vcf's fileContents, a diseaseArray, and a string representing the studyType ("high impact", "largest cohort", or "") 
  * and calculates a score obj to send to the browser. First, it parses the fileContents into a vcfObj, then gets a tableRowsObj
  * and finally calculates the score object which is sent to the browser as an array of jsons (the first json representing useful data 
  * for all of the calculations and the rest of the jsons representing scores for each disease for each individual)
@@ -192,17 +196,26 @@ app.get('/calculate_score/', async function (req, res) {
     //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
 
-    var vcfObj = await parseVCFToObj(req.query.fileContents);
-
-    if (vcfObj.size > 0) {
-        var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(req.query.diseaseArray, req.query.studyType);
-        var pValue = req.query.pValue;
-        var rowsObj = await getValidTableRowsObj(pValue, diseaseStudyMapArray);
-        var jsons = sharedCode.calculateScore(rowsObj, vcfObj, pValue)
+    try {
+        var vcfObj = await parseVCFToObj(req.query.fileContents);
+        if (vcfObj == undefined || vcfObj.size <= 0) {
+            throw new Error("The file uploaded was not a valid vcf file. Please check your file and try again.");
+        }
+    }
+    catch (err) {
+        res.status(500).send(err.message);
+        return;
+    }
+    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(req.query.diseaseArray, req.query.studyType);
+    var pValue = req.query.pValue;
+    var refGen = req.query.refGen;
+    var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray);
+    try {
+        var jsons = sharedCode.calculateScore(tableObj, vcfObj, pValue)
         res.send(jsons);
     }
-    else {
-        res.status(500).send("No SNPs were tested. Please upload a valid VCF file.")
+    catch (err) {
+        res.status(500).send(err.message)
     }
 });
 
@@ -224,8 +237,9 @@ app.get('/study_table/', async function (req, res) {
     }
     var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, req.query.studyType);
     var pValue = req.query.pValue;
+    var refGen = req.query.refGen;
 
-    var diseaseRows = await getValidTableRowsObj(pValue, diseaseStudyMapArray)
+    var diseaseRows = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
     res.send(diseaseRows);
 });
 
@@ -235,10 +249,10 @@ app.get('/study_table/', async function (req, res) {
  * @param {*} diseaseStudyMapArray
  * @return a diseaseRows object. See "getDiseaseRows" function for details.
  */
-async function getValidTableRowsObj(pValue, diseaseStudyMapArray) {
+async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
     // config for the database
-    //const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-    const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+    const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+        //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
         host: 'localhost',
         dialect: 'mssql',
         define: {
@@ -257,7 +271,7 @@ async function getValidTableRowsObj(pValue, diseaseStudyMapArray) {
         .authenticate()
         .then(async function () {
             //gets a diseaseRows list to send to the client
-            var diseaseRows = await getDiseaseRows(sequelize, pValue, diseaseStudyMapArray);
+            var diseaseRows = await getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray);
             return diseaseRows;
         });
 }
@@ -270,7 +284,7 @@ async function getValidTableRowsObj(pValue, diseaseStudyMapArray) {
  * @param {*} diseaseStudyMapArray 
  * @return a diseaseRows object: a list of objects containing disease names and studyRow objects
  */
-async function getDiseaseRows(sequelize, pValue, diseaseStudyMapArray) {
+async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
     var diseaseRows = [];
     //for each disease, get it's table from the database 
     for (var i = 0; i < diseaseStudyMapArray.length; ++i) {
@@ -280,6 +294,26 @@ async function getDiseaseRows(sequelize, pValue, diseaseStudyMapArray) {
         class Table extends Model { }
         Table.init({
             // attributes
+            chromosome: {
+                type: Sequelize.FLOAT,
+                allowNull: false,
+            },
+            hg38: {
+                type: Sequelize.FLOAT,
+                allowNull: true,
+            },
+            hg19: {
+                type: Sequelize.FLOAT,
+                allowNull: true,
+            },
+            hg18: {
+                type: Sequelize.FLOAT,
+                allowNull: true,
+            },
+            hg17: {
+                type: Sequelize.FLOAT,
+                allowNull: true,
+            },
             snp: {
                 type: Sequelize.STRING,
                 allowNull: false,
@@ -301,18 +335,17 @@ async function getDiseaseRows(sequelize, pValue, diseaseStudyMapArray) {
                 allowNull: false,
             }
         }, {
-                sequelize,
-                modelName: diseaseEnum[disease.toLowerCase()],
-                name: {
-                    primaryKey: true,
-                    type: Sequelize.STRING
-                },
-                freezeTableName: true,
-                timestamps: false,
-                // options
-            });
-        //gets the ..............................................
-        var studiesRows = await getStudiesRows(pValue, studiesArray, Table)
+            sequelize,
+            modelName: diseaseEnum[disease.toLowerCase()],
+            name: {
+                primaryKey: true,
+                type: Sequelize.STRING
+            },
+            freezeTableName: true,
+            timestamps: false,
+            // options
+        });
+        var studiesRows = await getStudiesRows(pValue, refGen, studiesArray, Table)
         diseaseRows.push({ disease: disease, studiesRows: studiesRows })
     }
     return diseaseRows;
@@ -326,11 +359,11 @@ async function getDiseaseRows(sequelize, pValue, diseaseStudyMapArray) {
  * @param {*} table 
  * @retunr a studyRows list: a list of objects containing study names and their corresponding table rows
  */
-async function getStudiesRows(pValue, studiesArray, table) {
+async function getStudiesRows(pValue, refGen, studiesArray, table) {
     var studiesRows = [];
     for (var i = 0; i < studiesArray.length; ++i) {
         var study = studiesArray[i];
-        var rows = await getRows(pValue, study, table);
+        var rows = await getRows(pValue, refGen, study, table);
         studiesRows.push({ study: study, rows: rows })
     }
     return studiesRows;
@@ -343,12 +376,12 @@ async function getStudiesRows(pValue, studiesArray, table) {
  * @param {*} table
  * @retrun a list of rows corresponding to the p-value and study in the table 
  */
-async function getRows(pValue, study, table) {
+async function getRows(pValue, refGen, study, table) {
     const Op = Sequelize.Op;
     var tableRows = [];
     //first find the valid results from the table (tests for valid p-value and study)
     tableRows.push(table.findAll({
-        attributes: ['snp', 'riskAllele', 'pValue', 'oddsRatio'],
+        attributes: ['chromosome', refGen, 'snp', 'riskAllele', 'pValue', 'oddsRatio'],
         where: {
             pValue: {
                 [Op.lt]: pValue
@@ -362,7 +395,9 @@ async function getRows(pValue, study, table) {
         //Result seems to be an array of arrays. To reach the inner arrays (the actual rows), we have to go through the first array.
         var tableRows = tableRows[0];
         tableRows.forEach(function (tableRow) {
+            //TODO
             var row = {
+                pos: tableRow.chromosome.toString().concat(":", tableRow[refGen]), //TODO this is a problem! How do I access the variable with refGen name?
                 snp: tableRow.snp,
                 riskAllele: tableRow.riskAllele,
                 pValue: tableRow.pValue,

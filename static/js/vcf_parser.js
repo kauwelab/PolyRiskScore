@@ -11,13 +11,7 @@ VCFParser.prototype.getMap = function () {
 }
 
 //populate map function here
-VCFParser.prototype.populateMap = function (file, extension, usefulSNPs) {
-  try {
-    manageByExtension(extension);
-  }
-  catch (err) {
-    throw err; 
-  }
+VCFParser.prototype.populateMap = function (file, extension) {
   var vcfParser = this;
   var lag_line = "";
   var CHUNK_SIZE = 1024; // 1 KB at a time.
@@ -32,10 +26,11 @@ VCFParser.prototype.populateMap = function (file, extension, usefulSNPs) {
       lag_line = output.pop();
       //callback(output); 
       try {
-        vcfParser.parseStream(output, extension, usefulSNPs);
+        vcfParser.parseStream(output, extension);
       }
       catch (err) {
-        throw err; 
+        $('#response').html("There was an error computing the risk score:\n" + err);
+        return;
       }
       //console.log(output); 
       offset += CHUNK_SIZE;
@@ -53,7 +48,8 @@ VCFParser.prototype.populateMap = function (file, extension, usefulSNPs) {
             vcfParser.parseStream(lag_line.split("\n"), "vcf");
           }
           catch (err) {
-            throw err;
+            $('#response').html("There was an error computing the risk score:\n" + err);
+            return;
           }
         }
         resolve(vcfParser.getMap());
@@ -67,10 +63,15 @@ VCFParser.prototype.populateMap = function (file, extension, usefulSNPs) {
 
 }
 
-VCFParser.prototype.parseStream = function (instream, extension, usefulSNPs) {
-
+VCFParser.prototype.parseStream = function (instream, extension) {
+  //var vcfMapMaps = new Map();
+  //var numSamples = 0;
+  //var sampleIndex = {}
+  //var vcfAttrib = {}
+  //var outstream = new Stream()
+  var rl = manageByExtension(extension, instream);
   var that = this;
-  instream.forEach(function (line, index) {
+  rl.forEach(function (line, index) {
     // check if line starts with hash and use them
     if (line.indexOf('#') === 0) {
       // #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsample1\tsample2\tsample3
@@ -89,18 +90,14 @@ VCFParser.prototype.parseStream = function (instream, extension, usefulSNPs) {
     } else { // go through remaining lines
       // split line by tab character
       var info = line.split('\t')
-      if (!usefulSNPs.includes(info[2])){
-        return; 
-      }
-      //CHECK SNP HERE. IF INVALID, STOP.
       if (info.length < 9) {
         //Throw an error if vcfMapMaps is empty.
         //This probably means the user uploaded an empty file or a file in the wrong format. 
         if (that.vcfMap === undefined) {
-          throw "An error occurred while parsing the file. Please make sure you uploaded the correct file."
+          throw "The file uploaded was not a valid vcf file. Please check your file and try again."
         }
         else if (that.vcfMap.size === 0) {
-          throw "An error occurred while parsing the file. Please make sure you uploaded the correct file."
+          throw "The file uploaded was not a valid vcf file. Please check your file and try again."
         }
         return; //I'm assuming this will be for files that have a blank line or two at the end???
       }
@@ -119,16 +116,14 @@ VCFParser.prototype.parseStream = function (instream, extension, usefulSNPs) {
   //return this.vcfMap; //To Delete
 }
 
-function manageByExtension(extension) {
+function manageByExtension(extension, instream) {
   var rl
 
   switch (extension) {
     //  Figure out how to handle gz and zip
     case 'vcf':
-      //don't do anything. You're good!
+      rl = instream;
       break
-    //handle .gz
-    //handle .zip
     default:
       throw "Please upload a file of extension type vcf."
   }
@@ -143,12 +138,12 @@ function defineVCFAttributes(vcfAttrib, line) {
   }
 
   // ##samtoolsVersion=0.1.19-44428cd
-  else if (!vcfAttrib.samtools) {
+  if (!vcfAttrib.samtools) {
     vcfAttrib.samtools = line.match(/^##samtoolsVersion=/) ? line.split('=')[1] : null
   }
 
   // ##reference=file://../index/Chalara_fraxinea_TGAC_s1v1_scaffolds.fa
-  else if (!vcfAttrib.refseq) {
+  if (!vcfAttrib.refseq) {
     vcfAttrib.refseq = line.match((/^##reference=file:/)) ? line.split('=')[1] : null
   }
 
@@ -229,44 +224,3 @@ function createVariantData(info, infoObject, sampleObject, vcfAttrib) {
 
   return varData;
 }
-
-function createMap(vcfObj, varData) {
-  if (vcfObj.size === 0) {
-    varData.sampleinfo.forEach(function (sample) {
-      vcfObj.set(sample.NAME, new Map());
-    });
-  }
-  //gets all possible alleles for the current id
-  var possibleAlleles = [];
-  possibleAlleles.push(varData.ref);
-  var altAlleles = varData.alt.split(/[,]+/);
-  for (var i = 0; i < altAlleles.length; i++) {
-    if (altAlleles[i] == ".") {
-      altAlleles.splice(i, 1);
-      --i;
-    }
-  }
-  if (altAlleles.length > 0) {
-    possibleAlleles = possibleAlleles.concat(altAlleles);
-  }
-
-  varData.sampleinfo.forEach(function (sample) {
-    //gets the allele indices
-    var alleles = sample.GT.split(/[|/]+/, 2);
-    //gets the alleles from the allele indices and replaces the indices with the alleles.
-    for (var i = 0; i < alleles.length; i++) {
-      //if the allele is ".", treat it as the ref allele
-      if (alleles[i] == ".") {
-        alleles[i] = possibleAlleles[0];
-      }
-      else {
-        alleles[i] = possibleAlleles[alleles[i]];
-      }
-    }
-
-    vcfObj.get(sample.NAME).set(varData.id, alleles);
-  });
-
-  return vcfObj;
-}
-
