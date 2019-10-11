@@ -89,12 +89,12 @@
 				<p>&nbsp;</p>
             </div>
           </div>
-          
+
             <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
-          
+
         </div>
       </div>
-		
+
 
 	<div class="container">
         <div class="row">
@@ -106,7 +106,7 @@
           </div>
         </div>
       </div>
-		
+
 		<div class="jumbotron">
 		<div class="container">
         <div class="row">
@@ -144,7 +144,7 @@
 
                 <div class="form-text font-weight-bold">
 
-                  <textarea rows="10" cols="100" class="form-control nowrap" id="input" name="input"
+                  <textarea readonly rows="10" cols="100" class="form-control nowrap" id="input" name="input"
                     placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
                   <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
                     message.</span>
@@ -180,67 +180,95 @@
               <script src="js/sliderFunctions.js"></script>
               <div class="container diseaseLists">
                 <div class="row">
-                  <div class="col-lg-12 mb-.5 mt-2 text-left">
-                      <h5>Slide to select P-Value Cutoff&nbsp;</h5>
-                      <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
-                        <div class="form-inline">
-                          <input type="range" min="-10" max="-1" value="-5" step="1" name="pvalue" class="slider" id="pvalue">
-                          <label>&nbsp;&nbsp;&nbsp;1x10
-                            <sup>
-                              <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
-                            </sup>
-                          </label>
+                  <div class='parent inline-flex-parent'>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-.5 mt-2 text-left">
+                          <h5>Slide to select P-Value Cutoff&nbsp;</h5>
+                          <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
+                            <div class="form-inline">
+                              <input type="range" min="-10" max="-1" value="-5" step="1" name="pvalue" class="slider" id="pvalue">
+                              <label>&nbsp;&nbsp;&nbsp;1x10
+                                <sup>
+                                  <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
+                                </sup>
+                              </label>
+                            </div>
+                          </form>
+                          <!--Below script ensures the display of the
+                            p-value is synced with the slider-->
+                          <script>
+                            var slider = document.getElementById("pvalue");
+                            var output = document.getElementById("pvalMagnigtude");
+                            output.innerHTML = slider.value;
+
+                            slider.oninput = function() {
+                              output.innerHTML = this.value;
+                            }
+                          </script>
+                          <p>&nbsp;</p>
                         </div>
-                      </form>
-                      <!--Below script ensures the display of the 
-                        p-value is synced with the slider-->
-                      <script>
-                        var slider = document.getElementById("pvalue"); 
-                        var output = document.getElementById("pvalMagnigtude"); 
-                        output.innerHTML = slider.value; 
-  
-                        slider.oninput = function() { 
-                          output.innerHTML = this.value; 
-                        } 
-                      </script>
-                      <p>&nbsp;</p>
+                      </div>
+                    </div>
+                  <div class='child'>
+                    <div class="col-lg-12 mb-.5 mt-2 text-left">
+                      <h5>Reference Genome&nbsp;</h5>
+                      <div class="refGenomeOptions">
+                        <select id="refGenome">
+                          <option selected="selected" value="default">--Reference Genome--</option>
+                          <option value="hg38">GRCh38/hg38</option>
+                          <option value="hg19">GRCh37/hg19</option>
+                          <option value="hg18">NCBI36/hg18</option>
+                          <option value="hg17">NCBI35/hg17</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                  <div class="col-lg-12 mb-0 mt-2 text-left">
-                    <script src="js/sharedCode.js"></script>
-                    <script src="js/diseaseList.js"></script>
-                    <h8>
-                      <div class="diseaseLists">
-                        <select id="disease" onchange="ChangeDiseaseList()">
-                          <!--<option selected="selected">All</option>-->
-                          <option value="">--Disease--</option>
-                          <option value="ALL">All Diseases </option>
-                          <option value="ADHD">ADHD</option>
-                          <option value="AD">Alzheimer's disease</option>
-                          <option value="ALS">ALS</option>
-                          <option value="DEP">Depression</option>
-                          <option value="HD">Heart disease</option>
-                        </select>
-                      </div>
-
-
-                      <div class="diseaseLists">
-                        <select id="diseaseStudy">
-                          <option value="">--Study--</option>
-                        </select>
-                      </div>
-                    </h8>
+                  <div>
                     <p>&nbsp;</p>
-                    <h5>Output Format&nbsp;</h5>
-                    <script src="js/calculate_score.js"></script>
-                    <script src="js/vcf_parser.js"></script>
-                    <div class="fileFormOptions">
-                      <select id="fileType" , onchange="changeFormat();">
-                        <!--<option selected="selected">All</option>-->
-                        <!--<option value="default">--Format Type--</option>-->
-                        <option value="text">Text</option>
-                        <option value="csv">CSV</option>
-                        <option value="json">JSON</option>
-                      </select>
+                    <p>&nbsp;</p>
+                  </div>
+                  <div class='parent inline-flex-parent'>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-0 mt-2 text-left">
+                        <h5>Select Disease and Study&nbsp;</h5>
+                        <script src="js/sharedCode.js"></script>
+                        <script src="js/diseaseList.js"></script>
+                        <h8>
+                          <div class="diseaseLists">
+                            <select id="disease" onchange="ChangeDiseaseList()">
+                              <!--<option selected="selected">All</option>-->
+                              <option value="">--Disease--</option>
+                              <option value="ALL">All Diseases </option>
+                              <option value="ADHD">ADHD</option>
+                              <option value="AD">Alzheimer's disease</option>
+                              <option value="ALS">ALS</option>
+                              <option value="DEP">Depression</option>
+                              <option value="CHD">Coronary Heart disease</option>
+                            </select>
+                          </div>
+
+
+                          <div class="diseaseLists">
+                            <select id="diseaseStudy" onchange="changeStudiesList()">
+                              <option value="">--Study--</option>
+                            </select>
+                          </div>
+                        </h8>
+                      </div>
+                    </div>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-0 mt-2 text-left">
+                        <h5>Output Format&nbsp;</h5>
+                        <script src="js/calculate_score.js"></script>
+                        <script src="js/vcf_parser.js"></script>
+                        <div class="fileFormOptions">
+                          <select id="fileType" , onchange="changeFormat();">
+                            <option value="text">Text</option>
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -275,12 +303,13 @@
                 <div class="form-text font-weight-bold">
 
                   <textarea readonly rows="10" cols="100" class="form-control nowrap" id="response" name="response"
-                    placeholder="Example Results&#10;You are going to die!"
-                    aria-describedby="response to query"></textarea>
+                    placeholder="Results" aria-describedby="response to query"></textarea>
 
                 </div>
               </form>
               <p>&nbsp;</p>
+              <script type="text/javascript" src="js/dist/jszip.min.js"></script>
+              <script type="text/javascript" src="js/dist/FileSaver.min.js"></script>
               <div class="downloadResults">
                 <button type="button" id="downloader" onclick="downloadResults();" class="btn btn-primary">Download
                   Results</button>
@@ -318,20 +347,20 @@
               <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a>
 
 
-             Adds a divider between the last item in the dropdown menu and the other items. 
+             Adds a divider between the last item in the dropdown menu and the other items.
 
-				<div class="dropdown-divider"></div>   
-              <a class="dropdown-item" href="#">Something else here</a> 
+				<div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </li>
 		-->
 
-<!-- 
+<!--
 		This was a disabled menu button.
-		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li> 
+		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li>
 		-->
 
-<!-- 
+<!--
 		This was a search bar and search button
 		<form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -382,25 +411,25 @@
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
         </div>
@@ -446,5 +475,5 @@
           </div>
         </div>
       </div>
-    
+
 	  -->

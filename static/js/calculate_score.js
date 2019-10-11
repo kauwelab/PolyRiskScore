@@ -1,47 +1,95 @@
-var resultJSON = ""; 
+var resultJSON = "";
+var canCalculate = true;
+var validExtensions = ["vcf", "gzip", "zip"]
 
 var calculatePolyScore = async () => {
-    //user feedback while they are waiting for their score
-    $('#response').html("Calculating. Please wait...")
-    var vcfFile = document.getElementById("files").files[0];
-    if (!vcfFile) {
-        //if here, the user did not import a vcf file or the the vcf file was not read properly
-        $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
-        return;
-    }
-    var fileSize = vcfFile.size;
-    var extension = vcfFile.name.split(".").pop(); 
-    // get value of selected 'pvalue' from 'pvalSlider' 
-    var pValue = getSliderPVal(document.getElementById('pvalSlider'), 'pvalue');
-    //gets the disease name from the drop down list
-    var diseaseSelectElement = document.getElementById("disease");
-    var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-    //create a disease array (usually just the one disease unless "All dieases" is selected)
-    var diseaseArray = makeDiseaseArray(diseaseSelected);
-    //gets the study name from the drop down list
-    var studySelectElement = document.getElementById("diseaseStudy");
-    var study = studySelectElement.options[studySelectElement.selectedIndex].text
-    //the type of study the study is ("high impact", "large cohort", or "")
-    var studyType = getStudyTypeFromStudy(study);
-    //if the user doesn't specify a disease or study, prompt them to do so
-    if (diseaseSelected === "--Disease--" || study === "--Study--") {
-        $('#response').html('Please specify a specific disease and study using the drop down menus above.');
-        return
-    }
-    // API-reformating
+    if (canCalculate) {
+        //user feedback while they are waiting for their score
+        $('#response').html("Calculating. Please wait...")
+        var vcfFile = document.getElementById("files").files[0];
+        if (!vcfFile) {
+            //if here, the user did not import a vcf file or the the vcf file was not read properly
+            $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+            return;
+        }
+        var fileSize = vcfFile.size;
+        var extension = vcfFile.name.split(".").pop();
+        if (!validExtensions.includes(extension.toLowerCase())) {
+            //if here, the user uploded a file with an invalid format
+            $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+            return;
+        }
+        // get value of selected 'pvalue' from 'pvalSlider'
+        var pValue = getSliderPVal(document.getElementById('pvalSlider'), 'pvalue');
+        //gets the disease name from the drop down list
+        var diseaseSelectElement = document.getElementById("disease");
+        var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+        //create a disease array (usually just the one disease unless "All dieases" is selected)
+        var diseaseArray = makeDiseaseArray(diseaseSelected);
+        //gets the study name from the drop down list
+        var studySelectElement = document.getElementById("diseaseStudy");
+        var study = studySelectElement.options[studySelectElement.selectedIndex].text
+        //the type of study the study is ("high impact", "largest cohort", or "")
+        var studyType = getStudyTypeFromStudy(study);
+        //if the user doesn't specify a disease or study, prompt them to do so
+        if (diseaseSelected === "--Disease--" || study === "--Study--") {
+            $('#response').html('Please specify a specific disease and study using the drop down menus above.');
+            return
+        }
+        var refGenElement = document.getElementById("refGenome");
+        var refGen = refGenElement.options[refGenElement.selectedIndex].value
+        if (refGen == "--Reference Genome--") {
+            $('#response').html('Please select the reference genome corresponding to your file.');
+            return
+        }
+        canCalculate = false;
+        toggleCalculateButton(false);
+        if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
 
-    if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
-
-        ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue);
-        return
+            ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue, refGen);
+            return
+        }
+        /*
+        else if () {
+            var new_zip = new JSZip();
+            new_zip.load(file);
+            new_zip.files["doc.xml"].asText() // this give you the text in the file
+        }
+        */
+        ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue, refGen);
     }
-    ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue);
 }
 
 /**
- * Gets whether the study is high impact, large cohort, or none and returns a string to represent it.
+ * Turns the calculate button on and off.
+ * @param {*} canClick
+ */
+function toggleCalculateButton(canClick) {
+    var button = document.getElementById("feedbackSubmit")
+    button.disabled = !canClick;
+    if (!canClick) {
+        button.style.background = "gray";
+        button.style.borderColor = "white"
+    }
+    else {
+        button.style.background = "";
+        button.style.borderColor = ""
+    }
+}
+
+/**
+ * Resets resultJSON and allows the user to use the calculate score button again.
+ */
+function resetOutput() {
+    canCalculate = true;
+    toggleCalculateButton(true);
+    resultJSON = "";
+}
+
+/**
+ * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
  * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
- * @param {*} study 
+ * @param {*} study
  */
 function getStudyTypeFromStudy(study) {
     if (study.toLowerCase().includes("high impact")) {
@@ -50,100 +98,141 @@ function getStudyTypeFromStudy(study) {
     else if (study.toLowerCase().includes("largest cohort")) {
         return "largest cohort";
     }
-    return "";
+    return "all";
 }
 
 
-var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue) => {
- 
+var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue, refGen) => {
     var vcfParser = new VCFParser();
     var vcfFile = document.getElementById("files").files[0];
     var vcfObj;
-
-    $.get("study_table", { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
-
-        async (studyTableRows) => {
-            var tableObj = JSON.parse(studyTableRows);
-            var usefulSNPs = getSNPArray(tableObj); 
-            try{
+    $.ajax({
+        type: "GET",
+        url: "study_table",
+        data: { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
+        success: async function (studyTableRows) {
+            var tableObj = studyTableRows;
+            var usefulSNPs = getSNPArray(tableObj);
+            try {
                 vcfObj = await vcfParser.populateMap(vcfFile, extension, usefulSNPs);
-                //console.log(vcfObj); 
-                // What if it's empty?
-             } 
-             catch(err){
-                 $('#response').html(err);
-                 return;
-             }
-            var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
-            var outputVal = getResultOutput(result);
-            $('#response').html(outputVal);
-            resultJSON = result; 
-             
-            //sessionStorage.setItem("riskResults", result);
-        }, "html").fail(function (jqXHR) {
-            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-        });
+            }
+            catch (err) {
+                $('#response').html('There was an error computing the risk score:\n' + err);
+                return;
+            }
+            try {
+                var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
+                outputVal = getSimpleOutput(result)
+                $('#response').html(outputVal);
+                resultJSON = result;
+            }
+            catch (err) {
+                $('#response').html('There was an error computing the risk score:\n' + err);
+            }
+        },
+        error: function (XMLHttpRequest) {
+            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
+        }
+    });
 }
 
-function getSNPArray(tableObj){
-    var usefulSNPs = []; 
-    // var tableObj = [{'disease': 'ad', 'studiesRows': {'study': 'Lambert et al., 2013', 'rows': [
-    //     {'snp': 'rs6656401', 'riskAllele': 'A', 'pValue': 5.7e-24, 'oddsRatio': 1.18}, 
-    //     {'snp': 'rs11449', 'riskAllele': 'T', 'pValue': 6.9e-44, 'oddsRatio': 1.22}, 
-    //     {'snp': 'rs10948363', 'riskAllele': 'G', 'pValue': 5.2e-11, 'oddsRatio': 1.1}, 
-    //     {'snp': 'rs11771145', 'riskAllele': 'A', 'pValue': 1.1e-13, 'oddsRatio': 0.9}, 
-    //     {'snp': 'rs9331896', 'riskAllele': 'C', 'pValue': 2.8e-25, 'oddsRatio': 0.86}, 
-    //     {'snp': 'rs983392', 'riskAllele': 'G', 'pValue': 6.1e-16, 'oddsRatio': 0.9}, 
-    //     {'snp': 'rs10792832', 'riskAllele': 'A', 'pValue': 9.3e-26, 'oddsRatio': 0.87}, 
-    //     {'snp': 'rs4147929', 'riskAllele': 'A', 'pValue': 1.1e-15, 'oddsRatio': 1.15}, 
-    //     {'snp': 'rs3865444', 'riskAllele': 'A', 'pValue': 3e-06, 'oddsRatio': 0.94}, 
-    //     {'snp': 'rs9271192', 'riskAllele': 'C', 'pValue': 2.9e-12, 'oddsRatio': 1.11}, 
-    //     {'snp': 'rs28834970', 'riskAllele': 'C', 'pValue': 7.4e-14, 'oddsRatio': 1.1}, 
-    //     {'snp': 'rs11218343', 'riskAllele': 'C', 'pValue': 9.7e-15, 'oddsRatio': 0.77}, 
-    //     {'snp': 'rs10498633', 'riskAllele': 'T', 'pValue': 5.5e-09, 'oddsRatio': 0.91}, 
-    //     {'snp': 'rs8093731', 'riskAllele': 'T', 'pValue': 0.0001, 'oddsRatio': 0.73}, 
-    //     {'snp': 'rs35349669', 'riskAllele': 'T', 'pValue': 3.2e-08, 'oddsRatio': 1.08}, 
-    //     {'snp': 'rs190982', 'riskAllele': 'G', 'pValue': 3.2e-08, 'oddsRatio': 0.93}, 
-    //     {'snp': 's2718058', 'riskAllele': 'G', 'pValue': 4.8e-09, 'oddsRatio': 0.93}, 
-    //     {'snp': 'rs1476679', 'riskAllele': 'C', 'pValue': 5.6e-10, 'oddsRatio': 0.91}, 
-    //     {'snp': 'rs10838725', 'riskAllele': 'C', 'pValue': 1.1e-08, 'oddsRatio': 1.08}, 
-    //     {'snp': 'rs17125944', 'riskAllele': 'C', 'pValue': 7.9e-09, 'oddsRatio': 1.14}, 
-    //     {'snp': 'rs7274581', 'riskAllele': 'C', 'pValue': 2.5e-08, 'oddsRatio': 0.88}]}}]
-    for (var i = 0; i < tableObj.length; i +=1){
-        var rows = tableObj[i].studiesRows.rows; 
-        for (var j = 0; j < rows.length; j += 1){
-            usefulSNPs.push(rows[j].snp);
-        }
+/**
+ * Returns a simplified output using the given json. The json is truncated and converted to the correct format.
+ * Then, if a truncation occured, "Results preview:" is appended to the beginning and "..." is appended to the end.
+ * @param {*} resultJsonStr
+ */
+function getSimpleOutput(resultJsonStr) {
+    var simpleJsonStr = simplifyResultJson(resultJsonStr);
+    var simpleOutput = getResultOutput(simpleJsonStr)
+    if (simpleJsonStr != resultJsonStr) {
+        simpleOutput = "Results preview:\n" + simpleOutput + "\n...";
     }
-    console.log(usefulSNPs); 
-    return usefulSNPs;  
+    return simpleOutput;
+}
+
+/**
+ * Truncates the result to include the results for the first two individuals, including calculation info ("resultJsonObj[0]").
+ * @param {*} resultJsonStr the large resultJson to be truncated
+ */
+function simplifyResultJson(resultJsonStr) {
+    //TODO avoid having to parse again! -is there anyway to keep this in obj form instead of passing a string?
+    var resultJsonObj = JSON.parse(resultJsonStr);
+    //if the resultJson is already truncated, return it
+    if (resultJsonObj.size <= 3) {
+        return resultJsonStr;
+    }
+    //create a new array, add the first three objects from the resultJson, and return its string version
+    else {
+        var simpleResultObj = [];
+        for (var i = 0; i < 3; ++i) {
+            simpleResultObj.push(resultJsonObj[i]);
+        }
+        return JSON.stringify(simpleResultObj);
+    }
+}
+
+function getSNPArray(tableObj) {
+    var usefulSNPs = [];
+    // var tableObj = {'disease': 'ad', 'studiesRows': {'study': 'Lambert et al., 2013', 'rows': [
+    //     {'snp': 'rs6656401', 'riskAllele': 'A', 'pValue': 5.7e-24, 'oddsRatio': 1.18},
+    //     {'snp': 'rs11449', 'riskAllele': 'T', 'pValue': 6.9e-44, 'oddsRatio': 1.22},
+    //     {'snp': 'rs10948363', 'riskAllele': 'G', 'pValue': 5.2e-11, 'oddsRatio': 1.1},
+    //     {'snp': 'rs11771145', 'riskAllele': 'A', 'pValue': 1.1e-13, 'oddsRatio': 0.9},
+    //     {'snp': 'rs9331896', 'riskAllele': 'C', 'pValue': 2.8e-25, 'oddsRatio': 0.86},
+    //     {'snp': 'rs983392', 'riskAllele': 'G', 'pValue': 6.1e-16, 'oddsRatio': 0.9},
+    //     {'snp': 'rs10792832', 'riskAllele': 'A', 'pValue': 9.3e-26, 'oddsRatio': 0.87},
+    //     {'snp': 'rs4147929', 'riskAllele': 'A', 'pValue': 1.1e-15, 'oddsRatio': 1.15},
+    //     {'snp': 'rs3865444', 'riskAllele': 'A', 'pValue': 3e-06, 'oddsRatio': 0.94},
+    //     {'snp': 'rs9271192', 'riskAllele': 'C', 'pValue': 2.9e-12, 'oddsRatio': 1.11},
+    //     {'snp': 'rs28834970', 'riskAllele': 'C', 'pValue': 7.4e-14, 'oddsRatio': 1.1},
+    //     {'snp': 'rs11218343', 'riskAllele': 'C', 'pValue': 9.7e-15, 'oddsRatio': 0.77},
+    //     {'snp': 'rs10498633', 'riskAllele': 'T', 'pValue': 5.5e-09, 'oddsRatio': 0.91},
+    //     {'snp': 'rs8093731', 'riskAllele': 'T', 'pValue': 0.0001, 'oddsRatio': 0.73},
+    //     {'snp': 'rs35349669', 'riskAllele': 'T', 'pValue': 3.2e-08, 'oddsRatio': 1.08},
+    //     {'snp': 'rs190982', 'riskAllele': 'G', 'pValue': 3.2e-08, 'oddsRatio': 0.93},
+    //     {'snp': 's2718058', 'riskAllele': 'G', 'pValue': 4.8e-09, 'oddsRatio': 0.93},
+    //     {'snp': 'rs1476679', 'riskAllele': 'C', 'pValue': 5.6e-10, 'oddsRatio': 0.91},
+    //     {'snp': 'rs10838725', 'riskAllele': 'C', 'pValue': 1.1e-08, 'oddsRatio': 1.08},
+    //     {'snp': 'rs17125944', 'riskAllele': 'C', 'pValue': 7.9e-09, 'oddsRatio': 1.14},
+    //     {'snp': 'rs7274581', 'riskAllele': 'C', 'pValue': 2.5e-08, 'oddsRatio': 0.88}]}}
+    //TODO this needs to iterate over all entries of tableObj and studiesRows
+    var rows = tableObj[0].studiesRows[0].rows;
+    for (i = 0; i < rows.length; i += 1) {
+        usefulSNPs.push(rows[i].snp);
+    }
+    return usefulSNPs;
+
 }
 
 //API-reformating
-var ServerCalculateScore = async (vcfFile, diseaseArray, studyType, pValue) => {
+var ServerCalculateScore = async (vcfFile, diseaseArray, studyType, pValue, refGen) => {
     var fileContents = await readFile(vcfFile);
     if (!fileContents) {
         //if here, the vcf file was not read properly- shouldn't ever happen
         $('#response').html("Could not find file contents. Please double check the file you uploaded.");
         return;
     }
-    $.get("calculate_score", { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue },
-        function (data) {
+    $.ajax({
+        type: "GET",
+        url: "calculate_score",
+        data: { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
+        success: function (data) {
             //data contains the info received by going to "/calculate_score"
-            var outputVal = getResultOutput(data);
+            var outputVal = getSimpleOutput(data);
             $('#response').html(outputVal);
             //sessionStorage.setItem("riskResults", data);
-            resultJSON = data; 
-        }, "html").fail(function (jqXHR) {
-            $('#response').html('There was an error computing the risk score:&#13;&#10&#13;&#10' + jqXHR.responseText);
-        });
-
+            resultJSON = data;
+        },
+        error: function (XMLHttpRequest) {
+            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
+        }
+    });
 }
 
 /**
- * Returns an array containing just the disease, or if the disease is "all diseases", 
+ * Returns an array containing just the disease, or if the disease is "all diseases",
  * returns a list of all the diseases in the database
- * @param {*} disease 
+ * @param {*} disease
  */
 function makeDiseaseArray(disease) {
     if (disease.toLowerCase() == "all") {
@@ -155,23 +244,24 @@ function makeDiseaseArray(disease) {
 
 function formatText(jsonObject) {
     var returnText = "P Value Cutoff: " + jsonObject[0].pValueCutoff +
-        " &#13;&#10Total Variants In File: " + jsonObject[0].totalVariants + " ";
+        " \nTotal Variants in File: " + jsonObject[0].totalVariants + " ";
 
     //iterate through the list of people and print them each out seperately.
     for (var i = 0; i < jsonObject.length; ++i) {
         if (i == 0) {
             continue;
         }
-        returnText += "&#13;&#10Individual Name: " + jsonObject[i].individualName;
+        returnText += "\nIndividual Name: " + jsonObject[i].individualName;
         jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
-            returnText += " &#13;&#10  Disease: " + diseaseResult.disease;
+            returnText += " \n  Disease: " + diseaseResult.disease;
             diseaseResult.studyResults.forEach(function (studyResult) {
                 returnText +=
-                    " &#13;&#10    Study: " + studyResult.study +
-                    " &#13;&#10      Odds Ratio: " + studyResult.oddsRatio +
-                    " &#13;&#10      Percentile: " + studyResult.percentile +
-                    " &#13;&#10      # Variants In OR: " + studyResult.numVariantsIncluded +
-                    " &#13;&#10      Variants In OR: " + studyResult.variantsIncluded;
+                    " \n    Study: " + studyResult.study +
+                    " \n      Odds Ratio: " + studyResult.oddsRatio +
+                    " \n      Percentile: " + studyResult.percentile +
+                    " \n      # SNPs in OR: " + studyResult.numSNPsIncluded +
+                    " \n      Chrom Positions in OR: " + studyResult.chromPositionsIncluded +
+                    " \n      SNPs in OR: " + studyResult.snpsIncluded;
             });
         });
     }
@@ -181,7 +271,7 @@ function formatText(jsonObject) {
 
 function formatCSV(jsonObject) {
     //Look for a csv writer npm module
-    var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # Variants in OR, Variants in OR";
+    var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
 
     for (var i = 0; i < jsonObject.length; ++i) {
         if (i == 0) {
@@ -192,13 +282,14 @@ function formatCSV(jsonObject) {
 
             diseaseResult.studyResults.forEach(function (studyResult) {
                 returnText +=
-                    "&#13;&#10" + jsonObject[i].individualName +
+                    "\n" + jsonObject[i].individualName +
                     "," + diseaseResult.disease +
                     "," + studyResult.study +
                     "," + studyResult.oddsRatio +
                     "," + studyResult.percentile +
-                    "," + studyResult.numVariantsIncluded +
-                    "," + studyResult.variantsIncluded;
+                    "," + studyResult.numSNPsIncluded +
+                    "," + studyResult.chromPositionsIncluded +
+                    "," + studyResult.snpsIncluded;
             });
         });
     }
@@ -214,63 +305,89 @@ function changeFormat() {
 
     // var data = sessionStorage.getItem("riskResults");
     // setResultOutput(data);
-    if (!resultJSON){
+    if (!resultJSON) {
         return;
     }
-    var outputVal = getResultOutput(resultJSON); 
+    var outputVal = getSimpleOutput(resultJSON);
     $('#response').html(outputVal);
 }
 
 function getResultOutput(data) {
-    var jsonObject = JSON.parse(data);
-    var outputVal = "";
-    var formatDropdown = document.getElementById("fileType");
-    var format = formatDropdown.options[formatDropdown.selectedIndex].value;
+    if (data == undefined || data == "") {
+        return "";
+    }
+    else {
+        var jsonObject = JSON.parse(data);
+        var outputVal = "";
+        var formatDropdown = document.getElementById("fileType");
+        var format = formatDropdown.options[formatDropdown.selectedIndex].value;
 
-    if (format === "text")
-        outputVal += formatText(jsonObject);
-    else if (format === "csv")
-        outputVal += formatCSV(jsonObject);
-    else if (format === "json")
-        outputVal += data;
-    else
-        outputVal += "Please select a valid format."
-
-    //$('#response').html(outputVal);
-    return outputVal; 
+        if (format === "text")
+            outputVal += formatText(jsonObject);
+        else if (format === "csv")
+            outputVal += formatCSV(jsonObject);
+        else if (format === "json")
+            outputVal += data;
+        else
+            outputVal += "Please select a valid format."
+        return outputVal;
+    }
 }
 
 function downloadResults() {
     //var resultText = document.getElementById("response").value;
-    var resultText = getResultOutput(resultJSON); 
+    var resultText = getResultOutput(resultJSON);
     var formatDropdown = document.getElementById("fileType");
     var format = formatDropdown.options[formatDropdown.selectedIndex].value;
-    // $.post("/download_results", {resultText : resultText, fileFormat : format},
-    // function(){
-    //     //Not sure what this function needs to do right now...
-    // })
+    //TODO better name?
     var fileName = "polyscore_" + getRandomInt(100000000);
+    var extension = "";
     if (format === "csv") {
-        fileName += ".csv";
+        extension = ".csv";
     }
     else {
-        fileName += ".txt";
+        extension = ".txt";
     }
-    download(fileName, resultText);
+    download(fileName, extension, resultText);
 }
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
+/**
+ * This code was found here https://jsfiddle.net/ali_soltani/zsyn04qw/3/
+ * Creates an invisible element on the page that contains the string to be downloaded.
+ * Once the element is downloaded, it is removed. May have a size limit- not sure what it is yet.
+ * @param {*} filename
+ * @param {*} text
+ */
+function download(filename, extension, text) {
+    var zip = new JSZip();
+    zip.file(filename + extension, text);
+    zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: {
+            //TODO let the user know that they've downloaded the file while they are waiting
+            /* compression level ranges from 1 (best speed) to 9 (best compression) */
+            level: 9
+        }
+    })
+        .then(function (content) {
+            // see FileSaver.js
+            saveAs(content, filename + ".zip");
+        });
 
+    var element = document.createElement('a');
+
+    var dataBlob = new Blob([text], { type: "text/plain" });
+    var objUrl = URL.createObjectURL(dataBlob);
+
+    element.href = objUrl;
+    element.download = filename;
     element.style.display = 'none';
     document.body.appendChild(element);
-
     element.click();
 
     document.body.removeChild(element);
@@ -308,6 +425,4 @@ function exampleOutput() {
         result2 = xmlhttp2.responseText;
     }
     document.getElementById('response').value = (result2);
-
-
 }
