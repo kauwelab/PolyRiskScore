@@ -169,7 +169,6 @@ function simplifyResultJson(resultJsonStr) {
         }
         return JSON.stringify(simpleResultObj);
     }
-
 }
 
 function getSNPArray(tableObj) {
@@ -202,6 +201,7 @@ function getSNPArray(tableObj) {
         usefulSNPs.push(rows[i].snp);
     }
     return usefulSNPs;
+
 }
 
 //API-reformating
