@@ -7,6 +7,7 @@ $("#file").on("change", function (evt) {
 
     // Closure to capture the file information.
     function handleFile(f) {
+        //var handleFile = async (f) => {
         var $title = $("<h4>", {
             text: f.name
         });
@@ -23,8 +24,15 @@ $("#file").on("change", function (evt) {
                     text: " (loaded in " + (dateAfter - dateBefore) + "ms)"
                 }));
 
+                debugger;
                 zip.forEach(function (relativePath, zipEntry) {  // 2) print entries
-                    readZipContent(relativePath)
+                    //readZipContent(relativePath)
+                    zip.files[relativePath].async('blob').then(function (blob) {
+                        var fileContents = blob.text();
+                        fileContents.then(function(result) {
+                            console.log(result);
+                        });
+                    });
                     $fileContent.append($("<li>", {
                         text: zipEntry.name
                     }));
@@ -51,7 +59,7 @@ function readZipContent(relativePath) {
         }
 
         JSZip.loadAsync(data).then(function () {
-            // ...
+            console.log(data);
         });
     });
 

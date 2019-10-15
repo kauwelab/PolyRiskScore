@@ -383,9 +383,12 @@ async function getRows(pValue, refGen, study, table) {
     tableRows.push(table.findAll({
         attributes: ['chromosome', refGen, 'snp', 'riskAllele', 'pValue', 'oddsRatio'],
         where: {
+            //TODO
+            /*
             pValue: {
                 [Op.lt]: pValue
             },
+            */
             study: study,
         }
     }));

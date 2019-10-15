@@ -19,6 +19,10 @@ var calculatePolyScore = async () => {
             $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
             return;
         }
+        if (extension == "zip" | extension == "gzip") {
+            var fileContents = await getZipText(vcfFile);
+            vcfFile = new File([fileContents], "temp.vcf")
+        }
         // get value of selected 'pvalue' radio button in 'radioButtons'
         var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
         //gets the disease name from the drop down list
@@ -44,7 +48,7 @@ var calculatePolyScore = async () => {
         }
         canCalculate = false;
         toggleCalculateButton(false);
-        if (fileSize < 1500000 || extension === "gz" || extension === "zip") {
+        if (fileSize < 1500000) {
 
             ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue, refGen);
             return
