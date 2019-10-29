@@ -49,7 +49,7 @@
 
 .one {
     width: 100%;
-    height: 50vw;
+    height: 25vw;
     overflow: hidden;
     margin-bottom: 0px;
     position: relative;
@@ -67,9 +67,9 @@
     position: relative;
 }
 /* Default hide the video on all devices */
-#video2{display:none}
+#video2{display:none;}
 /* Default display the image to replace the video on all devices */
-#videosubstitute{display:block;width:100%;height:auto;max-width:100%;z-index: -1}
+#videosubstitute{display:block;width:100%;height:50%;max-width:100%;z-index: -1}
 /* Medium Devices, Desktops */
 
 .forDesktop{display: none}
