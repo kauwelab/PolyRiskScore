@@ -55,12 +55,12 @@ var calculatePolyScore = async () => {
             var snpsObj = new Map();
             arrayOfInputtedSnps.forEach(function(snp) {
                 snpArray = snp.split(':');
-                if (snpArray.size < 2){
+                if (snpArray.length < 2){
                     snpsObj.set(snpArray[0], [])
                 }
                 else {
                     var alleles = snpArray[1].split("");
-                    if (alleles.size > 2){
+                    if (alleles.length > 2){
                         //THIS SHOULDN'T HAPPEN! THROW AN ERROR OR SOMETHING
                         //AND GET THE HECK OUT --Maddy
                     }
@@ -159,7 +159,8 @@ var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyType, pVa
             })
 
             try {
-                var result = handleTextInput.calculateScore(tableObj, textSnpsMatched, pValue);
+                debugger;
+                var result = sharedCode.calculateScoreFromText(tableObj, textSnpsMatched, pValue);
                 outputVal = getSimpleOutput(result)
                 $('#response').html(outputVal);
                 resultJSON = result;
