@@ -144,7 +144,7 @@
 
                 <div class="form-text font-weight-bold">
 
-                  <textarea readonly rows="10" cols="100" class="form-control nowrap" id="input" name="input"
+                  <textarea rows="10" cols="100" class="form-control nowrap" id="input" name="input"
                     placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
                   <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
                     message.</span>
@@ -155,26 +155,35 @@
                 <input type="submit" value="upload" />
               </form>-->
 
+              <!--Code for this found at link: http://jsfiddle.net/jworboys/rUbr9/ -->
+              <form>
+                <div class="mx-button">
+                  <input type="radio" name='mx' id="textInputButton" checked onclick="clickTextInput()">
+                  <label for="textInputButton" unselectable>Text Input</label>
+                </div>
+                <div class="mx-button">
+                    <input type="radio" name='mx' id="fileUploadButton" onclick="clickFileUpload()">
+                    <label for="fileUploadButton" unselectable>File Upload</label>
+                  </div>
+              </form>
+              <!--End of code from above link-->
+              
+              <div class="text-black-50 float-right">
+                <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
+              </div>
+              <br>
+              <br>
               <form class="md-form" id="file-form">
                 <div class="file-field">
-                  <div class="btn btn-secondary btn-sm float-right btn-light">
+                  <div class="btn btn-secondary btn-sm float-left btn-light">
                     <input type="file" id="files" name="file" />
-
-
-
                     <script src="js/handleFileSelect.js"></script>
-
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
-
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>
                 </div>
               </form>
-              <div class="text-black-50 float-left">
-                <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
-
-              </div>
 
               <p>&nbsp;</p>
               <script src="js/sliderFunctions.js"></script>
@@ -203,6 +212,8 @@
 
                             slider.oninput = function() {
                               output.innerHTML = this.value;
+                              resetOutput() 
+                              $('#response').html("");
                             }
                           </script>
                           <p>&nbsp;</p>

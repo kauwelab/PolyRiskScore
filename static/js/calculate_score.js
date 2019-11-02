@@ -504,8 +504,8 @@ function clickTextInput() {
     textInput.removeAttribute('readonly');
 }
 
-// function selectVCF() {
-//     var textInput = document.getElementById('input');
-//     textInput.value = '';
-//     textInput.setAttribute('readonly');
-// }
+function clickFileUpload() {
+    var textInput = document.getElementById('input');
+    textInput.value = null;
+    textInput.setAttribute('readonly', 'readonly');
+}
