@@ -118,7 +118,7 @@ exports.calculateScoreFromText = function (tableObj, textSnps, pValue) {
     }
     else {
         //push information about the calculation to the result
-        resultJsons.push({ pValueCutoff: pValue, totalVariants: textSnps.length })
+        resultJsons.push({ pValueCutoff: pValue, totalVariants: textSnps.size })
         //for each individual and each disease and each study in each disease and each snp of each individual, 
         //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
         //TODO change snpMap name to snpEntry or some equivalent name
@@ -131,35 +131,42 @@ exports.calculateScoreFromText = function (tableObj, textSnps, pValue) {
                 var ORs = []
                 var snpsIncluded = [];
                 var chromPositionsIncluded = []
-                console.log('YOU ARE HERE!')
-                textSnps.forEach(function (key, value) { //don't know if this will work for the map. 
+                textSnps.forEach(function (value, key) {
                     studyEntry.rows.forEach(function (tableRow) {
                         if (tableRow.snp === key) {
-                            console.log("inside the calculation. mwahahahaha")
-                            switch(value.size){
+                            switch(value.length){
                                 case 2:
-                                    if (value[1] === tableRow.riskAllele) { //is this going to matter about order?
+                                    if (value[0] === tableRow.riskAllele) {
                                         ORs.push(tableRow.oddsRatio);
                                         snpsIncluded.push(tableRow.snp);
                                         chromPositionsIncluded.push(tableRow.pos);
                                     }
+                                    if (value[1] === tableRow.riskAllele) {
+                                        ORs.push(tableRow.oddsRatio);
+                                        snpsIncluded.push(tableRow.snp);
+                                        chromPositionsIncluded.push(tableRow.pos);
+                                    }
+                                    break;
                                 case 1:
                                     if (value[0] === tableRow.riskAllele) {
                                         ORs.push(tableRow.oddsRatio);
                                         snpsIncluded.push(tableRow.snp);
                                         chromPositionsIncluded.push(tableRow.pos);
                                     }
+                                    ORs.push(tableRow.oddsRatio);
+                                    snpsIncluded.push(tableRow.snp);
+                                    chromPositionsIncluded.push(tableRow.pos);
                                     break;
                                 default:
                                     ORs.push(tableRow.oddsRatio);
                                     snpsIncluded.push(tableRow.snp);
                                     chromPositionsIncluded.push(tableRow.pos);
-                                    //--------------------------------------//
+
                                     ORs.push(tableRow.oddsRatio);
                                     snpsIncluded.push(tableRow.snp);
                                     chromPositionsIncluded.push(tableRow.pos);
+                                    break;
                             }
-                            //break;
                         }
                     })
                 });

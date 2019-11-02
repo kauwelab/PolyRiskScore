@@ -159,7 +159,6 @@ var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyType, pVa
             })
 
             try {
-                debugger;
                 var result = sharedCode.calculateScoreFromText(tableObj, textSnpsMatched, pValue);
                 outputVal = getSimpleOutput(result)
                 $('#response').html(outputVal);
@@ -321,7 +320,7 @@ function formatText(jsonObject) {
 
     //iterate through the list of people and print them each out seperately.
     for (var i = 0; i < jsonObject.length; ++i) {
-        if (i == 0) {
+        if (i == 0 || !jsonObject[i]) {
             continue;
         }
         returnText += "\nIndividual Name: " + jsonObject[i].individualName;
@@ -338,7 +337,6 @@ function formatText(jsonObject) {
             });
         });
     }
-
     return returnText;
 }
 
