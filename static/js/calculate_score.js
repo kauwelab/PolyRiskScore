@@ -3,6 +3,8 @@ var canCalculate = true;
 var validExtensions = ["vcf", "gzip", "zip"]
 
 var calculatePolyScore = async () => {
+    document.getElementById('resultsDisplay').style.display = 'block';
+
     if (canCalculate) {
         //user feedback while they are waiting for their score
         $('#response').html("Calculating. Please wait...")
@@ -46,7 +48,7 @@ var calculatePolyScore = async () => {
             var textArea = document.getElementById('input');
 
             if (!textArea.value) {
-                $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
+                $('#response').html("Please input an rs id accoding to the procedures above or import a vcf file using the \"Choose File\" button above.");
                 return;
             }
 
@@ -502,10 +504,14 @@ function clickTextInput() {
     var textInput = document.getElementById('input');
     textInput.value = null;
     textInput.removeAttribute('readonly');
+    var browseButton = document.getElementById('file-form');
+    browseButton.style.visibility = 'hidden';
 }
 
 function clickFileUpload() {
     var textInput = document.getElementById('input');
     textInput.value = null;
     textInput.setAttribute('readonly', 'readonly');
+    var browseButton = document.getElementById('file-form');
+    browseButton.style.visibility = 'visible';
 }

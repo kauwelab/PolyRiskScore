@@ -124,7 +124,7 @@ function printFileEnds(file, sizeToPrint) {
         }
         //print both chunks
         else {
-            $('#input').html(output);
+            document.getElementById('input').value = output;
             return;
         }
     }
