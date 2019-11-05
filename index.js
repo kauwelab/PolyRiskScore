@@ -9,13 +9,31 @@ const Sequelize = require('sequelize');
 const multer = require('multer');
 const del = require('del');
 const fsExtra = require('fs-extra');
+var mysql = require('mysql')
 //the shared code module between the browser and server
 const sharedCode = require('./static/js/sharedCode')
 
 //Define the port for app to listen on
 const port = 3000
 
-// Configure multer functionality
+//Test code for MySQL
+var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "H3e6r2m1tC99r4b5c32rr56t25",
+    database: "polyscore"
+  });
+  
+  con.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected to MySQL!");
+    con.query("SELECT * FROM ad WHERE snp = 'rs6656401'", function (err, result, fields) {
+        if (err) throw err;
+        //console.log(result);
+      });
+  });
+
+// Configure multer functionalitys
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads')
@@ -210,6 +228,9 @@ app.get('/calculate_score/', async function (req, res) {
     var pValue = req.query.pValue;
     var refGen = req.query.refGen;
     var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray);
+    pika = JSON.stringify(tableObj)
+    console.log("PIKA PIKA")
+    console.log(pika)
     try {
         var jsons = sharedCode.calculateScore(tableObj, vcfObj, pValue)
         res.send(jsons);
@@ -240,6 +261,7 @@ app.get('/study_table/', async function (req, res) {
     var refGen = req.query.refGen;
 
     var diseaseRows = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
+    
     res.send(diseaseRows);
 });
 
@@ -251,13 +273,13 @@ app.get('/study_table/', async function (req, res) {
  */
 async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
     // config for the database
-    const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
-        //const sequelize = new Sequelize('PolyScore', 'SA', 'Constitution1787', {
+    // const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+    const sequelize = new Sequelize('polyscore', 'root', 'H3e6r2m1tC99r4b5c32rr56t25', {
         host: 'localhost',
-        dialect: 'mssql',
-        define: {
-            schema: "dbo"
-        },
+        dialect: 'mysql',
+        // define: {
+        //     schema: "ad"
+        // },
         pool: {
             max: 5,
             min: 0,
@@ -290,40 +312,51 @@ async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
     for (var i = 0; i < diseaseStudyMapArray.length; ++i) {
         var disease = diseaseStudyMapArray[i].disease;
         var studiesArray = diseaseStudyMapArray[i].studies;
-        const Model = Sequelize.Model;
-        class Table extends Model { }
-        Table.init({
+        console.log(studiesArray); 
+        //const Model = Sequelize.Model;
+        //class Table extends Model { }
+        //Table.init({
             // attributes
-            chromosome: {
-                type: Sequelize.FLOAT,
-                allowNull: false,
-            },
-            hg38: {
-                type: Sequelize.FLOAT,
-                allowNull: true,
-            },
-            hg19: {
-                type: Sequelize.FLOAT,
-                allowNull: true,
-            },
-            hg18: {
-                type: Sequelize.FLOAT,
-                allowNull: true,
-            },
-            hg17: {
-                type: Sequelize.FLOAT,
-                allowNull: true,
-            },
+            //id smallint unsigned not null, snp varchar(20), chromosome tinyint,  
+            //hg38 int, hg19 int, hg18 int, hg17 int, alleleFrequency float, 
+            //riskAllele varchar(20), pValue double, oddsRatio float, 
+            //lowerCI float, upperCI float, study varchar(50)
+            //SHOULD DISEASE ALWAYS BE THE RIGHT TABLE NAME?
+        diseaseData = sequelize.define( disease, {
             snp: {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
+            chromosome: {
+                type: Sequelize.TINYINT,
+                allowNull: false,
+            },
+            hg38: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            hg19: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            hg18: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            hg17: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            alleleFrequency: {
+                type: Sequelize.FLOAT,
+                allowNull: true,
+            },
             riskAllele: {
-                type: Sequelize.CHAR,
-                allowNull: false
+                type: Sequelize.STRING,
+                allowNull: false,
             },
             pValue: {
-                type: Sequelize.FLOAT,
+                type: Sequelize.DOUBLE,
                 allowNull: false
             },
             oddsRatio: {
@@ -336,7 +369,7 @@ async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
             }
         }, {
             sequelize,
-            modelName: diseaseEnum[disease.toLowerCase()],
+            // modelName: diseaseEnum[disease.toLowerCase()],
             name: {
                 primaryKey: true,
                 type: Sequelize.STRING
@@ -345,7 +378,7 @@ async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
             timestamps: false,
             // options
         });
-        var studiesRows = await getStudiesRows(pValue, refGen, studiesArray, Table)
+        var studiesRows = await getStudiesRows(pValue, refGen, studiesArray, diseaseData)
         diseaseRows.push({ disease: disease, studiesRows: studiesRows })
     }
     return diseaseRows;
