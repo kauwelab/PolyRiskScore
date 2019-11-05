@@ -209,7 +209,7 @@ app.get('/calculate_score/', async function (req, res) {
     var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(req.query.diseaseArray, req.query.studyType);
     var pValue = req.query.pValue;
     var refGen = req.query.refGen;
-    var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray);
+    var tableObj = JSON.parse("[{\"disease\":\"als\",\"studiesRows\":[{\"study\":\"Ahmeti KB 2012\",\"rows\":[{\"pos\":\"18:25531891\",\"snp\":\"rs11082762\",\"riskAllele\":\"A\",\"pValue\":7e-7,\"oddsRatio\":1.16},{\"pos\":\"19:17780880\",\"snp\":\"rs12608932\",\"riskAllele\":\"C\",\"pValue\":5e-8,\"oddsRatio\":1.37},{\"pos\":\"15:72496745\",\"snp\":\"rs1971791\",\"riskAllele\":\"G\",\"pValue\":0.000001,\"oddsRatio\":1.26},{\"pos\":\"2:218972341\",\"snp\":\"rs2303565\",\"riskAllele\":\"C\",\"pValue\":6e-7,\"oddsRatio\":1.17},{\"pos\":\"9:27553283\",\"snp\":\"rs3849942\",\"riskAllele\":\"A\",\"pValue\":4e-7,\"oddsRatio\":1.21},{\"pos\":\"8:141971128\",\"snp\":\"rs4917300\",\"riskAllele\":\"T\",\"pValue\":0.000002,\"oddsRatio\":1.27},{\"pos\":\"17:16401977\",\"snp\":\"rs7477\",\"riskAllele\":\"T\",\"pValue\":3e-7,\"oddsRatio\":1.3},{\"pos\":\"2:218706129\",\"snp\":\"rs7607369\",\"riskAllele\":\"A\",\"pValue\":0.000007,\"oddsRatio\":1.15},{\"pos\":\"16:86501641\",\"snp\":\"rs8056742\",\"riskAllele\":\"C\",\"pValue\":5e-7,\"oddsRatio\":1.27},{\"pos\":\"13:45336038\",\"snp\":\"rs9533799\",\"riskAllele\":\"A\",\"pValue\":0.000004,\"oddsRatio\":1.17}]}]}]") //await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray);
     try {
         var jsons = sharedCode.calculateScore(tableObj, vcfObj, pValue)
         res.send(jsons);
@@ -239,7 +239,7 @@ app.get('/study_table/', async function (req, res) {
     var pValue = req.query.pValue;
     var refGen = req.query.refGen;
 
-    var diseaseRows = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
+    var diseaseRows = JSON.parse("[{\"disease\":\"als\",\"studiesRows\":[{\"study\":\"Ahmeti KB 2012\",\"rows\":[{\"pos\":\"18:25531891\",\"snp\":\"rs11082762\",\"riskAllele\":\"A\",\"pValue\":7e-7,\"oddsRatio\":1.16},{\"pos\":\"19:17780880\",\"snp\":\"rs12608932\",\"riskAllele\":\"C\",\"pValue\":5e-8,\"oddsRatio\":1.37},{\"pos\":\"15:72496745\",\"snp\":\"rs1971791\",\"riskAllele\":\"G\",\"pValue\":0.000001,\"oddsRatio\":1.26},{\"pos\":\"2:218972341\",\"snp\":\"rs2303565\",\"riskAllele\":\"C\",\"pValue\":6e-7,\"oddsRatio\":1.17},{\"pos\":\"9:27553283\",\"snp\":\"rs3849942\",\"riskAllele\":\"A\",\"pValue\":4e-7,\"oddsRatio\":1.21},{\"pos\":\"8:141971128\",\"snp\":\"rs4917300\",\"riskAllele\":\"T\",\"pValue\":0.000002,\"oddsRatio\":1.27},{\"pos\":\"17:16401977\",\"snp\":\"rs7477\",\"riskAllele\":\"T\",\"pValue\":3e-7,\"oddsRatio\":1.3},{\"pos\":\"2:218706129\",\"snp\":\"rs7607369\",\"riskAllele\":\"A\",\"pValue\":0.000007,\"oddsRatio\":1.15},{\"pos\":\"16:86501641\",\"snp\":\"rs8056742\",\"riskAllele\":\"C\",\"pValue\":5e-7,\"oddsRatio\":1.27},{\"pos\":\"13:45336038\",\"snp\":\"rs9533799\",\"riskAllele\":\"A\",\"pValue\":0.000004,\"oddsRatio\":1.17}]}]}]") //await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
     res.send(diseaseRows);
 });
 
