@@ -41,6 +41,11 @@
   box-sizing: border-box;
 }
 
+/*this is code we added*/
+.inline-flex-parent {
+  display: inline-flex;
+}
+/******/
 
 .one {
     width: 100%;
@@ -892,6 +897,45 @@ pre code {
 
 .offset-11 {
   margin-left: 91.666667%;
+}
+
+.slidercontainer {
+  width: 75%;
+}
+
+.slider { 
+  -webkit-appearance: none;
+  width: 75%;
+  height: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #007bff;
+  border: #fff;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #007bff;
+  border: #fff;
+  cursor: pointer;
 }
 
 @media (min-width: 576px) {
@@ -1993,7 +2037,7 @@ pre code {
 }
 
 .form-control:disabled, .form-control[readonly] {
-  background-color: #e9ecef;
+  background-color: #fff; 
   opacity: 1;
 }
 

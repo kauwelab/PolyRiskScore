@@ -9,6 +9,23 @@
     <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
   </head>
+  <style>
+    #diseasePredictionPanel {
+    display: none;
+    }
+    #screeningPanel {
+    display: none;
+    }
+    #filterPanel {
+    display: none;
+    }
+    #mdsPanel {
+    display: none;
+    }
+    #inferPanel {
+    display: none;
+    }
+  </style>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <a class="navbar-brand" href="#">Learn More</a>
@@ -68,13 +85,29 @@
           <div class="row">
             <div class="col-lg-12 mb-4 mt-2 text-center">
         <h2>Using a Polygenic Risk Score</h2><br>
+        <script src="js/learn_more.js"></script>
         <p class="text-center">
             <ul class="prsList" style="text-align: left">
-              <li class="listItems" style="font-size: 1.5em"><a href="#">Disease prediction</a></li>
-              <li class="listItems" style="font-size: 1.5em"><a href="#">Clinical trial screening</a></li>
-              <li class="listItems" style="font-size: 1.5em"><a href="#">Additional filtering in genome-wide association studies</a></li>
-              <li class="listItems" style="font-size: 1.5em"><a href="#">Mendelian Randomization studies</a></li>
-              <li class="listItems" style="font-size: 1.5em"><a href="#">Infer disease status in cohorts lacking phenotypic data</a></li>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')">Disease prediction</li>
+              <div id="diseasePredictionPanel">
+                <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')">Clinical trial screening</li>
+              <div id="screeningPanel">
+                  <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
+                </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')"><a href="#">Additional filtering in genome-wide association studies</a></li>
+              <div id="filterPanel">
+                  <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
+                </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')"><a href="#">Mendelian Randomization studies</a></li>
+              <div id="mdsPanel">
+                  <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
+                </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')"><a href="#">Infer disease status in cohorts lacking phenotypic data</a></li>
+              <div id="inferPanel">
+                  <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
+                </div>
             </ul>
           </p>
             </div>
