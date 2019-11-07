@@ -125,6 +125,7 @@ function printFileEnds(file, sizeToPrint) {
         //print both chunks
         else {
             document.getElementById('input').value = output;
+            document.getElementById('uploadText').value = output;
             return;
         }
     }

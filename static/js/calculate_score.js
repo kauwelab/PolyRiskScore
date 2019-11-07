@@ -467,6 +467,7 @@ function download(filename, extension, text) {
 }
 
 function exampleInput() {
+    document.getElementById('fileUploadButton').click();
     var result = null;
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "ad_test.vcf", false);
@@ -514,4 +515,8 @@ function clickFileUpload() {
     textInput.setAttribute('readonly', 'readonly');
     var browseButton = document.getElementById('file-form');
     browseButton.style.visibility = 'visible';
+    var previousFileText = document.getElementById('uploadText');
+    if (previousFileText.value !== "") {
+        document.getElementById('input').value = previousFileText.value;
+    }
 }
