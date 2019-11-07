@@ -9,8 +9,12 @@ const Sequelize = require('sequelize');
 const multer = require('multer');
 const del = require('del');
 const fsExtra = require('fs-extra');
+
+const mysql = require('mysql')
+
 //the shared code module between the browser and server
 const sharedCode = require('./static/js/sharedCode')
+
 
 //Define the port for app to listen on
 const port = 3000
@@ -275,6 +279,207 @@ async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
             return diseaseRows;
         });
 }
+
+app.get('/get_studies/', function (req, res){
+    
+    var studyObject0 = {reference: "number 1", articleName: "john", URL: "https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string"}
+    var studyObject1 = {reference: "number 2", articleName: "jacob", URL: "https://www.google.com/search?q=object.pluralize&rlz=1C1XYJR_enUS815US815&oq=object.pluralize&aqs=chrome..69i57.4710j0j7&sourceid=chrome&ie=UTF-8"}
+    var studyObject2 = {reference: "number 3", articleName: "jingle", URL: "http://docs.sequelizejs.com/manual/getting-started.html"}
+    var studyObject3 = {reference: "number 4", articleName: "heimer", URL: "http://docs.sequelizejs.com/manual/getting-started.html"}
+    var studiesArray = []
+    studiesArray.push(studyObject0)
+    studiesArray.push(studyObject1)
+    studiesArray.push(studyObject2)
+    studiesArray.push(studyObject3)
+    
+
+    const sequelize = new Sequelize('studies', 'root', 'Petersme1', {
+        host: 'localhost',
+        dialect: 'mysql',
+        dialectOptions:{
+            insecureAuth: true},
+        logging: false
+    })
+
+    sequelize
+    .authenticate()
+    .then(() => {
+        console.log('connection is up and running')
+
+    })
+    .catch(err => {
+        console.error('nope, that didnt work', err)
+    });
+
+    const Model = Sequelize.Model;
+    class Studies extends Model {}
+    Studies.init({
+        reference: {
+            type: Sequelize.STRING
+        },
+        articleName: {
+            type: Sequelize.STRING
+        },
+        URL: {
+            type: Sequelize.STRING
+        },
+        studyID: {
+            type: Sequelize.INTEGER
+        }
+    }, {
+        sequelize, 
+        modelName: 'Studies',
+        freezeTableName: true,
+        timestamps: false
+    });
+// the find all returns an array, so creat three seperate arrays of references, names, and URLs and then 
+// loop through those to create your study objects and then send those back to the client.
+var tempReference = Studies.findAll({
+    attributes: ['reference']
+})
+var tempArticleNames = Studies.findAll({
+    attributes: ['articleName']
+})
+var tempURL = Studies.findAll({
+    attributes: ['URL']
+})
+
+for (var i = 0; i < tempReference.length; ++i) {
+    var studyObject = {reference: tempReference[i], articleName: tempArticleNames[i], URL: tempURL[i]}
+    studiesArray.push(studyObject)
+}
+   /* for (var i = 0; i <.length; ++i) {
+        var tempReference = Studies.findAll({
+            attributes: ['reference'],
+            where: {
+                studyID: i
+            }
+        })
+        var tempArticleName = Studies.findAll({
+            attributes: ['articleName'],
+            where: {
+                studyID: i
+            }
+        })
+        var tempURL = Studies.findAll({
+            attributes: ['URL'],
+            where: {
+                studyID: i
+            }
+        })
+        var studyObject = {tempReference, tempArticleName, tempURL}
+        studiesArray.push(studyObject)
+    }*/
+    
+
+
+
+    res.send(studiesArray)
+
+    
+    /*const sequelize = new Sequelize('PolyScore', 'joepete2', 'Petersme1', {
+        host: 'localhost',
+        port: 1434,
+        dialect: 'mssql',
+        define: {
+            schema: "dbo"
+        },
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        }
+    });
+
+    
+    sequelize
+    .authenticate()
+    .then(() => {
+        console.log('connection is good to go')
+        const Model = Sequelize.Model;
+        class Studies extends Model { }
+        Studies.init({
+            // attributes
+            reference: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            studyName: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            disease: {
+                type: Sequelize.STRING,
+                allowNull: false
+            },
+            datePublished: {
+                type: Sequelize.STRING,
+                allowNull: false
+            },
+            studyID: {
+                type: Sequelize.INTEGER,
+                allowNull: false
+            },
+            author: {
+                type: Sequelize.STRING,
+                allowNull: false
+            },
+            URL: {
+                type: Sequelize.STRING,
+                allowNull: false}
+            }, {
+            sequelize,
+            modelName: 'Studies',
+            name: {
+                primaryKey: true,
+                type: Sequelize.STRING
+            },
+            freezeTableName: true,
+            timestamps: false,
+            logging: false
+            // options
+        }); 
+        
+        var studiesArray = [];
+        for (var i = 0; i < Studies.length(); i++) {
+            var studyName = studiesArray.findAll({
+                attributes: ['studyName'], 
+                where: {
+                    studyID: i
+                }
+            })
+            console.log(studyName)
+            var reference = studiesArray.findAll({
+                attributes: ['reference'], 
+                where: {
+                    studyID: i
+                }
+            })
+            console.log(reference)
+            var URL = studiesArray.findAll({
+                attributes: ['URL'], 
+                where: {
+                    studyID: i
+                }
+            })
+            console.log(URL)
+            var studyObject = {reference: reference, studyName: studyName, URL: URL}
+            studiesArray.push(studyObject);
+        }
+        //JSON.stringify(studiesArray);
+        debugger;
+       // return Promise.all(studiesArray).then(studyObjects => {
+            console.log(studiesArray);
+            res.send(studiesArray);
+       // });
+        
+
+    })
+    .catch(err => {
+        console.error("that wasnt right...", err);
+    }); */
+});
 
 /**
  * Returns a list of objects, each of which contains a disease name from the diseaseStudyMapArray 
