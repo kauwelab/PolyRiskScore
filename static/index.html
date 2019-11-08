@@ -30,7 +30,7 @@
 		  </nav>
    	 <section>	
 			
-      <header>
+      <!-- <header>
 	      <div class="one">
           <div class="text-center">
 	          <img src="images/PRSKBBannertest.png" id="videosubstitute" alt="" >
@@ -43,19 +43,24 @@
             <h1 class="display-1 font-weight-bold "><br>Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
           </div>
 	      </div>
-      </header>	  
+      </header>	   -->
 		 </section>	
   
     <header>
-      <div class="jumbotron"> <!-- style="background-image: url('images/Ollie.jpg')">-->
+      <div class="jumbotron"> <!--style="background-image: url('images/Ollie.jpg')"> -->
 		  <h1 class="forMobile font-weight-bold text-center">Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
         <div class="container">
           <div class="row">
             <div class="col-12">
               <!--<h1 class="text-center">The Polygenic Risk Score Knowledge Base</h1>-->
-				<h1 class="forDesktop text-center font-weight-bold">What is the PRS Knowledge Base?</h1>
-              <h5 class="text-justify"><br>The purpose of the PRS Knowledge Base is to allow researchers to quickly calculate polygenic risk scores for various diseases based on published genome-wide association studies (GWAS).<br><br>The PRS Knowledge Base also facilitates the use and distribution of GWAS results by allowing researchers to upload results from their own studies to be included in future polygenic risk score calculations. </h5>
-              <p>&nbsp;</p>
+				<h1 class="forDesktop text-left font-weight-bold">What is the PRS Knowledge Base?</h1>
+              <p class="text-justify" style="font-size: large;"><br>
+                The purpose of the PRS Knowledge Base is to allow researchers 
+                to quickly calculate polygenic risk scores for various diseases based on published genome-wide
+                 association studies (GWAS).<br><br>The PRS Knowledge Base also facilitates the use and distribution 
+                 of GWAS results by allowing researchers to upload results from their own studies to be included in 
+                 future polygenic risk score calculations. 
+              </p>
               <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p>
             </div>
           </div>
@@ -71,19 +76,43 @@
    
       <div class="container">
         <div class="row">
-
-  
-			
-          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <div class="col-lg-12 mb-4 mt-2 text-center">
+              <h1>Use the PRS Knowledge Base</h1><br>
+          <div id="flex-grid-container">
+            <div class="row justify-content-center">
+            <div class="flex-grid-item-center col-md-5 align-self-center">
+                <h5>Calculate Polygenic Risk Scores</h5>
+                <p>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p>
+                <p class="text-center"><a class="btn btn-primary btn-md" href="calculate_score.html" role="button">Upload VCF</a> </p>
+            </div>
+            <div class="flex-grid-item-center col-md-5 align-self-center">
+                <h5>PRS Knowledge Base API</h5>
+                <p>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line.</p>
+                <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api Documentation</a> </p>
+            </div>
+            <div class="flex-grid-item-center col-md-5 align-self-center">
+                <h5>Add GWAS to the PRS Knowledge Base</h5>
+                <p>We invite you to upload the odds ratios and p-values from your association studies to the knowledge base. Please visit the submission page by clicking on the link below to see the required submission format and to upload your study.<br><br>Thank you for supporting the PRS Knowledge Base!</p>
+                <p class="text-center"><a class="btn btn-primary btn-md" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
+            </div>
+            <div class="flex-grid-item-center col-md-5 align-self-center">
+                <h5>Cite the PRS Knowledge Base</h5>
+                <p>The PRS Knowledge Base would not be possible without the many genome-wide association studies that have been published. We ask that if you use the PRS Knowledge Base for published work, you cite the PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of all publications used by the PRS Knowledge Base, organized by disease, please follow the link below.</p>
+                <p class="text-center"><a class="btn btn-primary btn-md" href="citations.html" role="button">Cite</a> </p>
+            </div>
+            </div>
+          </div>
+            </div>
+          <!-- <div class="col-lg-12 mb-4 mt-2 text-center">
             <h1 class="font-weight-bold">Calculate Polygenic Risk Scores</h1>
 			  <p class="lead"><br>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p>
               <p>&nbsp;</p>
               <p class="text-center"><a class="btn btn-primary btn-lg" href="calculate_score.html" role="button">Upload VCF</a> </p>
-          </div>
+          </div> -->
         </div>
       </div>
 
-      <div class="jumbotron">
+      <!-- <div class="jumbotron">
         <div class="container">
           <div class="row">
             <div class="col-lg-12 mb-4 mt-2 text-center">
@@ -96,10 +125,10 @@
             <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
           
         </div>
-      </div>
+      </div> -->
 		
 
-	<div class="container">
+	<!-- <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
             <h1 class="font-weight-bold">How To Cite the PRS Knowledge Base</h1>
@@ -108,9 +137,9 @@
               <p class="text-center"><a class="btn btn-primary btn-lg" href="citations.html" role="button">Citations</a> </p>
           </div>
         </div>
-      </div>
+      </div> -->
 		
-		<div class="jumbotron">
+		<!-- <div class="jumbotron">
 		<div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
@@ -121,8 +150,9 @@
           </div>
         </div>
       </div>
-		</div>
+		</div> -->
 </section>
+<div class="jumbotron">
     <div class="container">		
       <div class="row">
         <div class="col-12 col-md-8 mx-auto">
@@ -133,35 +163,35 @@
               </div>
               <div class="text-center col-12">
                 <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                <form action="/contact" id="feedbackForm" class="text-center" method="post" role = "form">
-                  <div class="form-group">
-                    <label for="name"><br>Name</label>
+                <form action="/contact" id="feedbackForm" method="post" role = "form">
+                  <div class="form-group text-left">
+                    <label for="name"><br><b>Name</b></label>
                     <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
                     <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
                   </div>
-                  <div class="form-group">
-                    <label for="email">E-Mail</label>
+                  <div class="form-group text-left">
+                    <label for="email"><b>E-Mail</b></label>
                     <input type="email" class="form-control" id="email" name="email" placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
                     <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail address.</span>
                   </div>
-                  <div class="form-group">
-                    <label for="message">Message</label>
+                  <div class="form-group text-left">
+                    <label for="message"><b>Message</b></label>
                     <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
                     <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
                   </div>
-                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg"> Send</button>
+                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
                 </form>
               </div>
             </div>
           </div>
         </div>
-	  </div>
+    </div>
+  </div>
    
     <footer class="text-center">
       <div class="container">
         <div class="row">
           <div class="col-12">
-			  <p>&nbsp;</p>
             <p>Copyright © Miller et al. (2019) All rights reserved.</p>
           </div>
         </div>
