@@ -186,39 +186,6 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
 
 });
 
-/** 
- * Receives a vcf's fileContents, a diseaseArray, and a string representing the studyType ("high impact", "largest cohort", or "") 
- * and calculates a score obj to send to the browser. First, it parses the fileContents into a vcfObj, then gets a tableRowsObj
- * and finally calculates the score object which is sent to the browser as an array of jsons (the first json representing useful data 
- * for all of the calculations and the rest of the jsons representing scores for each disease for each individual)
- */
-app.get('/calculate_score/', async function (req, res) {
-    //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
-    res.setHeader('Access-Control-Allow-Origin', '*');
-
-    try {
-        var vcfObj = await parseVCFToObj(req.query.fileContents);
-        if (vcfObj == undefined || vcfObj.size <= 0) {
-            throw new Error("The file uploaded was not a valid vcf file. Please check your file and try again.");
-        }
-    }
-    catch (err) {
-        res.status(500).send(err.message);
-        return;
-    }
-    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(req.query.diseaseArray, req.query.studyType);
-    var pValue = req.query.pValue;
-    var refGen = req.query.refGen;
-    var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray);
-    try {
-        var jsons = sharedCode.calculateScore(tableObj, vcfObj, pValue)
-        res.send(jsons);
-    }
-    catch (err) {
-        res.status(500).send(err.message)
-    }
-});
-
 /**
  * Returns a list of diseaseRow objects, each of which contain a disease name and a list of its corresponding studiesRows objects. 
  * Each studyRow object contains a study name and its corresponding rows in the disease table with the given p-value.
@@ -239,8 +206,8 @@ app.get('/study_table/', async function (req, res) {
     var pValue = req.query.pValue;
     var refGen = req.query.refGen;
 
-    var diseaseRows = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
-    res.send(diseaseRows);
+    var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
+    res.send(tableObj);
 });
 
 /**
@@ -383,12 +350,9 @@ async function getRows(pValue, refGen, study, table) {
     tableRows.push(table.findAll({
         attributes: ['chromosome', refGen, 'snp', 'riskAllele', 'pValue', 'oddsRatio'],
         where: {
-            //TODO
-            /*
             pValue: {
                 [Op.lt]: pValue
             },
-            */
             study: study,
         }
     }));

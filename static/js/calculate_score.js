@@ -1,4 +1,6 @@
 var resultJSON = "";
+//a resetable boolean that is represented by a grayed-out button when false. Prevents the user from calculating the same
+//score multiple times
 var canCalculate = true;
 var validExtensions = ["vcf", "gzip", "zip"]
 
@@ -23,8 +25,8 @@ var calculatePolyScore = async () => {
             var fileContents = await getZipText(vcfFile);
             vcfFile = new File([fileContents], "temp.vcf")
         }
-        // get value of selected 'pvalue' radio button in 'radioButtons'
-        var pValue = getRadioVal(document.getElementById('radioButtons'), 'pvalue');
+        // get value of selected 'pvalue' from 'pvalSlider'
+        var pValue = getSliderPVal(document.getElementById('pvalSlider'), 'pvalue');
         //gets the disease name from the drop down list
         var diseaseSelectElement = document.getElementById("disease");
         var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
@@ -42,31 +44,19 @@ var calculatePolyScore = async () => {
         }
         var refGenElement = document.getElementById("refGenome");
         var refGen = refGenElement.options[refGenElement.selectedIndex].value
-        if (refGen == "--Reference Genome--") {
+        if (refGen == "default") {
             $('#response').html('Please select the reference genome corresponding to your file.');
             return
         }
         canCalculate = false;
         toggleCalculateButton(false);
-        if (fileSize < 1500000) {
-
-            ServerCalculateScore(vcfFile, diseaseArray, studyType, pValue, refGen);
-            return
-        }
-        /*
-        else if () {
-            var new_zip = new JSZip();
-            new_zip.load(file);
-            new_zip.files["doc.xml"].asText() // this give you the text in the file
-        }
-        */
         ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue, refGen);
     }
 }
 
 /**
  * Turns the calculate button on and off.
- * @param {*} canClick 
+ * @param {*} canClick
  */
 function toggleCalculateButton(canClick) {
     var button = document.getElementById("feedbackSubmit")
@@ -93,7 +83,7 @@ function resetOutput() {
 /**
  * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
  * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
- * @param {*} study 
+ * @param {*} study
  */
 function getStudyTypeFromStudy(study) {
     if (study.toLowerCase().includes("high impact")) {
@@ -107,31 +97,42 @@ function getStudyTypeFromStudy(study) {
 
 
 var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue, refGen) => {
-    var vcfParser = new VCFParser();
+    console.time("score in")
     var vcfFile = document.getElementById("files").files[0];
     var vcfObj;
+    console.time("got data in")
     $.ajax({
         type: "GET",
         url: "study_table",
         data: { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
         success: async function (studyTableRows) {
+            console.timeEnd("got data in")
             var tableObj = studyTableRows;
-            var usefulSNPs = getSNPArray(tableObj);
+            //TODO specifiy here that we want pos, not snps
+            var usefulPos = sharedCode.getPosArray(tableObj);
             try {
-                vcfObj = await vcfParser.populateMap(vcfFile, extension, usefulSNPs);
+                console.time("shrink")
+                vcfLines = await shrinkFile(vcfFile, usefulPos)
+                console.timeEnd("shrink");
+                console.time("parse");
+                vcfObj = vcf_parser.getVCFObj(vcfLines);
+                console.timeEnd("parse")
             }
             catch (err) {
-                $('#response').html('There was an error computing the risk score:\n' + err);
+                $('#response').html(getErrorMessage(err));
                 return;
             }
             try {
-                var result = sharedCode.calculateScore(tableObj, vcfObj, pValue);
+                console.time("calculated score in")
+                var result = sharedCode.calculateScore(tableObj, vcfObj, pValue, usefulPos);
+                console.timeEnd("calculated score in")
                 outputVal = getSimpleOutput(result)
                 $('#response').html(outputVal);
                 resultJSON = result;
+                console.timeEnd("score in")
             }
             catch (err) {
-                $('#response').html('There was an error computing the risk score:\n' + err);
+                $('#response').html(getErrorMessage(err));
             }
         },
         error: function (XMLHttpRequest) {
@@ -140,10 +141,21 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
     });
 }
 
+function getErrorMessage(err) {
+    var response = 'There was an error computing the risk score:'
+    if (err != undefined) {
+        response += '\n' + err;
+    }
+    if (err.stack != undefined) {
+        response += '\n' + err.stack;
+    }
+    return response;
+}
+
 /**
- * Returns a simplified output using the given json. The json is truncated and converted to the correct format. 
+ * Returns a simplified output using the given json. The json is truncated and converted to the correct format.
  * Then, if a truncation occured, "Results preview:" is appended to the beginning and "..." is appended to the end.
- * @param {*} resultJsonStr 
+ * @param {*} resultJsonStr
  */
 function getSimpleOutput(resultJsonStr) {
     var simpleJsonStr = simplifyResultJson(resultJsonStr);
@@ -173,70 +185,35 @@ function simplifyResultJson(resultJsonStr) {
         }
         return JSON.stringify(simpleResultObj);
     }
-
-}
-
-function getSNPArray(tableObj) {
-    var usefulSNPs = [];
-    // var tableObj = {'disease': 'ad', 'studiesRows': {'study': 'Lambert et al., 2013', 'rows': [
-    //     {'snp': 'rs6656401', 'riskAllele': 'A', 'pValue': 5.7e-24, 'oddsRatio': 1.18}, 
-    //     {'snp': 'rs11449', 'riskAllele': 'T', 'pValue': 6.9e-44, 'oddsRatio': 1.22}, 
-    //     {'snp': 'rs10948363', 'riskAllele': 'G', 'pValue': 5.2e-11, 'oddsRatio': 1.1}, 
-    //     {'snp': 'rs11771145', 'riskAllele': 'A', 'pValue': 1.1e-13, 'oddsRatio': 0.9}, 
-    //     {'snp': 'rs9331896', 'riskAllele': 'C', 'pValue': 2.8e-25, 'oddsRatio': 0.86}, 
-    //     {'snp': 'rs983392', 'riskAllele': 'G', 'pValue': 6.1e-16, 'oddsRatio': 0.9}, 
-    //     {'snp': 'rs10792832', 'riskAllele': 'A', 'pValue': 9.3e-26, 'oddsRatio': 0.87}, 
-    //     {'snp': 'rs4147929', 'riskAllele': 'A', 'pValue': 1.1e-15, 'oddsRatio': 1.15}, 
-    //     {'snp': 'rs3865444', 'riskAllele': 'A', 'pValue': 3e-06, 'oddsRatio': 0.94}, 
-    //     {'snp': 'rs9271192', 'riskAllele': 'C', 'pValue': 2.9e-12, 'oddsRatio': 1.11}, 
-    //     {'snp': 'rs28834970', 'riskAllele': 'C', 'pValue': 7.4e-14, 'oddsRatio': 1.1}, 
-    //     {'snp': 'rs11218343', 'riskAllele': 'C', 'pValue': 9.7e-15, 'oddsRatio': 0.77}, 
-    //     {'snp': 'rs10498633', 'riskAllele': 'T', 'pValue': 5.5e-09, 'oddsRatio': 0.91}, 
-    //     {'snp': 'rs8093731', 'riskAllele': 'T', 'pValue': 0.0001, 'oddsRatio': 0.73}, 
-    //     {'snp': 'rs35349669', 'riskAllele': 'T', 'pValue': 3.2e-08, 'oddsRatio': 1.08}, 
-    //     {'snp': 'rs190982', 'riskAllele': 'G', 'pValue': 3.2e-08, 'oddsRatio': 0.93}, 
-    //     {'snp': 's2718058', 'riskAllele': 'G', 'pValue': 4.8e-09, 'oddsRatio': 0.93}, 
-    //     {'snp': 'rs1476679', 'riskAllele': 'C', 'pValue': 5.6e-10, 'oddsRatio': 0.91}, 
-    //     {'snp': 'rs10838725', 'riskAllele': 'C', 'pValue': 1.1e-08, 'oddsRatio': 1.08}, 
-    //     {'snp': 'rs17125944', 'riskAllele': 'C', 'pValue': 7.9e-09, 'oddsRatio': 1.14}, 
-    //     {'snp': 'rs7274581', 'riskAllele': 'C', 'pValue': 2.5e-08, 'oddsRatio': 0.88}]}}
-    //TODO this needs to iterate over all entries of tableObj and studiesRows
-    var rows = tableObj[0].studiesRows[0].rows;
-    for (i = 0; i < rows.length; i += 1) {
-        usefulSNPs.push(rows[i].snp);
-    }
-    return usefulSNPs;
-}
-
-//API-reformating
-var ServerCalculateScore = async (vcfFile, diseaseArray, studyType, pValue, refGen) => {
-    var fileContents = await readFile(vcfFile);
-    if (!fileContents) {
-        //if here, the vcf file was not read properly- shouldn't ever happen
-        $('#response').html("Could not find file contents. Please double check the file you uploaded.");
-        return;
-    }
-    $.ajax({
-        type: "GET",
-        url: "calculate_score",
-        data: { fileContents: fileContents, diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
-        success: function (data) {
-            //data contains the info received by going to "/calculate_score"
-            var outputVal = getSimpleOutput(data);
-            $('#response').html(outputVal);
-            //sessionStorage.setItem("riskResults", data);
-            resultJSON = data;
-        },
-        error: function (XMLHttpRequest) {
-            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
-        }
-    });
 }
 
 /**
- * Returns an array containing just the disease, or if the disease is "all diseases", 
+ * Removes all lines that don't have positions found in the tableObj. Returns a list of lines that are valid, including the header lines
+ * @param {} vcfFile 
+ * @param {*} usefulPos 
+ */
+async function shrinkFile(vcfFile, usefulPos) {
+    var fileContents = await readFile(vcfFile);
+    var fileLines = fileContents.split("\n");
+    var fileLinesSmall = jQuery.grep(fileLines, function (line) {
+        return usefulPos.has(getPosFromLine(line)) || line[0] === '#';
+    });
+    return fileLinesSmall;
+}
+
+/**
+ * Gets chrom:pos from the line
+ * @param {} line 
+ */
+function getPosFromLine(line) {
+    var secondTab = line.indexOf('\t', line.indexOf('\t') + 1);
+    return line.substr(0, secondTab).replace('\t', ':');
+}
+
+/**
+ * Returns an array containing just the disease, or if the disease is "all diseases",
  * returns a list of all the diseases in the database
- * @param {*} disease 
+ * @param {*} disease
  */
 function makeDiseaseArray(disease) {
     if (disease.toLowerCase() == "all") {
@@ -361,10 +338,10 @@ function getRandomInt(max) {
 
 /**
  * This code was found here https://jsfiddle.net/ali_soltani/zsyn04qw/3/
- * Creates an invisible element on the page that contains the string to be downloaded. 
+ * Creates an invisible element on the page that contains the string to be downloaded.
  * Once the element is downloaded, it is removed. May have a size limit- not sure what it is yet.
- * @param {*} filename 
- * @param {*} text 
+ * @param {*} filename
+ * @param {*} text
  */
 function download(filename, extension, text) {
     var zip = new JSZip();

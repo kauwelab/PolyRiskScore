@@ -899,6 +899,45 @@ pre code {
   margin-left: 91.666667%;
 }
 
+.slidercontainer {
+  width: 75%;
+}
+
+.slider { 
+  -webkit-appearance: none;
+  width: 75%;
+  height: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #007bff;
+  border: #fff;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #007bff;
+  border: #fff;
+  cursor: pointer;
+}
+
 @media (min-width: 576px) {
   .col-sm {
     -ms-flex-preferred-size: 0;

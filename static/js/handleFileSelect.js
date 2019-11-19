@@ -137,7 +137,6 @@ var printFileEnds = async (file, sizeToPrint) => {
 }
 
 var readFile = async (vcfFile) => {
-    debugger;
     var reader = new Response(vcfFile);
     fileContents = await reader.text();
     return fileContents;
