@@ -89,12 +89,12 @@
 				<p>&nbsp;</p>
             </div>
           </div>
-          
+
             <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
-          
+
         </div>
       </div>
-		
+
 
 	<div class="container">
         <div class="row">
@@ -106,7 +106,7 @@
           </div>
         </div>
       </div>
-		
+
 		<div class="jumbotron">
 		<div class="container">
         <div class="row">
@@ -131,7 +131,8 @@
               <h2>How to Input List of RS IDs</h2>
               <p1>RS ids can be input with or without a genotype. If an rs id is input without a genotype, all risk
                 alleles at that position will be used in calculating the polygenic risk scores and in the subsequent
-                risk score matrices. If genotypes are available, each allele must be specified on a separate line. RS
+                risk score matrices. If genotypes are available, alleles can be indicated after the rs id. One or two alleles
+                may be used. When only one allele is specified, the other will be assumed to be the risk allele. RS
                 IDs and genotypes are separated by a colon. Separate RS IDs by either a comma, space, or an end-of-line
                 character, as shown below.</p1>
               <h2><br>Input RS IDs and Genotypes</h2>
@@ -155,85 +156,125 @@
                 <input type="submit" value="upload" />
               </form>-->
 
-              <form class="md-form" id="file-form">
+              <!--Code for this found at link: http://jsfiddle.net/jworboys/rUbr9/ -->
+              <form>
+                <div class="mx-button">
+                  <input type="radio" name='mx' id="textInputButton" checked onclick="clickTextInput()">
+                  <label for="textInputButton" unselectable>Text Input</label>
+                </div>
+                <div class="mx-button">
+                    <input type="radio" name='mx' id="fileUploadButton" onclick="clickFileUpload()">
+                    <label for="fileUploadButton" unselectable>File Upload</label>
+                  </div>
+              </form>
+              <!--End of code from above link-->
+              
+              <div class="text-black-50 float-right">
+                <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
+              </div>
+              <br>
+              <br>
+
+              <form class="md-form" id="file-form" style="visibility: hidden;">
                 <div class="file-field">
-                  <div class="btn btn-secondary btn-sm float-right btn-light">
+                  <div class="float-left">
                     <input type="file" id="files" name="file" />
-
-
-
                     <script src="js/handleFileSelect.js"></script>
-
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
-
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>
                 </div>
               </form>
-              <div class="text-black-50 float-left">
-                <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
-
-              </div>
 
               <p>&nbsp;</p>
-              <script src="js/getRadioVal.js"></script>
+              <script src="js/sliderFunctions.js"></script>
               <div class="container diseaseLists">
                 <div class="row">
-                  <div class="col-lg-12 mb-.5 mt-2 text-left">
-                    <h5>Select P-value Cutoff&nbsp;</h5>
-                    <form action="#" method="post" class="radioButtons" id="radioButtons" name="pvalOptions">
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-3" checked onclick="radioChange()" />
-                          1x10<sup>-3</sup></label>
+                  <div class='parent inline-flex-parent'>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-0 mt-2 text-left">
+                        <h5>Select Disease and Study&nbsp;</h5>
+                        <script src="js/sharedCode.js"></script>
+                        <script src="js/diseaseList.js"></script>
+                        <h8>
+                          <div class="diseaseLists">
+                            <select id="disease" onchange="ChangeDiseaseList()">
+                              <!--<option selected="selected">All</option>-->
+                              <option value="">--Disease--</option>
+                              <option value="ALL">All Diseases </option>
+                              <option value="ADHD">ADHD</option>
+                              <option value="AD">Alzheimer's disease</option>
+                              <option value="ALS">ALS</option>
+                              <option value="DEP">Depression</option>
+                              <option value="CHD">Coronary Heart disease</option>
+                            </select>
+                          </div>
+                          <div class="diseaseLists">
+                            <select id="diseaseStudy" onchange="changeStudiesList()">
+                              <option value="">--Study--</option>
+                            </select>
+                          </div>
+                        </h8>
                       </div>
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-5" onclick="radioChange()" />
-                          1x10<sup>-5</sup></label>
+                    </div>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-.5 mt-2 text-left">
+                        <h5>Reference Genome&nbsp;</h5>
+                        <div class="refGenomeOptions">
+                          <select id="refGenome">
+                            <option selected="selected" value="default">--Reference Genome--</option>
+                            <option value="hg38">GRCh38/hg38</option>
+                            <option value="hg19">GRCh37/hg19</option>
+                            <option value="hg18">NCBI36/hg18</option>
+                            <option value="hg17">NCBI35/hg17</option>
+                          </select>
+                        </div>
                       </div>
-                      <div class="form-check form-check-inline">
-                        <label><input type="radio" name="pvalue" value="1e-8" onclick="radioChange()" />
-                          1x10<sup>-8</sup></label>
-                      </div>
-                    </form>
-
+                    </div>
                   </div>
-                  <div class="col-lg-12 mb-0 mt-2 text-left">
-                    <script src="js/sharedCode.js"></script>
-                    <script src="js/diseaseList.js"></script>
-                    <h8>
-                      <div class="diseaseLists">
-                        <select id="disease" onchange="ChangeDiseaseList()">
-                          <!--<option selected="selected">All</option>-->
-                          <option value="">--Disease--</option>
-                          <option value="ALL">All Diseases </option>
-                          <option value="ADHD">ADHD</option>
-                          <option value="AD">Alzheimer's disease</option>
-                          <option value="ALS">ALS</option>
-                          <option value="DEP">Depression</option>
-                          <option value="HD">Heart disease</option>
-                        </select>
-                      </div>
+                  <div class='parent inline-flex-parent'>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-.5 mt-2 text-left">
+                        <h5>Slide to select P-Value Cutoff&nbsp;</h5>
+                        <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
+                          <div class="form-inline">
+                            <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider" id="pvalue">
+                            <label>&nbsp;&nbsp;&nbsp;1x10
+                              <sup>
+                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
+                              </sup>
+                            </label>
+                          </div>
+                        </form>
+                        <!--Below script ensures the display of the
+                          p-value is synced with the slider-->
+                        <script>
+                          var slider = document.getElementById("pvalue");
+                          var output = document.getElementById("pvalMagnigtude");
+                          output.innerHTML = slider.value;
 
-
-                      <div class="diseaseLists">
-                        <select id="diseaseStudy">
-                          <option value="">--Study--</option>
-                        </select>
+                          slider.oninput = function() {
+                            output.innerHTML = this.value;
+                            resetOutput() 
+                            $('#response').html("");
+                          }
+                        </script>
                       </div>
-                    </h8>
-                    <p>&nbsp;</p>
-                    <h5>Output Format&nbsp;</h5>
-                    <script src="js/calculate_score.js"></script>
-                    <script src="js/vcf_parser.js"></script>
-                    <div class="fileFormOptions">
-                      <select id="fileType" , onchange="changeFormat();">
-                        <!--<option selected="selected">All</option>-->
-                        <!--<option value="default">--Format Type--</option>-->
-                        <option value="text">Text</option>
-                        <option value="csv">CSV</option>
-                        <option value="json">JSON</option>
-                      </select>
+                    </div>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-0 mt-2 text-left">
+                        <h5>Output Format&nbsp;</h5>
+                        <script src="js/calculate_score.js"></script>
+                        <script src="js/vcf_parser.js"></script>
+                        <div class="fileFormOptions">
+                          <select id="fileType" , onchange="changeFormat();">
+                            <option value="text">Text</option>
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -256,7 +297,7 @@
       <div class="row">
         <div class="col-12 col-md-8 mx-auto">
 
-          <div class="row text-center">
+          <div class="row text-center" style="display: none" id="resultsDisplay">
             <div class="text-center col-12">
               <h2><br>Results</h2>
 
@@ -268,12 +309,13 @@
                 <div class="form-text font-weight-bold">
 
                   <textarea readonly rows="10" cols="100" class="form-control nowrap" id="response" name="response"
-                    placeholder="Example Results&#10;You are going to die!"
-                    aria-describedby="response to query"></textarea>
+                    placeholder="Results" aria-describedby="response to query"></textarea>
 
                 </div>
               </form>
               <p>&nbsp;</p>
+              <script type="text/javascript" src="js/dist/jszip.min.js"></script>
+              <script type="text/javascript" src="js/dist/FileSaver.min.js"></script>
               <div class="downloadResults">
                 <button type="button" id="downloader" onclick="downloadResults();" class="btn btn-primary">Download
                   Results</button>
@@ -311,20 +353,20 @@
               <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a>
 
 
-             Adds a divider between the last item in the dropdown menu and the other items. 
+             Adds a divider between the last item in the dropdown menu and the other items.
 
-				<div class="dropdown-divider"></div>   
-              <a class="dropdown-item" href="#">Something else here</a> 
+				<div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </li>
 		-->
 
-<!-- 
+<!--
 		This was a disabled menu button.
-		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li> 
+		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li>
 		-->
 
-<!-- 
+<!--
 		This was a search bar and search button
 		<form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -375,25 +417,25 @@
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
         </div>
@@ -439,5 +481,5 @@
           </div>
         </div>
       </div>
-    
+
 	  -->
