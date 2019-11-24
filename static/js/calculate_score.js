@@ -45,6 +45,7 @@ var calculatePolyScore = async () => {
         
         //get user SNPs
         var vcfFile = document.getElementById("files").files[0];
+        
         if (!vcfFile) {
             //if here, the user did not import a vcf file or the the vcf file was not read properly
             var textArea = document.getElementById('input');
@@ -71,8 +72,8 @@ var calculatePolyScore = async () => {
                     snpsObj.set(snpArray[0], alleles)
                 }
             })
-            canCalculate = false;
-            toggleCalculateButton(false);
+            //TODO canCalculate = false;
+            //TODO toggleCalculateButton(false);
             ClientCalculateScoreTxtInput(snpsObj, diseaseArray, studyType, pValue, refGen)
         }
         else {
@@ -84,8 +85,8 @@ var calculatePolyScore = async () => {
                 $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
                 return;
             }
-            canCalculate = false;
-            toggleCalculateButton(false);
+            //TODO canCalculate = false;
+            //TODO toggleCalculateButton(false);
             ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue, refGen);
         }
     }
