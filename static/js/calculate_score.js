@@ -5,52 +5,89 @@ var canCalculate = true;
 var validExtensions = ["vcf", "gzip", "zip"]
 
 var calculatePolyScore = async () => {
+    document.getElementById('resultsDisplay').style.display = 'block';
+
     if (canCalculate) {
         //user feedback while they are waiting for their score
         $('#response').html("Calculating. Please wait...")
-        var vcfFile = document.getElementById("files").files[0];
-        if (!vcfFile) {
-            //if here, the user did not import a vcf file or the the vcf file was not read properly
-            $('#response').html("Please import a vcf file using the \"Choose File\" button above.");
-            return;
-        }
-        var fileSize = vcfFile.size;
-        var extension = vcfFile.name.split(".").pop();
-        if (!validExtensions.includes(extension.toLowerCase())) {
-            //if here, the user uploded a file with an invalid format
-            $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
-            return;
-        }
-        if (extension == "zip" | extension == "gzip") {
-            var fileContents = await getZipText(vcfFile);
-            vcfFile = new File([fileContents], "temp.vcf")
-        }
+        console.log("Beginning score calculation.")
+
         // get value of selected 'pvalue' from 'pvalSlider'
         var pValue = getSliderPVal(document.getElementById('pvalSlider'), 'pvalue');
+
         //gets the disease name from the drop down list
         var diseaseSelectElement = document.getElementById("disease");
         var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+
         //create a disease array (usually just the one disease unless "All dieases" is selected)
         var diseaseArray = makeDiseaseArray(diseaseSelected);
+
         //gets the study name from the drop down list
         var studySelectElement = document.getElementById("diseaseStudy");
         var study = studySelectElement.options[studySelectElement.selectedIndex].text
+
         //the type of study the study is ("high impact", "largest cohort", or "")
         var studyType = getStudyTypeFromStudy(study);
+
         //if the user doesn't specify a disease or study, prompt them to do so
         if (diseaseSelected === "--Disease--" || study === "--Study--") {
             $('#response').html('Please specify a specific disease and study using the drop down menus above.');
             return
         }
+
+        //get the reference genome to be used
         var refGenElement = document.getElementById("refGenome");
         var refGen = refGenElement.options[refGenElement.selectedIndex].value
         if (refGen == "default") {
             $('#response').html('Please select the reference genome corresponding to your file.');
             return
         }
-        canCalculate = false;
-        toggleCalculateButton(false);
-        ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue, refGen);
+        
+        //get user SNPs
+        var vcfFile = document.getElementById("files").files[0];
+        if (!vcfFile) {
+            //if here, the user did not import a vcf file or the the vcf file was not read properly
+            var textArea = document.getElementById('input');
+
+            if (!textArea.value) {
+                $('#response').html("Please input an rs id accoding to the procedures above or import a vcf file using the \"Choose File\" button above.");
+                return;
+            }
+
+            console.log("Using text input for SNPs")
+            var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
+            var snpsObj = new Map();
+            arrayOfInputtedSnps.forEach(function(snp) {
+                snpArray = snp.split(':');
+                if (snpArray.length < 2){
+                    snpsObj.set(snpArray[0], [])
+                }
+                else {
+                    var alleles = snpArray[1].split("");
+                    if (alleles.length > 2){
+                        //THIS SHOULDN'T HAPPEN! THROW AN ERROR OR SOMETHING
+                        //AND GET THE HECK OUT --Maddy
+                    }
+                    snpsObj.set(snpArray[0], alleles)
+                }
+            })
+            canCalculate = false;
+            toggleCalculateButton(false);
+            ClientCalculateScoreTxtInput(snpsObj, diseaseArray, studyType, pValue, refGen)
+        }
+        else {
+            console.log("Using vcf file for SNPs")
+            var fileSize = vcfFile.size;
+            var extension = vcfFile.name.split(".").pop();
+            if (!validExtensions.includes(extension.toLowerCase())) {
+                //if here, the user uploded a file with an invalid format
+                $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+                return;
+            }
+            canCalculate = false;
+            toggleCalculateButton(false);
+            ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue, refGen);
+        }
     }
 }
 
@@ -95,41 +132,75 @@ function getStudyTypeFromStudy(study) {
     return "all";
 }
 
-
-var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue, refGen) => {
-    console.time("score in")
-    var vcfFile = document.getElementById("files").files[0];
-    var vcfObj;
-    console.time("got data in")
+//textSnps is a map of positions and alleles
+var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyType, pValue, refGen) => {
     $.ajax({
         type: "GET",
         url: "study_table",
         data: { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
         success: async function (studyTableRows) {
-            console.timeEnd("got data in")
+            var tableObj = studyTableRows;
+            
+            var usefulSNPs = sharedCode.getIdentifierMap(tableObj, false);
+            var textSnpsMatched = textSnps;
+            debugger;
+            for (const key of textSnps.keys()) {
+                if (!usefulSNPs.has(key)){
+                    textSnpsMatched.delete(key)
+                }
+            }
+
+            try {
+                //TODO
+                debugger;
+                var result = sharedCode.calculateScoreFromText(tableObj, textSnpsMatched, pValue);
+                outputVal = getSimpleOutput(result)
+                $('#response').html(outputVal);
+                resultJSON = result;
+            }
+            catch (err) {
+                $('#response').html('There was an error computing the risk score:\n' + err);
+            }
+        },
+        error: function (XMLHttpRequest) {
+            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
+        }
+    })
+}
+
+var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue, refGen) => {
+    //console.time("score in")
+    var vcfObj;
+    //console.time("got data in")
+    $.ajax({
+        type: "GET",
+        url: "study_table",
+        data: { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
+        success: async function (studyTableRows) {
+            //console.timeEnd("got data in")
             var tableObj = studyTableRows;
             //TODO specifiy here that we want pos, not snps
-            var usefulPos = sharedCode.getPosArray(tableObj);
+            var usefulPos = sharedCode.getIdentifierMap(tableObj, true);
             try {
-                console.time("shrink")
+                //console.time("shrink")
                 vcfLines = await shrinkFile(vcfFile, usefulPos)
-                console.timeEnd("shrink");
-                console.time("parse");
+                //console.timeEnd("shrink");
+                //console.time("parse");
                 vcfObj = vcf_parser.getVCFObj(vcfLines);
-                console.timeEnd("parse")
+                //console.timeEnd("parse")
             }
             catch (err) {
                 $('#response').html(getErrorMessage(err));
                 return;
             }
             try {
-                console.time("calculated score in")
+                //console.time("calculated score in")
                 var result = sharedCode.calculateScore(tableObj, vcfObj, pValue, usefulPos);
-                console.timeEnd("calculated score in")
+                //console.timeEnd("calculated score in")
                 outputVal = getSimpleOutput(result)
                 $('#response').html(outputVal);
                 resultJSON = result;
-                console.timeEnd("score in")
+                //console.timeEnd("score in")
             }
             catch (err) {
                 $('#response').html(getErrorMessage(err));
@@ -229,7 +300,7 @@ function formatText(jsonObject) {
 
     //iterate through the list of people and print them each out seperately.
     for (var i = 0; i < jsonObject.length; ++i) {
-        if (i == 0) {
+        if (i == 0 || !jsonObject[i]) {
             continue;
         }
         returnText += "\nIndividual Name: " + jsonObject[i].individualName;
@@ -246,11 +317,12 @@ function formatText(jsonObject) {
             });
         });
     }
-
     return returnText;
 }
 
 function formatCSV(jsonObject) {
+    //TODO
+    debugger;
     //Look for a csv writer npm module
     var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
 
@@ -375,6 +447,7 @@ function download(filename, extension, text) {
 }
 
 function exampleInput() {
+    document.getElementById('fileUploadButton').click();
     var result = null;
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "ad_test.vcf", false);
@@ -406,4 +479,24 @@ function exampleOutput() {
         result2 = xmlhttp2.responseText;
     }
     document.getElementById('response').value = (result2);
+}
+
+function clickTextInput() {
+    var textInput = document.getElementById('input');
+    textInput.value = null;
+    textInput.removeAttribute('readonly');
+    var browseButton = document.getElementById('file-form');
+    browseButton.style.visibility = 'hidden';
+}
+
+function clickFileUpload() {
+    var textInput = document.getElementById('input');
+    textInput.value = null;
+    textInput.setAttribute('readonly', 'readonly');
+    var browseButton = document.getElementById('file-form');
+    browseButton.style.visibility = 'visible';
+    var previousFileText = document.getElementById('uploadText');
+    if (previousFileText.value !== "") {
+        document.getElementById('input').value = previousFileText.value;
+    }
 }
