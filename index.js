@@ -17,21 +17,21 @@ const sharedCode = require('./static/js/sharedCode')
 const port = 3000
 
 //Test code for MySQL
-var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "H3e6r2m1tC99r4b5c32rr56t25",
-    database: "polyscore"
-  });
+// var con = mysql.createConnection({
+//     host: "localhost",
+//     user: "root",
+//     password: "H3e6r2m1tC99r4b5c32rr56t25",
+//     database: "polyscore"
+//   });
   
-  con.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected to MySQL!");
-    con.query("SELECT * FROM ad WHERE snp = 'rs6656401'", function (err, result, fields) {
-        if (err) throw err;
-        //console.log(result);
-      });
-  });
+//   con.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected to MySQL!");
+//     con.query("SELECT * FROM ad WHERE snp = 'rs6656401'", function (err, result, fields) 
+//         if (err) throw err;
+//         //console.log(result);
+//       });
+//   });
 
 // Configure multer functionalitys
 var storage = multer.diskStorage({
