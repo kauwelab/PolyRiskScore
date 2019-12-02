@@ -46,7 +46,7 @@ var calculatePolyScore = async () => {
         //get user SNPs
         var vcfFile = document.getElementById("files").files[0];
         
-        if (!vcfFile) {
+        if(document.getElementById('textInputButton').checked) {
             //if here, the user did not import a vcf file or the the vcf file was not read properly
             var textArea = document.getElementById('input');
 
@@ -72,21 +72,16 @@ var calculatePolyScore = async () => {
                     snpsObj.set(snpArray[0], alleles)
                 }
             })
-            //TODO canCalculate = false;
-            //TODO toggleCalculateButton(false);
             ClientCalculateScoreTxtInput(snpsObj, diseaseArray, studyType, pValue, refGen)
         }
         else {
             console.log("Using vcf file for SNPs")
-            var fileSize = vcfFile.size;
             var extension = vcfFile.name.split(".").pop();
             if (!validExtensions.includes(extension.toLowerCase())) {
                 //if here, the user uploded a file with an invalid format
                 $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
                 return;
             }
-            //TODO canCalculate = false;
-            //TODO toggleCalculateButton(false);
             ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue, refGen);
         }
     }
@@ -105,7 +100,7 @@ function toggleCalculateButton(canClick) {
     }
     else {
         button.style.background = "";
-        button.style.borderColor = ""
+        button.style.borderColor = "";
     }
 }
 
@@ -144,7 +139,6 @@ var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyType, pVa
             
             var usefulSNPs = sharedCode.getIdentifierMap(tableObj, false);
             var textSnpsMatched = textSnps;
-            debugger;
             for (const key of textSnps.keys()) {
                 if (!usefulSNPs.has(key)){
                     textSnpsMatched.delete(key)
@@ -152,8 +146,6 @@ var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyType, pVa
             }
 
             try {
-                //TODO
-                debugger;
                 var result = sharedCode.calculateScoreFromText(tableObj, textSnpsMatched, pValue);
                 outputVal = getSimpleOutput(result)
                 $('#response').html(outputVal);
@@ -180,7 +172,6 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, p
         success: async function (studyTableRows) {
             //console.timeEnd("got data in")
             var tableObj = studyTableRows;
-            //TODO specifiy here that we want pos, not snps
             var usefulPos = sharedCode.getIdentifierMap(tableObj, true);
             try {
                 //console.time("shrink")
@@ -246,7 +237,7 @@ function simplifyResultJson(resultJsonStr) {
     //TODO avoid having to parse again! -is there anyway to keep this in obj form instead of passing a string?
     var resultJsonObj = JSON.parse(resultJsonStr);
     //if the resultJson is already truncated, return it
-    if (resultJsonObj.size <= 3) {
+    if (resultJsonObj.length <= 3) {
         return resultJsonStr;
     }
     //create a new array, add the first three objects from the resultJson, and return its string version
@@ -322,8 +313,6 @@ function formatText(jsonObject) {
 }
 
 function formatCSV(jsonObject) {
-    //TODO
-    debugger;
     //Look for a csv writer npm module
     var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
 
@@ -331,7 +320,6 @@ function formatCSV(jsonObject) {
         if (i == 0) {
             continue;
         }
-
         jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
 
             diseaseResult.studyResults.forEach(function (studyResult) {
@@ -389,6 +377,7 @@ function getResultOutput(data) {
 }
 
 function downloadResults() {
+    document.getElementById("download-bar").style.visibility = "visible";
     //var resultText = document.getElementById("response").value;
     var resultText = getResultOutput(resultJSON);
     var formatDropdown = document.getElementById("fileType");
@@ -425,14 +414,16 @@ function download(filename, extension, text) {
         compressionOptions: {
             //TODO let the user know that they've downloaded the file while they are waiting
             /* compression level ranges from 1 (best speed) to 9 (best compression) */
-            level: 9
+            level: 5
         }
     })
         .then(function (content) {
             // see FileSaver.js
             saveAs(content, filename + ".zip");
+            document.getElementById("download-bar").style.visibility = "hidden";
         });
 
+    /*
     var element = document.createElement('a');
 
     var dataBlob = new Blob([text], { type: "text/plain" });
@@ -445,6 +436,7 @@ function download(filename, extension, text) {
     element.click();
 
     document.body.removeChild(element);
+    */
 }
 
 function exampleInput() {

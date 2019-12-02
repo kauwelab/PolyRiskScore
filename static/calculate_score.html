@@ -131,7 +131,8 @@
               <h2>How to Input List of RS IDs</h2>
               <p1>RS ids can be input with or without a genotype. If an rs id is input without a genotype, all risk
                 alleles at that position will be used in calculating the polygenic risk scores and in the subsequent
-                risk score matrices. If genotypes are available, alleles can be indicated after the rs id. One or two alleles
+                risk score matrices. If genotypes are available, alleles can be indicated after the rs id. One or two
+                alleles
                 may be used. When only one allele is specified, the other will be assumed to be the risk allele. RS
                 IDs and genotypes are separated by a colon. Separate RS IDs by either a comma, space, or an end-of-line
                 character, as shown below.</p1>
@@ -163,12 +164,12 @@
                   <label for="textInputButton" unselectable>Text Input</label>
                 </div>
                 <div class="mx-button">
-                    <input type="radio" name='mx' id="fileUploadButton" onclick="clickFileUpload()">
-                    <label for="fileUploadButton" unselectable>File Upload</label>
-                  </div>
+                  <input type="radio" name='mx' id="fileUploadButton" onclick="clickFileUpload()">
+                  <label for="fileUploadButton" unselectable>File Upload</label>
+                </div>
               </form>
               <!--End of code from above link-->
-              
+
               <div class="text-black-50 float-right">
                 <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
               </div>
@@ -239,7 +240,8 @@
                         <h5>Slide to select P-Value Cutoff&nbsp;</h5>
                         <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
                           <div class="form-inline">
-                            <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider" id="pvalue">
+                            <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider"
+                              id="pvalue">
                             <label>&nbsp;&nbsp;&nbsp;1x10
                               <sup>
                                 <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
@@ -254,9 +256,9 @@
                           var output = document.getElementById("pvalMagnigtude");
                           output.innerHTML = slider.value;
 
-                          slider.oninput = function() {
+                          slider.oninput = function () {
                             output.innerHTML = this.value;
-                            resetOutput() 
+                            resetOutput()
                             $('#response').html("");
                           }
                         </script>
@@ -320,11 +322,17 @@
                 <button type="button" id="downloader" onclick="downloadResults();" class="btn btn-primary">Download
                   Results</button>
               </div>
+              <form class="md-form" id="download-bar" style="visibility: hidden;">
+                <p1>
+                  Please wait while your results are downloading.
+                </p1>
+              </form>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
   <footer class="text-center">
     <div class="container">

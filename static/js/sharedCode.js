@@ -120,7 +120,6 @@
             resultJsons.push({ pValueCutoff: pValue, totalVariants: textSnps.size })
             //for each individual and each disease and each study in each disease and each snp of each individual, 
             //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
-            //TODO change snpMap name to snpEntry or some equivalent name
 
             var diseaseResults = [];
             tableObj.forEach(function (diseaseEntry) {
