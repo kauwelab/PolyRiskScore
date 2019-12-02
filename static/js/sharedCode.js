@@ -9,6 +9,7 @@
     diseasesAndStudies['DEP'] = ['Ripke et al. 2012 (High Impact)', 'Wray et al. 2018 (Largest Cohort)'];
     diseasesAndStudies['CHD'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011', 'Samani NJ 2007', 'Schunkert H 2011',
         'Wild PS 2011'];
+
     //freeze the object so it can't be edited by the browser or server
     diseasesAndStudies = Object.freeze(diseasesAndStudies);
 
