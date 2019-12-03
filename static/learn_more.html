@@ -57,7 +57,7 @@
                 <h5 class = "text-center" style="font-style: oblique">Nature quote about the importance of PRS</h5><br>
                 <ul>
                   <p class="drop-cap">For decades, most genetic research focused on single, common mutations significantly associated with certain diseases like breast cancer or Huntington’s disease. </p>
-                  <p style="font-size: 1.2em">The majority of complex traits, however, are determined by multiple variants with smaller effect sizes.</p>
+                  <p class="drop-cap">The majority of complex traits, however, are determined by multiple variants with smaller effect sizes.</p>
                   <p class="drop-cap">A polygenic risk score calculates an individual’s overall genetic risk for a condition.  and is the summation of the variants across their genome, weighted by the effect sizes on the disease or trait of interest.</p>
                 </ul>
               <p>&nbsp;</p>
@@ -69,9 +69,9 @@
     </header>
     <section>
       <div class="container">
-        <div class="row">
+        <div class="row" >
           <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Calculating a Polygenic Risk Score</h2>
+            <h2 style="margin-top: 2rem; color: #2192D3;">Calculating a Polygenic Risk Score</h2>
         <p class="lead"><br>The score is derived by the data collected in <dfn data-info="an observational study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait.">genome-wide association studies</dfn>The odds ratios from the studies in our database are used as weights for each variant in order to compute a cumulative risk score for each sample.</p>
         <p class="text-center">$$\sum_{k=1}^{\text{# loci}}\beta\text{k}\cdot\text{allele count}_{i,k}$$</p>
         <p class="text-center" style="font-style: italic">Equation 1: The polygenic risk score for each sample is calculated by summing the total genetic risk of each associated variant multiplied by the number of alleles with that variant. The variable i denotes the individual. k denotes the locus of the variant. &beta; denotes the log odds ratio of that variant being associated with the specified disease.</p>
@@ -118,20 +118,22 @@
       <div class="container">
           <div class="row">
             <div class="col-lg-12 mb-4 mt-2 text-center">
-              <h2>Benefits of the PRS Knowledge Base</h2><br><br>
+              <h2 style="margin-top: 2rem; color: #2192D3;">Benefits of the PRS Knowledge Base</h2><br><br>
           <div id="flex-container">
-            <div class="flex-item">
+            <div class="row justify-content-center">
+            <div class="flex-item col-md-3 align-self-top">
               <h5>User-Friendly</h5>
               <p>Until now, the only tools available for calculating polygenic risk scores were on the command line. Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
             </div>
-            <div class="flex-item">
+            <div class="flex-item col-md-3 align-self-top">
               <h5>Centralized Database</h5>
               <p>Our Knowledge Base has a centralized database for all of the genome-wide association studies used to compute the scores. As new studies are performed, users can send us the studies through the website and we will manually review and add the information to our database.</p>
             </div>
-            <div class="flex-item">
+            <div class="flex-item col-md-3 align-self-top">
               <h5>UK Bio-Bank</h5>
               <p>We provide a tool for individual score results to be compared to average scores calculated from the UK Bio-Bank.</p>
             </div>
+          </div>
           </div>
                 <p>&nbsp;</p>
 				<p>&nbsp;</p>

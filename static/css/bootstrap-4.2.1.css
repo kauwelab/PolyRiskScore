@@ -3372,7 +3372,7 @@ input[type="button"].btn-block {
 }
 
 .active-page {
- background: rgb(199, 44, 44);
+ background: rgba(223, 123, 0, 0.7);
 }
 
 
@@ -4685,7 +4685,7 @@ input[type="button"].btn-block {
 }
 
 .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-brand:focus {
-  color: #0179be;
+  /* color: #0179be; */
 }
 
 .navbar-dark .navbar-nav .nav-link {
@@ -4694,7 +4694,7 @@ input[type="button"].btn-block {
 }
 
 .navbar-dark .navbar-nav .nav-link:hover, .navbar-dark .navbar-nav .nav-link:focus {
-  color: #0179be;
+  color: rgba(211, 211, 211, 0.7);
 }
 
 .navbar-dark .navbar-nav .nav-link.disabled {
@@ -4705,12 +4705,12 @@ input[type="button"].btn-block {
 .navbar-dark .navbar-nav .active > .nav-link,
 .navbar-dark .navbar-nav .nav-link.show,
 .navbar-dark .navbar-nav .nav-link.active {
-  color: rgb(23, 202, 53);
+  /* color: rgb(23, 202, 53); */
 }
 
 .navbar-dark .navbar-toggler {
-  color: rgba(28, 148, 196);
-  border-color: rgba(192, 224, 10, 0.856);
+  color: rgba(255, 255, 255, .5);
+  border-color: rgba(223, 123, 0, 0.7);
 }
 
 .navbar-dark .navbar-toggler-icon {
@@ -5245,8 +5245,7 @@ a.badge-dark:hover, a.badge-dark:focus {
 
 .jumbotron {
   padding: 2rem 1rem;
-  margin-bottom: 2rem;
-  background-color: rgba(223, 123, 0, 0.7);
+  background-color: #DBF5FF;
   border-radius: 0.3rem;
 }
 .jumotron-white {
@@ -6213,7 +6212,7 @@ a.close.disabled {
   margin: 0.3rem 0;
 }
 .drop-cap:first-child:first-letter {
-  color: darkorange;
+  color: rgba(223, 123, 0, 0.8);
   float: left;
   font-family: Georgia;
   font-size: 5em;
@@ -6319,20 +6318,20 @@ dfn:hover::before {top: 20px;}
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.507);
 }
 
-#flex-container {
+#flex-container > .container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  margin: 3 5;
 }
 
 .flex-item {
-  width: 28%;
   height: 100%;
+  margin-left: .5rem;
+  margin-right: .5rem;
   text-align: left;
-  border-bottom: rgb(168, 94, 3);
-  border-bottom-style: double;
+  border-bottom: rgb(223, 122, 0);
+  border-bottom-style: solid;
 }
 
 .bs-popover-left .arrow::before, .bs-popover-auto[x-placement^="left"] .arrow::before,
