@@ -5,7 +5,7 @@
     diseasesAndStudies['ALL'] = ['High Impact', 'Largest Cohort'];
     diseasesAndStudies['ADHD'] = ['Demontis et al. 2018'/*, 'Hawi et al. 2018', 'Hinney et al. 2011', 'Mick et al. 2010', 
                                     'Stergiakouli et al. 2012', 'Zayats et al. 2015'*/];
-    diseasesAndStudies['AD'] = [/*'Lambert et al. 2013 (High Impact)'*/, 'Naj et al. 2011'/*, 'Largest Cohort'*/];
+    diseasesAndStudies['AD'] = ['Lambert et al. 2013', 'Naj et al. 2011'/*, 'Largest Cohort'*/];
     diseasesAndStudies['ALS'] = ['Ahmeti KB 2012'/*, 'Diekstra FP 2014', 'Landers JE 2009', 'van Rheenen W 2016 (High Impact)'*/];
     diseasesAndStudies['DEP'] = [/*'Ripke et al. 2012 (High Impact)',*/ 'Wray et al. 2018 (Largest Cohort)'];
     /*diseasesAndStudies['CHD'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011', 'Samani NJ 2007', 'Schunkert H 2011',
@@ -103,6 +103,93 @@
     }
 
     /**
+ * Calculates the polygenetic risk score using table rows from the database and the textSnps.
+ * If the textSnps is undefined, throws an error message that can be printed to the user.
+ * P-value is required so the result can also return information about the calculation.
+ * @param {*} tableObj 
+ * @param {*} textSnps 
+ * @param {*} pValue 
+ * @return a string in JSON format of the calculated score and other information about it.
+ */
+exports.calculateScoreFromText = function (tableObj, textSnps, pValue) {
+    var resultJsons = [];
+    if (textSnps == undefined) {
+        throw "The snps were undefined when calculating the score. Please retype the snps or choose a vcf."
+    }
+    else {
+        //push information about the calculation to the result
+        resultJsons.push({ pValueCutoff: pValue, totalVariants: textSnps.size })
+        //for each individual and each disease and each study in each disease and each snp of each individual, 
+        //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
+        //TODO change snpMap name to snpEntry or some equivalent name
+
+        var diseaseResults = [];
+        tableObj.forEach(function (diseaseEntry) {
+            var studyResults;
+            studyResults = [];
+            diseaseEntry.studiesRows.forEach(function (studyEntry) {
+                var ORs = []
+                var snpsIncluded = [];
+                var chromPositionsIncluded = []
+                textSnps.forEach(function (value, key) {
+                    studyEntry.rows.forEach(function (tableRow) {
+                        if (tableRow.snp === key) {
+                            switch(value.length){
+                                case 2:
+                                    if (value[0] === tableRow.riskAllele) {
+                                        ORs.push(tableRow.oddsRatio);
+                                        snpsIncluded.push(tableRow.snp);
+                                        chromPositionsIncluded.push(tableRow.pos);
+                                    }
+                                    if (value[1] === tableRow.riskAllele) {
+                                        ORs.push(tableRow.oddsRatio);
+                                        snpsIncluded.push(tableRow.snp);
+                                        chromPositionsIncluded.push(tableRow.pos);
+                                    }
+                                    break;
+                                case 1:
+                                    if (value[0] === tableRow.riskAllele) {
+                                        ORs.push(tableRow.oddsRatio);
+                                        snpsIncluded.push(tableRow.snp);
+                                        chromPositionsIncluded.push(tableRow.pos);
+                                    }
+                                    ORs.push(tableRow.oddsRatio);
+                                    snpsIncluded.push(tableRow.snp);
+                                    chromPositionsIncluded.push(tableRow.pos);
+                                    break;
+                                default:
+                                    ORs.push(tableRow.oddsRatio);
+                                    snpsIncluded.push(tableRow.snp);
+                                    chromPositionsIncluded.push(tableRow.pos);
+
+                                    ORs.push(tableRow.oddsRatio);
+                                    snpsIncluded.push(tableRow.snp);
+                                    chromPositionsIncluded.push(tableRow.pos);
+                                    break;
+                            }
+                        }
+                    })
+                });
+                studyResults.push({
+                    study: studyEntry.study,
+                    oddsRatio: getCombinedORFromArray(ORs),
+                    percentile: "",
+                    numSNPsIncluded: ORs.length,
+                    chromPositionsIncluded: chromPositionsIncluded,
+                    snpsIncluded: snpsIncluded
+                });
+            });
+            diseaseResults.push({
+                disease: diseaseEntry.disease.toUpperCase(),
+                studyResults: studyResults
+            });
+        });
+        resultJsons.push({individualName: 'textInputResults', diseaseResults: diseaseResults })
+        return JSON.stringify(resultJsons);
+    }
+};
+
+    /**
      * Calculates the polygenetic risk score using table rows from the database and the vcfObj.
      * If the vcfObj is undefined, throws an error message that can be printed to the user.
      * P-value is required so the result can also return information about the calculation.
@@ -180,7 +267,7 @@
         ORs.forEach(function (element) {
             combinedOR += Math.log(element);
         });
-        combinedOR = Math.exp(combinedOR / ORs.length);
+        combinedOR = Math.exp(combinedOR);
         return combinedOR;
     }
 

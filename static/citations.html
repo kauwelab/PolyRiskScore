@@ -9,6 +9,7 @@
     <!-- Bootstrap -->
     <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   </head>
+  <script src="js/jquery-3.3.1.min.js"></script> 
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <a class="navbar-brand" href="#">Citations</a>
@@ -57,16 +58,22 @@
             <li class="article"><a data-toggle="collapse" href="#cite1">Alzheimer's disease: GWAS</a></li>
             <ul id="cite1" class="collapse">
               <li>Example Citation</li>
+              <li><a href="https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string">click this link</a></li>
             </ul>
             <li class="article"><a data-toggle="collapse" href="#cite2">Alzheimer's disease: gwas in china</a></li>
             <ul id="cite2" class="collapse">
                 <li>Example Citation 2</li>
+                <li><a href="https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string">click this link</a></li>
               </ul>
             <li class="article"><a data-toggle="collapse" href="#cite3">Schizophrenia: gwas</a></li>
             <ul id="cite3" class="collapse">
                 <li>Example Citation 3</li>
+                <li><a href="https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string">click this link</a></li>
               </ul>
+           
           </ul>
+            <script src=js/getStudies.js></script>
+            <script>window.onload = getStudyLinks()</script>
               <p>&nbsp;</p>
           </div>
         </div>
