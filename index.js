@@ -547,6 +547,8 @@ async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
         var studiesRows = await getStudiesRows(pValue, refGen, studiesArray, diseaseData)
         diseaseRows.push({ disease: disease, studiesRows: studiesRows })
     }
+    console.log("DISEASE ROWS, INDEX LINE 550");
+    console.log(diseaseRows);
     return diseaseRows;
 }
 
