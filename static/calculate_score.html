@@ -131,7 +131,9 @@
               <h2>How to Input List of RS IDs</h2>
               <p1>RS ids can be input with or without a genotype. If an rs id is input without a genotype, all risk
                 alleles at that position will be used in calculating the polygenic risk scores and in the subsequent
-                risk score matrices. If genotypes are available, each allele must be specified on a separate line. RS
+                risk score matrices. If genotypes are available, alleles can be indicated after the rs id. One or two
+                alleles
+                may be used. When only one allele is specified, the other will be assumed to be the risk allele. RS
                 IDs and genotypes are separated by a colon. Separate RS IDs by either a comma, space, or an end-of-line
                 character, as shown below.</p1>
               <h2><br>Input RS IDs and Genotypes</h2>
@@ -144,7 +146,7 @@
 
                 <div class="form-text font-weight-bold">
 
-                  <textarea readonly rows="10" cols="100" class="form-control nowrap" id="input" name="input"
+                  <textarea rows="10" cols="100" class="form-control nowrap" id="input" name="input"
                     placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
                   <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
                     message.</span>
@@ -155,78 +157,41 @@
                 <input type="submit" value="upload" />
               </form>-->
 
-              <form class="md-form" id="file-form">
+              <!--Code for this found at link: http://jsfiddle.net/jworboys/rUbr9/ -->
+              <form>
+                <div class="mx-button">
+                  <input type="radio" name='mx' id="textInputButton" checked onclick="clickTextInput()">
+                  <label for="textInputButton" unselectable>Text Input</label>
+                </div>
+                <div class="mx-button">
+                  <input type="radio" name='mx' id="fileUploadButton" onclick="clickFileUpload()">
+                  <label for="fileUploadButton" unselectable>File Upload</label>
+                </div>
+              </form>
+              <!--End of code from above link-->
+
+              <div class="text-black-50 float-right">
+                <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
+              </div>
+              <br>
+              <br>
+
+              <form class="md-form" id="file-form" style="visibility: hidden;">
                 <div class="file-field">
-                  <div class="btn btn-secondary btn-sm float-right btn-light">
+                  <div class="float-left">
                     <input type="file" id="files" name="file" />
-
-
-
                     <script src="js/handleFileSelect.js"></script>
-
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
-
                     <input type="hidden" id="uploadText" name="uploadTextValue" value="" />
                     <output id="list"></output>
                   </div>
                 </div>
               </form>
-              <div class="text-black-50 float-left">
-                <button class="btn1 example" id="exampleInput" onclick="exampleInput()">Example</button>
-
-              </div>
 
               <p>&nbsp;</p>
               <script src="js/sliderFunctions.js"></script>
               <div class="container diseaseLists">
                 <div class="row">
-                  <div class='parent inline-flex-parent'>
-                    <div class='child'>
-                      <div class="col-lg-12 mb-.5 mt-2 text-left">
-                          <h5>Slide to select P-Value Cutoff&nbsp;</h5>
-                          <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
-                            <div class="form-inline">
-                              <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider" id="pvalue">
-                              <label>&nbsp;&nbsp;&nbsp;1x10
-                                <sup>
-                                  <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
-                                </sup>
-                              </label>
-                            </div>
-                          </form>
-                          <!--Below script ensures the display of the
-                            p-value is synced with the slider-->
-                          <script>
-                            var slider = document.getElementById("pvalue");
-                            var output = document.getElementById("pvalMagnigtude");
-                            output.innerHTML = slider.value;
-
-                            slider.oninput = function() {
-                              output.innerHTML = this.value;
-                            }
-                          </script>
-                          <p>&nbsp;</p>
-                        </div>
-                      </div>
-                    </div>
-                  <div class='child'>
-                    <div class="col-lg-12 mb-.5 mt-2 text-left">
-                      <h5>Reference Genome&nbsp;</h5>
-                      <div class="refGenomeOptions">
-                        <select id="refGenome">
-                          <option selected="selected" value="default">--Reference Genome--</option>
-                          <option value="hg38">GRCh38/hg38</option>
-                          <option value="hg19">GRCh37/hg19</option>
-                          <option value="hg18">NCBI36/hg18</option>
-                          <option value="hg17">NCBI35/hg17</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <p>&nbsp;</p>
-                    <p>&nbsp;</p>
-                  </div>
                   <div class='parent inline-flex-parent'>
                     <div class='child'>
                       <div class="col-lg-12 mb-0 mt-2 text-left">
@@ -246,14 +211,57 @@
                               <option value="CHD">Coronary Heart disease</option>
                             </select>
                           </div>
-
-
                           <div class="diseaseLists">
                             <select id="diseaseStudy" onchange="changeStudiesList()">
                               <option value="">--Study--</option>
                             </select>
                           </div>
                         </h8>
+                      </div>
+                    </div>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-.5 mt-2 text-left">
+                        <h5>Reference Genome&nbsp;</h5>
+                        <div class="refGenomeOptions">
+                          <select id="refGenome">
+                            <option selected="selected" value="default">--Reference Genome--</option>
+                            <option value="hg38">GRCh38/hg38</option>
+                            <option value="hg19">GRCh37/hg19</option>
+                            <option value="hg18">NCBI36/hg18</option>
+                            <option value="hg17">NCBI35/hg17</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class='parent inline-flex-parent'>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-.5 mt-2 text-left">
+                        <h5>Slide to select P-Value Cutoff&nbsp;</h5>
+                        <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
+                          <div class="form-inline">
+                            <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider"
+                              id="pvalue">
+                            <label>&nbsp;&nbsp;&nbsp;1x10
+                              <sup>
+                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
+                              </sup>
+                            </label>
+                          </div>
+                        </form>
+                        <!--Below script ensures the display of the
+                          p-value is synced with the slider-->
+                        <script>
+                          var slider = document.getElementById("pvalue");
+                          var output = document.getElementById("pvalMagnigtude");
+                          output.innerHTML = slider.value;
+
+                          slider.oninput = function () {
+                            output.innerHTML = this.value;
+                            resetOutput()
+                            $('#response').html("");
+                          }
+                        </script>
                       </div>
                     </div>
                     <div class='child'>
@@ -291,7 +299,7 @@
       <div class="row">
         <div class="col-12 col-md-8 mx-auto">
 
-          <div class="row text-center">
+          <div class="row text-center" style="display: none" id="resultsDisplay">
             <div class="text-center col-12">
               <h2><br>Results</h2>
 
@@ -314,11 +322,17 @@
                 <button type="button" id="downloader" onclick="downloadResults();" class="btn btn-primary">Download
                   Results</button>
               </div>
+              <form class="md-form" id="download-bar" style="visibility: hidden;">
+                <p1>
+                  Please wait while your results are downloading.
+                </p1>
+              </form>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
   <footer class="text-center">
     <div class="container">
