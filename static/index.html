@@ -9,13 +9,13 @@
     <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <a class="navbar-brand" href="#">PRS Knowledge Base</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
 		  <!-- The justify-content-end command in the next line aligns the menu to the right.-->
       <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
         <ul class="navbar-nav">
-			
+
 			  <div class="active-page">
           <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
 				</div>
@@ -23,29 +23,30 @@
           <li class="nav-item"> <a class="nav-link" href="upload_gwas.html">Upload GWAS</a> </li>
 			    <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
           <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
-          <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>           
+          <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
 			 </ul>
-			</div>
-    </nav>
-    
-   	<section>	
-      <header>
-        <div class="one">
+			 </div>
+		  </nav>
+   	 <section>
+
+      <!-- <header>
+	      <div class="one">
           <div class="text-center">
-            <img src="images/Ollie.jpg" id="videosubstitute" alt="" >
+	          <img src="images/PRSKBBannertest.png" id="videosubstitute" alt="" >
             <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop" id="video2">
               <source src="images/testVid_1.mp4" type="video/mp4">
             </video>
+
           </div>
-          <div class="text-center text-white my-auto"> 
+          <div class="text-center text-white my-auto">
             <h1 class="display-1 font-weight-bold "><br>Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
           </div>
-        </div>
-      </header>	    
-    </section>	
-  
+	      </div>
+      </header>	   -->
+		 </section>
+
     <header>
-      <div class="jumbotron"> <!-- style="background-image: url('images/Ollie.jpg')">-->
+      <div class="jumbotron"> <!--style="background-image: url('images/Ollie.jpg')"> -->
 		  <h1 class="forMobile font-weight-bold text-center">Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
         <div class="container">
           <div class="row">
@@ -60,21 +61,51 @@
         </div>
       </div>
     </header>
-	  
+
 
     <section>
       <div class="container">
         <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h1 class="font-weight-bold">Calculate Polygenic Risk Scores</h1>
-			      <p class="lead"><br>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p>
-            <p>&nbsp;</p>
-            <p class="text-center"><a class="btn btn-primary btn-lg" href="calculate_score.html" role="button">Upload VCF</a> </p>
+            <div class="col-lg-12 mb-4 mt-2 text-center">
+              <h1 style="margin-top: 2rem; color: #2192D3;">Use the PRS Knowledge Base</h1><br>
+          <div id="flex-grid-container">
+            <div class="row justify-content-center">
+            <div class="flex-grid-item-center col-md-5 align-self-center">
+                <h5>Calculate Polygenic Risk Scores</h5>
+                <p>Upload a VCF file or type in rs ids with or without alleles to use in your calculation. Choose one or all diseases in our database, the p-value cutoff for odds ratios, and the reference genome. </p> <!--could we make the disease selection be more-->
+                <!-- <p>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p> -->
+                <p class="text-center"><a class="btn btn-primary btn-md" href="calculate_score.html" role="button">Upload VCF</a> </p>
+            </div>
+            <div class="flex-grid-item-center col-md-5 align-self-center">
+                <h5>PRS Knowledge Base API</h5>
+                <p>Download our API to submit your VCF files to the analysis pipeline via the command line.</p>
+                <!-- <p>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line.</p> -->
+                <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api Documentation</a> </p>
+            </div>
+            <div class="flex-grid-item-center col-md-5 align-self-center">
+                <h5>Add GWAS to the PRS Knowledge Base</h5>
+                <p>Upload the odds ratios and p-values from your association studies to the knowledge base. Visit the submission page by clicking on the link below to see the required submission format and upload your study.<br><br>Thank you for supporting the PRS Knowledge Base!</p>
+                <!-- <p>We invite you to upload the odds ratios and p-values from your association studies to the knowledge base. Please visit the submission page by clicking on the link below to see the required submission format and to upload your study.<br><br>Thank you for supporting the PRS Knowledge Base!</p> -->
+                <p class="text-center"><a class="btn btn-primary btn-md" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
+            </div>
+            <div class="flex-grid-item-center col-md-5 align-self-center">
+                <h5>Cite the PRS Knowledge Base</h5>
+                <p>The PRS Knowledge Base would not be possible without the many genome-wide association studies that have been published. We ask that if you use the PRS Knowledge Base for published work, you cite the PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of all publications used by the PRS Knowledge Base, organized by disease, please follow the link below.</p>
+                <p class="text-center"><a class="btn btn-primary btn-md" href="citations.html" role="button">Cite</a> </p>
+            </div>
+            </div>
           </div>
+            </div>
+          <!-- <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h1 class="font-weight-bold">Calculate Polygenic Risk Scores</h1>
+			  <p class="lead"><br>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p>
+              <p>&nbsp;</p>
+              <p class="text-center"><a class="btn btn-primary btn-lg" href="calculate_score.html" role="button">Upload VCF</a> </p>
+          </div> -->
         </div>
       </div>
 
-      <div class="jumbotron">
+      <!-- <div class="jumbotron">
         <div class="container">
           <div class="row">
             <div class="col-lg-12 mb-4 mt-2 text-center">
@@ -83,14 +114,14 @@
 				<p>&nbsp;</p>
             </div>
           </div>
-          
-            <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
-          
-        </div>
-      </div>
-		
 
-	<div class="container">
+            <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
+
+        </div>
+      </div> -->
+
+
+	<!-- <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
             <h1 class="font-weight-bold">How To Cite the PRS Knowledge Base</h1>
@@ -99,9 +130,9 @@
               <p class="text-center"><a class="btn btn-primary btn-lg" href="citations.html" role="button">Citations</a> </p>
           </div>
         </div>
-      </div>
-		
-		<div class="jumbotron">
+      </div> -->
+
+		<!-- <div class="jumbotron">
 		<div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
@@ -112,56 +143,57 @@
           </div>
         </div>
       </div>
-		</div>
+		</div> -->
 </section>
-    <div class="container">		
+<div class="jumbotron">
+    <div class="container">
       <div class="row">
         <div class="col-12 col-md-8 mx-auto">
-         
+
             <div class="row text-center">
               <div class="text-center col-12">
                 <h1 class="font-weight-bold">Questions or Comments about the PRS Knowledge Base?</h1>
               </div>
               <div class="text-center col-12">
                 <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                <form action="/contact" id="feedbackForm" class="text-center" method="post" role = "form">
-                  <div class="form-group">
-                    <label for="name"><br>Name</label>
+                <form action="/contact" id="feedbackForm" method="post" role = "form">
+                  <div class="form-group text-left">
+                    <label for="name"><br><b>Name</b></label>
                     <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
                     <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
                   </div>
-                  <div class="form-group">
-                    <label for="email">E-Mail</label>
+                  <div class="form-group text-left">
+                    <label for="email"><b>E-Mail</b></label>
                     <input type="email" class="form-control" id="email" name="email" placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
                     <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail address.</span>
                   </div>
-                  <div class="form-group">
-                    <label for="message">Message</label>
+                  <div class="form-group text-left">
+                    <label for="message"><b>Message</b></label>
                     <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
                     <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
                   </div>
-                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg"> Send</button>
+                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
                 </form>
               </div>
             </div>
           </div>
         </div>
-	  </div>
-   
-    <footer class="text-center">
+    </div>
+  </div>
+
+    <footer class="text-center" style="background-color: #343a40;">
       <div class="container">
         <div class="row">
-          <div class="col-12">
-			  <p>&nbsp;</p>
+          <div class="col-12 text-white" style="margin-top: 1rem;">
             <p>Copyright © Miller et al. (2020) All rights reserved.</p>
           </div>
         </div>
       </div>
     </footer>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
-    <script src="js/jquery-3.3.1.min.js"></script> 
-    <!-- Include all compiled plugins (below), or include individual files as needed --> 
-    <script src="js/popper.min.js"></script> 
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/popper.min.js"></script>
     <script src="js/bootstrap-4.2.1.js"></script>
   </body>
 </html>
@@ -173,26 +205,26 @@
               <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a>
 
 
-             Adds a divider between the last item in the dropdown menu and the other items. 
+             Adds a divider between the last item in the dropdown menu and the other items.
 
-				<div class="dropdown-divider"></div>   
-              <a class="dropdown-item" href="#">Something else here</a> 
+				<div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </li>
 		-->
-			
-         <!-- 
+
+         <!--
 		This was a disabled menu button.
-		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li> 
+		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li>
 		-->
-       
-       <!-- 
+
+       <!--
 		This was a search bar and search button
 		<form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form> -->
-  
+
 		<!--
 		Traditional About me content with pictures of people. Dynamic 1 photo for phone, 2 for tablet, 3 for desktop.
       <div class="container ">
@@ -237,25 +269,25 @@
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
         </div>
@@ -301,5 +333,5 @@
           </div>
         </div>
       </div>
-    
+
 	  -->
