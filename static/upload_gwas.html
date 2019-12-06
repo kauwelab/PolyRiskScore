@@ -106,8 +106,19 @@
             <div class="row text-center">
               <div class="text-center col-12">
                 <h2>How to Upload GWAS</h2>
-				  <p1>Thank you for adding to the PRS Knowledge Base! All GWAS uploads are manually analyzed to ensure that they follow our quality standards. We utilize the following criteria to analyze each submission:<br><br>1. Ensure that the study is not already included in the PRS Knowledge Base (please check the "Cite" tab above to see if the study is already included in the PRS Knowledge Base).<br><br>2. Ensure that the study has been peer reviewed and published<br><br>3. Ensure that rs IDs are included<br><br>4.Ensure that the alternate allele is included<br><br>5. Ensure that the odds ratio or the log odds ratio is included </p1>
-				  </div>
+                <p1>All GWAS uploads are manually analyzed to ensure that they meet our quality standards. Check the following criteria before submitting the form below to ensure your study gets added to our database.<br><br></p1>
+              </div>
+          <!-- <p1>Thank you for adding to the PRS Knowledge Base! All GWAS uploads are manually analyzed to ensure that they follow our quality standards. We utilize the following criteria to analyze each submission:<br><br></p1> -->
+          <div class="text-left">
+          <ol>
+            <li>The study is not already included in the PRS Knowledge Base (check using the "Cite" tab)</li>  <!--above to see if the study is already included in the PRS Knowledge Base).-->
+            <li>The study has been peer reviewed and published</li>
+            <li>Rs IDs are included</li>
+            <li>The alternate allele is included</li>
+            <li>The odds ratio or the log odds ratio is included</li>
+          </ol>
+        </div>
+				  
               <div class="text-center col-12">
                 <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
                 <!--<form id="feedbackForm" class="text-center">
@@ -126,45 +137,45 @@
     </div>
 
     <div class="jumbotron-white"> 
-    <div class="container">		
+    <div class="container" style="margin-bottom: 2rem;">		
         <div class="row">
           <div class="col-12 col-md-8 mx-auto">
            
               <div class="row text-center">
                 <div class="text-center col-12">
-                  <h1 class="font-weight-bold">Send us your GWAS file</h1>
+                  <h1 style="margin-top: 2rem;" class="font-weight-bold">Send us your GWAS file</h1>
                 </div>
                 <div class="text-center col-12">
                     
                     
                   <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
                   <form action="/sendGwas" id="feedbackForm" class="text-center" method="post" role="form" novalidate enctype="multipart/form-data">
-                    <div class="form-group">
-                      <label for="name"><br>Name</label>
+                    <div class="form-group text-left">
+                      <label for="name"><br><b>Name</b></label>
                       <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
                       <span id="nameHelp" class="form-text text-muted" style="display: none">Please enter your name.</span>
                     </div>
-                    <div class="form-group">
-                      <label for="email">E-Mail</label>
+                    <div class="form-group text-left">
+                      <label for="email"><b>E-Mail</b></label>
                       <input type="email" class="form-control" id="email" name="email" placeholder="Please enter your valid e-mail address." aria-describedby="emailHelp">
                       <span id="emailHelp" class="form-text text-muted" style="display: none">Please enter a valid e-mail address.</span>
                     </div>
-                    <div class="form-group">
-                      <label for="title">Article Title</label>
+                    <div class="form-group text-left">
+                      <label for="title"><b>Article Title</b></label>
                       <textarea rows="1" cols="100" class="form-control" id="title" name="title" placeholder="Please enter the article title." aria-describedby="messageHelp"></textarea>
                       <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a message.</span>
                     </div>
-                    <div class="form-group">
-                      <label for="author">Author</label>
+                    <div class="form-group text-left">
+                      <label for="author"><b>Author</b></label>
                       <textarea rows="1" cols="50" class="form-control" id="author" name="author" placeholder="Please enter the first author's name." aria-describedby="messageHelp"></textarea>
                       <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a message.</span>
                     </div>
-                    <div class="form-group">
-                      <label for="year">Publication Year</label>
+                    <div class="form-group text-left">
+                      <label for="year"><b>Publication Year</b></label>
                       <textarea rows="1" cols="50" class="form-control" id="year" name="year" placeholder="Please enter the year of publication." aria-describedby="messageHelp"></textarea>
                       <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a message.</span>
-                    </div>
-                    <div class="form-group">
+                    </div> 
+                    <div class="form-group text-left">
                       <input id="file" name="file" type="file" style="float:left"/><br>
                     </div>
                     <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Send</button>
