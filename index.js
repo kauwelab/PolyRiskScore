@@ -238,7 +238,7 @@ app.get('/study_table/', async function (req, res) {
  */
 async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
     // config for the database
-    // const sequelize = new Sequelize('TutorialDB', 'root', '12345', {
+    //const sequelize = new Sequelize('polyscore', 'root', 'H3e6r2m1tC99r4b5c32rr56t25', {
     const sequelize = new Sequelize('polyscore', 'root', '[Miller19] packet muffin waveform', {
         host: 'localhost',
         dialect: 'mysql',
@@ -547,8 +547,10 @@ async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
         var studiesRows = await getStudiesRows(pValue, refGen, studiesArray, diseaseData)
         diseaseRows.push({ disease: disease, studiesRows: studiesRows })
     }
+    console.log("DISEASE ROWS, INDEX LINE 550");
+    console.log(diseaseRows);
     return diseaseRows;
-}
+} 
 
 /**
  * Returns a list of objects, each of which contains a study name from the study array 
@@ -566,7 +568,7 @@ async function getStudiesRows(pValue, refGen, studiesArray, table) {
         studiesRows.push({ study: study, rows: rows })
     }
     return studiesRows;
-}
+} 
 
 /**
  * Returns a list of rows corresponding to the p-value cutoff and study in the given table
@@ -606,7 +608,7 @@ async function getRows(pValue, refGen, study, table) {
         });
         return rows;
     })
-}
+} 
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')

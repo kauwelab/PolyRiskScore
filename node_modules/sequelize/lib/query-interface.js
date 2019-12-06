@@ -420,7 +420,7 @@ class QueryInterface {
       type: QueryTypes.SHOWTABLES
     });
 
-    const showTablesSql = this.QueryGenerator.showTablesQuery();
+    const showTablesSql = this.QueryGenerator.showTablesQuery(this.sequelize.config.database);
     return this.sequelize.query(showTablesSql, options).then(tableNames => _.flatten(tableNames));
   }
 
@@ -518,7 +518,7 @@ class QueryInterface {
    * Remove a column from a table
    *
    * @param {string} tableName      Table to remove column from
-   * @param {string} attributeName  Columns name to remove
+   * @param {string} attributeName  Column name to remove
    * @param {Object} [options]      Query options
    *
    * @returns {Promise}
@@ -1039,6 +1039,7 @@ class QueryInterface {
     const table = _.isObject(tableName) ? tableName : { tableName };
     const model = _.find(this.sequelize.modelManager.models, { tableName: table.tableName });
 
+    options.type = QueryTypes.BULKUPDATE;
     options.model = model;
     return this.sequelize.query(sql, options);
   }
@@ -1088,8 +1089,10 @@ class QueryInterface {
    * @param {string}  tableName            table name from where to delete records
    * @param {Object}  where                where conditions to find records to delete
    * @param {Object}  [options]            options
-   * @param {boolean} [options.truncate]  Use truncate table command
-   * @param {Model}   [model]             Model
+   * @param {boolean} [options.truncate]   Use truncate table command   
+   * @param {boolean} [options.cascade=false]         Only used in conjunction with TRUNCATE. Truncates  all tables that have foreign-key references to the named table, or to any tables added to the group due to CASCADE.
+   * @param {boolean} [options.restartIdentity=false] Only used in conjunction with TRUNCATE. Automatically restart sequences owned by columns of the truncated table.
+   * @param {Model}   [model]              Model
    *
    * @returns {Promise}
    */
@@ -1112,10 +1115,8 @@ class QueryInterface {
     );
   }
 
-  select(model, tableName, options) {
-    options = Utils.cloneDeep(options);
-    options.type = QueryTypes.SELECT;
-    options.model = model;
+  select(model, tableName, optionsArg) {
+    const options = Object.assign({}, optionsArg, { type: QueryTypes.SELECT, model });
 
     return this.sequelize.query(
       this.QueryGenerator.selectQuery(tableName, options, model),
@@ -1233,7 +1234,14 @@ class QueryInterface {
    *   [
    *     'IMMUTABLE',
    *     'LEAKPROOF'
-   *   ]
+   *   ],
+   *   {
+   *    variables:
+   *      [
+   *        {type: 'integer', name: 'myVar', default: 100}
+   *      ],
+   *      force: true
+   *   };
    * );
    *
    * @param {string}  functionName  Name of SQL function to create
@@ -1244,6 +1252,7 @@ class QueryInterface {
    * @param {Array}   optionsArray  Extra-options for creation
    * @param {Object}  [options]     query options
    * @param {boolean} options.force If force is true, any existing functions with the same parameters will be replaced. For postgres, this means using `CREATE OR REPLACE FUNCTION` instead of `CREATE FUNCTION`. Default is false
+   * @param {Array<Object>}   options.variables List of declared variables. Each variable should be an object with string fields `type` and `name`, and optionally having a `default` field as well.
    *
    * @returns {Promise}
    */
