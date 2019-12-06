@@ -24,7 +24,7 @@ const port = 3000
 //     password: "H3e6r2m1tC99r4b5c32rr56t25",
 //     database: "polyscore"
 //   });
-  
+
 //   con.connect(function(err) {
 //     if (err) throw err;
 //     console.log("Connected to MySQL!");
@@ -141,18 +141,17 @@ app.post('/contact', function (req, res) {
         to: 'kauwelab19@gmail.com',
         subject: 'New message from contact form at PRS.byu.edu',
         text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
-
-
-
     };
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {
             res.writeHead(301, { Location: 'fail.html' });
             res.end();
         }
+        else {
+            res.writeHead(301, { Location: 'success.html' });
+            res.end();
+        }
     });
-    res.writeHead(301, { Location: 'success.html' });
-    res.end();
 });
 
 // POST route from upload GWAS form
@@ -160,10 +159,12 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
     console.log("in sendGWAS")
 
     const file = req.file;
+    console.log("okay")
     if (!file) {
-        res.send("please select a file");
+        res.send("please go back and select a file");
     }
     else {
+        console.log("okay2")
         let mailOpts, smptTrans;
         smptTrans = nodeMailer.createTransport({
             host: 'smtp.gmail.com',
@@ -174,6 +175,7 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
                 pass: 'kauwelab2019!'
             }
         });
+        console.log("okay3")
         mailOpts = {
             from: req.body.name + ' &lt;' + req.body.email + '&gt;',
             to: 'kauwelab19@gmail.com',
@@ -184,7 +186,7 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
         Year: ${req.body.year}`,
             attachments: [
                 {
-                    path: file.path,
+                    path: file.path.replace(":", ""),
                     filename: file.filename
                 }
             ]
@@ -202,7 +204,6 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
             }
         });
     }
-
 });
 
 /**
@@ -263,39 +264,40 @@ async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
         });
 }
 
-app.get('/get_studies/', function (req, res){
-    
-    var studyObject0 = {reference: "number 1", articleName: "john", URL: "https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string"}
-    var studyObject1 = {reference: "number 2", articleName: "jacob", URL: "https://www.google.com/search?q=object.pluralize&rlz=1C1XYJR_enUS815US815&oq=object.pluralize&aqs=chrome..69i57.4710j0j7&sourceid=chrome&ie=UTF-8"}
-    var studyObject2 = {reference: "number 3", articleName: "jingle", URL: "http://docs.sequelizejs.com/manual/getting-started.html"}
-    var studyObject3 = {reference: "number 4", articleName: "heimer", URL: "http://docs.sequelizejs.com/manual/getting-started.html"}
+app.get('/get_studies/', function (req, res) {
+
+    var studyObject0 = { reference: "number 1", articleName: "john", URL: "https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string" }
+    var studyObject1 = { reference: "number 2", articleName: "jacob", URL: "https://www.google.com/search?q=object.pluralize&rlz=1C1XYJR_enUS815US815&oq=object.pluralize&aqs=chrome..69i57.4710j0j7&sourceid=chrome&ie=UTF-8" }
+    var studyObject2 = { reference: "number 3", articleName: "jingle", URL: "http://docs.sequelizejs.com/manual/getting-started.html" }
+    var studyObject3 = { reference: "number 4", articleName: "heimer", URL: "http://docs.sequelizejs.com/manual/getting-started.html" }
     var studiesArray = []
     studiesArray.push(studyObject0)
     studiesArray.push(studyObject1)
     studiesArray.push(studyObject2)
     studiesArray.push(studyObject3)
-    
+
 
     const sequelize = new Sequelize('studies', 'root', 'Petersme1', {
         host: 'localhost',
         dialect: 'mysql',
-        dialectOptions:{
-            insecureAuth: true},
+        dialectOptions: {
+            insecureAuth: true
+        },
         logging: false
     })
 
     sequelize
-    .authenticate()
-    .then(() => {
-        console.log('connection is up and running')
+        .authenticate()
+        .then(() => {
+            console.log('connection is up and running')
 
-    })
-    .catch(err => {
-        console.error('nope, that didnt work', err)
-    });
+        })
+        .catch(err => {
+            console.error('nope, that didnt work', err)
+        });
 
     const Model = Sequelize.Model;
-    class Studies extends Model {}
+    class Studies extends Model { }
     Studies.init({
         reference: {
             type: Sequelize.STRING
@@ -310,56 +312,56 @@ app.get('/get_studies/', function (req, res){
             type: Sequelize.INTEGER
         }
     }, {
-        sequelize, 
+        sequelize,
         modelName: 'Studies',
         freezeTableName: true,
         timestamps: false
     });
-// the find all returns an array, so creat three seperate arrays of references, names, and URLs and then 
-// loop through those to create your study objects and then send those back to the client.
-var tempReference = Studies.findAll({
-    attributes: ['reference']
-})
-var tempArticleNames = Studies.findAll({
-    attributes: ['articleName']
-})
-var tempURL = Studies.findAll({
-    attributes: ['URL']
-})
+    // the find all returns an array, so creat three seperate arrays of references, names, and URLs and then 
+    // loop through those to create your study objects and then send those back to the client.
+    var tempReference = Studies.findAll({
+        attributes: ['reference']
+    })
+    var tempArticleNames = Studies.findAll({
+        attributes: ['articleName']
+    })
+    var tempURL = Studies.findAll({
+        attributes: ['URL']
+    })
 
-for (var i = 0; i < tempReference.length; ++i) {
-    var studyObject = {reference: tempReference[i], articleName: tempArticleNames[i], URL: tempURL[i]}
-    studiesArray.push(studyObject)
-}
-   /* for (var i = 0; i <.length; ++i) {
-        var tempReference = Studies.findAll({
-            attributes: ['reference'],
-            where: {
-                studyID: i
-            }
-        })
-        var tempArticleName = Studies.findAll({
-            attributes: ['articleName'],
-            where: {
-                studyID: i
-            }
-        })
-        var tempURL = Studies.findAll({
-            attributes: ['URL'],
-            where: {
-                studyID: i
-            }
-        })
-        var studyObject = {tempReference, tempArticleName, tempURL}
+    for (var i = 0; i < tempReference.length; ++i) {
+        var studyObject = { reference: tempReference[i], articleName: tempArticleNames[i], URL: tempURL[i] }
         studiesArray.push(studyObject)
-    }*/
-    
+    }
+    /* for (var i = 0; i <.length; ++i) {
+         var tempReference = Studies.findAll({
+             attributes: ['reference'],
+             where: {
+                 studyID: i
+             }
+         })
+         var tempArticleName = Studies.findAll({
+             attributes: ['articleName'],
+             where: {
+                 studyID: i
+             }
+         })
+         var tempURL = Studies.findAll({
+             attributes: ['URL'],
+             where: {
+                 studyID: i
+             }
+         })
+         var studyObject = {tempReference, tempArticleName, tempURL}
+         studiesArray.push(studyObject)
+     }*/
+
 
 
 
     res.send(studiesArray)
 
-    
+
     /*const sequelize = new Sequelize('PolyScore', 'joepete2', 'Petersme1', {
         host: 'localhost',
         port: 1434,
@@ -478,17 +480,17 @@ async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
     for (var i = 0; i < diseaseStudyMapArray.length; ++i) {
         var disease = diseaseStudyMapArray[i].disease;
         var studiesArray = diseaseStudyMapArray[i].studies;
-        console.log(studiesArray); 
+        console.log(studiesArray);
         //const Model = Sequelize.Model;
         //class Table extends Model { }
         //Table.init({
-            // attributes
-            //id smallint unsigned not null, snp varchar(20), chromosome tinyint,  
-            //hg38 int, hg19 int, hg18 int, hg17 int, alleleFrequency float, 
-            //riskAllele varchar(20), pValue double, oddsRatio float, 
-            //lowerCI float, upperCI float, study varchar(50)
-            //SHOULD DISEASE ALWAYS BE THE RIGHT TABLE NAME?
-        diseaseData = sequelize.define( disease, {
+        // attributes
+        //id smallint unsigned not null, snp varchar(20), chromosome tinyint,  
+        //hg38 int, hg19 int, hg18 int, hg17 int, alleleFrequency float, 
+        //riskAllele varchar(20), pValue double, oddsRatio float, 
+        //lowerCI float, upperCI float, study varchar(50)
+        //SHOULD DISEASE ALWAYS BE THE RIGHT TABLE NAME?
+        diseaseData = sequelize.define(disease, {
             snp: {
                 type: Sequelize.STRING,
                 allowNull: false,
@@ -550,7 +552,7 @@ async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
     console.log("DISEASE ROWS, INDEX LINE 550");
     console.log(diseaseRows);
     return diseaseRows;
-} 
+}
 
 /**
  * Returns a list of objects, each of which contains a study name from the study array 
@@ -568,7 +570,7 @@ async function getStudiesRows(pValue, refGen, studiesArray, table) {
         studiesRows.push({ study: study, rows: rows })
     }
     return studiesRows;
-} 
+}
 
 /**
  * Returns a list of rows corresponding to the p-value cutoff and study in the given table
@@ -608,7 +610,7 @@ async function getRows(pValue, refGen, study, table) {
         });
         return rows;
     })
-} 
+}
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')
