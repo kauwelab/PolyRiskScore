@@ -154,6 +154,8 @@ app.post('/contact', function (req, res) {
     });
 });
 
+
+
 // POST route from upload GWAS form
 app.post('/sendGwas', upload.single('file'), (req, res) => {
     console.log("in sendGWAS")
