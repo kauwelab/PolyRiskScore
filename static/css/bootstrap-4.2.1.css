@@ -10249,3 +10249,18 @@ a.text-dark:hover, a.text-dark:focus {
   }
 }
 /*# sourceMappingURL=bootstrap.css.map */
+
+/*for the API page tutorial */
+.crop {
+  margin: 0 auto;
+  height: auto;
+  width: 600px;
+  overflow: hidden;
+  border-style: groove;
+  border-color: darkgrey;
+  border-spacing: 0mm;
+ }
+ .crop img {
+  height: auto;
+  width: 600px;
+ }
