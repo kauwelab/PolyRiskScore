@@ -9,9 +9,9 @@
     <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <a class="navbar-brand" href="#">Using the API</a>
-		
+
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
 		<!-- The justify-content-end command in the next line aligns the menu to the right.-->
       <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
@@ -23,21 +23,20 @@
       <div class="active-page">
           <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
       </div>
-      
-      <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>  
+
+      <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
 			 </ul>
 			 </div>
 		  </nav>
-   
-  
+
+
     <header>
       <div class="jumbotron">
         <div class="container">
           <div class="row">
             <div class="col-12">
               <h1 class="text-center">Using the PRS Knowledge Base API</h1>
-              <p class="lead"><br>Here, we outline how to download and use the API on your own computer, and thus gain the capability to submit VCF files to the analysis pipeline via the command line, bypassing unnecessary overhead through this website and the need for email</p>
-              <p>&nbsp;</p>
+              <p class="lead"><br>Here, we outline how to download and use the API on your own computer, and thus gain the capability to submit VCF files to the analysis pipeline via the command line, bypassing unnecessary overhead through this website and the need for email.</p>
               <!-- <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p> -->
             </div>
           </div>
@@ -45,20 +44,21 @@
       </div>
     </header>
     <section>
-      <div class="container">
+      <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
             <h2>Step 1: Download the API scripts onto your computer</h2>
-			  <p class="lead"><br>To get started, download these files onto your computer, which use a combination of bash commands and python to call our server directly.</p>
+			  <p1><br>To get started, download these files onto your computer, which use a combination of bash commands and python to call our server directly.</p1>
               <p>&nbsp;</p>
               <p class="text-center"><a class="btn btn-primary btn-lg" href="downloadables/PRS_API.zip" role="button">Download API files</a> </p>
           </div>
-        </div> 
+        </div>
       </div>
       <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
             <h2>Step 2: Unzip the zip file</h2>
+            <p>&nbsp;</p>
               <ul>
                 <li class = 'crop'>
                     <img src="/images/Download1.png" alt="Commandline1">
@@ -77,12 +77,13 @@
                 </li>
               </ul>
             </div>
-        </div> 
+        </div>
       </div>
       <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Step3: Using the command line</h2>
+            <h2>Step 3: Using the command line</h2>
+            <p>&nbsp;</p>
             <ul>
                 <li class = 'crop'>
                     <img src="/images/CommandPrompt1.png">
@@ -101,7 +102,7 @@
                 </li>
               </ul>
           </div>
-        </div> 
+        </div>
       </div>
 
       <!-- <div class="jumbotron">
@@ -113,12 +114,12 @@
 				<p>&nbsp;</p>
             </div>
           </div>
-          
+
             <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Guidelines for Uploading a GWAS</a> </p>
-          
+
         </div>
       </div> -->
-		
+
 
 	<!-- <div class="container">
         <div class="row">
@@ -130,7 +131,7 @@
           </div>
         </div>
       </div> -->
-		
+
 		<!-- <div class="jumbotron">
 		<div class="container">
         <div class="row">
@@ -144,54 +145,50 @@
       </div>
 		</div> -->
 </section>
-    <div class="container">		
-      <div class="row">
-        <div class="col-12 col-md-8 mx-auto">
-         
-            <div class="row text-center">
-              <div class="text-center col-12">
-                <h2>Questions or Comments about using the PRS Knowledge Base API?</h2>
-              </div>
-              <div class="text-center col-12">
-                <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                <form id="feedbackForm" class="text-center">
-                  <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" class="form-control" id="name" name="name" placeholder="Name" aria-describedby="nameHelp">
-                    <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
-                  </div>
-                  <div class="form-group">
-                    <label for="email">E-Mail</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" aria-describedby="emailHelp">
-                    <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail address.</span>
-                  </div>
-                  <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Message" aria-describedby="messageHelp"></textarea>
-                    <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
-                  </div>
-                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg"> Send</button>
-                </form>
+<div class="jumbotron">
+    <div class="container">
+        <div class="row text-center">
+            <div class="text-center col-12">
+              <h1 class="font-weight-bold">Questions or Comments about the PRS Knowledge Base?</h1>
+            </div>
+            <div class="text-center col-12">
+              <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+              <form action="/contact" id="feedbackForm" method="post" role = "form">
+                <div class="form-group text-left">
+                  <label for="name"><br><b>Name</b></label>
+                  <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
+                  <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
+                </div>
+                <div class="form-group text-left">
+                  <label for="email"><b>E-Mail</b></label>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
+                  <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail address.</span>
+                </div>
+                <div class="form-group text-left">
+                  <label for="message"><b>Message</b></label>
+                  <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
+                  <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
+                </div>
+                <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
+              </form>
+            </div>
+          </div>
+      </div>
+    </div>
+
+      <footer class="text-center" style="background-color: #343a40;">
+          <div class="container">
+            <div class="row">
+              <div class="col-12 text-white" style="margin-top: 1rem;">
+                <p>Copyright © Miller et al. (2020) All rights reserved.</p>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-   
-    <footer class="text-center">
-      <div class="container">
-        <div class="row">
-          <div class="col-12">
-			  <p>&nbsp;</p>
-            <p>Copyright © Miller et al. (2019) All rights reserved.</p>
-          </div>
-        </div>
-      </div>
-    </footer>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
-    <script src="js/jquery-3.3.1.min.js"></script> 
-    <!-- Include all compiled plugins (below), or include individual files as needed --> 
-    <script src="js/popper.min.js"></script> 
+        </footer>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/popper.min.js"></script>
     <script src="js/bootstrap-4.2.1.js"></script>
   </body>
 </html>
@@ -203,26 +200,26 @@
               <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a>
 
 
-             Adds a divider between the last item in the dropdown menu and the other items. 
+             Adds a divider between the last item in the dropdown menu and the other items.
 
-				<div class="dropdown-divider"></div>   
-              <a class="dropdown-item" href="#">Something else here</a> 
+				<div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </li>
 		-->
-			
-         <!-- 
+
+         <!--
 		This was a disabled menu button.
-		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li> 
+		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li>
 		-->
-       
-       <!-- 
+
+       <!--
 		This was a search bar and search button
 		<form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form> -->
-  
+
 		<!--
 		Traditional About me content with pictures of people. Dynamic 1 photo for phone, 2 for tablet, 3 for desktop.
       <div class="container ">
@@ -267,25 +264,25 @@
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
         </div>
@@ -331,5 +328,5 @@
           </div>
         </div>
       </div>
-    
+
 	  -->

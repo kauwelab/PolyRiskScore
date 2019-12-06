@@ -11,7 +11,7 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <a class="navbar-brand" href="#">Calculate Risk Scores</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -34,7 +34,7 @@
     </div>
   </nav>
   <header>
-    <div class="one">
+    <!-- <div class="one">
       <div class="text-center">
         <img src="images/Ollie.jpg" id="videosubstitute" alt="">
         <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop" id="video2">
@@ -50,7 +50,7 @@
 
       </div>
 
-    </div>
+    </div> -->
   </header>
   <!--
     <header>
@@ -128,11 +128,11 @@
           <div class="row text-center">
             <div class="text-center col-12">
               <h2>How to Use the Calculator</h2>
-              <p1>You can calculate a polygenic risk score by inputting rs IDs in the box below or uploading a VCF file. RS ids can be input with or without a genotype. If an rs ID is input without a genotype, all risk alleles at that position will be used in calculating the polygenic risk scores. If genotypes are available, alleles can be indicated after the rs ID. One or two alleles may be used. When only one allele is specified, the other will be assumed to be the risk allele. RS IDs and genotypes are separated by a colon. Separate rs IDs by either a comma, space, or an end-of-line character, as shown below. 
+              <p1>You can calculate a polygenic risk score by inputting rs IDs in the box below or uploading a VCF file. RS ids can be input with or without a genotype. If an rs ID is input without a genotype, all risk alleles at that position will be used in calculating the polygenic risk scores. If genotypes are available, alleles can be indicated after the rs ID. One or two alleles may be used. When only one allele is specified, the other will be assumed to be the risk allele. RS IDs and genotypes are separated by a colon. Separate rs IDs by either a comma, space, or an end-of-line character, as shown below.
 
-                <br><br>Once you have input the rs IDs or uploaded a VCF file, select the disease you would like to test. The corresponding genome-wide association (GWA) study you select will contain the variants and odd ratios used to calculate the score. The p-value cutoff you select will decide which variants from the GWA study pass the significance threshold for calculating the score. Finally, select the reference genome from which your rs IDs or VCF file were determined. 
+                <br><br>Once you have input the rs IDs or uploaded a VCF file, select the disease you would like to test. The corresponding genome-wide association (GWA) study you select will contain the variants and odd ratios used to calculate the score. The p-value cutoff you select will decide which variants from the GWA study pass the significance threshold for calculating the score. Finally, select the reference genome from which your rs IDs or VCF file were determined.
                 </p1>
-              <h2><br>Input RS IDs and Genotypes</h2>
+              <h3><br>Input RS IDs and Genotypes</h3>
 
 
             </div>
@@ -329,12 +329,10 @@
       </div>
     </div>
   </div>
-  </div>
-  <footer class="text-center">
+  <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
       <div class="row">
-        <div class="col-12">
-          <p>&nbsp;</p>
+        <div class="col-12 text-white" style="margin-top: 1rem;">
           <p>Copyright © Miller et al. (2020) All rights reserved.</p>
         </div>
       </div>
