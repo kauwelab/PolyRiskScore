@@ -36,8 +36,7 @@
           <div class="row">
             <div class="col-12">
               <h1 class="text-center">Using the PRS Knowledge Base API</h1>
-              <p class="lead"><br>Here, we outline how to download and use the API on your own computer, and thus gain the capability to submit VCF files to the analysis pipeline via the command line, bypassing unnecessary overhead through this website and the need for email</p>
-              <p>&nbsp;</p>
+              <p class="lead"><br>Here, we outline how to download and use the API on your own computer, and thus gain the capability to submit VCF files to the analysis pipeline via the command line, bypassing unnecessary overhead through this website and the need for email.</p>
               <!-- <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p> -->
             </div>
           </div>
@@ -45,11 +44,11 @@
       </div>
     </header>
     <section>
-      <div class="container">
+      <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
             <h2>Step 1: Download the API scripts onto your computer</h2>
-			  <p class="lead"><br>To get started, download these files onto your computer, which use a combination of bash commands and python to call our server directly.</p>
+			  <p1><br>To get started, download these files onto your computer, which use a combination of bash commands and python to call our server directly.</p1>
               <p>&nbsp;</p>
               <p class="text-center"><a class="btn btn-primary btn-lg" href="downloadables/PRS_API.zip" role="button">Download API files</a> </p>
           </div>
@@ -59,6 +58,7 @@
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
             <h2>Step 2: Unzip the zip file</h2>
+            <p>&nbsp;</p>
               <ul>
                 <li class = 'crop'>
                     <img src="/images/Download1.png" alt="Commandline1">
@@ -82,7 +82,8 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Step3: Using the command line</h2>
+            <h2>Step 3: Using the command line</h2>
+            <p>&nbsp;</p>
             <ul>
                 <li class = 'crop'>
                     <img src="/images/CommandPrompt1.png">
@@ -144,50 +145,46 @@
       </div>
 		</div> -->
 </section>
+<div class="jumbotron">
     <div class="container">
-      <div class="row">
-        <div class="col-12 col-md-8 mx-auto">
+        <div class="row text-center">
+            <div class="text-center col-12">
+              <h1 class="font-weight-bold">Questions or Comments about the PRS Knowledge Base?</h1>
+            </div>
+            <div class="text-center col-12">
+              <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+              <form action="/contact" id="feedbackForm" method="post" role = "form">
+                <div class="form-group text-left">
+                  <label for="name"><br><b>Name</b></label>
+                  <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
+                  <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
+                </div>
+                <div class="form-group text-left">
+                  <label for="email"><b>E-Mail</b></label>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
+                  <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail address.</span>
+                </div>
+                <div class="form-group text-left">
+                  <label for="message"><b>Message</b></label>
+                  <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
+                  <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
+                </div>
+                <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
+              </form>
+            </div>
+          </div>
+      </div>
+    </div>
 
-            <div class="row text-center">
-              <div class="text-center col-12">
-                <h2>Questions or Comments about using the PRS Knowledge Base API?</h2>
-              </div>
-              <div class="text-center col-12">
-                <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                <form id="feedbackForm" class="text-center">
-                  <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" class="form-control" id="name" name="name" placeholder="Name" aria-describedby="nameHelp">
-                    <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
-                  </div>
-                  <div class="form-group">
-                    <label for="email">E-Mail</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" aria-describedby="emailHelp">
-                    <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail address.</span>
-                  </div>
-                  <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Message" aria-describedby="messageHelp"></textarea>
-                    <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
-                  </div>
-                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg"> Send</button>
-                </form>
+      <footer class="text-center" style="background-color: #343a40;">
+          <div class="container">
+            <div class="row">
+              <div class="col-12 text-white" style="margin-top: 1rem;">
+                <p>Copyright © Miller et al. (2020) All rights reserved.</p>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-    <footer class="text-center">
-      <div class="container">
-        <div class="row">
-          <div class="col-12">
-			  <p>&nbsp;</p>
-            <p>Copyright © Miller et al. (2019) All rights reserved.</p>
-          </div>
-        </div>
-      </div>
-    </footer>
+        </footer>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="js/jquery-3.3.1.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
