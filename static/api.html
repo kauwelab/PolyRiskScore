@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title class="lead">Polygenic Risk Scores</title>
+    <title class="lead">Polygenic Risk Scores: API Documentation</title>
     <!-- Bootstrap -->
     <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
-      <a class="navbar-brand" href="#">PRS Knowledge Base</a>
-		
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+      <a class="navbar-brand" href="#">Using the API</a>
+
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
 		<!-- The justify-content-end command in the next line aligns the menu to the right.-->
       <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
@@ -23,22 +23,22 @@
       <div class="active-page">
           <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
       </div>
-      
-      <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>  
+
+      <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
 			 </ul>
 			 </div>
 		  </nav>
-   
-  
+
+
     <header>
       <div class="jumbotron">
         <div class="container">
           <div class="row">
             <div class="col-12">
-              <h1 class="text-center">The Polygenic Risk Score Knowledge Base</h1>
-              <p class="lead"><br>The purpose of the PRS Knowledge Base is to allow researchers to quickly calculate polygenic risk scores for various diseases based on published genome-wide association studies (GWAS).<br><br>The PRS Knowledge Base also facilitates the use and distribution of GWAS results by allowing researchers to upload results from their own studies to be included in future polygenic risk score calculations. </p>
+              <h1 class="text-center">Using the PRS Knowledge Base API</h1>
+              <p class="lead"><br>Here, we outline how to download and use the API on your own computer, and thus gain the capability to submit VCF files to the analysis pipeline via the command line, bypassing unnecessary overhead through this website and the need for email</p>
               <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p>
+              <!-- <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p> -->
             </div>
           </div>
         </div>
@@ -48,31 +48,79 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Calculate Polygenic Risk Scores</h2>
-			  <p class="lead"><br>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p>
+            <h2>Step 1: Download the API scripts onto your computer</h2>
+			  <p class="lead"><br>To get started, download these files onto your computer, which use a combination of bash commands and python to call our server directly.</p>
               <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="calculate_score.html" role="button">Upload VCF</a> </p>
+              <p class="text-center"><a class="btn btn-primary btn-lg" href="downloadables/PRS_API.zip" role="button">Download API files</a> </p>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2>Step 2: Unzip the zip file</h2>
+              <ul>
+                <li class = 'crop'>
+                    <img src="/images/Download1.png" alt="Commandline1">
+                </li>
+                <li class = 'crop'>
+                  <img src="/images/Unzip1.png"/>
+                </li>
+                <li class = 'crop'>
+                  <img src="/images/Extract1.png"/>
+                </li>
+                <li class = 'crop'>
+                    <img src="/images/Extract2.png"/>
+                </li>
+                <li class = 'crop'>
+                    <img src="/images/Unzip2.png"/>
+                </li>
+              </ul>
+            </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2>Step3: Using the command line</h2>
+            <ul>
+                <li class = 'crop'>
+                    <img src="/images/CommandPrompt1.png">
+                </li>
+                <li class = 'crop'>
+                  <img src="/images/CommandPrompt2.png"/>
+                </li>
+                <li class = 'crop'>
+                  <img src="/images/CommandPrompt3.png"/>
+                </li>
+                <li class = 'crop'>
+                    <img src="/images/CommandPrompt4.png"/>
+                </li>
+                <li class = 'crop'>
+                    <img src="/images/CommandPrompt5.png"/>
+                </li>
+              </ul>
           </div>
         </div>
       </div>
 
-      <div class="jumbotron">
+      <!-- <div class="jumbotron">
         <div class="container">
           <div class="row">
             <div class="col-lg-12 mb-4 mt-2 text-center">
 				<h2>Add GWAS to the PRS Knowledge Base</h2>
-              <p class="lead"><br>We invite you to upload the odds ratios and p-values from your association studies to the knowledge base. Please visit the submission page by clicking on the link below to see the required submission format and to upload your study.<br><br>Thank you for supporting the PRS Knowledge Base!</p>
+              <p class="lead"><br>We invite you to upload the odds ratios and p-values from your association studies to the knowledge base. Please visit the submission page by clicking on the link below to see the required submission format and to upload your study.<br></p>
 				<p>&nbsp;</p>
             </div>
           </div>
-          
-            <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
-          
-        </div>
-      </div>
-		
 
-	<div class="container">
+            <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Guidelines for Uploading a GWAS</a> </p>
+
+        </div>
+      </div> -->
+
+
+	<!-- <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
             <h2>How To Cite the PRS Knowledge Base</h2>
@@ -81,9 +129,9 @@
               <p class="text-center"><a class="btn btn-primary btn-lg" href="citations.html" role="button">Citations</a> </p>
           </div>
         </div>
-      </div>
-		
-		<div class="jumbotron">
+      </div> -->
+
+		<!-- <div class="jumbotron">
 		<div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
@@ -94,15 +142,15 @@
           </div>
         </div>
       </div>
-		</div>
+		</div> -->
 </section>
-    <div class="container">		
+    <div class="container">
       <div class="row">
         <div class="col-12 col-md-8 mx-auto">
-         
+
             <div class="row text-center">
               <div class="text-center col-12">
-                <h2>Questions or Comments about the PRS Knowledge Base?</h2>
+                <h2>Questions or Comments about using the PRS Knowledge Base API?</h2>
               </div>
               <div class="text-center col-12">
                 <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
@@ -129,7 +177,7 @@
           </div>
         </div>
       </div>
-   
+
     <footer class="text-center">
       <div class="container">
         <div class="row">
@@ -140,10 +188,10 @@
         </div>
       </div>
     </footer>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
-    <script src="js/jquery-3.3.1.min.js"></script> 
-    <!-- Include all compiled plugins (below), or include individual files as needed --> 
-    <script src="js/popper.min.js"></script> 
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/popper.min.js"></script>
     <script src="js/bootstrap-4.2.1.js"></script>
   </body>
 </html>
@@ -155,26 +203,26 @@
               <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a>
 
 
-             Adds a divider between the last item in the dropdown menu and the other items. 
+             Adds a divider between the last item in the dropdown menu and the other items.
 
-				<div class="dropdown-divider"></div>   
-              <a class="dropdown-item" href="#">Something else here</a> 
+				<div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </li>
 		-->
-			
-         <!-- 
+
+         <!--
 		This was a disabled menu button.
-		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li> 
+		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li>
 		-->
-       
-       <!-- 
+
+       <!--
 		This was a search bar and search button
 		<form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form> -->
-  
+
 		<!--
 		Traditional About me content with pictures of people. Dynamic 1 photo for phone, 2 for tablet, 3 for desktop.
       <div class="container ">
@@ -219,25 +267,25 @@
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small>
             </blockquote>
           </div>
           <div class="col-sm-6 col-lg-6">
             <blockquote class="blockquote">
               <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small> 
+              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
             </blockquote>
           </div>
         </div>
@@ -283,5 +331,5 @@
           </div>
         </div>
       </div>
-    
+
 	  -->
