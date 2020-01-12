@@ -236,15 +236,12 @@ async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
     var connection = mysql.createConnection({
         host: 'localhost',
         user: 'polyscore',
-        password: 'H3e6r2m1tC99r4b5c32rr56t25',//'[Miller19] packet muffin waveform',
+        password: '[Miller19] packet muffin waveform',
         database: 'polyscore'
     });
-    console.log("here");
     return await new Promise((resolve, reject) => {
         connection.connect(async function (err) {
-            console.log("here2")
             if (err) throw err;
-            console.log("CONNECTED!")
             return err ? reject(err) : resolve(await getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray));
         });
     });
@@ -258,7 +255,6 @@ async function getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray) 
         var studiesRows = [];
         studiesRows = await getStudiesRows(connection, pValue, refGen, studiesArray, disease);
         diseaseRows.push({ disease: disease, studiesRows: studiesRows })
-        console.log("pushed " + disease);
     }
     return diseaseRows;
 }
@@ -277,7 +273,6 @@ async function getStudiesRows(connection, pValue, refGen, studiesArray, disease)
         var study = studiesArray[j];
         var rows = await getRows(connection, pValue, refGen, study, disease);
         studiesRows.push({ study: study, rows: rows });
-        console.log("pushed " + study + " " + rows[0]);
     }
     return studiesRows;
 }
