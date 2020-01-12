@@ -226,8 +226,6 @@ app.get('/study_table/', async function (req, res) {
     var refGen = req.query.refGen;
 
     var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
-    console.log("tableObj " + tableObj);
-    console.log("hello?")
     res.send(tableObj);
 });
 
