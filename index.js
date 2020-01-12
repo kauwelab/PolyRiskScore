@@ -24,7 +24,7 @@ const port = 3000
 //     password: "H3e6r2m1tC99r4b5c32rr56t25",
 //     database: "polyscore"
 //   });
-  
+
 //   con.connect(function(err) {
 //     if (err) throw err;
 //     console.log("Connected to MySQL!");
@@ -226,76 +226,140 @@ app.get('/study_table/', async function (req, res) {
     var refGen = req.query.refGen;
 
     var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
+    console.log("tableObj " + tableObj);
+    console.log("hello?")
     res.send(tableObj);
-
 });
 
-/**
- * Gets the diseaseRows object, but includes the setup of the sequelize objects.
- * @param {*} pValue 
- * @param {*} diseaseStudyMapArray
- * @return a diseaseRows object. See "getDiseaseRows" function for details.
- */
 async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
     // config for the database
-    //const sequelize = new Sequelize('polyscore', 'root', 'H3e6r2m1tC99r4b5c32rr56t25', {
-    const sequelize = new Sequelize('polyscore', 'root', '[Miller19] packet muffin waveform', {
+    var connection = mysql.createConnection({
         host: 'localhost',
-        dialect: 'mysql',
-        // define: {
-        //     schema: "ad"
-        // },
-        pool: {
-            max: 5,
-            min: 0,
-            acquire: 30000,
-            idle: 10000
-        },
-        logging: false
+        user: 'polyscore',
+        password: 'H3e6r2m1tC99r4b5c32rr56t25',//'[Miller19] packet muffin waveform',
+        database: 'polyscore'
     });
-
-    return sequelize
-        .authenticate()
-        .then(async function () {
-            //gets a diseaseRows list to send to the client
-            var diseaseRows = await getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray);
-            return diseaseRows;
+    console.log("here");
+    return await new Promise((resolve, reject) => {
+        connection.connect(async function (err) {
+            console.log("here2")
+            if (err) throw err;
+            console.log("CONNECTED!")
+            return err ? reject(err) : resolve(await getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray));
         });
+    });
 }
 
-app.get('/get_studies/', function (req, res){
-    
-    var studyObject0 = {reference: "number 1", articleName: "john", URL: "https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string"}
-    var studyObject1 = {reference: "number 2", articleName: "jacob", URL: "https://www.google.com/search?q=object.pluralize&rlz=1C1XYJR_enUS815US815&oq=object.pluralize&aqs=chrome..69i57.4710j0j7&sourceid=chrome&ie=UTF-8"}
-    var studyObject2 = {reference: "number 3", articleName: "jingle", URL: "http://docs.sequelizejs.com/manual/getting-started.html"}
-    var studyObject3 = {reference: "number 4", articleName: "heimer", URL: "http://docs.sequelizejs.com/manual/getting-started.html"}
+async function getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray) {
+    var diseaseRows = [];
+    for (var i = 0; i < diseaseStudyMapArray.length; ++i) {
+        var disease = diseaseStudyMapArray[i].disease;
+        var studiesArray = diseaseStudyMapArray[i].studies;
+        var studiesRows = [];
+        studiesRows = await getStudiesRows(connection, pValue, refGen, studiesArray, disease);
+        diseaseRows.push({ disease: disease, studiesRows: studiesRows })
+        console.log("pushed " + disease);
+    }
+    return diseaseRows;
+}
+
+/**
+ * Returns a list of objects, each of which contains a study name from the study array 
+ * and its corresponding rows in the given table.
+ * @param {*} pValue 
+ * @param {*} studiesArray 
+ * @param {*} table 
+ * @retunr a studyRows list: a list of objects containing study names and their corresponding table rows
+ */
+async function getStudiesRows(connection, pValue, refGen, studiesArray, disease) {
+    var studiesRows = [];
+    for (var j = 0; j < studiesArray.length; ++j) {
+        var study = studiesArray[j];
+        var rows = await getRows(connection, pValue, refGen, study, disease);
+        studiesRows.push({ study: study, rows: rows });
+        console.log("pushed " + study + " " + rows[0]);
+    }
+    return studiesRows;
+}
+
+/**
+ * Returns a list of rows corresponding to the p-value cutoff and study in the given table
+ * @param {*} pValue 
+ * @param {*} study 
+ * @param {*} table
+ * @retrun a list of rows corresponding to the p-value and study in the table 
+ */
+async function getValidRows(connection, pValue, refGen, study, disease) {
+    var result = await getRows(connection, refGen, disease);
+    var rows = [];
+    for (var k = 0; k < result.length; ++k) {
+        var row = result[k];
+        if (row["study"] == study && row["pValue"] <= pValue) {
+            rows.push(row);
+        }
+    }
+    return rows;
+}
+
+async function getRows(connection, pValue, refGen, study, disease) {
+    return new Promise((resolve, reject) => {
+        var query = "SELECT snp, chromosome, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease;
+        connection.query(query, (err, result) => {
+            var rows = [];
+            for (var i = 0; i < result.length; ++i) {
+                var tableRow = result[i];
+                if (tableRow["study"] == study && tableRow["pValue"] <= pValue) {
+                    var row = {
+                        pos: tableRow.chromosome.toString().concat(":", tableRow[refGen]), //TODO this is a problem! How do I access the variable with refGen name?
+                        snp: tableRow.snp,
+                        riskAllele: tableRow.riskAllele,
+                        pValue: tableRow.pValue,
+                        oddsRatio: tableRow.oddsRatio
+                    }
+                    rows.push(row);
+                }
+            }
+            return err ? reject(err) : resolve(rows)
+        });
+    });
+}
+
+
+
+app.get('/get_studies/', function (req, res) {
+
+    var studyObject0 = { reference: "number 1", articleName: "john", URL: "https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string" }
+    var studyObject1 = { reference: "number 2", articleName: "jacob", URL: "https://www.google.com/search?q=object.pluralize&rlz=1C1XYJR_enUS815US815&oq=object.pluralize&aqs=chrome..69i57.4710j0j7&sourceid=chrome&ie=UTF-8" }
+    var studyObject2 = { reference: "number 3", articleName: "jingle", URL: "http://docs.sequelizejs.com/manual/getting-started.html" }
+    var studyObject3 = { reference: "number 4", articleName: "heimer", URL: "http://docs.sequelizejs.com/manual/getting-started.html" }
     var studiesArray = []
     studiesArray.push(studyObject0)
     studiesArray.push(studyObject1)
     studiesArray.push(studyObject2)
     studiesArray.push(studyObject3)
-    
+
 
     const sequelize = new Sequelize('studies', 'root', 'Petersme1', {
         host: 'localhost',
         dialect: 'mysql',
-        dialectOptions:{
-            insecureAuth: true},
+        dialectOptions: {
+            insecureAuth: true
+        },
         logging: false
     })
 
     sequelize
-    .authenticate()
-    .then(() => {
-        console.log('connection is up and running')
+        .authenticate()
+        .then(() => {
+            console.log('connection is up and running')
 
-    })
-    .catch(err => {
-        console.error('nope, that didnt work', err)
-    });
+        })
+        .catch(err => {
+            console.error('nope, that didnt work', err)
+        });
 
     const Model = Sequelize.Model;
-    class Studies extends Model {}
+    class Studies extends Model { }
     Studies.init({
         reference: {
             type: Sequelize.STRING
@@ -310,56 +374,56 @@ app.get('/get_studies/', function (req, res){
             type: Sequelize.INTEGER
         }
     }, {
-        sequelize, 
+        sequelize,
         modelName: 'Studies',
         freezeTableName: true,
         timestamps: false
     });
-// the find all returns an array, so creat three seperate arrays of references, names, and URLs and then 
-// loop through those to create your study objects and then send those back to the client.
-var tempReference = Studies.findAll({
-    attributes: ['reference']
-})
-var tempArticleNames = Studies.findAll({
-    attributes: ['articleName']
-})
-var tempURL = Studies.findAll({
-    attributes: ['URL']
-})
+    // the find all returns an array, so creat three seperate arrays of references, names, and URLs and then 
+    // loop through those to create your study objects and then send those back to the client.
+    var tempReference = Studies.findAll({
+        attributes: ['reference']
+    })
+    var tempArticleNames = Studies.findAll({
+        attributes: ['articleName']
+    })
+    var tempURL = Studies.findAll({
+        attributes: ['URL']
+    })
 
-for (var i = 0; i < tempReference.length; ++i) {
-    var studyObject = {reference: tempReference[i], articleName: tempArticleNames[i], URL: tempURL[i]}
-    studiesArray.push(studyObject)
-}
-   /* for (var i = 0; i <.length; ++i) {
-        var tempReference = Studies.findAll({
-            attributes: ['reference'],
-            where: {
-                studyID: i
-            }
-        })
-        var tempArticleName = Studies.findAll({
-            attributes: ['articleName'],
-            where: {
-                studyID: i
-            }
-        })
-        var tempURL = Studies.findAll({
-            attributes: ['URL'],
-            where: {
-                studyID: i
-            }
-        })
-        var studyObject = {tempReference, tempArticleName, tempURL}
+    for (var i = 0; i < tempReference.length; ++i) {
+        var studyObject = { reference: tempReference[i], articleName: tempArticleNames[i], URL: tempURL[i] }
         studiesArray.push(studyObject)
-    }*/
-    
+    }
+    /* for (var i = 0; i <.length; ++i) {
+         var tempReference = Studies.findAll({
+             attributes: ['reference'],
+             where: {
+                 studyID: i
+             }
+         })
+         var tempArticleName = Studies.findAll({
+             attributes: ['articleName'],
+             where: {
+                 studyID: i
+             }
+         })
+         var tempURL = Studies.findAll({
+             attributes: ['URL'],
+             where: {
+                 studyID: i
+             }
+         })
+         var studyObject = {tempReference, tempArticleName, tempURL}
+         studiesArray.push(studyObject)
+     }*/
+
 
 
 
     res.send(studiesArray)
 
-    
+
     /*const sequelize = new Sequelize('PolyScore', 'joepete2', 'Petersme1', {
         host: 'localhost',
         port: 1434,
@@ -463,152 +527,6 @@ for (var i = 0; i < tempReference.length; ++i) {
         console.error("that wasnt right...", err);
     }); */
 });
-
-/**
- * Returns a list of objects, each of which contains a disease name from the diseaseStudyMapArray 
- * and a list of corresponding studyRow objects from the given table.
- * @param {*} sequelize 
- * @param {*} pValue 
- * @param {*} diseaseStudyMapArray 
- * @return a diseaseRows object: a list of objects containing disease names and studyRow objects
- */
-async function getDiseaseRows(sequelize, pValue, refGen, diseaseStudyMapArray) {
-    var diseaseRows = [];
-    //for each disease, get it's table from the database 
-    for (var i = 0; i < diseaseStudyMapArray.length; ++i) {
-        var disease = diseaseStudyMapArray[i].disease;
-        var studiesArray = diseaseStudyMapArray[i].studies;
-        console.log(studiesArray); 
-        //const Model = Sequelize.Model;
-        //class Table extends Model { }
-        //Table.init({
-            // attributes
-            //id smallint unsigned not null, snp varchar(20), chromosome tinyint,  
-            //hg38 int, hg19 int, hg18 int, hg17 int, alleleFrequency float, 
-            //riskAllele varchar(20), pValue double, oddsRatio float, 
-            //lowerCI float, upperCI float, study varchar(50)
-            //SHOULD DISEASE ALWAYS BE THE RIGHT TABLE NAME?
-        diseaseData = sequelize.define( disease, {
-            snp: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-            chromosome: {
-                type: Sequelize.TINYINT,
-                allowNull: false,
-            },
-            hg38: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
-            hg19: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
-            hg18: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
-            hg17: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
-            alleleFrequency: {
-                type: Sequelize.FLOAT,
-                allowNull: true,
-            },
-            riskAllele: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-            pValue: {
-                type: Sequelize.DOUBLE,
-                allowNull: false
-            },
-            oddsRatio: {
-                type: Sequelize.FLOAT,
-                allowNull: false
-            },
-            study: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            }
-        }, {
-            sequelize,
-            // modelName: diseaseEnum[disease.toLowerCase()],
-            name: {
-                primaryKey: true,
-                type: Sequelize.STRING
-            },
-            freezeTableName: true,
-            timestamps: false,
-            // options
-        });
-        var studiesRows = await getStudiesRows(pValue, refGen, studiesArray, diseaseData)
-        diseaseRows.push({ disease: disease, studiesRows: studiesRows })
-    }
-    console.log("DISEASE ROWS, INDEX LINE 550");
-    console.log(diseaseRows);
-    return diseaseRows;
-} 
-
-/**
- * Returns a list of objects, each of which contains a study name from the study array 
- * and its corresponding rows in the given table.
- * @param {*} pValue 
- * @param {*} studiesArray 
- * @param {*} table 
- * @retunr a studyRows list: a list of objects containing study names and their corresponding table rows
- */
-async function getStudiesRows(pValue, refGen, studiesArray, table) {
-    var studiesRows = [];
-    for (var i = 0; i < studiesArray.length; ++i) {
-        var study = studiesArray[i];
-        var rows = await getRows(pValue, refGen, study, table);
-        studiesRows.push({ study: study, rows: rows })
-    }
-    return studiesRows;
-} 
-
-/**
- * Returns a list of rows corresponding to the p-value cutoff and study in the given table
- * @param {*} pValue 
- * @param {*} study 
- * @param {*} table
- * @retrun a list of rows corresponding to the p-value and study in the table 
- */
-async function getRows(pValue, refGen, study, table) {
-    const Op = Sequelize.Op;
-    var tableRows = [];
-    //first find the valid results from the table (tests for valid p-value and study)
-    tableRows.push(table.findAll({
-        attributes: ['chromosome', refGen, 'snp', 'riskAllele', 'pValue', 'oddsRatio'],
-        where: {
-            pValue: {
-                [Op.lt]: pValue
-            },
-            study: study,
-        }
-    }));
-    var rows = [];
-    //loops through the valid found rows and converts them into objects which are stored in an array and returned.
-    return Promise.all(tableRows).then(tableRows => {
-        //Result seems to be an array of arrays. To reach the inner arrays (the actual rows), we have to go through the first array.
-        var tableRows = tableRows[0];
-        tableRows.forEach(function (tableRow) {
-            //TODO
-            var row = {
-                pos: tableRow.chromosome.toString().concat(":", tableRow[refGen]), //TODO this is a problem! How do I access the variable with refGen name?
-                snp: tableRow.snp,
-                riskAllele: tableRow.riskAllele,
-                pValue: tableRow.pValue,
-                oddsRatio: tableRow.oddsRatio
-            }
-            rows.push(row);
-        });
-        return rows;
-    })
-} 
 
 /* app.get('/um', function (req, res) {
     res.send('Hello World!')

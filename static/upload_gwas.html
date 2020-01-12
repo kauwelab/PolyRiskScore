@@ -1,35 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title class="lead">Polygenic Risk Scores</title>
-    <!-- Bootstrap -->
-    <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-      <a class="navbar-brand" href="#">Upload GWAS</a>
-		
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
-		<!-- The justify-content-end command in the next line aligns the menu to the right.-->
-      <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-        <ul class="navbar-nav">
-			
-          <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
-				
-		  
-          <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
-			<div class="active-page">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title class="lead">Polygenic Risk Scores</title>
+  <!-- Bootstrap -->
+  <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <a class="navbar-brand" href="#">Upload GWAS</a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
+        class="navbar-toggler-icon"></span> </button>
+    <!-- The justify-content-end command in the next line aligns the menu to the right.-->
+    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+
+        <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
+
+
+        <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
+        <div class="active-page">
           <li class="nav-item"> <a class="nav-link" href="upload_gwas.html">Upload GWAS</a> </li>
-			    </div>
-			<li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
-      <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
-      <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>  
-			 </ul>
-			 </div>
-		  </nav>
+        </div>
+        <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
+        <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
+        <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
+      </ul>
+    </div>
+  </nav>
   <!--
     <header>
       <div class="jumbotron">
@@ -98,129 +102,144 @@
 		</div>
 </section>
 	  -->
-	  <div class="jumbotron">
-    <div class="container">		
+  <div class="jumbotron">
+    <div class="container">
       <div class="row">
         <div class="col-12 col-md-8 mx-auto">
-         
-            <div class="row text-center">
-              <div class="text-center col-12">
-                  <h1 class="text-center">How to Upload GWAS</h1>
-                  <p class="lead">All GWAS uploads are manually analyzed to ensure that they meet our quality standards. Check the following criteria before submitting the form below to ensure your study gets added to our database.<br></p>
-              </div>
-          <!-- <p1>Thank you for adding to the PRS Knowledge Base! All GWAS uploads are manually analyzed to ensure that they follow our quality standards. We utilize the following criteria to analyze each submission:<br><br></p1> -->				  
-              <!-- <div class="text-center col-12"> -->
-                <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                <!--<form id="feedbackForm" class="text-center">
+
+          <div class="row text-center">
+            <div class="text-center col-12">
+              <h1 class="text-center">How to Upload GWAS</h1>
+              <p class="lead">All GWAS uploads are manually analyzed to ensure that they meet our quality standards.
+                Check the following criteria before submitting the form below to ensure your study gets added to our
+                database.<br></p>
+            </div>
+            <!-- <p1>Thank you for adding to the PRS Knowledge Base! All GWAS uploads are manually analyzed to ensure that they follow our quality standards. We utilize the following criteria to analyze each submission:<br><br></p1> -->
+            <!-- <div class="text-center col-12"> -->
+            <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+            <!--<form id="feedbackForm" class="text-center">
                 
                   <div class="form-text font-weight-bold">
                 
                     <textarea rows="10" cols="100" class="form-control" id="input" name="input" placeholder="rs3:A,rs3:T rs4:G&#10;rs4:G&#10;rs6" aria-describedby="input rsID"></textarea>
                     <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
                   </div>
-					 </form>-->  
-              <!-- </div> -->
+					 </form>-->
+            <!-- </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="jumbotron-white">
+    <div class="container" style="margin-bottom: 2rem;">
+      <div class="row">
+        <div class="col-12 col-md-8 mx-auto">
+
+          <div class="row">
+            <div class="text-center col-12">
+              <h2 style="margin-top: 2rem;">Criteria</h2>
+            </div>
+
+            <div class="text-left">
+              <ol>
+                <li>The study is not already included in the PRS Knowledge Base (check using the "Cite" tab)</li>
+                <!--above to see if the study is already included in the PRS Knowledge Base).-->
+                <li>The study has been peer reviewed and published</li>
+                <li>The location of each snp is included</li>
+                <li>The alternate alleles are included</li>
+                <li>The odds ratios or the log odds ratios are included</li>
+                <li>Optional: Rs IDs</li>
+              </ol>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="jumbotron-white"> 
-      <div class="container" style="margin-bottom: 2rem;">		
-          <div class="row">
-            <div class="col-12 col-md-8 mx-auto">
 
-                <div class="row">
-                    <div class="text-center col-12">
-                      <h2 style="margin-top: 2rem;">Criteria</h2>
-                    </div>
-              
-                    <div class="text-left">
-                      <ol>
-                        <li>The study is not already included in the PRS Knowledge Base (check using the "Cite" tab)</li>  <!--above to see if the study is already included in the PRS Knowledge Base).-->
-                        <li>The study has been peer reviewed and published</li>
-                        <li>The location of each snp is included</li>
-                        <li>The alternate alleles are included</li>
-                        <li>The odds ratios or the log odds ratios are included</li>
-                        <li>Optional: Rs IDs</li>
-                      </ol>
-                    </div>
-            </div>
-          </div>
-        </div>
-    </div>
-
-
-    <div class="jumbotron"> 
-    <div class="container">		
+    <div class="jumbotron">
+      <div class="container">
         <div class="row">
           <div class="col-12 col-md-8 mx-auto">
-           
-              <div class="row text-center">
-                <div class="text-center col-12">
-                  <h1 class="font-weight-bold">Send us your GWAS file</h1>
-                </div>
-                <div class="text-center col-12">
-                    
-                    
-                  <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                  <form action="/sendGwas" id="feedbackForm" class="text-center" method="post" role="form" novalidate enctype="multipart/form-data">
-                    <div class="form-group text-left">
-                      <label for="name"><br><b>Name</b></label>
-                      <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
-                      <span id="nameHelp" class="form-text text-muted" style="display: none">Please enter your name.</span>
-                    </div>
-                    <div class="form-group text-left">
-                      <label for="email"><b>E-Mail</b></label>
-                      <input type="email" class="form-control" id="email" name="email" placeholder="Please enter your valid e-mail address." aria-describedby="emailHelp">
-                      <span id="emailHelp" class="form-text text-muted" style="display: none">Please enter a valid e-mail address.</span>
-                    </div>
-                    <div class="form-group text-left">
-                      <label for="title"><b>Article Title</b></label>
-                      <textarea rows="1" cols="100" class="form-control" id="title" name="title" placeholder="Please enter the article title." aria-describedby="messageHelp"></textarea>
-                      <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a message.</span>
-                    </div>
-                    <div class="form-group text-left">
-                      <label for="author"><b>Author</b></label>
-                      <textarea rows="1" cols="50" class="form-control" id="author" name="author" placeholder="Please enter the first author's name." aria-describedby="messageHelp"></textarea>
-                      <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a message.</span>
-                    </div>
-                    <div class="form-group text-left">
-                      <label for="year"><b>Publication Year</b></label>
-                      <textarea rows="1" cols="50" class="form-control" id="year" name="year" placeholder="Please enter the year of publication." aria-describedby="messageHelp"></textarea>
-                      <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a message.</span>
-                    </div> 
-                    <div class="form-group text-left">
-                      <input id="file" name="file" type="file" style="float:left"/><br>
-                    </div>
-                    <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Send</button>
-                  </form>
-                </div>
+
+            <div class="row text-center">
+              <div class="text-center col-12">
+                <h1 class="font-weight-bold">Send us your GWAS file</h1>
+              </div>
+              <div class="text-center col-12">
+
+
+                <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+                <form action="/sendGwas" id="feedbackForm" class="text-center" method="post" role="form" novalidate
+                  enctype="multipart/form-data">
+                  <div class="form-group text-left">
+                    <label for="name"><br><b>Name</b></label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
+                      aria-describedby="nameHelp">
+                    <span id="nameHelp" class="form-text text-muted" style="display: none">Please enter your
+                      name.</span>
+                  </div>
+                  <div class="form-group text-left">
+                    <label for="email"><b>E-Mail</b></label>
+                    <input type="email" class="form-control" id="email" name="email"
+                      placeholder="Please enter your valid e-mail address." aria-describedby="emailHelp">
+                    <span id="emailHelp" class="form-text text-muted" style="display: none">Please enter a valid e-mail
+                      address.</span>
+                  </div>
+                  <div class="form-group text-left">
+                    <label for="title"><b>Article Title</b></label>
+                    <textarea rows="1" cols="100" class="form-control" id="title" name="title"
+                      placeholder="Please enter the article title." aria-describedby="messageHelp"></textarea>
+                    <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a
+                      message.</span>
+                  </div>
+                  <div class="form-group text-left">
+                    <label for="author"><b>Author</b></label>
+                    <textarea rows="1" cols="50" class="form-control" id="author" name="author"
+                      placeholder="Please enter the first author's name." aria-describedby="messageHelp"></textarea>
+                    <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a
+                      message.</span>
+                  </div>
+                  <div class="form-group text-left">
+                    <label for="year"><b>Publication Year</b></label>
+                    <textarea rows="1" cols="50" class="form-control" id="year" name="year"
+                      placeholder="Please enter the year of publication." aria-describedby="messageHelp"></textarea>
+                    <span id="messageHelp" class="form-text text-muted" style="display: none">Please enter a
+                      message.</span>
+                  </div>
+                  <div class="form-group text-left">
+                    <input id="file" name="file" type="file" style="float:left" /><br>
+                  </div>
+                  <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Send</button>
+                </form>
               </div>
             </div>
           </div>
+        </div>
       </div>
-      </div>
-     
-      <footer class="text-center" style="background-color: #343a40;">
-        <div class="container">
-          <div class="row">
-            <div class="col-12 text-white" style="margin-top: 1rem;">
-              <p>Copyright © Miller et al. (2020) All rights reserved.</p>
-            </div>
+    </div>
+
+    <footer class="text-center" style="background-color: #343a40;">
+      <div class="container">
+        <div class="row">
+          <div class="col-12 text-white" style="margin-top: 1rem;">
+            <p>Copyright © Miller et al. (2020) All rights reserved.</p>
           </div>
         </div>
-      </footer>
-  </div> 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
-    <script src="js/jquery-3.3.1.min.js"></script> 
-    <!-- Include all compiled plugins (below), or include individual files as needed --> 
-    <script src="js/popper.min.js"></script> 
-    <script src="js/bootstrap-4.2.1.js"></script>
-  </body>
+      </div>
+    </footer>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap-4.2.1.js"></script>
+</body>
+
 </html>
-			<!--
+<!--
 			Adds a dropdown menu item
 			<li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Dropdown </a>
@@ -235,20 +254,20 @@
             </div>
           </li>
 		-->
-			
-         <!-- 
+
+<!-- 
 		This was a disabled menu button.
 		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li> 
 		-->
-       
-       <!-- 
+
+<!-- 
 		This was a search bar and search button
 		<form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form> -->
-  
-		<!--
+
+<!--
 		Traditional About me content with pictures of people. Dynamic 1 photo for phone, 2 for tablet, 3 for desktop.
       <div class="container ">
         <div class="row">
@@ -316,7 +335,7 @@
         </div>
       </div>
 		-->
-		<!--
+<!--
       <div class="container">
         <div class="row">
           <div class="col-12 mb-2 text-center">
