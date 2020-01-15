@@ -299,11 +299,12 @@ async function getRows(connection, pValue, refGen, study, disease) {
         var query = "SELECT snp, chromosome, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease;
         connection.query(query, (err, result) => {
             var rows = [];
+            //TODO what to do if results is undefined? CHECK FOR IT!
             for (var i = 0; i < result.length; ++i) {
                 var tableRow = result[i];
                 if (tableRow["study"] == study && tableRow["pValue"] <= pValue) {
                     var row = {
-                        pos: tableRow.chromosome.toString().concat(":", tableRow[refGen]), //TODO this is a problem! How do I access the variable with refGen name?
+                        pos: tableRow.chromosome.toString().concat(":", tableRow[refGen]),
                         snp: tableRow.snp,
                         riskAllele: tableRow.riskAllele,
                         pValue: tableRow.pValue,
