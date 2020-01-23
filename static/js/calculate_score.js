@@ -7,10 +7,10 @@ var validExtensions = ["vcf", "gzip", "zip"]
 var calculatePolyScore = async () => {
     document.getElementById('resultsDisplay').style.display = 'block';
 
+    //TODO currently not in use- used to disable the calculate risk score button. See toggleCalculateButton and resetOutput functions
     if (canCalculate) {
         //user feedback while they are waiting for their score
         $('#response').html("Calculating. Please wait...")
-        console.log("Beginning score calculation.")
 
         // get value of selected 'pvalue' from 'pvalSlider'
         var pValue = getSliderPVal(document.getElementById('pvalSlider'), 'pvalue');
@@ -42,11 +42,11 @@ var calculatePolyScore = async () => {
             $('#response').html('Please select the reference genome corresponding to your file.');
             return
         }
-        
+
         //get user SNPs
         var vcfFile = document.getElementById("files").files[0];
-        
-        if(document.getElementById('textInputButton').checked) {
+
+        if (document.getElementById('textInputButton').checked) {
             //if here, the user did not import a vcf file or the the vcf file was not read properly
             var textArea = document.getElementById('input');
 
@@ -55,17 +55,16 @@ var calculatePolyScore = async () => {
                 return;
             }
 
-            console.log("Using text input for SNPs")
             var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
             var snpsObj = new Map();
-            arrayOfInputtedSnps.forEach(function(snp) {
+            arrayOfInputtedSnps.forEach(function (snp) {
                 snpArray = snp.split(':');
-                if (snpArray.length < 2){
+                if (snpArray.length < 2) {
                     snpsObj.set(snpArray[0], [])
                 }
                 else {
                     var alleles = snpArray[1].split("");
-                    if (alleles.length > 2){
+                    if (alleles.length > 2) {
                         //THIS SHOULDN'T HAPPEN! THROW AN ERROR OR SOMETHING
                         //AND GET THE HECK OUT --Maddy
                     }
@@ -75,7 +74,6 @@ var calculatePolyScore = async () => {
             ClientCalculateScoreTxtInput(snpsObj, diseaseArray, studyType, pValue, refGen)
         }
         else {
-            console.log("Using vcf file for SNPs")
             var extension = vcfFile.name.split(".").pop();
             if (!validExtensions.includes(extension.toLowerCase())) {
                 //if here, the user uploded a file with an invalid format
@@ -136,11 +134,11 @@ var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyType, pVa
         data: { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
         success: async function (studyTableRows) {
             var tableObj = studyTableRows;
-            
+
             var usefulSNPs = sharedCode.getIdentifierMap(tableObj, false);
             var textSnpsMatched = textSnps;
             for (const key of textSnps.keys()) {
-                if (!usefulSNPs.has(key)){
+                if (!usefulSNPs.has(key)) {
                     textSnpsMatched.delete(key)
                 }
             }
@@ -439,6 +437,16 @@ function download(filename, extension, text) {
     */
 }
 
+// Used for creating a new FileList in a round-about way- found at https://stackoverflow.com/questions/52078853/is-it-possible-to-update-filelist/52079109
+//see exampleInput for usage
+function FileListItem(a) {
+    a = [].slice.call(Array.isArray(a) ? a : arguments)
+    for (var c, b = c = a.length, d = !0; b-- && d;) d = a[b] instanceof File
+    if (!d) throw new TypeError("expected argument to FileList is File or array of File objects")
+    for (b = (new ClipboardEvent("")).clipboardData || new DataTransfer; c--;) b.items.add(a[c])
+    return b.files
+}
+
 function exampleInput() {
     document.getElementById('fileUploadButton').click();
     var result = null;
@@ -448,30 +456,19 @@ function exampleInput() {
     if (xmlhttp.status == 200) {
         result = xmlhttp.responseText;
     }
+    var parts = [
+        new Blob([result], { type: 'text/plain' }),
+        new Uint16Array([33])
+    ];
+
+    // Construct a file
+    var file = new File(parts, 'example.vcf', {
+        lastModified: new Date(0), // optional - default = now
+        type: "overide/mimetype" // optional - default = ''
+    });
+    document.getElementById("files").files = new FileListItem(file);
     document.getElementById('input').value = (result);
-
     document.getElementById('input').setAttribute("wrap", "soft");
-}
-
-function exampleOutput() {
-    var result1 = null;
-    var xmlhttp1 = new XMLHttpRequest();
-    xmlhttp1.open('GET', "ad_test.vcf", false);
-    xmlhttp1.send();
-    if (xmlhttp1.status == 200) {
-        result1 = xmlhttp1.responseText;
-    }
-    document.getElementById('input').value = (result1);
-    document.getElementById('input').setAttribute("wrap", "soft");
-
-    var result2 = null;
-    var xmlhttp2 = new XMLHttpRequest();
-    xmlhttp2.open('GET', "ad_output.txt", false);
-    xmlhttp2.send();
-    if (xmlhttp2.status == 200) {
-        result2 = xmlhttp2.responseText;
-    }
-    document.getElementById('response').value = (result2);
 }
 
 function clickTextInput() {
