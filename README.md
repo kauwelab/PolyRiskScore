@@ -1,16 +1,47 @@
-# Problems 
+#Loading a Table into MySQL
 
-We have this line: 
-
-```js
-app.use('/', express.static(path.join(__dirname, 'static')))
+1. Make sure you have the necessary files in lsprs.
+```console
+scp t2d.csv yourbyuid@lsprs:/home/byu.local/yourbyuid
 ```
-And the code that connects to SQL Server. 
 
-The code works separately, that is, if I comment out the `app.use...` line, it'll connect to the database. Otherwise, it won't. I'm not sure if these two pieces of code need to be in separate files, or if I just have a basic JavaScript error that I could fix if I started learning JavaScript from the beginning. 
+2. Log in
+```console
+mysql -u polyscore -p --local-infile polyscore
+```
 
-Thanks for all your help! I'll keep searching, and I'll let you know what solutions (if any) I find! 
+3. Switch to the polyscore database. 
+```sql
+USE polyscore;
+```
 
-#Potential Solutions
+4. OPTIONAL: If you already have a table for the disease and want to replace it, first drop the table.
+```sql 
+DROP TABLE t2d;
+```
 
-Look into the functionality of Angular. The structure should use the database, Express, Angular, and Node. 
+5. Create the new table. The specified columns will be slightly different once we add gene, impact factor, and study size columns to each table. Please update the README once there is a standard table format. 
+```sql
+CREATE TABLE t2d ( id smallint unsigned not null, snp varchar(20), chromosome tinyint,  hg38 int, hg19 int, hg18 int, hg17 int, raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, study varchar(50), ethnicity varchar(50));
+```
+
+6. Load the data into the table. If your csv file is not located in the same directory that you were in when you logged into mysql, then pass in the full file path. The code below should solve the previous problem of having a rogue /r at the end of the study column. 
+
+```sql 
+LOAD DATA LOCAL INFILE 't2d.csv' INTO TABLE t2d COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\r\n' IGNORE 1 LINES;
+```
+
+7. Check whether it's been loaded correctly using code such as 
+```sql
+SELECT * FROM t2d; 
+SELECT * FROM t2d WHERE study='Lambert 2013 etc.';
+```
+
+#Replacing a String:
+
+This code would get rid of an extra \r character in the study column
+```sql
+UPDATE hf 
+SET study = REPLACE(study, '\r', '');
+```
+
