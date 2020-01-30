@@ -1,4 +1,4 @@
-SET @query = CONCAT('CREATE TABLE ', @tblName, ' ( id smallint unsigned not null, snp varchar(20), chromosome tinyint,  hg38 int, hg19 int, hg18 int, hg17 int, raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, study varchar(50), ethnicity varchar(50))');
+SET @query = CONCAT('CREATE TABLE ', @tblName, ' ( id smallint unsigned not null, snp varchar(20), chromosome tinyint,  hg38 int, hg19 int, hg18 int, hg17 int, raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, study varchar(50), ethnicity varchar(50)), se[ln(OR)] double');
 PREPARE stmt FROM @query;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
