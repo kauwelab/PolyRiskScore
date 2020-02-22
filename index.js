@@ -296,7 +296,7 @@ async function getValidRows(connection, pValue, refGen, study, disease) {
 
 async function getRows(connection, pValue, refGen, study, disease) {
     return new Promise((resolve, reject) => {
-        var query = "SELECT snp, chromosome, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease;
+        var query = "SELECT snp, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease;
         connection.query(query, (err, result) => {
             var rows = [];
             //TODO what to do if results is undefined? CHECK FOR IT!
@@ -304,7 +304,7 @@ async function getRows(connection, pValue, refGen, study, disease) {
                 var tableRow = result[i];
                 if (tableRow["study"] == study && tableRow["pValue"] <= pValue) {
                     var row = {
-                        pos: tableRow.chromosome.toString().concat(":", tableRow[refGen]),
+                        pos: tableRow[refGen],
                         snp: tableRow.snp,
                         riskAllele: tableRow.riskAllele,
                         pValue: tableRow.pValue,
