@@ -5,7 +5,8 @@
     diseasesAndStudies['ADHD'] = ['Demontis et al. 2018','Hawi et al. 2018','Hinney et al. 2011','Mick et al. 2010',
         'Stergiakouli et al. 2012','Zayats et al. 2015'];
     diseasesAndStudies['AD'] = ['Lambert et al. 2013 (High Impact)','Naj et al. 2011','Largest Cohort'];
-    diseasesAndStudies['ALS'] = ['Ahmeti KB 2012','Diekstra FP 2014','Landers JE 2009','van Rheenen W 2016 (High Impact)'];
+    diseasesAndStudies['ALS'] = ['Ahmeti et al. 2012 (Joint)','Ahmeti et al. 2012 (Meta)','Diekstra et al. 2014','Laaksovirta et al. 2010',
+        'Landers et al. 2009','van Es MA et al. 2007','van Rheenen W et al. 2016 (High Impact)'];
     diseasesAndStudies['DEP'] = ['Ripke et al. 2012 (High Impact)','Wray et al. 2018 (Largest Cohort)'];
     diseasesAndStudies['CHD'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011','Samani NJ 2007','Schunkert H 2011',
         'Wild PS 2011'];
