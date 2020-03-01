@@ -8,7 +8,7 @@
     diseasesAndStudies['ALS'] = ['Ahmeti et al. 2012 (Joint)', 'Ahmeti et al. 2012 (Meta)', 'Diekstra et al. 2014', 'Laaksovirta et al. 2010',
         'Landers et al. 2009', 'van Es MA et al. 2007', 'van Rheenen W et al. 2016 (High Impact)'];
     diseasesAndStudies['DEP'] = ['Ripke et al. 2012 (High Impact)', 'Wray et al. 2018 (Largest Cohort)'];
-    diseasesAndStudies['coronaryHeartDisease'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011', 'Samani NJ 2007', 'Schunkert H 2011',
+    diseasesAndStudies['CORONARYHEARTDISEASE'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011', 'Samani NJ 2007', 'Schunkert H 2011',
         'Wild PS 2011'];
     diseasesAndStudies['HF'] = ['Shah et. al 2020'];
     diseasesAndStudies['T1D'] = ['Todd JA 2007', 'Wellcome Trust Case Control Consortium 2007', 'Hakonarson H 2007', 'Grant SF 2008',
