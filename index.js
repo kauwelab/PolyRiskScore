@@ -84,10 +84,6 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-//TODO add correct disease table names to diseaseEnum! TODO- is this "enum" necessary?
-//website name to table name "enum"
-global.diseaseEnum = Object.freeze({ "adhd": "ADHD", "als": "ALS", "ad": "AD", "dep": "DEP", "chd": "CHD", });
-
 /**
  * Parses the vcf fileContents into a vcfObj that is used to calculate the score
  * @param {*} fileContents 
@@ -221,7 +217,7 @@ app.get('/study_table/', async function (req, res) {
     else if (diseaseArray.constructor !== Array) {
         diseaseArray = [diseaseArray];
     }
-    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, req.query.studyType);
+    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, req.query.studyTypeList);
     var pValue = req.query.pValue;
     var refGen = req.query.refGen;
 

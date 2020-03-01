@@ -71,7 +71,7 @@ var calculatePolyScore = async () => {
                     snpsObj.set(snpArray[0], alleles)
                 }
             })
-            ClientCalculateScoreTxtInput(snpsObj, diseaseArray, studyType, pValue, refGen)
+            ClientCalculateScoreTxtInput(snpsObj, diseaseArray, [studyType], pValue, refGen)
         }
         else {
             var extension = vcfFile.name.split(".").pop();
@@ -80,7 +80,7 @@ var calculatePolyScore = async () => {
                 $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
                 return;
             }
-            ClientCalculateScore(vcfFile, extension, diseaseArray, studyType, pValue, refGen);
+            ClientCalculateScore(vcfFile, extension, diseaseArray, [studyType], pValue, refGen);
         }
     }
 }
@@ -127,11 +127,11 @@ function getStudyTypeFromStudy(study) {
 }
 
 //textSnps is a map of positions and alleles
-var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyType, pValue, refGen) => {
+var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyTypeList, pValue, refGen) => {
     $.ajax({
         type: "GET",
         url: "study_table",
-        data: { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
+        data: { diseaseArray: diseaseArray, studyTypeList: studyTypeList, pValue: pValue, refGen: refGen },
         success: async function (studyTableRows) {
             var tableObj = studyTableRows;
 
@@ -159,14 +159,14 @@ var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyType, pVa
     })
 }
 
-var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyType, pValue, refGen) => {
+var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyTypeList, pValue, refGen) => {
     //console.time("score in")
     var vcfObj;
     //console.time("got data in")
     $.ajax({
         type: "GET",
         url: "study_table",
-        data: { diseaseArray: diseaseArray, studyType: studyType, pValue: pValue, refGen: refGen },
+        data: { diseaseArray: diseaseArray, studyTypeList: studyTypeList, pValue: pValue, refGen: refGen },
         success: async function (studyTableRows) {
             //console.timeEnd("got data in")
             var tableObj = studyTableRows;

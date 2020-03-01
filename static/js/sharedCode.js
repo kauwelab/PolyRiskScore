@@ -32,19 +32,20 @@
     }
 
     /**
-     * Gets the studies associated with the specified disease and study type from the diseasesAndStudies object
+     * Gets the studies associated with the specified disease and study type list from the diseasesAndStudies object
      * @param {*} disease 
-     * @param {*} studyType 
+     * @param {*} studyTypeList 
      */
-    function getStudiesFromDisease(disease, studyType) {
+    function getStudiesFromDisease(disease, studyTypeList) {
         disease = disease.toUpperCase();
         var possibleStudies = diseasesAndStudies[disease];
         var relevantStudies = []
-        //for each study in the possibleStudies list, determine if it fits the requested studyType, 
+        //for each study in the possibleStudies list, determine if it fits the requested studyTypeList, 
         //remove the string that identifies it's type and (if the study is not empty) add it to the 
         //relevantStudies list
+        //TODO clean this up to work better for a list of study types
         possibleStudies.forEach(function (study) {
-            if (studyType == "high impact") {
+            if (studyTypeList.includes("high impact")) {
                 if (study.toLowerCase().includes("high impact")) {
                     study = getStudyNameFromStudyEntry(study);
                     if (study != "") {
@@ -52,7 +53,7 @@
                     }
                 }
             }
-            else if (studyType == "largest cohort") {
+            else if (studyTypeList.includes("largest cohort")) {
                 if (study.toLowerCase().includes("largest cohort")) {
                     study = getStudyNameFromStudyEntry(study);
                     if (study != "") {
@@ -82,11 +83,11 @@
 
     /**
      * Creates an object with diseases requested mapped to their corresponding studies. 
-     * studyType narrows down what studies are searched.
+     * studyTypeList narrows down what studies are searched.
      * @param {*} diseaseArray an array of diseases for which the user wants the risk scores to be calculated.
-     * @param {*} studyType can be either "high impact", "largest cohort", or "". If "", all studies for each disease are returned in the object.
+     * @param {*} studyTypeList can be contain "high impact", "largest cohort", or "". If "", all studies for each disease are returned in the object.
      */
-    exports.makeDiseaseStudyMapArray = function (diseaseArray, studyType) {
+    exports.makeDiseaseStudyMapArray = function (diseaseArray, studyTypeList) {
         var diseaseStudyMapArray = [];
         //if the user doesn't specify any diseases, do all of them
         if (diseaseArray == undefined || diseaseArray.length <= 0) {
@@ -101,7 +102,7 @@
         }
         //else, make the diseaseStudyMapArray based on their disease list
         diseaseArray.forEach(function (disease) {
-            var studies = getStudiesFromDisease(disease, studyType)
+            var studies = getStudiesFromDisease(disease, studyTypeList)
             //if there are studies for that disease based on the user's parameters, push the disease with it's studies onto the obj
             if (studies.length > 0) {
                 diseaseStudyMapArray.push({
