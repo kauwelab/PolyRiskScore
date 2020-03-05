@@ -211,13 +211,20 @@ app.get('/study_table/', async function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     //an array of diseases mapped to lists of studies asociated with each disease (most often it is one disease to a list of one study)
     var diseaseArray = req.query.diseaseArray
-    if (diseaseArray == undefined) {
+    if (diseaseArray == undefined || diseaseArray == "[]" || diseaseArray == "") {
         diseaseArray = []
     }
     else if (diseaseArray.constructor !== Array) {
         diseaseArray = [diseaseArray];
     }
-    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, req.query.studyTypeList);
+    var studyTypeList = req.query.studyTypeList
+    if (studyTypeList == undefined || studyTypeList == "[]" || studyTypeList == "") {
+        studyTypeList = []
+    }
+    else if (studyTypeList.constructor !== Array) {
+        studyTypeList = [studyTypeList];
+    }
+    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, studyTypeList);
     var pValue = req.query.pValue;
     var refGen = req.query.refGen;
 
