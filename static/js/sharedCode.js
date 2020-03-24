@@ -4,7 +4,7 @@
     diseasesAndStudies['all'] = ['High Impact', 'Largest Cohort'];
     diseasesAndStudies['adhd'] = ['Demontis et al. 2018', 'Hawi et al. 2018', 'Hinney et al. 2011', 'Mick et al. 2010',
         'Stergiakouli et al. 2012', 'Zayats et al. 2015'];
-    diseasesAndStudies['ad'] = ['Lambert et al. 2013 (High Impact)', 'Naj et al. 2011', 'Largest Cohort'];
+    diseasesAndStudies['ad'] = ['Lambert et al. 2013 (High Impact)', 'Naj et al. 2011 (Meta)', 'Naj et al. 2011 (Joint)'];
     diseasesAndStudies['als'] = ['Ahmeti et al. 2012 (Joint)', 'Ahmeti et al. 2012 (Meta)', 'Diekstra et al. 2014', 'Laaksovirta et al. 2010',
         'Landers et al. 2009', 'van Es MA et al. 2007', 'van Rheenen W et al. 2016 (High Impact)'];
     diseasesAndStudies['dep'] = ['Ripke et al. 2012 (High Impact)', 'Wray et al. 2018 (Largest Cohort)'];
@@ -241,9 +241,9 @@
                     });
                     if (studyObjs.has(databasePosObj.study)) {
                         var studyObj = studyObjs.get(databasePosObj.study);
-                        studyObj.oddsRatios.concat(oddsRatioTempList);
-                        studyObj.snps.concat(snpTempList);
-                        studyObj.pos.concat(posTempList);
+                        studyObj.oddsRatios = studyObj.oddsRatios.concat(oddsRatioTempList);
+                        studyObj.snps = studyObj.snps.concat(snpTempList);
+                        studyObj.pos = studyObj.pos.concat(posTempList);
                         studyObjs.set(databasePosObj.study, studyObj)
                     }
                     else {
@@ -364,15 +364,17 @@
             for (let j = 0; j < tableObj[i].studiesRows.length; ++j) {
                 for (let k = 0; k < tableObj[i].studiesRows[j].rows.length; ++k) {
                     var identifier = "";
+                    var pos = tableObj[i].studiesRows[j].rows[k].pos;
+                    var snp = tableObj[i].studiesRows[j].rows[k].snp;
                     if (isPosBased) {
-                        identifier = tableObj[i].studiesRows[j].rows[k].pos;
+                        identifier = pos;
                     }
                     else {
-                        identifier = tableObj[i].studiesRows[j].rows[k].snp;
+                        identifier = snp;
                     }
                     var indentifierObj = {
-                        snp: tableObj[i].studiesRows[j].rows[k].snp,
-                        pos: tableObj[i].studiesRows[j].rows[k].pos,
+                        snp: snp,
+                        pos: pos,
                         oddsRatio: tableObj[i].studiesRows[j].rows[k].oddsRatio,
                         allele: tableObj[i].studiesRows[j].rows[k].riskAllele,
                         study: tableObj[i].studiesRows[j].study,
