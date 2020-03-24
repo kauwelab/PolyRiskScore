@@ -173,6 +173,8 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyTypeLis
             var usefulPos = sharedCode.getIdentifierMap(tableObj, true);
             try {
                 //console.time("shrink")
+                //TODO
+                debugger;
                 vcfLines = await shrinkFile(vcfFile, usefulPos)
                 //console.timeEnd("shrink");
                 //console.time("parse");
@@ -257,7 +259,7 @@ async function shrinkFile(vcfFile, usefulPos) {
     var fileContents = await readFile(vcfFile);
     var fileLines = fileContents.split("\n");
     var fileLinesSmall = jQuery.grep(fileLines, function (line) {
-        return usefulPos.has(getPosFromLine(line)) || line[0] === '#';
+        return line[0] === '#' || usefulPos.has(getPosFromLine(line));
     });
     return fileLinesSmall;
 }

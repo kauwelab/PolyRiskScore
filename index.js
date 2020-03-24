@@ -225,7 +225,7 @@ app.get('/study_table/', async function (req, res) {
         studyTypeList = [studyTypeList];
     }
     var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, studyTypeList);
-    var pValue = req.query.pValue;
+    var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
 
     var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
