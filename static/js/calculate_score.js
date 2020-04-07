@@ -173,8 +173,6 @@ var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyTypeLis
             var usefulPos = sharedCode.getIdentifierMap(tableObj, true);
             try {
                 //console.time("shrink")
-                //TODO
-                debugger;
                 vcfLines = await shrinkFile(vcfFile, usefulPos)
                 //console.timeEnd("shrink");
                 //console.time("parse");
@@ -330,8 +328,8 @@ function formatCSV(jsonObject) {
                     "," + studyResult.oddsRatio +
                     "," + studyResult.percentile +
                     "," + studyResult.numSNPsIncluded +
-                    "," + studyResult.chromPositionsIncluded +
-                    "," + studyResult.snpsIncluded;
+                    "," + studyResult.chromPositionsIncluded.join(";") +
+                    "," + studyResult.snpsIncluded.join(";");
             });
         });
     }

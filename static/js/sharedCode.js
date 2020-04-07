@@ -328,7 +328,7 @@
         vcfLine.sampleinfo.forEach(function (sample) {
             var vcfSNPObjs = vcfObj.get(sample.NAME);
             //gets the allele indices
-            var alleles = sample.GT.split(/[|/]+/, 2);
+            var alleles = sample.GT.trim().split(/[|/]+/, 2);
             //gets the alleles from the allele indices and replaces the indices with the alleles.
             for (var i = 0; i < alleles.length; i++) {
                 //if the allele is ".", ignore it
