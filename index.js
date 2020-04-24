@@ -130,7 +130,7 @@ app.post('/contact', function (req, res) {
         secure: true,
         auth: {
             user: 'kauwelab19@gmail.com',
-            pass: 'kauwelab2019!'
+            pass: passwords.getEmailPassword()
         }
     });
     mailOpts = {
@@ -168,7 +168,7 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
             secure: true,
             auth: {
                 user: 'kauwelab19@gmail.com',
-                pass: 'kauwelab2019!'
+                pass: passwords.getEmailPassword()
             }
         });
         mailOpts = {
