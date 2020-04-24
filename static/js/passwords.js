@@ -1,3 +1,6 @@
-function getMySQLPassword() {
-    return '[Miller19] packet muffin waveform'
-}
+(function (exports) {
+    exports.getMySQLPassword = function() {
+        return '[Miller20] virus hope advance'
+    }
+
+})(typeof exports === 'undefined' ? this['passwords'] = {} : exports);
