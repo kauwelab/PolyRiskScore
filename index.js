@@ -12,6 +12,7 @@ const fsExtra = require('fs-extra');
 var mysql = require('mysql')
 //the shared code module between the browser and server
 const sharedCode = require('./static/js/sharedCode')
+const passwords = require('./static/js/passwords')
 
 
 //Define the port for app to listen on
@@ -237,7 +238,7 @@ async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
     var connection = mysql.createConnection({
         host: 'localhost',
         user: 'polyscore',
-        password: '[Miller19] packet muffin waveform',
+        password: passwords.getMySQLPassword(),
         database: 'polyscore'
     });
     return await new Promise((resolve, reject) => {
