@@ -1,4 +1,4 @@
-# Loading a Table into MySQL
+## Loading a Table into MySQL
 
 1. Make sure you have the necessary files in lsprs.
 If you haven't added them to the github, do so now. Once added, follow the directions for re-uploading the repository
@@ -21,17 +21,15 @@ USE polyscore;
 DROP TABLE t2d;
 ```
 
-6. Create the new table. Run the following command:
+6. Create the new table. Run the following command to create a table with the standard columns:
 ```sql
 SET @tblName = 'nameYouWantForTable'; \. createTable.sql
 ```
-Running the above command will create a table with the standard columns.
 
-
-7. Load the data into the table. If your csv file is not located in the same directory that you were in when you logged into mysql, then pass in the full file path. The code below should solve the previous problem of having a rogue /r at the end of the study column. 
+7. Load the data into the table. If your csv file is not located in the same directory that you were in when you logged into mysql, then pass in the full file path.
 
 ```sql 
-LOAD DATA LOCAL INFILE 't2d.csv' INTO TABLE t2d COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\r\n' IGNORE 1 LINES;
+LOAD DATA LOCAL INFILE 't2d.csv' INTO TABLE t2d COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 ```
 
 8. Check whether it's been loaded correctly using code such as 
@@ -40,7 +38,7 @@ SELECT * FROM t2d;
 SELECT * FROM t2d WHERE study='Lambert 2013 etc.';
 ```
 
-#Replacing a String:
+### Replacing a String:
 
 This code would get rid of an extra \r character in the study column
 ```sql
