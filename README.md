@@ -25,7 +25,6 @@ DROP TABLE t2d;
 ```sql
 SET @tblName = 'nameYouWantForTable'; \. createTable.sql
 ```
-
 Running the above command will create a table with the standard columns.
 
 
