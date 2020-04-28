@@ -1,4 +1,4 @@
-#Loading a Table into MySQL
+# Loading a Table into MySQL
 
 1. Make sure you have the necessary files in lsprs.
 If you haven't added them to the github, do so now. Once added, follow the directions for re-uploading the repository
