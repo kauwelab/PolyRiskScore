@@ -49,7 +49,7 @@ def createTable(connection, tableName):
     cursor = connection.cursor()
     tableColumns =" ( id smallint unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(50), ethnicity varchar(100), raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, seLnOR double, study varchar(50), cohort double, citations double )';"
     sql = "SET @query = 'CREATE TABLE " + tableName + tableColumns + "PREPARE stmt FROM @query;" + "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
-    cursor.execute(sql)
+    cursor.execute(sql, multi = True)
     cursor.close()
 
 #removes the table in fileNames if it exists and creates a new table
@@ -71,7 +71,7 @@ def addDataToTable(config, tableName):
     connection = getConnection(config)
     cursor = connection.cursor()
     sql = "LOAD DATA LOCAL INFILE '" + "C:/Users/Matthew Cloward/Desktop/Home Work/Lab BioInfo/prskb/node-test/tables/" + tableName + ".csv' INTO TABLE " + tableName + " COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES;"            
-    cursor.execute(sql)
+    cursor.execute(sql, multi = True)
     cursor.close()
     print(tableName + " data added")
 
@@ -108,6 +108,7 @@ def main():
             'host': 'localhost',
             'database': 'polyscore',
             'allow_local_infile': True,
+            'auth_plugin': 'mysql_native_password',
             #'raise_on_warnings': True,
         }
     else:
