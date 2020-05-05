@@ -70,8 +70,8 @@ def createFreshTable(config, tableName):
 def addDataToTable(config, tableName):
     connection = getConnection(config)
     cursor = connection.cursor()
-    mypath = os.getcwd()
-    sql = "LOAD DATA LOCAL INFILE '" + mypath + "/" + tableName + ".csv' INTO TABLE " + tableName + " COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES;"            
+    workingDirectoryPath = os.getcwd().replace("\\", "/") + "/"
+    sql = "LOAD DATA LOCAL INFILE '" + workingDirectoryPath + tableName + ".csv' INTO TABLE " + tableName + " COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES;"            
     cursor.execute(sql, multi = True)
     cursor.close()
     print(tableName + " data added")
