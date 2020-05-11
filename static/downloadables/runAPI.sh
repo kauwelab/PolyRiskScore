@@ -3,12 +3,14 @@
 RED='\033[0;31m'
 LIGHTRED='\033[1;31m'
 LIGHTBLUE='\033[1;34m'
+LIGHTPURPLE='\033[1;35m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 function prskbMenu {
-    echo "Too few arguments! Starting Menu:"
+    echo -e "${LIGHTRED}Too few arguments!${NC} Starting Menu:"
     echo -e "\n$HORIZONTALLINE"
-    echo -e "                ${LIGHTBLUE}PRSKB Command Line Menu/Instructions${NC}"
+    echo -e "                   ${LIGHTBLUE}PRSKB Command Line Menu/Instructions${NC}"
     echo -e "$HORIZONTALLINE"
     echo "Welcome to the PRSKB commandline menu. Here you can learn about the different" 
     echo "parameters required to run a polygenic risk score (PRS) calculation, search" 
@@ -16,7 +18,7 @@ function prskbMenu {
     echo "without opening this menu, or run the PRSKB calculator."
     echo ""
     echo "Select an option below by entering the corresponding character"
-    echo "then pressing enter."
+    echo "then pressing [Enter]."
     echo -e "\n$HORIZONTALLINE"
     echo ""
 }
@@ -28,6 +30,34 @@ function listOptions {
     echo -e " ${LIGHTBLUE}4${NC} - Run the PRSKB calculator"
     echo -e " ${LIGHTBLUE}Q${NC} - Quit"
     echo ""
+}
+
+function chooseOption {
+    read -p "#?" option
+    if [ $option -eq 1 ]; then
+        echo -e "\n$HORIZONTALLINE"
+        echo ""
+        echo "YAY option 1"
+    elif [ $option -eq 2]; then
+        echo "YAY option 2"
+    elif [ $option -eq 3]; then
+        echo "YAY option 3"
+    elif [ $option -eq 4]; then
+        echo "YAY option 4"
+    elif [ "$option" -eq "Q"]; then # fix this
+        echo "QUIT ME"
+    fi
+}
+
+function learnAboutParameters {
+    echo "TODO: Intro blurb about the parameters"
+    echo "The order of parameters?"
+    echo ""
+}
+
+function optionsLoop {
+    listOptions
+    chooseOption
 }
 
 
@@ -52,9 +82,36 @@ if [ $# -lt 4 ]; then
     # to know what studies and diseases they can choose from, 
     # what valid parameters are, ect, what explanations of parameters are
     prskbMenu
-    listOptions
-    # echo "Too few arguments! Usage:"
-    # echo "runAPI.sh [VCF file path] [output file path (csv or txt format)] [p-value cutoff (ex: 0.05)] [refGen {hg17, hg18, hg19, hg38}]"
+    optionsLoop
+    args=("$@")
+
+    disease=0
+    study=0
+
+    studiesForCalc=()
+    diseasesForCalc=()
+
+    if [ ${#args[@]} -gt 0 ]; then
+        for arg in "${args[@]}";
+        do
+            if [ "$arg" = "--d" ]; then
+                disease=1
+                study=0
+            elif [ "$arg" = "--s" ]; then
+                study=1
+                disease=0
+            elif [ $disease -eq 1 ] ; then
+                diseasesForCalc+=("$arg")
+            elif [ $study -eq 1 ] ; then
+                studiesForCalc+=("$arg")
+            fi
+        done
+    fi
+
+    echo "${studiesForCalc[@]}"
+
+    echo "Too few arguments! Usage:"
+    echo -e "runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
     read -p "Press Q or [Enter] key to quit..."
 elif [ ! -f "$1" ]; then
     echo "The file $1 does not exist."
@@ -69,6 +126,33 @@ elif ! [[ "$4" == 'hg17' ]] && ! [[ "$4" = 'hg19' ]] && ! [[ "$4" == 'hg18' ]] &
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
 else
+
+    # check for/handle additional arguments
+    args=("${@:4}")
+
+    disease=0
+    study=0
+
+    studiesForCalc=()
+    diseasesForCalc=()
+
+    if [ ${#args[@]} -gt 0 ]; then
+        for arg in "${args[@]}";
+        do
+            if [ "$arg" = "--d" ]; then
+                disease=1
+                study=0
+            elif [ "$arg" = "--s" ]; then
+                study=1
+                disease=0
+            elif [ $disease -eq 1 ] ; then
+                diseasesForCalc+=("$arg")
+            elif [ $study -eq 1 ] ; then
+                studiesForCalc+=("$arg")
+            fi
+        done
+    fi
+
     echo "Running PRSKB on $1"
     # Calls a python function to get a list of SNPs from our database
     # res is a string composed of two strings separated by a '%'
