@@ -74,7 +74,7 @@ function quotemeta (str) {
 }
 
 function tarballToVersion (name, tb) {
-  const registry = quotemeta(npm.config.get('registry'))
+  const registry = quotemeta(npm.config.get('registry') || '')
     .replace(/https?:/, 'https?:')
     .replace(/([^/])$/, '$1/')
   let matchRegTarball
@@ -89,6 +89,20 @@ function tarballToVersion (name, tb) {
   return match[2] || match[1]
 }
 
+function relativizeLink (name, spec, topPath, requested) {
+  if (!spec.startsWith('file:')) {
+    return
+  }
+
+  let requestedPath = requested.fetchSpec
+  if (requested.type === 'file') {
+    requestedPath = path.dirname(requestedPath)
+  }
+
+  const relativized = path.relative(requestedPath, path.resolve(topPath, spec.slice(5)))
+  return 'file:' + relativized
+}
+
 function inflatableChild (onDiskChild, name, topPath, tree, sw, requested, opts) {
   validate('OSSOOOO|ZSSOOOO', arguments)
   const usesIntegrity = (
@@ -101,7 +115,14 @@ function inflatableChild (onDiskChild, name, topPath, tree, sw, requested, opts)
     sw.resolved = sw.version
     sw.version = regTarball
   }
-  if (sw.requires) Object.keys(sw.requires).map(_ => { sw.requires[_] = tarballToVersion(_, sw.requires[_]) || sw.requires[_] })
+  if (sw.requires) {
+    Object.keys(sw.requires).forEach(name => {
+      const spec = sw.requires[name]
+      sw.requires[name] = tarballToVersion(name, spec) ||
+        relativizeLink(name, spec, topPath, requested) ||
+        spec
+    })
+  }
   const modernLink = requested.type === 'directory' && !sw.from
   if (hasModernMeta(onDiskChild) && childIsEquivalent(sw, requested, onDiskChild)) {
     // The version on disk matches the shrinkwrap entry.
@@ -141,6 +162,7 @@ function isGit (sw) {
 }
 
 function makeFakeChild (name, topPath, tree, sw, requested) {
+  const isDirectory = requested.type === 'directory'
   const from = sw.from || requested.raw
   const pkg = {
     name: name,
@@ -167,16 +189,16 @@ function makeFakeChild (name, topPath, tree, sw, requested) {
   }
   const child = createChild({
     package: pkg,
-    loaded: false,
+    loaded: isDirectory,
     parent: tree,
     children: [],
     fromShrinkwrap: requested,
     fakeChild: sw,
     fromBundle: sw.bundled ? tree.fromBundle || tree : null,
     path: childPath(tree.path, pkg),
-    realpath: requested.type === 'directory' ? requested.fetchSpec : childPath(tree.realpath, pkg),
+    realpath: isDirectory ? requested.fetchSpec : childPath(tree.realpath, pkg),
     location: (tree.location === '/' ? '' : tree.location + '/') + pkg.name,
-    isLink: requested.type === 'directory',
+    isLink: isDirectory,
     isInLink: tree.isLink || tree.isInLink,
     swRequires: sw.requires
   })

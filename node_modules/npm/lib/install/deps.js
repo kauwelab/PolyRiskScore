@@ -74,7 +74,10 @@ function doesChildVersionMatch (child, requested, requestor) {
     var childReq = child.package._requested
     if (childReq) {
       if (childReq.rawSpec === requested.rawSpec) return true
-      if (childReq.type === requested.type && childReq.saveSpec === requested.saveSpec) return true
+      if (childReq.type === requested.type) {
+        if (childReq.saveSpec === requested.saveSpec) return true
+        if (childReq.fetchSpec === requested.fetchSpec) return true
+      }
     }
     // If _requested didn't exist OR if it didn't match then we'll try using
     // _from. We pass it through npa to normalize the specifier.
@@ -200,13 +203,19 @@ function removeObsoleteDep (child, log) {
   })
 }
 
+exports.packageRelativePath = packageRelativePath
 function packageRelativePath (tree) {
   if (!tree) return ''
   var requested = tree.package._requested || {}
-  var isLocal = requested.type === 'directory' || requested.type === 'file'
-  return isLocal ? requested.fetchSpec
-    : (tree.isLink || tree.isInLink) && !preserveSymlinks() ? tree.realpath
-      : tree.path
+  if (requested.type === 'directory') {
+    return requested.fetchSpec
+  } else if (requested.type === 'file') {
+    return path.dirname(requested.fetchSpec)
+  } else if ((tree.isLink || tree.isInLink) && !preserveSymlinks()) {
+    return tree.realpath
+  } else {
+    return tree.path
+  }
 }
 
 function matchingDep (tree, name) {
@@ -565,7 +574,7 @@ function addDependency (name, versionSpec, tree, log, done) {
   try {
     var req = childDependencySpecifier(tree, name, versionSpec)
     if (tree.swRequires && tree.swRequires[name]) {
-      var swReq = childDependencySpecifier(tree, name, tree.swRequires[name], tree.package._where)
+      var swReq = childDependencySpecifier(tree, name, tree.swRequires[name])
     }
   } catch (err) {
     return done(err)
@@ -665,7 +674,7 @@ function resolveWithNewModule (pkg, tree, log, next) {
   validate('OOOF', arguments)
 
   log.silly('resolveWithNewModule', packageId(pkg), 'checking installable status')
-  return isInstallable(pkg, (err) => {
+  return isInstallable(tree, pkg, (err) => {
     let installable = !err
     addBundled(pkg, (bundleErr) => {
       var parent = earliestInstallable(tree, tree, pkg, log) || tree
@@ -711,6 +720,12 @@ function resolveWithNewModule (pkg, tree, log, next) {
   })
 }
 
+var isOptionalPeerDep = exports.isOptionalPeerDep = function (tree, pkgname) {
+  if (!tree.package.peerDependenciesMeta) return
+  if (!tree.package.peerDependenciesMeta[pkgname]) return
+  return !!tree.package.peerDependenciesMeta[pkgname].optional
+}
+
 var validatePeerDeps = exports.validatePeerDeps = function (tree, onInvalid) {
   if (!tree.package.peerDependencies) return
   Object.keys(tree.package.peerDependencies).forEach(function (pkgname) {
@@ -719,7 +734,7 @@ var validatePeerDeps = exports.validatePeerDeps = function (tree, onInvalid) {
       var spec = npa.resolve(pkgname, version)
     } catch (e) {}
     var match = spec && findRequirement(tree.parent || tree, pkgname, spec)
-    if (!match) onInvalid(tree, pkgname, version)
+    if (!match && !isOptionalPeerDep(tree, pkgname)) onInvalid(tree, pkgname, version)
   })
 }
 
