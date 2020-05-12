@@ -111,7 +111,7 @@ if [ $# -lt 4 ]; then
     echo "${studiesForCalc[@]}"
 
     echo "Too few arguments! Usage:"
-    echo -e "runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
+    echo -e "runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv, json, or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
     read -p "Press Q or [Enter] key to quit..."
 elif [ ! -f "$1" ]; then
     echo "The file $1 does not exist."
