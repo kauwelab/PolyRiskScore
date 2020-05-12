@@ -193,6 +193,65 @@
                 <div class="row">
                   <div class='parent inline-flex-parent'>
                     <div class='child'>
+                      <div class="col-lg-12 mb-.5 mt-2 text-left">
+                        <h5>Reference Genome&nbsp;</h5>
+                        <div class="refGenomeOptions">
+                          <select id="refGenome">
+                            <option selected="selected" value="default">--Reference Genome--</option>
+                            <option value="hg38">GRCh38/hg38</option>
+                            <option value="hg19">GRCh37/hg19</option>
+                            <option value="hg18">NCBI36/hg18</option>
+                            <option value="hg17">NCBI35/hg17</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-.5 mt-2 text-left">
+                        <h5>Slide to select P-Value Cutoff&nbsp;</h5>
+                        <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
+                          <div class="form-inline">
+                            <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider"
+                              id="pvalue">
+                            <label>&nbsp;&nbsp;&nbsp;1x10
+                              <sup>
+                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
+                              </sup>
+                            </label>
+                          </div>
+                        </form>
+                        <!--Below script ensures the display of the
+                          p-value is synced with the slider-->
+                        <script>
+                          var slider = document.getElementById("pvalue");
+                          var output = document.getElementById("pvalMagnigtude");
+                          output.innerHTML = slider.value;
+
+                          slider.oninput = function () {
+                            output.innerHTML = this.value;
+                            resetOutput()
+                            $('#response').html("");
+                          }
+                        </script>
+                      </div>
+                    </div>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-0 mt-2 text-left">
+                        <h5>Output Format&nbsp;</h5>
+                        <script src="js/calculate_score.js"></script>
+                        <script src="js/vcf_parser.js"></script>
+                        <div class="fileFormOptions">
+                          <select id="fileType" , onchange="changeFormat();">
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                            <option value="text">Text</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class='parent inline-flex-parent'>
+                    <div class='child'>
                       <div class="col-lg-12 mb-0 mt-2 text-left">
                         <h5>Select Disease and Study&nbsp;</h5>
                         <script src="js/sharedCode.js"></script>
@@ -345,65 +404,6 @@
                             </select>
                           </div>
                         </h8>
-                      </div>
-                    </div>
-                    <div class='child'>
-                      <div class="col-lg-12 mb-.5 mt-2 text-left">
-                        <h5>Reference Genome&nbsp;</h5>
-                        <div class="refGenomeOptions">
-                          <select id="refGenome">
-                            <option selected="selected" value="default">--Reference Genome--</option>
-                            <option value="hg38">GRCh38/hg38</option>
-                            <option value="hg19">GRCh37/hg19</option>
-                            <option value="hg18">NCBI36/hg18</option>
-                            <option value="hg17">NCBI35/hg17</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class='parent inline-flex-parent'>
-                    <div class='child'>
-                      <div class="col-lg-12 mb-.5 mt-2 text-left">
-                        <h5>Slide to select P-Value Cutoff&nbsp;</h5>
-                        <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
-                          <div class="form-inline">
-                            <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider"
-                              id="pvalue">
-                            <label>&nbsp;&nbsp;&nbsp;1x10
-                              <sup>
-                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
-                              </sup>
-                            </label>
-                          </div>
-                        </form>
-                        <!--Below script ensures the display of the
-                          p-value is synced with the slider-->
-                        <script>
-                          var slider = document.getElementById("pvalue");
-                          var output = document.getElementById("pvalMagnigtude");
-                          output.innerHTML = slider.value;
-
-                          slider.oninput = function () {
-                            output.innerHTML = this.value;
-                            resetOutput()
-                            $('#response').html("");
-                          }
-                        </script>
-                      </div>
-                    </div>
-                    <div class='child'>
-                      <div class="col-lg-12 mb-0 mt-2 text-left">
-                        <h5>Output Format&nbsp;</h5>
-                        <script src="js/calculate_score.js"></script>
-                        <script src="js/vcf_parser.js"></script>
-                        <div class="fileFormOptions">
-                          <select id="fileType" , onchange="changeFormat();">
-                            <option value="csv">CSV</option>
-                            <option value="json">JSON</option>
-                            <option value="text">Text</option>
-                          </select>
-                        </div>
                       </div>
                     </div>
                   </div>
