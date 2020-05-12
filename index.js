@@ -12,6 +12,7 @@ const fsExtra = require('fs-extra');
 var mysql = require('mysql')
 //the shared code module between the browser and server
 const sharedCode = require('./static/js/sharedCode')
+const passwords = require('./static/js/passwords')
 
 
 //Define the port for app to listen on
@@ -84,10 +85,6 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-//TODO add correct disease table names to diseaseEnum! TODO- is this "enum" necessary?
-//website name to table name "enum"
-global.diseaseEnum = Object.freeze({ "adhd": "ADHD", "als": "ALS", "ad": "AD", "dep": "DEP", "chd": "CHD", });
-
 /**
  * Parses the vcf fileContents into a vcfObj that is used to calculate the score
  * @param {*} fileContents 
@@ -133,7 +130,7 @@ app.post('/contact', function (req, res) {
         secure: true,
         auth: {
             user: 'kauwelab19@gmail.com',
-            pass: 'kauwelab2019!'
+            pass: passwords.getEmailPassword()
         }
     });
     mailOpts = {
@@ -171,7 +168,7 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
             secure: true,
             auth: {
                 user: 'kauwelab19@gmail.com',
-                pass: 'kauwelab2019!'
+                pass: passwords.getEmailPassword()
             }
         });
         mailOpts = {
@@ -215,14 +212,21 @@ app.get('/study_table/', async function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     //an array of diseases mapped to lists of studies asociated with each disease (most often it is one disease to a list of one study)
     var diseaseArray = req.query.diseaseArray
-    if (diseaseArray == undefined) {
+    if (diseaseArray == undefined || diseaseArray == "[]" || diseaseArray == "") {
         diseaseArray = []
     }
     else if (diseaseArray.constructor !== Array) {
         diseaseArray = [diseaseArray];
     }
-    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, req.query.studyType);
-    var pValue = req.query.pValue;
+    var studyTypeList = req.query.studyTypeList
+    if (studyTypeList == undefined || studyTypeList == "[]" || studyTypeList == "") {
+        studyTypeList = []
+    }
+    else if (studyTypeList.constructor !== Array) {
+        studyTypeList = [studyTypeList];
+    }
+    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, studyTypeList);
+    var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
 
     var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
@@ -234,7 +238,7 @@ async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
     var connection = mysql.createConnection({
         host: 'localhost',
         user: 'polyscore',
-        password: '[Miller19] packet muffin waveform',
+        password: passwords.getMySQLPassword(),
         database: 'polyscore'
     });
     return await new Promise((resolve, reject) => {
@@ -296,21 +300,23 @@ async function getValidRows(connection, pValue, refGen, study, disease) {
 
 async function getRows(connection, pValue, refGen, study, disease) {
     return new Promise((resolve, reject) => {
-        var query = "SELECT snp, chromosome, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease;
+        var query = "SELECT snp, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease;
         connection.query(query, (err, result) => {
             var rows = [];
-            //TODO what to do if results is undefined? CHECK FOR IT!
-            for (var i = 0; i < result.length; ++i) {
-                var tableRow = result[i];
-                if (tableRow["study"] == study && tableRow["pValue"] <= pValue) {
-                    var row = {
-                        pos: tableRow.chromosome.toString().concat(":", tableRow[refGen]),
-                        snp: tableRow.snp,
-                        riskAllele: tableRow.riskAllele,
-                        pValue: tableRow.pValue,
-                        oddsRatio: tableRow.oddsRatio
+            //if there is no result, return an empty list
+            if (result !== undefined) {
+                for (var i = 0; i < result.length; ++i) {
+                    var tableRow = result[i];
+                    if (tableRow["study"] == study && tableRow["pValue"] <= pValue) {
+                        var row = {
+                            pos: tableRow[refGen],
+                            snp: tableRow.snp,
+                            riskAllele: tableRow.riskAllele,
+                            pValue: tableRow.pValue,
+                            oddsRatio: tableRow.oddsRatio
+                        }
+                        rows.push(row);
                     }
-                    rows.push(row);
                 }
             }
             return err ? reject(err) : resolve(rows)

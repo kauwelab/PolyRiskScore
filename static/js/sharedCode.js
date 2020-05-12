@@ -1,24 +1,26 @@
 (function (exports) {
     //a "map" of diseases to their respective studies. Made global for easy access
     var diseasesAndStudies = {};
-    diseasesAndStudies['ALL'] = ['High Impact','Largest Cohort'];
-    diseasesAndStudies['ADHD'] = ['Demontis et al. 2018','Hawi et al. 2018','Hinney et al. 2011','Mick et al. 2010',
-        'Stergiakouli et al. 2012','Zayats et al. 2015'];
-    diseasesAndStudies['AD'] = ['Lambert et al. 2013 (High Impact)','Naj et al. 2011','Largest Cohort'];
-    diseasesAndStudies['ALS'] = ['Ahmeti KB 2012','Diekstra FP 2014','Landers JE 2009','van Rheenen W 2016 (High Impact)'];
-    diseasesAndStudies['DEP'] = ['Ripke et al. 2012 (High Impact)','Wray et al. 2018 (Largest Cohort)'];
-    diseasesAndStudies['CHD'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011','Samani NJ 2007','Schunkert H 2011',
+    diseasesAndStudies['all'] = ['High Impact', 'Largest Cohort'];
+    diseasesAndStudies['adhd'] = ['Demontis et al. 2018', 'Hawi et al. 2018', 'Hinney et al. 2011', 'Mick et al. 2010',
+        'Stergiakouli et al. 2012', 'Zayats et al. 2015'];
+    diseasesAndStudies['ad'] = ['Lambert et al. 2013 (High Impact)', 'Lee et al. 2010', 'Miyashita et al. 2013', 
+        'Moreno et al. 2017', 'Naj et al. 2011 (Joint)', 'Naj et al. 2011 (Meta)', 'Reitz et al. 2013'];
+    diseasesAndStudies['als'] = ['Ahmeti et al. 2012 (Joint)', 'Ahmeti et al. 2012 (Meta)', 'Diekstra et al. 2014', 'Laaksovirta et al. 2010',
+        'Landers et al. 2009', 'van Es MA et al. 2007', 'van Rheenen W et al. 2016 (High Impact)'];
+    diseasesAndStudies['dep'] = ['Ripke et al. 2012 (High Impact)', 'Wray et al. 2018 (Largest Cohort)'];
+    diseasesAndStudies['coronary_heart_disease'] = ['Coronary Artery Disease (C4D) Genetics Consortium 2011', 'Samani NJ 2007', 'Schunkert H 2011',
         'Wild PS 2011'];
-    diseasesAndStudies['HF'] = ['Shah et. al 2020'];
-    diseasesAndStudies['T1D'] = ['Todd JA 2007','Wellcome Trust Case Control Consortium 2007','Hakonarson H 2007','Grant SF 2008',
-        'Cooper JD 2008','Barrett JC 2009','Plagnol V 2011','Tomer Y 2015','Onengut-Gumuscu S 2015','Sharma A 2018','Charmet R 2018',
-        'Kawabata Y 2018','Zhu M 2019'];
-    diseasesAndStudies['T2D'] = ['Mahajan A 2018','Scott LJ 2007','Zeggini E 2007','Saxena R 2007','Wellcome Trust Case Control Consortium 2007',
-        'Zeggini E 2008','Takeuchi F 2009','Rung J 2009','Voight BF 2010','Shu XO 2010','Sim X 2011','Parra EJ 2011','Kooner JS 2011',
-        'Cho YS 2011','Palmer ND 2012','Perry JR 2012','Li H 2012','Tabassum R 2012','Saxena R 2013','Hara K 2013','Mahajan A 2014',
-        'Ng MC 2014','Ghassibe-Sabbagh M 2014','Huang KC 2015','Imamura M 2016','Cook JP 2016','Qi Q 2017','Scott RA 2017',
-        'Zhao W 2017','Morris AP 2012','Bonàs-Guarch S 2018','Domínguez-Cruz MG 2018','Wood AR 2016','Xue A 2018','Suzuki K 2019',
-        'Chen J 2019','Flannick J 2019','Mahajan A 2018'];
+    diseasesAndStudies['hf'] = ['Shah et. al 2020'];
+    diseasesAndStudies['t1d'] = ['Todd JA 2007', 'Wellcome Trust Case Control Consortium 2007', 'Hakonarson H 2007', 'Grant SF 2008',
+        'Cooper JD 2008', 'Barrett JC 2009', 'Plagnol V 2011', 'Tomer Y 2015', 'Onengut-Gumuscu S 2015', 'Sharma A 2018', 'Charmet R 2018',
+        'Kawabata Y 2018', 'Zhu M 2019'];
+    diseasesAndStudies['t2d'] = ['Mahajan A 2018', 'Scott LJ 2007', 'Zeggini E 2007', 'Saxena R 2007', 'Wellcome Trust Case Control Consortium 2007',
+        'Zeggini E 2008', 'Takeuchi F 2009', 'Rung J 2009', 'Voight BF 2010', 'Shu XO 2010', 'Sim X 2011', 'Parra EJ 2011', 'Kooner JS 2011',
+        'Cho YS 2011', 'Palmer ND 2012', 'Perry JR 2012', 'Li H 2012', 'Tabassum R 2012', 'Saxena R 2013', 'Hara K 2013', 'Mahajan A 2014',
+        'Ng MC 2014', 'Ghassibe-Sabbagh M 2014', 'Huang KC 2015', 'Imamura M 2016', 'Cook JP 2016', 'Qi Q 2017', 'Scott RA 2017',
+        'Zhao W 2017', 'Morris AP 2012', 'Bonàs-Guarch S 2018', 'Domínguez-Cruz MG 2018', 'Wood AR 2016', 'Xue A 2018', 'Suzuki K 2019',
+        'Chen J 2019', 'Flannick J 2019', 'Mahajan A 2018'];
 
     //freeze the object so it can't be edited by the browser or server
     diseasesAndStudies = Object.freeze(diseasesAndStudies);
@@ -31,44 +33,48 @@
     }
 
     /**
-     * Gets the studies associated with the specified disease and study type from the diseasesAndStudies object
+     * Gets the studies associated with the specified disease and study type list from the diseasesAndStudies object
      * @param {*} disease 
-     * @param {*} studyType 
+     * @param {*} studyTypeList 
      */
-    function getStudiesFromDisease(disease, studyType) {
-        disease = disease.toUpperCase();
-        var possibleStudies = diseasesAndStudies[disease];
-        var relevantStudies = []
-        //for each study in the possibleStudies list, determine if it fits the requested studyType, 
-        //remove the string that identifies it's type and (if the study is not empty) add it to the 
-        //relevantStudies list
-        possibleStudies.forEach(function (study) {
-            if (studyType == "high impact") {
-                if (study.toLowerCase().includes("high impact")) {
+    function getStudiesFromDisease(disease, studyTypeList) {
+        disease = disease.toLowerCase();
+        if (disease in diseasesAndStudies) {
+            var possibleStudies = diseasesAndStudies[disease];
+            var relevantStudies = []
+            //for each study in the possibleStudies list, determine if it fits the requested studyTypeList, 
+            //remove the string that identifies it's type and (if the study is not empty) add it to the 
+            //relevantStudies list
+            //TODO clean this up to work better for a list of study types
+            possibleStudies.forEach(function (study) {
+                if (studyTypeList.includes("high impact")) {
+                    if (study.toLowerCase().includes("high impact")) {
+                        study = getStudyNameFromStudyEntry(study);
+                        if (study != "") {
+                            relevantStudies.push(study);
+                        }
+                    }
+                }
+                else if (studyTypeList.includes("largest cohort")) {
+                    if (study.toLowerCase().includes("largest cohort")) {
+                        study = getStudyNameFromStudyEntry(study);
+                        if (study != "") {
+                            relevantStudies.push(study);
+                        }
+                    }
+                }
+                //if we don't have a studyType, or the study type is "all", just append all studies
+                else {
                     study = getStudyNameFromStudyEntry(study);
-                    if (study != "") {
+                    //test doesn't include to avoid duplicate studies
+                    if (study != "" && !relevantStudies.includes(study)) {
                         relevantStudies.push(study);
                     }
                 }
-            }
-            else if (studyType == "largest cohort") {
-                if (study.toLowerCase().includes("largest cohort")) {
-                    study = getStudyNameFromStudyEntry(study);
-                    if (study != "") {
-                        relevantStudies.push(study);
-                    }
-                }
-            }
-            //if we don't have a studyType, or the study type is "all", just append all studies
-            else {
-                study = getStudyNameFromStudyEntry(study);
-                //test doesn't include to avoid duplicate studies
-                if (study != "" && !relevantStudies.includes(study)) {
-                    relevantStudies.push(study);
-                }
-            }
-        });
-        return relevantStudies;
+            });
+            return relevantStudies;
+        }
+        return [];
     }
 
     /**
@@ -81,17 +87,17 @@
 
     /**
      * Creates an object with diseases requested mapped to their corresponding studies. 
-     * studyType narrows down what studies are searched.
+     * studyTypeList narrows down what studies are searched.
      * @param {*} diseaseArray an array of diseases for which the user wants the risk scores to be calculated.
-     * @param {*} studyType can be either "high impact", "largest cohort", or "". If "", all studies for each disease are returned in the object.
+     * @param {*} studyTypeList can be contain "high impact", "largest cohort", or "". If "", all studies for each disease are returned in the object.
      */
-    exports.makeDiseaseStudyMapArray = function (diseaseArray, studyType) {
+    exports.makeDiseaseStudyMapArray = function (diseaseArray, studyTypeList) {
         var diseaseStudyMapArray = [];
         //if the user doesn't specify any diseases, do all of them
         if (diseaseArray == undefined || diseaseArray.length <= 0) {
             diseaseArray = [];
             for (var diseaseName in diseasesAndStudies) {
-                if (diseaseName !== "ALL") {
+                if (diseaseName.toLowerCase() !== "all") {
                     if (diseasesAndStudies.hasOwnProperty(diseaseName)) {
                         diseaseArray.push(diseaseName);
                     }
@@ -100,7 +106,7 @@
         }
         //else, make the diseaseStudyMapArray based on their disease list
         diseaseArray.forEach(function (disease) {
-            var studies = getStudiesFromDisease(disease, studyType)
+            var studies = getStudiesFromDisease(disease, studyTypeList)
             //if there are studies for that disease based on the user's parameters, push the disease with it's studies onto the obj
             if (studies.length > 0) {
                 diseaseStudyMapArray.push({
@@ -236,9 +242,9 @@
                     });
                     if (studyObjs.has(databasePosObj.study)) {
                         var studyObj = studyObjs.get(databasePosObj.study);
-                        studyObj.oddsRatios.concat(oddsRatioTempList);
-                        studyObj.snps.concat(snpTempList);
-                        studyObj.pos.concat(posTempList);
+                        studyObj.oddsRatios = studyObj.oddsRatios.concat(oddsRatioTempList);
+                        studyObj.snps = studyObj.snps.concat(snpTempList);
+                        studyObj.pos = studyObj.pos.concat(posTempList);
                         studyObjs.set(databasePosObj.study, studyObj)
                     }
                     else {
@@ -323,7 +329,7 @@
         vcfLine.sampleinfo.forEach(function (sample) {
             var vcfSNPObjs = vcfObj.get(sample.NAME);
             //gets the allele indices
-            var alleles = sample.GT.split(/[|/]+/, 2);
+            var alleles = sample.GT.trim().split(/[|/]+/, 2);
             //gets the alleles from the allele indices and replaces the indices with the alleles.
             for (var i = 0; i < alleles.length; i++) {
                 //if the allele is ".", ignore it
@@ -359,15 +365,17 @@
             for (let j = 0; j < tableObj[i].studiesRows.length; ++j) {
                 for (let k = 0; k < tableObj[i].studiesRows[j].rows.length; ++k) {
                     var identifier = "";
+                    var pos = tableObj[i].studiesRows[j].rows[k].pos;
+                    var snp = tableObj[i].studiesRows[j].rows[k].snp;
                     if (isPosBased) {
-                        identifier = tableObj[i].studiesRows[j].rows[k].pos;
+                        identifier = pos;
                     }
                     else {
-                        identifier = tableObj[i].studiesRows[j].rows[k].snp;
+                        identifier = snp;
                     }
                     var indentifierObj = {
-                        snp: tableObj[i].studiesRows[j].rows[k].snp,
-                        pos: tableObj[i].studiesRows[j].rows[k].pos,
+                        snp: snp,
+                        pos: pos,
                         oddsRatio: tableObj[i].studiesRows[j].rows[k].oddsRatio,
                         allele: tableObj[i].studiesRows[j].rows[k].riskAllele,
                         study: tableObj[i].studiesRows[j].study,
