@@ -10,10 +10,12 @@ var calculatePolyScore = async () => {
     //TODO currently not in use- used to disable the calculate risk score button. See toggleCalculateButton and resetOutput functions
     if (canCalculate) {
         //user feedback while they are waiting for their score
-        $('#response').html("Calculating. Please wait...")
+        $('#response').html("Calculating. Please wait...");
 
-        // get value of selected 'pvalue' from 'pvalSlider'
-        var pValue = getSliderPVal(document.getElementById('pvalSlider'), 'pvalue');
+        // get value of selected 'pvalue' from the 'pvalInput' form
+        var pValueScalar = document.getElementById('pValScalarIn').value;
+        var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
+        var pValue = pValueScalar.concat("e".concat(pValMagnitute))
 
         //gets the disease name from the drop down list
         var diseaseSelectElement = document.getElementById("disease");
@@ -489,4 +491,16 @@ function clickFileUpload() {
     if (previousFileText.value !== "") {
         document.getElementById('input').value = previousFileText.value;
     }
+}
+
+function changePValScalar() {
+    $("#pvalScalar").html($("#pValScalarIn").val());
+    resetOutput()
+    $('#response').html("");
+}
+
+function changePValMagnitude() {
+    $("#pvalMagnigtude").html(-1 * $("#pValMagIn").val());
+    resetOutput()
+    $('#response').html("");
 }

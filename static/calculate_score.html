@@ -12,7 +12,7 @@
 
 <body>
   <div class = 'p-9 bg-primary text-center'>
-    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Hi! Welcome to the Beta version of our website--Click here to leave us comments or concerns!</a>
+    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website! --Click here to leave us comments or questions</a>
   </div>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <a class="navbar-brand" href="#">Calculate Risk Scores</a>
@@ -186,9 +186,7 @@
                   </div>
                 </div>
               </form>
-
               <p>&nbsp;</p>
-              <script src="js/sliderFunctions.js"></script>
               <div class="container diseaseLists">
                 <div class="row">
                   <div class='parent inline-flex-parent'>
@@ -253,31 +251,24 @@
                   <div class='parent inline-flex-parent'>
                     <div class='child'>
                       <div class="col-lg-12 mb-.5 mt-2 text-left">
-                        <h5>Slide to select P-Value Cutoff&nbsp;</h5>
-                        <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
+                        <h5>Enter P-Value Cutoff&nbsp;</h5>
+                        <form action="#" method="POST" id="pvalInput" name="pvalOptions">
                           <div class="form-inline">
-                            <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider"
-                              id="pvalue">
-                            <label>&nbsp;&nbsp;&nbsp;1x10
+                            <div>
+                              <input type="number" value="1.0" name = "pValScalarIn" id ="pValScalarIn" min = 1.0 max = 10.0 onchange = "changePValScalar()">
+                              x10^-
+                              <input type="number" value="5" name="pValMagIn" id="pValMagIn" min = 0.0 max = 100.0 onchange="changePValMagnitude()">
+                            </div>
+                            <label>
+                              &nbsp;&nbsp;&nbsp;(
+                              <output id="pvalScalar" name="pvalScalar" for="pValScalarIn">1.0</output>
+                              x10
                               <sup>
-                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
-                              </sup>
+                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pValMagIn">-5</output>
+                              </sup>)
                             </label>
                           </div>
                         </form>
-                        <!--Below script ensures the display of the
-                          p-value is synced with the slider-->
-                        <script>
-                          var slider = document.getElementById("pvalue");
-                          var output = document.getElementById("pvalMagnigtude");
-                          output.innerHTML = slider.value;
-
-                          slider.oninput = function () {
-                            output.innerHTML = this.value;
-                            resetOutput()
-                            $('#response').html("");
-                          }
-                        </script>
                       </div>
                     </div>
                     <div class='child'>
@@ -323,12 +314,9 @@
             <div class="text-center col-12">
               <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
               <form id="responseBox" class="text-center">
-
                 <div class="form-text font-weight-bold">
-
                   <textarea readonly rows="10" cols="100" class="form-control nowrap" id="response" name="response"
                     placeholder="Results" aria-describedby="response to query"></textarea>
-
                 </div>
               </form>
               <p>&nbsp;</p>
