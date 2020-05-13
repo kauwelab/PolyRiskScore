@@ -34,7 +34,7 @@ var calculatePolyScore = async () => {
         //if the user doesn't specify a disease or study, prompt them to do so
         if (diseaseSelected === "--Disease--" || study === "--Study--") {
             $('#response').html('Please specify a specific disease and study using the drop down menus above.');
-            return
+            return;
         }
 
         //get the reference genome to be used
@@ -42,7 +42,7 @@ var calculatePolyScore = async () => {
         var refGen = refGenElement.options[refGenElement.selectedIndex].value
         if (refGen == "default") {
             $('#response').html('Please select the reference genome corresponding to your file.');
-            return
+            return;
         }
 
         //get user SNPs
@@ -59,7 +59,8 @@ var calculatePolyScore = async () => {
 
             var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
             var snpsObj = new Map();
-            arrayOfInputtedSnps.forEach(function (snp) {
+            for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
+                snp = arrayOfInputtedSnps[i]
                 snpArray = snp.split(':');
                 if (snpArray.length < 2) {
                     snpsObj.set(snpArray[0], [])
@@ -67,12 +68,18 @@ var calculatePolyScore = async () => {
                 else {
                     var alleles = snpArray[1].split("");
                     if (alleles.length > 2) {
-                        //THIS SHOULDN'T HAPPEN! THROW AN ERROR OR SOMETHING
-                        //AND GET THE HECK OUT --Maddy
+                        $('#response').html("Too many alleles for " + snp + ". Each snp should have a maximum of two alleles.");
+                        return;
+                    }
+                    for (var i = 0; i < alleles.length; ++i) {
+                        if (["A","T","G", "C"].indexOf(alleles[i].toUpperCase()) < 0) {
+                            $('#response').html("Allele \"" + alleles[i] + "\" is invalid. Must be A, T, G, or C.");
+                            return;
+                        }
                     }
                     snpsObj.set(snpArray[0], alleles)
                 }
-            })
+            }
             ClientCalculateScoreTxtInput(snpsObj, diseaseArray, [studyType], pValue, refGen)
         }
         else {
