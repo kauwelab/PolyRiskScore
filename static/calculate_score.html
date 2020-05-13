@@ -37,92 +37,7 @@
     </div>
   </nav>
   <header>
-    <!-- <div class="one">
-      <div class="text-center">
-        <img src="images/Ollie.jpg" id="videosubstitute" alt="">
-        <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop" id="video2">
-          <source src="images/testVid_1.mp4" type="video/mp4">
-        </video>
-
-      </div>
-      <div class="text-center text-white my-auto">
-
-
-        <h1 class="display-1 font-weight-bold "><br>Calculate Polygenic Risk Scores<br></h1>
-
-
-      </div>
-
-    </div> -->
-  </header>
-  <!--
-    <header>
-      <div class="jumbotron">
-        <div class="container">
-          <div class="row">
-            <div class="col-12">
-              <h1 class="text-center">The Polygenic Risk Score Knowledge Base</h1>
-              <p class="lead"><br>The purpose of the PRS Knowledge Base is to allow researchers to quickly calculate polygenic risk scores for various diseases based on published genome-wide association studies (GWAS).<br><br>The PRS Knowledge Base also facilitates the use and distribution of GWAS results by allowing researchers to upload results from their own studies to be included in future polygenic risk score calculations. </p>
-              <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-    <section>
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Calculate Polygenic Risk Scores</h2>
-			  <p class="lead"><br>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p>
-              <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="calculate_score.html" role="button">Upload VCF</a> </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="jumbotron">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-12 mb-4 mt-2 text-center">
-				<h2>Add GWAS to the PRS Knowledge Base</h2>
-              <p class="lead"><br>We invite you to upload the odds ratios and p-values from your association studies to the knowledge base. Please visit the submission page by clicking on the link below to see the required submission format and to upload your study.<br><br>Thank you for supporting the PRS Knowledge Base!</p>
-				<p>&nbsp;</p>
-            </div>
-          </div>
-
-            <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
-
-        </div>
-      </div>
-
-
-	<div class="container">
-        <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>How To Cite the PRS Knowledge Base</h2>
-			  <p class="lead"><br>The PRS Knowledge Base would not be possible without the many genome-wide association studies that have been published. We ask that if you use the PRS Knowledge Base for published work, you cite the PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of all publications used by the PRS Knowledge Base, organized by disease, please follow the link below.</p>
-              <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="citations.html" role="button">Citations</a> </p>
-          </div>
-        </div>
-      </div>
-
-		<div class="jumbotron">
-		<div class="container">
-        <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>API</h2>
-			  <p class="lead"><br>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line. </p>
-              <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="api.html" role="button">API Documentation</a> </p>
-          </div>
-        </div>
-      </div>
-		</div>
-</section>
-	  -->
+    
   <div class="jumbotron">
     <div class="container">
       <div class="row">
@@ -264,110 +179,7 @@
                             <input type="submit">
                           </form>
 
-                          <script>
-                            function autocomplete(inp, arr) {
-                              /*the autocomplete function takes two arguments,
-                              the text field element and an array of possible autocompleted values:*/
-                              var currentFocus;
-                              /*execute a function when someone writes in the text field:*/
-                              inp.addEventListener("input", function(e) {
-                                  var a, b, i, val = this.value;
-                                  /*close any already open lists of autocompleted values*/
-                                  closeAllLists();
-                                  if (!val) { return false;}
-                                  currentFocus = -1;
-                                  /*create a DIV element that will contain the items (values):*/
-                                  a = document.createElement("DIV");
-                                  a.setAttribute("id", this.id + "autocomplete-list");
-                                  a.setAttribute("class", "autocomplete-items");
-                                  /*append the DIV element as a child of the autocomplete container:*/
-                                  this.parentNode.appendChild(a);
-                                  /*for each item in the array...*/
-                                  for (i = 0; i < arr.length; i++) {
-                                    /*check if the item starts with the same letters as the text field value:*/
-                                    if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-                                      /*create a DIV element for each matching element:*/
-                                      b = document.createElement("DIV");
-                                      /*make the matching letters bold:*/
-                                      b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-                                      b.innerHTML += arr[i].substr(val.length);
-                                      /*insert a input field that will hold the current array item's value:*/
-                                      b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-                                      /*execute a function when someone clicks on the item value (DIV element):*/
-                                      b.addEventListener("click", function(e) {
-                                          /*insert the value for the autocomplete text field:*/
-                                          inp.value = this.getElementsByTagName("input")[0].value;
-                                          /*close the list of autocompleted values,
-                                          (or any other open lists of autocompleted values:*/
-                                          closeAllLists();
-                                      });
-                                      a.appendChild(b);
-                                    }
-                                  }
-                              });
-                              /*execute a function presses a key on the keyboard:*/
-                              inp.addEventListener("keydown", function(e) {
-                                  var x = document.getElementById(this.id + "autocomplete-list");
-                                  if (x) x = x.getElementsByTagName("div");
-                                  if (e.keyCode == 40) {
-                                    /*If the arrow DOWN key is pressed,
-                                    increase the currentFocus variable:*/
-                                    currentFocus++;
-                                    /*and and make the current item more visible:*/
-                                    addActive(x);
-                                  } else if (e.keyCode == 38) { //up
-                                    /*If the arrow UP key is pressed,
-                                    decrease the currentFocus variable:*/
-                                    currentFocus--;
-                                    /*and and make the current item more visible:*/
-                                    addActive(x);
-                                  } else if (e.keyCode == 13) {
-                                    /*If the ENTER key is pressed, prevent the form from being submitted,*/
-                                    e.preventDefault();
-                                    if (currentFocus > -1) {
-                                      /*and simulate a click on the "active" item:*/
-                                      if (x) x[currentFocus].click();
-                                    }
-                                  }
-                              });
-                              function addActive(x) {
-                                /*a function to classify an item as "active":*/
-                                if (!x) return false;
-                                /*start by removing the "active" class on all items:*/
-                                removeActive(x);
-                                if (currentFocus >= x.length) currentFocus = 0;
-                                if (currentFocus < 0) currentFocus = (x.length - 1);
-                                /*add class "autocomplete-active":*/
-                                x[currentFocus].classList.add("autocomplete-active");
-                              }
-                              function removeActive(x) {
-                                /*a function to remove the "active" class from all autocomplete items:*/
-                                for (var i = 0; i < x.length; i++) {
-                                  x[i].classList.remove("autocomplete-active");
-                                }
-                              }
-                              function closeAllLists(elmnt) {
-                                /*close all autocomplete lists in the document,
-                                except the one passed as an argument:*/
-                                var x = document.getElementsByClassName("autocomplete-items");
-                                for (var i = 0; i < x.length; i++) {
-                                  if (elmnt != x[i] && elmnt != inp) {
-                                    x[i].parentNode.removeChild(x[i]);
-                                  }
-                                }
-                              }
-                              /*execute a function when someone clicks in the document:*/
-                              document.addEventListener("click", function (e) {
-                                  closeAllLists(e.target);
-                              });
-                            }
-
-                            var testVar = ["All diseases", "ADHD", "Alzheimer's disease", "ALS", "Depression",
-                             "Coronary Heart disease", "Heart Failure", "Type I Diabetes Mellitus", "Type II Diabetes Mellitus"]
-                            /*initiate the autocomplete function on the "diseaseInput" element, 
-                            and pass along the countries array as possible autocomplete values:*/
-                            autocomplete(document.getElementById("diseaseInput"), testVar);
-                          </script>
+                          <script type="text/javascript" src="js/autocomplete.js"></script>
 
                           <div class="diseaseLists">
                             <select id="disease" onchange="ChangeDiseaseList()">
@@ -377,25 +189,11 @@
                               <option value="adhd">ADHD</option>
                               <option value="ad">Alzheimer's Disease</option>
                               <option value="als">ALS</option>
-                              <!-- <option value="ankylosing_spondylitis">Ankylosing Spondylitis</option>
-                              <option value="asthma_adult_onset">Asthma (Adult Onset)</option>
-                              <option value="asthma_childhood_onset">Asthma (Childhood Onset)</option>
-                              <option value="celiac_disease">Celiac Disease</option>
-                              <option value="cll">Chronic Lymphocytic Leukemia</option>
-                              <option value="copd">Chronic Obstructive Pulmonary Disease</option> -->
                               <option value="coronary_heart_disease">Coronary Heart Disease</option>
-                              <!-- <option value="crohns_disease">Chrohn's Disease</option> -->
                               <option value="dep">Depression</option>
-                              <!-- <option value="graves_disease">Grave's Disease</option> -->
                               <option value="hf">Heart Faliure</option>
-                              <!-- <option value="hypothyroidism">Hypothyroidism</option>
-                              <option value="ms">Multiple Sclerosis</option>
-                              <option value="psoriasis">Psoriasis</option>
-                              <option value="sarcoidosis">Sarcoidosis</option>
-                              <option value="thyroid_carcinoma">Thyroid Carcinoma</option> -->
                               <option value="t1d">Type 1 Diabetes Mellitus</option>
                               <option value="t2d">Type 2 Diabetes Mellitus</option>
-                              <!-- <option value="ulcerative_colitis">Ulcerative Colitis</option> -->
                             </select>
                           </div>
                           <div class="diseaseLists">
