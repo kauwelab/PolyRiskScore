@@ -39,12 +39,10 @@ var testTraits = async () => {
         data: {},
         success: async function (traitTableRows) {
             var listOfTraits = traitTableRows;
-            return listOfTraits;
+            console.loglog(listOfTraits);
         },
         error: function (XMLHttpRequest) {
             return "Maddy You have an Error!";
         }
     })
 }
-
-console.log(testTraits)
