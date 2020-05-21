@@ -32,12 +32,14 @@ function changeStudiesList() {
 
 //testing stuff
 
+var traits = ""
+
 var getTraits = async () => {
     $.ajax({
         type: "GET",
         url: "get_traits",
         success: async function (studyTableRows) {
-            return studyTableRows;
+            traits = studyTableRows;
         },
         error: function (XMLHttpRequest) {
             $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
@@ -45,4 +47,5 @@ var getTraits = async () => {
     })
 }
 
-console.log(getTraits());
+getTraits();
+console.log(traits);
