@@ -37,7 +37,7 @@ var getTraits = async () => {
         type: "GET",
         url: "get_traits",
         success: async function (studyTableRows) {
-            console.log(studyTableRows)
+            return studyTableRows;
         },
         error: function (XMLHttpRequest) {
             $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
@@ -45,4 +45,4 @@ var getTraits = async () => {
     })
 }
 
-getTraits();
+console.log(getTraits());
