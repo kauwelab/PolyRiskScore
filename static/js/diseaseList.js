@@ -32,7 +32,7 @@ function changeStudiesList() {
 
 //----testing, can delete later----------------------------------------------------
 
-var testTraits = () => {
+var testTraits = async () => {
     $.ajax({
         type: "GET",
         url: "get_traits",
