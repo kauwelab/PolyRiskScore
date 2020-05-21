@@ -32,20 +32,16 @@ function changeStudiesList() {
 
 //----testing, can delete later----------------------------------------------------
 
-async function testTraits() {
-    $.ajax({
-        type: "GET",
-        url: "get_traits",
-        data: {},
-        success: async function (traitTableRows) {
-            console.log("they said it was a success")
-            var listOfTraits = traitTableRows;
-            return listOfTraits;
-        },
-        error: function (XMLHttpRequest) {
-            return "Maddy You have an Error!";
-        }
-    })
-}
-
-await testTraits();
+$.ajax({
+    type: "GET",
+    url: "get_traits",
+    data: {},
+    success: async function (traitTableRows) {
+        console.log("they said it was a success")
+        var listOfTraits = traitTableRows;
+        consol.log(listOfTraits);
+    },
+    error: function (XMLHttpRequest) {
+        return "Maddy You have an Error!";
+    }
+})
