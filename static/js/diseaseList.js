@@ -29,3 +29,22 @@ function changeStudiesList() {
     resetOutput();
     $('#response').html("");
 }
+
+//----testing, can delete later----------------------------------------------------
+
+var testTraits = () => {
+    $.ajax({
+        type: "GET",
+        url: "get_traits",
+        data: {},
+        success: async function (traitTableRows) {
+            var listOfTraits = traitTableRows;
+            return listOfTraits;
+        },
+        error: function (XMLHttpRequest) {
+            return "Maddy You have an Error!";
+        }
+    })
+}
+
+console.log(testTraits)
