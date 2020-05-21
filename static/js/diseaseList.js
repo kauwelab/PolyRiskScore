@@ -48,4 +48,4 @@ async function testTraits() {
     })
 }
 
-testTraits();
+await testTraits();
