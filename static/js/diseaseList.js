@@ -39,6 +39,7 @@ var getTraits = async () => {
         type: "GET",
         url: "get_traits",
         success: async function (studyTableRows) {
+            console.log(studyTableRows)
             traits = studyTableRows;
         },
         error: function (XMLHttpRequest) {
