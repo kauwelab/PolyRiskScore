@@ -30,23 +30,3 @@ function changeStudiesList() {
     resetOutput();
     $('#response').html("");
 }
-
-//testing stuff
-
-var traits = ""
-
-var getTraits = async () => {
-    $.ajax({
-        type: "GET",
-        url: "get_traits",
-        success: async function (studyTableRows) {
-            console.log(studyTableRows)
-            traits = studyTableRows;
-        },
-        error: function (XMLHttpRequest) {
-            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
-        }
-    })
-}
-
-getTraits();
