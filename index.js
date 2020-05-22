@@ -203,6 +203,7 @@ app.get('/study_table/', async function (req, res) {
 });
 
 app.get('/get_traits/', async function (req, res) {
+    console.log('this is a test. ')
     //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
     res.setHeader('Access-Control-Allow-Origin', '*');
     var traitsList = await getTraitsList();
