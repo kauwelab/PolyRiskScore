@@ -286,7 +286,7 @@ app.get('/get_studies/', function (req, res) {
 
 async function getTraitsList() {
     // TODO need actual names of table and column
-    var query = "SELECT trait FROM traitTable;"
+    var query = "SELECT trait FROM traitTable"
 
     //todo need to test this... 
     database.query(query)

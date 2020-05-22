@@ -1,4 +1,5 @@
 function ChangeDiseaseList() {
+    console.log(traits);
     //sessionStorage.removeItem("riskResults");
     resetOutput();
     $('#response').html("");
@@ -49,4 +50,3 @@ var getTraits = async () => {
 }
 
 getTraits();
-console.log(traits);
