@@ -288,6 +288,8 @@ async function getTraitsList() {
     // TODO need actual names of table and column
     var query = "SELECT trait FROM traitTable"
 
+    console.log("Test, I'm in the getTraitsList function")
+
     //todo need to test this... 
     database.query(query)
         .then( rows => {
