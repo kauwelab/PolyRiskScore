@@ -1,4 +1,5 @@
 var mysql = require( 'mysql' );
+const passwords = require('./static/js/passwords')
 
 //Code from https://codeburst.io/node-js-mysql-and-promises-4c3be599909b 
 
