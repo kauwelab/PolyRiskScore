@@ -13,7 +13,7 @@ var mysql = require('mysql')
 //the shared code module between the browser and server
 const sharedCode = require('./static/js/sharedCode')
 const passwords = require('./static/js/passwords')
-const database = require('./static/js/database')
+const database = require('./static/js/config/database')
 
 
 //Define the port for app to listen on
