@@ -13,7 +13,7 @@ var mysql = require('mysql')
 //the shared code module between the browser and server
 const sharedCode = require('./static/js/sharedCode')
 const passwords = require('./static/js/passwords')
-const database = require('./static/js/database')
+const database = require('./static/js/models/database')
 
 
 //Define the port for app to listen on
@@ -70,6 +70,9 @@ app.set('view engine', 'handlebars');
 var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
+
+require("./static/js/routes/routes.js")(app);
+
 app.listen(port, () => {
     var welcomeMessages = [];
     welcomeMessages.push("Welcome to the Polyscore Server!");
