@@ -39,39 +39,40 @@ def checkTableExists(connection, tableName):
     cursor.close()
     return False
 
-def deleteTable(connection, tableName):
+def deleteTable(connection, dbTableName):
     cursor = connection.cursor()
-    sql = "DROP TABLE " + tableName + ";"
+    sql = "DROP TABLE " + dbTableName + ";"
     cursor.execute(sql)
     cursor.close()
 
-def createTable(connection, tableName):
+def createTable(connection, dbTableName):
     cursor = connection.cursor()
-    tableColumns =" ( id smallint unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(50), ethnicity varchar(100), raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, seLnOR double, study varchar(50), cohort double, citations double )';"
-    sql = "SET @query = 'CREATE TABLE " + tableName + tableColumns + "PREPARE stmt FROM @query;" + "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
+    #TODO CHARACTER SET utf8 COLLATE utf8_general_ci
+    tableColumns =" ( id smallint unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(50), raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, study varchar(50), studyID varchar(20))';"
+    sql = "set names utf8mb4; SET @query = 'CREATE TABLE " + dbTableName + tableColumns + "PREPARE stmt FROM @query;" + "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
     cursor.execute(sql, multi = True)
     cursor.close()
 
 #removes the table in fileNames if it exists and creates a new table
-def createFreshTable(config, tableName):
+def createFreshTable(config, tableName, dbTableName):
     connection = getConnection(config)
     dropped = False
     # drop the table if it already exists
-    if checkTableExists(connection, tableName):
-        deleteTable(connection, tableName)
+    if checkTableExists(connection, dbTableName):
+        deleteTable(connection, dbTableName)
         dropped = True
     #create a new table with the table columns specified
-    createTable(connection, tableName)
+    createTable(connection, dbTableName)
     if dropped:
-        print(tableName + " recreated")
+        print(dbTableName + " recreated")
     else:
-        print(tableName + " created")
+        print(dbTableName + " created")
 
-def addDataToTable(config, tableName):
+def addDataToTable(config, tableName, dbTableName):
     connection = getConnection(config)
     cursor = connection.cursor()
     workingDirectoryPath = os.getcwd().replace("\\", "/") + "/"
-    sql = "LOAD DATA LOCAL INFILE '" + workingDirectoryPath + tableName + ".csv' INTO TABLE " + tableName + " COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES;"            
+    sql = "LOAD DATA LOCAL INFILE '" + workingDirectoryPath + tableName + ".csv' INTO TABLE " + dbTableName + " CHARACTER SET latin1 COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES;"            
     cursor.execute(sql, multi = True)
     cursor.close()
     print(tableName + " data added")
@@ -84,6 +85,12 @@ def getAllExistingTables(config):
     for (table_name,) in cursor:
         existingTableNames.append(table_name)
     return existingTableNames
+
+#gets the trait name formated for website and database use
+  #all lowercase, spaces to underscores, forward slashes to dashes, and no commas
+def getDatabaseTableName(traitName):
+    dbTableName = traitName.lower().replace(" ", "_").replace(",", "").replace("/", "-")[:64]
+    return(dbTableName)
 
 def enableLocalLoad(config):
     connection = getConnection(config)
@@ -102,6 +109,7 @@ def usage():
 
 def main():
     config = {}
+    #TODO
     if len(argv) > 1:
         config = {
             'user': 'polyscore',
@@ -122,19 +130,20 @@ def main():
         if argv[2].lower() == "true" or argv[2].lower() == "t":
             existingTables = getAllExistingTables(config)
             for tableName in tablesToUpdate:
-                if tableName in existingTables:
-                    existingTables.remove(tableName)
+                dbTableName = getDatabaseTableName(tableName)
+                if dbTableName in existingTables:
+                    existingTables.remove(dbTableName)
             print("You are about to remove the following tables from the database " + str(existingTables))
             if input("Are you sure? (y/n)") != "y":
                 print("Aborted by user.")
                 exit()
             else:
                 print('Cleaning the database')
-                for tableName in existingTables:
+                for dbTableName in existingTables:
                     connection = getConnection(config)
-                    deleteTable(connection, tableName)
+                    deleteTable(connection, dbTableName)
                     connection.close()
-                    print(tableName + " removed")
+                    print(dbTableName + " removed")
     if len(argv) > 3:
         tablesToUpdate = argv[3].split(', ') 
         print("Updating tables: " + str(tablesToUpdate))
@@ -149,8 +158,12 @@ def main():
 
     #for each table, create a fresh table and add the data in the current directory with that table name to it
     for tableName in tablesToUpdate:
-        createFreshTable(config, tableName)
-        addDataToTable(config, tableName)
+        #TODO
+        dbTableName = getDatabaseTableName(tableName)
+        #print("starting", tableName, dbTableName)
+
+        createFreshTable(config, tableName, dbTableName)
+        #addDataToTable(config, tableName, dbTableName)
     
 if __name__ == "__main__":
     main()

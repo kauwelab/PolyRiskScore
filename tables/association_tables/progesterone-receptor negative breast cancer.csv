@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"1","rs2981579","10:121577821","10:123337335","10:123327325","10:123327325","RN7SKP167:166621|FGFR2:0|AC009988.1:37604|LOC107984183:45791",NA,"T",5e-07,1.23,NA,NA,"Lacson JCA 2017","GCST007420"

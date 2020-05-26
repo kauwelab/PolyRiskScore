@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"1","rs2129979","4:110799841","4:111720997","4:111940446","4:112078601","LINC01438:2497|MIR297:60741|PITX2:157718",0.31,"G",2e-23,1.12,"1.09","1.14","Orlova E 2018","GCST007595"

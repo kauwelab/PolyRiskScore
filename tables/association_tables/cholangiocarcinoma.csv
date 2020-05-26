@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"1","rs7731017","5:150732056","5:150111618","5:150091811","5:150091811","SYNPO:72842|SYNPO:72849|MYOZ3:52688|SMIM3:45890|AC008453.1:59666|MYOZ3:52691|RBM22:30979|RBM22:30967|DCTN4:0",0.011,"G",1e-06,4.81,"2.57","9.02","Alberts R 2017","GCST005855"

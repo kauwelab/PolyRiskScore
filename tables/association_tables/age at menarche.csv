@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"1","rs10119582","9:10060803","9:10060803","9:10050803","9:10050803","PTPRD:0|AL135790.2:471342|AL513422.1:257019|LOC105375972:257012|PTPRD-AS2:552403",NA,"C",9e-13,1.17,"1.12","1.23","Horikoshi M 2018","GCST005865"
