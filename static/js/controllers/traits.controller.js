@@ -8,6 +8,32 @@ exports.getAll = (req, res) => {
             message:
             err.message || "Error occured while retrieving traits."
         });
-        else res.send(data);
+        else {
+            for ( i=0; i < data.length; i++) {
+                data[i].studyID = data[i].studyID.split("|")
+            }
+    
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(data);
+        }
     });
+};
+
+exports.findTraits = (req, res) =>{
+    Trait.findTrait(req.params.searchStr, (err, data) => {
+        if (err) 
+        res.status(500).send({
+            message:
+            err.message || "Error occured while retrieving traits."
+        });
+        else {
+            //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            for ( i=0; i < data.length; i++) {
+                data[i].studyID = data[i].studyID.split("|")
+            }
+    
+            res.send(data);
+        }
+    })
 };

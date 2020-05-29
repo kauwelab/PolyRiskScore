@@ -14,27 +14,11 @@ var mysql = require('mysql')
 const sharedCode = require('./static/js/sharedCode')
 const passwords = require('./static/js/passwords')
 const database = require('./static/js/models/database')
+const trait = require('./static/js/controllers/traits.controller')
 
 
 //Define the port for app to listen on
 const port = 3000
-
-//Test code for MySQL
-// var con = mysql.createConnection({
-//     host: "localhost",
-//     user: "root",
-//     password: "H3e6r2m1tC99r4b5c32rr56t25",
-//     database: "polyscore"
-//   });
-
-//   con.connect(function(err) {
-//     if (err) throw err;
-//     console.log("Connected to MySQL!");
-//     con.query("SELECT * FROM ad WHERE snp = 'rs6656401'", function (err, result, fields) 
-//         if (err) throw err;
-//         //console.log(result);
-//       });
-//   });
 
 // Configure multer functionalitys
 var storage = multer.diskStorage({
@@ -45,16 +29,19 @@ var storage = multer.diskStorage({
         cb(null, file.originalname)
     }
 });
+
 const cleanFolder = function (folderPath) {
     console.log("in clean folder");
     // delete files inside folder but not the folder itself
     del.sync([`${folderPath}/**`, `!${folderPath}`]);
 };
+
 const deleteFile = (file) => {
     fs.unlink(__dirname + "/uploads/" + file.originalname, (err) => {
         if (err) throw err;
     })
 };
+
 let timeOuts = [];
 var upload = multer({ storage: storage });
 cleanFolder(__dirname + "/uploads");
@@ -190,6 +177,7 @@ app.get('/study_table/', async function (req, res) {
     else if (diseaseArray.constructor !== Array) {
         diseaseArray = [diseaseArray];
     }
+
     var studyTypeList = req.query.studyTypeList
     if (studyTypeList == undefined || studyTypeList == "[]" || studyTypeList == "") {
         studyTypeList = []
@@ -205,107 +193,7 @@ app.get('/study_table/', async function (req, res) {
     res.send(tableObj);
 });
 
-app.get('/get_traits/', async function (req, res) {
-    //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    var traitsList = await getTraitsList();
-    res.send(traitsList)
-})
-
-app.get('/get_studies/', function (req, res) {
-
-    var studyObject0 = { reference: "number 1", articleName: "john", URL: "https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string" }
-    var studyObject1 = { reference: "number 2", articleName: "jacob", URL: "https://www.google.com/search?q=object.pluralize&rlz=1C1XYJR_enUS815US815&oq=object.pluralize&aqs=chrome..69i57.4710j0j7&sourceid=chrome&ie=UTF-8" }
-    var studyObject2 = { reference: "number 3", articleName: "jingle", URL: "http://docs.sequelizejs.com/manual/getting-started.html" }
-    var studyObject3 = { reference: "number 4", articleName: "heimer", URL: "http://docs.sequelizejs.com/manual/getting-started.html" }
-    var studiesArray = []
-    studiesArray.push(studyObject0)
-    studiesArray.push(studyObject1)
-    studiesArray.push(studyObject2)
-    studiesArray.push(studyObject3)
-
-
-    const sequelize = new Sequelize('studies', 'root', 'Petersme1', {
-        host: 'localhost',
-        dialect: 'mysql',
-        dialectOptions: {
-            insecureAuth: true
-        },
-        logging: false
-    })
-
-    sequelize
-        .authenticate()
-        .then(() => {
-            console.log('connection is up and running')
-
-        })
-        .catch(err => {
-            console.error('nope, that didnt work', err)
-        });
-
-    const Model = Sequelize.Model;
-    class Studies extends Model { }
-    Studies.init({
-        reference: {
-            type: Sequelize.STRING
-        },
-        articleName: {
-            type: Sequelize.STRING
-        },
-        URL: {
-            type: Sequelize.STRING
-        },
-        studyID: {
-            type: Sequelize.INTEGER
-        }
-    }, {
-        sequelize,
-        modelName: 'Studies',
-        freezeTableName: true,
-        timestamps: false
-    });
-    // the find all returns an array, so creat three seperate arrays of references, names, and URLs and then 
-    // loop through those to create your study objects and then send those back to the client.
-    var tempReference = Studies.findAll({
-        attributes: ['reference']
-    })
-    var tempArticleNames = Studies.findAll({
-        attributes: ['articleName']
-    })
-    var tempURL = Studies.findAll({
-        attributes: ['URL']
-    })
-
-    for (var i = 0; i < tempReference.length; ++i) {
-        var studyObject = { reference: tempReference[i], articleName: tempArticleNames[i], URL: tempURL[i] }
-        studiesArray.push(studyObject)
-    }
-    res.send(studiesArray)
-});
-
-
 // end Get Routes -------------------------------------------------------------------------------------------
-
-async function getTraitsList() {
-    // TODO need actual names of table and column
-    var query = "SELECT trait FROM traitTable"
-
-    console.log("Test, I'm in the getTraitsList function")
-
-    //todo need to test this... 
-    database.query(query)
-        .then( rows => {
-            traits = rows;
-            return database.close();
-        }, err => {
-            return database.close().then( () => { throw err; } )
-        })
-        .then( () => {return traits})
-        .catch( err => {
-            // handle the error
-        });
-}
 
 /**
  * Parses the vcf fileContents into a vcfObj that is used to calculate the score
@@ -386,10 +274,12 @@ async function getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray) 
  */
 async function getStudiesRows(connection, pValue, refGen, studiesArray, disease) {
     var studiesRows = [];
-    studiesArray.forEach(function (study) {
+    for (j = 0; j < studiesArray.length; ++j) {
+        var study = studiesArray[j];
         var rows = await getRows(connection, pValue, refGen, study, disease);
         studiesRows.push({ study: study, rows: rows });
-    })
+    }
+
     return studiesRows;
 }
 
@@ -409,7 +299,8 @@ async function getRows(connection, pValue, refGen, study, disease) {
             //if there is no result, return an empty list
             if (result !== undefined) {
                 // not 100% sure it will work like this, because I don't know the format of results
-                result.forEach(function (tableRow) {
+                for (i=0; i < result.length; i++){
+                    var tableRow = result[i]
                     var row = {
                         pos: tableRow[refGen],
                         snp: tableRow.snp,
@@ -418,7 +309,7 @@ async function getRows(connection, pValue, refGen, study, disease) {
                         oddsRatio: tableRow.oddsRatio
                     }
                     rows.push(row);
-                })
+                }
             }
             return err ? reject(err) : resolve(rows)
         });

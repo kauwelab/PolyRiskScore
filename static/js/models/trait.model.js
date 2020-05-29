@@ -1,20 +1,34 @@
 const sql = require('./database')
 
-const Trait = function(trait) {
-    this.traitId = trait.traitId;
-    this.traitName = trait.traitName;
-    this.studies = trait.studies;
+const Trait = function(mtrait) {
+    this.trait = mtrait.trait;
+    this.studyID = mtrait.studyID;
 };
 
 Trait.getAll = result => {
-    sql.query("SELECT * FROM traitTable", (err, res) => {
+    sql.query("SELECT * FROM trait_table", (err, res) => {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
             return;
         }
 
-        console.log("customers: ", res);
+        console.log("traits: ", res);
         result(null, res);
     });
 };
+
+Trait.findTrait = (searchStr, result) => {
+    sql.query(`SELECT * FROM trait_table WHERE trait LIKE '%${searchStr}%'`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        console.log("traits: ", res);
+        result(null, res);
+    });
+};
+
+module.exports = Trait;
