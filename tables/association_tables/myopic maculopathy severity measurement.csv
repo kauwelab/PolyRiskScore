@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs11873439","18:69077051","18:66744288","18:64895268","18:64895268","CCDC102B:21862|CCDC102B:0|AC096708.1:83676|LOC107985134:69125|LOC100418959:83679|AC090337.1:135226",0.418,"C",2e-12,1.43,"1.30","1.59","Hosoda Y 2018","GCST005715"

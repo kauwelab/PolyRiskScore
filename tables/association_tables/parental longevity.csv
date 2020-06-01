@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs10198124","2:35216373","2:35441439","2:35294943","2:35353090","AC013442.1:47338|SMIM7P1:3004|LOC107985808:53534|LOC100130842:2874|AC012593.1:30684",0.39,"G",2e-08,1.22,"1.15","1.29","Joshi PK 2017","GCST004983"

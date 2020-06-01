@@ -1,4 +1,4 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs10065203","5:14393512","5:14393621","5:14446621","5:14446621","TRIO:0|SNORD170:70471|AC016549.1:34227|OTULINL:188280|DNAH5:381683",NA,"A",4e-06,2.51,"1.69","3.71","Leandro-García LJ 2013","GCST002074"
 "2","rs10090117","8:18523725","8:18381235","8:18425515","8:18425515","NAT2:122507|PSD3:3578|NAT2:122506",NA,"G",4e-06,2.38,"1.64","3.44","Leandro-García LJ 2013","GCST002074"
 "3","rs10512385","9:108693295","9:111455575","9:110495396","9:108535130","RPL36AP35:128402|RPL36P14:66097|AL669983.1:66145|AL358779.1:8075",NA,"G",6e-06,2.58,"1.71","3.89","Leandro-García LJ 2013","GCST002074"

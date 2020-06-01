@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs17067290","4:179265397","4:180186551","4:180423545","4:180561700","LOC105377564:699049|AC020551.1:123737|LOC105377563:448071|AC018710.1:195803",NA,"T",6e-06,8.4,NA,NA,"Ohta Y 2019","GCST009319"

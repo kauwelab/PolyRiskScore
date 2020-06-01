@@ -1,3 +1,3 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs591118","11:104095993","11:103966721","11:103471931","11:103471931","RNA5SP348:156586|AP003304.1:156598|PDGFD:0|DDI1:56797",NA,"A",4e-10,4.05,"2.00","8.21","Hawcutt DB 2018","GCST005924"
 "2","rs591118","11:104095993","11:103966721","11:103471931","11:103471931","RNA5SP348:156586|AP003304.1:156598|PDGFD:0|DDI1:56797",NA,"A",4e-09,5.89,"2.97","11.68","Hawcutt DB 2018","GCST005927"

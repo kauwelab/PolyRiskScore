@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs7902091","10:66838534","10:68598292","10:68268298","10:68268298","LRRTM3:87502|CTNNA3:0|LOC101928961:55576|AL607023.1:830|LOC105378340:563354",NA,"A",7e-07,5.331,NA,NA,"Børglum AD 2013","GCST001833"

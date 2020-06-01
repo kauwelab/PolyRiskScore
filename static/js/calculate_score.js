@@ -48,10 +48,11 @@ var calculatePolyScore = async () => {
         //get user SNPs
         var vcfFile = document.getElementById("files").files[0];
 
+        //if in text input mode
         if (document.getElementById('textInputButton').checked) {
-            //if here, the user did not import a vcf file or the the vcf file was not read properly
             var textArea = document.getElementById('input');
 
+            //if text input is empty, return error
             if (!textArea.value) {
                 $('#response').html("Please input an rs id accoding to the procedures above or import a vcf file using the \"Choose File\" button above.");
                 return;
@@ -61,17 +62,27 @@ var calculatePolyScore = async () => {
             var snpsObj = new Map();
             for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
                 snp = arrayOfInputtedSnps[i]
+                //snp entry is split into two elements, the snpid (0) and the alleles (1)
                 snpArray = snp.split(':');
+                //if the snpid is invalid, return error
+                if (!snpArray[0].toLowerCase().startsWith("rs") || isNaN(snpArray[0].substring(2,snpArray[0].length))) {
+                    $('#response').html("Invalid snp id " + snpArray[0] + " Each id should start with \"rs\" followed by a string of numbers.");
+                    return;
+                }
+                //if the snp entry doesn't have alleles, create a snpsObj with an empty list
                 if (snpArray.length < 2) {
                     snpsObj.set(snpArray[0], [])
                 }
                 else {
+                    //get the alleles in list form
                     var alleles = snpArray[1].split("");
+                    //if more than 2 alleles, return error
                     if (alleles.length > 2) {
                         $('#response').html("Too many alleles for " + snp + ". Each snp should have a maximum of two alleles.");
                         return;
                     }
                     for (var i = 0; i < alleles.length; ++i) {
+                        //if any allele is not  A, T, G, or C, return error
                         if (["A","T","G", "C"].indexOf(alleles[i].toUpperCase()) < 0) {
                             $('#response').html("Allele \"" + alleles[i] + "\" is invalid. Must be A, T, G, or C.");
                             return;

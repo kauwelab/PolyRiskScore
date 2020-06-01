@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs4962322","10:126244196","10:127932765","10:127922755","10:127922755","SAR1AP2:28532|RNA5SP328:98614|ADAM12:0|SAR1AP2:28622",0.085,"A",8e-09,1.489,"1.35","1.63","Zabaneh D 2017","GCST005626"

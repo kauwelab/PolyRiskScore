@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs6116471","20:4688888","20:4669534","20:4617534","20:4617534","LOC105372511:88831|IDI1P3:46781|PRND:33021|RASSF2:91135|PRNP:0|LOC100421361:46721|RPS4XP2:58666|RPL7AP12:97581|PRNT:42391|RPS4XP2:3740|AL121916.1:97588|AL133396.1:72412|PRNT:42394",0.066,"T",3e-08,1060,NA,NA,"Omae Y 2019","GCST007948"

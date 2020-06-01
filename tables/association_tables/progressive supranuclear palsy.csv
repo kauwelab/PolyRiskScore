@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs242557","17:45942346","17:44019712","17:41375573","17:41375573","MAPT:0|STH:56904|MAPT-IT1:43548|CR936218.2:31567|KANSL1:87570|LOC105371800:4742|CR936218.1:92967|SPPL2C:95279|MAPT-AS1:46833|CR936218.3:10263|MAPT-AS1:46666|KANSL1:84989",0.48,"G",2e-22,1.9061,NA,NA,"Chen Z 2019","GCST007845"

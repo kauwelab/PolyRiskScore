@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 import mysql.connector
 from mysql.connector import errorcode
 from mysql.connector.constants import ClientFlag
@@ -52,9 +49,14 @@ def deleteTable(cursor, dbTableName):
 
 # creates 'dbTableName' and adds it to the database with no data
 def createTable(cursor, dbTableName):
-    # TODO CHARACTER SET utf8 COLLATE utf8_general_ci
-    tableColumns = " ( id smallint unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(50), raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, study varchar(50), studyID varchar(20))';"
-    sql = "set names utf8mb4; SET @query = 'CREATE TABLE `" + dbTableName + "`" + tableColumns + "PREPARE stmt FROM @query;" + "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
+    tableColumns = ""
+    if dbTableName == "study_table":
+        tableColumns = "( studyID varchar(20), pubMedID varchar(20), citation varchar(50), studyScore varchar(10), ethnicity varchar(255), cohort int unsigned, title varchar(255), lastUpdated varchar(15) )';"
+    elif dbTableName == "trait_table":
+        tableColumns = "( trait varchar(255), studyIDs varchar(255) )';"
+    else:
+        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(255), raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, citation varchar(50), studyID varchar(20) )';"
+    sql = "set names utf8mb4; SET @query = 'CREATE TABLE `" + dbTableName + "` " + tableColumns + "PREPARE stmt FROM @query;" + "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
     cursor.execute(sql, multi=True)
     cursor.close()
 
@@ -75,13 +77,13 @@ def createFreshTable(config, tableName, dbTableName):
     connection.close()
 
 # adds 'tableName' csv data to the 'dbTableName' table of the database
-def addDataToTable(config, associationTablesFolderPath, tableName, dbTableName):
+def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     connection = getConnection(config)
     cursor = connection.cursor()
-    path = associationTablesFolderPath + tableName + ".csv"
+    path = tablesFolderPath + tableName + ".csv"
     path = path.replace("\\", "/")
     # character set latin1 is required for some of the tables containing non English characters in their names
-    sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + '`CHARACTER SET latin1 COLUMNS TERMINATED BY "," LINES TERMINATED BY "\n" IGNORE 1 LINES;'
+    sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + '`CHARACTER SET latin1 COLUMNS TERMINATED BY "," ENCLOSED BY \'"\' LINES TERMINATED BY "\n" IGNORE 1 LINES;'
     cursor.execute(sql, multi=True)
     print(dbTableName + " data added")
     cursor.close()
@@ -119,7 +121,10 @@ def usage():
 
 
 def main():
-    associationTablesFolderPath = os.getcwd().replace("\\", "/") + "/association_tables/"
+    #the location of the study and trait tables
+    studyAndTraitFolderPath = os.getcwd().replace("\\", "/") + "/"
+    #the location of the association tables 
+    associationTablesFolderPath = studyAndTraitFolderPath + "/association_tables/"
     #if no password is provided, as for one and close
     if len(argv) <= 1:
         print("Password is required!")
@@ -162,8 +167,7 @@ def main():
         tablesToUpdate = argv[3].split(', ')
         print("Updating tables: " + str(tablesToUpdate))
     else:
-        tablesToUpdate = [
-            f[:-4] for f in listdir(associationTablesFolderPath) if f[-4:] == ".csv"]
+        tablesToUpdate = [f[:-4] for f in listdir(associationTablesFolderPath) if f[-4:] == ".csv"]
         print("Using default tables found in the current working directory.")
 
     # before adding data, sets a parameter so data can be loaded from local files
@@ -174,8 +178,13 @@ def main():
     for tableName in tablesToUpdate:
         dbTableName = getDatabaseTableName(tableName)
         createFreshTable(config, tableName, dbTableName)
-        addDataToTable(config, associationTablesFolderPath,
-                       tableName, dbTableName)
+        addDataToTable(config, associationTablesFolderPath, tableName, dbTableName)
+
+    #add the study_table and trait_tables to the database
+    createFreshTable(config, "study_table", "study_table")
+    addDataToTable(config, studyAndTraitFolderPath, "study_table", "study_table")
+    createFreshTable(config, "trait_table", "trait_table")
+    addDataToTable(config, studyAndTraitFolderPath, "trait_table", "trait_table")
     print("Done!")
 
 

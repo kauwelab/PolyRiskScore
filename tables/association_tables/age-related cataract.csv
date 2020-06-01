@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs1929494","9:101474492","9:104236774","9:103276595","9:101316329","TMEM246:0|ZNF189:63832|FYTTD1P1:97889|PGAP4:0|LOC105376184:15261|TMEM246-AS1:0|AL353621.1:27151|RNF20:59361|ALDOB:38718|BAAT:89486|GRIN3A:94860|AL353621.2:24559|MRPL50:75874|FYTTD1P1:97981|ALDOB:24828|BAAT:90973",NA,"T",2e-06,1.217,NA,NA,"Ritchie MD 2014","GCST002619"

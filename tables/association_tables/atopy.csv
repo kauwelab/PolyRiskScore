@@ -1,3 +1,3 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs4916831","5:90916459","5:90212276","5:90248032","5:90248032","TMEM251P1:114233|ADGRV1:0|LOC105379077:173031|LYSMD3:386875|TMEM251P1:114531",0.56,"G",7e-09,1.4084507,"1.27","1.59","Sugier PE 2017","GCST006040"
 "2","rs6056732","20:9595973","20:9576620","20:9524620","20:9524620","AL034427.1:239583|PAK5:0|LAMP5-AS1:80975|AL353612.2:24716|LAMP5:65449|AL353612.1:18284|LOC101929348:23182|LOC105372523:0",0.09,"C",3e-06,1.6393442,"1.33","2.00","Sugier PE 2017","GCST006040"

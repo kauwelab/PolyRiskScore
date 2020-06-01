@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs115231074","6:32575268","6:32543045","6:32651023","6:32651023","HLA-DRB5:44952|HLA-DRB6:15266|HLA-DRB1:3501|HLA-DRB6:15246|HLA-DQA1:52911|HLA-DQB1-AS1:84612|LOC107986589:61920|HLA-DQB1:84199|HLA-DQA1:62138|HLA-DRB5:44981|RNU1-61P:25178|RNU1-152P:1009",NA,"T",5e-08,1.28,NA,NA,"DeLorenze GN 2015","GCST003149"

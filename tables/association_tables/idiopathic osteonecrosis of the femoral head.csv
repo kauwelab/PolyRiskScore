@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs9809905","3:12459152","3:12500651","3:12475651","3:12475651","MKRN2:97862|MKRN2OS:79979|RNU6-377P:55554|MKRN2OS:55782|RNA5SP123:51943|TSEN2:25280|PPARG:24808|PPARG:24796|MKRN2:97935",0.3895,"G",6e-06,1.94,"1.46","2.59","Wyles CC 2019","GCST008913"

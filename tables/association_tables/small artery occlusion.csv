@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs10744777","12:111795214","12:112233018","12:110717401","12:110695738","MAPKAPK5-AS1:44553|ALDH2:0|AC002996.1:3796|RPS2P41:84466|ACAD10:38115|MAPKAPK5:47014|RPS2P41:84124|MIR6761:4620|ACAD10:38107|TMEM116:99666|MAPKAPK5-AS1:44550",0.667,"T",3e-09,1.17,"1.11","1.23","Pulit SL 2015","GCST003260"

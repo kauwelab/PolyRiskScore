@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs11887534","2:43839108","2:44066247","2:43919751","2:43977898","PLEKHH2:71121|DYNC2LI1:29098|RN7SL455P:65304|LOC105374571:64116|RNU6-1048P:53582|ABCG5:268|RN7SKP66:66758|ABCG8:0|DYNC2LI1:10788|RNU6-1048P:53584|LRPPRC:47116|LOC102725159:4684|ABCG5:243",0.07,"C",9e-06,2.01,"1.94","2.08","Gellert-Kristensen H 2018","GCST007364"

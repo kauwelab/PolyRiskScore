@@ -1,2 +1,2 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs1495509","4:21391993","4:21393616","4:21002714","4:21069885","PACRGL:637165|KCNIP4:0|AC110296.1:41320|MIR7978:72707",NA,"C",2e-09,1.23,NA,NA,"Mosley JD 2015","GCST003027"

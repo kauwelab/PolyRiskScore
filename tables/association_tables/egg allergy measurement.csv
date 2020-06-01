@@ -1,3 +1,3 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","study","studyID"
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
 "1","rs1243064","18:63846741","18:61513975","18:59664955","18:59664955","SERPINB10:61217|SERPINB7:41365|SERPINB2:24951|SERPINB2:40964|SERPINB10:50433",0.259,"A",8e-08,1.65,NA,NA,"Marenholz I 2017","GCST004977"
 "2","rs17023017","4:95103943","4:96025094","4:96244117","4:96382272","BMPR1B-AS1:346410|UNC5C:58561|BMPR1B-DT:346262|BMPR1B:0",0.122,"G",7e-07,1.54,NA,NA,"Marenholz I 2017","GCST004977"
