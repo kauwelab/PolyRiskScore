@@ -8,7 +8,7 @@ var calculatePolyScore = async () => {
     //user feedback while they are waiting for their score
     $('#response').html("Calculating. Please wait...");
 
-    // get value of selected 'pvalue' from the 'pvalInput' form
+    // get value of selected 'pvalue' from the 'pvalInput' form as a string
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute))
