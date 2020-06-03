@@ -101,6 +101,13 @@ var calculatePolyScore = async () => {
 }
 
 /**
+ * Resets resultJSON
+ */
+function resetOutput() {
+    resultJSON = "";
+}
+
+/**
  * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
  * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
  * TODO soon to be depreciated
