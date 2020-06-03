@@ -2,7 +2,7 @@
 #args[1]- path where csvs are stored
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
-  args[1] <- getwd()
+  args[1] <- "./association_tables/"
 }
 
 print("Initializing script!")
@@ -148,7 +148,7 @@ getDatabaseTraitName <- function(traitName) {
 #if the GWAS catalog is available
 if (is_ebi_reachable()) {
   #Get all the csvs in the folder
-  files <- list.files(pattern = "\\.csv$")
+  files <- list.files(path = studyTableDirPath, pattern = "\\.csv$")
   if (length(files) <= 0) {
     print(paste0("No CSV files at ", studyTableDirPath))
   }
@@ -164,16 +164,17 @@ if (is_ebi_reachable()) {
       tryCatch({
         #get name of trait from name of csv file
         traitName <- substr(files[i], 0, nchar(files[i])-4)
-        traitName <- str_replace_all(traitName, "ö", "o") #removes the ö from Löfgren's syndrome to make it easier to put it in the database
+        traitName <- str_replace_all(traitName, "Ã¶", "o") #removes the Ã¶ from LÃ¶fgren's syndrome to make it easier to put it in the database
         if (traitName == "study_table" || traitName == "trait_table") {
           DevPrint(paste0("Skipped ", traitName))
           next
         }
         #read the csv file and get its studyIDs
-        csvTable <- read.csv(files[i]) %>%
+        filePath = paste0(studyTableDirPath, files[i])
+        csvTable <- read.csv(filePath) %>%
           group_by(studyID) %>%
           distinct(studyID, .keep_all = TRUE) %>%
-          select(studyID, citiation)
+          select(studyID, citation)
         studyIDs <- as.character(unlist(csvTable$studyID))
         #from the studyIDs, get their information from the GWAS catalog
         studies <- get_studies(study_id = studyIDs)
