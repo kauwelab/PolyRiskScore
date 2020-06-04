@@ -279,25 +279,6 @@ async function getStudiesRows(connection, pValue, refGen, studiesArray, disease)
     return studiesRows;
 }
 
-/**
- * Returns a list of rows corresponding to the p-value cutoff and study in the given table
- * @param {*} pValue 
- * @param {*} study 
- * @param {*} table
- * @retrun a list of rows corresponding to the p-value and study in the table 
- */
-async function getValidRows(connection, pValue, refGen, study, disease) {
-    var result = await getRows(connection, refGen, disease);
-    var rows = [];
-    for (var k = 0; k < result.length; ++k) {
-        var row = result[k];
-        if (row["study"] == study && row["pValue"] <= pValue) {
-            rows.push(row);
-        }
-    }
-    return rows;
-}
-
 async function getRows(connection, pValue, refGen, study, disease) {
     return new Promise((resolve, reject) => {
         var query = "SELECT snp, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease;
