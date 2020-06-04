@@ -7,7 +7,8 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'polyscore',
     password: passwords.getMySQLPassword(),
-    database: 'polyscore'
+    database: 'polyscore', 
+    multipleStatements: true
 });
 
 // open the MySQL connection

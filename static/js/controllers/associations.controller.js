@@ -1,7 +1,30 @@
 const Association = require("../models/association.model.js");
 
 exports.getFromTable = (req, res) => {
-    Association.getFromTable(req.query.tableName, req.query.studyID, req.query.pValue, req.query.refGen, (err, data) => {
+    var trait = req.query.trait
+    var pValue = parseFloat(req.query.pValue);
+    var refGen = req.query.refGen;
+    var studyIDs = req.query.studyIDs
+    Association.getFromTable(trait, studyIDs, pValue, refGen, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving associations"
+            });
+        }
+        else {
+            returnData = {}
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            returnData[trait] = await separateStudies(data, refGen)
+            res.send(returnData);
+        }
+    });
+};
+
+exports.getAll = (req, res) => {
+    var allTraits = ['alzhimers_disease', 'type_2_diabetes', 'disease-test_1']//req.query.traits;
+    var pValue = parseFloat(req.query.pValue);
+    var refGen = req.query.refGen;
+    Association.getAll(allTraits, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving associations"
@@ -9,27 +32,36 @@ exports.getFromTable = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(data);
+
+            // formating returned data
+            traits = {}
+            for (i = 0; i < data.length; i++) {
+                var associations = data[i]
+                traits[allTraits[i]] = await separateStudies(associations, refGen)
+            }
+            res.send(traits);
         }
     });
-};
+}
 
-// exports.getAll = (req, res) => {
-//     completeData = {}
-//     allTraits = ['alzhimers_disease', 'type_2_diabetes']//req.query.traits;
-//     for (i=0; i < allTraits.length; i++) {
-//         Association.getAll(allTraits[i], req.query.pValue, req.query.refGen, (err, data) => {
-//             if (err) {
-//                 res.status(500).send({
-//                     message: "Error retrieving associations"
-//                 });
-//                 return;
-//             }
-//             else {
-//                 completeData[allTraits[i]] = data
-//             }
-//         });
-//     }
+async function separateStudies(associations, refGen) {
+    var studiesAndAssociations = {}
+    for (j = 0; j < associations.length; j++) {
+        var association = associations[j]
+        var row = {
+            pos: association[refGen],
+            snp: association.snp,
+            riskAllele: association.riskAllele,
+            pValue: association.pValue,
+            oddsRatio: association.oddsRatio
+        }
 
-//     res.send(completeData);
-// }
+        if (association.study in studiesAndAssociations) {
+            studiesAndAssociations[association.study].push(row)
+        }
+        else {
+            studiesAndAssociations[association.study] = [row]
+        }
+    }
+    return studiesAndAssociations
+}

@@ -5,7 +5,6 @@ const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars')
 const stream = require('stream');
-const Sequelize = require('sequelize');
 const multer = require('multer');
 const del = require('del');
 const fsExtra = require('fs-extra');
@@ -13,8 +12,6 @@ var mysql = require('mysql')
 //the shared code module between the browser and server
 const sharedCode = require('./static/js/sharedCode')
 const passwords = require('./static/js/passwords')
-const database = require('./static/js/models/database')
-const trait = require('./static/js/controllers/traits.controller')
 
 
 //Define the port for app to listen on
@@ -58,6 +55,7 @@ var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
 
+// API endpoints for get requests
 require("./static/js/routes/routes.js")(app);
 
 app.listen(port, () => {
@@ -159,41 +157,6 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
 });
 
 // end Post Routes ---------------------------------------------------------------------------------
-// Get Routes --------------------------------------------------------------------------------------
-
-/**
- * Returns a list of diseaseRow objects, each of which contain a disease name and a list of its corresponding studiesRows objects. 
- * Each studyRow object contains a study name and its corresponding rows in the disease table with the given p-value.
- * See calculate_score.js for the code that calls this function.
- */
-app.get('/study_table/', async function (req, res) {
-    //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    //an array of diseases mapped to lists of studies asociated with each disease (most often it is one disease to a list of one study)
-    var diseaseArray = req.query.diseaseArray
-    if (diseaseArray == undefined || diseaseArray == "[]" || diseaseArray == "") {
-        diseaseArray = []
-    }
-    else if (diseaseArray.constructor !== Array) {
-        diseaseArray = [diseaseArray];
-    }
-
-    var studyTypeList = req.query.studyTypeList
-    if (studyTypeList == undefined || studyTypeList == "[]" || studyTypeList == "") {
-        studyTypeList = []
-    }
-    else if (studyTypeList.constructor !== Array) {
-        studyTypeList = [studyTypeList];
-    }
-    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, studyTypeList);
-    var pValue = parseFloat(req.query.pValue);
-    var refGen = req.query.refGen;
-
-    var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
-    res.send(tableObj);
-});
-
-// end Get Routes -------------------------------------------------------------------------------------------
 
 /**
  * Parses the vcf fileContents into a vcfObj that is used to calculate the score
@@ -229,112 +192,6 @@ function parseVCFToObj(fileContents) {
     });
 }
 
-async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
-    // config for the database
-    var connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'polyscore',
-        password: passwords.getMySQLPassword(),
-        database: 'polyscore'
-    });
-    return await new Promise((resolve, reject) => {
-        connection.connect(async function (err) {
-            if (err) throw err;
-            return err ? reject(err) : resolve(await getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray));
-        });
-    });
-}
-
-/**
- * 
- * @param {*} connection 
- * @param {*} pValue 
- * @param {*} refGen 
- * @param {*} diseaseStudyMapArray 
- */
-async function getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray) {
-    var diseaseRows = [];
-    for (var i = 0; i < diseaseStudyMapArray.length; ++i) {
-        var disease = diseaseStudyMapArray[i].disease;
-        var studiesArray = diseaseStudyMapArray[i].studies;
-        var studiesRows = [];
-        studiesRows = await getStudiesRows(connection, pValue, refGen, studiesArray, disease);
-        diseaseRows.push({ disease: disease, studiesRows: studiesRows })
-    }
-    return diseaseRows;
-}
-
-/**
- * Returns a list of objects, each of which contains a study name from the study array 
- * and its corresponding rows in the given table.
- * @param {*} pValue 
- * @param {*} studiesArray 
- * @param {*} table 
- * @retunr a studyRows list: a list of objects containing study names and their corresponding table rows
- */
-async function getStudiesRows(connection, pValue, refGen, studiesArray, disease) {
-    var studiesRows = [];
-    for (j = 0; j < studiesArray.length; ++j) {
-        var study = studiesArray[j];
-        var rows = await getRows(connection, pValue, refGen, study, disease);
-        studiesRows.push({ study: study, rows: rows });
-    }
-
-    return studiesRows;
-}
-
-/**
- * Returns a list of rows for a study and pvalue
- * @param {*} connection 
- * @param {*} pValue 
- * @param {*} refGen 
- * @param {*} study 
- * @param {*} disease 
- */
-async function getRows(connection, pValue, refGen, study, disease) {
-    return new Promise((resolve, reject) => {
-        var query = "SELECT snp, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease + " WHERE pValue <= " + pValue + " AND study <=> " + study;
-        connection.query(query, (err, result) => {
-            var rows = [];
-            //if there is no result, return an empty list
-            if (result !== undefined) {
-                // not 100% sure it will work like this, because I don't know the format of results
-                for (i=0; i < result.length; i++){
-                    var tableRow = result[i]
-                    var row = {
-                        pos: tableRow[refGen],
-                        snp: tableRow.snp,
-                        riskAllele: tableRow.riskAllele,
-                        pValue: tableRow.pValue,
-                        oddsRatio: tableRow.oddsRatio
-                    }
-                    rows.push(row);
-                }
-            }
-            return err ? reject(err) : resolve(rows)
-        });
-    });
-}
-
-// /**
-//  * Returns a list of rows corresponding to the p-value cutoff and study in the given table
-//  * @param {*} pValue 
-//  * @param {*} study 
-//  * @param {*} table
-//  * @return a list of rows corresponding to the p-value and study in the table 
-//  */
-// async function getValidRows(connection, pValue, refGen, study, disease) {
-//     var result = await getRows(connection, refGen, disease);
-//     var rows = [];
-//     for (var k = 0; k < result.length; ++k) {
-//         var row = result[k];
-//         if (row["study"] == study && row["pValue"] <= pValue) {
-//             rows.push(row);
-//         }
-//     }
-//     return rows;
-// }
-
 // app.post('/download_results', function (req, res) {
 //     var DOWNLOAD_DIR = path.join(process.env.HOME || process.env.USERPROFILE, 'Downloads/');
 //     var file_name = "polyscore_" + getRandomInt(100000000);
@@ -351,45 +208,3 @@ async function getRows(connection, pValue, refGen, study, disease) {
 //     });
 //     res.end(); 
 // }) 
-
-//   app.put('/user', function (req, res) {
-//     res.class="md-form" id="file-form">
-
-//send('Got a PUT request at /user')
-//   })
-
-/* app.get('/', async (req, res) => {
-    await sql.connect('mssql://SA:Constitution1787@localhost/PolyScore')
-    const result = await sql.query`select Name from sys.Databases`
-    console.dir(result)
-    console.log(result)
-    sql.close()
-    res.send("Hello, World!"); //loads static folder
-}); */
-// app.listen(3000, function () {
-//   console.log('Example app listening on port 3000!');
-// });
-
-//const port = 3000 
-
-//THESE TWO LINES WILL OPEN THE PORT AND OUTPUT "HELLO, WORLD!"
-//app.listen(port)
-//app.get('/', (req, res) => res.send('Hello World!')) //Prints Hello World! to the page
-
-//THESE TWO LINES WILL UPLOAD JUSTIN'S FILES AS STATIC FILES
-//app.use('/', express.static(path.join(__dirname, 'static')))
-//app.listen(port, ()=>console.log(path.join(__dirname, 'static'))) //prints path to console
-
-
-//EXPERIMENTAL CODE FROM EXPRESS WEBSITE. 
-//  app.get('/', function (req, res) {
-//      res.send('Hello World!')
-//    })
-
-//    app.post('/', function (req, res) {
-//     res.send('Got a POST request')
-//   })
-
-//   app.put('/user', function (req, res) {
-//     res.send('Got a PUT request at /user')
-//   })
