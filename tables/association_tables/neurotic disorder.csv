@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs702543","5:59546948","5:58842774","5:58878531","5:58878531","PDE4D:0|NDUFB4P2:17637|LOC107986347:11609|MIR582:156658|NDUFB4P2:17697",NA,"A",2e-06,1.27,"1.15","1.40","Shifman S 2007","GCST000063"

@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs4143094","10:8047173","10:8089136","10:8129142","10:8129142","AL390294.1:4368|GATA3-AS1:3277|GATA3:0|LOC105376395:46581|LOC105376394:4310|TAF3:30542|LOC107984204:6906",NA,"T",9e-09,1.17,"1.11","1.23","Figueiredo JC 2014","GCST002415"

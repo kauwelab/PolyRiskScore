@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs12591257","15:86520858","15:87064089","15:84865093","15:84865093","AGBL1:0|LOC105370954:412022|AGBL1-AS1:203685|AGBL1-AS1:203890|AC012229.1:109408",NA,"A",4e-06,5.26,NA,NA,"Ikeda M 2013","GCST001975"
