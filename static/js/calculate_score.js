@@ -3,6 +3,89 @@ var resultJSON = "";
 //score multiple times
 var canCalculate = true;
 var validExtensions = ["vcf", "gzip", "zip"]
+var traitObjects = []
+var studyObjects = [] //holds the study object so that their additional data (ethnicity, cohort, ect) can be accessed
+var traitsList = []
+var selectedStudies = []
+
+function getTraits() {
+    $.ajax({
+        type: "GET",
+        url: "get_traits",
+        success: async function (data) {
+            traitObjects = data;
+            traitsList = Object.getOwnPropertyNames(traitObjects)            
+            
+            //populate the dropdown
+            var selector = document.getElementById("disease");
+            for (i=0; i<traitsList.length; i++) {
+                var opt = document.createElement('option')
+                    opt.appendChild(document.createTextNode(traitsList[i]))
+                    opt.value = traitsList[i]
+                    selector.appendChild(opt);
+            }
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
+
+function getStudies() { 
+    //gets the disease name from the drop down list
+    var diseaseSelectElement = document.getElementById("disease");
+    var selectedTrait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+    var selector = document.getElementById("diseaseStudy");
+
+    // clear studies that are already there
+    while (selector.firstChild) {
+        selector.removeChild(selector.lastChild)
+    }
+
+    // make sure we keep the --Study--
+    var opt = document.createElement('option')
+    opt.appendChild(document.createTextNode("--Study--"))
+    opt.value = ""
+    selector.appendChild(opt);
+
+    //var selectedTrait = traitList[0] // TODO to Ed - this needs to be filled correctly, not sure how (Maddy)
+    if (selectedTrait == "") {
+        // do nothing
+    }
+    else if (selectedTrait.toLowerCase() == "all") {
+        selectedTrait = traitsList
+        studyTypes = ["All", "Largest Cohort", "High Impact"]
+
+        for (i=0; i<studyTypes.length; i++) {
+            var opt = document.createElement('option')
+            opt.appendChild(document.createTextNode(studyTypes[i]))
+            opt.value = studyTypes[i]
+            selector.appendChild(opt);
+        }
+    }
+    else {
+        sIds = traitObjects[selectedTrait].studyIDs
+        $.ajax({
+            type: "GET",
+            url: "/get_studies",
+            data: {studyIDs: sIds},
+            success: async function (data) {
+                studyObjects = data;
+
+                //populate the dropdown
+                for (i=0; i<studyObjects.length; i++) {
+                    var opt = document.createElement('option')
+                    opt.appendChild(document.createTextNode(studyObjects[i].author))
+                    opt.value = studyObjects[i].studyID
+                    selector.appendChild(opt);
+                }
+            },
+            error: function (XMLHttpRequest) {
+                alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
+            }
+        })
+    }
+}
 
 var calculatePolyScore = async () => {
     document.getElementById('resultsDisplay').style.display = 'block';
@@ -24,12 +107,10 @@ var calculatePolyScore = async () => {
         //create a disease array (usually just the one disease unless "All dieases" is selected)
         var diseaseArray = makeDiseaseArray(diseaseSelected);
 
-        //gets the study name from the drop down list
+        //gets the study name from the drop down list 
+        //TODO!!!! - this will need to be adapted to allow for multiple
         var studySelectElement = document.getElementById("diseaseStudy");
         var study = studySelectElement.options[studySelectElement.selectedIndex].text
-
-        //the type of study the study is ("high impact", "largest cohort", or "")
-        var studyType = getStudyTypeFromStudy(study);
 
         //if the user doesn't specify a disease or study, prompt them to do so
         if (diseaseSelected === "--Disease--" || study === "--Study--") {
@@ -73,7 +154,7 @@ var calculatePolyScore = async () => {
                     snpsObj.set(snpArray[0], alleles)
                 }
             })
-            ClientCalculateScoreTxtInput(snpsObj, diseaseArray, [studyType], pValue, refGen)
+            ClientCalculateScoreTxtInput(snpsObj, diseaseArray, studies, pValue, refGen)
         }
         else {
             var extension = vcfFile.name.split(".").pop();
@@ -82,7 +163,7 @@ var calculatePolyScore = async () => {
                 $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
                 return;
             }
-            ClientCalculateScore(vcfFile, extension, diseaseArray, [studyType], pValue, refGen);
+            ClientCalculateScore(vcfFile, extension, diseaseArray, studies, pValue, refGen);
         }
     }
 }
@@ -113,20 +194,20 @@ function resetOutput() {
     resultJSON = "";
 }
 
-/**
- * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
- * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
- * @param {*} study
- */
-function getStudyTypeFromStudy(study) {
-    if (study.toLowerCase().includes("high impact")) {
-        return "high impact";
-    }
-    else if (study.toLowerCase().includes("largest cohort")) {
-        return "largest cohort";
-    }
-    return "all";
-}
+// /**
+//  * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
+//  * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
+//  * @param {*} study
+//  */
+// function getStudyTypeFromStudy(study) {
+//     if (study.toLowerCase().includes("high impact")) {
+//         return "high impact";
+//     }
+//     else if (study.toLowerCase().includes("largest cohort")) {
+//         return "largest cohort";
+//     }
+//     return "all";
+// }
 
 //textSnps is a map of positions and alleles
 var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyTypeList, pValue, refGen) => {
@@ -278,12 +359,12 @@ function getPosFromLine(line) {
  * returns a list of all the diseases in the database
  * @param {*} disease
  */
-function makeDiseaseArray(disease) {
+function makeDiseaseArray(trait) {
     if (disease.toLowerCase() == "all") {
-        //all returns nothing and all of the diseases are added to this array in makeDiseaseStudyMapArray in sharedCode.js
-        return [];
+        //all returns all of the traits
+        return traits;
     }
-    return [disease];
+    return [trait];
 }
 
 function formatText(jsonObject) {
