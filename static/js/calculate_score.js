@@ -85,6 +85,25 @@ function getStudies() {
     }
 }
 
+// ------------------ Functions for retrieving associaitons ------------------------------
+function getAllAssociations () {
+    var formattedTraits = traitsList //todo need to format these so that they match the table names
+
+    $.ajax({
+        type: "GET",
+        url: "/all_associations",
+        data: {traits: formattedTraits},
+        success: async function (data) {
+
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
+
+// ------------------- END functions for retrieving associations --------------------------
+
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
 var calculatePolyScore = async () => {
     document.getElementById('resultsDisplay').style.display = 'block';
@@ -106,7 +125,7 @@ var calculatePolyScore = async () => {
     //gets the study name from the drop down list
     //TODO!!!! - this will need to be adapted to allow for multiple
     var studySelectElement = document.getElementById("diseaseStudy");
-    var studyID = studySelectElement.options[studySelectElement.selectedIndex].value
+    var study = studySelectElement.options[studySelectElement.selectedIndex].value
 
     //if the user doesn't specify a disease or study, prompt them to do so
     if (diseaseSelected === "--Disease--" || study === "--Study--") {
@@ -168,7 +187,7 @@ var calculatePolyScore = async () => {
                 snpsObj.set(snpArray[0], alleles)
             }
         }
-        ClientCalculateScoreTxtInput(snpsObj, diseaseArray, studyID, pValue, refGen)
+        ClientCalculateScoreTxtInput(snpsObj, diseaseArray, study, pValue, refGen)
     }
     else {
         var extension = vcfFile.name.split(".").pop();
@@ -177,7 +196,7 @@ var calculatePolyScore = async () => {
             $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
             return;
         }
-        ClientCalculateScore(vcfFile, extension, diseaseArray, studyID, pValue, refGen);
+        ClientCalculateScore(vcfFile, extension, diseaseArray, study, pValue, refGen);
     }
 }
 
