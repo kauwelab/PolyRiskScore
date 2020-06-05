@@ -190,14 +190,26 @@ if (is_ebi_reachable()) {
         #string of studyIDs deliminated by "|" used in the trait_table
         studyIDListStr <- paste(studyIDs, collapse = "|")
         traitTable <- add_row(traitTable, trait = traitName, studyIDs = studyIDListStr)
+#Ethnicity------------------------------------------------------------------------------
         #create a dictionary-like object with study_ids as keys and ancestry strings as values (used for the ethnicity column)
-        ethnicity <- select(studies@ancestral_groups, -ancestry_id) %>%
-          group_by(study_id) %>%
-          mutate(ethnicity = str_replace_all(paste0(unique(ancestral_group[!is.na(ancestral_group)]), collapse = "|")), ",", "") %>% #TODO test this! should remove commas!
+        ethnicity <- select(studies@ancestral_groups, -ancestry_id)
+        
+        #changes made to ethnicity names to make queries easier
+        #rename "Other admixed ancestry" to "Admixed ancestry"
+        ethnicity <- mutate_at(ethnicity, 'ancestral_group', str_replace_all, pattern = "Other admixed ancestry", replacement = "Admixed ancestry")
+        #remove "Other" category
+        ethnicity <- ethnicity[!grepl("Other", ethnicity$ancestral_group),]
+        #Remove" (Middle Eastern North African or Persian)" from "Greater Middle Eastern" category
+        ethnicity <- mutate_at(ethnicity, 'ancestral_group', str_replace_all, pattern = " (Middle Eastern North African or Persian)", replacement = "")
+        
+        ethnicity <- group_by(ethnicity, study_id) %>%
+          mutate(ethnicity = str_replace_all(paste0(unique(ancestral_group[!is.na(ancestral_group)]), collapse = "|"), ",", "")) %>% #TODO test this! should remove commas!
           distinct(study_id, .keep_all = TRUE) %>%
           select(-ancestral_group) %>%
           dplyr::rename(studyID = "study_id")
         ethnicity <- full_join(tibble(studyID = studyIDs), ethnicity, by = "studyID")
+#-------------------------------------------------------------------------------------------
+        
         
         #match studyID to the most recent time the study was updated, then get the lastUpdated list in order
         lastUpdatedTibble <- tibble(studyID = studyIDs)
@@ -224,8 +236,9 @@ if (is_ebi_reachable()) {
     studyTable <- distinct(studyTable, studyID, .keep_all = TRUE) #removes duplicate studyIDs (TODO- why are these duplicates created?)
     studyTable <- arrange(studyTable, studyID)
     #write out the trait and study tables
-    write.csv(traitTable, file.path(getwd(), "trait_table.csv"), row.names=FALSE)
-    write.csv(studyTable, file.path(getwd(), "study_table.csv"), row.names=FALSE)
+    #TODO
+    write.csv(traitTable, file.path(getwd(), "test", "trait_table.csv"), row.names=FALSE)
+    write.csv(studyTable, file.path(getwd(), "test", "study_table.csv"), row.names=FALSE)
   }
 } else {
   is_ebi_reachable(chatty = TRUE)
