@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs501631","9:3943125","9:3943125","9:3933125","9:3933125","GLIS3:0|AL359095.1:127781|AL137071.1:64316|GLIS3-AS1:41877|LOC105375964:28253",0.48,"T",7e-06,1.33,NA,NA,"Zhang H 2015","GCST002752"

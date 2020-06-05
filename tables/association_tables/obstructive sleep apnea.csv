@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs10097555","8:32488779","8:32346295","8:32465837","8:32465837","NRG1-IT3:46054|NRG1-IT3:39976|LOC105379361:57130|NRG1:0|AC083977.1:158423|RNU6-663P:422714",NA,"A",5e-06,2.5,"1.67","3.7","Baik I 2015","GCST003012"

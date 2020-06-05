@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs2199301","18:31330652","18:28910615","18:27164613","18:27164613","DSG1:0|DSG1-AS1:12716|AC021549.1:51665|DSG4:46125|DSC1:167796|LOC105372049:71189|RNU6-167P:14710",0.49,"A",1e-07,21.67,NA,NA,"Ising M 2014","GCST007696"

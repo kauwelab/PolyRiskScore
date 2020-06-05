@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs28662","7:93145706","7:92775019","7:92612955","7:92419670","SAMD9L:0|SAMD9:27683|VPS50:86634|HEPACAM2:42828",0.022,"A",5e-06,4.3,"2.29","8.06","Kim JJ 2019","GCST008314"

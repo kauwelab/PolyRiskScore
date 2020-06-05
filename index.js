@@ -74,10 +74,8 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
+// ROUTES
 
-//ROUTES
-
-// Post Routes ---------------------------------------------------------------------------------------------
 // POST route from contact form
 app.post('/contact', function (req, res) {
     let mailOpts, smptTrans;
@@ -95,6 +93,9 @@ app.post('/contact', function (req, res) {
         to: 'kauwelab19@gmail.com',
         subject: 'New message from contact form at PRS.byu.edu',
         text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
+
+
+
     };
     smptTrans.sendMail(mailOpts, (err, data) => {
         if (err) {
@@ -184,14 +185,7 @@ function parseVCFToObj(fileContents) {
         console.error("Not a vcf file", err)
         return err;
     })
-
-    return new Promise(function (resolve, reject) {
-        vcf.on('end', function () {
-            resolve(vcfObj);
-        });
-    });
 }
-
 // app.post('/download_results', function (req, res) {
 //     var DOWNLOAD_DIR = path.join(process.env.HOME || process.env.USERPROFILE, 'Downloads/');
 //     var file_name = "polyscore_" + getRandomInt(100000000);
