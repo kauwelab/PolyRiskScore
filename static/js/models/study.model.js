@@ -19,7 +19,7 @@ Study.getAll = result => {
             return;
         }
 
-        console.log("studies: ", res);
+        console.log(`All studies queried, ${res.length} result(s)`);
         result(null, res);
     });
 };
@@ -37,7 +37,7 @@ Study.getByIds = (studyIDs, result) => {
             return;
         }
 
-        console.log("studies: ", res);
+        console.log(`studies queried by IDs, ${res.length} result(s)`);
         result(null, res);
     });
 };
@@ -50,7 +50,7 @@ Study.findStudy = (searchStr, result) => {
             return;
         }
 
-        console.log("studies: ", res);
+        console.log(`find studies queried with '${searchStr}', ${result.length} result(s)`);
         result(null, res);
     });
 };

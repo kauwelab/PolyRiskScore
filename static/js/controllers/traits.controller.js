@@ -9,12 +9,13 @@ exports.getAll = (req, res) => {
             err.message || "Error occured while retrieving traits."
         });
         else {
+            traits = {}
             for ( i=0; i < data.length; i++) {
-                data[i].studyID = data[i].studyID.split("|")
+                traits[data[i].trait] = {studyIDs: data[i].studyID.split("|")}
             }
     
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(data);
+            res.send(traits);
         }
     });
 };
@@ -29,11 +30,13 @@ exports.findTraits = (req, res) =>{
         else {
             //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
             res.setHeader('Access-Control-Allow-Origin', '*');
+            traits = {}
             for ( i=0; i < data.length; i++) {
-                data[i].studyID = data[i].studyID.split("|")
+                traits[data[i].trait] = {studyIDs: data[i].studyID.split("|")}
             }
     
-            res.send(data);
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(traits);
         }
     })
 };

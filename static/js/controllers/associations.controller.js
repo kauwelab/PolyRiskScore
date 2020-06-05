@@ -21,7 +21,7 @@ exports.getFromTable = (req, res) => {
 };
 
 exports.getAll = (req, res) => {
-    var allTraits = ['alzhimers_disease', 'type_2_diabetes', 'disease-test_1']//req.query.traits;
+    var allTraits = ['alzhimers_disease', 'type_2_diabetes'] //req.query.traits;
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
     Association.getAll(allTraits, pValue, refGen, async (err, data) => {
@@ -57,10 +57,10 @@ async function separateStudies(associations, refGen) {
         }
 
         if (association.study in studiesAndAssociations) {
-            studiesAndAssociations[association.study].push(row)
+            studiesAndAssociations[association.study].associations.push(row)
         }
         else {
-            studiesAndAssociations[association.study] = [row]
+            studiesAndAssociations[association.study] = {studyID: association.studyID, associations: [row]}
         }
     }
     return studiesAndAssociations

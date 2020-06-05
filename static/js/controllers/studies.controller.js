@@ -16,7 +16,7 @@ exports.getAll = (req, res) => {
 };
 
 exports.getByIds = (req, res) => {
-    Study.getByIds(req.query.studyID, (err, data) => {
+    Study.getByIds(req.query.studyIDs, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"

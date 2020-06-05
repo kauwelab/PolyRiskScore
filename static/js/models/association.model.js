@@ -25,7 +25,7 @@ Association.getFromTable = (tableName, studyIDs, pValue, refGen, result) => {
         studyIDs[i] = "\"" + studyIDs[i] + "\"";
     }
 
-    sql.query(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, study FROM \`${tableName}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs})`, (err, res) => {
+    sql.query(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, study, studyID FROM \`${tableName}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs})`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -42,7 +42,7 @@ Association.getAll = (traits, pValue, refGen, result) => {
     queryString = ""
     
     for (i = 0; i < traits.length; i++) {
-        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, study FROM \`${traits[i]}\` WHERE pValue <= ${pValue}`)
+        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, study, studyID FROM \`${traits[i]}\` WHERE pValue <= ${pValue}`)
         if (i < traits.length - 1) {
             queryString = queryString.concat("; ")
         }

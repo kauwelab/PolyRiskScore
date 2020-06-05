@@ -13,7 +13,7 @@ Trait.getAll = result => {
             return;
         }
 
-        console.log("traits: ", res);
+        console.log(`All traits queried, ${res.length} result(s)`);
         result(null, res);
     });
 };
@@ -26,7 +26,7 @@ Trait.findTrait = (searchStr, result) => {
             return;
         }
 
-        console.log("traits: ", res);
+        console.log(`find traits queried with '${searchStr}', with ${res.length} result(s)`);
         result(null, res);
     });
 };
