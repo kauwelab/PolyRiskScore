@@ -8,11 +8,13 @@
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <link href="css/bootstrap-tour.min.css" rel="stylesheet">
 </head>
 
 <body>
-  <div class = 'p-9 bg-primary text-center'>
-    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website! --Click here to leave us comments or questions</a>
+  <div class='p-9 bg-primary text-center'>
+    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of
+      our website! --Click here to leave us comments or questions</a>
   </div>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <a class="navbar-brand" href="#">Calculate Risk Scores</a>
@@ -131,10 +133,10 @@
           <div class="row text-center">
             <div class="text-center col-12">
               <h1 style="margin-bottom: 1rem;">How to Use the Calculator</h1>
-              <p1>You can calculate a polygenic risk score by inputting rs IDs in the box below or uploading a VCF file. RS ids can be input with or without a genotype. If an rs ID is input without a genotype, all risk alleles at that position will be used in calculating the polygenic risk scores. If genotypes are available, alleles can be indicated after the rs ID. One or two alleles may be used. When only one allele is specified, the other will be assumed to be the risk allele. RS IDs and genotypes are separated by a colon. Separate rs IDs by either a comma, space, or an end-of-line character, as shown below.
 
-                <br><br>Once you have input the rs IDs or uploaded a VCF file, select the disease you would like to test. The corresponding genome-wide association (GWA) study you select will contain the variants and odd ratios used to calculate the score. The p-value cutoff you select will decide which variants from the GWA study pass the significance threshold for calculating the score. Finally, select the reference genome from which your rs IDs or VCF file were determined.
-                </p1>
+              <script src="js/tour.js"></script>
+              <button type="button" id="startTour" onclick="startTour();" class="btn btn-primary btn-lg">Start a
+                Tour</button>
               <h3><br>Input RS IDs and Genotypes</h3>
 
 
@@ -197,7 +199,7 @@
                         <script src="js/diseaseList.js"></script>
                         <h8>
                           <div class="diseaseLists">
-                            <select id="disease" onchange="ChangeDiseaseList()">
+                            <select id="disease" onchange="changeDiseaseList()">
                               <!--<option selected="selected">All</option>-->
                               <option value="">--Disease--</option>
                               <option value="all">All Diseases </option>
@@ -237,7 +239,8 @@
                       <div class="col-lg-12 mb-.5 mt-2 text-left">
                         <h5>Reference Genome&nbsp;</h5>
                         <div class="refGenomeOptions">
-                          <select id="refGenome">
+                          <!--onchange only affects progressing tours- see tour.js for details-->
+                          <select id="refGenome" onchange="moveToNextTourIndex('refGen')">
                             <option selected="selected" value="default">--Reference Genome--</option>
                             <option value="hg38">GRCh38/hg38</option>
                             <option value="hg19">GRCh37/hg19</option>
@@ -255,9 +258,11 @@
                         <form action="#" method="POST" id="pvalInput" name="pvalOptions">
                           <div class="form-inline">
                             <div>
-                              <input type="number" value="1.0" name = "pValScalarIn" id ="pValScalarIn" min = 1.0 max = 10.0 onchange = "changePValScalar()">
+                              <input type="number" value="1.0" name="pValScalarIn" id="pValScalarIn" min=1.0 max=10.0
+                                onchange="changePValScalar()">
                               x10^-
-                              <input type="number" value="5" name="pValMagIn" id="pValMagIn" min = 0.0 max = 100.0 onchange="changePValMagnitude()">
+                              <input type="number" value="5" name="pValMagIn" id="pValMagIn" min=0.0 max=100.0
+                                onchange="changePValMagnitude()">
                             </div>
                             <label>
                               &nbsp;&nbsp;&nbsp;(
@@ -351,7 +356,7 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
-
+  <script src="js/bootstrap-tour.min.js"></script>
 </body>
 
 </html>
