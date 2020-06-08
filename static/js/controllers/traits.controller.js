@@ -11,7 +11,7 @@ exports.getAll = (req, res) => {
         else {
             traits = {}
             for ( i=0; i < data.length; i++) {
-                traits[data[i].trait] = {studyIDs: data[i].studyID.split("|")}
+                traits[data[i].trait] = {studyIDs: data[i].studyIDs.split("|")}
             }
     
             res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,7 +32,7 @@ exports.findTraits = (req, res) =>{
             res.setHeader('Access-Control-Allow-Origin', '*');
             traits = {}
             for ( i=0; i < data.length; i++) {
-                traits[data[i].trait] = {studyIDs: data[i].studyID.split("|")}
+                traits[data[i].trait] = {studyIDs: data[i].studyIDs.split("|")}
             }
     
             res.setHeader('Access-Control-Allow-Origin', '*');

@@ -3,7 +3,7 @@ const sql = require('./database')
 const Study = function(mstudy) {
     this.studyID = mstudy.studyID,
     this.pubMedID = mstudy.pubMedID,
-    this.author = mstudy.author,
+    this.citation = mstudy.citation,
     this.studyScore = mstudy.studyScore,
     this.ethnicity = mstudy.ethnicity,
     this.cohort = mstudy.cohort,
@@ -43,7 +43,7 @@ Study.getByIds = (studyIDs, result) => {
 };
 
 Study.findStudy = (searchStr, result) => {
-    sql.query(`SELECT * FROM study_table WHERE author LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);

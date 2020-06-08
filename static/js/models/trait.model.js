@@ -2,7 +2,7 @@ const sql = require('./database')
 
 const Trait = function(mtrait) {
     this.trait = mtrait.trait;
-    this.studyID = mtrait.studyID;
+    this.studyIDs = mtrait.studyIDs;
 };
 
 Trait.getAll = result => {

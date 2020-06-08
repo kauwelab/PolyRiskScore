@@ -73,7 +73,7 @@ function getStudies() {
                 //populate the dropdown
                 for (i=0; i<studyObjects.length; i++) {
                     var opt = document.createElement('option')
-                    opt.appendChild(document.createTextNode(studyObjects[i].author))
+                    opt.appendChild(document.createTextNode(studyObjects[i].citation))
                     opt.value = studyObjects[i].studyID
                     selector.appendChild(opt);
                 }
@@ -86,15 +86,32 @@ function getStudies() {
 }
 
 // ------------------ Functions for retrieving associaitons ------------------------------
-function getAllAssociations () {
+function getAllAssociations (pValue, refGen) {
     var formattedTraits = traitsList //todo need to format these so that they match the table names
 
     $.ajax({
         type: "GET",
         url: "/all_associations",
-        data: {traits: formattedTraits},
+        data: {traits: formattedTraits, pValue: pValue, refGen: refGen},
         success: async function (data) {
+            //TODO write
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
 
+function getSelectStudyAssociationsByDisease(pValue, refGen) {
+    var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+    var studyIDs = selectedStudies;
+
+    $.ajax({
+        type: "GET",
+        url: "/all_associations",
+        data: {trait: trait, studyIDs: studyIDs, pValue: pValue, refGen: refGen},
+        success: async function (data) {
+            //TODO write
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
