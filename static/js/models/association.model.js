@@ -8,14 +8,13 @@ const Association = function(massociation) {
     this.hg18 = massociation.hg18;
     this.hg17 = massociation.hg17;
     this.gene = massociation.gene;
-    this.ethnicity = massociation.ethnicity;
     this.raf = massociation.raf;
     this.riskAllele = massociation.riskAllele;
     this.pValue = massociation.pValue;
     this.oddsRatio = massociation.oddsRatio;
     this.lowerCI = massociation.lowerCI;
     this.upperCI = massociation.upperCI;
-    this.study = massociation.study;
+    this.citation = massociation.citation;
     this.studyID = massociation.studyID;
 };
 
@@ -25,7 +24,7 @@ Association.getFromTable = (tableName, studyIDs, pValue, refGen, result) => {
         studyIDs[i] = "\"" + studyIDs[i] + "\"";
     }
 
-    sql.query(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, study, studyID FROM \`${tableName}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs})`, (err, res) => {
+    sql.query(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${tableName}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs})`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -42,7 +41,7 @@ Association.getAll = (traits, pValue, refGen, result) => {
     queryString = ""
     
     for (i = 0; i < traits.length; i++) {
-        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, study, studyID FROM \`${traits[i]}\` WHERE pValue <= ${pValue}`)
+        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${traits[i]}\` WHERE pValue <= ${pValue}`)
         if (i < traits.length - 1) {
             queryString = queryString.concat("; ")
         }

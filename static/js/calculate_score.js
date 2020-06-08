@@ -87,7 +87,11 @@ function getStudies() {
 
 // ------------------ Functions for retrieving associaitons ------------------------------
 function getAllAssociations (pValue, refGen) {
-    var formattedTraits = traitsList //todo need to format these so that they match the table names
+    var formattedTraits = traitsList 
+
+    for (i = 0; i < formattedTraits.length; i++) {
+        formattedTraits[i] = formatForTableName(formattedTraits[i])
+    }
 
     $.ajax({
         type: "GET",
@@ -104,6 +108,7 @@ function getAllAssociations (pValue, refGen) {
 
 function getSelectStudyAssociationsByTraits(pValue, refGen) {
     var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+    trait = formatForTableName(trait);
     var studyIDs = selectedStudies;
 
     $.ajax({
@@ -117,6 +122,17 @@ function getSelectStudyAssociationsByTraits(pValue, refGen) {
             alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
         }
     })
+}
+
+function formatForTableName(traitName) {
+    // formatting trait names for database use
+    // all lowecase, spaces to underscores, forward slashes to dashes, no commas or apostrophies
+    const spacesRegex = / /g;
+    const forwardSlashesRegex = /\//g;
+    const commaRegex = /,/g;
+    const apostrophiesRegex = /'/g;
+
+    return traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "");
 }
 
 // ------------------- END functions for retrieving associations --------------------------
