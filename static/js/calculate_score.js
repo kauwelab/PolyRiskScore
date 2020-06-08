@@ -102,13 +102,13 @@ function getAllAssociations (pValue, refGen) {
     })
 }
 
-function getSelectStudyAssociationsByDisease(pValue, refGen) {
+function getSelectStudyAssociationsByTraits(pValue, refGen) {
     var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
     var studyIDs = selectedStudies;
 
     $.ajax({
         type: "GET",
-        url: "/all_associations",
+        url: "/get_associations",
         data: {trait: trait, studyIDs: studyIDs, pValue: pValue, refGen: refGen},
         success: async function (data) {
             //TODO write
