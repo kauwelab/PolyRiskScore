@@ -90,7 +90,7 @@ function getAllAssociations (pValue, refGen) {
     var formattedTraits = traitsList 
 
     for (i = 0; i < formattedTraits.length; i++) {
-        formattedTraits[i] = formatForTableName(formattedTraits[i])
+        formattedTraits[i] = formatForTableName(formattedTraits[i]) 
     }
 
     $.ajax({
