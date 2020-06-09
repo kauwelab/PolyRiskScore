@@ -166,7 +166,7 @@ if (is_ebi_reachable()) {
       
       #gets the trait data, including all studies associated
       trait <- pull(traits[i, "trait"])
-      trait <- str_replace_all(trait, "'", "'") #Löfgren's syndrome has a strange comma in it that we switch to the normal comma
+      trait <- str_replace_all(trait, "'", "'") #Lï¿½fgren's syndrome has a strange comma in it that we switch to the normal comma
       efo_id <- pull(traits[i, "efo_id"])
       efo_studies <- get_studies(efo_id = efo_id)
       efo_studies_tibble <- efo_studies@studies
@@ -188,7 +188,7 @@ if (is_ebi_reachable()) {
       for (j in 1:nrow(efo_studies_tibble)) {
         tryCatch({
           #get citation data (author + year published)
-          citation <- paste(str_replace(pull(efo_publications[j, "author_fullname"]), "ø", "o"), str_sub(pull(efo_publications[j, "publication_date"]), 1, 4))
+          citation <- paste(str_replace(pull(efo_publications[j, "author_fullname"]), "ï¿½", "o"), str_sub(pull(efo_publications[j, "publication_date"]), 1, 4))
           DevPrint(paste0("  ", j, ". ", citation))
           study_id <- pull(efo_studies_tibble[j, "study_id"])
           pubmed_id <- pull(efo_publications[j, "pubmed_id"])
@@ -224,7 +224,7 @@ if (is_ebi_reachable()) {
           #remove rows missing risk alleles or odds ratios, or which have X as their chromosome
           study_table <- filter(study_table, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X"))
           
-          #if there are not enough snps left in the study table, at it to a list of ignored studies
+          #if there are not enough snps left in the study table, add it to a list of ignored studies
           if (nrow(study_table) < minNumStudyAssociations) {
             invalidStudies <- c(invalidStudies, study_id)
           }
@@ -236,7 +236,7 @@ if (is_ebi_reachable()) {
       }
       
       if (nrow(disease_table) > 0) {
-        #renames columns to names the datbase will understand
+        #renames columns to names the database will understand
         disease_table <- ungroup(disease_table) %>%
           dplyr::rename(snp = variant_id,raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, oddsRatio = or_per_copy_number)
         #arranges the disease table by author, then studyID, then snpid. also adds a unique identifier column
