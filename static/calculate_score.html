@@ -11,7 +11,7 @@
   <link href="css/bootstrap-tour.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body onload="getTraits()">
   <div class='p-9 bg-primary text-center'>
     <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of
       our website! --Click here to leave us comments or questions</a>
@@ -107,32 +107,10 @@
                         <script src="js/diseaseList.js"></script>
                         <h8>
                           <div class="diseaseLists">
-                            <select id="disease" onchange="changeDiseaseList()">
+                            <select id="disease" onchange="getStudies()">
                               <!--<option selected="selected">All</option>-->
                               <option value="">--Disease--</option>
                               <option value="all">All Diseases </option>
-                              <option value="adhd">ADHD</option>
-                              <option value="ad">Alzheimer's Disease</option>
-                              <option value="als">ALS</option>
-                              <!-- <option value="ankylosing_spondylitis">Ankylosing Spondylitis</option>
-                              <option value="asthma_adult_onset">Asthma (Adult Onset)</option>
-                              <option value="asthma_childhood_onset">Asthma (Childhood Onset)</option>
-                              <option value="celiac_disease">Celiac Disease</option>
-                              <option value="cll">Chronic Lymphocytic Leukemia</option>
-                              <option value="copd">Chronic Obstructive Pulmonary Disease</option> -->
-                              <option value="coronary_heart_disease">Coronary Heart Disease</option>
-                              <!-- <option value="crohns_disease">Chrohn's Disease</option> -->
-                              <option value="dep">Depression</option>
-                              <!-- <option value="graves_disease">Grave's Disease</option> -->
-                              <option value="hf">Heart Faliure</option>
-                              <!-- <option value="hypothyroidism">Hypothyroidism</option>
-                              <option value="ms">Multiple Sclerosis</option>
-                              <option value="psoriasis">Psoriasis</option>
-                              <option value="sarcoidosis">Sarcoidosis</option>
-                              <option value="thyroid_carcinoma">Thyroid Carcinoma</option> -->
-                              <option value="t1d">Type 1 Diabetes Mellitus</option>
-                              <option value="t2d">Type 2 Diabetes Mellitus</option>
-                              <!-- <option value="ulcerative_colitis">Ulcerative Colitis</option> -->
                             </select>
                           </div>
                           <div class="diseaseLists">
