@@ -15,7 +15,7 @@ function getTraits() {
             traitsList = Object.getOwnPropertyNames(traitObjects)            
             
             //populate the dropdown
-            var selector = document.getElementById("disease");
+            var selector = document.getElementById("traitSelect");
             for (i=0; i<traitsList.length; i++) {
                 var opt = document.createElement('option')
                     opt.appendChild(document.createTextNode(traitsList[i]))

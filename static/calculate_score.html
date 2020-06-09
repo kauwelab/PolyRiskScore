@@ -10,7 +10,7 @@
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   <link href="css/multiselect.css" rel="stylesheet"> <!-- TODO -->
 </head>
-
+<script src="js/multiselect.min.js"></script> 
 <body onload="getTraits()">
   <div class = 'p-9 bg-primary text-center'>
     <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website! --Click here to leave us comments or questions</a>
@@ -103,6 +103,29 @@
               <p>&nbsp;</p>
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
+                  <h5>Trait&nbsp;</h5>
+                    <select id='traitSelect' multiple>
+                    </select>
+                </div>
+              </div>
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left">
+                  <h5>Study&nbsp;</h5>
+                    <select id='studySelect' multiple>
+                      <option selected="selected" value="adhd">St</option>
+                      <option selected="selected" value="ad">Alzheimer's Disease</option>
+                      <option selected="selected" value="als">ALS</option>
+                      <option selected="selected" value="coronary_heart_disease">Coronary Heart Disease</option>
+                      <option selected="selected" value="dep">Depression</option>
+                      <option selected="selected" value="hf">Heart Faliure</option>
+                      <option selected="selected" value="t1d">Type 1 Diabetes Mellitus</option>
+                      <option selected="selected" value="t2d">Type 2 Diabetes Mellitus</option>
+                    </select>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left">
                   <h5>Ethnicity&nbsp;</h5>
                     <select id='ethnicitySelect' multiple>
                       <option selected="selected" value="Admixed Ancestry" >Admixed Ancestry</option>
@@ -119,8 +142,6 @@
                       <option selected="selected" value="South East Asian">South East Asian</option>
                       <option selected="selected" value="Sub-Saharan African">Sub-Saharan African</option>
                     </select>
-                  <script src="js/multiselect.min.js"></script>
-                  <script>document.multiselect('#ethnicitySelect');</script>
                 </div>
               </div>
 
@@ -305,7 +326,13 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
-
+  <script src="js/multiselect.min.js"></script> 
+  <script>
+    document.multiselect('#ethnicitySelect')
+    document.multiselect('#ethnicitySelect2')
+    document.multiselect('#traitSelect')
+    document.multiselect('#studySelect')
+  </script>
 </body>
 
 </html>
