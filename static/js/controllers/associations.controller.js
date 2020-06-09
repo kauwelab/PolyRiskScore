@@ -25,6 +25,7 @@ exports.getAll = (req, res) => {
     var allTraits = req.query.traits;
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
+    console.log(`Number of traits: ${allTraits.length}`)
     Association.getAll(allTraits, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
