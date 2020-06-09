@@ -33,7 +33,7 @@ exports.getAll = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-
+            console.log(data)
             // formating returned data
             traits = {}
             for (i = 0; i < data.length; i++) {
