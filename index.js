@@ -5,7 +5,6 @@ const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars')
 const stream = require('stream');
-const Sequelize = require('sequelize');
 const multer = require('multer');
 const del = require('del');
 const fsExtra = require('fs-extra');
@@ -27,16 +26,19 @@ var storage = multer.diskStorage({
         cb(null, file.originalname)
     }
 });
+
 const cleanFolder = function (folderPath) {
     console.log("in clean folder");
     // delete files inside folder but not the folder itself
     del.sync([`${folderPath}/**`, `!${folderPath}`]);
 };
+
 const deleteFile = (file) => {
     fs.unlink(__dirname + "/uploads/" + file.originalname, (err) => {
         if (err) throw err;
     })
 };
+
 let timeOuts = [];
 var upload = multer({ storage: storage });
 cleanFolder(__dirname + "/uploads");
@@ -52,6 +54,10 @@ app.set('view engine', 'handlebars');
 var busboy = require('connect-busboy'); //middleware for form/file upload
 var fs = require('fs-extra');       //File System - for file manipulation
 app.use(busboy());
+
+// API endpoints for get requests
+require("./static/js/routes/routes.js")(app);
+
 app.listen(port, () => {
     var welcomeMessages = [];
     welcomeMessages.push("Welcome to the Polyscore Server!");
@@ -66,40 +72,6 @@ app.listen(port, () => {
 // Helper Functions
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
-}
-
-/**
- * Parses the vcf fileContents into a vcfObj that is used to calculate the score
- * @param {*} fileContents 
- */
-function parseVCFToObj(fileContents) {
-    var Readable = stream.Readable;
-    const s = new Readable();
-    s.push(fileContents);
-    s.push(null);
-    //Deletes the previous vcf module and newly reloads it. This prevents the events 'data', 'error', and 'end' from being 
-    //added to the vcf module and stacking up over time. Previously, every time this method was called, these events would 
-    //be called +1 times. There's probably a way to set up these events just once somewhere else and call them here, but I'm
-    //not sure how to do that. -Matthew
-    delete require.cache[require.resolve('bionode-vcf')];
-    var vcf = require('bionode-vcf');
-    vcf.readStream(s)
-    //vcf.readStream(s);
-    var vcfObj = new Map();
-    vcf.on('data', function (vcfLine) {
-        vcfObj = sharedCode.addLineToVcfObj(vcfObj, vcfLine)
-    })
-    vcf.on('error', function (err) {
-        //TODO how can we make this error stop the rest of the vcf parse process? Save time here! Currently, the error return does nothing.
-        console.error("Not a vcf file", err)
-        return err;
-    })
-
-    return new Promise(function (resolve, reject) {
-        vcf.on('end', function () {
-            resolve(vcfObj);
-        });
-    });
 }
 
 // ROUTES
@@ -185,179 +157,48 @@ app.post('/sendGwas', upload.single('file'), (req, res) => {
 
 });
 
-/**
- * Returns a list of diseaseRow objects, each of which contain a disease name and a list of its corresponding studiesRows objects. 
- * Each studyRow object contains a study name and its corresponding rows in the disease table with the given p-value.
- * See calculate_score.js for the code that calls this function.
- */
-app.get('/study_table/', async function (req, res) {
-    //TODO is this necessary? allows browsers to accept incoming data otherwise prevented by the CORS policy (https://wanago.io/2018/11/05/cors-cross-origin-resource-sharing/)
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    //an array of diseases mapped to lists of studies asociated with each disease (most often it is one disease to a list of one study)
-    var diseaseArray = req.query.diseaseArray
-    if (diseaseArray == undefined || diseaseArray == "[]" || diseaseArray == "") {
-        diseaseArray = []
-    }
-    else if (diseaseArray.constructor !== Array) {
-        diseaseArray = [diseaseArray];
-    }
-    var studyTypeList = req.query.studyTypeList
-    if (studyTypeList == undefined || studyTypeList == "[]" || studyTypeList == "") {
-        studyTypeList = []
-    }
-    else if (studyTypeList.constructor !== Array) {
-        studyTypeList = [studyTypeList];
-    }
-    var diseaseStudyMapArray = sharedCode.makeDiseaseStudyMapArray(diseaseArray, studyTypeList);
-    var pValue = parseFloat(req.query.pValue);
-    var refGen = req.query.refGen;
-
-    var tableObj = await getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray)
-    res.send(tableObj);
-});
-
-async function getValidTableRowsObj(pValue, refGen, diseaseStudyMapArray) {
-    // config for the database
-    var connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'polyscore',
-        password: passwords.getMySQLPassword(),
-        database: 'polyscore'
-    });
-    return await new Promise((resolve, reject) => {
-        connection.connect(async function (err) {
-            if (err) throw err;
-            return err ? reject(err) : resolve(await getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray));
-        });
-    });
-}
-
-async function getDiseaseRows(connection, pValue, refGen, diseaseStudyMapArray) {
-    var diseaseRows = [];
-    for (var i = 0; i < diseaseStudyMapArray.length; ++i) {
-        var disease = diseaseStudyMapArray[i].disease;
-        var studiesArray = diseaseStudyMapArray[i].studies;
-        var studiesRows = [];
-        studiesRows = await getStudiesRows(connection, pValue, refGen, studiesArray, disease);
-        diseaseRows.push({ disease: disease, studiesRows: studiesRows })
-    }
-    return diseaseRows;
-}
+// end Post Routes ---------------------------------------------------------------------------------
 
 /**
- * Returns a list of objects, each of which contains a study name from the study array 
- * and its corresponding rows in the given table.
- * @param {*} pValue 
- * @param {*} studiesArray 
- * @param {*} table 
- * @retunr a studyRows list: a list of objects containing study names and their corresponding table rows
+ * Parses the vcf fileContents into a vcfObj that is used to calculate the score
+ * @param {*} fileContents 
  */
-async function getStudiesRows(connection, pValue, refGen, studiesArray, disease) {
-    var studiesRows = [];
-    for (var j = 0; j < studiesArray.length; ++j) {
-        var study = studiesArray[j];
-        var rows = await getRows(connection, pValue, refGen, study, disease);
-        studiesRows.push({ study: study, rows: rows });
-    }
-    return studiesRows;
+function parseVCFToObj(fileContents) {
+    var Readable = stream.Readable;
+    const s = new Readable();
+    s.push(fileContents);
+    s.push(null);
+    //Deletes the previous vcf module and newly reloads it. This prevents the events 'data', 'error', and 'end' from being 
+    //added to the vcf module and stacking up over time. Previously, every time this method was called, these events would 
+    //be called +1 times. There's probably a way to set up these events just once somewhere else and call them here, but I'm
+    //not sure how to do that. -Matthew
+    delete require.cache[require.resolve('bionode-vcf')];
+    var vcf = require('bionode-vcf');
+    vcf.readStream(s)
+    //vcf.readStream(s);
+    var vcfObj = new Map();
+    vcf.on('data', function (vcfLine) {
+        vcfObj = sharedCode.addLineToVcfObj(vcfObj, vcfLine)
+    })
+    vcf.on('error', function (err) {
+        //TODO how can we make this error stop the rest of the vcf parse process? Save time here! Currently, the error return does nothing.
+        console.error("Not a vcf file", err)
+        return err;
+    })
 }
-
-async function getRows(connection, pValue, refGen, study, disease) {
-    return new Promise((resolve, reject) => {
-        var query = "SELECT snp, " + refGen + ", riskAllele, pValue, oddsRatio, study FROM " + disease;
-        connection.query(query, (err, result) => {
-            var rows = [];
-            //if there is no result, return an empty list
-            if (result !== undefined) {
-                for (var i = 0; i < result.length; ++i) {
-                    var tableRow = result[i];
-                    if (tableRow["study"] == study && tableRow["pValue"] <= pValue) {
-                        var row = {
-                            pos: tableRow[refGen],
-                            snp: tableRow.snp,
-                            riskAllele: tableRow.riskAllele,
-                            pValue: tableRow.pValue,
-                            oddsRatio: tableRow.oddsRatio
-                        }
-                        rows.push(row);
-                    }
-                }
-            }
-            return err ? reject(err) : resolve(rows)
-        });
-    });
-}
-
-
-
-app.get('/get_studies/', function (req, res) {
-
-    var studyObject0 = { reference: "number 1", articleName: "john", URL: "https://www.bountysource.com/issues/76999512-connectionerror-connection-lost-write-econnreset-when-inserting-long-string" }
-    var studyObject1 = { reference: "number 2", articleName: "jacob", URL: "https://www.google.com/search?q=object.pluralize&rlz=1C1XYJR_enUS815US815&oq=object.pluralize&aqs=chrome..69i57.4710j0j7&sourceid=chrome&ie=UTF-8" }
-    var studyObject2 = { reference: "number 3", articleName: "jingle", URL: "http://docs.sequelizejs.com/manual/getting-started.html" }
-    var studyObject3 = { reference: "number 4", articleName: "heimer", URL: "http://docs.sequelizejs.com/manual/getting-started.html" }
-    var studiesArray = []
-    studiesArray.push(studyObject0)
-    studiesArray.push(studyObject1)
-    studiesArray.push(studyObject2)
-    studiesArray.push(studyObject3)
-
-
-    const sequelize = new Sequelize('studies', 'root', 'Petersme1', {
-        host: 'localhost',
-        dialect: 'mysql',
-        dialectOptions: {
-            insecureAuth: true
-        },
-        logging: false
-    })
-
-    sequelize
-        .authenticate()
-        .then(() => {
-            console.log('connection is up and running')
-
-        })
-        .catch(err => {
-            console.error('nope, that didnt work', err)
-        });
-
-    const Model = Sequelize.Model;
-    class Studies extends Model { }
-    Studies.init({
-        reference: {
-            type: Sequelize.STRING
-        },
-        articleName: {
-            type: Sequelize.STRING
-        },
-        URL: {
-            type: Sequelize.STRING
-        },
-        studyID: {
-            type: Sequelize.INTEGER
-        }
-    }, {
-        sequelize,
-        modelName: 'Studies',
-        freezeTableName: true,
-        timestamps: false
-    });
-    // the find all returns an array, so creat three seperate arrays of references, names, and URLs and then 
-    // loop through those to create your study objects and then send those back to the client.
-    var tempReference = Studies.findAll({
-        attributes: ['reference']
-    })
-    var tempArticleNames = Studies.findAll({
-        attributes: ['articleName']
-    })
-    var tempURL = Studies.findAll({
-        attributes: ['URL']
-    })
-
-    for (var i = 0; i < tempReference.length; ++i) {
-        var studyObject = { reference: tempReference[i], articleName: tempArticleNames[i], URL: tempURL[i] }
-        studiesArray.push(studyObject)
-    }
-    res.send(studiesArray)
-});
+// app.post('/download_results', function (req, res) {
+//     var DOWNLOAD_DIR = path.join(process.env.HOME || process.env.USERPROFILE, 'Downloads/');
+//     var file_name = "polyscore_" + getRandomInt(100000000);
+//     if(req.body.fileFormat === "csv"){
+//         file_name += ".csv";
+//     } 
+//     else{
+//         file_name += ".txt";
+//     }
+//     var file_path = path.join(DOWNLOAD_DIR, file_name);
+//     fsys.writeFile(file_path, req.body.resultText, function (err) {
+//         if (err) throw err;
+//         console.log('Saved!');
+//     });
+//     res.end(); 
+// })
