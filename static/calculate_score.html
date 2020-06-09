@@ -8,6 +8,7 @@
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <link href="css/multiselect.css" rel="stylesheet"> <!-- TODO -->
 </head>
 
 <body onload="getTraits()">
@@ -100,6 +101,29 @@
                 </div>
               </form>
               <p>&nbsp;</p>
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left">
+                  <h5>Ethnicity&nbsp;</h5>
+                    <select id='ethnicitySelect' multiple>
+                      <option selected="selected" value="Admixed Ancestry" >Admixed Ancestry</option>
+                      <option selected="selected" value="African American or Afro-Caribbean">African American or Afro-Caribbean</option>	
+                      <option selected="selected" value="African unspecified">African unspecified</option>
+                      <option selected="selected" value="Asian unspecified">Asian unspecified</option>
+                      <option selected="selected" value="East Asian">East Asian</option>
+                      <option selected="selected" value="European">European</option>
+                      <option selected="selected" value="Greater Middle Eastern">Greater Middle Eastern</option>
+                      <option selected="selected" value="Hispanic or Latin American">Hispanic or Latin American</option>
+                      <option selected="selected" value="Native American">Native American</option>
+                      <option selected="selected" value="Oceanian">Oceanian</option>
+                      <option selected="selected" value="South Asian">South Asian</option>
+                      <option selected="selected" value="South East Asian">South East Asian</option>
+                      <option selected="selected" value="Sub-Saharan African">Sub-Saharan African</option>
+                    </select>
+                  <script src="js/multiselect.min.js"></script>
+                  <script>document.multiselect('#ethnicitySelect');</script>
+                </div>
+              </div>
+
               <div class="container diseaseLists">
                 <div class="row">
                   <div class='parent inline-flex-parent'>
@@ -162,18 +186,18 @@
                         </form>
                       </div>
                     </div>
-                    <div class='child'>
-                      <div class="col-lg-12 mb-0 mt-2 text-left">
-                        <h5>Output Format&nbsp;</h5>
-                        <script src="js/calculate_score.js"></script>
-                        <script src="js/vcf_parser.js"></script>
-                        <div class="fileFormOptions">
-                          <select id="fileType" , onchange="changeFormat();">
-                            <option value="csv">CSV</option>
-                            <option value="json">JSON</option>
-                            <option value="text">Text</option>
-                          </select>
-                        </div>
+                  </div>
+                  <div class='child'>
+                    <div class="col-lg-12 mb-0 mt-2 text-left">
+                      <h5>Output Format&nbsp;</h5>
+                      <script src="js/calculate_score.js"></script>
+                      <script src="js/vcf_parser.js"></script>
+                      <div class="fileFormOptions">
+                        <select id="fileType" , onchange="changeFormat();">
+                          <option value="csv">CSV</option>
+                          <option value="json">JSON</option>
+                          <option value="text">Text</option>
+                        </select>
                       </div>
                     </div>
                   </div>
