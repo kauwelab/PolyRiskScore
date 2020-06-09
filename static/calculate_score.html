@@ -103,23 +103,22 @@
               <p>&nbsp;</p>
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
-                  <h5>Trait&nbsp;</h5>
+                  <h5>1: Select Trait of Interest&nbsp;</h5>
                     <select id='traitSelect' multiple>
                     </select>
                 </div>
               </div>
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
-                  <h5>Study&nbsp;</h5>
+                  <h5>2: Select Study Type&nbsp;</h5>
+                    <select id='studyTypeSelect' multiple>
+                    </select>
+                </div>
+              </div>
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left">
+                  <h5>3: Select Specific Studies&nbsp;</h5>
                     <select id='studySelect' multiple>
-                      <option selected="selected" value="adhd">St</option>
-                      <option selected="selected" value="ad">Alzheimer's Disease</option>
-                      <option selected="selected" value="als">ALS</option>
-                      <option selected="selected" value="coronary_heart_disease">Coronary Heart Disease</option>
-                      <option selected="selected" value="dep">Depression</option>
-                      <option selected="selected" value="hf">Heart Faliure</option>
-                      <option selected="selected" value="t1d">Type 1 Diabetes Mellitus</option>
-                      <option selected="selected" value="t2d">Type 2 Diabetes Mellitus</option>
                     </select>
                 </div>
               </div>
@@ -145,6 +144,59 @@
                 </div>
               </div>
 
+              <div class='child'>
+                <div class="col-lg-12 mb-.5 mt-2 text-left">
+                  <h5>Enter P-Value Cutoff&nbsp;</h5>
+                  <form action="#" method="POST" id="pvalInput" name="pvalOptions">
+                    <div class="form-inline">
+                      <div>
+                        <input type="number" value="1.0" name = "pValScalarIn" id ="pValScalarIn" size = 5 min = 1.0 max = 10.0 onchange = "changePValScalar()">
+                        x10^-
+                        <input type="number" value="5" name="pValMagIn" id="pValMagIn" size = 5 min = 0.0 max = 100.0 onchange="changePValMagnitude()">
+                      </div>
+                      <label>
+                        &nbsp;&nbsp;&nbsp;(
+                        <output id="pvalScalar" name="pvalScalar" for="pValScalarIn">1.0</output>
+                        x10
+                        <sup>
+                          <output id="pvalMagnigtude" name="pvalMagnigtude" for="pValMagIn">-5</output>
+                        </sup>)
+                      </label>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left">
+                  <h5>Output Format&nbsp;</h5>
+                  <script src="js/calculate_score.js"></script>
+                  <script src="js/vcf_parser.js"></script>
+                  <div class="fileFormOptions">
+                    <select id="fileType" , onchange="changeFormat();">
+                      <option value="csv">CSV</option>
+                      <option value="json">JSON</option>
+                      <option value="text">Text</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-.5 mt-2 text-left">
+                  <h5>Reference Genome&nbsp;</h5>
+                  <div class="refGenomeOptions">
+                    <select id="refGenome">
+                      <option selected="selected" value="default">--Reference Genome--</option>
+                      <option value="hg38">GRCh38/hg38</option>
+                      <option value="hg19">GRCh37/hg19</option>
+                      <option value="hg18">NCBI36/hg18</option>
+                      <option value="hg17">NCBI35/hg17</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <!--
               <div class="container diseaseLists">
                 <div class="row">
                   <div class='parent inline-flex-parent'>
@@ -156,7 +208,6 @@
                         <h8>
                           <div class="diseaseLists">
                             <select id="disease" onchange="getStudies()">
-                              <!--<option selected="selected">All</option>-->
                               <option value="">--Disease--</option>
                               <option value="all">All Diseases </option>
                             </select>
@@ -169,56 +220,7 @@
                         </h8>
                       </div>
                     </div>
-                    <div class='child'>
-                      <div class="col-lg-12 mb-.5 mt-2 text-left">
-                        <h5>Reference Genome&nbsp;</h5>
-                        <div class="refGenomeOptions">
-                          <select id="refGenome">
-                            <option selected="selected" value="default">--Reference Genome--</option>
-                            <option value="hg38">GRCh38/hg38</option>
-                            <option value="hg19">GRCh37/hg19</option>
-                            <option value="hg18">NCBI36/hg18</option>
-                            <option value="hg17">NCBI35/hg17</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div class='child'>
-                      <div class="col-lg-12 mb-.5 mt-2 text-left">
-                        <h5>Enter P-Value Cutoff&nbsp;</h5>
-                        <form action="#" method="POST" id="pvalInput" name="pvalOptions">
-                          <div class="form-inline">
-                            <div>
-                              <input type="number" value="1.0" name = "pValScalarIn" id ="pValScalarIn" size = 5 min = 1.0 max = 10.0 onchange = "changePValScalar()">
-                              x10^-
-                              <input type="number" value="5" name="pValMagIn" id="pValMagIn" size = 5 min = 0.0 max = 100.0 onchange="changePValMagnitude()">
-                            </div>
-                            <label>
-                              &nbsp;&nbsp;&nbsp;(
-                              <output id="pvalScalar" name="pvalScalar" for="pValScalarIn">1.0</output>
-                              x10
-                              <sup>
-                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pValMagIn">-5</output>
-                              </sup>)
-                            </label>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                  <div class='child'>
-                    <div class="col-lg-12 mb-0 mt-2 text-left">
-                      <h5>Output Format&nbsp;</h5>
-                      <script src="js/calculate_score.js"></script>
-                      <script src="js/vcf_parser.js"></script>
-                      <div class="fileFormOptions">
-                        <select id="fileType" , onchange="changeFormat();">
-                          <option value="csv">CSV</option>
-                          <option value="json">JSON</option>
-                          <option value="text">Text</option>
-                        </select>
-                      </div>
-                    </div>
+                    
                   </div>
                   <div class='parent inline-flex-parent'>
                     <div class='child'>
@@ -240,7 +242,6 @@
 
                           <div class="diseaseLists">
                             <select id="disease" onchange="ChangeDiseaseList()">
-                              <!--<option selected="selected">All</option>-->
                               <option value="">--Disease--</option>
                               <option value="all">All Diseases </option>
                               <option value="adhd">ADHD</option>
@@ -264,7 +265,7 @@
                 </div>
               </div>
               <p>&nbsp;</p>
-
+              -->
 
               <!--uses "js/calculate_score.js"-->
               <button type="button" id="feedbackSubmit" onclick="calculatePolyScore();"
@@ -329,8 +330,8 @@
   <script src="js/multiselect.min.js"></script> 
   <script>
     document.multiselect('#ethnicitySelect')
-    document.multiselect('#ethnicitySelect2')
     document.multiselect('#traitSelect')
+    document.multiselect('#studyTypeSelect')
     document.multiselect('#studySelect')
   </script>
 </body>
