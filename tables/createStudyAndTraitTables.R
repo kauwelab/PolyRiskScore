@@ -198,6 +198,7 @@ if (is_ebi_reachable()) {
           select(-ancestral_group) %>%
           dplyr::rename(studyID = "study_id")
         ethnicity <- full_join(tibble(studyID = studyIDs), ethnicity, by = "studyID")
+#-------------------------------------------------------------------------------------------
         
         #match studyID to the most recent time the study was updated, then get the lastUpdated list in order
         lastUpdatedTibble <- tibble(studyID = studyIDs)

@@ -14,8 +14,8 @@ GCST000028,17463246,Saxena R 2007,56.432,European,31910,Genome-wide association 
 GCST000030,17478679,Helgadottir A 2007,86.194,European,17624,A common variant on chromosome 9p21 affects the risk of myocardial infarction.,5/7/2020
 GCST000033,17486107,Baum AE 2007,21.226,European,2672,A genome-wide association study implicates diacylglycerol kinase eta (DGKH) and several other genes in the etiology of bipolar disorder.,5/7/2020
 GCST000035,17529967,Easton DF 2007,NA,European|East Asian,57247,Genome-wide association study identifies novel breast cancer susceptibility loci.,5/8/2020
-GCST000036,17529973,Hunter DJ 2007,31.422,European|Other,5535,A genome-wide association study identifies alleles in FGFR2 associated with risk of sporadic postmenopausal breast cancer.,5/7/2020
-GCST000037,17529974,Stacey SN 2007,32.744,European|East Asian|African American or Afro-Caribbean|Hispanic or Latin American|Other,25343,Common variants on chromosomes 2q35 and 16q12 confer susceptibility to estrogen receptor-positive breast cancer.,5/7/2020
+GCST000036,17529973,Hunter DJ 2007,31.422,European,5535,A genome-wide association study identifies alleles in FGFR2 associated with risk of sporadic postmenopausal breast cancer.,5/7/2020
+GCST000037,17529974,Stacey SN 2007,32.744,European|East Asian|African American or Afro-Caribbean|Hispanic or Latin American,25343,Common variants on chromosomes 2q35 and 16q12 confer susceptibility to estrogen receptor-positive breast cancer.,5/7/2020
 GCST000038,17554260,Todd JA 2007,36.418,European,16997,Robust associations of four new chromosome regions from genome-wide analyses of type 1 diabetes.,5/7/2020
 GCST000040,17554300,Wellcome Trust Case Control Consortium 2007,132.25,European,4798,"Genome-wide association study of 14,000 cases of seven common diseases and 3,000 shared controls.",5/9/2020
 GCST000041,17554300,Wellcome Trust Case Control Consortium 2007,132.25,European,4890,"Genome-wide association study of 14,000 cases of seven common diseases and 3,000 shared controls.",5/7/2020
@@ -60,13 +60,13 @@ GCST000144,18204098,Hom G 2008,13,European,6301,Association of systemic lupus er
 GCST000152,18264097,Eeles RA 2008,25.744,European,10382,Multiple newly identified loci associated with prostate cancer susceptibility.,5/9/2020
 GCST000153,18264098,Gudmundsson J 2008,16.744,European,39055,Common sequence variants on 2p15 and Xp11.22 confer susceptibility to prostate cancer.,5/7/2020
 GCST000154,18264096,Thomas G 2008,17.906,European,10234,Multiple loci identified in a genome-wide association study of prostate cancer.,5/7/2020
-GCST000155,18282107,Shifman S 2008,3,Other|European|East Asian,13754,Genome-wide association identifies a common variant in the reelin gene that increases the risk of schizophrenia only in women.,5/7/2020
+GCST000155,18282107,Shifman S 2008,3,European|East Asian,13754,Genome-wide association identifies a common variant in the reelin gene that increases the risk of schizophrenia only in women.,5/7/2020
 GCST000157,18311140,Hunt KA 2008,21.504,European,7238,Newly identified genetic risk variants for celiac disease related to the immune response.,5/9/2020
 GCST000162,18326623,Gold B 2008,6,European,2919,Genome-wide association study provides evidence for a breast cancer risk locus at 6q22.33.,5/7/2020
 GCST000167,18372903,Zeggini E 2008,34.58,European,89920,Meta-analysis of genome-wide association data and large-scale replication identifies additional susceptibility loci for type 2 diabetes.,5/8/2020
 GCST000168,18372901,Tenesa A 2008,15,European|East Asian,33810,Genome-wide association scan identifies a colorectal cancer susceptibility locus on 11q23 and replicates risk loci at 8q24 and 18q21.,5/8/2020
 GCST000169,18372905,Tomlinson IP 2008,11.25,European,37247,A genome-wide association study identifies colorectal cancer susceptibility loci on chromosomes 10p14 and 8q23.3.,5/10/2020
-GCST000170,18385738,Hung RJ 2008,31,European|Other,11713,A susceptibility locus for lung cancer maps to nicotinic acetylcholine receptor subunit genes on 15q25.,5/7/2020
+GCST000170,18385738,Hung RJ 2008,31,European,11713,A susceptibility locus for lung cancer maps to nicotinic acetylcholine receptor subunit genes on 15q25.,5/7/2020
 GCST000172,18385676,Amos CI 2008,38.776,European,8709,Genome-wide association scan of tag SNPs identifies a susceptibility locus for lung cancer at 15q25.1.,5/7/2020
 GCST000173,18369459,Liu Y 2008,11.938,European,3107,A genome-wide association study of psoriasis and psoriatic arthritis identifies new disease loci.,5/9/2020
 GCST000188,18463370,Maris JM 2008,3,European,5923,Chromosome 6p22 locus associated with clinically aggressive neuroblastoma.,5/7/2020
@@ -115,7 +115,7 @@ GCST000317,19151714,Meyre D 2009,16.184,European,16982,Genome-wide association s
 GCST000318,19151717,Rafnar T 2009,19,European,31970,Sequence variants at the TERT-CLPTM1L locus associate with many cancer types.,5/7/2020
 GCST000321,19169255,Zhang XJ 2009,20.246,East Asian,15332,Psoriasis genome-wide association study identifies susceptibility variants within LCE gene cluster at 1q21.,5/7/2020
 GCST000322,19169254,Nair RP 2009,29.576,European,12848,Genome-wide scan reveals association of psoriasis with IL-23 and NF-kappaB pathways.,5/10/2020
-GCST000323,19176441,Yang JJ 2009,15,European|Other|African unspecified,487,Genome-wide interrogation of germline genetic variation associated with treatment response in childhood acute lymphoblastic leukemia.,5/9/2020
+GCST000323,19176441,Yang JJ 2009,15,European|African unspecified,487,Genome-wide interrogation of germline genetic variation associated with treatment response in childhood acute lymphoblastic leukemia.,5/9/2020
 GCST000329,19182806,Stefansson H 2009,11.25,European,16550,Variant in the sequence of the LINGO1 gene confers risk of essential tremor.,5/10/2020
 GCST000330,19187332,Kim SH 2009,4,East Asian,347,Alpha-T-catenin (CTNNA3) gene was identified as a risk variant for toluene diisocyanate-induced asthma by genome-wide association analysis.,5/8/2020
 GCST000334,19196962,Garcia-Barcelo MM 2009,3,East Asian,1227,Genome-wide association study identifies NRG1 as a susceptibility locus for Hirschsprung's disease.,5/7/2020
@@ -139,7 +139,7 @@ GCST000387,19416921,Scott LJ 2009,11.584,European,18190,Genome-wide association 
 GCST000389,19426955,Himes BE 2009,5.08,European|African American or Afro-Caribbean|Hispanic or Latin American,25360,Genome-wide association analysis identifies PDE4D as an asthma-susceptibility gene.,5/7/2020
 GCST000392,19430480,Barrett JC 2009,14.08,European,32157,Genome-wide association study and meta-analysis find that over 40 loci affect risk of type 1 diabetes.,5/9/2020
 GCST000397,19430482,K�ttgen A 2009,20.152,European,41343,Multiple loci associated with indices of renal function and chronic kidney disease.,5/7/2020
-GCST000406,19451621,Landers JE 2009,18,European|Other,5173,Reduced expression of the Kinesin-Associated Protein 3 (KIFAP3) gene increases survival in sporadic amyotrophic lateral sclerosis.,5/10/2020
+GCST000406,19451621,Landers JE 2009,18,European,5173,Reduced expression of the Kinesin-Associated Protein 3 (KIFAP3) gene increases survival in sporadic amyotrophic lateral sclerosis.,5/10/2020
 GCST000408,19458352,Hirschfield GM 2009,24.176,European,3744,"Primary biliary cirrhosis associated with HLA, IL12A, and IL12RB2 variants.",5/8/2020
 GCST000410,19465909,Jallow M 2009,21.858,Sub-Saharan African,5803,Genome-wide and fine-resolution association analysis of malaria in West Africa.,5/9/2020
 GCST000411,19456320,Ma D 2009,3,European,4675,A genome-wide association study of autism reveals a common novel risk locus at 5p14.1.,5/7/2020
@@ -147,7 +147,7 @@ GCST000413,19478819,Ng CC 2009,NA,East Asian,791,A genome-wide association study
 GCST000414,19483681,Rapley EA 2009,9,European,4542,A genome-wide association study of testicular germ cell tumor.,5/7/2020
 GCST000416,19483682,Kanetsky PA 2009,18.5,European,2835,Common variation in KITLG and at 5q31.3 predisposes to testicular germ cell cancer.,5/9/2020
 GCST000417,19488044,Smith EN 2009,6.5,European|African American or Afro-Caribbean,6543,Genome-wide association study of bipolar disorder in European American and African American individuals.,5/7/2020
-GCST000420,19503088,Gregersen PK 2009,7,European|Other,12408,"REL, encoding a member of the NF-kappaB family of transcription factors, is a newly defined risk locus for rheumatoid arthritis.",5/7/2020
+GCST000420,19503088,Gregersen PK 2009,7,European,12408,"REL, encoding a member of the NF-kappaB family of transcription factors, is a newly defined risk locus for rheumatoid arthritis.",5/7/2020
 GCST000424,19525953,De Jager PL 2009,6,European,14175,"Meta-analysis of genome scans and replication identify CD6, IRF8 and TNFRSF1A as new multiple sclerosis susceptibility loci.",5/9/2020
 GCST000425,19525955,Bahlo M 2009,4,European,9597,Genome-wide association study identifies new multiple sclerosis susceptibility loci on chromosomes 12 and 20.,5/7/2020
 GCST000426,19553259,Cotsapas C 2009,NA,European,3972,Common body mass index-associated variants confer risk of extreme obesity.,5/9/2020
@@ -158,7 +158,7 @@ GCST000434,19571811,Purcell SM 2009,153.898,European,27094,Common polygenic vari
 GCST000435,19571808,Stefansson H 2009,83.476,European,47536,Common variants conferring risk of schizophrenia.,5/8/2020
 GCST000437,19578364,Bishop DT 2009,10,European,9635,Genome-wide association study identifies three loci associated with melanoma risk.,5/9/2020
 GCST000439,19578367,Shete S 2009,21.38,European,11046,Genome-wide association study identifies five susceptibility loci for glioma.,5/7/2020
-GCST000440,19578366,Wrensch M 2009,13,European|African American or Afro-Caribbean|Hispanic or Latin American|Asian unspecified|Native American|Other,5034,Variants in the CDKN2B and RTEL1 regions are associated with high-grade glioma susceptibility.,5/7/2020
+GCST000440,19578366,Wrensch M 2009,13,European|African American or Afro-Caribbean|Hispanic or Latin American|Asian unspecified|Native American,5034,Variants in the CDKN2B and RTEL1 regions are associated with high-grade glioma susceptibility.,5/7/2020
 GCST000445,19597492,Benjamin EJ 2009,9,European,46736,Variants in ZFHX3 are associated with atrial fibrillation in individuals of European ancestry.,5/7/2020
 GCST000446,19597491,Gudbjartsson DF 2009,12,European|East Asian,44992,A sequence variant in ZFHX3 on 16q22 associates with atrial fibrillation and ischemic stroke.,5/7/2020
 GCST000447,19609347,Adeyemo A 2009,NA,African American or Afro-Caribbean|African unspecified,1997,A genome-wide association study of hypertension and blood pressure in African Americans.,5/9/2020
@@ -167,7 +167,7 @@ GCST000454,19648920,Wu X 2009,NA,European,46257,Genetic variation in the prostat
 GCST000455,19648919,Song H 2009,21.298,European,20591,A genome-wide association study identifies a new ovarian cancer susceptibility locus on 9p22.2.,5/7/2020
 GCST000456,19648918,Amundadottir L 2009,54.364,European,7823,Genome-wide association study identifies variants in the ABO locus associated with susceptibility to pancreatic cancer.,5/7/2020
 GCST000460,19664746,Tse KP 2009,NA,East Asian,2837,Genome-wide association study reveals multiple nasopharyngeal carcinoma-associated loci within the HLA region at chromosome 6p21.3.,5/9/2020
-GCST000462,19680635,Alkelai A 2009,NA,European|African American or Afro-Caribbean|Other,397,Genome-wide association study of antipsychotic-induced parkinsonism severity among schizophrenia patients.,5/7/2020
+GCST000462,19680635,Alkelai A 2009,NA,European|African American or Afro-Caribbean,397,Genome-wide association study of antipsychotic-induced parkinsonism severity among schizophrenia patients.,5/7/2020
 GCST000463,19684604,Papaemmanuil E 2009,22,European,3305,"Loci on 7p12.2, 10q21.2 and 14q11.2 are associated with risk of childhood acute lymphoblastic leukemia.",5/7/2020
 GCST000464,19684603,Trevi�o LR 2009,15,European,18275,Germline genomic variants associated with childhood acute lymphoblastic leukemia.,5/10/2020
 GCST000465,19684573,Ge D 2009,57.278,European|African American or Afro-Caribbean|Hispanic or Latin American,1137,Genetic variation in IL28B predicts hepatitis C treatment-induced viral clearance.,5/7/2020
@@ -191,11 +191,11 @@ GCST000546,20018961,Zhang FR 2009,40.772,East Asian,11140,Genomewide association
 GCST000547,20023658,Mangold E 2009,15,European,2372,Genome-wide association study identifies two susceptibility loci for nonsyndromic cleft lip with or without cleft palate.,5/7/2020
 GCST000551,20038947,Shyn SI 2009,26,European,7385,Novel loci for major depression identified by genome-wide association study of Sequenced Treatment Alternatives to Relieve Depression and meta-analysis of three studies.,5/9/2020
 GCST000557,20060832,Rauch A 2010,21.498,European,1362,Genetic variation in IL28B is associated with chronic hepatitis C and treatment failure: a genome-wide association study.,5/7/2020
-GCST000558,20112360,Kerkhof HJ 2010,0.5,European|Other,57530,A genome-wide association study identifies an osteoarthritis susceptibility locus on chromosome 7q22.,5/7/2020
+GCST000558,20112360,Kerkhof HJ 2010,0.5,European,57530,A genome-wide association study identifies an osteoarthritis susceptibility locus on chromosome 7q22.,5/7/2020
 GCST000560,20072603,Guo Y 2010,3,East Asian,1606,Genome-wide association study identifies ALDH7A1 as a novel susceptibility gene for osteoporosis.,5/8/2020
 GCST000563,20062062,Reveille JD 2010,22,European,9609,Genome-wide association study of ankylosing spondylitis identifies non-MHC susceptibility loci.,5/9/2020
 GCST000567,20070850,Edwards TL 2010,13.386,European,3497,Genome-wide association study confirms SNPs in SNCA and the MAPT region as common risk factors for Parkinson disease.,5/9/2020
-GCST000574,20101243,Petersen GM 2010,14.25,European|Other|East Asian,7785,"A genome-wide association study identifies pancreatic cancer susceptibility loci on chromosomes 13q22.1, 1q32.1 and 5p15.33.",5/7/2020
+GCST000574,20101243,Petersen GM 2010,14.25,European|East Asian,7785,"A genome-wide association study identifies pancreatic cancer susceptibility loci on chromosomes 13q22.1, 1q32.1 and 5p15.33.",5/7/2020
 GCST000576,20159242,Li X 2010,3,European,3901,Genome-wide association study of asthma identifies RAD50-IL13 and HLA-DR/DQ regions.,5/7/2020
 GCST000578,20125088,Shi J 2010,9,European,2656,Genome-wide association study of recurrent early-onset major depressive disorder.,5/7/2020
 GCST000592,20169177,Yang W 2010,NA,East Asian|South East Asian,7416,Genome-wide association study in Asian populations identifies variants in ETS1 and WDFY4 associated with systemic lupus erythematosus.,5/7/2020
@@ -210,7 +210,7 @@ GCST000623,20228798,Franke A 2010,3,European,10713,Genome-wide association study
 GCST000624,20228799,McGovern DP 2010,4.5,European,13073,Genome-wide association identifies multiple ulcerative colitis susceptibility loci.,5/8/2020
 GCST000629,20305777,Nakajima M 2010,NA,East Asian|European,6693,New sequence variants in HLA class II/III region associated with susceptibility to knee osteoarthritis identified by genome-wide association study.,5/7/2020
 GCST000632,20304771,Newman AB 2010,9,European,9816,A meta-analysis of four genome-wide association studies of survival to age 90 years or older: the Cohorts for Heart and Aging Research in Genomic Epidemiology Consortium.,5/7/2020
-GCST000633,20304703,Li Y 2010,2.25,European|Other,2272,Genetic variants and risk of lung cancer in never smokers: a genome-wide association study.,5/7/2020
+GCST000633,20304703,Li Y 2010,2.25,European,2272,Genetic variants and risk of lung cancer in never smokers: a genome-wide association study.,5/7/2020
 GCST000639,20348956,Kiemeney LA 2010,NA,European,50288,A sequence variant at 4p16.3 confers susceptibility to urinary bladder cancer.,5/7/2020
 GCST000640,20350937,Takahashi M 2010,43.9,European,1928,The FOXE1 locus is a major genetic determinant for radiation-related thyroid carcinoma in Chernobyl.,5/7/2020
 GCST000645,20363506,Meguro A 2010,3,East Asian,660,Genome-wide association study of normal tension glaucoma: common variants in SRBD1 and ELOVL5 contribute to disease susceptibility.,5/7/2020
@@ -225,7 +225,7 @@ GCST000662,20410501,Jin Y 2010,10,European,7622,Variant of TYR and autoimmunity 
 GCST000663,20421936,Scherag A 2010,8.072,European,8525,Two new Loci for body-weight regulation identified in a joint analysis of genome-wide association studies for early-onset extreme obesity in French and german study groups.,5/9/2020
 GCST000666,20418890,Tobacco and Genetics Consortium 2010,52.074,European,143023,Genome-wide meta-analyses identify multiple loci associated with smoking behavior.,5/9/2020
 GCST000672,20436471,Albagha OM 2010,16,European,2437,"Genome-wide association study identifies variants at CSF1, OPTN and TNFRSF11A as genetic risk factors for Paget's disease of bone.",5/7/2020
-GCST000673,20436469,Beaty TH 2010,6,Asian unspecified|South Asian|Other|European,9978,A genome-wide association study of cleft lip with and without cleft palate identifies risk variants near MAFB and ABCA4.,5/7/2020
+GCST000673,20436469,Beaty TH 2010,6,Asian unspecified|South Asian|European,9978,A genome-wide association study of cleft lip with and without cleft palate identifies risk variants near MAFB and ABCA4.,5/7/2020
 GCST000677,20453841,Kochi Y 2010,18,East Asian,27810,A regulatory variant in CCR6 is associated with rheumatoid arthritis susceptibility.,5/9/2020
 GCST000678,20453838,Turnbull C 2010,65.586,European,33355,Genome-wide association study identifies five new breast cancer susceptibility loci.,5/9/2020
 GCST000679,20453842,Stahl EA 2010,19,European,41282,Genome-wide association study meta-analysis identifies seven new rheumatoid arthritis risk loci.,5/9/2020
@@ -241,14 +241,14 @@ GCST000706,20585627,Eriksson N 2010,247.002,European,9126,"Web-based, participan
 GCST000709,20585626,Long J 2010,NA,East Asian|European,37768,Identification of a functional genetic variant at 16q12.1 for breast cancer risk: results from the Asia Breast Cancer Consortium.,5/7/2020
 GCST000710,20585627,Eriksson N 2010,247.002,European,9126,"Web-based, participant-driven studies yield novel genetic associations for common traits.",5/8/2020
 GCST000712,20581827,Voight BF 2010,26,European,141454,Twelve type 2 diabetes susceptibility loci identified through large-scale association analysis.,5/9/2020
-GCST000714,20585324,Dick DM 2010,3,European|African American or Afro-Caribbean|Other,3963,Genome-wide association study of conduct disorder symptomatology.,5/7/2020
-GCST000715,20592726,Chen SH 2010,NA,European|African unspecified|Hispanic or Latin American|Asian unspecified|Other,485,Genetic variations in GRIA1 on chromosome 5q33 related to asparaginase hypersensitivity.,5/7/2020
+GCST000714,20585324,Dick DM 2010,3,European|African American or Afro-Caribbean,3963,Genome-wide association study of conduct disorder symptomatology.,5/7/2020
+GCST000715,20592726,Chen SH 2010,NA,European|African unspecified|Hispanic or Latin American|Asian unspecified,485,Genetic variations in GRIA1 on chromosome 5q33 related to asparaginase hypersensitivity.,5/7/2020
 GCST000716,20598377,Nischwitz S 2010,NA,European,1415,Evidence for VAV2 and ZNF433 as susceptibility genes for multiple sclerosis.,5/7/2020
 GCST000719,20596022,Petukhova L 2010,75.904,European,4332,Genome-wide association study in alopecia areata implicates both innate and adaptive immunity.,5/10/2020
 GCST000720,20610895,Koriyama H 2010,NA,East Asian,3792,Identification of evidence suggestive of an association with peripheral arterial disease at the OSBPL10 locus by genome-wide investigation in the Japanese population.,5/7/2020
 GCST000721,20601957,Uno S 2010,13,East Asian,7199,A genome-wide association study identifies genetic variants in the CDKN2BAS locus associated with endometriosis in Japanese.,5/7/2020
 GCST000727,20622881,Gretarsdottir S 2010,6,European,42513,Genome-wide association study identifies a sequence variant within the DAB2IP gene conferring susceptibility to abdominal aortic aneurysm.,5/7/2020
-GCST000728,20622879,Mizuki N 2010,NA,East Asian|Other,4101,Genome-wide association studies identify IL23R-IL12RB2 and IL10 as Beh�et's disease susceptibility loci.,5/10/2020
+GCST000728,20622879,Mizuki N 2010,NA,East Asian,4101,Genome-wide association studies identify IL23R-IL12RB2 and IL10 as Beh�et's disease susceptibility loci.,5/10/2020
 GCST000733,20639880,Liu X 2010,NA,European,5585,Genome-wide meta-analyses identify three loci associated with primary biliary cirrhosis.,5/7/2020
 GCST000734,20639881,Conde L 2010,NA,European,10803,Genome-wide association study of follicular lymphoma identifies a risk locus at 6p21.32.,5/9/2020
 GCST000737,20657596,Johansen CT 2010,6.048,European,1660,Excess of rare variants in genes identified by genome-wide association study of hypertriglyceridemia.,5/7/2020
@@ -275,9 +275,9 @@ GCST000797,20844546,Adachi S 2010,NA,East Asian,1521,Meta-analysis of genome-wid
 GCST000800,20852633,Bolton KL 2010,33.088,European,23691,Common variants at 19p13 are associated with susceptibility to ovarian cancer.,5/7/2020
 GCST000801,20852631,Antoniou AC 2010,37.562,European,8369,A locus on 19p13 modifies risk of breast cancer in BRCA1 mutation carriers and is associated with hormone receptor-negative breast cancer in the general population.,5/7/2020
 GCST000802,20852632,Goode EL 2010,42.088,European,64595,A genome-wide association study identifies susceptibility loci for ovarian cancer at 2q31 and 8q24.,5/7/2020
-GCST000804,20860503,Moffatt MF 2010,50.292,European|Other,26475,"A large-scale, consortium-based genomewide association study of asthma.",5/10/2020
+GCST000804,20860503,Moffatt MF 2010,50.292,European,26475,"A large-scale, consortium-based genomewide association study of asthma.",5/10/2020
 GCST000806,20861866,Kopplin LJ 2010,3.75,European,4634,Genome-wide association identifies SKIV2L and MYRIP as protective factors for age-related macular degeneration.,5/10/2020
-GCST000808,20885792,Naj AC 2010,3,Other,5376,Dementia revealed: novel chromosome 6 locus for late-onset Alzheimer disease provides genetic evidence for folate-pathway abnormalities.,5/7/2020
+GCST000808,20885792,Naj AC 2010,3,,5376,Dementia revealed: novel chromosome 6 locus for late-onset Alzheimer disease provides genetic evidence for folate-pathway abnormalities.,5/7/2020
 GCST000810,20871597,Miki D 2010,5.016,East Asian,13146,Variation in TP63 is associated with lung adenocarcinoma susceptibility in Japanese and Korean populations.,5/7/2020
 GCST000811,20872241,Li J 2010,NA,European,23390,A combined analysis of genome-wide association studies in breast cancer.,5/7/2020
 GCST000815,20876614,Yoon KA 2010,NA,East Asian,4436,A genome-wide association study reveals susceptibility variants for non-small cell lung cancer in the Korean population.,5/9/2020
@@ -314,7 +314,7 @@ GCST000910,21150878,Ferreira MA 2010,NA,European,3436,"Association between ORMDL
 GCST000914,21151128,Chen ZJ 2010,6,East Asian,10769,"Genome-wide association study identifies susceptibility loci for polycystic ovary syndrome on chromosome 2p16.3, 2p21 and 9q33.3.",5/7/2020
 GCST000916,21151130,Painter JN 2010,11.064,European,14917,Genome-wide association study identifies a locus at 7p15.2 associated with endometriosis.,5/8/2020
 GCST000927,21186350,Zhou K 2010,2,European,3920,Common variants near ATM are associated with glycemic response to metformin in type 2 diabetes.,5/7/2020
-GCST000938,21216876,Sharma S 2011,0.5,European|Hispanic or Latin American|Oceanian|African unspecified|Other,5022,Genome-wide association studies of adolescent idiopathic scoliosis suggest candidate susceptibility genes.,5/7/2020
+GCST000938,21216876,Sharma S 2011,0.5,European|Hispanic or Latin American|Oceanian|African unspecified,5022,Genome-wide association studies of adolescent idiopathic scoliosis suggest candidate susceptibility genes.,5/7/2020
 GCST000939,21221998,Kim JJ 2011,NA,East Asian,2342,A genome-wide association analysis reveals 1p31 and 2p13.3 as susceptibility loci for Kawasaki disease.,5/7/2020
 GCST000944,21228123,Ochi H 2011,NA,East Asian,2383,IL-28B predicts response to chronic hepatitis C therapy--fine-mapping and replication study in Asian populations.,5/7/2020
 GCST000945,21239051,Reilly MP 2011,4.75,European,19776,Identification of ADAMTS7 as a novel locus for coronary atherosclerosis and association of ABO with myocardial infarction in the presence of coronary atherosclerosis: two genome-wide association studies.,5/8/2020
@@ -379,11 +379,11 @@ GCST001140,21725308,Hu Z 2011,4.75,East Asian,18130,A genome-wide association st
 GCST001144,21732829,Dolmans GH 2011,11.25,European,12126,Wnt signaling and Dupuytren's disease.,5/7/2020
 GCST001146,21750679,Allanore Y 2011,6,European,7948,"Genome-wide scan identifies TNIP1, PSORS1C1, and RHOB as novel risk loci for systemic sclerosis.",5/7/2020
 GCST001147,21743057,Schumacher FR 2011,4,European,21330,Genome-wide association study identifies new prostate cancer susceptibility loci.,5/7/2020
-GCST001148,21743467,Kote-Jarai Z 2011,41.768,European|East Asian|African American or Afro-Caribbean|Other,73609,Seven prostate cancer susceptibility loci identified by a multi-stage genome-wide association study.,5/9/2020
+GCST001148,21743467,Kote-Jarai Z 2011,41.768,European|East Asian|African American or Afro-Caribbean,73609,Seven prostate cancer susceptibility loci identified by a multi-stage genome-wide association study.,5/9/2020
 GCST001150,21750111,Mbarek H 2011,6.5,East Asian,9163,A genome-wide association study of chronic hepatitis B identified novel risk locus in a Japanese population.,5/8/2020
-GCST001153,21750109,Rafnar T 2011,3.5,European|Greater Middle Eastern (Middle Eastern North African or Persian),57984,European genome-wide association study identifies SLC14A1 as a new urinary bladder cancer susceptibility gene.,5/7/2020
+GCST001153,21750109,Rafnar T 2011,3.5,European|Greater Middle Eastern,57984,European genome-wide association study identifies SLC14A1 as a new urinary bladder cancer susceptibility gene.,5/7/2020
 GCST001159,21779176,Winkelmann J 2011,16.5,European,12137,Genome-wide association study identifies novel restless legs syndrome susceptibility loci on 2p14 and 16q12.1.,5/9/2020
-GCST001164,21771265,Yosifova A 2011,0.75,Other,1014,Genome-wide association study on bipolar disorder in the Bulgarian population.,5/9/2020
+GCST001164,21771265,Yosifova A 2011,0.75,,1014,Genome-wide association study on bipolar disorder in the Bulgarian population.,5/9/2020
 GCST001166,21782286,Walter S 2011,1.25,European,16995,A genome-wide association study of aging.,5/9/2020
 GCST001172,21814517,Noguchi E 2011,2,East Asian,6420,Genome-wide association study identifies HLA-DP as a susceptibility gene for pediatric asthma in Asian populations.,5/7/2020
 GCST001173,21799836,Cui B 2011,1,East Asian,10502,A genome-wide association study confirms previously reported loci for type 2 diabetes in Han Chinese.,5/7/2020
@@ -402,11 +402,11 @@ GCST001213,21874001,Kooner JS 2011,13.75,South Asian,58587,Genome-wide associati
 GCST001219,21900946,Nakabayashi K 2011,0.5,East Asian,5426,Identification of independent risk loci for Graves' disease within the MHC in the Japanese population.,5/9/2020
 GCST001224,21908515,Cai Q 2011,0.5,East Asian,34096,Genome-wide association study identifies breast cancer risk variant at 10q21.2: results from the Asia Breast Cancer Consortium.,5/9/2020
 GCST001226,21907864,Ferreira MA 2011,8.25,European,57800,Identification of IL6R and chromosome 11q13.5 as risk loci for asthma.,5/7/2020
-GCST001231,21909108,Bis JC 2011,4,European|Other,42451,Meta-analysis of genome-wide association studies from the CHARGE consortium identifies common variants associated with carotid intima media thickness and plaque.,5/9/2020
+GCST001231,21909108,Bis JC 2011,4,European,42451,Meta-analysis of genome-wide association studies from the CHARGE consortium identifies common variants associated with carotid intima media thickness and plaque.,5/9/2020
 GCST001232,21909106,Arakawa S 2011,3,East Asian,20430,Genome-wide association study identifies two susceptibility loci for exudative age-related macular degeneration in the Japanese population.,5/9/2020
 GCST001241,21926972,Sklar P 2011,20.5,European,63649,Large-scale genome-wide association analysis of bipolar disorder identifies a new susceptibility locus near ODZ4.,5/9/2020
 GCST001242,21926974,Ripke S 2011,78.272,European,51695,Genome-wide association study identifies five new schizophrenia loci.,5/9/2020
-GCST001250,21946351,Stacey SN 2011,11.35,European|Other,59342,A germline variant in the TP53 polyadenylation signal confers cancer susceptibility.,5/7/2020
+GCST001250,21946351,Stacey SN 2011,11.35,European,59342,A germline variant in the TP53 polyadenylation signal confers cancer susceptibility.,5/7/2020
 GCST001253,21980494,Germain M 2011,1,European,2652,Genetics of venous thrombosis: insights from a new genome wide association study.,5/7/2020
 GCST001255,21980299,Bradfield JP 2011,8.25,European,28010,A genome-wide meta-analysis of six type 1 diabetes cohorts identifies multiple associated loci.,5/9/2020
 GCST001257,22004137,Liu L 2011,NA,East Asian,2798,A genome-wide association study with DNA pooling identifies the variant rs11866328 in the GRIN2A gene that affects disease progression of chronic HBV infection.,5/7/2020
@@ -422,7 +422,7 @@ GCST001303,22036096,Ramasamy A 2011,15.516,European,12347,A genome-wide meta-ana
 GCST001310,22036096,Ramasamy A 2011,15.516,European,12898,A genome-wide meta-analysis of genetic variants associated with allergic rhinitis and grass sensitization and their interaction with birth order.,5/9/2020
 GCST001312,22055160,Bown MJ 2011,5.25,European,55410,Abdominal aortic aneurysm is associated with a variant in low-density lipoprotein receptor-related protein 1.,5/8/2020
 GCST001320,22076464,Ellinghaus E 2011,NA,European,5252,Identification of germline susceptibility loci in ETV6-RUNX1-rearranged childhood acute lymphoblastic leukemia.,5/8/2020
-GCST001322,22081228,Khor CC 2011,3.75,Other|European|East Asian,12431,Genome-wide association study identifies FCGR2A as a susceptibility locus for Kawasaki disease.,5/7/2020
+GCST001322,22081228,Khor CC 2011,3.75,European|East Asian,12431,Genome-wide association study identifies FCGR2A as a susceptibility locus for Kawasaki disease.,5/7/2020
 GCST001326,22101970,Kho AN 2011,4.25,European|African American or Afro-Caribbean,6488,Use of diverse electronic medical record systems to identify genetic risk for type 2 diabetes within a genome-wide association study.,5/7/2020
 GCST001331,22120009,Broderick P 2011,3.25,European,8674,Common variation at 3p22.1 and 7p15.3 influences multiple myeloma risk.,5/7/2020
 GCST001339,22144915,Fan Q 2011,3,South East Asian|East Asian|South Asian,7719,Genome-wide meta-analysis of five Asian cohorts identifies PDGFRA as a susceptibility locus for corneal astigmatism.,5/9/2020
@@ -476,7 +476,7 @@ GCST001528,22584459,Sasayama D 2012,NA,East Asian,228,Possible association of CU
 GCST001548,22693459,Li R 2012,23.7,European,12806,Six novel susceptibility Loci for early-onset androgenetic alopecia and their unexpected association with common diseases.,5/7/2020
 GCST001549,22648509,Wang KS 2012,NA,European,3529,PKNOX2 is associated with formal thought disorder in schizophrenia: a meta-analysis of two genome-wide association studies.,5/7/2020
 GCST001550,22693455,Perry JR 2012,7.25,,91195,Stratifying type 2 diabetes cases by BMI identifies genetic risk variants in LAMA1 and enrichment for risk variants in lean compared to obese cases.,5/9/2020
-GCST001557,22672568,Heit JA 2012,12,European|Other,5787,A genome-wide association study of venous thromboembolism identifies risk variants in chromosomes 1q24.2 and 9q.,5/7/2020
+GCST001557,22672568,Heit JA 2012,12,European,5787,A genome-wide association study of venous thromboembolism identifies risk variants in chromosomes 1q24.2 and 9q.,5/7/2020
 GCST001558,22664479,Han JY 2012,4,,247,A genome-wide association study for irinotecan-related severe toxicities in patients with advanced non-small-cell lung cancer.,5/9/2020
 GCST001559,22683750,Sinner MF 2012,0.5,European,14633,A meta-analysis of genome-wide association studies of the electrocardiographic early repolarization pattern.,5/9/2020
 GCST001563,22683712,Freilinger T 2012,59,European,12066,Genome-wide association analysis identifies susceptibility loci for migraine without aura.,5/9/2020
@@ -488,7 +488,7 @@ GCST001576,22719876,Kawaguchi T 2012,0.25,East Asian,1461,Genetic polymorphisms 
 GCST001577,22705344,Sobrin L 2012,2.5,European,7977,Heritability and genome-wide association study to assess genetic differences between advanced age-related macular degeneration subtypes.,5/7/2020
 GCST001578,22705344,Sobrin L 2012,2.5,European,4953,Heritability and genome-wide association study to assess genetic differences between advanced age-related macular degeneration subtypes.,5/7/2020
 GCST001579,22705344,Sobrin L 2012,2.5,European,25664,Heritability and genome-wide association study to assess genetic differences between advanced age-related macular degeneration subtypes.,5/9/2020
-GCST001581,22745674,Hager J 2012,NA,Greater Middle Eastern (Middle Eastern North African or Persian),4496,Genome-wide association study in a Lebanese cohort confirms PHACTR1 as a major determinant of coronary artery stenosis.,5/8/2020
+GCST001581,22745674,Hager J 2012,NA,Greater Middle Eastern,4496,Genome-wide association study in a Lebanese cohort confirms PHACTR1 as a major determinant of coronary artery stenosis.,5/8/2020
 GCST001582,22737229,Nishida N 2012,0.75,East Asian,21593,Genome-wide association study confirming association of HLA-DP with protection against chronic hepatitis B and viral clearance in Japanese and Korean.,5/9/2020
 GCST001586,22754043,Byrne EM 2012,13.618,European,3872,A genome-wide association study of caffeine-related sleep disturbance: confirmation of a role for a common variant in the adenosine receptor.,5/9/2020
 GCST001587,22751097,Lu X 2012,1,East Asian,33466,Genome-wide association study in Han Chinese identifies four new susceptibility loci for coronary artery disease.,5/9/2020
@@ -512,7 +512,7 @@ GCST001644,22911880,Boraska V 2012,9.322,European,3820,"Genome-wide association 
 GCST001646,22923026,Cheng I 2012,0.5,East Asian|European|Hispanic or Latin American,14746,Evaluating genetic risk for prostate cancer among Japanese and Latinos.,5/8/2020
 GCST001647,22925353,Lee HJ 2012,2.35,European,3625,A genome-wide association study of seasonal pattern mania identifies NF1A as a possible susceptibility gene for bipolar disorder.,5/9/2020
 GCST001648,22923054,Chen F 2012,NA,African American or Afro-Caribbean,20340,A genome-wide association study of breast cancer in women of African ancestry.,5/8/2020
-GCST001649,22922875,Vithana EN 2012,12.386,East Asian|South Asian|Greater Middle Eastern (Middle Eastern North African or Persian)|European|South East Asian,22322,Genome-wide association analyses identify three new susceptibility loci for primary angle closure glaucoma.,5/8/2020
+GCST001649,22922875,Vithana EN 2012,12.386,East Asian|South Asian|Greater Middle Eastern|European|South East Asian,22322,Genome-wide association analyses identify three new susceptibility loci for primary angle closure glaucoma.,5/8/2020
 GCST001652,22936669,Juli� A 2012,2.35,European,5526,A genome-wide association study on a southern European population identifies a new Crohn's disease susceptibility locus at RBX1-EP300.,5/8/2020
 GCST001659,22941190,Holliday EG 2012,1.5,European,66368,Common variants at 6p21.1 are associated with large artery atherosclerotic stroke.,5/7/2020
 GCST001660,22941191,Diskin SJ 2012,48.046,European|African American or Afro-Caribbean,10290,Common variation at 6q16 within HACE1 and LIN28B influences susceptibility to neuroblastoma.,5/7/2020
@@ -530,7 +530,7 @@ GCST001683,22976474,Siddiq A 2012,3,European|African American or Afro-Caribbean|
 GCST001685,23000144,Nakamura M 2012,NA,East Asian,2365,Genome-wide association study identifies TNFSF15 and POU2AF1 as susceptibility loci for primary biliary cirrhosis in the Japanese population.,5/8/2020
 GCST001688,23028342,Sandholm N 2012,15.22,European,10919,New susceptibility loci associated with kidney disease in type 1 diabetes.,5/8/2020
 GCST001689,22990015,Arning A 2012,0.5,European,270,A genome-wide association study identifies a gene network of ADAMTS genes in the predisposition to pediatric stroke.,5/8/2020
-GCST001693,23007406,Yang JJ 2012,4.5,African American or Afro-Caribbean|South Asian|European|East Asian|Other|Hispanic or Latin American,2535,Genome-wide association study identifies germline polymorphisms associated with relapse of childhood acute lymphoblastic leukemia.,5/8/2020
+GCST001693,23007406,Yang JJ 2012,4.5,African American or Afro-Caribbean|South Asian|European|East Asian|Hispanic or Latin American,2535,Genome-wide association study identifies germline polymorphisms associated with relapse of childhood acute lymphoblastic leukemia.,5/8/2020
 GCST001701,23028483,Ramasamy A 2012,3,European,33890,Genome-wide association studies of asthma in population-based cohorts confirm known and suggested loci and identify an additional association near HLA.,5/8/2020
 GCST001702,23023329,Xu J 2012,4.5,East Asian,13418,Genome-wide association study in Chinese men identifies two new prostate cancer risk loci at 9q31.2 and 19q13.4.,5/7/2020
 GCST001706,23041239,Traylor M 2012,10.5,European|South Asian,116823,Genetic risk factors for ischaemic stroke and its subtypes (the METASTROKE collaboration): a meta-analysis of genome-wide association studies.,5/7/2020
@@ -561,7 +561,7 @@ GCST001785,23266558,Yamazaki K 2012,6,East Asian,20712,A genome-wide association
 GCST001787,23266556,Peters U 2012,17.2,East Asian|European,37523,Identification of Genetic Susceptibility Loci for Colorectal Tumors in a Genome-Wide Meta-analysis.,5/8/2020
 GCST001792,23263487,Jia WH 2012,2.5,East Asian|European,45187,Genome-wide association analyses in East Asians identify new susceptibility loci for colorectal cancer.,5/8/2020
 GCST001795,23273568,Yang W 2012,8,East Asian|South East Asian,15389,"Meta-analysis followed by replication identifies loci in or near CDKN1B, TET3, CD80, DRAM1, and ARID5B as associated with systemic lupus erythematosus in Asians.",5/8/2020
-GCST001804,23291587,Kirino Y 2013,15.17,Other|East Asian,5284,Genome-wide association analysis identifies new susceptibility loci for Beh�et's disease and epistasis between HLA-B*51 and ERAP1.,5/7/2020
+GCST001804,23291587,Kirino Y 2013,15.17,East Asian,5284,Genome-wide association analysis identifies new susceptibility loci for Beh�et's disease and epistasis between HLA-B*51 and ERAP1.,5/7/2020
 GCST001805,23291585,Fakiola M 2013,13.088,South Asian|Hispanic or Latin American,5989,Common variants in the HLA-DRB1-HLA-DQA1 HLA class II region are associated with susceptibility to visceral leishmaniasis.,5/7/2020
 GCST001807,23297363,Cordell HJ 2013,12.5,European,9723,Genome-wide association study identifies loci on 12q24 and 13q32 associated with tetralogy of Fallot.,5/8/2020
 GCST001809,23300278,Saxena R 2013,10,South Asian|East Asian|European,128127,Genome-wide association study identifies a novel locus contributing to type 2 diabetes susceptibility in Sikhs of Punjabi origin from India.,5/8/2020
@@ -653,7 +653,7 @@ GCST002033,23717212,Band G 2013,4.5,Sub-Saharan African|African unspecified,1231
 GCST002035,23708191,Cordell HJ 2013,49.25,European,10124,Genome-wide association study of multiple congenital heart disease phenotypes identifies a susceptibility locus for atrial septal defect at chromosome 4p16.,5/8/2020
 GCST002036,23708190,Hu Z 2013,4,East Asian,8217,A genome-wide association study identifies two risk loci for congenital heart malformations in Han Chinese populations.,5/8/2020
 GCST002045,23722424,Rietveld CA 2013,751.65,European,126559,"GWAS of 126,559 individuals identifies genetic variants associated with educational attainment.",5/8/2020
-GCST002046,23726668,Hunter AM 2013,0.25,European|Hispanic or Latin American|African American or Afro-Caribbean|Asian unspecified|Other|Oceanian|Native American,1701,A genome-wide association study of a sustained pattern of antidepressant response.,5/8/2020
+GCST002046,23726668,Hunter AM 2013,0.25,European|Hispanic or Latin American|African American or Afro-Caribbean|Asian unspecified|Oceanian|Native American,1701,A genome-wide association study of a sustained pattern of antidepressant response.,5/8/2020
 GCST002056,23727862,Savage SA 2013,28.02,European,4194,Genome-wide association study identifies two susceptibility loci for osteosarcoma.,5/8/2020
 GCST002066,23749188,Tan DE 2013,15,East Asian,8358,Genome-wide association study of B cell non-Hodgkin lymphoma identifies 3q27 as a susceptibility locus in the Chinese population.,5/7/2020
 GCST002073,23770605,Berndt SI 2013,22.47,European,16427,Genome-wide association study identifies multiple risk loci for chronic lymphocytic leukemia.,5/8/2020
@@ -670,7 +670,7 @@ GCST002098,23872634,Bezzina CR 2013,33.3,European|East Asian,14051,"Common varia
 GCST002100,23886662,Weidinger S 2013,1.5,European,11063,A genome-wide association study of atopic dermatitis identifies loci with overlapping effects on asthma and psoriasis.,5/7/2020
 GCST002101,23935489,McLaren PJ 2013,11.97,European,13581,"Association study of common genetic variants and HIV-1 acquisition in 6,300 infected cases and 7,200 controls.",5/7/2020
 GCST002102,23894154,K�hler A 2013,NA,European,7872,Genome-wide association study on differentiated thyroid cancer.,5/8/2020
-GCST002104,23897914,Wang H 2013,7.25,African American or Afro-Caribbean|European|Hispanic or Latin American|Oceanian|Asian unspecified|Other,2521,A genome-wide association study (GWAS) for bronchopulmonary dysplasia.,5/7/2020
+GCST002104,23897914,Wang H 2013,7.25,African American or Afro-Caribbean|European|Hispanic or Latin American|Oceanian|Asian unspecified,2521,A genome-wide association study (GWAS) for bronchopulmonary dysplasia.,5/7/2020
 GCST002108,23921680,Kim DS 2013,NA,East Asian,76,A genome-wide association study in Koreans identifies susceptibility loci for allergic nickel dermatitis.,5/7/2020
 GCST002114,23918034,K�hnisch J 2013,NA,European,668,Genome-wide association study (GWAS) for molar-incisor hypomineralization (MIH).,5/8/2020
 GCST002117,23933737,Khor CC 2013,NA,East Asian,9830,Genome-wide association study identifies ZFHX1B as a susceptibility locus for severe myopia.,5/8/2020
@@ -681,8 +681,8 @@ GCST002128,23945395,Hara K 2013,7.5,East Asian,65206,Genome-wide association stu
 GCST002136,24024966,Teumer A 2013,0.5,European,2969,Genome-wide association study of chronic periodontitis in a general German population.,5/8/2020
 GCST002140,23955597,Chubb D 2013,112.25,European,15682,"Common variation at 3q26.2, 6p21.33, 17p11.2 and 22q13.1 influences multiple myeloma risk.",5/8/2020
 GCST002141,23962720,Speed D 2013,15.75,European,889,A genome-wide association study and biological pathway analysis of epilepsy prognosis in a prospective cohort of newly treated epilepsy.,5/8/2020
-GCST002145,23989729,Feenstra B 2013,20,Other|European,7353,"Plasma lipids, genetic variants near APOA1, and the risk of infantile hypertrophic pyloric stenosis.",5/7/2020
-GCST002148,23974705,Allen EK 2013,NA,European|Hispanic or Latin American|Asian unspecified|Native American|Other,2770,A genome-wide association study of chronic otitis media with effusion and recurrent otitis media identifies a novel susceptibility locus on chromosome 2.,5/7/2020
+GCST002145,23989729,Feenstra B 2013,20,European,7353,"Plasma lipids, genetic variants near APOA1, and the risk of infantile hypertrophic pyloric stenosis.",5/7/2020
+GCST002148,23974705,Allen EK 2013,NA,European|Hispanic or Latin American|Asian unspecified|Native American,2770,A genome-wide association study of chronic otitis media with effusion and recurrent otitis media identifies a novel susceptibility locus on chromosome 2.,5/7/2020
 GCST002149,23974872,Ripke S 2013,381.094,European,59899,Genome-wide association analysis identifies 13 new risk loci for schizophrenia.,5/8/2020
 GCST002153,23982368,Qi L 2013,134.65,European,4188,Association between a genetic variant related to glutamic acid metabolism and coronary heart disease in individuals with type 2 diabetes.,5/7/2020
 GCST002155,23989986,Evangelou E 2013,9.5,European,79135,A meta-analysis of genome-wide association studies identifies novel variants associated with osteoarthritis of the hip.,5/8/2020
@@ -698,11 +698,11 @@ GCST002179,24025145,Chung S 2013,11,East Asian,120,A genome-wide association stu
 GCST002180,24025145,Chung S 2013,11,East Asian,104,A genome-wide association study of chemotherapy-induced alopecia in breast cancer patients.,5/7/2020
 GCST002181,24025145,Chung S 2013,11,East Asian,1206,A genome-wide association study of chemotherapy-induced alopecia in breast cancer patients.,5/8/2020
 GCST002182,24029427,Sandholm N 2013,38.36,European,5081,Chromosome 2q31.1 associates with ESRD in women with type 1 diabetes.,5/8/2020
-GCST002198,24057671,Chimusa ER 2013,2.75,Other,733,Genome-wide association study of ancestry-specific TB risk in the South African Coloured population.,5/8/2020
+GCST002198,24057671,Chimusa ER 2013,2.75,,733,Genome-wide association study of ancestry-specific TB risk in the South African Coloured population.,5/8/2020
 GCST002200,24047446,Schosser A 2013,1,European,2668,Genome-wide association study of co-occurring anxiety in major depression.,5/7/2020
 GCST002202,24047446,Schosser A 2013,1,European,1522,Genome-wide association study of co-occurring anxiety in major depression.,5/7/2020
 GCST002217,24097066,Li Y 2013,0.5,East Asian,5622,A genome-wide association study in Han Chinese identifies a susceptibility locus for primary Sj�gren's syndrome at 7q11.23.,5/7/2020
-GCST002224,24101674,Hanson RL 2013,1,Native American|Other,8179,A genome-wide association study in American Indians implicates DNER as a susceptibility locus for type 2 diabetes.,5/8/2020
+GCST002224,24101674,Hanson RL 2013,1,Native American,8179,A genome-wide association study in American Indians implicates DNER as a susceptibility locus for type 2 diabetes.,5/8/2020
 GCST002230,24121790,Levine DM 2013,60.6,European,13292,A genome-wide association study identifies new susceptibility loci for esophageal adenocarcinoma and Barrett's esophagus.,5/8/2020
 GCST002231,24121790,Levine DM 2013,60.6,European,15682,A genome-wide association study identifies new susceptibility loci for esophageal adenocarcinoma and Barrett's esophagus.,5/8/2020
 GCST002232,24121790,Levine DM 2013,60.6,European,12510,A genome-wide association study identifies new susceptibility loci for esophageal adenocarcinoma and Barrett's esophagus.,5/7/2020
@@ -717,7 +717,7 @@ GCST002258,24172245,Haga S 2013,0.5,East Asian,487,A genome-wide association stu
 GCST002260,24204295,Han F 2013,10.2,East Asian|European,17374,Genome wide analysis of narcolepsy in China implicates novel immune loci and reveals changes in association prior to versus after the 2009 H1N1 influenza pandemic.,5/8/2020
 GCST002263,24236485,Cornejo-Garc�a JA 2013,NA,European|East Asian,457,Genome-wide association study in NSAID-induced acute urticaria/angioedema in Spanish and Han Chinese populations.,5/8/2020
 GCST002268,24189344,Xia K 2013,6.25,East Asian|European,7416,Common genetic variants on 1p13.2 associate with risk of autism.,5/8/2020
-GCST002275,24241537,B�nnelykke K 2013,197.45,European|Other|Greater Middle Eastern (Middle Eastern North African or Persian),22225,A genome-wide association study identifies CDHR3 as a susceptibility locus for early childhood asthma with severe exacerbations.,5/7/2020
+GCST002275,24241537,B�nnelykke K 2013,197.45,European|Greater Middle Eastern,22225,A genome-wide association study identifies CDHR3 as a susceptibility locus for early childhood asthma with severe exacerbations.,5/7/2020
 GCST002277,24253340,Lencz T 2013,72.8,European|African American or Afro-Caribbean|East Asian,12492,Genome-wide association study implicates NDST3 in schizophrenia and bipolar disorder.,5/7/2020
 GCST002283,24256812,Fogh I 2013,41.826,European,17855,A genome-wide association meta-analysis identifies a novel locus at 17q11.2 associated with sporadic amyotrophic lateral sclerosis.,5/8/2020
 GCST002286,24262325,Dichgans M 2013,9.1,,74393,Shared genetic susceptibility to ischemic stroke and coronary artery disease: a genome-wide analysis of common variants.,5/8/2020
@@ -737,7 +737,7 @@ GCST002329,24399259,He L 2014,1.5,East Asian,7582,Two new susceptibility loci 1q
 GCST002331,24403052,Stacey SN 2014,0.5,European,119706,Germline sequence variants in TGM3 and RGS22 confer risk of basal cell carcinoma.,5/8/2020
 GCST002339,24465431,Ma RC 2014,NA,East Asian,200,"Familial young-onset diabetes, pre-diabetes and cardiovascular disease are associated with genetic variants of DACH1 in Chinese.",5/7/2020
 GCST002340,24448986,Zhang B 2014,NA,East Asian,19179,Genome-wide association study identifies a new SMAD7 risk variant associated with colorectal cancer risk in East Asians.,5/8/2020
-GCST002348,24516586,Wu T 2014,NA,Asian unspecified|European|African American or Afro-Caribbean|South East Asian|Hispanic or Latin American|Other,550,Evidence of gene-environment interaction for two genes on chromosome 4 and environmental tobacco smoke in controlling the risk of nonsyndromic cleft palate.,5/7/2020
+GCST002348,24516586,Wu T 2014,NA,Asian unspecified|European|African American or Afro-Caribbean|South East Asian|Hispanic or Latin American,550,Evidence of gene-environment interaction for two genes on chromosome 4 and environmental tobacco smoke in controlling the risk of nonsyndromic cleft palate.,5/7/2020
 GCST002350,24621683,Cho MH 2014,2.85,European|African American or Afro-Caribbean,11852,Risk loci for chronic obstructive pulmonary disease: a genome-wide association study and meta-analysis.,5/8/2020
 GCST002351,24621683,Cho MH 2014,2.85,European|African American or Afro-Caribbean,14988,Risk loci for chronic obstructive pulmonary disease: a genome-wide association study and meta-analysis.,5/8/2020
 GCST002352,24509480,Mahajan A 2014,163.266,European|East Asian|South Asian|Hispanic or Latin American,187590,Genome-wide trans-ancestry meta-analysis provides insight into the genetic architecture of type 2 diabetes susceptibility.,5/8/2020
@@ -793,7 +793,7 @@ GCST002515,24986923,Chu M 2014,NA,East Asian,1431,A genome-wide association stud
 GCST002516,24943344,Ferrari R 2014,29.15,European,12928,Frontotemporal dementia and its subtypes: a genome-wide association study.,5/8/2020
 GCST002519,24993907,Smolonska J 2014,8.8,European|African American or Afro-Caribbean|Hispanic or Latin American,50174,Common genes underlying asthma and COPD? Genome-wide analysis on the Dutch hypothesis.,5/8/2020
 GCST002527,25017104,Kottyan LC 2014,87.33,European,9953,Genome-wide association analysis of eosinophilic esophagitis provides insight into the tissue specificity of this allergic disease.,5/8/2020
-GCST002528,25023989,Schmit SL 2014,3,Other|European,5921,A novel colorectal cancer risk locus at 4q32.2 identified from an international genome-wide association study.,5/8/2020
+GCST002528,25023989,Schmit SL 2014,3,European,5921,A novel colorectal cancer risk locus at 4q32.2 identified from an international genome-wide association study.,5/8/2020
 GCST002529,25027321,Hoffmann TJ 2014,1,African American or Afro-Caribbean|Hispanic or Latin American,10961,Genome-wide association and admixture analysis of glaucoma in the Women's Health Initiative.,5/8/2020
 GCST002532,25028398,Weiss FU 2014,36.75,European,5410,"Fucosyltransferase 2 (FUT2) non-secretor status and blood group B are associated with elevated serum lipase activity in asymptomatic subjects, and an increased risk for chronic pancreatitis: a genetic association study.",5/8/2020
 GCST002534,25030430,Zignego AL 2014,2.7,European,1074,Genome-wide association study of hepatitis C virus- and cryoglobulin-related vasculitis.,5/8/2020
@@ -821,7 +821,7 @@ GCST002604,25223841,Li J 2014,3.1,European,369,A genetic locus in 7p12.2 associa
 GCST002606,25217961,Al Olama AA 2014,163.35,European|Sub-Saharan African|African American or Afro-Caribbean|East Asian|Hispanic or Latin American,87040,"A meta-analysis of 87,040 individuals identifies 23 new susceptibility loci for prostate cancer.",5/9/2020
 GCST002607,25217962,Heap GA 2014,43.85,European,2757,HLA-DQA1-HLA-DRB1 variants confer susceptibility to pancreatitis induced by thiopurine immunosuppressants.,5/8/2020
 GCST002613,25234806,Dijkstra AE 2014,7.5,European,3791,Dissecting the genetics of chronic mucus hypersecretion in smokers with and without COPD.,5/8/2020
-GCST002619,25352737,Ritchie MD 2014,1.75,European|African unspecified|Other,7497,Electronic medical records and genomics (eMERGE) network exploration in cataract: several new potential susceptibility loci.,5/7/2020
+GCST002619,25352737,Ritchie MD 2014,1.75,European|African unspecified,7497,Electronic medical records and genomics (eMERGE) network exploration in cataract: several new potential susceptibility loci.,5/7/2020
 GCST002621,25241909,Lee JH 2014,1.75,European,5439,Genetic susceptibility for chronic bronchitis in chronic obstructive pulmonary disease.,5/8/2020
 GCST002624,25241909,Lee JH 2014,1.75,European,7297,Genetic susceptibility for chronic bronchitis in chronic obstructive pulmonary disease.,5/8/2020
 GCST002625,25241909,Lee JH 2014,1.75,European|African American or Afro-Caribbean,7113,Genetic susceptibility for chronic bronchitis in chronic obstructive pulmonary disease.,5/10/2020
@@ -840,7 +840,7 @@ GCST002672,25344690,Feenstra B 2014,125.22,European,9204,Common variants associa
 GCST002673,25344690,Feenstra B 2014,125.22,European,7867,Common variants associated with general and MMR vaccine-related febrile seizures.,5/8/2020
 GCST002674,25344690,Feenstra B 2014,125.22,European,7100,Common variants associated with general and MMR vaccine-related febrile seizures.,5/8/2020
 GCST002676,25353672,Fernandez-Navarro P 2014,NA,European,478,Genome wide association study identifies a novel putative mammographic density locus at 1q12-q21.,5/8/2020
-GCST002681,25456346,Nievergelt CM 2014,9.83,European|Hispanic or Latin American|Native American|African American or Afro-Caribbean|East Asian|Other,3985,Genomic predictors of combat stress vulnerability and resilience in U.S. Marines: A genome-wide association study across multiple ancestries implicates PRTFDC1 as a potential PTSD gene.,5/8/2020
+GCST002681,25456346,Nievergelt CM 2014,9.83,European|Hispanic or Latin American|Native American|African American or Afro-Caribbean|East Asian,3985,Genomic predictors of combat stress vulnerability and resilience in U.S. Marines: A genome-wide association study across multiple ancestries implicates PRTFDC1 as a potential PTSD gene.,5/8/2020
 GCST002682,25158072,Yu D 2014,14.45,European,8680,Cross-disorder genome-wide analyses suggest a complex genetic relationship between Tourette's syndrome and OCD.,5/8/2020
 GCST002684,25364816,Awata T 2014,1.25,East Asian,1986,A genome-wide association study for diabetic retinopathy in a Japanese population: potential association with a long intergenic non-coding RNA.,5/7/2020
 GCST002685,25367360,Li Q 2014,3,European|East Asian|South Asian|South East Asian,48020,Genome-wide association study for refractive astigmatism reveals genetic co-determination with spherical equivalent refractive error: the CREAM consortium.,5/8/2020
@@ -850,9 +850,9 @@ GCST002696,25390645,Otowa T 2014,4.25,African American or Afro-Caribbean|Europea
 GCST002697,25407941,Sleiman PM 2014,39.1,European,5248,GWAS identifies four novel eosinophilic esophagitis loci.,5/8/2020
 GCST002700,25420145,Debette S 2014,117.65,European,19116,Common variation in PHACTR1 is associated with susceptibility to cervical artery dissection.,5/8/2020
 GCST002705,25429627,Oryoji D 2014,3.55,East Asian,990,Identification of a Hashimoto thyroiditis susceptibility locus via a genome-wide comparison with Graves' disease.,5/10/2020
-GCST002713,25468567,Perez-Andreu V 2014,NA,European|African American or Afro-Caribbean|Hispanic or Latin American|Other,12886,A genome-wide association study of susceptibility to acute lymphoblastic leukemia in adolescents and young adults.,5/8/2020
+GCST002713,25468567,Perez-Andreu V 2014,NA,European|African American or Afro-Caribbean|Hispanic or Latin American,12886,A genome-wide association study of susceptibility to acute lymphoblastic leukemia in adolescents and young adults.,5/8/2020
 GCST002716,25476525,Germain M 2014,1.5,European,7803,"SORBS1 gene, a new candidate for diabetic nephropathy: results from a multi-stage genome-wide association study in patients with type 1 diabetes.",5/8/2020
-GCST002718,25483131,Ghassibe-Sabbagh M 2014,NA,Greater Middle Eastern (Middle Eastern North African or Persian),3286,T2DM GWAS in the Lebanese population confirms the role of TCF7L2 and CDKAL1 in disease susceptibility.,5/8/2020
+GCST002718,25483131,Ghassibe-Sabbagh M 2014,NA,Greater Middle Eastern,3286,T2DM GWAS in the Lebanese population confirms the role of TCF7L2 and CDKAL1 in disease susceptibility.,5/8/2020
 GCST002724,25514360,Hansel NN 2014,8.9,European,4108,Genome-Wide Association Study Identification of Novel Loci Associated with Airway Responsiveness in Chronic Obstructive Pulmonary Disease.,5/8/2020
 GCST002729,25557950,Alonso A 2015,10.75,European,2386,Identification of risk loci for Crohn's disease phenotypes using a genome-wide association study.,5/8/2020
 GCST002730,25705159,Hong Y 2015,NA,East Asian,3000,Genome-wide association study of hepatitis in korean populations.,5/8/2020
@@ -863,8 +863,8 @@ GCST002741,25574032,Lee H 2015,NA,East Asian,2949,Genome-wide association study 
 GCST002742,25569183,Vijai J 2015,3.6,European,8408,A genome-wide association study of marginal zone lymphoma shows association to the HLA region.,5/8/2020
 GCST002747,25583994,Tardif JC 2015,94.68,European,2845,Pharmacogenomic determinants of the cardiovascular effects of dalcetrapib.,5/8/2020
 GCST002748,25581431,Kuchenbaecker KB 2015,56.55,European,69751,Identification of six new susceptibility loci for invasive epithelial ovarian cancer.,5/7/2020
-GCST002751,25599974,Zhang H 2015,3.6,African American or Afro-Caribbean|European|Hispanic or Latin American|Other,2243,A genome-wide association study of early spontaneous preterm delivery.,5/8/2020
-GCST002752,25599974,Zhang H 2015,3.6,African American or Afro-Caribbean|European|Hispanic or Latin American|Other,2374,A genome-wide association study of early spontaneous preterm delivery.,5/8/2020
+GCST002751,25599974,Zhang H 2015,3.6,African American or Afro-Caribbean|European|Hispanic or Latin American,2243,A genome-wide association study of early spontaneous preterm delivery.,5/8/2020
+GCST002752,25599974,Zhang H 2015,3.6,African American or Afro-Caribbean|European|Hispanic or Latin American,2374,A genome-wide association study of early spontaneous preterm delivery.,5/8/2020
 GCST002758,25616667,Goris A 2015,21.004,European,6504,Genetic variants are major determinants of CSF antibody levels in multiple sclerosis.,5/8/2020
 GCST002769,25461247,Lehmann DS 2015,NA,European|African unspecified|Hispanic or Latin American,786,Genome-wide association study of virologic response with efavirenz-containing or abacavir-containing regimens in AIDS clinical trials group protocols.,5/8/2020
 GCST002771,25461247,Lehmann DS 2015,NA,European|African unspecified|Hispanic or Latin American,1596,Genome-wide association study of virologic response with efavirenz-containing or abacavir-containing regimens in AIDS clinical trials group protocols.,5/8/2020
@@ -873,7 +873,7 @@ GCST002773,25646370,Matsuo H 2015,7.35,East Asian,4540,Genome-wide association s
 GCST002778,25663231,Beecham GW 2015,1.75,European,1629,PARK10 is a major locus for sporadic neuropathologically confirmed Parkinson disease.,5/8/2020
 GCST002781,25672891,Shimizu S 2015,5.4,East Asian,17918,A genome-wide association study of periodontitis in a Japanese population.,5/8/2020
 GCST002786,25713168,Leng S 2015,0.75,European,1881,"15q12 variants, sputum gene promoter hypermethylation, and lung cancer risk: a GWAS in smokers.",5/8/2020
-GCST002787,25706626,Aung T 2015,41.75,East Asian|Greater Middle Eastern (Middle Eastern North African or Persian)|European|Hispanic or Latin American|Sub-Saharan African|South Asian|Other,30300,A common variant mapping to CACNA1A is associated with susceptibility to exfoliation syndrome.,5/8/2020
+GCST002787,25706626,Aung T 2015,41.75,East Asian|Greater Middle Eastern|European|Hispanic or Latin American|Sub-Saharan African|South Asian,30300,A common variant mapping to CACNA1A is associated with susceptibility to exfoliation syndrome.,5/8/2020
 GCST002791,25710614,Hong X 2015,134.522,European,2410,Genome-wide association study identifies peanut allergy-specific loci and evidence of epigenetic mediation in US children.,5/8/2020
 GCST002792,25710658,Diouf B 2015,177.93,European|African unspecified|Asian unspecified|Hispanic or Latin American,321,Association of an inherited genetic variant with vincristine-related peripheral neuropathy in children with acute lymphoblastic leukemia.,5/8/2020
 GCST002795,25101718,Lee JH 2015,0.75,European|African American or Afro-Caribbean,8236,IREB2 and GALC are associated with pulmonary artery enlargement in chronic obstructive pulmonary disease.,5/8/2020
@@ -881,14 +881,14 @@ GCST002797,25101718,Lee JH 2015,0.75,European|African American or Afro-Caribbean
 GCST002798,25101718,Lee JH 2015,0.75,European|African American or Afro-Caribbean,5727,IREB2 and GALC are associated with pulmonary artery enlargement in chronic obstructive pulmonary disease.,5/7/2020
 GCST002807,25763902,Draaken M 2015,NA,European,1911,Genome-wide association study and meta-analysis identify ISL1 as genome-wide significant susceptibility gene for bladder exstrophy.,5/8/2020
 GCST002808,25772935,Germain M 2015,17.95,European,65734,"Meta-analysis of 65,734 individuals identifies TSPAN15 and SLC44A2 as two susceptibility loci for venous thromboembolism.",5/8/2020
-GCST002810,25774636,Curtis J 2015,100.22,Sub-Saharan African|European|Other,19724,Susceptibility to tuberculosis is associated with variants in the ASAP1 gene encoding a regulator of dendritic cell migration.,5/7/2020
+GCST002810,25774636,Curtis J 2015,100.22,Sub-Saharan African|European,19724,Susceptibility to tuberculosis is associated with variants in the ASAP1 gene encoding a regulator of dendritic cell migration.,5/7/2020
 GCST002811,25775280,Sun Y 2015,2,East Asian,5643,Genome-wide association study identifies a new susceptibility locus for cleft lip with or without a cleft palate.,5/10/2020
 GCST002813,25778476,Jun G 2015,48.566,European,21345,A novel Alzheimer disease locus located near the gene encoding tau protein.,5/8/2020
 GCST002814,25778476,Jun G 2015,48.566,European,57946,A novel Alzheimer disease locus located near the gene encoding tau protein.,5/8/2020
 GCST002817,25778476,Jun G 2015,48.566,European,36569,A novel Alzheimer disease locus located near the gene encoding tau protein.,5/9/2020
 GCST002818,25786224,Johnson EO 2015,NA,African American or Afro-Caribbean|European,5669,Novel genetic locus implicated for HIV-1 acquisition with putative regulatory links to HIV replication and infectivity: a genome-wide association study.,5/8/2020
 GCST002819,25784220,Sharma S 2015,2,European|Hispanic or Latin American|African unspecified|East Asian,4975,A PAX1 enhancer locus is associated with susceptibility to idiopathic scoliosis in females.,5/8/2020
-GCST002824,25799145,Kappen JH 2015,1.25,Other|Asian unspecified|Greater Middle Eastern (Middle Eastern North African or Persian)|Hispanic or Latin American|European|South East Asian|East Asian,10113,Genome-wide association study in an admixed case series reveals IL12A as a new candidate in Beh�et disease.,5/8/2020
+GCST002824,25799145,Kappen JH 2015,1.25,Asian unspecified|Greater Middle Eastern|Hispanic or Latin American|European|South East Asian|East Asian,10113,Genome-wide association study in an admixed case series reveals IL12A as a new candidate in Beh�et disease.,5/8/2020
 GCST002835,25826619,Henrion MY 2015,2.1,European,20895,Common variation at 1q24.1 (ALDH9A1) is a potential risk factor for renal cancer.,5/8/2020
 GCST002838,25643325,Renton AE 2015,17.5,European,3839,A genome-wide association study of myasthenia gravis.,5/8/2020
 GCST002840,25849990,Tapper W 2015,10.25,European,15228,"Genetic variation at MECOM, TERT, JAK2 and HBS1L-MYB predisposes to myeloproliferative neoplasms.",5/8/2020
@@ -913,7 +913,7 @@ GCST002901,25964295,Khan S 2015,1.25,European,5926,Polymorphism at 19q13.41 Pred
 GCST002909,25967671,Li C 2015,1,East Asian,10547,Genome-wide association analysis identifies three new risk loci for gout arthritis in Han Chinese.,5/8/2020
 GCST002912,25986216,Toyoda H 2015,1.25,East Asian,3080,A polymorphism in CCR1/CCR3 is associated with narcolepsy.,5/7/2020
 GCST002913,25985088,Oguchi T 2015,0.25,East Asian,103,Investigation of susceptibility genes triggering lachrymal/salivary gland lesion complications in Japanese patients with type 1 autoimmune pancreatitis.,5/8/2020
-GCST002915,25987655,Fernandez CA 2015,5,European|Hispanic or Latin American|African unspecified|Asian unspecified|Other,3308,Genome-wide analysis links NFATC2 with asparaginase hypersensitivity.,5/8/2020
+GCST002915,25987655,Fernandez CA 2015,5,European|Hispanic or Latin American|African unspecified|Asian unspecified,3308,Genome-wide analysis links NFATC2 with asparaginase hypersensitivity.,5/8/2020
 GCST002919,25990418,Al-Tassan NA 2015,6.2,European,17556,A new GWAS and meta-analysis with 1000Genomes imputation identifies novel risk variants for colorectal cancer.,5/9/2020
 GCST002921,26007630,Swaminathan B 2015,16.85,European,227446,Variants in ELL2 influencing immunoglobulin levels associate with multiple myeloma.,5/8/2020
 GCST002922,26007630,Swaminathan B 2015,16.85,European,299532,Variants in ELL2 influencing immunoglobulin levels associate with multiple myeloma.,5/8/2020
@@ -942,20 +942,20 @@ GCST003012,25325441,Baik I 2015,NA,East Asian,470,"Associations of Sleep Apnea, 
 GCST003017,26151821,Schumacher FR 2015,23.2,European|East Asian,52649,Genome-wide association study of colorectal cancer identifies six new susceptibility loci.,5/8/2020
 GCST003018,26151496,Chen PL 2015,1.75,East Asian,1250,Genetic determinants of antithyroid drug-induced agranulocytosis by human leukocyte antigen genotyping and genome-wide association study.,5/8/2020
 GCST003026,26169365,Huang KC 2015,0.5,East Asian,947,Susceptible gene of stasis-stagnation constitution from genome-wide association study related to cardiovascular disturbance and possible regulated traditional Chinese medicine.,5/8/2020
-GCST003027,26169577,Mosley JD 2015,15.1,European|African unspecified|Other,12311,A genome-wide association study identifies variants in KCNIP4 associated with ACE inhibitor-induced cough.,5/8/2020
+GCST003027,26169577,Mosley JD 2015,15.1,European|African unspecified,12311,A genome-wide association study identifies variants in KCNIP4 associated with ACE inhibitor-induced cough.,5/8/2020
 GCST003031,26183928,Leng S 2015,1.25,European|Hispanic or Latin American,1593,Implication of a Chromosome 15q15.2 Locus in Regulating UBR1 and Predisposing Smokers to MGMT Methylation in Lung.,5/8/2020
 GCST003042,26188370,Burdon KP 2015,0.5,European|South Asian,2126,Genome-wide association study for sight-threatening diabetic retinopathy reveals association with genetic variation near the GRB2 gene.,5/8/2020
-GCST003043,26192919,Liu JZ 2015,92.27,European|Greater Middle Eastern (Middle Eastern North African or Persian)|South Asian|East Asian,96486,Association analyses identify 38 susceptibility loci for inflammatory bowel disease and highlight shared genetic risk across populations.,5/8/2020
-GCST003044,26192919,Liu JZ 2015,92.27,European|Greater Middle Eastern (Middle Eastern North African or Persian)|South Asian|East Asian,69268,Association analyses identify 38 susceptibility loci for inflammatory bowel disease and highlight shared genetic risk across populations.,5/9/2020
-GCST003045,26192919,Liu JZ 2015,92.27,European|Greater Middle Eastern (Middle Eastern North African or Persian)|South Asian|East Asian,72647,Association analyses identify 38 susceptibility loci for inflammatory bowel disease and highlight shared genetic risk across populations.,5/10/2020
+GCST003043,26192919,Liu JZ 2015,92.27,European|Greater Middle Eastern|South Asian|East Asian,96486,Association analyses identify 38 susceptibility loci for inflammatory bowel disease and highlight shared genetic risk across populations.,5/8/2020
+GCST003044,26192919,Liu JZ 2015,92.27,European|Greater Middle Eastern|South Asian|East Asian,69268,Association analyses identify 38 susceptibility loci for inflammatory bowel disease and highlight shared genetic risk across populations.,5/9/2020
+GCST003045,26192919,Liu JZ 2015,92.27,European|Greater Middle Eastern|South Asian|East Asian,72647,Association analyses identify 38 susceptibility loci for inflammatory bowel disease and highlight shared genetic risk across populations.,5/10/2020
 GCST003046,26190474,Dai Y 2015,4.8,East Asian,1931,Performance of genetic risk factors in prediction of trichloroethylene induced hypersensitivity syndrome.,5/8/2020
-GCST003048,26198764,Goes FS 2015,6.45,Other,151161,Genome-wide association study of schizophrenia in Ashkenazi Jews.,5/8/2020
-GCST003050,26198764,Goes FS 2015,6.45,Other,4058,Genome-wide association study of schizophrenia in Ashkenazi Jews.,5/8/2020
-GCST003051,26198393,Ziv E 2015,12.25,European|African American or Afro-Caribbean|Other|Hispanic or Latin American,1635,Genome-wide association study identifies variants at 16p13 associated with survival in multiple myeloma patients.,5/8/2020
+GCST003048,26198764,Goes FS 2015,6.45,,151161,Genome-wide association study of schizophrenia in Ashkenazi Jews.,5/8/2020
+GCST003050,26198764,Goes FS 2015,6.45,,4058,Genome-wide association study of schizophrenia in Ashkenazi Jews.,5/8/2020
+GCST003051,26198393,Ziv E 2015,12.25,European|African American or Afro-Caribbean|Hispanic or Latin American,1635,Genome-wide association study identifies variants at 16p13 associated with survival in multiple myeloma patients.,5/8/2020
 GCST003052,26211971,Ogura Y 2015,56.64,East Asian,20196,A Functional SNP in BNC2 Is Associated with Adolescent Idiopathic Scoliosis.,5/8/2020
 GCST003057,26222057,Pander J 2015,2.85,European,520,"Genome Wide Association Study for Predictors of Progression Free Survival in Patients on Capecitabine, Oxaliplatin, Bevacizumab and Cetuximab in First-Line Therapy of Metastatic Colorectal Cancer.",5/8/2020
 GCST003058,26222057,Pander J 2015,2.85,European,520,"Genome Wide Association Study for Predictors of Progression Free Survival in Patients on Capecitabine, Oxaliplatin, Bevacizumab and Cetuximab in First-Line Therapy of Metastatic Colorectal Cancer.",5/8/2020
-GCST003062,26237429,Aminkeng F 2015,11.65,European|African American or Afro-Caribbean|Hispanic or Latin American|East Asian|Other,456,A coding variant in RARG confers susceptibility to anthracycline-induced cardiotoxicity in childhood cancer.,5/8/2020
+GCST003062,26237429,Aminkeng F 2015,11.65,European|African American or Afro-Caribbean|Hispanic or Latin American|East Asian,456,A coding variant in RARG confers susceptibility to anthracycline-induced cardiotoxicity in childhood cancer.,5/8/2020
 GCST003063,26629533,Meng W 2015,2.5,,4221,A Genome-wide Association Study Provides Evidence of Sex-specific Involvement of Chr1p35.1 (ZSCAN20-TLR12P) and Chr8p23.1 (HMGB1P46) With Diabetic Neuropathic Pain.,5/8/2020
 GCST003077,26252872,Li QS 2015,10.5,European,646,Variations in the FRA10AC1 Fragile Site and 15q21 Are Associated with Cerebrospinal Fluid A�1-42 Level.,5/8/2020
 GCST003081,26265699,Karol SE 2015,4.6,African American or Afro-Caribbean|European|Hispanic or Latin American|East Asian,1468,Genetics of glucocorticoid-associated osteonecrosis in children with acute lymphoblastic leukemia.,5/8/2020
@@ -969,8 +969,8 @@ GCST003099,26305897,Iyengar SK 2015,3.75,African American or Afro-Caribbean|Nati
 GCST003100,26307654,Szulkin R 2015,2.25,European,25519,Genome-wide association study of prostate cancer-specific survival.,5/8/2020
 GCST003103,26316170,Demirci FY 2015,0.5,European,14729,Identification of a New Susceptibility Locus for Systemic Lupus Erythematosus on Chromosome 12 in Individuals of European Ancestry.,5/8/2020
 GCST003104,26314684,Liu X 2015,0.75,East Asian,2837,Genome-wide Association Study of Autism Spectrum Disorder in the East Asian Populations.,5/8/2020
-GCST003116,26343387,Nikpay M 2015,199.586,European|African American or Afro-Caribbean|Hispanic or Latin American|South Asian|Greater Middle Eastern (Middle Eastern North African or Persian)|East Asian,187599,"A comprehensive 1,000 Genomes-based genome-wide association meta-analysis of coronary artery disease.",5/9/2020
-GCST003117,26343387,Nikpay M 2015,199.586,African American or Afro-Caribbean|Hispanic or Latin American|South Asian|Greater Middle Eastern (Middle Eastern North African or Persian)|East Asian|European,166459,"A comprehensive 1,000 Genomes-based genome-wide association meta-analysis of coronary artery disease.",5/8/2020
+GCST003116,26343387,Nikpay M 2015,199.586,European|African American or Afro-Caribbean|Hispanic or Latin American|South Asian|Greater Middle Eastern|East Asian,187599,"A comprehensive 1,000 Genomes-based genome-wide association meta-analysis of coronary artery disease.",5/9/2020
+GCST003117,26343387,Nikpay M 2015,199.586,African American or Afro-Caribbean|Hispanic or Latin American|South Asian|Greater Middle Eastern|East Asian|European,166459,"A comprehensive 1,000 Genomes-based genome-wide association meta-analysis of coronary artery disease.",5/8/2020
 GCST003121,26365420,Mbarek H 2015,8.7,European,15536,"The genetics of alcohol dependence: Twin and SNP-based heritability, and genome-wide association study based on AUDIT scores.",5/8/2020
 GCST003128,26394188,Zhu Z 2015,7.804,East Asian,10291,Genome-wide association study identifies new susceptibility loci for adolescent idiopathic scoliosis in Chinese girls.,5/8/2020
 GCST003129,26394269,Cordell HJ 2015,7.6,European,21216,International genome-wide meta-analysis identifies new primary biliary cirrhosis risk loci and targetable pathogenic pathways.,5/9/2020
@@ -979,7 +979,7 @@ GCST003132,26433762,Liu X 2015,2,European,2190,A genome-wide association study o
 GCST003135,26433762,Liu X 2015,2,European,1554,A genome-wide association study of bipolar disorder with comorbid eating disorder replicates the SOX2-OT region.,5/8/2020
 GCST003140,26420894,Wuttke M 2015,3.5,European,2005,Genetic loci associated with renal function measures and chronic kidney disease in children: the Pediatric Investigation for Genetic Factors Linked with Renal Progression Consortium.,5/9/2020
 GCST003141,26420894,Wuttke M 2015,3.5,European,1641,Genetic loci associated with renal function measures and chronic kidney disease in children: the Pediatric Investigation for Genetic Factors Linked with Renal Progression Consortium.,5/10/2020
-GCST003142,26420894,Wuttke M 2015,3.5,European|Other,1141,Genetic loci associated with renal function measures and chronic kidney disease in children: the Pediatric Investigation for Genetic Factors Linked with Renal Progression Consortium.,5/9/2020
+GCST003142,26420894,Wuttke M 2015,3.5,European,1141,Genetic loci associated with renal function measures and chronic kidney disease in children: the Pediatric Investigation for Genetic Factors Linked with Renal Progression Consortium.,5/9/2020
 GCST003144,26416764,Day FR 2015,135.05,European,188874,Causal mechanisms and balancing selection inferred from genetic associations with polycystic ovary syndrome.,5/8/2020
 GCST003148,26443449,Wang M 2015,3.7,East Asian,14918,Large-scale association analysis in Asians identifies new susceptibility loci for prostate cancer.,5/7/2020
 GCST003149,26450422,DeLorenze GN 2015,4.85,European,47564,Polymorphisms in HLA Class II Genes Are Associated With Susceptibility to Staphylococcus aureus Infection in a White Population.,5/7/2020
@@ -1013,7 +1013,7 @@ GCST003227,26424050,Kinnersley B 2015,78.576,European,13012,Genome-wide associat
 GCST003228,26424050,Kinnersley B 2015,78.576,European,14795,Genome-wide association study identifies multiple susceptibility loci for glioma.,5/8/2020
 GCST003230,26586795,Phipps AI 2015,2,European,897,Common genetic variation and survival after colorectal cancer diagnosis: a genome-wide analysis.,5/8/2020
 GCST003231,26586795,Phipps AI 2015,2,European,6048,Common genetic variation and survival after colorectal cancer diagnosis: a genome-wide analysis.,5/8/2020
-GCST003232,26546620,Xu CF 2015,7.58,European|Asian unspecified|Other,2190,HLA-B*57:01 Confers Susceptibility to Pazopanib-Associated Liver Injury in Patients with Cancer.,5/8/2020
+GCST003232,26546620,Xu CF 2015,7.58,European|Asian unspecified,2190,HLA-B*57:01 Confers Susceptibility to Pazopanib-Associated Liver Injury in Patients with Cancer.,5/8/2020
 GCST003245,26674333,Traylor M 2015,25.5,European,3670,Genome-wide meta-analysis of cerebral white matter hyperintensities in patients with stroke.,5/8/2020
 GCST003246,26503584,Litchfield K 2015,85.78,European,25153,Identification of four new susceptibility loci for testicular germ cell tumour.,5/8/2020
 GCST003247,26503584,Litchfield K 2015,85.78,European,14007,Identification of four new susceptibility loci for testicular germ cell tumour.,5/8/2020
@@ -1043,7 +1043,7 @@ GCST003377,26888256,Hernandez W 2016,59.75,African American or Afro-Caribbean,73
 GCST003378,26806518,Hou L 2016,179.028,European|East Asian,2563,Genetic variants associated with response to lithium treatment in bipolar disorder: a genome-wide association study.,5/8/2020
 GCST003384,27206850,Wang M 2016,1.25,East Asian,8051,Genome-Wide Association Study of Bladder Cancer in a Chinese Cohort Reveals a New Susceptibility Locus at 5q12.3.,5/8/2020
 GCST003390,26908601,Hinds DA 2016,20,European,258962,Genome-wide association analysis of self-reported events in 6135 individuals and 252 827 controls identifies 8 loci associated with thrombosis.,5/8/2020
-GCST003391,26879886,Wakil SM 2016,7,Greater Middle Eastern (Middle Eastern North African or Persian),5495,A common variant association study reveals novel susceptibility loci for low HDL-cholesterol levels in ethnic Arabs.,5/8/2020
+GCST003391,26879886,Wakil SM 2016,7,Greater Middle Eastern,5495,A common variant association study reveals novel susceptibility loci for low HDL-cholesterol levels in ethnic Arabs.,5/8/2020
 GCST003400,26818947,Imamura M 2016,20.2,East Asian|European|South Asian|Hispanic or Latin American,279087,Genome-wide association studies in the Japanese population identify seven novel loci for type 2 diabetes.,5/8/2020
 GCST003402,27333618,Sekula P 2016,4.2,European,1184,Genetic risk variants for membranous nephropathy: extension of and association with other chronic kidney disease aetiologies.,5/8/2020
 GCST003419,26965164,Hanchard NA 2016,1.25,European,8794,A genome-wide association study of congenital cardiovascular left-sided lesions shows association with a locus on chromosome 20.,5/8/2020
@@ -1057,13 +1057,13 @@ GCST003430,26950853,Dehghan A 2016,5.85,European|African American or Afro-Caribb
 GCST003431,26950853,Dehghan A 2016,5.85,European,55170,Genome-Wide Association Study for Incident Myocardial Infarction and Coronary Heart Disease in Prospective Cohort Studies: The CHARGE Consortium.,5/8/2020
 GCST003446,27001270,Vishal M 2016,0.5,South Asian,1317,Genetic association and stress mediated down-regulation in trabecular meshwork implicates MPP7 as a novel candidate gene in primary open angle glaucoma.,5/8/2020
 GCST003450,26876947,Saito T 2016,14.85,East Asian,2955,Pharmacogenomic Study of Clozapine-Induced Agranulocytosis/Granulocytopenia in a Japanese Population.,5/8/2020
-GCST003451,26767831,Grant AV 2016,0.5,Greater Middle Eastern (Middle Eastern North African or Persian),1660,A genome-wide association study of pulmonary tuberculosis in Morocco.,5/7/2020
+GCST003451,26767831,Grant AV 2016,0.5,Greater Middle Eastern,1660,A genome-wide association study of pulmonary tuberculosis in Morocco.,5/7/2020
 GCST003454,26955885,Lane JM 2016,46.98,European,35672,"Genome-wide association analysis identifies novel loci for chronotype in 100,420 individuals from the UK Biobank.",5/8/2020
 GCST003458,26824906,Rankinen T 2016,88.358,East Asian|European|Sub-Saharan African,3042,No Evidence of a Common DNA Variant Profile Specific to World Class Endurance Athletes.,5/8/2020
-GCST003467,27064256,Khor CC 2016,73.95,East Asian|South Asian|European|Asian unspecified|Greater Middle Eastern (Middle Eastern North African or Persian)|Hispanic or Latin American,40070,Genome-wide association study identifies five new susceptibility loci for primary angle closure glaucoma.,5/8/2020
+GCST003467,27064256,Khor CC 2016,73.95,East Asian|South Asian|European|Asian unspecified|Greater Middle Eastern|Hispanic or Latin American,40070,Genome-wide association study identifies five new susceptibility loci for primary angle closure glaucoma.,5/8/2020
 GCST003468,26956414,Berndt SI 2016,9.8,European,18255,Meta-analysis of genome-wide association studies discovers multiple loci for chronic lymphocytic leukemia.,5/8/2020
-GCST003470,26708285,Wakil SM 2016,173.8,Greater Middle Eastern (Middle Eastern North African or Persian),5668,A genome-wide association study reveals susceptibility loci for myocardial infarction/coronary artery disease in Saudi Arabs.,5/8/2020
-GCST003471,26708285,Wakil SM 2016,173.8,Greater Middle Eastern (Middle Eastern North African or Persian),5668,A genome-wide association study reveals susceptibility loci for myocardial infarction/coronary artery disease in Saudi Arabs.,5/8/2020
+GCST003470,26708285,Wakil SM 2016,173.8,Greater Middle Eastern,5668,A genome-wide association study reveals susceptibility loci for myocardial infarction/coronary artery disease in Saudi Arabs.,5/8/2020
+GCST003471,26708285,Wakil SM 2016,173.8,Greater Middle Eastern,5668,A genome-wide association study reveals susceptibility loci for myocardial infarction/coronary artery disease in Saudi Arabs.,5/8/2020
 GCST003482,27142222,White MJ 2016,419.76,African American or Afro-Caribbean,1227,Novel genetic risk factors for asthma in African American children: Precision Medicine and the SAGE II Study.,5/8/2020
 GCST003489,27106561,Cornelis MC 2016,1.5,European,9314,A genome-wide investigation of food addiction.,5/8/2020
 GCST003494,27145994,Wang M 2016,0.5,East Asian|European,16655,Common genetic variation in ETV6 is associated with colorectal cancer susceptibility.,5/8/2020
@@ -1074,7 +1074,7 @@ GCST003522,27153935,Zhang CE 2016,NA,East Asian,1693,Variation at HLA-DPB1 is as
 GCST003524,27135401,Cheng TH 2016,100.546,European,44881,Five endometrial cancer risk loci identified through genome-wide association analysis.,5/8/2020
 GCST003525,27135401,Cheng TH 2016,100.546,European,43779,Five endometrial cancer risk loci identified through genome-wide association analysis.,5/8/2020
 GCST003539,27149122,Smith JG 2016,15.25,European,4698,Discovery of Genetic Variation on Chromosome 5q22 Associated with Mortality in Heart Failure.,5/8/2020
-GCST003541,27173062,Azad AK 2016,NA,African American or Afro-Caribbean|Asian unspecified|Other|European,1081,A genome-wide association study of non-HPV-related head and neck squamous cell carcinoma identifies prognostic genetic sequence variants in the MAP-kinase and hormone pathways.,5/8/2020
+GCST003541,27173062,Azad AK 2016,NA,African American or Afro-Caribbean|Asian unspecified|European,1081,A genome-wide association study of non-HPV-related head and neck squamous cell carcinoma identifies prognostic genetic sequence variants in the MAP-kinase and hormone pathways.,5/8/2020
 GCST003558,27519822,Power RA 2016,69.1,European|East Asian,156007,Genome-wide Association for Major Depression Through Age at Onset Stratification: Major Depressive Disorder Working Group of the Psychiatric Genomics Consortium.,5/8/2020
 GCST003560,27171184,Kuo HC 2016,NA,East Asian,157,Genome-Wide Association Study Identifies Novel Susceptibility Genes Associated with Coronary Artery Aneurysm Formation in Kawasaki Disease.,5/10/2020
 GCST003566,27386562,Andlauer TF 2016,169.23,European,21509,Novel multiple sclerosis susceptibility loci implicated in epigenetic regulation.,5/9/2020
@@ -1114,7 +1114,7 @@ GCST003738,27527254,Gharahkhani P 2016,66.35,European,23326,Genome-wide associat
 GCST003739,27527254,Gharahkhani P 2016,66.35,European,21271,Genome-wide association studies in oesophageal adenocarcinoma and Barrett's oesophagus: a large-scale meta-analysis.,5/9/2020
 GCST003740,27527254,Gharahkhani P 2016,66.35,European,27438,Genome-wide association studies in oesophageal adenocarcinoma and Barrett's oesophagus: a large-scale meta-analysis.,5/9/2020
 GCST003742,27769005,Nassan M 2016,0.25,European,3299,A genome wide association study suggests the association of muskelin with early onset bipolar disorder: Implications for a GABAergic epileptogenic neurogenesis model.,5/8/2020
-GCST003743,27599772,Ram R 2016,NA,Greater Middle Eastern (Middle Eastern North African or Persian),5501,A common variant association study in ethnic Saudi Arabs reveals novel susceptibility loci for hypertriglyceridemia.,5/8/2020
+GCST003743,27599772,Ram R 2016,NA,Greater Middle Eastern,5501,A common variant association study in ethnic Saudi Arabs reveals novel susceptibility loci for hypertriglyceridemia.,5/8/2020
 GCST003758,27579533,Zhang M 2016,2,European,27583,"Three new pancreatic cancer susceptibility signals identified on chromosomes 1q32.1, 5p15.33 and 8q24.21.",5/8/2020
 GCST003760,27670397,Reyes-Gibby CC 2016,NA,European,1368,Genome-wide association study suggests common variants within RP11-634B7.4 gene influencing severe pre-treatment pain in head and neck cancer patients.,5/8/2020
 GCST003762,27797806,M�ller SH 2016,124.572,European,9248,Genome-wide association study in essential tremor identifies three new loci.,5/8/2020
@@ -1196,18 +1196,18 @@ GCST004166,28232668,Yu Y 2017,7,East Asian,11972,Genome-wide analyses of non-syn
 GCST004167,28295283,Wang H 2017,1.35,African American or Afro-Caribbean,7907,Novel colon cancer susceptibility variants identified from a genome-wide association study in African Americans.,5/8/2020
 GCST004168,28295283,Wang H 2017,1.35,African American or Afro-Caribbean|Hispanic or Latin American,14579,Novel colon cancer susceptibility variants identified from a genome-wide association study in African Americans.,5/8/2020
 GCST004171,28250457,Scerri TS 2017,201.5,European,3515,Genome-wide analyses identify common variants associated with macular telangiectasia type 2.,5/8/2020
-GCST004172,28118524,Saxena R 2017,7.1,Greater Middle Eastern (Middle Eastern North African or Persian),1367,A Multinational Arab Genome-Wide Association Study Identifies New Genetic Associations for Rheumatoid Arthritis.,5/8/2020
-GCST004174,28118524,Saxena R 2017,7.1,Greater Middle Eastern (Middle Eastern North African or Persian),1168,A Multinational Arab Genome-Wide Association Study Identifies New Genetic Associations for Rheumatoid Arthritis.,5/8/2020
+GCST004172,28118524,Saxena R 2017,7.1,Greater Middle Eastern,1367,A Multinational Arab Genome-Wide Association Study Identifies New Genetic Associations for Rheumatoid Arthritis.,5/8/2020
+GCST004174,28118524,Saxena R 2017,7.1,Greater Middle Eastern,1168,A Multinational Arab Genome-Wide Association Study Identifies New Genetic Associations for Rheumatoid Arthritis.,5/8/2020
 GCST004199,28319091,Styrkarsdottir U 2017,13.6,European,212171,Whole-genome sequencing identifies rare genotypes in COMP and CHADL associated with high risk of hip osteoarthritis.,5/8/2020
 GCST004201,28274756,Mhatre S 2017,149.25,South Asian,3599,Common genetic variation and risk of gallbladder cancer in India: a case-control genome-wide association study.,5/8/2020
 GCST004224,28355232,Ward-Caviness CK 2017,1.75,African American or Afro-Caribbean|European,2100,A genome-wide trans-ethnic interaction study links the PIGR-FCAMR locus to coronary atherosclerosis via interactions between genetic variants and residential exposure to traffic.,5/8/2020
 GCST004226,28355295,Hong EP 2017,0.5,East Asian,2459,Risk prediction of pulmonary tuberculosis using genetic and conventional risk factors in adult Korean population.,5/8/2020
 GCST004227,28424481,Sugiura-Ogasawara M 2017,0.25,East Asian,534,The first genome-wide association study identifying new susceptibility loci for obstetric antiphospholipid syndrome.,5/8/2020
 GCST004239,28371326,Zhu Y 2017,0.5,East Asian,12720,Susceptibility loci for metabolic syndrome and metabolic components identified in Han Chinese: a multi-stage genome-wide association study.,5/8/2020
-GCST004246,28183528,Jun GR 2017,31.73,European|African American or Afro-Caribbean|East Asian|Greater Middle Eastern (Middle Eastern North African or Persian),59550,Transethnic genome-wide scan identifies novel Alzheimer's disease loci.,5/8/2020
-GCST004247,28183528,Jun GR 2017,31.73,European|African American or Afro-Caribbean|East Asian|Greater Middle Eastern (Middle Eastern North African or Persian),59622,Transethnic genome-wide scan identifies novel Alzheimer's disease loci.,5/8/2020
-GCST004249,28183528,Jun GR 2017,31.73,European|African American or Afro-Caribbean|East Asian|Greater Middle Eastern (Middle Eastern North African or Persian),32968,Transethnic genome-wide scan identifies novel Alzheimer's disease loci.,5/8/2020
-GCST004250,28090653,Liu Y 2017,2.7,European|African American or Afro-Caribbean|Hispanic or Latin American|Other,715,Genome-Wide Study Links PNPLA3 Variant With Elevated Hepatic Transaminase After Acute Lymphoblastic Leukemia Therapy.,5/8/2020
+GCST004246,28183528,Jun GR 2017,31.73,European|African American or Afro-Caribbean|East Asian|Greater Middle Eastern,59550,Transethnic genome-wide scan identifies novel Alzheimer's disease loci.,5/8/2020
+GCST004247,28183528,Jun GR 2017,31.73,European|African American or Afro-Caribbean|East Asian|Greater Middle Eastern,59622,Transethnic genome-wide scan identifies novel Alzheimer's disease loci.,5/8/2020
+GCST004249,28183528,Jun GR 2017,31.73,European|African American or Afro-Caribbean|East Asian|Greater Middle Eastern,32968,Transethnic genome-wide scan identifies novel Alzheimer's disease loci.,5/8/2020
+GCST004250,28090653,Liu Y 2017,2.7,European|African American or Afro-Caribbean|Hispanic or Latin American,715,Genome-Wide Study Links PNPLA3 Variant With Elevated Hepatic Transaminase After Acute Lymphoblastic Leukemia Therapy.,5/8/2020
 GCST004256,28373160,Klarin D 2017,9.25,European,187907,Genetic Analysis of Venous Thromboembolism in UK Biobank Identifies the ZFPM2 Locus and Implicates Obesity as a Causal Risk Factor.,5/8/2020
 GCST004261,28388302,Petros Z 2017,0.75,African unspecified,380,Genome-Wide Association and Replication Study of Hepatotoxicity Induced by Antiretrovirals Alone or with Concomitant Anti-Tuberculosis Drugs.,5/8/2020
 GCST004262,28388302,Petros Z 2017,0.75,African unspecified,302,Genome-Wide Association and Replication Study of Hepatotoxicity Induced by Antiretrovirals Alone or with Concomitant Anti-Tuberculosis Drugs.,5/8/2020
@@ -1227,7 +1227,7 @@ GCST004299,28416818,Christophersen IE 2017,59.92,African American or Afro-Caribb
 GCST004300,28416818,Christophersen IE 2017,59.92,European,110099,Large-scale analyses of common and rare variants identify 12 new loci associated with atrial fibrillation.,5/8/2020
 GCST004301,28416818,Christophersen IE 2017,59.92,European,111432,Large-scale analyses of common and rare variants identify 12 new loci associated with atrial fibrillation.,5/8/2020
 GCST004302,28425483,Qiu F 2017,87.75,East Asian,8192,A genome-wide association study identifies six novel risk loci for primary biliary cholangitis.,5/8/2020
-GCST004303,28449029,Munz M 2017,24.33,European|Other,8474,A genome-wide association study identifies nucleotide variants at SIGLEC5 and DEFA1A3 as risk loci for periodontitis.,5/8/2020
+GCST004303,28449029,Munz M 2017,24.33,European,8474,A genome-wide association study identifies nucleotide variants at SIGLEC5 and DEFA1A3 as risk loci for periodontitis.,5/8/2020
 GCST004305,28406950,Kim J 2017,0.25,East Asian,7935,Interaction of iron status with single nucleotide polymorphisms on incidence of type 2 diabetes.,5/8/2020
 GCST004343,28374850,Ellinghaus E 2017,3.5,European,10034,Genome-wide association analysis for chronic venous disease identifies EFEMP1 and KCNH8 as susceptibility loci.,5/8/2020
 GCST004346,28537254,Tsoi LC 2017,106.05,European,305801,Large scale meta-analysis characterizes genetic architecture for common psoriasis associated variants.,5/10/2020
@@ -1266,7 +1266,7 @@ GCST004483,27363682,Mitchell JS 2016,41.05,European,249054,Genome-wide associati
 GCST004485,28470677,Tang H 2017,0.75,European,1688,Genetic polymorphisms associated with pancreatic cancer survival: a genome-wide association study.,5/8/2020
 GCST004510,28545128,McDaniel LD 2017,11.72,European|African American or Afro-Caribbean,11862,Common variants upstream of MLF1 at 3q25 and within CPZ at 4p16 associated with neuroblastoma.,5/8/2020
 GCST004512,28520984,Saccone NL 2017,8.08,Hispanic or Latin American,5085,Genome-wide association study of heavy smoking and daily/nondaily smoking in the Hispanic Community Health Study / Study of Latinos (HCHS/SOL).,5/10/2020
-GCST004520,28540026,Anney RJL 2017,28.23,European|Other,173773,"Meta-analysis of GWAS of over 16,000 individuals with autism spectrum disorder highlights a novel locus at 10q24.32 and a significant overlap with schizophrenia.",5/10/2020
+GCST004520,28540026,Anney RJL 2017,28.23,European,173773,"Meta-analysis of GWAS of over 16,000 individuals with autism spectrum disorder highlights a novel locus at 10q24.32 and a significant overlap with schizophrenia.",5/10/2020
 GCST004521,28540026,Anney RJL 2017,28.23,European,17968,"Meta-analysis of GWAS of over 16,000 individuals with autism spectrum disorder highlights a novel locus at 10q24.32 and a significant overlap with schizophrenia.",5/10/2020
 GCST004549,28537267,Sapkota Y 2017,52.4,European|East Asian,208903,Meta-analysis identifies five novel loci associated with endometriosis highlighting key genes involved in hormone metabolism.,5/10/2020
 GCST004635,28604728,Litchfield K 2017,137.814,European,30401,Identification of 19 new risk loci and potential regulatory mechanisms influencing susceptibility to testicular germ cell tumor.,5/8/2020
@@ -1296,7 +1296,7 @@ GCST004758,28254843,Qi Q 2017,6.8,Hispanic or Latin American,7746,Genetics of Ty
 GCST004773,28566273,Scott RA 2017,15.6,European,212747,An Expanded Genome-Wide Association Study of Type 2 Diabetes in Europeans.,5/8/2020
 GCST004774,28566273,Scott RA 2017,15.6,European,238209,An Expanded Genome-Wide Association Study of Type 2 Diabetes in Europeans.,5/10/2020
 GCST004779,28836065,Hellwege JN 2017,12.83,African American or Afro-Caribbean,8763,A multi-stage genome-wide association study of uterine fibroids in African Americans.,5/8/2020
-GCST004782,28828242,Dajani R 2017,1.5,Greater Middle Eastern (Middle Eastern North African or Persian)|European,5193,Genome-wide association study identifies novel type II diabetes risk loci in Jordan subpopulations.,5/8/2020
+GCST004782,28828242,Dajani R 2017,1.5,Greater Middle Eastern|European,5193,Genome-wide association study identifies novel type II diabetes risk loci in Jordan subpopulations.,5/8/2020
 GCST004785,27723757,Jin Y 2016,226.916,European,44266,Genome-wide association studies of autoimmune vitiligo identify 23 new risk loci and highlight key pathways and regulatory variants.,5/8/2020
 GCST004787,28714975,Nelson CP 2017,45.65,European,340599,Association analyses based on false discovery rate implicate new loci for coronary artery disease.,5/8/2020
 GCST004798,28703219,Son HY 2017,20.1,East Asian,9969,Genome-wide association and expression quantitative trait loci studies identify multiple susceptibility loci for thyroid cancer.,5/10/2020
@@ -1334,10 +1334,10 @@ GCST004948,19330027,Ahmed S 2009,6,European|East Asian,85741,Newly discovered br
 GCST004949,19330027,Ahmed S 2009,6,European,24414,Newly discovered breast cancer susceptibility loci on 3p24 and 17q23.2.,5/10/2020
 GCST004950,25751625,Michailidou K 2015,102.75,European,123509,"Genome-wide association analysis of more than 120,000 individuals identifies 15 new susceptibility loci for breast cancer.",5/8/2020
 GCST004952,28957384,Kim SK 2017,5.35,European|East Asian|Hispanic or Latin American,99342,Two genetic loci associated with ankle injury.,5/8/2020
-GCST004957,28753643,Yeo A 2017,0.5,European|Asian unspecified|African American or Afro-Caribbean|Greater Middle Eastern (Middle Eastern North African or Persian)|Oceanian|Native American|Other admixed ancestry,1318,"Pharmacogenetic meta-analysis of baseline risk factors, pharmacodynamic, efficacy and tolerability endpoints from two large global cardiovascular outcomes trials for darapladib.",5/8/2020
-GCST004961,28753643,Yeo A 2017,0.5,Asian unspecified|European|African American or Afro-Caribbean|Greater Middle Eastern (Middle Eastern North African or Persian)|Oceanian|Native American|Other admixed ancestry,1440,"Pharmacogenetic meta-analysis of baseline risk factors, pharmacodynamic, efficacy and tolerability endpoints from two large global cardiovascular outcomes trials for darapladib.",5/8/2020
+GCST004957,28753643,Yeo A 2017,0.5,European|Asian unspecified|African American or Afro-Caribbean|Greater Middle Eastern|Oceanian|Native American|Admixed Ancestry,1318,"Pharmacogenetic meta-analysis of baseline risk factors, pharmacodynamic, efficacy and tolerability endpoints from two large global cardiovascular outcomes trials for darapladib.",5/8/2020
+GCST004961,28753643,Yeo A 2017,0.5,Asian unspecified|European|African American or Afro-Caribbean|Greater Middle Eastern|Oceanian|Native American|Admixed Ancestry,1440,"Pharmacogenetic meta-analysis of baseline risk factors, pharmacodynamic, efficacy and tolerability endpoints from two large global cardiovascular outcomes trials for darapladib.",5/8/2020
 GCST004962,28753643,Yeo A 2017,0.5,European,481,"Pharmacogenetic meta-analysis of baseline risk factors, pharmacodynamic, efficacy and tolerability endpoints from two large global cardiovascular outcomes trials for darapladib.",5/8/2020
-GCST004964,28753643,Yeo A 2017,0.5,European|Asian unspecified|African American or Afro-Caribbean|Greater Middle Eastern (Middle Eastern North African or Persian)|Oceanian|Native American|Other admixed ancestry,740,"Pharmacogenetic meta-analysis of baseline risk factors, pharmacodynamic, efficacy and tolerability endpoints from two large global cardiovascular outcomes trials for darapladib.",5/8/2020
+GCST004964,28753643,Yeo A 2017,0.5,European|Asian unspecified|African American or Afro-Caribbean|Greater Middle Eastern|Oceanian|Native American|Admixed Ancestry,740,"Pharmacogenetic meta-analysis of baseline risk factors, pharmacodynamic, efficacy and tolerability endpoints from two large global cardiovascular outcomes trials for darapladib.",5/8/2020
 GCST004967,28753643,Yeo A 2017,0.5,European,212,"Pharmacogenetic meta-analysis of baseline risk factors, pharmacodynamic, efficacy and tolerability endpoints from two large global cardiovascular outcomes trials for darapladib.",5/9/2020
 GCST004977,29051540,Marenholz I 2017,134.1,European,5601,Genome-wide association study identifies the SERPINB gene cluster as a susceptibility locus for food allergy.,5/9/2020
 GCST004979,29051540,Marenholz I 2017,134.1,European,6444,Genome-wide association study identifies the SERPINB gene cluster as a susceptibility locus for food allergy.,5/8/2020
@@ -1515,9 +1515,9 @@ GCST006052,26362759,Rothwell S 2015,13.1,European,16582,Dense genotyping of immu
 GCST006053,26362759,Rothwell S 2015,13.1,European,16530,Dense genotyping of immune-related loci in idiopathic inflammatory myopathies confirms HLA alleles as the strongest genetic risk factor and suggests different genetic background for major clinical subgroups.,5/9/2020
 GCST006055,24847101,Rudkowska I 2014,4.45,,141,Genome-wide association study of the plasma triglyceride response to an n-3 polyunsaturated fatty acid supplementation.,5/9/2020
 GCST006061,29892015,Roselli C 2018,163.738,European|East Asian|African American or Afro-Caribbean|Hispanic or Latin American,588190,Multi-ethnic genome-wide association study for atrial fibrillation.,5/9/2020
-GCST006065,29891935,Choquet H 2018,1.25,European|Hispanic or Latin American|East Asian|African American or Afro-Caribbean|South Asian|African unspecified|Other admixed ancestry,240302,A multiethnic genome-wide association study of primary open-angle glaucoma identifies novel risk loci.,5/9/2020
-GCST006066,29891935,Choquet H 2018,1.25,European|Hispanic or Latin American|East Asian|African American or Afro-Caribbean|South Asian|African unspecified|Other admixed ancestry,240302,A multiethnic genome-wide association study of primary open-angle glaucoma identifies novel risk loci.,5/9/2020
-GCST006067,29891935,Choquet H 2018,1.25,European|Hispanic or Latin American|East Asian|African American or Afro-Caribbean|South Asian|African unspecified|Other admixed ancestry,240302,A multiethnic genome-wide association study of primary open-angle glaucoma identifies novel risk loci.,5/9/2020
+GCST006065,29891935,Choquet H 2018,1.25,European|Hispanic or Latin American|East Asian|African American or Afro-Caribbean|South Asian|African unspecified|Admixed Ancestry,240302,A multiethnic genome-wide association study of primary open-angle glaucoma identifies novel risk loci.,5/9/2020
+GCST006066,29891935,Choquet H 2018,1.25,European|Hispanic or Latin American|East Asian|African American or Afro-Caribbean|South Asian|African unspecified|Admixed Ancestry,240302,A multiethnic genome-wide association study of primary open-angle glaucoma identifies novel risk loci.,5/9/2020
+GCST006067,29891935,Choquet H 2018,1.25,European|Hispanic or Latin American|East Asian|African American or Afro-Caribbean|South Asian|African unspecified|Admixed Ancestry,240302,A multiethnic genome-wide association study of primary open-angle glaucoma identifies novel risk loci.,5/9/2020
 GCST006083,29892016,Schumacher FR 2018,843.984,European,73475,"Association analyses of more than 140,000 men identify 63 new prostate cancer susceptibility loci.",5/9/2020
 GCST006085,29892016,Schumacher FR 2018,843.984,European,140254,"Association analyses of more than 140,000 men identify 63 new prostate cancer susceptibility loci.",5/10/2020
 GCST006086,29924316,Byun J 2018,1.25,European,35953,Genome-Wide Association Study of Familial Lung Cancer.,5/9/2020
@@ -1544,10 +1544,10 @@ GCST006154,29724592,Pottier C 2018,30.65,European,3536,Potential genetic modifie
 GCST006196,29310926,Sharma A 2018,56,European,5806,Identification of non-HLA genes associated with development of islet autoimmunity and type 1 diabetes in the prospective TEDDY cohort.,5/8/2020
 GCST006197,29310926,Sharma A 2018,56,European,5806,Identification of non-HLA genes associated with development of islet autoimmunity and type 1 diabetes in the prospective TEDDY cohort.,5/9/2020
 GCST006198,25817017,Carmona FD 2015,5.6,European,16957,A large-scale genetic analysis reveals a strong contribution of the HLA class II region to giant cell arteritis susceptibility.,5/9/2020
-GCST006203,29315502,Tamraz B 2018,1.75,European|African American or Afro-Caribbean|Hispanic or Latin American|Asian unspecified|Other,477,A Genome-Wide Association Study Identifies a Candidate Gene Associated With Atazanavir Exposure Measured in Hair.,5/9/2020
+GCST006203,29315502,Tamraz B 2018,1.75,European|African American or Afro-Caribbean|Hispanic or Latin American|Asian unspecified,477,A Genome-Wide Association Study Identifies a Candidate Gene Associated With Atazanavir Exposure Measured in Hair.,5/9/2020
 GCST006225,29967566,Roberts CH 2018,1.5,European,240,Pathway-Wide Genetic Risks in Chlamydial Infections Overlap between Tissue Tropisms: A Genome-Wide Association Scan.,5/9/2020
 GCST006246,30012571,Jia X 2018,119.1,East Asian,1571,Strong Association of the HLA-DR/DQ Locus with Childhood Steroid-Sensitive Nephrotic Syndrome in the Japanese Population.,5/9/2020
-GCST006252,29903748,Debiec H 2018,105.28,European|African unspecified|Greater Middle Eastern (Middle Eastern North African or Persian),3652,"Transethnic, Genome-Wide Analysis Reveals Immune-Related Risk Alleles and Phenotypic Correlates in Pediatric Steroid-Sensitive Nephrotic Syndrome.",5/9/2020
+GCST006252,29903748,Debiec H 2018,105.28,European|African unspecified|Greater Middle Eastern,3652,"Transethnic, Genome-Wide Analysis Reveals Immune-Related Risk Alleles and Phenotypic Correlates in Pediatric Steroid-Sensitive Nephrotic Syndrome.",5/9/2020
 GCST006257,30004843,Ge S 2018,0.75,East Asian,511,Type 2 Diabetes Mellitus: Integrative Analysis of Multiomics Data for Biomarker Discovery.,5/9/2020
 GCST006260,29967481,Joo YB 2018,NA,East Asian,781,"Genetic variants in systemic lupus erythematosus susceptibility loci, XKR6 and GLT1D1 are associated with childhood-onset SLE in a Korean cohort.",5/9/2020
 GCST006275,30079052,Rujescu D 2018,2.5,European,2740,Genome-Wide Association Study in Vestibular Neuritis: Involvement of the Host Factor for HSV-1 Replication.,5/9/2020
@@ -1572,7 +1572,7 @@ GCST006411,29942513,Penney ME 2018,0.75,European,505,Associations of single nucl
 GCST006414,30061737,Nielsen JB 2018,214.524,European,1030836,Biobank-driven genomic discovery yields new insight into atrial fibrillation biology.,5/9/2020
 GCST006419,30116032,Erlangsen A 2018,10.5,European,50264,Genetics of suicide attempts in individuals with and without mental disorders: a population-based genome-wide association study.,5/9/2020
 GCST006420,30116032,Erlangsen A 2018,10.5,European,17596,Genetics of suicide attempts in individuals with and without mental disorders: a population-based genome-wide association study.,5/9/2020
-GCST006422,30158200,Trajanoska K 2018,339.21,East Asian|European|Other,315830,Assessment of the genetic and clinical determinants of fracture risk: genome wide association and mendelian randomisation study.,5/9/2020
+GCST006422,30158200,Trajanoska K 2018,339.21,East Asian|European,315830,Assessment of the genetic and clinical determinants of fracture risk: genome wide association and mendelian randomisation study.,5/9/2020
 GCST006423,30158200,Trajanoska K 2018,339.21,East Asian|European,562258,Assessment of the genetic and clinical determinants of fracture risk: genome wide association and mendelian randomisation study.,5/9/2020
 GCST006424,30178632,Meng W 2018,0.75,European,4666,A genome-wide association study suggests new evidence for an association of the NADPH Oxidase 4 (NOX4) gene with severe diabetic retinopathy in type 2 diabetes.,5/9/2020
 GCST006425,30181573,Jing J 2018,NA,European,4941,"Genetics of serum urate concentrations and gout in a high-risk population, patients with chronic kidney disease.",5/9/2020
@@ -1589,7 +1589,7 @@ GCST006467,30093639,Machiela MJ 2018,19.15,European,6814,Genome-wide association
 GCST006480,30152087,Ostrom QT 2018,1.75,,15094,Age-specific genome-wide association study in glioblastoma identifies increased proportion of 'lower grade glioma'-like features associated with younger age.,5/9/2020
 GCST006484,30130595,Dom�nguez-Cruz MG 2018,1.25,Native American,92,Pilot genome-wide association study identifying novel risk loci for type 2 diabetes in a Maya population.,5/10/2020
 GCST006486,30218097,Munz M 2018,6.55,European,15003,Meta-analysis of genome-wide association studies of aggressive and chronic periodontitis identifies two novel risk loci.,5/9/2020
-GCST006493,30247649,Gonz�lez-Serna D 2018,0.25,Greater Middle Eastern (Middle Eastern North African or Persian),2107,Analysis of the genetic component of systemic sclerosis in Iranian and Turkish populations through a genome-wide association study.,5/9/2020
+GCST006493,30247649,Gonz�lez-Serna D 2018,0.25,Greater Middle Eastern,2107,Analysis of the genetic component of systemic sclerosis in Iranian and Turkish populations through a genome-wide association study.,5/9/2020
 GCST006520,30169916,Sun Y 2018,0.25,East Asian,1954,Investigation of the Predisposing Factor of Pemphigus and its clinical subtype through a Genome-wide association and next generation sequence analysis.,5/9/2020
 GCST006521,30169916,Sun Y 2018,0.25,East Asian,1997,Investigation of the Predisposing Factor of Pemphigus and its clinical subtype through a Genome-wide association and next generation sequence analysis.,5/9/2020
 GCST006528,29551738,Dong J 2018,0.5,European,5286,Interactions Between Genetic Variants and Environmental Factors Affect Risk of Esophageal Adenocarcinoma and Barrett's Esophagus.,5/10/2020
@@ -1599,7 +1599,7 @@ GCST006531,29551738,Dong J 2018,0.5,European,4466,Interactions Between Genetic V
 GCST006535,29673008,Bonfiglio F 2018,7.4,European,11103,A GWAS meta-analysis from 5 population-based cohorts implicates ion channel genes in the pathogenesis of irritable bowel syndrome.,5/10/2020
 GCST006566,30273415,Hatzikotoulas K 2018,3.75,European,9915,Genome-wide association study of developmental dysplasia of the hip identifies an association with GDF5.,5/9/2020
 GCST006567,30009487,Schoeler NE 2018,16.8,,235,Genome-wide association study: Exploring the genetic basis for responsiveness to ketogenic dietary therapies for drug-resistant epilepsy.,5/9/2020
-GCST006575,25604533,Renauer PA 2015,4,Other|European,2090,"Identification of Susceptibility Loci in IL6, RPS9/LILRB3, and an Intergenic Locus on Chromosome 21q22 in Takayasu Arteritis in a Genome-Wide Association Study.",5/9/2020
+GCST006575,25604533,Renauer PA 2015,4,European,2090,"Identification of Susceptibility Loci in IL6, RPS9/LILRB3, and an Intergenic Locus on Chromosome 21q22 in Takayasu Arteritis in a Genome-Wide Association Study.",5/9/2020
 GCST006584,29857070,Gao J 2018,1.25,East Asian,3375,Association study and fine-mapping major histocompatibility complex analysis of pemphigus vulgaris in a Han Chinese population.,5/9/2020
 GCST006616,30196971,Bray MJ 2018,2.75,European|African American or Afro-Caribbean,1458,Transethnic and race-stratified genome-wide association study of fibroid characteristics in African American and European American women.,5/9/2020
 GCST006619,30287856,Zheng R 2018,3.25,East Asian,8039,Genome-wide association study identifies two risk loci for tuberculosis in Han Chinese.,5/9/2020
@@ -1610,7 +1610,7 @@ GCST006719,30323354,Lee JY 2018,0.5,East Asian,7448,"BRCA1/2-negative, high-risk
 GCST006801,26961502,Wood AR 2016,15.45,European,117775,"Variants in the FTO and CDKAL1 loci have recessive effects on risk of obesity and type 2 diabetes, respectively.",5/9/2020
 GCST006810,30271922,Clifton EAD 2018,56.25,European,436236,Genome-wide association study for risk taking propensity indicates shared pathways with body mass index.,5/9/2020
 GCST006862,29273806,Demenais F 2017,117.25,European,127669,Multiancestry association study identifies new asthma risk loci that colocalize with immune-cell enhancer marks.,5/9/2020
-GCST006863,23830517,Saruhan-Direskeneli G 2013,58,Other|European,1447,Identification of multiple genetic susceptibility loci in Takayasu arteritis.,5/9/2020
+GCST006863,23830517,Saruhan-Direskeneli G 2013,58,European,1447,Identification of multiple genetic susceptibility loci in Takayasu arteritis.,5/9/2020
 GCST006868,30054458,Xue A 2018,68.1,European,455607,Genome-wide association analyses identify 143 risk variants and putative regulatory mechanisms for type 2 diabetes.,5/9/2020
 GCST006906,29531354,Malik R 2018,614.48,European,446696,"Multiancestry genome-wide association study of 520,000 subjects identifies 32 loci associated with stroke and stroke subtypes.",5/9/2020
 GCST006911,30552067,Shrine N 2018,85,European,57695,Moderate-to-severe asthma in individuals of European ancestry: a genome-wide association study.,5/9/2020
@@ -1639,7 +1639,7 @@ GCST007100,30697902,Hernandez-Pacheco N 2019,9.05,Hispanic or Latin American|Afr
 GCST007109,30228239,Wojcik GL 2018,19.7,South Asian,744,Genome-Wide Association Study Reveals Genetic Link between Diarrhea-Associated Entamoeba histolytica Infection and Inflammatory Bowel Disease.,5/9/2020
 GCST007111,30674883,Jin Y 2019,3.25,European,11565,Early-onset autoimmune vitiligo associated with an enhancer variant haplotype that upregulates class II HLA expression.,5/9/2020
 GCST007112,30674883,Jin Y 2019,3.25,European,22327,Early-onset autoimmune vitiligo associated with an enhancer variant haplotype that upregulates class II HLA expression.,5/8/2020
-GCST007118,30297428,Jorgenson E 2018,654.22,European|Hispanic or Latin American|East Asian|African American or Afro-Caribbean|South Asian|Other admixed ancestry|African unspecified,259687,Genetic variation in the SIM1 locus is associated with erectile dysfunction.,5/9/2020
+GCST007118,30297428,Jorgenson E 2018,654.22,European|Hispanic or Latin American|East Asian|African American or Afro-Caribbean|South Asian|Admixed Ancestry|African unspecified,259687,Genetic variation in the SIM1 locus is associated with erectile dysfunction.,5/9/2020
 GCST007119,30412241,Takeuchi F 2018,NA,East Asian,12077,Genome-wide association study of cervical cancer suggests a role for ARRDC3 gene in human papillomavirus infection.,5/9/2020
 GCST007135,30237584,El Rouby N 2018,1.25,European|Hispanic or Latin American,4196,Genome-wide association analysis of common genetic variants of resistant hypertension.,5/9/2020
 GCST007136,30237584,El Rouby N 2018,1.25,European|Hispanic or Latin American,1779,Genome-wide association analysis of common genetic variants of resistant hypertension.,5/9/2020
@@ -1652,7 +1652,7 @@ GCST007158,30306274,Shah RL 2018,3,European,88005,Genome-wide association studie
 GCST007191,30266950,Miyagawa T 2018,1.25,East Asian,2417,A variant at 9q34.11 is associated with HLA-DQB1*06:02�negative essential hypersomnia.,5/9/2020
 GCST007192,30267110,Kwon YC 2018,0.25,,792,Identification of the TIFAB Gene as a Susceptibility Locus for Coronary Artery Aneurysm in Patients with Kawasaki Disease.,5/9/2020
 GCST007197,30284742,Bevilacqua L 2018,0.25,European,367,A genome-wide association study identifies an association between variants in EFCAB4B gene and periodontal disease in an Italian isolated population.,5/9/2020
-GCST007199,30317457,Bonnemaijer PWM 2018,9.25,Sub-Saharan African|African American or Afro-Caribbean|Other admixed ancestry,12070,Genome-wide association study of primary open-angle glaucoma in continental and admixed African populations.,5/9/2020
+GCST007199,30317457,Bonnemaijer PWM 2018,9.25,Sub-Saharan African|African American or Afro-Caribbean|Admixed Ancestry,12070,Genome-wide association study of primary open-angle glaucoma in continental and admixed African populations.,5/9/2020
 GCST007200,30299488,Wang TM 2018,2.25,,2942,Genome-Wide Association Study of Susceptibility Loci for Radiation-Induced Brain Injury.,5/9/2020
 GCST007201,30285260,Ikeda M 2018,0.75,East Asian|European,122624,Genome-Wide Association Study Detected Novel Susceptibility Genes for Schizophrenia and Shared Trans-Populations/Diseases Genetic Effect.,5/9/2020
 GCST007205,30285260,Ikeda M 2018,0.75,East Asian,67889,Genome-Wide Association Study Detected Novel Susceptibility Genes for Schizophrenia and Shared Trans-Populations/Diseases Genetic Effect.,5/10/2020
@@ -1665,7 +1665,7 @@ GCST007223,30470734,Hackinger S 2018,3.75,European,1748,Evidence for genetic con
 GCST007228,30527956,Rhodes CJ 2018,52.28,European,11744,Genetic determinants of risk in pulmonary arterial hypertension: international genome-wide association studies and meta-analysis.,5/9/2020
 GCST007229,25108385,Yang SK 2014,30.35,East Asian,698,A common missense variant in NUDT15 confers susceptibility to thiopurine-induced leukopenia.,5/9/2020
 GCST007230,30563176,Westermair AL 2018,0.75,European,342,Association of Genetic Variation at AQP4 Locus with Vascular Depression.,5/10/2020
-GCST007231,30713548,Schurz H 2019,2,Other admixed ancestry,815,A Sex-Stratified Genome-Wide Association Study of Tuberculosis Using a Multi-Ethnic Genotyping Array.,5/10/2020
+GCST007231,30713548,Schurz H 2019,2,Admixed Ancestry,815,A Sex-Stratified Genome-Wide Association Study of Tuberculosis Using a Multi-Ethnic Genotyping Array.,5/10/2020
 GCST007234,30542056,Petridis C 2018,739.964,European,26722,Genome-wide meta-analysis implicates mediators of hair follicle development and morphogenesis in risk for severe acne.,5/10/2020
 GCST007235,30541042,Walsh N 2018,14.75,European,21536,Agnostic Pathway/Gene Set Analysis of Genome-Wide Association Data Identifies Associations for Pancreatic Cancer.,5/9/2020
 GCST007236,25751625,Michailidou K 2015,102.75,European,89677,"Genome-wide association analysis of more than 120,000 individuals identifies 15 new susceptibility loci for breast cancer.",5/10/2020
@@ -1745,7 +1745,7 @@ GCST007676,30796134,S�derholm M 2019,92.55,European,6176,Genome-wide associati
 GCST007687,30899065,Wang M 2019,22.85,East Asian,3417,A genome-wide association study on photic sneeze reflex in the Chinese population.,5/9/2020
 GCST007692,30804561,Sakornsakolpat P 2019,106.25,European|East Asian|African American or Afro-Caribbean|Hispanic or Latin American,257811,Genetic landscape of chronic obstructive pulmonary disease identifies heterogeneous cell-type and phenotype associations.,5/9/2020
 GCST007696,24629169,Ising M 2014,1,European,890,Genetic effects on information processing speed are moderated by age--converging results from three samples.,5/8/2020
-GCST007700,30556296,Alblooshi H 2018,0.25,Greater Middle Eastern (Middle Eastern North African or Persian)|European,1022,A case-control genome wide association study of substance use disorder (SUD) identifies novel variants on chromosome 7p14.1 in patients from the United Arab Emirates (UAE).,5/8/2020
+GCST007700,30556296,Alblooshi H 2018,0.25,Greater Middle Eastern|European,1022,A case-control genome wide association study of substance use disorder (SUD) identifies novel variants on chromosome 7p14.1 in patients from the United Arab Emirates (UAE).,5/8/2020
 GCST007713,30850646,Tziotzios C 2019,25.3,European,5161,Genome-wide association study in frontal fibrosing alopecia identifies four susceptibility loci including HLA-B*07:02.,5/9/2020
 GCST007727,28817678,Archer NP 2017,NA,Hispanic or Latin American|Native American,622,Family-based exome-wide association study of childhood acute lymphoblastic leukemia among Hispanics confirms role of ARID5B in susceptibility.,5/9/2020
 GCST007728,30898391,Lawrenson K 2019,6.2,East Asian,7321,Genome-wide association studies identify susceptibility loci for epithelial ovarian cancer in east Asian women.,5/9/2020
@@ -1761,7 +1761,7 @@ GCST007833,30975718,Tanikawa C 2019,37.25,East Asian,204875,Novel Risk Loci Iden
 GCST007839,30837455,Dudding T 2019,72.83,European,806850,Genome wide analysis for mouth ulcers identifies associations at immune regulatory loci.,5/10/2020
 GCST007840,31006500,Liu M 2019,NA,East Asian,8839,"Protein and fat intake interacts with the haplotype of PTPN11_rs11066325, RPH3A_rs886477, and OAS3_rs2072134 to modulate serum HDL concentrations in middle-aged people.",5/10/2020
 GCST007842,30714141,Chen H 2019,1.6,East Asian,7479,Two novel genetic variants in the STK38L and RAB27A genes are associated with glioma susceptibility.,5/10/2020
-GCST007844,30946743,Li Z 2019,1.25,Other|Greater Middle Eastern (Middle Eastern North African or Persian),3004,Genome-wide association study in Turkish and Iranian populations identify rare familial Mediterranean fever gene (MEFV) polymorphisms associated with ankylosing spondylitis.,5/9/2020
+GCST007844,30946743,Li Z 2019,1.25,Greater Middle Eastern,3004,Genome-wide association study in Turkish and Iranian populations identify rare familial Mediterranean fever gene (MEFV) polymorphisms associated with ankylosing spondylitis.,5/9/2020
 GCST007845,31059154,Chen Z 2019,23.25,European,9692,Genome-wide survey of copy number variants finds MAPT duplications in progressive supranuclear palsy.,5/9/2020
 GCST007847,30718926,Suzuki K 2019,65.45,East Asian,191764,Identification of 28 new susceptibility loci for type 2 diabetes in the Japanese population.,5/10/2020
 GCST007856,30510241,Huyghe JR 2018,177.53,European|East Asian,125478,Discovery of common and rare genetic risk variants for colorectal cancer.,5/10/2020
@@ -1829,10 +1829,10 @@ GCST008378,31095341,Kerns SL 2019,26.75,European,3470,Radiogenomics Consortium G
 GCST008380,31095341,Kerns SL 2019,26.75,European|East Asian,4157,Radiogenomics Consortium Genome-Wide Association Study Meta-analysis of Late Toxicity after Prostate Cancer Radiotherapy.,5/10/2020
 GCST008381,31095341,Kerns SL 2019,26.75,European,3379,Radiogenomics Consortium Genome-Wide Association Study Meta-analysis of Late Toxicity after Prostate Cancer Radiotherapy.,5/10/2020
 GCST008386,31066027,Nicoletti P 2019,NA,European,10744,Shared genetic risk factors across carbamazepine-induced hypersensitivity reactions.,5/10/2020
-GCST008388,31196165,Lee E 2019,0.5,Hispanic or Latin American|European|African unspecified|African American or Afro-Caribbean|Other,1144,Genome-wide enriched pathway analysis of acute post-radiotherapy pain in breast cancer patients: a prospective cohort study.,5/10/2020
-GCST008391,25861811,Li Z 2015,4.6,East Asian|African American or Afro-Caribbean|South Asian|Greater Middle Eastern (Middle Eastern North African or Persian)|European|South East Asian,49203,A common variant near TGFBR3 is associated with primary open angle glaucoma.,5/8/2020
-GCST008394,31178898,Lin BM 2019,NA,African American or Afro-Caribbean|Hispanic or Latin American|East Asian|Oceanian|Native American|Other,45191,Genetics of Chronic Kidney Disease Stages Across Ancestries: The PAGE Study.,5/10/2020
-GCST008395,31178898,Lin BM 2019,NA,African American or Afro-Caribbean|Hispanic or Latin American|East Asian|Oceanian|Native American|Other,32799,Genetics of Chronic Kidney Disease Stages Across Ancestries: The PAGE Study.,5/10/2020
+GCST008388,31196165,Lee E 2019,0.5,Hispanic or Latin American|European|African unspecified|African American or Afro-Caribbean,1144,Genome-wide enriched pathway analysis of acute post-radiotherapy pain in breast cancer patients: a prospective cohort study.,5/10/2020
+GCST008391,25861811,Li Z 2015,4.6,East Asian|African American or Afro-Caribbean|South Asian|Greater Middle Eastern|European|South East Asian,49203,A common variant near TGFBR3 is associated with primary open angle glaucoma.,5/8/2020
+GCST008394,31178898,Lin BM 2019,NA,African American or Afro-Caribbean|Hispanic or Latin American|East Asian|Oceanian|Native American,45191,Genetics of Chronic Kidney Disease Stages Across Ancestries: The PAGE Study.,5/10/2020
+GCST008395,31178898,Lin BM 2019,NA,African American or Afro-Caribbean|Hispanic or Latin American|East Asian|Oceanian|Native American,32799,Genetics of Chronic Kidney Disease Stages Across Ancestries: The PAGE Study.,5/10/2020
 GCST008397,31039275,Park SH 2019,5.3,East Asian,112,Association of TRAP1 with Infliximab-Induced Mucosal Healing in Crohn's disease.,5/10/2020
 GCST008414,31209380,Demontis D 2019,212.876,European,357914,Genome-wide association study implicates CHRNA2 in cannabis use disorder.,5/10/2020
 GCST008423,31249589,Edwards TL 2019,5,European|African unspecified|African American or Afro-Caribbean,228042,A Trans-Ethnic Genome-Wide Association Study of Uterine Fibroids.,5/10/2020
@@ -1883,7 +1883,7 @@ GCST008662,26423011,Wain LV 2015,363,European,14649,"Novel insights into the gen
 GCST008663,26423011,Wain LV 2015,363,European,19574,"Novel insights into the genetics of smoking behaviour, lung function, and chronic obstructive pulmonary disease (UK BiLEVE): a genetic association study in UK Biobank.",5/10/2020
 GCST008667,26423011,Wain LV 2015,363,European,48931,"Novel insights into the genetics of smoking behaviour, lung function, and chronic obstructive pulmonary disease (UK BiLEVE): a genetic association study in UK Biobank.",5/8/2020
 GCST008668,31482010,Liu C 2019,1,African unspecified|African American or Afro-Caribbean,360,Genome-wide association study for proliferative diabetic retinopathy in Africans.,5/10/2020
-GCST008708,31417607,Gazal S 2019,0.5,Other admixed ancestry,312,The Genetic Architecture of Chronic Mountain Sickness in Peru.,5/10/2020
+GCST008708,31417607,Gazal S 2019,0.5,Admixed Ancestry,312,The Genetic Architecture of Chronic Mountain Sickness in Peru.,5/10/2020
 GCST008726,31407831,Din L 2019,3.95,European,14732,Genetic overlap between autoimmune diseases and non-Hodgkin lymphoma subtypes.,5/10/2020
 GCST008727,31407831,Din L 2019,3.95,European,32855,Genetic overlap between autoimmune diseases and non-Hodgkin lymphoma subtypes.,5/10/2020
 GCST008728,31407831,Din L 2019,3.95,European,34264,Genetic overlap between autoimmune diseases and non-Hodgkin lymphoma subtypes.,5/10/2020
@@ -1957,7 +1957,7 @@ GCST009158,31649266,Gallagher CS 2019,24.45,European,302979,Genome-wide associat
 GCST009236,31379025,Sugier PE 2019,NA,European,3187,Genome-wide interaction study of early-life smoking exposure on time-to-asthma onset in childhood.,5/10/2020
 GCST009237,31379025,Sugier PE 2019,NA,European,5086,Genome-wide interaction study of early-life smoking exposure on time-to-asthma onset in childhood.,5/10/2020
 GCST009238,31379025,Sugier PE 2019,NA,European,8273,Genome-wide interaction study of early-life smoking exposure on time-to-asthma onset in childhood.,5/10/2020
-GCST009245,31688885,Genetics of Glaucoma in People of African Descent (GGLAD) Consortium 2019,70.1,African American or Afro-Caribbean|African unspecified|Hispanic or Latin American|Greater Middle Eastern (Middle Eastern North African or Persian)|Sub-Saharan African,26219,Association of Genetic Variants With Primary Open-Angle Glaucoma Among Individuals With African Ancestry.,5/10/2020
+GCST009245,31688885,Genetics of Glaucoma in People of African Descent (GGLAD) Consortium 2019,70.1,African American or Afro-Caribbean|African unspecified|Hispanic or Latin American|Greater Middle Eastern|Sub-Saharan African,26219,Association of Genetic Variants With Primary Open-Angle Glaucoma Among Individuals With African Ancestry.,5/10/2020
 GCST009247,31073882,Plotnikov D 2019,2.5,European,71894,A commonly occurring genetic variant within the NPLOC4-TSPAN10-PDE6G gene cluster is associated with the risk of strabismus.,5/10/2020
 GCST009278,31537649,Salem RM 2019,94.422,European,17024,Genome-Wide Association Study of Diabetic Kidney Disease Highlights Biology Involved in Glomerular Basement Membrane Collagen.,5/9/2020
 GCST009279,31537649,Salem RM 2019,94.422,European,14288,Genome-Wide Association Study of Diabetic Kidney Disease Highlights Biology Involved in Glomerular Basement Membrane Collagen.,5/9/2020
@@ -2014,7 +2014,7 @@ GCST009718,31361310,Johansson � 2019,107.95,European,364657,"Genome-wide assoc
 GCST009719,31361310,Johansson � 2019,107.95,European,258688,"Genome-wide association analysis of 350<U+2009>000 Caucasians from the UK Biobank identifies novel loci for asthma, hay fever and eczema.",5/10/2020
 GCST009722,31959993,Craig JE 2020,146.8,European,398850,Multitrait analysis of glaucoma identifies new risk loci and enables polygenic prediction of disease susceptibility and progression.,5/10/2020
 GCST009726,31959993,Craig JE 2020,146.8,European,127265,Multitrait analysis of glaucoma identifies new risk loci and enables polygenic prediction of disease susceptibility and progression.,5/10/2020
-GCST009732,29926116,Grarup N 2018,20.45,Other admixed ancestry,2948,Identification of novel high-impact recessively inherited type 2 diabetes risk variants in the Greenlandic population.,5/10/2020
+GCST009732,29926116,Grarup N 2018,20.45,Admixed Ancestry,2948,Identification of novel high-impact recessively inherited type 2 diabetes risk variants in the Greenlandic population.,5/10/2020
 GCST009758,31710517,Allen RJ 2019,107.15,European,24589,Genome-Wide Association Study of Susceptibility to Idiopathic Pulmonary Fibrosis.,5/10/2020
 GCST009759,31879220,Lin GW 2019,7.1,East Asian,21819,Genetic risk of extranodal natural killer T-cell lymphoma: a genome-wide association study in multiple populations.,5/10/2020
 GCST009796,31936517,Cox JW 2020,0.75,African American or Afro-Caribbean|European,4049,Genome-Wide Association Study of Opioid Cessation.,5/10/2020
@@ -2035,7 +2035,7 @@ GCST009876,30572963,M�rquez A 2018,6.35,European,25785,Meta-analysis of Immuno
 GCST009877,30572963,M�rquez A 2018,6.35,European,37831,Meta-analysis of Immunochip data of four autoimmune diseases reveals novel single-disease and cross-phenotype associations.,5/10/2020
 GCST009878,29905830,Lee HS 2018,3.2,East Asian,881,An Intergenic Variant rs9268877 Between HLA-DRA and HLA-DRB Contributes to the Clinical Course and Long-term Outcome of Ulcerative Colitis.,5/10/2020
 GCST009879,30402224,Yamada Y 2018,NA,East Asian,7256,Identification of 26 novel loci that confer susceptibility to early-onset coronary artery disease in a Japanese population.,5/10/2020
-GCST009887,24326010,Xavier JM 2013,0.5,Greater Middle Eastern (Middle Eastern North African or Persian)|Other,4295,FUT2: filling the gap between genes and environment in Beh�et's disease?,5/10/2020
+GCST009887,24326010,Xavier JM 2013,0.5,Greater Middle Eastern,4295,FUT2: filling the gap between genes and environment in Beh�et's disease?,5/10/2020
 GCST009895,30206226,Chang J 2018,10.75,East Asian,11690,Exome-wide analysis identifies three low-frequency missense variants associated with pancreatic cancer risk in Chinese populations.,5/10/2020
 GCST009896,31001917,Grant DJ 2019,2,African American or Afro-Caribbean,1990,Evaluation of vitamin D biosynthesis and pathway target genes reveals UGT2A1/2 and EGFR polymorphisms associated with epithelial ovarian cancer in African American Women.,5/10/2020
 GCST009916,30659077,Onengut-Gumuscu S 2019,1.75,African American or Afro-Caribbean,3949,Type 1 Diabetes Risk in African-Ancestry Participants and Utility of an Ancestry-Specific Genetic Risk Score.,5/10/2020
