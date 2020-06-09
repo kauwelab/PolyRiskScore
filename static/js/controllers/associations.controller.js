@@ -39,7 +39,7 @@ exports.getAll = (req, res) => {
             traits = {}
             if (allTraits.length == 1) {
                 console.log(`Num associations for trait ${allTraits[0]}: ${data.length}`)
-                traits[allTraits[0]] = await separateStudies(data, refgen)
+                traits[allTraits[0]] = await separateStudies(data, refGen) 
             }
             else {
                 for (i = 0; i < data.length; i++) {
