@@ -14,6 +14,7 @@ exports.getFromTable = (req, res) => {
         else {
             returnData = {}
             res.setHeader('Access-Control-Allow-Origin', '*');
+            console.log(`Num associations for trait ${trait}: ${data.length}`)
             returnData[trait] = await separateStudies(data, refGen)
             res.send(returnData);
         }
@@ -37,6 +38,7 @@ exports.getAll = (req, res) => {
             traits = {}
             for (i = 0; i < data.length; i++) {
                 var associations = data[i]
+                console.log(`Num associations for trait ${allTraits[i]}: ${associations.length}`)
                 traits[allTraits[i]] = await separateStudies(associations, refGen)
             }
             res.send(traits);

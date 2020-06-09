@@ -31,7 +31,7 @@ Association.getFromTable = (tableName, studyIDs, pValue, refGen, result) => {
             return;
         }
 
-        console.log("associations: ", res);
+        console.log("associations (first): ", res[0]);
         result(null, res);
     });
 };
@@ -47,6 +47,8 @@ Association.getAll = (traits, pValue, refGen, result) => {
         }
     }
     
+    console.log(queryString)
+
     sql.query(queryString, (err, res) =>{
         if (err) {
             console.log("error: ", err);
@@ -54,7 +56,7 @@ Association.getAll = (traits, pValue, refGen, result) => {
             return;
         }
 
-        //console.log("associations: ", res);
+        console.log("associations (first): ", res[0]);
         result(null, res);
     });
 }
