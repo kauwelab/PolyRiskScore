@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs6110809","20:15870432","20:15851077","20:15799077","20:15799077","MACROD2:0|LOC613266:21901|ENSAP1:250613|LOC107985394:238224|AL079338.1:21923",0.16,"A",7e-06,1.81,"1.40","2.34","Khong JJ 2016","GCST003640"

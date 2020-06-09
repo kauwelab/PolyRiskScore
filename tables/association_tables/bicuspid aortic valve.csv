@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs13294886","9:130418857","9:133294244","9:132284065","9:130323798","ASS1:25850|RN7SL665P:18292|LOC107987134:1472|HMCN2:0|ASS1:26104|LOC105376294:71800",0.51,"G",2e-06,2.7,"2.29","3.11","Gago-Díaz M 2016","GCST009006"

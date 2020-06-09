@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs870142","4:4646320","4:4648047","4:4698948","4:4766119","LOC101928237:62831|AC092437.1:174085|STX18:103974|SNORD162:18006|STX18-AS1:0",NA,"A",3e-10,1.456,NA,NA,"Cordell HJ 2013","GCST002035"

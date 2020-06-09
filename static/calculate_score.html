@@ -10,7 +10,7 @@
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
 </head>
 
-<body>
+<body onload="getTraits()">
   <div class = 'p-9 bg-primary text-center'>
     <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website! --Click here to leave us comments or questions</a>
   </div>
@@ -37,7 +37,6 @@
     </div>
   </nav>
   <header>
-    
   <div class="jumbotron">
     <div class="container">
       <div class="row">
@@ -105,6 +104,27 @@
               <div class="container diseaseLists">
                 <div class="row">
                   <div class='parent inline-flex-parent'>
+                    <div class='child'>
+                      <div class="col-lg-12 mb-0 mt-2 text-left">
+                        <h5>Select Disease and Study&nbsp;</h5>
+                        <script src="js/sharedCode.js"></script>
+                        <script src="js/diseaseList.js"></script>
+                        <h8>
+                          <div class="diseaseLists">
+                            <select id="disease" onchange="getStudies()">
+                              <!--<option selected="selected">All</option>-->
+                              <option value="">--Disease--</option>
+                              <option value="all">All Diseases </option>
+                            </select>
+                          </div>
+                          <div class="diseaseLists">
+                            <select id="diseaseStudy" onchange="changeStudiesList()">
+                              <option value="">--Study--</option>
+                            </select>
+                          </div>
+                        </h8>
+                      </div>
+                    </div>
                     <div class='child'>
                       <div class="col-lg-12 mb-.5 mt-2 text-left">
                         <h5>Reference Genome&nbsp;</h5>

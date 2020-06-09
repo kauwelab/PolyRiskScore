@@ -1,132 +1,259 @@
 var resultJSON = "";
-//a resetable boolean that is represented by a grayed-out button when false. Prevents the user from calculating the same
-//score multiple times
-var canCalculate = true;
+//TODO gzip and zip still need work
 var validExtensions = ["vcf", "gzip", "zip"]
+var traitObjects = []
+var studyObjects = [] //holds the study object so that their additional data (ethnicity, cohort, ect) can be accessed
+var traitsList = []
+var selectedStudies = []
 
-var calculatePolyScore = async () => {
-    document.getElementById('resultsDisplay').style.display = 'block';
-
-    //TODO currently not in use- used to disable the calculate risk score button. See toggleCalculateButton and resetOutput functions
-    if (canCalculate) {
-        //user feedback while they are waiting for their score
-        $('#response').html("Calculating. Please wait...");
-
-        // get value of selected 'pvalue' from the 'pvalInput' form
-        var pValueScalar = document.getElementById('pValScalarIn').value;
-        var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
-        var pValue = pValueScalar.concat("e".concat(pValMagnitute))
-
-        //gets the disease name from the drop down list
-        var diseaseSelectElement = document.getElementById("disease");
-        var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-
-        //create a disease array (usually just the one disease unless "All dieases" is selected)
-        var diseaseArray = makeDiseaseArray(diseaseSelected);
-
-        //gets the study name from the drop down list
-        var studySelectElement = document.getElementById("diseaseStudy");
-        var study = studySelectElement.options[studySelectElement.selectedIndex].text
-
-        //the type of study the study is ("high impact", "largest cohort", or "")
-        var studyType = getStudyTypeFromStudy(study);
-
-        //if the user doesn't specify a disease or study, prompt them to do so
-        if (diseaseSelected === "--Disease--" || study === "--Study--") {
-            $('#response').html('Please specify a specific disease and study using the drop down menus above.');
-            return
-        }
-
-        //get the reference genome to be used
-        var refGenElement = document.getElementById("refGenome");
-        var refGen = refGenElement.options[refGenElement.selectedIndex].value
-        if (refGen == "default") {
-            $('#response').html('Please select the reference genome corresponding to your file.');
-            return
-        }
-
-        //get user SNPs
-        var vcfFile = document.getElementById("files").files[0];
-
-        if (document.getElementById('textInputButton').checked) {
-            //if here, the user did not import a vcf file or the the vcf file was not read properly
-            var textArea = document.getElementById('input');
-
-            if (!textArea.value) {
-                $('#response').html("Please input an rs id accoding to the procedures above or import a vcf file using the \"Choose File\" button above.");
-                return;
+function getTraits() {
+    $.ajax({
+        type: "GET",
+        url: "get_traits",
+        success: async function (data) {
+            traitObjects = data;
+            traitsList = Object.getOwnPropertyNames(traitObjects)            
+            
+            //populate the dropdown
+            var selector = document.getElementById("disease");
+            for (i=0; i<traitsList.length; i++) {
+                var opt = document.createElement('option')
+                    opt.appendChild(document.createTextNode(traitsList[i]))
+                    opt.value = traitsList[i]
+                    selector.appendChild(opt);
             }
-
-            var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
-            var snpsObj = new Map();
-            arrayOfInputtedSnps.forEach(function (snp) {
-                snpArray = snp.split(':');
-                if (snpArray.length < 2) {
-                    snpsObj.set(snpArray[0], [])
-                }
-                else {
-                    var alleles = snpArray[1].split("");
-                    if (alleles.length > 2) {
-                        //THIS SHOULDN'T HAPPEN! THROW AN ERROR OR SOMETHING
-                        //AND GET THE HECK OUT --Maddy
-                    }
-                    snpsObj.set(snpArray[0], alleles)
-                }
-            })
-            ClientCalculateScoreTxtInput(snpsObj, diseaseArray, [studyType], pValue, refGen)
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
         }
-        else {
-            var extension = vcfFile.name.split(".").pop();
-            if (!validExtensions.includes(extension.toLowerCase())) {
-                //if here, the user uploded a file with an invalid format
-                $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
-                return;
-            }
-            ClientCalculateScore(vcfFile, extension, diseaseArray, [studyType], pValue, refGen);
-        }
-    }
+    })
 }
 
-/**
- * Turns the calculate button on and off.
- * @param {*} canClick
- */
-function toggleCalculateButton(canClick) {
-    var button = document.getElementById("feedbackSubmit")
-    button.disabled = !canClick;
-    if (!canClick) {
-        button.style.background = "gray";
-        button.style.borderColor = "white"
+function getStudies() { 
+    //gets the disease name from the drop down list
+    var diseaseSelectElement = document.getElementById("disease");
+    var selectedTrait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+    var selector = document.getElementById("diseaseStudy");
+
+    // clear studies that are already there
+    while (selector.firstChild) {
+        selector.removeChild(selector.lastChild)
+    }
+
+    // make sure we keep the --Study--
+    var opt = document.createElement('option')
+    opt.appendChild(document.createTextNode("--Study--"))
+    opt.value = ""
+    selector.appendChild(opt);
+
+    //var selectedTrait = traitList[0] // TODO to Ed - this needs to be filled correctly, not sure how (Maddy)
+    if (selectedTrait == "") {
+        // do nothing
+    }
+    else if (selectedTrait.toLowerCase() == "all") {
+        selectedTrait = traitsList
+        studyTypes = ["All", "Largest Cohort", "High Impact"]
+
+        for (i=0; i<studyTypes.length; i++) {
+            var opt = document.createElement('option')
+            opt.appendChild(document.createTextNode(studyTypes[i]))
+            opt.value = studyTypes[i]
+            selector.appendChild(opt);
+        }
     }
     else {
-        button.style.background = "";
-        button.style.borderColor = "";
+        sIds = traitObjects[selectedTrait].studyIDs
+        $.ajax({
+            type: "GET",
+            url: "/get_studies",
+            data: {studyIDs: sIds},
+            success: async function (data) {
+                studyObjects = data;
+
+                //populate the dropdown
+                for (i=0; i<studyObjects.length; i++) {
+                    var opt = document.createElement('option')
+                    opt.appendChild(document.createTextNode(studyObjects[i].citation))
+                    opt.value = studyObjects[i].studyID
+                    selector.appendChild(opt);
+                }
+            },
+            error: function (XMLHttpRequest) {
+                alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
+            }
+        })
+    }
+}
+
+// ------------------ Functions for retrieving associaitons ------------------------------
+function getAllAssociations (pValue, refGen) {
+    var formattedTraits = traitsList 
+
+    for (i = 0; i < formattedTraits.length; i++) {
+        formattedTraits[i] = formatForTableName(formattedTraits[i]) 
+    }
+
+    $.ajax({
+        type: "GET",
+        url: "/all_associations",
+        data: {traits: formattedTraits, pValue: pValue, refGen: refGen},
+        success: async function (data) {
+            //TODO write
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
+
+function getSelectStudyAssociationsByTraits(pValue, refGen) {
+    var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+    trait = formatForTableName(trait);
+    var studyIDs = selectedStudies;
+
+    $.ajax({
+        type: "GET",
+        url: "/get_associations",
+        data: {trait: trait, studyIDs: studyIDs, pValue: pValue, refGen: refGen},
+        success: async function (data) {
+            //TODO write
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
+
+function formatForTableName(traitName) {
+    // formatting trait names for database use
+    // all lowecase, spaces to underscores, forward slashes to dashes, no commas or apostrophies
+    const spacesRegex = / /g;
+    const forwardSlashesRegex = /\//g;
+    const commaRegex = /,/g;
+    const apostrophiesRegex = /'/g;
+
+    return traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "");
+}
+
+// ------------------- END functions for retrieving associations --------------------------
+
+//called when the user clicks the "Caculate Risk Scores" button on the calculation page
+var calculatePolyScore = async () => {
+    document.getElementById('resultsDisplay').style.display = 'block';
+    //user feedback while they are waiting for their score
+    $('#response').html("Calculating. Please wait...");
+
+    // get value of selected 'pvalue' from the 'pvalInput' form as a string
+    var pValueScalar = document.getElementById('pValScalarIn').value;
+    var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
+    var pValue = pValueScalar.concat("e".concat(pValMagnitute))
+
+    //gets the disease name from the drop down list
+    var diseaseSelectElement = document.getElementById("disease");
+    var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+
+    //create a disease array (usually just the one disease unless "All dieases" is selected)
+    var diseaseArray = makeDiseaseArray(diseaseSelected);
+
+    //gets the study name from the drop down list
+    //TODO!!!! - this will need to be adapted to allow for multiple
+    var studySelectElement = document.getElementById("diseaseStudy");
+    var study = studySelectElement.options[studySelectElement.selectedIndex].value
+
+    //if the user doesn't specify a disease or study, prompt them to do so
+    if (diseaseSelected === "--Disease--" || study === "--Study--") {
+        $('#response').html('Please specify a specific disease and study using the drop down menus above.');
+        return;
+    }
+
+    //get the reference genome to be used
+    var refGenElement = document.getElementById("refGenome");
+    var refGen = refGenElement.options[refGenElement.selectedIndex].value
+    if (refGen == "default") {
+        $('#response').html('Please select the reference genome corresponding to your file.');
+        return;
+    }
+
+    //get user SNPs
+    var vcfFile = document.getElementById("files").files[0];
+
+    //if in text input mode
+    if (document.getElementById('textInputButton').checked) {
+        var textArea = document.getElementById('input');
+
+        //if text input is empty, return error
+        if (!textArea.value) {
+            $('#response').html("Please input an rs id accoding to the procedures above or import a vcf file using the \"Choose File\" button above.");
+            return;
+        }
+
+        var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
+        var snpsObj = new Map();
+        for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
+            snp = arrayOfInputtedSnps[i]
+            //snp entry is split into two elements, the snpid (0) and the alleles (1)
+            snpArray = snp.split(':');
+            //if the snpid is invalid, return error
+            if (!snpArray[0].toLowerCase().startsWith("rs") || isNaN(snpArray[0].substring(2, snpArray[0].length))) {
+                $('#response').html("Invalid snp id " + snpArray[0] + " Each id should start with \"rs\" followed by a string of numbers.");
+                return;
+            }
+            //if the snp entry doesn't have alleles, create a snpsObj with an empty list
+            if (snpArray.length < 2) {
+                snpsObj.set(snpArray[0], [])
+            }
+            else {
+                //get the alleles in list form
+                var alleles = snpArray[1].split("");
+                //if more than 2 alleles, return error
+                if (alleles.length > 2) {
+                    $('#response').html("Too many alleles for " + snp + ". Each snp should have a maximum of two alleles.");
+                    return;
+                }
+                for (var i = 0; i < alleles.length; ++i) {
+                    //if any allele is not  A, T, G, or C, return error
+                    if (["A", "T", "G", "C"].indexOf(alleles[i].toUpperCase()) < 0) {
+                        $('#response').html("Allele \"" + alleles[i] + "\" is invalid. Must be A, T, G, or C.");
+                        return;
+                    }
+                }
+                snpsObj.set(snpArray[0], alleles)
+            }
+        }
+        ClientCalculateScoreTxtInput(snpsObj, diseaseArray, study, pValue, refGen)
+    }
+    else {
+        var extension = vcfFile.name.split(".").pop();
+        if (!validExtensions.includes(extension.toLowerCase())) {
+            //if here, the user uploded a file with an invalid format
+            $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+            return;
+        }
+        ClientCalculateScore(vcfFile, extension, diseaseArray, study, pValue, refGen);
     }
 }
 
 /**
- * Resets resultJSON and allows the user to use the calculate score button again.
+ * Resets resultJSON
  */
 function resetOutput() {
-    canCalculate = true;
-    toggleCalculateButton(true);
     resultJSON = "";
 }
 
-/**
- * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
- * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
- * @param {*} study
- */
-function getStudyTypeFromStudy(study) {
-    if (study.toLowerCase().includes("high impact")) {
-        return "high impact";
-    }
-    else if (study.toLowerCase().includes("largest cohort")) {
-        return "largest cohort";
-    }
-    return "all";
-}
+// /**
+//  * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
+//  * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
+//  * @param {*} study
+//  */
+// function getStudyTypeFromStudy(study) {
+//     if (study.toLowerCase().includes("high impact")) {
+//         return "high impact";
+//     }
+//     else if (study.toLowerCase().includes("largest cohort")) {
+//         return "largest cohort";
+//     }
+//     return "all";
+// }
 
 //textSnps is a map of positions and alleles
 var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyTypeList, pValue, refGen) => {
@@ -161,38 +288,45 @@ var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyTypeList,
     })
 }
 
+/**
+ * Calculates scores client side for the file input from the user
+ * @param {*} vcfFile- the file input by the user
+ * @param {*} extension- the extension of the file input from the user
+ * @param {*} diseaseArray- the traits the user has chosen to do calculations for
+ * @param {*} studyTypeList- the types of studies to do calculations for 
+ *                              (high impact, large cohort, all studies [if blank]) TODO- soon to be obsolete
+ * @param {*} pValue- the pvalue cutoff for scores
+ * @param {*} refGen- the reference genome for which to calculate scores
+ * No return- prints the simplified scores result onto the webpage
+ */
 var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyTypeList, pValue, refGen) => {
-    //console.time("score in")
     var vcfObj;
-    //console.time("got data in")
+    //use ajax to query the server for a tableObject of database information using the given parameters
     $.ajax({
         type: "GET",
         url: "study_table",
         data: { diseaseArray: diseaseArray, studyTypeList: studyTypeList, pValue: pValue, refGen: refGen },
         success: async function (studyTableRows) {
-            //console.timeEnd("got data in")
             var tableObj = studyTableRows;
+            //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, disease}
             var usefulPos = sharedCode.getIdentifierMap(tableObj, true);
             try {
-                //console.time("shrink")
+                //greps the vcf file, removing snps not in the database table object returned
                 vcfLines = await shrinkFile(vcfFile, usefulPos)
-                //console.timeEnd("shrink");
-                //console.time("parse");
+                //converts the vcf lines into an object that can be parsed
                 vcfObj = vcf_parser.getVCFObj(vcfLines);
-                //console.timeEnd("parse")
             }
             catch (err) {
                 $('#response').html(getErrorMessage(err));
                 return;
             }
             try {
-                //console.time("calculated score in")
                 var result = sharedCode.calculateScore(tableObj, vcfObj, pValue, usefulPos);
-                //console.timeEnd("calculated score in")
+                //shortens the result for website desplay
                 outputVal = getSimpleOutput(result)
                 $('#response').html(outputVal);
+                //saves the full result on currently open session of the website for further modifications 
                 resultJSON = result;
-                //console.timeEnd("score in")
             }
             catch (err) {
                 $('#response').html(getErrorMessage(err));
@@ -278,12 +412,12 @@ function getPosFromLine(line) {
  * returns a list of all the diseases in the database
  * @param {*} disease
  */
-function makeDiseaseArray(disease) {
+function makeDiseaseArray(trait) {
     if (disease.toLowerCase() == "all") {
-        //all returns nothing and all of the diseases are added to this array in makeDiseaseStudyMapArray in sharedCode.js
-        return [];
+        //all returns all of the traits
+        return traits;
     }
-    return [disease];
+    return [trait];
 }
 
 function formatText(jsonObject) {
