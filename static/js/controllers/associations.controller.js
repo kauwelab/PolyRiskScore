@@ -37,11 +37,18 @@ exports.getAll = (req, res) => {
             console.log(data)
             // formating returned data
             traits = {}
-            for (i = 0; i < data.length; i++) {
-                var associations = data[i]
-                console.log(`Num associations for trait ${allTraits[i]}: ${associations.length}`)
-                traits[allTraits[i]] = await separateStudies(associations, refGen)
+            if (allTraits.length == 1) {
+                console.log(`Num associations for trait ${allTraits[0]}: ${data.length}`)
+                traits[allTraits[0]] = await separateStudies(data, refgen)
             }
+            else {
+                for (i = 0; i < data.length; i++) {
+                    var associations = data[i]
+                    console.log(`Num associations for trait ${allTraits[i]}: ${associations.length}`)
+                    traits[allTraits[i]] = await separateStudies(associations, refGen)
+                }
+            }
+            
             res.send(traits);
         }
     });
