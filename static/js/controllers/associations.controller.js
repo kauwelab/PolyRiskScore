@@ -26,9 +26,6 @@ exports.getFromTable = (req, res) => {
                     returnData[traits[i].trait] = await separateStudies(associations, refGen)
                 }
             }
-
-            //console.log(`Num associations for trait ${trait}: ${data.length}`)
-            //returnData[trait] = await separateStudies(data, refGen)
             res.send(returnData);
         }
     });
@@ -47,7 +44,6 @@ exports.getAll = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            //console.log(data)
             // formating returned data
             traits = {}
             if (allTraits.length == 1) {

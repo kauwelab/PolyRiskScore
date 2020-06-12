@@ -36,8 +36,6 @@ Association.getFromTable = (traits, pValue, refGen, result) => {
             result(err, null);
             return;
         }
-
-        //console.log("associations (first): ", res[0]);
         result(null, res);
     });
 };
