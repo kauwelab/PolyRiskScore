@@ -1,5 +1,4 @@
 module.exports = app => {
-    const traits = require("../controllers/traits.controller");
     const studies = require("../controllers/studies.controller");
     const associations = require("../controllers/associations.controller");
 
@@ -26,5 +25,5 @@ module.exports = app => {
     // organized {trait: {studies: [associations]}}
     app.get("/all_associations", associations.getAll);
 
-   // app.get("/all_snps", associations.getAllSnps);
+    app.get("/all_snps", associations.getAllSnps);
 }

@@ -82,6 +82,33 @@ exports.getAll = (req, res) => {
     });
 }
 
+exports.getAllSnps = (req, res) => {
+    Association.getAllSnps((err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            let snpsSET = new Set()
+            let testArray = []
+
+            for (i=0; i<data.length; i++) {
+                for (j=0; j<data[i].length; j++) {
+                    testArray.push(data[i][j].snp)
+                    snpsSET.add(data[i][j].snp)
+                }
+            }
+
+            console.log(`SNPS in set: ${snpsSET.size}`)
+            console.log(`Total snps: ${testArray.length}`)
+            res.send(Array.from(snpsSET));
+        }
+    })
+}
+
 async function separateStudies(associations, refGen) {
     var studiesAndAssociations = {}
     for (j = 0; j < associations.length; j++) {

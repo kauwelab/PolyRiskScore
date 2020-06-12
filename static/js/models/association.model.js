@@ -1,4 +1,5 @@
 const sql = require('./database')
+const formatter = require('../formatHelper')
 
 const Association = function(massociation) {
     this.id = massociation.id;
@@ -63,6 +64,35 @@ Association.getAll = (traits, pValue, refGen, result) => {
 
         console.log("associations (first): ", res[0]);
         result(null, res);
+    });
+}
+
+Association.getAllSnps = result => {
+    sql.query(`SELECT DISTINCT trait FROM study_table`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        console.log("num Traits: ", res.length);
+        queryString = ""
+        // turn traits into table names 
+        for (i=0; i<res.length; i++) {
+            trait = formatter.formatForTableName(res[i].trait)
+            queryString = queryString.concat(`SELECT DISTINCT snp FROM ${trait}; `)
+        }
+
+        sql.query(queryString, (err2, data) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+
+            result(null, data)
+        })
+        
     });
 }
 
