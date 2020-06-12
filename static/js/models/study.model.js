@@ -3,12 +3,40 @@ const sql = require('./database')
 const Study = function(mstudy) {
     this.studyID = mstudy.studyID,
     this.pubMedID = mstudy.pubMedID,
+    this.trait = mstudy.trait,
     this.citation = mstudy.citation,
     this.studyScore = mstudy.studyScore,
     this.ethnicity = mstudy.ethnicity,
     this.cohort = mstudy.cohort,
     this.title = mstudy.title,
-    this.lastUpdated = mstudy.lastUpdated
+    this.lastUpdated = mstudy.lastUpdated,
+    this.studyType = mstudy.studyType
+}
+
+Study.getTraits = result => {
+    sql.query("SELECT DISTINCT trait FROM study_table ORDER BY trait", (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        console.log(`All traits queried, ${res.length} result(s)`);
+        result(null, res);
+    });
+};
+
+Study.findTrait = (searchStr, result) => {
+    sql.query(`SELECT DISTINCT trait FROM study_table WHERE trait LIKE '%${searchStr}%'`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        console.log(`find traits queried with '${searchStr}', with ${res.length} result(s)`);
+        result(null, res);
+    });
 }
 
 Study.getAll = result => {
@@ -24,21 +52,42 @@ Study.getAll = result => {
     });
 };
 
-Study.getByIds = (studyIDs, result) => {
-    //formatting studyIDs to be accepted in mysql query
-    for (i=0; i < studyIDs.length; i++) {
-        studyIDs[i] = "\"" + studyIDs[i] + "\"";
+Study.getByTypeAndTrait = (traits, studyTypes, result) => {
+
+    for (i=0; i < traits.length; i++) {
+        traits[i] = "\"" + traits[i] + "\"";
     }
 
-    sql.query(`SELECT * FROM study_table WHERE studyID IN (${studyIDs})`, (err, res) => {
+    sql.query(`SELECT * FROM studyMaxes WHERE trait IN (${traits})`, (err, res) => { //`SELECT * FROM study_table WHERE studyID IN (${studyIDs})`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log(`studies queried by IDs, ${res.length} result(s)`);
-        result(null, res);
+        sqlQueryString = ""
+        for (i=0; i<res.length; i++) {
+            if (studyTypes.includes("LC")) {
+                sqlQueryString = sqlQueryString.concat(`SELECT *, "LC" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND cohort = ${res[i].cohort}; `)
+            }
+            if (studyTypes.includes("HI")) {
+                sqlQueryString = sqlQueryString.concat(`SELECT *, "HI" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore = ${res[i].studyScore}; `)
+            }
+            if (studyTypes.includes("O")) {
+                sqlQueryString = sqlQueryString.concat(`SELECT *, "O" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore <> ${res[i].studyScore} AND cohort <> ${res[i].cohort}; `)
+            }
+        }
+
+        console.log(`traits queried, ${res.length} result(s)`);
+        sql.query(sqlQueryString, (err, data) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            console.log(`studies queried, ${data.length} result(s)`)
+            result(null, data) 
+        });
     });
 };
 
