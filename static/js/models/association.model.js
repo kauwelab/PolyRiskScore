@@ -1,4 +1,5 @@
 const sql = require('./database')
+const formatter = require('../formatHelper')
 
 const Association = function(massociation) {
     this.id = massociation.id;
@@ -18,20 +19,23 @@ const Association = function(massociation) {
     this.studyID = massociation.studyID;
 };
 
-Association.getFromTable = (tableName, studyIDs, pValue, refGen, result) => {
-
-    for (i=0; i < studyIDs.length; i++) {
-        studyIDs[i] = "\"" + studyIDs[i] + "\"";
+Association.getFromTables = (traits, pValue, refGen, result) => {
+    queryString = ""
+    for (i=0; i < traits.length; i++) {
+        traitObj = traits[i]
+        studyIDs = traitObj.studyIDs
+        for (j=0; j<studyIDs.length; j++) {
+            studyIDs[j] = "\"" + studyIDs[j] + "\"";
+        }
+        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${traitObj.trait}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}); `)
     }
 
-    sql.query(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${tableName}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs})`, (err, res) => {
+    sql.query(queryString, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-
-        console.log("associations (first): ", res[0]);
         result(null, res);
     });
 };
@@ -58,6 +62,36 @@ Association.getAll = (traits, pValue, refGen, result) => {
 
         console.log("associations (first): ", res[0]);
         result(null, res);
+    });
+}
+
+Association.getAllSnps = result => {
+    //selects unique trait names for querying all association tables
+    sql.query(`SELECT DISTINCT trait FROM study_table`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        console.log("num Traits: ", res.length);
+        queryString = ""
+        // turn traits into table names 
+        for (i=0; i<res.length; i++) {
+            trait = formatter.formatForTableName(res[i].trait)
+            queryString = queryString.concat(`SELECT DISTINCT snp FROM ${trait}; `)
+        }
+
+        sql.query(queryString, (err2, data) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+
+            result(null, data)
+        })
+        
     });
 }
 

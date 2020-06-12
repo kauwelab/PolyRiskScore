@@ -1,11 +1,12 @@
 const Association = require("../models/association.model.js");
 
-exports.getFromTable = (req, res) => {
-    var trait = req.query.trait
+exports.getFromTables = (req, res) => {
+    //traits format :: [{trait: trait, studyIDs: [list of studyIDs]}, {trait: trait, studyIDs: [list of studyIDs]}]
+    var traits = req.query.traits
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
-    var studyIDs = req.query.studyIDs
-    Association.getFromTable(trait, studyIDs, pValue, refGen, async (err, data) => {
+
+    Association.getFromTables(traits, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving associations"
@@ -14,8 +15,17 @@ exports.getFromTable = (req, res) => {
         else {
             returnData = {}
             res.setHeader('Access-Control-Allow-Origin', '*');
-            console.log(`Num associations for trait ${trait}: ${data.length}`)
-            returnData[trait] = await separateStudies(data, refGen)
+
+            if (traits.length == 1){
+                returnData[traits[0].trait] = await separateStudies(data, refGen)
+            }
+            else {
+                for (i=0; i<data.length; i++) {
+                    var associations = data[i]
+                    console.log(`Num associations for trait ${traits[i].trait}: ${associations.length}`)
+                    returnData[traits[i].trait] = await separateStudies(associations, refGen)
+                }
+            }
             res.send(returnData);
         }
     });
@@ -34,7 +44,6 @@ exports.getAll = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            console.log(data)
             // formating returned data
             traits = {}
             if (allTraits.length == 1) {
@@ -52,6 +61,33 @@ exports.getAll = (req, res) => {
             res.send(traits);
         }
     });
+}
+
+exports.getAllSnps = (req, res) => {
+    Association.getAllSnps((err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            let snpsSET = new Set()
+            let testArray = []
+
+            for (i=0; i<data.length; i++) {
+                for (j=0; j<data[i].length; j++) {
+                    testArray.push(data[i][j].snp)
+                    snpsSET.add(data[i][j].snp)
+                }
+            }
+
+            console.log(`SNPS in set: ${snpsSET.size}`)
+            console.log(`Total snps: ${testArray.length}`)
+            res.send(Array.from(snpsSET));
+        }
+    })
 }
 
 async function separateStudies(associations, refGen) {
