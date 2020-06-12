@@ -58,7 +58,8 @@ Study.getByTypeAndTrait = (traits, studyTypes, result) => {
         traits[i] = "\"" + traits[i] + "\"";
     }
 
-    sql.query(`SELECT * FROM studyMaxes WHERE trait IN (${traits})`, (err, res) => { //`SELECT * FROM study_table WHERE studyID IN (${studyIDs})`, (err, res) => {
+    // studyMaxes is a view in the database used to find the max values we need 
+    sql.query(`SELECT * FROM studyMaxes WHERE trait IN (${traits})`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);

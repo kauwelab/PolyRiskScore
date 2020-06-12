@@ -1,12 +1,12 @@
 const Association = require("../models/association.model.js");
 
-exports.getFromTable = (req, res) => {
+exports.getFromTables = (req, res) => {
     //traits format :: [{trait: trait, studyIDs: [list of studyIDs]}, {trait: trait, studyIDs: [list of studyIDs]}]
     var traits = req.query.traits
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
 
-    Association.getFromTable(traits, pValue, refGen, async (err, data) => {
+    Association.getFromTables(traits, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving associations"

@@ -19,7 +19,7 @@ const Association = function(massociation) {
     this.studyID = massociation.studyID;
 };
 
-Association.getFromTable = (traits, pValue, refGen, result) => {
+Association.getFromTables = (traits, pValue, refGen, result) => {
     queryString = ""
     for (i=0; i < traits.length; i++) {
         traitObj = traits[i]
@@ -66,6 +66,7 @@ Association.getAll = (traits, pValue, refGen, result) => {
 }
 
 Association.getAllSnps = result => {
+    //selects unique trait names for querying all association tables
     sql.query(`SELECT DISTINCT trait FROM study_table`, (err, res) => {
         if (err) {
             console.log("error: ", err);

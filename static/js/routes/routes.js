@@ -19,7 +19,7 @@ module.exports = app => {
     app.get("/find_studies/:searchStr", studies.findStudies);
 
     // Retrieves applicable associations given correct query parameters -> see association.model.js
-    app.get("/get_associations", associations.getFromTable);
+    app.get("/get_associations", associations.getFromTables);
 
     // Returns all associations for all traits and diseases, given the correct query params
     // organized {trait: {studies: [associations]}}

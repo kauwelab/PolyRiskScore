@@ -1,7 +1,7 @@
 
 exports.formatForTableName = function (traitName) {
     // formatting trait names for database use
-    // all lowecase, spaces to underscores, forward slashes to dashes, no commas or apostrophies
+    // all lowercase, spaces to underscores, forward slashes to dashes, no commas or apostrophies
     const spacesRegex = / /g;
     const forwardSlashesRegex = /\//g;
     const commaRegex = /,/g;
