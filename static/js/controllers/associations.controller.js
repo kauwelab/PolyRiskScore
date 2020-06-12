@@ -5,22 +5,7 @@ exports.getFromTable = (req, res) => {
     var traits = req.query.traits
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
-
-    traits = [
-        {
-            trait: "alzhimers_disease",
-            studyIDs: [
-                "sID1"
-            ]
-        },
-        // {
-        //     trait: "type_2_diabetes",
-        //     studyIDs: [
-        //         "sID4"
-        //     ]
-        // }
-    ]
-
+    
     Association.getFromTable(traits, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
