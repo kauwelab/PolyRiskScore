@@ -51,9 +51,7 @@ def deleteTable(cursor, dbTableName):
 def createTable(cursor, dbTableName):
     tableColumns = ""
     if dbTableName == "study_table":
-        tableColumns = "( studyID varchar(20), pubMedID varchar(20), citation varchar(50), studyScore varchar(10), ethnicity varchar(255), cohort int unsigned, title varchar(255), lastUpdated varchar(15) )';"
-    elif dbTableName == "trait_table":
-        tableColumns = "( trait varchar(255), studyIDs varchar(255) )';"
+        tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), citation varchar(50), studyScore varchar(10), ethnicity varchar(255), cohort int unsigned, title varchar(255), lastUpdated varchar(15) )';"
     else:
         tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(255), raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, citation varchar(50), studyID varchar(20) )';"
     sql = "set names utf8mb4; SET @query = 'CREATE TABLE `" + dbTableName + "` " + tableColumns + "PREPARE stmt FROM @query;" + "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
@@ -183,8 +181,6 @@ def main():
     #add the study_table and trait_tables to the database
     createFreshTable(config, "study_table", "study_table")
     addDataToTable(config, studyAndTraitFolderPath, "study_table", "study_table")
-    createFreshTable(config, "trait_table", "trait_table")
-    addDataToTable(config, studyAndTraitFolderPath, "trait_table", "trait_table")
     print("Done!")
 
 
