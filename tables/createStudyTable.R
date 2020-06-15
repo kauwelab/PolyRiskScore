@@ -215,7 +215,6 @@ if (is_ebi_reachable()) {
         }
       }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
     }
-    studyTable <- distinct(studyTable, studyID, .keep_all = TRUE) #removes duplicate studyIDs (TODO- why are these duplicates created?)
     studyTable <- arrange(studyTable, trait, studyID)
     #write out the trait and study tables
     write.csv(studyTable, file.path(getwd(), "study_table.csv"), row.names=FALSE)
