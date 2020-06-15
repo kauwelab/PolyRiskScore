@@ -154,7 +154,7 @@ if (is_ebi_reachable()) {
   }
   else {
     #initialize table
-    studyTable <- tibble("studyID" = character(0), "pubMedID" = character(0), trait = character(0), "citation" = character(0), "studyScore" = character(0), "ethnicity" = character(0), "cohort" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
+    studyTable <- tibble("studyID" = character(0), "pubMedID" = character(0), "trait" = character(0), "citation" = character(0), "studyScore" = character(0), "ethnicity" = character(0), "cohort" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
 
     DevPrint(paste0("Startup took ", format(Sys.time() - start_time)))
     DevPrint("Creating Study Table")
