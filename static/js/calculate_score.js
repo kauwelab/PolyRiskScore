@@ -1,3 +1,5 @@
+const formatter = require('./formatHelper')
+
 var resultJSON = "";
 //TODO gzip and zip still need work
 var validExtensions = ["vcf", "gzip", "zip"]
@@ -108,7 +110,7 @@ function getAllAssociations (pValue, refGen) {
 
 function getSelectStudyAssociationsByTraits(pValue, refGen) {
     var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-    trait = formatForTableName(trait);
+    trait = formatter.formatForTableName(trait);
     var studyIDs = selectedStudies;
 
     $.ajax({
@@ -124,17 +126,6 @@ function getSelectStudyAssociationsByTraits(pValue, refGen) {
     })
 }
 
-function formatForTableName(traitName) {
-    // formatting trait names for database use
-    // all lowecase, spaces to underscores, forward slashes to dashes, no commas or apostrophies
-    const spacesRegex = / /g;
-    const forwardSlashesRegex = /\//g;
-    const commaRegex = /,/g;
-    const apostrophiesRegex = /'/g;
-
-    return traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "");
-}
-
 // ------------------- END functions for retrieving associations --------------------------
 
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
@@ -143,7 +134,11 @@ var calculatePolyScore = async () => {
     //user feedback while they are waiting for their score
     $('#response').html("Calculating. Please wait...");
 
-    // get value of selected 'pvalue' from the 'pvalInput' form as a string
+    //get ethnicity
+    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked')
+    var ethnicityArray = [...ethnicityNodes].map(option => option.value);
+
+    // get value of selected 'pvalue' from the 'pvalInput' form
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute))
