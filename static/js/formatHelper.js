@@ -6,6 +6,7 @@ exports.formatForTableName = function (traitName) {
     const forwardSlashesRegex = /\//g;
     const commaRegex = /,/g;
     const apostrophiesRegex = /'/g;
+    const quoteRegex = /"/g;
 
-    return traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "");
+    return traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "").replace(quoteRegex, "");
 }
