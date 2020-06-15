@@ -10,7 +10,7 @@ exports.formatForTableName = function (traitName) {
 
     traitName = traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "").replace(quoteRegex, "");
 
-    if (traitName.lenght > 64) {
+    if (traitName.length > 64) {
         traitName = traitName.slice(0,64)
     }
 
