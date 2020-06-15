@@ -8,5 +8,11 @@ exports.formatForTableName = function (traitName) {
     const apostrophiesRegex = /'/g;
     const quoteRegex = /"/g;
 
-    return traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "").replace(quoteRegex, "");
+    traitName = traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "").replace(quoteRegex, "");
+
+    if (traitName.lenght > 64) {
+        traitName = traitName.slice(0,64)
+    }
+
+    return traitName
 }
