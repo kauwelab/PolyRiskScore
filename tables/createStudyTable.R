@@ -153,9 +153,8 @@ if (is_ebi_reachable()) {
     print(paste0("No CSV files at ", studyTableDirPath))
   }
   else {
-    #initialize tables
-    traitTable <- tibble("trait" = character(0), "studyIDs" = character(0))
-    studyTable <- tibble("studyID" = character(0), "pubMedID" = character(0), "citation" = character(0), "studyScore" = character(0), "ethnicity" = character(0), "cohort" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
+    #initialize table
+    studyTable <- tibble("studyID" = character(0), "pubMedID" = character(0), "trait" = character(0), "citation" = character(0), "studyScore" = character(0), "ethnicity" = character(0), "cohort" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
 
     DevPrint(paste0("Startup took ", format(Sys.time() - start_time)))
     DevPrint("Creating Study Table")
@@ -165,10 +164,6 @@ if (is_ebi_reachable()) {
         #get name of trait from name of csv file
         traitName <- substr(files[i], 0, nchar(files[i])-4)
         traitName <- str_replace_all(traitName, "ö", "o") #removes the ö from Löfgren's syndrome to make it easier to put it in the database
-        if (traitName == "study_table" || traitName == "trait_table") {
-          DevPrint(paste0("Skipped ", traitName))
-          next
-        }
         #read the csv file and get its studyIDs
         filePath = paste0(studyTableDirPath, files[i])
         csvTable <- read.csv(filePath) %>%
@@ -187,13 +182,10 @@ if (is_ebi_reachable()) {
         pubMedIDToScoreTibble <- getScoresList(list(pubMedIDs))
         pubMedIDToScoreDict <- with(pubMedIDToScoreTibble, setNames(score, pubmed_id))
         
-        #string of studyIDs deliminated by "|" used in the trait_table
-        studyIDListStr <- paste(studyIDs, collapse = "|")
-        traitTable <- add_row(traitTable, trait = traitName, studyIDs = studyIDListStr)
         #create a dictionary-like object with study_ids as keys and ancestry strings as values (used for the ethnicity column)
         ethnicity <- select(studies@ancestral_groups, -ancestry_id) %>%
           group_by(study_id) %>%
-          mutate(ethnicity = str_replace_all(paste0(unique(ancestral_group[!is.na(ancestral_group)]), collapse = "|")), ",", "") %>% #TODO test this! should remove commas!
+          mutate(ethnicity = str_replace_all(paste0(unique(ancestral_group[!is.na(ancestral_group)]), collapse = "|"), ",", "")) %>%
           distinct(study_id, .keep_all = TRUE) %>%
           select(-ancestral_group) %>%
           dplyr::rename(studyID = "study_id")
@@ -208,7 +200,8 @@ if (is_ebi_reachable()) {
         cohort <- getCohorts(studies)
         studyTable <- add_row(studyTable, 
                               studyID = studyIDs, 
-                              pubMedID = pubMedIDs, 
+                              pubMedID = pubMedIDs,
+                              trait = traitName,
                               citation = citations$citation, 
                               studyScore = unname(pubMedIDToScoreDict[pubMedID]),
                               ethnicity = ethnicity$ethnicity,
@@ -222,10 +215,8 @@ if (is_ebi_reachable()) {
         }
       }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
     }
-    studyTable <- distinct(studyTable, studyID, .keep_all = TRUE) #removes duplicate studyIDs (TODO- why are these duplicates created?)
-    studyTable <- arrange(studyTable, studyID)
+    studyTable <- arrange(studyTable, trait, studyID)
     #write out the trait and study tables
-    write.csv(traitTable, file.path(getwd(), "trait_table.csv"), row.names=FALSE)
     write.csv(studyTable, file.path(getwd(), "study_table.csv"), row.names=FALSE)
   }
 } else {
