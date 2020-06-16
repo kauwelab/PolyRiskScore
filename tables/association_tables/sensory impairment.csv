@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs17629990","4:170302895","4:171224046","4:171460621","4:171598776","LINC01612:19172|LINC02512:40194|LINC02512:39926",0.817,"G",2e-07,2.98,"1.98","4.48","Tao F 2019","GCST008537"

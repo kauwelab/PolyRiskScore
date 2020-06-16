@@ -8,11 +8,12 @@
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <link href="css/multiselect.css" rel="stylesheet"> <!-- TODO -->
 </head>
 
-<body>
+<body onload="getTraits()">
   <div class = 'p-9 bg-primary text-center'>
-    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Hi! Welcome to the Beta version of our website--Click here to leave us comments or concerns!</a>
+    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website! --Click here to leave us comments or questions</a>
   </div>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <a class="navbar-brand" href="#">Calculate Risk Scores</a>
@@ -36,93 +37,6 @@
       </ul>
     </div>
   </nav>
-  <header>
-    <!-- <div class="one">
-      <div class="text-center">
-        <img src="images/Ollie.jpg" id="videosubstitute" alt="">
-        <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop" id="video2">
-          <source src="images/testVid_1.mp4" type="video/mp4">
-        </video>
-
-      </div>
-      <div class="text-center text-white my-auto">
-
-
-        <h1 class="display-1 font-weight-bold "><br>Calculate Polygenic Risk Scores<br></h1>
-
-
-      </div>
-
-    </div> -->
-  </header>
-  <!--
-    <header>
-      <div class="jumbotron">
-        <div class="container">
-          <div class="row">
-            <div class="col-12">
-              <h1 class="text-center">The Polygenic Risk Score Knowledge Base</h1>
-              <p class="lead"><br>The purpose of the PRS Knowledge Base is to allow researchers to quickly calculate polygenic risk scores for various diseases based on published genome-wide association studies (GWAS).<br><br>The PRS Knowledge Base also facilitates the use and distribution of GWAS results by allowing researchers to upload results from their own studies to be included in future polygenic risk score calculations. </p>
-              <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-    <section>
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Calculate Polygenic Risk Scores</h2>
-			  <p class="lead"><br>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p>
-              <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="calculate_score.html" role="button">Upload VCF</a> </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="jumbotron">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-12 mb-4 mt-2 text-center">
-				<h2>Add GWAS to the PRS Knowledge Base</h2>
-              <p class="lead"><br>We invite you to upload the odds ratios and p-values from your association studies to the knowledge base. Please visit the submission page by clicking on the link below to see the required submission format and to upload your study.<br><br>Thank you for supporting the PRS Knowledge Base!</p>
-				<p>&nbsp;</p>
-            </div>
-          </div>
-
-            <p class="text-center"><a class="btn btn-primary btn-lg" href="upload_gwas.html" role="button">Upload GWAS</a> </p>
-
-        </div>
-      </div>
-
-
-	<div class="container">
-        <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>How To Cite the PRS Knowledge Base</h2>
-			  <p class="lead"><br>The PRS Knowledge Base would not be possible without the many genome-wide association studies that have been published. We ask that if you use the PRS Knowledge Base for published work, you cite the PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of all publications used by the PRS Knowledge Base, organized by disease, please follow the link below.</p>
-              <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="citations.html" role="button">Citations</a> </p>
-          </div>
-        </div>
-      </div>
-
-		<div class="jumbotron">
-		<div class="container">
-        <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>API</h2>
-			  <p class="lead"><br>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line. </p>
-              <p>&nbsp;</p>
-              <p class="text-center"><a class="btn btn-primary btn-lg" href="api.html" role="button">API Documentation</a> </p>
-          </div>
-        </div>
-      </div>
-		</div>
-</section>
-	  -->
   <div class="jumbotron">
     <div class="container">
       <div class="row">
@@ -186,9 +100,30 @@
                   </div>
                 </div>
               </form>
-
               <p>&nbsp;</p>
-              <script src="js/sliderFunctions.js"></script>
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left">
+                  <h5>Ethnicity&nbsp;</h5>
+                    <select id='ethnicitySelect' multiple>
+                      <option selected="selected" value="Admixed Ancestry" >Admixed Ancestry</option>
+                      <option selected="selected" value="African American or Afro-Caribbean">African American or Afro-Caribbean</option>	
+                      <option selected="selected" value="African unspecified">African unspecified</option>
+                      <option selected="selected" value="Asian unspecified">Asian unspecified</option>
+                      <option selected="selected" value="East Asian">East Asian</option>
+                      <option selected="selected" value="European">European</option>
+                      <option selected="selected" value="Greater Middle Eastern">Greater Middle Eastern</option>
+                      <option selected="selected" value="Hispanic or Latin American">Hispanic or Latin American</option>
+                      <option selected="selected" value="Native American">Native American</option>
+                      <option selected="selected" value="Oceanian">Oceanian</option>
+                      <option selected="selected" value="South Asian">South Asian</option>
+                      <option selected="selected" value="South East Asian">South East Asian</option>
+                      <option selected="selected" value="Sub-Saharan African">Sub-Saharan African</option>
+                    </select>
+                  <script src="js/multiselect.min.js"></script>
+                  <script>document.multiselect('#ethnicitySelect');</script>
+                </div>
+              </div>
+
               <div class="container diseaseLists">
                 <div class="row">
                   <div class='parent inline-flex-parent'>
@@ -199,32 +134,10 @@
                         <script src="js/diseaseList.js"></script>
                         <h8>
                           <div class="diseaseLists">
-                            <select id="disease" onchange="ChangeDiseaseList()">
+                            <select id="disease" onchange="getStudies()">
                               <!--<option selected="selected">All</option>-->
                               <option value="">--Disease--</option>
                               <option value="all">All Diseases </option>
-                              <option value="adhd">ADHD</option>
-                              <option value="ad">Alzheimer's Disease</option>
-                              <option value="als">ALS</option>
-                              <!-- <option value="ankylosing_spondylitis">Ankylosing Spondylitis</option>
-                              <option value="asthma_adult_onset">Asthma (Adult Onset)</option>
-                              <option value="asthma_childhood_onset">Asthma (Childhood Onset)</option>
-                              <option value="celiac_disease">Celiac Disease</option>
-                              <option value="cll">Chronic Lymphocytic Leukemia</option>
-                              <option value="copd">Chronic Obstructive Pulmonary Disease</option> -->
-                              <option value="coronary_heart_disease">Coronary Heart Disease</option>
-                              <!-- <option value="crohns_disease">Chrohn's Disease</option> -->
-                              <option value="dep">Depression</option>
-                              <!-- <option value="graves_disease">Grave's Disease</option> -->
-                              <option value="hf">Heart Faliure</option>
-                              <!-- <option value="hypothyroidism">Hypothyroidism</option>
-                              <option value="ms">Multiple Sclerosis</option>
-                              <option value="psoriasis">Psoriasis</option>
-                              <option value="sarcoidosis">Sarcoidosis</option>
-                              <option value="thyroid_carcinoma">Thyroid Carcinoma</option> -->
-                              <option value="t1d">Type 1 Diabetes Mellitus</option>
-                              <option value="t2d">Type 2 Diabetes Mellitus</option>
-                              <!-- <option value="ulcerative_colitis">Ulcerative Colitis</option> -->
                             </select>
                           </div>
                           <div class="diseaseLists">
@@ -253,45 +166,38 @@
                   <div class='parent inline-flex-parent'>
                     <div class='child'>
                       <div class="col-lg-12 mb-.5 mt-2 text-left">
-                        <h5>Slide to select P-Value Cutoff&nbsp;</h5>
-                        <form action="#" method="POST" id="pvalSlider" name="pvalOptions">
+                        <h5>Enter P-Value Cutoff&nbsp;</h5>
+                        <form action="#" method="POST" id="pvalInput" name="pvalOptions">
                           <div class="form-inline">
-                            <input type="range" min="-12" max="-1" value="-3" step="1" name="pvalue" class="slider"
-                              id="pvalue">
-                            <label>&nbsp;&nbsp;&nbsp;1x10
+                            <div>
+                              <input type="number" value="1.0" name = "pValScalarIn" id ="pValScalarIn" size = 5 min = 1.0 max = 10.0 onchange = "changePValScalar()">
+                              x10^-
+                              <input type="number" value="5" name="pValMagIn" id="pValMagIn" size = 5 min = 0.0 max = 100.0 onchange="changePValMagnitude()">
+                            </div>
+                            <label>
+                              &nbsp;&nbsp;&nbsp;(
+                              <output id="pvalScalar" name="pvalScalar" for="pValScalarIn">1.0</output>
+                              x10
                               <sup>
-                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pvalue"></output>
-                              </sup>
+                                <output id="pvalMagnigtude" name="pvalMagnigtude" for="pValMagIn">-5</output>
+                              </sup>)
                             </label>
                           </div>
                         </form>
-                        <!--Below script ensures the display of the
-                          p-value is synced with the slider-->
-                        <script>
-                          var slider = document.getElementById("pvalue");
-                          var output = document.getElementById("pvalMagnigtude");
-                          output.innerHTML = slider.value;
-
-                          slider.oninput = function () {
-                            output.innerHTML = this.value;
-                            resetOutput()
-                            $('#response').html("");
-                          }
-                        </script>
                       </div>
                     </div>
-                    <div class='child'>
-                      <div class="col-lg-12 mb-0 mt-2 text-left">
-                        <h5>Output Format&nbsp;</h5>
-                        <script src="js/calculate_score.js"></script>
-                        <script src="js/vcf_parser.js"></script>
-                        <div class="fileFormOptions">
-                          <select id="fileType" , onchange="changeFormat();">
-                            <option value="csv">CSV</option>
-                            <option value="json">JSON</option>
-                            <option value="text">Text</option>
-                          </select>
-                        </div>
+                  </div>
+                  <div class='child'>
+                    <div class="col-lg-12 mb-0 mt-2 text-left">
+                      <h5>Output Format&nbsp;</h5>
+                      <script src="js/calculate_score.js"></script>
+                      <script src="js/vcf_parser.js"></script>
+                      <div class="fileFormOptions">
+                        <select id="fileType" , onchange="changeFormat();">
+                          <option value="csv">CSV</option>
+                          <option value="json">JSON</option>
+                          <option value="text">Text</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -323,12 +229,9 @@
             <div class="text-center col-12">
               <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
               <form id="responseBox" class="text-center">
-
                 <div class="form-text font-weight-bold">
-
                   <textarea readonly rows="10" cols="100" class="form-control nowrap" id="response" name="response"
                     placeholder="Results" aria-describedby="response to query"></textarea>
-
                 </div>
               </form>
               <p>&nbsp;</p>

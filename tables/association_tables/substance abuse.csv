@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs56372821","8:27578983","8:27436500","8:27492417","8:27492417","SCARA3:54682|EPHX2:0|GULOP:0|CLU:17934|MIR6843:31618|CHRNA2:99698|SCARA3:54885|EPHX2:33419|CHRNA2:99100",0.856,"G",9e-12,1.25,NA,NA,"Demontis D 2019","GCST008414"

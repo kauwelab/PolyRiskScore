@@ -1,0 +1,2 @@
+"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
+"1","rs9316695","13:54041638","13:54615773","13:53513774","13:53513774","LINC00558:101678|LINC00458:74145|LINC00458:82686|AL356052.1:74838|LINC00558:165519",0.12,"A",6e-06,4.46,"2.30","8.47","Nakano MH 2019","GCST009381"
