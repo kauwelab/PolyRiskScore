@@ -107,56 +107,6 @@ app.post('/contact', function (req, res) {
     res.end();
 });
 
-// POST route from upload GWAS form
-app.post('/sendGwas', upload.single('file'), (req, res) => {
-    console.log("in sendGWAS")
-
-    const file = req.file;
-    if (!file) {
-        res.send("please select a file");
-    }
-    else {
-        let mailOpts, smptTrans;
-        smptTrans = nodeMailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: 'kauwelab19@gmail.com',
-                pass: passwords.getEmailPassword()
-            }
-        });
-        mailOpts = {
-            from: req.body.name + ' &lt;' + req.body.email + '&gt;',
-            to: 'kauwelab19@gmail.com',
-            subject: 'New message from contact form at PRS.byu.edu',
-            text: `From ${req.body.name} at (${req.body.email})
-        Title: ${req.body.title}
-        Author: ${req.body.author}
-        Year: ${req.body.year}`,
-            attachments: [
-                {
-                    path: file.path,
-                    filename: file.filename
-                }
-            ]
-        };
-        console.log("after message")
-        smptTrans.sendMail(mailOpts, (err, data) => {
-            if (err) {
-                res.writeHead(301, { Location: 'fail.html' });
-                res.end();
-            }
-            else {
-                res.writeHead(301, { Location: 'success_upload.html' });
-                res.end();
-                cleanFolder(__dirname + "/uploads");
-            }
-        });
-    }
-
-});
-
 // end Post Routes ---------------------------------------------------------------------------------
 
 /**
