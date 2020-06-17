@@ -43,6 +43,8 @@ def checkTableExists(cursor, tableName):
 
 # deletes 'dbTableName' from the database
 def deleteTable(cursor, dbTableName):
+    if dbTableName == "studyMaxes":
+        return
     sql = "DROP TABLE `" + dbTableName + "`;"
     cursor.execute(sql)
     cursor.close()
