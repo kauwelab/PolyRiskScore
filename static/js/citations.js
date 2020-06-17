@@ -1,6 +1,5 @@
-//TODO rename
-//TODO make sycronous
-function getAllStudies() {
+//ajax is asyncronous so it must call the loadStudies function on success
+function getOrderedPublicationsAndLoad() {
     $.ajax({
         type: "GET",
         url: "/get_all_studies",
@@ -12,27 +11,31 @@ function getAllStudies() {
             //being added to the studyObject's studyID list
             pubMedObjs = new Map()
             for (var i = 0; i < studyObjects.length; i++) {
-                var newPubMedObj;
+                studyObjects[i].trait = formatHelper.formatForWebsite(studyObjects[i].trait)
+
                 //if the pubMedObjs already has an entry for this studyObject's pubMedID
                 if (pubMedObjs.has(studyObjects[i].pubMedID)) {
-                    newPubMedObj = Object.assign({}, pubMedObjs.get(studyObjects[i].pubMedID));
+                    //gets the object address of the pubMedObj inside pubMedObjs for direct editing
+                    //(doesn't need to be appended to the map)
+                    var pubMedObj = pubMedObjs.get(studyObjects[i].pubMedID);
                     //if the studyObject's studyID isn't already in the pubMedObj's list, add it
-                    if (!newPubMedObj.studyID.includes(studyObjects[i].pubMedID)) {
-                        newPubMedObj.studyID.push(studyObjects[i].studyID)
+                    if (!pubMedObj.studyID.includes(studyObjects[i].studyID)) {
+                        pubMedObj.studyID.push(studyObjects[i].studyID)
                     }
                     //if the studyObject's trait isn't already in the pubMedObj's list, add it
-                    if (!newPubMedObj.trait.includes(studyObjects[i].trait)) {
-                        newPubMedObj.trait.push(studyObjects[i].trait)
+                    if (!pubMedObj.trait.includes(studyObjects[i].trait)) {
+                        pubMedObj.trait.push(studyObjects[i].trait)
                     }
                 }
                 //if the studyObject isn't in the pubMedObj map yet, convert some of its data to lists and add it
                 else {
-                    newPubMedObj = Object.assign({}, studyObjects[i]);
+                    //copies the studyObject into a new variable to edit it's values
+                    var newPubMedObj = Object.assign({}, studyObjects[i]);
                     newPubMedObj.studyID = [newPubMedObj.studyID]
                     newPubMedObj.trait = [newPubMedObj.trait]
+                    //add the new studyObject to the map
+                    pubMedObjs.set(studyObjects[i].pubMedID, newPubMedObj)
                 }
-                //add the new studyObject to the map
-                pubMedObjs.set(studyObjects[i].pubMedID, newPubMedObj)
             }
             //sort alphabetically by citation (author name + year)
             newStudyObjects = Array.from(pubMedObjs.values()).sort((a, b) => (a.citation > b.citation) ? 1 : -1);
@@ -41,17 +44,17 @@ function getAllStudies() {
             loadStudies(newStudyObjects)
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
+            alert(`There was an error loadfing the studies: ${XMLHttpRequest.responseText}`);
         }
     })
 }
 
-//TODO rename
+//takes a list of study objects and converts them into invisible html elements
+//for each publication, two elements are created, one for the citation, and a list
+//element that becomes visible and expands when the citation element is clicked
+//the citation tha
 function loadStudies(newStudyObjects) {
-    $('#publicationContainer').append(`<h3 style="margin-top: 2rem;">Publications used by the PRS Knowledge Base:</h3>
-            <input size="40" type="text" id="studySearchBar" onkeyup="pubSearch()"
-            placeholder="Search for disease or article title..."></input>`);
-
+    //create the html representing each publication
     for (var i = 0; i < newStudyObjects.length; ++i) {
         studyObject = newStudyObjects[i];
         var citation = studyObject.citation;
@@ -60,34 +63,34 @@ function loadStudies(newStudyObjects) {
         var studyIDs = studyObject.studyID;
         var traits = studyObject.trait;
 
-        //create the html representing a single publication
-        //TODO make searchable by other elements other than citation
-        //`<a href="#` + `citation` + `">` + citation + `</a>
+        //add the citation element and add the title and first trait to the publication info list element
         var publicationHTMLString = `<li class="publication" style="list-style:none;"><a href="#` + citation + `">` + citation + `</a> </li>
         <ul>
-            <li>Title: `+ title + `</li>
-            <li>Traits:`
+            <li>Title: ` + title + `</li>
+            <li>Traits: ` + traits[0]
 
-        //add the traits to the html element
-        for (var k = 0; k < traits.length; ++k) {
-            //TODO beautify trait names
-            trait = traits[k]
-            publicationHTMLString += ` ` + trait;
+        //if there are more than on trait for this publication, add them too with commas separating each trait
+        if (traits.length > 1) {
+            for (var k = 1; k < traits.length; ++k) {
+                trait = traits[k]
+                publicationHTMLString += `, ` + trait;
+            }
         }
 
         //add the pub med id to the html element
-        publicationHTMLString += `</li><li>PubMed ID: <a href="https://pubmed.ncbi.nlm.nih.gov/` + pubMedID + `/">` + pubMedID + `</a></li>
+        publicationHTMLString += `</li><li>PubMed ID: <a href="https://pubmed.ncbi.nlm.nih.gov/` + pubMedID + `/" target="_blank">` + pubMedID + `</a></li>
             <li>Study Accession IDs:`
 
         //add the study ids to the html element
         for (var k = 0; k < studyIDs.length; ++k) {
             studyID = studyIDs[k]
-            publicationHTMLString += `<a href="https://www.ebi.ac.uk/gwas/publications/` + studyID + `/"> ` + studyID + `</a>`;
+            publicationHTMLString += `<a href="https://www.ebi.ac.uk/gwas/publications/` + studyID + `/" target="_blank"> ` + studyID + `</a>`;
         }
         publicationHTMLString += `</li></ul>`
 
         $('#publicationContainer').append(publicationHTMLString);
     }
+    //hide the study information list element and give the publication a click expand function
     $("ul").children('.publication').next('ul').hide();
     $("ul").children('.publication').hide();
     $(".publication").click(function () {
@@ -95,23 +98,26 @@ function loadStudies(newStudyObjects) {
     });
 }
 
-function pubSearch() {
-    // Declare variables
+//gets the filter string from the search bar- if it matches any part of the citation or publication information,
+//that publication becomes visible, otherwise the publication is set to display: none 
+function searchPublications() {
     var input = document.getElementById('studySearchBar');
     var filter = input.value.toLowerCase();
     var publicationContainer = document.getElementById("publicationContainer");
     var elementList = publicationContainer.getElementsByClassName('publication');
 
-    // Loop through all list items, and hide those who don't match the search query
+    //loop through all list items, and hide those that don't match the search query
     for (i = 0; i < elementList.length; i++) {
+        //the list element containing the publication's info
         var publicationInfoElements = $(elementList[i]).next("ul")
+        //if the search bar is empty, hide all publication elements
         if (filter == "") {
             publicationInfoElements.hide();
             elementList[i].style.display = "none";
         }
         else {
             var citation = elementList[i].textContent || elementList[i].innerText;
-            //gets a list containing the publication info as text (ex: [title, traits, pubMedID, studyIDs])
+            //gets a string list containing the publication info (ex: [title, traits, pubMedID, studyIDs])
             var infoTexts = $(publicationInfoElements).find('li').filter(function () {
                 return $(this).find('ul').length === 0;
             }).map(function (i, e) {
@@ -120,8 +126,8 @@ function pubSearch() {
             }).get();
 
             //if the citation or one of the strings in the publication info list (title, trait, 
-            //pubMedID, or studyID) contains the search string, the publication element visible, otherwise hide it
-            if (citation.toUpperCase().indexOf(filter) > -1 || typeof infoTexts.find(pubInfoString => pubInfoString.includes(filter)) !== "undefined") {
+            //pubMedID, or studyID) contains the search string, make the publication element visible, otherwise hide it
+            if (citation.toLowerCase().indexOf(filter) > -1 || typeof infoTexts.find(pubInfoString => pubInfoString.includes(filter)) !== "undefined") {
                 elementList[i].style.display = "";
             } else {
                 publicationInfoElements.hide();
