@@ -1,5 +1,5 @@
-function ChangeDiseaseList() {
-    //sessionStorage.removeItem("riskResults");
+function changeDiseaseList() {
+    moveToNextTourIndex("trait")
     resetOutput();
     $('#response').html("");
     var diseaseList = document.getElementById("disease");
@@ -26,6 +26,7 @@ function ChangeDiseaseList() {
 }
 
 function changeStudiesList() {
+    moveToNextTourIndex("trait")
     resetOutput();
     $('#response').html("");
 }
