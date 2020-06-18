@@ -73,19 +73,16 @@ exports.getAllSnps = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             // formating returned data
-            let snpsSET = new Set()
             let testArray = []
 
             for (i=0; i<data.length; i++) {
                 for (j=0; j<data[i].length; j++) {
-                    testArray.push(data[i][j].snp)
-                    snpsSET.add(data[i][j].snp)
+                    testArray.push(data[i][j])
                 }
             }
 
-            console.log(`SNPS in set: ${snpsSET.size}`)
             console.log(`Total snps: ${testArray.length}`)
-            res.send(Array.from(snpsSET));
+            res.send(Array.from(testArray));
         }
     })
 }

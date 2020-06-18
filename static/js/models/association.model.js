@@ -79,7 +79,7 @@ Association.getAllSnps = result => {
         // turn traits into table names 
         for (i=0; i<res.length; i++) {
             trait = formatter.formatForTableName(res[i].trait)
-            queryString = queryString.concat(`SELECT DISTINCT snp FROM \`${trait}\`; `)
+            queryString = queryString.concat(`SELECT DISTINCT snp, hg38 FROM \`${trait}\`; `)
         }
 
         sql.query(queryString, (err2, data) => {
