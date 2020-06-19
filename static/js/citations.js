@@ -84,7 +84,7 @@ function loadStudies(newStudyObjects) {
         //add the study ids to the html element
         for (var k = 0; k < studyIDs.length; ++k) {
             studyID = studyIDs[k]
-            publicationHTMLString += `<a href="https://www.ebi.ac.uk/gwas/publications/` + studyID + `/" target="_blank"> ` + studyID + `</a>`;
+            publicationHTMLString += `<a href="https://www.ebi.ac.uk/gwas/studies/` + studyID + `/" target="_blank"> ` + studyID + `</a>`;
         }
         publicationHTMLString += `</li></ul>`
 
