@@ -12,12 +12,64 @@ import requests
 import time
 
 
-def grepRes(diseaseArray, studyTypes, pValue, refGen):
+def grepRes(pValue, refGen, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
+    if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
+        toReturn = getAllAssociations(pValue, refGen)
+        return '%'.join(toReturn)
     if len(diseaseArray) <= 0:
         diseaseArray = []
     res = getSNPsforGrep(diseaseArray, studyTypes, pValue, refGen)
     toReturn = (res[0], res[1])
     print('%'.join(toReturn))
+
+
+def getAllAssociations(pValue, refGen): 
+    url_t = "https://prs.byu.edu/get_traits"
+    response = requests.get(url=url_t)
+    response.close()
+    traitList = response.json()
+    associations = {}
+    url_a = "https://prs.byu.edu/all_associations"
+    h=0
+    for i in range(100,len(traitList), 100):
+        print("In for loop ")
+        params = {
+            "traits": traitList[h:i],
+            "pValue": pValue,
+            "refGen": refGen
+        }
+        response = requests.get(url=url_a, params=params)
+        response.close()
+        if (response):
+            associations = {**response.json(), **associations}
+            h = i
+        else:
+            print(response.status_code)
+            break
+    else:
+        print("Last ones")
+        params = {
+            "traits": traitList[i:len(traitList)],
+            "pValue": pValue,
+            "refGen": refGen
+        }
+        response = requests.get(url=url_a, params=params)
+        response.close()
+        associations = {**response.json(), **associations}
+    
+    snps = "-e #CHROM "
+    for disease in associations:
+        for study in associations[disease]:
+            print(study)
+            for association in associations[disease][study]["associations"]:
+                bases = association['pos'].split(':')
+                # todo we need to figure out how we are going to handle "NA" for pos
+                # print(bases)
+                snps += "-e {0} ".format(str(bases[1]))
+    
+    associations = "[" + ', '.join(map(str, associations)) + "]"
+    print(snps)
+    return [snps, associations]
 
 
 def getSNPsforGrep(diseaseArray, studyTypes, pValue, refGen):
@@ -207,3 +259,5 @@ def formatCSV(results):
                 finalText += "\n" + line
     finalText += '\n'
     return finalText
+
+getAllAssociations(0.000005, "hg19")
