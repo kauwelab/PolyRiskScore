@@ -45,12 +45,13 @@
 
           <div class="row text-center">
             <div class="text-center col-12">
-              <h2 style="margin-bottom: 1rem;">How to Use the Calculator</h2>
+              <h2>How to Use the Calculator</h2>
+              <h3 style="margin-bottom: 1rem;"> (in 7 easy steps) </h3>
 
               <script src="js/tour.js"></script>
               <button type="button" id="startTour" onclick="startTour();" class="btn btn-primary btn-lg">Start a
                 Tour</button>
-              <h3><br>Input RS IDs and Alleles</h3>
+              <h3><br>1: Input RS IDs and Alleles</h3>
 
 
             </div>
@@ -98,52 +99,73 @@
                 </div>
               </form>
               <p>&nbsp;</p>
+
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
-                  <h5>1: Select Trait of Interest&nbsp;</h5>
-                    <select id='traitSelect' multiple>
+                  <h5>2: Specify Ethnicity and Reference Genome&nbsp;</h5>
+                    <select id='LD-ethnicitySelect'>
+                      <option value="Admixed Ancestry" >Admixed Ancestry</option>
+                      <option value="African American or Afro-Caribbean">African American or Afro-Caribbean</option>	
+                      <option value="African unspecified">African unspecified</option>
+                      <option value="Asian unspecified">Asian unspecified</option>
+                      <option value="East Asian">East Asian</option>
+                      <option value="European">European</option>
+                      <option value="Greater Middle Eastern">Greater Middle Eastern</option>
+                      <option value="Hispanic or Latin American">Hispanic or Latin American</option>
+                      <option value="Native American">Native American</option>
+                      <option value="Oceanian">Oceanian</option>
+                      <option value="South Asian">South Asian</option>
+                      <option value="South East Asian">South East Asian</option>
+                      <option value="Sub-Saharan African">Sub-Saharan African</option>
                     </select>
-                </div>
-              </div>
-              <div class='child'>
-                <div class="col-lg-12 mb-0 mt-2 text-left">
-                  <h5>2: Select Study Type&nbsp;</h5>
-                    <select id='studyTypeSelect' multiple>
-                    </select>
-                </div>
-              </div>
-              <div class='child'>
-                <div class="col-lg-12 mb-0 mt-2 text-left">
-                  <h5>3: Select Specific Studies&nbsp;</h5>
-                    <select id='studySelect' multiple>
+                    <select id="refGenome">
+                      <option selected="selected" value="default">--Reference Genome--</option>
+                      <option value="hg38">GRCh38/hg38</option>
+                      <option value="hg19">GRCh37/hg19</option>
+                      <option value="hg18">NCBI36/hg18</option>
+                      <option value="hg17">NCBI35/hg17</option>
                     </select>
                 </div>
               </div>
 
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
-                  <h5>Ethnicity&nbsp;</h5>
-                    <select id='ethnicitySelect' multiple>
-                      <option selected="selected" value="Admixed Ancestry" >Admixed Ancestry</option>
-                      <option selected="selected" value="African American or Afro-Caribbean">African American or Afro-Caribbean</option>	
-                      <option selected="selected" value="African unspecified">African unspecified</option>
-                      <option selected="selected" value="Asian unspecified">Asian unspecified</option>
-                      <option selected="selected" value="East Asian">East Asian</option>
-                      <option selected="selected" value="European">European</option>
-                      <option selected="selected" value="Greater Middle Eastern">Greater Middle Eastern</option>
-                      <option selected="selected" value="Hispanic or Latin American">Hispanic or Latin American</option>
-                      <option selected="selected" value="Native American">Native American</option>
-                      <option selected="selected" value="Oceanian">Oceanian</option>
-                      <option selected="selected" value="South Asian">South Asian</option>
-                      <option selected="selected" value="South East Asian">South East Asian</option>
-                      <option selected="selected" value="Sub-Saharan African">Sub-Saharan African</option>
+                  <h5>3: Select Trait(s) of Interest&nbsp;</h5>
+                    <select id='traitSelect' multiple>
                     </select>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left">
+                  <h5>4: Filter Studies by Type or Ethnicity&nbsp;</h5>
+                    <select id='studyTypeSelect' multiple>
+                      <option value="HI" selected="selected">High Impact Studies</option>
+                      <option value="LC" >Large Cohort Studies</option>
+                      <option value="O" >All Other Studies</option>    
+                    </select>
+                    <select id='ethnicitySelect' multiple>
+                      <option value="Admixed Ancestry" selected='selected'>Admixed Ancestry</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" onClick="getStudies()">
+                      Apply Filters
+                    </button>
+                </div>
+              </div>
+              
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left">
+                  <h5>5: Select from Filtered Studies&nbsp;</h5>
+                    <div id='studySelectContainer'>
+                      <select id='studySelect' multiple>
+                      </select>
+                    </div>
                 </div>
               </div>
 
               <div class='child'>
                 <div class="col-lg-12 mb-.5 mt-2 text-left">
-                  <h5>Enter P-Value Cutoff&nbsp;</h5>
+                  <h5>6: Enter P-Value Cutoff&nbsp;</h5>
                   <form action="#" method="POST" id="pvalInput" name="pvalOptions">
                     <div class="form-inline">
                       <div>
@@ -166,7 +188,7 @@
 
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
-                  <h5>Output Format&nbsp;</h5>
+                  <h5>7: Select an Output File Format&nbsp;</h5>
                   <script src="js/calculate_score.js"></script>
                   <script src="js/vcf_parser.js"></script>
                   <div class="fileFormOptions">
@@ -174,21 +196,6 @@
                       <option value="csv">CSV</option>
                       <option value="json">JSON</option>
                       <option value="text">Text</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class='child'>
-                <div class="col-lg-12 mb-.5 mt-2 text-left">
-                  <h5>Reference Genome&nbsp;</h5>
-                  <div class="refGenomeOptions">
-                    <select id="refGenome">
-                      <option selected="selected" value="default">--Reference Genome--</option>
-                      <option value="hg38">GRCh38/hg38</option>
-                      <option value="hg19">GRCh37/hg19</option>
-                      <option value="hg18">NCBI36/hg18</option>
-                      <option value="hg17">NCBI35/hg17</option>
                     </select>
                   </div>
                 </div>
@@ -328,9 +335,9 @@
   <script src="js/multiselect.min.js"></script> 
   <script>
     document.multiselect('#ethnicitySelect')
-    document.multiselect('#traitSelect')
+    //document.multiselect('#traitSelect')
     document.multiselect('#studyTypeSelect')
-    document.multiselect('#studySelect')
+    //document.multiselect('#studySelect')
   </script>
 
 </body>

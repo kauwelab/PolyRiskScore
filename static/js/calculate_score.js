@@ -23,6 +23,7 @@ function getTraits() {
                     opt.appendChild(document.createTextNode(traitsList[i]))
                     opt.value = traitsList[i]
                     selector.appendChild(opt);
+                    selector.html(document.multiselect('#traitSelect'));
             }
         },
         error: function (XMLHttpRequest) {
@@ -32,59 +33,54 @@ function getTraits() {
 }
 
 function getStudies() { 
-    //gets the disease name from the drop down list
-    var diseaseSelectElement = document.getElementById("disease");
-    var selectedTrait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-    var selector = document.getElementById("diseaseStudy");
-
-    // clear studies that are already there
-    while (selector.firstChild) {
-        selector.removeChild(selector.lastChild)
-    }
-
-    // make sure we keep the --Study--
-    var opt = document.createElement('option')
-    opt.appendChild(document.createTextNode("--Study--"))
-    opt.value = ""
-    selector.appendChild(opt);
-
-    //var selectedTrait = traitList[0] // TODO to Ed - this needs to be filled correctly, not sure how (Maddy)
-    if (selectedTrait == "") {
-        // do nothing
-    }
-    else if (selectedTrait.toLowerCase() == "all") {
-        selectedTrait = traitsList
-        studyTypes = ["All", "Largest Cohort", "High Impact"]
-
-        for (i=0; i<studyTypes.length; i++) {
-            var opt = document.createElement('option')
-            opt.appendChild(document.createTextNode(studyTypes[i]))
-            opt.value = studyTypes[i]
-            selector.appendChild(opt);
+    //gets the user selected traits, ethnicities, and studty types
+    var traitSelector = document.getElementById("traitSelect");
+    var ethnicitySelector = document.getElementById("ethnicitySelect");
+    var typeSelector = document.getElementById("studyTypeSelect");
+    var selectedTraits = [];
+    var selectedEthnicities = [];
+    var selectedTypes = [];
+    for (i=0; i<traitSelector.children.length; i++) {
+        if(traitSelector.children[i].selected) {
+            selectedTraits.push(traitSelector.children[i].value);
         }
-    }
-    else {
-        sIds = traitObjects[selectedTrait].studyIDs
-        $.ajax({
-            type: "GET",
-            url: "/get_studies",
-            data: {studyIDs: sIds},
-            success: async function (data) {
-                studyObjects = data;
+    } 
+    for (i=0; i<ethnicitySelector.children.length; i++) {
+        if(ethnicitySelector.children[i].selected) {
+            selectedEthnicities.push(ethnicitySelector.children[i].value);
+        }
+    } 
+    for (i=0; i<typeSelector.children.length; i++) {
+        if(typeSelector.children[i].selected) {
+            selectedTypes.push(ethnicitySelector.children[i].value);
+        }
+    } 
+    console.log(selectedTraits);
+    console.log(selectedEthnicities);
+    console.log(selectedTypes);
 
-                //populate the dropdown
-                for (i=0; i<studyObjects.length; i++) {
-                    var opt = document.createElement('option')
-                    opt.appendChild(document.createTextNode(studyObjects[i].citation))
-                    opt.value = studyObjects[i].studyID
-                    selector.appendChild(opt);
-                }
-            },
-            error: function (XMLHttpRequest) {
-                alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
+    //make sure it is reset/empty
+    $('#studySelect').replaceWith("<select id='studySelect' multiple></select>");
+    var studySelector = document.getElementById("studySelect");
+    $.ajax({
+        type: "GET",
+        url: "/get_studies",
+        data: {studyTypes: selectedTypes, traits: selectedTraits},
+        success: async function (data) {
+            studyObjects = data;
+            //populate the studies dropdown
+            for (i=0; i<studyObjects.length; i++) {
+                var opt = document.createElement('option')
+                opt.appendChild(document.createTextNode(studyObjects[i].citation))
+                opt.value = studyObjects[i].studyID
+                studySelector.appendChild(opt);
+                selector.html(document.multiselect('#studySelect'));
             }
-        })
-    }
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
+        }
+    })
 }
 
 // ------------------ Functions for retrieving associaitons ------------------------------
@@ -109,7 +105,7 @@ function getAllAssociations (pValue, refGen) {
 }
 
 function getSelectStudyAssociationsByTraits(pValue, refGen) {
-    var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+    var trait = traitSelectElement.options[traitSelectElement.selectedIndex].value;
     trait = formatter.formatForTableName(trait);
     var studyIDs = selectedStudies;
 
@@ -144,8 +140,8 @@ var calculatePolyScore = async () => {
     var pValue = pValueScalar.concat("e".concat(pValMagnitute))
 
     //gets the disease name from the drop down list
-    var diseaseSelectElement = document.getElementById("disease");
-    var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
+    var traitSelectElement = document.getElementById("disease");
+    var diseaseSelected = traitSelectElement.options[traitSelectElement.selectedIndex].value;
 
     //create a disease array (usually just the one disease unless "All dieases" is selected)
     var diseaseArray = makeDiseaseArray(diseaseSelected);
