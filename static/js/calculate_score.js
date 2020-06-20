@@ -1,3 +1,5 @@
+const formatter = require('./formatHelper')
+
 var resultJSON = "";
 //TODO gzip and zip still need work
 var validExtensions = ["vcf", "gzip", "zip"]
@@ -108,7 +110,7 @@ function getAllAssociations (pValue, refGen) {
 
 function getSelectStudyAssociationsByTraits(pValue, refGen) {
     var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-    trait = formatForTableName(trait);
+    trait = formatter.formatForTableName(trait);
     var studyIDs = selectedStudies;
 
     $.ajax({
@@ -122,17 +124,6 @@ function getSelectStudyAssociationsByTraits(pValue, refGen) {
             alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
         }
     })
-}
-
-function formatForTableName(traitName) {
-    // formatting trait names for database use
-    // all lowecase, spaces to underscores, forward slashes to dashes, no commas or apostrophies
-    const spacesRegex = / /g;
-    const forwardSlashesRegex = /\//g;
-    const commaRegex = /,/g;
-    const apostrophiesRegex = /'/g;
-
-    return traitName.toLowerCase().replace(spacesRegex, "_").replace(commaRegex, "").replace(forwardSlashesRegex,"-").replace(apostrophiesRegex, "");
 }
 
 // ------------------- END functions for retrieving associations --------------------------
