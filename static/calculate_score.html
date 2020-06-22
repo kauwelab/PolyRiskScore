@@ -8,12 +8,14 @@
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <link href="css/bootstrap-tour.min.css" rel="stylesheet">
   <link href="css/multiselect.css" rel="stylesheet"> <!-- TODO -->
 </head>
 
 <body onload="getTraits()">
-  <div class = 'p-9 bg-primary text-center'>
-    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website! --Click here to leave us comments or questions</a>
+  <div class='p-9 bg-primary text-center'>
+    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of
+      our website! --Click here to leave us comments or questions</a>
   </div>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <a class="navbar-brand" href="#">Calculate Risk Scores</a>
@@ -30,7 +32,6 @@
         <div class="active-page">
           <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
         </div>
-        <li class="nav-item"> <a class="nav-link" href="upload_gwas.html">Upload GWAS</a> </li>
         <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
         <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
         <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
@@ -44,12 +45,12 @@
 
           <div class="row text-center">
             <div class="text-center col-12">
-              <h1 style="margin-bottom: 1rem;">How to Use the Calculator</h1>
-              <p1>You can calculate a polygenic risk score by inputting rs IDs in the box below or uploading a VCF file. RS ids can be input with or without a genotype. If an rs ID is input without a genotype, all risk alleles at that position will be used in calculating the polygenic risk scores. If genotypes are available, alleles can be indicated after the rs ID. One or two alleles may be used. When only one allele is specified, the other will be assumed to be the risk allele. RS IDs and genotypes are separated by a colon. Separate rs IDs by either a comma, space, or an end-of-line character, as shown below.
+              <h2 style="margin-bottom: 1rem;">How to Use the Calculator</h2>
 
-                <br><br>Once you have input the rs IDs or uploaded a VCF file, select the disease you would like to test. The corresponding genome-wide association (GWA) study you select will contain the variants and odd ratios used to calculate the score. The p-value cutoff you select will decide which variants from the GWA study pass the significance threshold for calculating the score. Finally, select the reference genome from which your rs IDs or VCF file were determined.
-                </p1>
-              <h3><br>Input RS IDs and Genotypes</h3>
+              <script src="js/tour.js"></script>
+              <button type="button" id="startTour" onclick="startTour();" class="btn btn-primary btn-lg">Start a
+                Tour</button>
+              <h3><br>Input RS IDs and Alleles</h3>
 
 
             </div>
@@ -65,10 +66,6 @@
                     message.</span>
                 </div>
               </form>
-              <!--<form action="/UploadFile" method="post" enctype="multipart/form-data">
-                <input type="file" id="files" name="upload" />
-                <input type="submit" value="upload" />
-              </form>-->
 
               <!--Code for this found at link: http://jsfiddle.net/jworboys/rUbr9/ -->
               <form>
@@ -152,7 +149,8 @@
                       <div class="col-lg-12 mb-.5 mt-2 text-left">
                         <h5>Reference Genome&nbsp;</h5>
                         <div class="refGenomeOptions">
-                          <select id="refGenome">
+                          <!--onchange only affects progressing tours- see tour.js for details-->
+                          <select id="refGenome" onchange="moveToNextTourIndex('refGen')">
                             <option selected="selected" value="default">--Reference Genome--</option>
                             <option value="hg38">GRCh38/hg38</option>
                             <option value="hg19">GRCh37/hg19</option>
@@ -170,9 +168,11 @@
                         <form action="#" method="POST" id="pvalInput" name="pvalOptions">
                           <div class="form-inline">
                             <div>
-                              <input type="number" value="1.0" name = "pValScalarIn" id ="pValScalarIn" size = 5 min = 1.0 max = 10.0 onchange = "changePValScalar()">
+                              <input type="number" value="1.0" name="pValScalarIn" id="pValScalarIn" min=1.0 max=10.0
+                                onchange="changePValScalar()">
                               x10^-
-                              <input type="number" value="5" name="pValMagIn" id="pValMagIn" size = 5 min = 0.0 max = 100.0 onchange="changePValMagnitude()">
+                              <input type="number" value="5" name="pValMagIn" id="pValMagIn" min=0.0 max=100.0
+                                onchange="changePValMagnitude()">
                             </div>
                             <label>
                               &nbsp;&nbsp;&nbsp;(
@@ -267,145 +267,7 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
-
+  <script src="js/bootstrap-tour.min.js"></script>
 </body>
 
 </html>
-<!--
-			Adds a dropdown menu item
-			<li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Dropdown </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a>
-
-
-             Adds a divider between the last item in the dropdown menu and the other items.
-
-				<div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li>
-		-->
-
-<!--
-		This was a disabled menu button.
-		<li class="nav-item"> <a class="nav-link disabled" href="#">Disabled</a> </li>
-		-->
-
-<!--
-		This was a search bar and search button
-		<form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form> -->
-
-<!--
-		Traditional About me content with pictures of people. Dynamic 1 photo for phone, 2 for tablet, 3 for desktop.
-      <div class="container ">
-        <div class="row">
-          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
-            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
-            <h3>Lorem ipsum</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          </div>
-          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
-            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
-            <h3>Lorem ipsum dolor</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          </div>
-          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
-            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
-            <h3>Lorem ipsum dolor</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          </div>
-          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
-            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
-            <h3>Lorem ipsum</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          </div>
-          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
-            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
-            <h3>Lorem ipsum dolor</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          </div>
-          <div class="col-lg-4 col-md-6 col-sm-12 text-center">
-            <img class="rounded-circle" alt="140x140" style="width: 140px; height: 140px;" src="images/140X140.gif" data-holder-rendered="true">
-            <h3>Lorem ipsum</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-sm-12 mt-4 mb-2 text-center">
-            <h2>TESTIMONIALS</h2>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-sm-6 col-lg-6">
-            <blockquote class="blockquote">
-              <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
-            </blockquote>
-          </div>
-          <div class="col-sm-6 col-lg-6">
-            <blockquote class="blockquote">
-              <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
-            </blockquote>
-          </div>
-          <div class="col-sm-6 col-lg-6">
-            <blockquote class="blockquote">
-              <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Polygenic Risk Scores">Source Title</cite></small>
-            </blockquote>
-          </div>
-          <div class="col-sm-6 col-lg-6">
-            <blockquote class="blockquote">
-              <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-              <small class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></small>
-            </blockquote>
-          </div>
-        </div>
-      </div>
-		-->
-<!--
-      <div class="container">
-        <div class="row">
-          <div class="col-12 mb-2 text-center">
-            <h2>OUR SERVICES</h2>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-sm-6 col-lg-4">
-            <h3>Feature Description</h3>
-            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt impedit est voluptatem doloremque architecto corporis suscipit quidem ratione! Quis laborum nam optio dolorem doloremque ex nobis quibusdam ad quo dolores? </p>
-            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
-          </div>
-          <div class="col-sm-6 col-lg-4">
-            <h3>Feature Description</h3>
-            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptate, illo, libero esse assumenda culpa consequatur exercitationem beatae odio praesentium nihil iste ipsum reiciendis pariatur. Recusandae, reiciendis quidem eaque aut ab. </p>
-            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
-          </div>
-          <div class="col-sm-6 col-lg-4">
-            <h3>Feature Description</h3>
-            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis, adipisci recusandae veniam laudantium distinctio temporibus eveniet dolorum earum iusto veritatis provident ducimus minima dolore quas vel omnis cumque voluptas quibusdam.</p>
-            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
-          </div>
-          <div class="col-sm-6 col-lg-4">
-            <h3>Feature Description</h3>
-            <p> <em class="icon-desktop "></em> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde, earum rem nostrum provident repellat inventore laborum deleniti quas facere Quasi impedit autem qui cupiditate modi vero vitae dolorum nisi explicabo ea dolores animi. Inventore, omnis.</p>
-            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
-          </div>
-          <div class="col-sm-6 col-lg-4">
-            <h3>Feature Description</h3>
-            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Similique, iure, perspiciatis, ab ad quia animi esse repudiandae tempore quisquam dolorem sequi voluptatum qui fugiat. Quasi impedit autem qui cupiditate iusto?</p>
-            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
-          </div>
-          <div class="col-sm-6 col-lg-4">
-            <h3>Feature Description</h3>
-            <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quia, aut, hic laudantium reprehenderit sapiente nemo consequatur corrupti accusantium! Hic, non rerum nihil reprehenderit excepturi explicabo error tempore aliquam eveniet odit.</p>
-            <p><a class="btn btn-link" href="http://www.adobe.com">View details »</a></p>
-          </div>
-        </div>
-      </div>
-
-	  -->

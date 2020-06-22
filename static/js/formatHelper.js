@@ -17,4 +17,24 @@
         return traitName
     }
 
-})(typeof exports === 'undefined' ? this['sharedCode'] = {} : exports);
+    exports.formatForWebsite = function (traitName) {
+        //underscores to spaces, title case
+        const underscoreRegex = /_/g;
+
+        return toTitleCase(traitName.replace(underscoreRegex, " "))
+    }
+
+    //title case with two exeptions- letters already in uppercase stay uppercase and "ii" turns to 'II"
+    function toTitleCase(str) {
+        return str.replace(
+            /\w\S*/g,
+            function (txt) {
+                //for Roman numeral 2, return II. ex "Type II Diabetes Mellitus"
+                if (txt == "ii") {
+                    return "II";
+                }
+                return txt.charAt(0).toUpperCase() + txt.substr(1); //don't lowercase anything already uppercase
+            }
+        );
+    }
+})(typeof exports === 'undefined' ? this['formatHelper'] = {} : exports);
