@@ -85,25 +85,47 @@ if [ $# -lt 4 ]; then
     optionsLoop
     args=("$@")
 
-    disease=0
-    study=0
+    trait=0
+    studyType=0
+    studyID=0
+    ethnicity=0
 
-    studiesForCalc=()
-    diseasesForCalc=()
+    traitsForCalc=()
+    studyTypesForCalc=()
+    studyIDsForCalc=()
+    ethnicityForCalc=()
 
     if [ ${#args[@]} -gt 0 ]; then
         for arg in "${args[@]}";
         do
-            if [ "$arg" = "--d" ]; then
-                disease=1
-                study=0
+            if [ "$arg" = "--t" ]; then
+                trait=1
+                studyType=0
+                studyID=0
+                ethnicity=0
+            elif [ "$arg" = "--k" ]; then
+                trait=0
+                studyType=1
+                studyID=0
+                ethnicity=0
             elif [ "$arg" = "--s" ]; then
-                study=1
-                disease=0
-            elif [ $disease -eq 1 ] ; then
-                diseasesForCalc+=("$arg")
-            elif [ $study -eq 1 ] ; then
-                studiesForCalc+=("$arg")
+                trait=0
+                studyType=0
+                studyID=1
+                ethnicity=0
+            elif [ "$arg" = "--e" ]; then
+                trait=0
+                studyType=0
+                studyID=0
+                ethnicity=1
+            elif [ $trait -eq 1 ] ; then
+                traitsForCalc+=("$arg")
+            elif [ $studyType -eq 1 ] ; then
+                studyTypesForCalc+=("$arg")
+            elif [ $studyID -eq 1 ] ; then
+                studyIDsForCalc+=("$arg")
+            elif [ $ethnicity -eq 1 ] ; then
+                ethnicityForCalc+=("$arg")
             fi
         done
     fi

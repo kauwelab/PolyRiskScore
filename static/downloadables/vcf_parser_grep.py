@@ -13,9 +13,12 @@ import time
 
 
 def grepRes(pValue, refGen, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
-    if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
-        toReturn = getAllAssociations(pValue, refGen)
+    if (studyTypes is None and studyIDs is None and ethnicity is None):
+        toReturn = getAllAssociations(pValue, refGen, traits)
         return '%'.join(toReturn)
+    else:
+
+    
     if len(diseaseArray) <= 0:
         diseaseArray = []
     res = getSNPsforGrep(diseaseArray, studyTypes, pValue, refGen)
@@ -23,18 +26,19 @@ def grepRes(pValue, refGen, traits = None, studyTypes = None, studyIDs = None, e
     print('%'.join(toReturn))
 
 
-def getAllAssociations(pValue, refGen): 
-    url_t = "https://prs.byu.edu/get_traits"
-    response = requests.get(url=url_t)
-    response.close()
-    traitList = response.json()
+def getAllAssociations(pValue, refGen, traits): 
+    if (traits is None):
+        url_t = "https://prs.byu.edu/get_traits"
+        response = requests.get(url=url_t)
+        response.close()
+        traits = response.json()
     associations = {}
     url_a = "https://prs.byu.edu/all_associations"
     h=0
-    for i in range(100,len(traitList), 100):
+    for i in range(100, len(traits), 100):
         print("In for loop ")
         params = {
-            "traits": traitList[h:i],
+            "traits": traits[h:i],
             "pValue": pValue,
             "refGen": refGen
         }
@@ -49,7 +53,7 @@ def getAllAssociations(pValue, refGen):
     else:
         print("Last ones")
         params = {
-            "traits": traitList[i:len(traitList)],
+            "traits": traits[h:len(traits)],
             "pValue": pValue,
             "refGen": refGen
         }
@@ -62,14 +66,14 @@ def getAllAssociations(pValue, refGen):
         for study in associations[disease]:
             print(study)
             for association in associations[disease][study]["associations"]:
-                bases = association['pos'].split(':')
-                # todo we need to figure out how we are going to handle "NA" for pos
-                # print(bases)
-                snps += "-e {0} ".format(str(bases[1]))
+                snps += "-e {0} ".format(association['snp'])
     
     associations = "[" + ', '.join(map(str, associations)) + "]"
     print(snps)
     return [snps, associations]
+
+def getSpecificAssociations(pValue, refGen, ):
+    pass
 
 
 def getSNPsforGrep(diseaseArray, studyTypes, pValue, refGen):
@@ -259,5 +263,3 @@ def formatCSV(results):
                 finalText += "\n" + line
     finalText += '\n'
     return finalText
-
-getAllAssociations(0.000005, "hg19")

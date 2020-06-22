@@ -92,6 +92,21 @@ Study.getByTypeAndTrait = (traits, studyTypes, result) => {
     });
 };
 
+Study.getByID = (ids, result) => {
+    for (j=0; j<ids.length; j++) {
+        ids[j] = "\"" + ids[j] + "\"";
+    }
+    sql.query(`SELECT trait, studyID FROM study_table WHERE studyID in (${ids})`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        result(null, res);
+    })
+}
+
 Study.findStudy = (searchStr, result) => {
     sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {
