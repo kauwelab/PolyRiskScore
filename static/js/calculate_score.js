@@ -1,5 +1,3 @@
-const formatter = require('./formatHelper')
-
 var resultJSON = "";
 //TODO gzip and zip still need work
 var validExtensions = ["vcf", "gzip", "zip"]
@@ -14,14 +12,11 @@ function getTraits() {
         type: "GET",
         url: "get_traits",
         success: async function (data) {
-            traitObjects = data;
-            traitsList = Object.getOwnPropertyNames(traitObjects)            
-            
-            //populate the dropdown
+            traitsList = data;
             var selector = document.getElementById("traitSelect");
             for (i=0; i<traitsList.length; i++) {
                 var opt = document.createElement('option')
-                    opt.appendChild(document.createTextNode(traitsList[i]))
+                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(traitsList[i])))
                     opt.value = traitsList[i]
                     selector.appendChild(opt);
             }
@@ -107,7 +102,7 @@ function getAllAssociations (pValue, refGen) {
 
 function getSelectStudyAssociationsByTraits(pValue, refGen) {
     var trait = traitSelectElement.options[traitSelectElement.selectedIndex].value;
-    trait = formatter.formatForTableName(trait);
+    trait = formatHelper.formatForTableName(trait);
     var studyIDs = selectedStudies;
 
     $.ajax({
