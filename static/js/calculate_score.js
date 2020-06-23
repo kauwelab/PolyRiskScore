@@ -9,6 +9,7 @@ var traitsList = []
 var selectedStudies = []
 
 function getTraits() {
+    $('#traitSelect').replaceWith("<select id='traitSelect' multiple></select>");
     $.ajax({
         type: "GET",
         url: "get_traits",
@@ -23,8 +24,8 @@ function getTraits() {
                     opt.appendChild(document.createTextNode(traitsList[i]))
                     opt.value = traitsList[i]
                     selector.appendChild(opt);
-                    selector.html(document.multiselect('#traitSelect'));
             }
+            document.multiselect('#traitSelect');
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
@@ -52,7 +53,7 @@ function getStudies() {
     } 
     for (i=0; i<typeSelector.children.length; i++) {
         if(typeSelector.children[i].selected) {
-            selectedTypes.push(ethnicitySelector.children[i].value);
+            selectedTypes.push(typeSelector.children[i].value);
         }
     } 
     console.log(selectedTraits);
@@ -74,8 +75,8 @@ function getStudies() {
                 opt.appendChild(document.createTextNode(studyObjects[i].citation))
                 opt.value = studyObjects[i].studyID
                 studySelector.appendChild(opt);
-                selector.html(document.multiselect('#studySelect'));
             }
+            document.multiselect('#studySelect');
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
