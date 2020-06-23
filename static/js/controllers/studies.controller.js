@@ -69,17 +69,24 @@ exports.getByTypeAndTrait = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             traitsList = {}
+            
+            if (data.length == 1) {
+                traitsList[data[0].trait] = [data[0]]
+            }
 
-            for (i=0; i<data.length; i++) {
-                for (j=0; j<data[i].length; j++) {
-                    if (data[i][j].trait in traitsList) {
-                        traitsList[data[i][j].trait].push(data[i][j])
-                    }
-                    else {
-                        traitsList[data[i][j].trait] = [data[i][j]]
+            else {
+                for (i=0; i<data.length; i++) {
+                    for (j=0; j<data[i].length; j++) {
+                        if (data[i][j].trait in traitsList) {
+                            traitsList[data[i][j].trait].push(data[i][j])
+                        }
+                        else {
+                            traitsList[data[i][j].trait] = [data[i][j]]
+                        }
                     }
                 }
             }
+
             res.send(traitsList);
         }
     });
