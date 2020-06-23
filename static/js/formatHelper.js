@@ -1,4 +1,3 @@
-
 (function (exports) {
     exports.formatForTableName = function (traitName) {
         // formatting trait names for database use
