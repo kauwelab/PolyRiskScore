@@ -117,6 +117,8 @@ function searchPublications() {
         }
         else {
             var citation = elementList[i].textContent || elementList[i].innerText;
+            //ignores accented characters when filtering
+            citation = citation.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             //gets a string list containing the publication info (ex: [title, traits, pubMedID, studyIDs])
             var infoTexts = $(publicationInfoElements).find('li').filter(function () {
                 return $(this).find('ul').length === 0;
