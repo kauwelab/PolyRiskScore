@@ -10,27 +10,6 @@
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 </head>
-<style>
-  #diseasePredictionPanel {
-    display: none;
-  }
-
-  #screeningPanel {
-    display: none;
-  }
-
-  #filterPanel {
-    display: none;
-  }
-
-  #mdsPanel {
-    display: none;
-  }
-
-  #inferPanel {
-    display: none;
-  }
-</style>
 
 <body>
   <div class='p-9 bg-primary text-center'>
@@ -87,141 +66,190 @@
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
           <h2 style="margin-top: 2rem; color: #2192D3;">Calculating a Polygenic Risk Score</h2>
-          <p class="lead"><br>The score is derived by the data collected in <dfn
-              data-info="an observational study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait.">genome-wide
+          <p class="lead"><br>The score is derived by the data collected in<dfn
+              data-info="an observational study of a genome-wide set of genetic variants in a group of individuals that calculates associations between variants and traits.">genome-wide
               association studies</dfn>The odds ratios from the studies in our database are used as weights for each
             variant in order to compute a cumulative risk score for each sample.</p>
-          <p class="text-center">$$\sum_{k=1}^{\text{# loci}}\beta\text{k}\cdot\text{allele count}_{i,k}$$</p>
-        <p class="text-center" style="font-style: italic">Equation 1: The polygenic risk score for each sample is calculated by summing the total genetic risk of each associated variant multiplied by the number of alleles with that variant. The variable i denotes the individual. k denotes the locus of the variant. &beta; denotes the log odds ratio of that variant being associated with the specified disease.</p>
-              <p>&nbsp;</p>
+          <div class="pl-5 pr-5 text-center">
+            <img class="img-fluid" src="/images/formula.png" />
           </div>
-        </div>
-      </div>
-
-      <div class="jumbotron">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-12 mb-4 mt-2 text-center">
-        <h2>Using a Polygenic Risk Score</h2><br>
-        <script src="js/learn_more.js"></script>
-        <p class="text-center">
-            <ul class="prsList" style="text-align: left">
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')">Disease prediction</li>
-              <div id="diseasePredictionPanel">
-                <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
-              </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')">Clinical trial screening</li>
-              <div id="screeningPanel">
-                  <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
-                </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')">Additional filtering in genome-wide association studies</li>
-              <div id="filterPanel">
-                  <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
-                </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')">Mendelian Randomization studies</li>
-              <div id="mdsPanel">
-                  <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
-                </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')">Infer disease status in cohorts lacking phenotypic data</li>
-              <div id="inferPanel">
-                  <p>This panel contains information regarding how polygenic risk scores are used to predict disease.</p>
-                </div>
-            </ul>
+          <p class="text-center" style="font-style: italic">Equation 1: The equation we use for calculating polygenic
+            risk scores sums the risk alleles present in the individual as seen here, where a<sub>i</sub> is the number
+            of risk
+            alleles at the i<sup>th</sup> locus, r<sub>i</sub> is the odds ratio at that locus, and c is the exponent
+            for the p-value cutoff.
+            The p-value cutoff is an input for the calculation that is chosen by users.
           </p>
-            </div>
+          <p>&nbsp;</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="jumbotron">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2>Using a Polygenic Risk Score</h2><br>
+            <script src="js/learn_more.js"></script>
+            <p class="text-center">
+            <ul class="prsList" style="text-align: left">
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')"><a>Disease
+                  prediction</a></li>
+              <div id="diseasePredictionPanel" style="display: none;">
+                <p>Polygenic risk scores can be used to assess the risk of expressing a trait. An individual with a risk
+                  score that is higher than the population average is more likely to express that trait. Predicting late
+                  onset diseases with this method is particularly useful because preventative treatment can be applied
+                  sooner.
+                </p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')"><a>Clinical trial
+                  screening</a></li>
+              <div id="screeningPanel" style="display: none;">
+                <p>Clinical trials, such as drug testing, rely on removing confounding factors. Selecting individuals
+                  with similar risk scores for many traits eliminates potential confounding factors between these
+                  traits.
+                </p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')"><a>Additional
+                  filtering in genome-wide association
+                  studies</a></li>
+              <div id="filterPanel" style="display: none;">
+                <p>Polygenic risk scores can act as an additional filter for novel loci associated with a trait. If an
+                  indiviudal has a trait, but has a low risk score, or does not have a trait, but has a high risk score,
+                  the individual likely has novel genetic polymorphisms that need futher study.
+                </p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')"><a>Mendelian
+                  Randomization studies</a></li>
+              <div id="mdsPanel" style="display: none;">
+                <p>Mendelian randomization studies use polygenic risk scores to predict the effect a particular
+                  treatment or exposure will have on an indiviual.
+                </p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')"><a>Infer disease
+                  status in cohorts lacking phenotypic data</a></li>
+              <div id="inferPanel" style="display: none;">
+                <p>An individual's phenotype can be infered by comparing their risk scores to other individuals in their
+                  population or ethnicity.
+                </p>
+              </div>
+            </ul>
+            </p>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="container">
-          <div class="row">
-            <div class="col-lg-12 mb-4 mt-2 text-center">
-              <h2 style="margin-top: 2rem; color: #2192D3;">Benefits of the PRS Knowledge Base</h2><br><br>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mb-4 mt-2 text-center">
+          <h2 style="margin-top: 2rem; color: #2192D3;">Benefits of the PRS Knowledge Base</h2><br><br>
           <div id="flex-container">
             <div class="row justify-content-center">
-            <div class="flex-item col-md-3 align-self-top">
-              <h5>User-Friendly</h5>
-              <p>Until now, the only tools available for calculating polygenic risk scores were on the command line. Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
-            </div>
-            <div class="flex-item col-md-3 align-self-top">
-              <h5>Centralized Database</h5>
-              <p>Our Knowledge Base has a centralized database for all of the genome-wide association studies used to compute the scores. As new studies are performed, users can send us the studies through the website and we will manually review and add the information to our database.</p>
-            </div>
-            <div class="flex-item col-md-3 align-self-top">
-              <h5>UK Bio-Bank</h5>
-              <p>We provide a tool for individual score results to be compared to average scores calculated from the UK Bio-Bank.</p>
+              <div class="flex-item col-md-3 align-self-top">
+                <h5>User-Friendly</h5>
+                <p>Until now, the only tools available for calculating polygenic risk scores were on the command line.
+                  Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
+              </div>
+              <div class="flex-item col-md-3 align-self-top">
+                <h5>Centralized Database</h5>
+                <p>Our Knowledge Base has a centralized database for all of the genome-wide association studies used
+                  to
+                  compute the scores. As new studies are performed, users can send us the studies through the website
+                  and we will manually review and add the information to our database.</p>
+              </div>
+              <div class="flex-item col-md-3 align-self-top">
+                <h5>UK Bio-Bank</h5>
+                <p>We provide a tool for individual score results to be compared to average scores calculated from the
+                  UK Bio-Bank.</p>
+              </div>
             </div>
           </div>
-          </div>
-                <p>&nbsp;</p>
-				<p>&nbsp;</p>
-            </div>
-          </div>
+          <p>&nbsp;</p>
+          <p>&nbsp;</p>
         </div>
+      </div>
+    </div>
 
 
-        <div class="jumbotron">
-            <div class="container">
-              <div class="row">
-                <div class="col-lg-12 mb-4 mt-2 text-center">
+    <div class="jumbotron">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
             <h2>Additional Comments</h2><br>
-            <p style="text-align: left">The power of a polygenic risk score is contingent on the power and scope of the corresponding genome-wide association study data. One significant problem is the lack of diversity in the current genetic studies. 79% of all genome-wide association study data participants are of European descent. Scores for an individual are most accurate when computed from data of the same ethnicity. As such, the PRS Knowledge Base is currently more robust for studying subjects of European ancestry. As future studies begin incorporating greater diversity, the holistic accuracy of our Knowledge Base will similarly increase.
-              </p>
-            <p style="text-align: left">
-              There are other environmental and genetic factors not measured in a polygenic risk score that can contribute to disease risk. Lifestyle factors, non-additive loci, epistasis, and gene by environment interactions play a role in actual disease phenotype.
+            <p style="text-align: left">The power of a polygenic risk score is contingent on the power and scope of
+              the
+              corresponding genome-wide association study data. One significant problem is the lack of diversity in
+              the
+              current genetic studies. 79% of all genome-wide association study data participants are of European
+              descent. Scores for an individual are most accurate when computed from data of the same ethnicity. As
+              such, the PRS Knowledge Base is currently more robust for studying subjects of European ancestry. As
+              future studies begin incorporating greater diversity, the holistic accuracy of our Knowledge Base will
+              similarly increase.
             </p>
-                </div>
-              </div>
-            </div>
-          </div>
-</section>
-    <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
-      <div class="row">
-        <div class="col-12 col-md-8 mx-auto">
-
-            <div class="row text-center">
-                <div class="text-center col-12">
-                  <h1 class="font-weight-bold">Questions or Comments about the PRS Knowledge Base?</h1>
-                </div>
-                <div class="text-center col-12">
-                  <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-                  <form action="/contact" id="feedbackForm" method="post" role = "form">
-                    <div class="form-group text-left">
-                      <label for="name"><br><b>Name</b></label>
-                      <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name." aria-describedby="nameHelp">
-                      <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
-                    </div>
-                    <div class="form-group text-left">
-                      <label for="email"><b>E-Mail</b></label>
-                      <input type="email" class="form-control" id="email" name="email" placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
-                      <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail address.</span>
-                    </div>
-                    <div class="form-group text-left">
-                      <label for="message"><b>Message</b></label>
-                      <textarea rows="10" cols="100" class="form-control" id="message" name="message" placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
-                      <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
-                    </div>
-                    <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
-                  </form>
-                </div>
-              </div>
+            <p style="text-align: left">
+              There are other environmental and genetic factors not measured in a polygenic risk score that can
+              contribute to disease risk. Lifestyle factors, non-additive loci, epistasis, and gene by environment
+              interactions play a role in actual disease phenotype.
+            </p>
           </div>
         </div>
       </div>
+    </div>
+  </section>
+  <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
+    <div class="row">
+      <div class="col-12 col-md-8 mx-auto">
 
-      <footer class="text-center" style="background-color: #343a40;">
-          <div class="container">
-            <div class="row">
-              <div class="col-12 text-white" style="margin-top: 1rem;">
-                <p>Copyright © Miller et al. (2020) All rights reserved.</p>
-              </div>
-            </div>
+        <div class="row text-center">
+          <div class="text-center col-12">
+            <h1 class="font-weight-bold">Questions or Comments about the PRS Knowledge Base?</h1>
           </div>
-        </footer>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="js/jquery-3.3.1.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap-4.2.1.js"></script>
-  </body>
+          <div class="text-center col-12">
+            <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+            <form action="/contact" id="feedbackForm" method="post" role="form">
+              <div class="form-group text-left">
+                <label for="name"><br><b>Name</b></label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
+                  aria-describedby="nameHelp">
+                <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
+              </div>
+              <div class="form-group text-left">
+                <label for="email"><b>E-Mail</b></label>
+                <input type="email" class="form-control" id="email" name="email"
+                  placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
+                <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail
+                  address.</span>
+              </div>
+              <div class="form-group text-left">
+                <label for="message"><b>Message</b></label>
+                <textarea rows="10" cols="100" class="form-control" id="message" name="message"
+                  placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
+                <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
+                  message.</span>
+              </div>
+              <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center" style="background-color: #343a40;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-white" style="margin-top: 1rem;">
+          <p>Copyright © Miller et al. (2020) All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap-4.2.1.js"></script>
+</body>
+
 </html>
