@@ -63,13 +63,16 @@ function getStudies() {
         url: "/get_studies",
         data: {studyTypes: selectedTypes, traits: selectedTraits},
         success: async function (data) {
-            studyObjects = data;
+            var keys = Object.keys(data);
             //populate the studies dropdown
-            for (i=0; i<studyObjects.length; i++) {
-                var opt = document.createElement('option')
-                opt.appendChild(document.createTextNode(studyObjects[i].citation))
-                opt.value = studyObjects[i].studyID
-                studySelector.appendChild(opt);
+            for (i=0; i<keys.length; i++) {
+                for (j = 0; j< data[keys[i]].length; j++){
+                    var opt = document.createElement('option')
+                    var disp = studyObjects[i].citation + ' (' + keys[i] + ', ' + studyObjects[i].studyID + ')'
+                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(disp)))
+                    opt.value = studyObjects[i].studyID
+                    studySelector.appendChild(opt);
+                }
             }
             document.multiselect('#studySelect');
         },
