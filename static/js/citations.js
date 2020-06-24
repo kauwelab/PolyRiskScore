@@ -64,7 +64,7 @@ function loadStudies(newStudyObjects) {
         var traits = studyObject.trait;
 
         //add the citation element and add the title and first trait to the publication info list element
-        var publicationHTMLString = `<li class="publication" style="list-style:none;"><a href="#` + citation + `">` + citation + `</a> </li>
+        var publicationHTMLString = `<li class="publication" style="list-style:none;color:#007bff;"><a>` + citation + `</a> </li>
         <ul>
             <li>Title: ` + title + `</li>
             <li>Traits: ` + traits[0]
