@@ -63,6 +63,7 @@ function getStudies() {
         url: "/get_studies",
         data: {studyTypes: selectedTypes, traits: selectedTraits},
         success: async function (data) {
+            var studyObjects = data;
             var keys = Object.keys(data);
             //populate the studies dropdown
             for (i=0; i<keys.length; i++) {
