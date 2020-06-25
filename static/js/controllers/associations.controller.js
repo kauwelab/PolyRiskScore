@@ -101,11 +101,11 @@ async function separateStudies(associations, refGen) {
             oddsRatio: association.oddsRatio
         }
 
-        if (association.citation in studiesAndAssociations) {
-            studiesAndAssociations[association.citation].associations.push(row)
+        if (association.studyID in studiesAndAssociations) {
+            studiesAndAssociations[association.studyID].associations.push(row)
         }
         else {
-            studiesAndAssociations[association.citation] = {studyID: association.studyID, associations: [row]}
+            studiesAndAssociations[association.studyID] = {citation: association.citation, associations: [row]}
         }
     }
     return studiesAndAssociations
