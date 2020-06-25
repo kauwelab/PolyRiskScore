@@ -3,7 +3,6 @@ const Association = require("../models/association.model.js");
 exports.getFromTables = (req, res) => {
     //traits format :: [{trait: trait, studyIDs: [list of studyIDs]}, {trait: trait, studyIDs: [list of studyIDs]}]
     var traits = JSON.parse(req.query.traits)
-    console.log(traits)
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
 
@@ -23,11 +22,10 @@ exports.getFromTables = (req, res) => {
             else {
                 for (i=0; i<data.length; i++) {
                     var associations = data[i]
-                    console.log(`Num associations for trait ${traits[i]}: ${associations.length}`)
+                    console.log(`Num associations for trait ${traits[i].trait}: ${associations.length}`)
                     returnData[traits[i].trait] = await separateStudies(associations, refGen)
                 }
             }
-            console.log(returnData)
             res.send(returnData);
         }
     });
