@@ -24,7 +24,7 @@ exports.getFromTables = (req, res) => {
                 for (i=0; i<data.length; i++) {
                     var associations = data[i]
                     console.log(`Num associations for trait ${traits[i]}: ${associations.length}`)
-                    returnData[traits[i]] = await separateStudies(associations, refGen)
+                    returnData[traits[i].trait] = await separateStudies(associations, refGen)
                 }
             }
             console.log(returnData)
