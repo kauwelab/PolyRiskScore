@@ -21,7 +21,6 @@ const Association = function(massociation) {
 
 Association.getFromTables = (traits, pValue, refGen, result) => {
     queryString = ""
-    traits = JSON.parse(traits)
     for (i=0; i < traits.length; i++) {
         traitObj = traits[i]
         console.log(`this is the trait obj ${traitObj}`)
