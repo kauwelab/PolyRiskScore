@@ -3,6 +3,7 @@ const Association = require("../models/association.model.js");
 exports.getFromTables = (req, res) => {
     //traits format :: [{trait: trait, studyIDs: [list of studyIDs]}, {trait: trait, studyIDs: [list of studyIDs]}]
     var traits = req.query.traits
+    console.log(traits)
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
 
