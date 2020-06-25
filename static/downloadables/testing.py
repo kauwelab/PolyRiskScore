@@ -56,7 +56,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
         }
         studyIDspecificData = urlWithParams(url_get_by_study_id, params)
         print(studyIDspecificData)
-        
+
     if traits is None and studyTypes is not None:
         traits = getAllTraits()
         params = {
@@ -85,26 +85,38 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
 
     if traitData:
         # filter for ethnicity
-        finalTraitList = {}
-        if ethnicity:
-            # print(traitData)
-            for trait in traitData:
-                tmpStudyHolder = []
-                for study in traitData[trait]:
-                    if (ethnicity.lower() in study["ethnicity"].lower() and study["studyID"] not in tmpStudyHolder):
-                        tmpStudyHolder.append(study["studyID"])
-                        # print(study["ethnicity"])
-                finalTraitList = {**finalTraitList, **{trait: tmpStudyHolder}}
-            print(finalTraitList)
-        else:
-            finalTraitList = {**finalTraitList, **traitData}
+        finalTraitList = []
+        for trait in traitData:
+            tmpStudyHolder = []
+            for study in traitData[trait]:
+                if (ethnicity and ethnicity.lower() in study["ethnicity"].lower() and study["studyID"] not in tmpStudyHolder):
+                    tmpStudyHolder.append(study["studyID"])
+                    # print(study["ethnicity"])
+                elif not ethnicity and study["studyID"] not in tmpStudyHolder:
+                    tmpStudyHolder.append(study["studyID"])
+            
+            traitObj = {
+                "trait": trait,
+                "studyIDs": tmpStudyHolder
+            }
+            finalTraitList.append(traitObj)
+        print(finalTraitList)
 
-    if studyIDspecificData:
-        for obj in studyIDspecificData:
-            if obj["trait"] in finalTraitList and obj["studyID"] not in finalTraitList[obj["trait"]]:
-                finalTraitList[obj["trait"]].append(obj["studyID"])
-            else:
-                finalTraitList[obj["trait"]] = [obj["studyID"]]
+    # if studyIDspecificData:
+    #     for obj in studyIDspecificData:
+    #         if obj["trait"] in finalTraitList and obj["studyID"] not in finalTraitList[obj["trait"]]:
+    #             finalTraitList[obj["trait"]].append(obj["studyID"])
+    #         else:
+    #             finalTraitList[obj["trait"]] = [obj["studyID"]]
+
+    params_a = {
+        "traits": finalTraitList,
+        "pValue": pValue,
+        "refGen": refGen
+    }
+
+    associations = urlWithParams(url="https://prs.byu.edu/get_associations",params=params_a)
+    print(associations)
 
 
 def getAllTraits():
@@ -116,11 +128,11 @@ def getAllTraits():
 def urlWithParams(url, params):
     response = requests.get(url=url, params=params)
     response.close()
+    print(response.status_code)
     if (response):
         return response.json()
     else:
-        # throw an error
-        pass
+        return "ERROR" # throw an error
     
 
 # getAllAssociations(0.0000000005, "hg38") #, ["Alzheimer's Disease", "acne"])
