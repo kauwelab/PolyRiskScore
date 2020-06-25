@@ -8,7 +8,6 @@ def getAllAssociations(pValue, refGen, traits = None):
     url_a = "https://prs.byu.edu/all_associations"
     h=0
     for i in range(100, len(traits), 100):
-        print("In for loop ")
         params = {
             "traits": traits[h:i],
             "pValue": pValue,
@@ -49,6 +48,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
     traitData = {}
     studyIDspecificData = {}
     url_s = "https://prs.byu.edu/get_studies"
+
     if (studyIDs is not None):
         url_get_by_study_id = "https://prs.byu.edu/get_studies_by_id"
         params = {
@@ -56,6 +56,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
         }
         studyIDspecificData = urlWithParams(url_get_by_study_id, params)
         print(studyIDspecificData)
+        
     if traits is None and studyTypes is not None:
         traits = getAllTraits()
         params = {
@@ -63,7 +64,6 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
             "studyTypes": studyTypes
         }
         traitData = {**traitData, **urlWithParams(url_s, params)}
-        # get all the traits
     elif traits is None and studyTypes is None and studyIDs is not None:
         pass
         # we are just going to be working with the studyID studies
@@ -91,7 +91,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
             for trait in traitData:
                 tmpStudyHolder = []
                 for study in traitData[trait]:
-                    if (ethnicity.lower() in study["ethnicity"].lower()):
+                    if (ethnicity.lower() in study["ethnicity"].lower() and study["studyID"] not in tmpStudyHolder):
                         tmpStudyHolder.append(study["studyID"])
                         # print(study["ethnicity"])
                 finalTraitList = {**finalTraitList, **{trait: tmpStudyHolder}}
@@ -101,7 +101,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
 
     if studyIDspecificData:
         for obj in studyIDspecificData:
-            if obj["trait"] in finalTraitList:
+            if obj["trait"] in finalTraitList and obj["studyID"] not in finalTraitList[obj["trait"]]:
                 finalTraitList[obj["trait"]].append(obj["studyID"])
             else:
                 finalTraitList[obj["trait"]] = [obj["studyID"]]
@@ -124,7 +124,7 @@ def urlWithParams(url, params):
     
 
 # getAllAssociations(0.0000000005, "hg38") #, ["Alzheimer's Disease", "acne"])
-getSpecificAssociations(0.00000005, "hg38", ["Alzheimer's Disease", "acne"], ["O"], ethnicity="east Asian")
+getSpecificAssociations(0.00000005, "hg38", ["Alzheimer's Disease", "acne"], ["HI", "LC"], ethnicity="European")
 # getSpecificAssociations(0.00000005, "hg38", studyIDs=["GCST004246", "GCST002954"]) # can't test until I update the API
 
 # what I'm thinking currently:
