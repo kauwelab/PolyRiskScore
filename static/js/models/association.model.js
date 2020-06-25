@@ -23,6 +23,7 @@ Association.getFromTables = (traits, pValue, refGen, result) => {
     queryString = ""
     for (i=0; i < traits.length; i++) {
         traitObj = traits[i]
+        console.log(`this is the trait obj ${traitObj}`)
         studyIDs = traitObj.studyIDs
         for (j=0; j<studyIDs.length; j++) {
             studyIDs[j] = "\"" + studyIDs[j] + "\"";
