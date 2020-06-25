@@ -110,7 +110,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
     #             finalTraitList[obj["trait"]] = [obj["studyID"]]
 
     params_a = {
-        "traits": finalTraitList,
+        "traits": json.dumps(finalTraitList),
         "pValue": pValue,
         "refGen": refGen
     }
@@ -136,7 +136,7 @@ def urlWithParams(url, params):
     
 
 # getAllAssociations(0.0000000005, "hg38") #, ["Alzheimer's Disease", "acne"])
-getSpecificAssociations(0.00000005, "hg38", ["Alzheimer's Disease", "acne"], ["HI", "LC"], ethnicity="European")
+getSpecificAssociations(0.5, "hg38", ["Alzheimer's Disease", "acne"], ["HI", "LC"], ethnicity="European")
 # getSpecificAssociations(0.00000005, "hg38", studyIDs=["GCST004246", "GCST002954"]) # can't test until I update the API
 
 # what I'm thinking currently:
