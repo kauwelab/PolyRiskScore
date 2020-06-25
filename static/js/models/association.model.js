@@ -29,7 +29,7 @@ Association.getFromTables = (traits, pValue, refGen, result) => {
         for (j=0; j<studyIDs.length; j++) {
             studyIDs[j] = "\"" + studyIDs[j] + "\"";
         }
-        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${traitObj.trait}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}); `)
+        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${formatter.formatForTableName(traitObj.trait)}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}); `)
     }
 
     sql.query(queryString, (err, res) => {
