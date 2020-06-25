@@ -27,6 +27,7 @@ exports.getFromTables = (req, res) => {
                     returnData[traits[i].trait] = await separateStudies(associations, refGen)
                 }
             }
+            console.log(returnData)
             res.send(returnData);
         }
     });
