@@ -10,19 +10,33 @@ import math
 import ast
 import requests
 import time
+import datetime
 
+def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
+    outputFile = open('output.txt', 'a')
 
-def grepRes(pValue, refGen, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
+    traits = traits.split(" ") if traits != "" else None
+    studyTypes = studyTypes.split(" ") if studyTypes != "" else None
+    studyIDs = studyIDs.split(" ") if studyIDs != "" else None
+    ethnicity = ethnicity.split(" ") if ethnicity != "" else None
+
+    print(datetime.datetime.today(), file=outputFile)
+    print(traits, file=outputFile)
+    print(studyTypes, file=outputFile)
+    print(studyIDs, file=outputFile)
+    print(ethnicity, file=outputFile)
+
     if (studyTypes is None and studyIDs is None and ethnicity is None):
         toReturn = getAllAssociations(pValue, refGen, traits)
     else:
         toReturn = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
-    return '%'.join(toReturn)
+    print(toReturn, file=outputFile)
+    outputFile.close()
+    print('%'.join(toReturn))
 
 
-def getAllAssociations(pValue, refGen, traits = None): 
-    if (traits is None):
-        traits = getAllTraits()
+def getAllAssociations(pValue, refGen, traits = ""): 
+    traits = traits.split(" ") if traits != "" else getAllTraits()
 
     associations = getAssociations("https://prs.byu.edu/all_associations", traits, pValue, refGen)
     return formatAssociationsForReturn(associations)
@@ -108,7 +122,7 @@ def formatAssociationsForReturn(associations):
                 snps += "-e {0} ".format(association['pos'])
 
     associations = json.dumps(associations)
-    return (snps, associations)
+    return [snps, associations]
 
 
 def getAllTraits():

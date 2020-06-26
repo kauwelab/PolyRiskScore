@@ -5,6 +5,7 @@ LIGHTRED='\033[1;31m'
 LIGHTBLUE='\033[1;34m'
 LIGHTPURPLE='\033[1;35m'
 YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 function prskbMenu {
@@ -29,6 +30,17 @@ function listOptions {
     echo -e " ${LIGHTBLUE}3${NC} - Learn how to run the calculator without opening this menu"
     echo -e " ${LIGHTBLUE}4${NC} - Run the PRSKB calculator"
     echo -e " ${LIGHTBLUE}Q${NC} - Quit"
+    echo ""
+}
+
+function usage {
+    echo -e "runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv, json, or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
+    echo ""
+    echo -e "${GREEN}Optional parameters: "
+    echo -e "   ${GREEN}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
+    echo -e "   ${GREEN}--k${NC} studyType ex. HI LC O (High Impact, Large Cohort, Other studies)"
+    echo -e "   ${GREEN}--s${NC} studyIDs ex. GCST000727 GCST009496"
+    echo -e "   ${GREEN}--e${NC} ethnicity ex. European \"East Asian\""    
     echo ""
 }
 
@@ -72,18 +84,43 @@ function optionsLoop {
 #3 p-value cutoff (ex: 0.05)
 #4 refGen {hg17, hg18, hg19, hg38}
 
-#TODO- features to be added soon
-#opt diseaseList
-#opt output type- csv, json (optional)
-#opt studyType- large cohort(l), high impact(h) (optional)
+#OPTIONAL PARAMETERS:
+# --t traitList ex. ["acne", "insomnia"]
+# --k studyType ex. ["HI", "LC", "O"]
+# --s studyIDs ex. ["GCST000727", "GCST009496"]
+# --e ethnicity ex. ["European", "East Asian"]
+
 HORIZONTALLINE="============================================================================="
+
 if [ $# -lt 4 ]; then
+    echo -e "${RED}Too few arguments! Usage: ${NC}"
+    echo ""
+    usage
     # give a menu and make the script interactive, giving access
     # to know what studies and diseases they can choose from, 
     # what valid parameters are, ect, what explanations of parameters are
     prskbMenu
     optionsLoop
-    args=("$@")
+
+    read -p "Press [Enter] key to quit..."
+elif [ ! -f "$1" ]; then
+    echo "The file $1 does not exist."
+    echo "Check the path and try again."
+    read -p "Press [Enter] key to quit..."
+elif ! [[ "$2" =~ .csv|.json|.txt$ ]]; then
+    echo "$2 is not in the right format."
+    echo "Valid formats are csv, json, and txt"
+    read -p "Press [Enter] key to quit..."
+elif ! [[ "$3" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
+    echo "$3 is your p-value, but it is not a number."
+    echo "Check the value and try again."
+    read -p "Press [Enter] key to quit..."
+elif ! [[ "$4" == 'hg17' ]] && ! [[ "$4" = 'hg19' ]] && ! [[ "$4" == 'hg18' ]] && ! [[ "$4" == 'hg38' ]]; then
+    echo "$4 should be hg17, hg18, hg19, or hg38"
+    echo "Check the value and try again."
+    read -p "Press [Enter] key to quit..."
+else
+    args=("${@:5}")
 
     trait=0
     studyType=0
@@ -130,56 +167,18 @@ if [ $# -lt 4 ]; then
         done
     fi
 
-    echo "${studiesForCalc[@]}"
-
-    echo "Too few arguments! Usage:"
-    echo -e "runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv, json, or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
-    read -p "Press Q or [Enter] key to quit..."
-elif [ ! -f "$1" ]; then
-    echo "The file $1 does not exist."
-    echo "Check the path and try again."
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$3" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-    echo "$3 is your p-value, but it is not a number."
-    echo "Check the value and try again."
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$4" == 'hg17' ]] && ! [[ "$4" = 'hg19' ]] && ! [[ "$4" == 'hg18' ]] && ! [[ "$4" == 'hg38' ]]; then
-    echo "$4 should be hg17, hg18, hg19, or hg38"
-    echo "Check the value and try again."
-    read -p "Press [Enter] key to quit..."
-else
-
-    # check for/handle additional arguments
-    args=("${@:4}")
-
-    disease=0
-    study=0
-
-    studiesForCalc=()
-    diseasesForCalc=()
-
-    if [ ${#args[@]} -gt 0 ]; then
-        for arg in "${args[@]}";
-        do
-            if [ "$arg" = "--d" ]; then
-                disease=1
-                study=0
-            elif [ "$arg" = "--s" ]; then
-                study=1
-                disease=0
-            elif [ $disease -eq 1 ] ; then
-                diseasesForCalc+=("$arg")
-            elif [ $study -eq 1 ] ; then
-                studiesForCalc+=("$arg")
-            fi
-        done
-    fi
-
     echo "Running PRSKB on $1"
+
     # Calls a python function to get a list of SNPs from our database
     # res is a string composed of two strings separated by a '%'
     # The string is split into a list containing both strings
-    res=$(python -c "import vcf_parser_grep as pg; pg.grepRes('[]', 'all', '$3', '$4')")
+    # echo "${traitsForCalc[@]}"
+    export traitsForCalc=${traitsForCalc[@]}
+    export studyTypesForCalc=${studyTypesForCalc[@]}
+    export studyIDsForCalc=${studyIDsForCalc[@]}
+    export ethnicityForCalc=${ethnicityForCalc[@]}
+
+    res=$(python -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traitsForCalc}', '$studyTypesForCalc', '$studyIDsForCalc','$ethnicityForCalc')")
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
     read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
