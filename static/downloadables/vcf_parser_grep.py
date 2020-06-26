@@ -107,7 +107,7 @@ def formatAssociationsForReturn(associations):
             for association in associations[disease][study]["associations"]:
                 snps += "-e {0} ".format(association['pos'])
 
-    associations = "[" + ', '.join(map(str, associations)) + "]"
+    associations = json.dumps(associations)
     return (snps, associations)
 
 
@@ -127,7 +127,7 @@ def urlWithParams(url, params):
 
 
 def calculateScore(vcfFile, diseaseArray, pValue, outputType, tableObjList):
-    tableObjList = ast.literal_eval(tableObjList)
+    tableObjList = json.loads(tableObjList)
     posList = getSNPsFromTableObj(tableObjList)
     vcfObj, totalVariants = parse_vcf(vcfFile, posList)
     results = calculations(tableObjList, vcfObj,
@@ -295,5 +295,3 @@ def formatCSV(results):
     finalText += '\n'
     return finalText
 
-# print(grepRes(0.005, "hg38"))
-print(grepRes(0.005, "hg38", ["insomnia", "acne"], ["HI", "LC"]))
