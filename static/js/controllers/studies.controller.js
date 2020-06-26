@@ -21,6 +21,32 @@ exports.getTraits = (req, res) => {
     })
 }
 
+exports.getEthnicities = (req, res) => {
+    Study.getEthnicities((err, data) => {
+        if (err) {
+            res.status(500).send({
+                message:
+                err.message || "Error occured while retrieving ethnicities."
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            ethnicities = []
+            for (i=0; i<data.length; i++) {
+                ethnicityString = data[i].ethnicity
+                ethnicityList = ethnicityString.split("|")
+                for (j=0; j<ethnicityList.length; j++){
+                    if (ethnicityList[j].toLowerCase() != "na" && !(ethnicities.includes(ethnicityList[j]))) {
+                        ethnicities.push(ethnicityList[j])
+                    }
+                }
+            }
+
+            res.send(ethnicities);
+        }
+    })
+}
+
 exports.findTraits = (req, res) => {
     Study.findTraits(req.params.searchStr, (err, data) => {
         if (err) {
