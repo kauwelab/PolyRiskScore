@@ -119,7 +119,7 @@ def formatAssociationsForReturn(associations):
     for disease in associations:
         for study in associations[disease]:
             for association in associations[disease][study]["associations"]:
-                snps += "-e {0} ".format(association['pos'])
+                snps += "-e {0} ".format(association['pos'].split(":")[1])
 
     associations = json.dumps(associations)
     return [snps, associations]
