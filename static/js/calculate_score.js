@@ -7,7 +7,10 @@ var traitsList = []
 var selectedStudies = []
 
 function getTraits() {
+    //make sure the select is reset/empty so that the multiselect command will function properly
     $('#traitSelect').replaceWith("<select id='traitSelect' multiple></select>");
+
+    //call the API and populate the traits dropdown/multiselct with the results
     $.ajax({
         type: "GET",
         url: "get_traits",
@@ -16,9 +19,9 @@ function getTraits() {
             var selector = document.getElementById("traitSelect");
             for (i=0; i<traitsList.length; i++) {
                 var opt = document.createElement('option')
-                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(traitsList[i])))
-                    opt.value = traitsList[i]
-                    selector.appendChild(opt);
+                opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(traitsList[i])))
+                opt.value = traitsList[i]
+                selector.appendChild(opt);
             }
             document.multiselect('#traitSelect');
         },
@@ -29,35 +32,19 @@ function getTraits() {
 }
 
 function getStudies() { 
-    //gets the user selected traits, ethnicities, and studty types
-    var traitSelector = document.getElementById("traitSelect");
-    var ethnicitySelector = document.getElementById("ethnicitySelect");
-    var typeSelector = document.getElementById("studyTypeSelect");
-    var selectedTraits = [];
-    var selectedEthnicities = [];
-    var selectedTypes = [];
-    for (i=0; i<traitSelector.children.length; i++) {
-        if(traitSelector.children[i].selected) {
-            selectedTraits.push(traitSelector.children[i].value);
-        }
-    } 
-    for (i=0; i<ethnicitySelector.children.length; i++) {
-        if(ethnicitySelector.children[i].selected) {
-            selectedEthnicities.push(ethnicitySelector.children[i].value);
-        }
-    } 
-    for (i=0; i<typeSelector.children.length; i++) {
-        if(typeSelector.children[i].selected) {
-            selectedTypes.push(typeSelector.children[i].value);
-        }
-    } 
-    console.log(selectedTraits);
-    console.log(selectedEthnicities);
-    console.log(selectedTypes);
+    //get the users selected traits, ethnicities, and studty types as arrays of values
+    var traitNodes = document.querySelectorAll('#traitSelect :checked');
+    var selectedTraits = [...traitNodes].map(option => option.value);
+    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked');
+    var selectedEthnicities = [...ethnicityNodes].map(option => option.value);
+    var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
+    var selectedTypes = [...typeNodes].map(option => option.value);
 
-    //make sure it is reset/empty
+    //make sure the select is reset/empty so that the multiselect command will function properly
     $('#studySelect').replaceWith("<select id='studySelect' multiple></select>");
     var studySelector = document.getElementById("studySelect");
+
+    //call the API and populate the study dropdown/multiselect with the results
     $.ajax({
         type: "GET",
         url: "/get_studies",
@@ -65,13 +52,13 @@ function getStudies() {
         success: async function (data) {
             var studyObjects = data;
             var keys = Object.keys(data);
-            //populate the studies dropdown
             for (i=0; i<keys.length; i++) {
                 for (j = 0; j< data[keys[i]].length; j++){
-                    var opt = document.createElement('option')
-                    var disp = studyObjects[i].citation + ' (' + keys[i] + ', ' + studyObjects[i].studyID + ')'
-                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(disp)))
-                    opt.value = studyObjects[i].studyID
+                    var opt = document.createElement('option');
+                    var disp = studyObjects[i].citation + ' (' + keys[i] + ', ' + studyObjects[i].studyID + ')';
+                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(disp)));
+                    opt.value = studyObjects[keys[i]].studyID;
+                    opt.value2 = keys[i];
                     studySelector.appendChild(opt);
                 }
             }
@@ -129,10 +116,6 @@ var calculatePolyScore = async () => {
     document.getElementById('resultsDisplay').style.display = 'block';
     //user feedback while they are waiting for their score
     $('#response').html("Calculating. Please wait...");
-
-    //get ethnicity
-    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked')
-    var ethnicityArray = [...ethnicityNodes].map(option => option.value);
 
     // get value of selected 'pvalue' from the 'pvalInput' form
     var pValueScalar = document.getElementById('pValScalarIn').value;
