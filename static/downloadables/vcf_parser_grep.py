@@ -294,3 +294,6 @@ def formatCSV(results):
                 finalText += "\n" + line
     finalText += '\n'
     return finalText
+
+# print(grepRes(0.005, "hg38"))
+print(grepRes(0.005, "hg38", ["insomnia", "acne"], ["HI", "LC"]))
