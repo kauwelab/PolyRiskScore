@@ -4,50 +4,12 @@ import json
 def getAllAssociations(pValue, refGen, traits = None): 
     if (traits is None):
         traits = getAllTraits()
-    associations = {}
-    url_a = "https://prs.byu.edu/all_associations"
-    h=0
-    for i in range(100, len(traits), 100):
-        params = {
-            "traits": traits[h:i],
-            "pValue": pValue,
-            "refGen": refGen
-        }
-        response = requests.get(url=url_a, params=params)
-        response.close()
-        if (response):
-            associations = {**associations, **response.json()}
-            h = i
-        else:
-            print(response.status_code)
-            break
-    else:
-        print("Last ones")
-        params = {
-            "traits": traits[h:len(traits)],
-            "pValue": pValue,
-            "refGen": refGen
-        }
-        response = requests.get(url=url_a, params=params)
-        response.close()
-        associations = {**associations, **response.json()}
-    
-    snps = "-e #CHROM "
-    print(associations)
-    for disease in associations:
-        for study in associations[disease]:
-            print(study)
-            for association in associations[disease][study]["associations"]:
-                snps += "-e {0} ".format(association['snp'])
-    
-    associations = "[" + ', '.join(map(str, associations)) + "]"
-    print(snps)
-    return [snps, associations]
+
+    associations = getAssociations("https://prs.byu.edu/all_associations", traits, pValue, refGen)
+    return formatAssociationsForReturn(associations)
 
 def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
-    traitData = {}
     studyIDspecificData = {}
-    url_s = "https://prs.byu.edu/get_studies"
 
     if (studyIDs is not None):
         url_get_by_study_id = "https://prs.byu.edu/get_studies_by_id"
@@ -55,33 +17,19 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
             "ids": studyIDs
         }
         studyIDspecificData = urlWithParams(url_get_by_study_id, params)
-        print(studyIDspecificData)
 
     if traits is None and studyTypes is not None:
         traits = getAllTraits()
-        params = {
-            "traits": traits,
-            "studyTypes": studyTypes
-        }
-        traitData = {**traitData, **urlWithParams(url_s, params)}
-    elif traits is None and studyTypes is None and studyIDs is not None:
-        pass
-        # we are just going to be working with the studyID studies
     elif traits is not None:
         if studyTypes is None:
-            params = {
-                "traits": traits,
-                "studyTypes": ["HI", "LC", "O"]
-            }
-        else: 
-            params = {
-                "traits": traits,
-                "studyTypes": studyTypes
-            }
-        traitData = {**traitData, **urlWithParams(url_s, params)}
-    else:
-        # I don't think we should ever make it here...
-        pass
+            studyTypes = ["HI", "LC", "O"]
+
+    if traits is not None and studyTypes is not None:
+        params = {
+            "traits": traits, 
+            "studyTypes": studyTypes
+        }
+        traitData = {**urlWithParams("https://prs.byu.edu/get_studies", params)}
 
     if traitData:
         # filter for ethnicity
@@ -91,7 +39,6 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
             for study in traitData[trait]:
                 if (ethnicity and ethnicity.lower() in study["ethnicity"].lower() and study["studyID"] not in tmpStudyHolder):
                     tmpStudyHolder.append(study["studyID"])
-                    # print(study["ethnicity"])
                 elif not ethnicity and study["studyID"] not in tmpStudyHolder:
                     tmpStudyHolder.append(study["studyID"])
             
@@ -100,40 +47,59 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
                 "studyIDs": tmpStudyHolder
             }
             finalTraitList.append(traitObj)
-        print(finalTraitList)
 
-    # if studyIDspecificData:
-    #     for obj in studyIDspecificData:
-    #         if obj["trait"] in finalTraitList and obj["studyID"] not in finalTraitList[obj["trait"]]:
-    #             finalTraitList[obj["trait"]].append(obj["studyID"])
-    #         else:
-    #             finalTraitList[obj["trait"]] = [obj["studyID"]]
+    if studyIDspecificData:
+        for obj in studyIDspecificData:
+            if obj["trait"] in finalTraitList and obj["studyID"] not in finalTraitList[obj["trait"]]:
+                finalTraitList[obj["trait"]].append(obj["studyID"])
+            else:
+                finalTraitList[obj["trait"]] = [obj["studyID"]]
 
-    params_a = {
-        "traits": json.dumps(finalTraitList),
-        "pValue": pValue,
-        "refGen": refGen
-    }
+    associations = getAssociations("https://prs.byu.edu/get_associations", finalTraitList, pValue, refGen, 1)
+    return formatAssociationsForReturn(associations)
 
-    associations = urlWithParams(url="https://prs.byu.edu/get_associations",params=params_a)
-    print(associations)
+def getAssociations(url, traits, pValue, refGen, turnString = None):
+    associations = {}
+    h=0
+    for i in range(100, len(traits), 100):
+        params = {
+            "traits": json.dumps(traits[h:i]) if turnString else traits[h:i],
+            "pValue": pValue,
+            "refGen": refGen
+        }
+        associations = {**associations, **urlWithParams(url, params)}
+        h = i
+    else:
+        params = {
+            "traits": json.dumps(traits[h:len(traits)]) if turnString else traits[h:len(traits)],
+            "pValue": pValue,
+            "refGen": refGen
+        }
+        associations = {**associations, **urlWithParams(url, params)}
+    return associations
 
+def formatAssociationsForReturn(associations):
+    snps = "-e #CHROM "
+    for disease in associations:
+        for study in associations[disease]:
+            for association in associations[disease][study]["associations"]:
+                snps += "-e {0} ".format(association['pos'])
+
+    associations = "[" + ', '.join(map(str, associations)) + "]"
+    return (snps, associations)
 
 def getAllTraits():
     url_t = "https://prs.byu.edu/get_traits"
     response = requests.get(url=url_t)
     response.close()
+    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()
 
 def urlWithParams(url, params):
     response = requests.get(url=url, params=params)
     response.close()
-    print(response.status_code)
-    if (response):
-        return response.json()
-    else:
-        return "ERROR" # throw an error
-    
+    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    return response.json()    
 
 # getAllAssociations(0.0000000005, "hg38") #, ["Alzheimer's Disease", "acne"])
 getSpecificAssociations(0.5, "hg38", ["Alzheimer's Disease", "acne"], ["HI", "LC"], ethnicity="European")

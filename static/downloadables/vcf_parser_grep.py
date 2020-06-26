@@ -15,84 +15,115 @@ import time
 def grepRes(pValue, refGen, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
     if (studyTypes is None and studyIDs is None and ethnicity is None):
         toReturn = getAllAssociations(pValue, refGen, traits)
-        return '%'.join(toReturn)
     else:
-
-    
-    if len(diseaseArray) <= 0:
-        diseaseArray = []
-    res = getSNPsforGrep(diseaseArray, studyTypes, pValue, refGen)
-    toReturn = (res[0], res[1])
-    print('%'.join(toReturn))
+        toReturn = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
+    return '%'.join(toReturn)
 
 
-def getAllAssociations(pValue, refGen, traits): 
+def getAllAssociations(pValue, refGen, traits = None): 
     if (traits is None):
-        url_t = "https://prs.byu.edu/get_traits"
-        response = requests.get(url=url_t)
-        response.close()
-        traits = response.json()
+        traits = getAllTraits()
+
+    associations = getAssociations("https://prs.byu.edu/all_associations", traits, pValue, refGen)
+    return formatAssociationsForReturn(associations)
+
+
+def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
+    studyIDspecificData = {}
+
+    if (studyIDs is not None):
+        url_get_by_study_id = "https://prs.byu.edu/get_studies_by_id"
+        params = {
+            "ids": studyIDs
+        }
+        studyIDspecificData = urlWithParams(url_get_by_study_id, params)
+
+    if traits is None and studyTypes is not None:
+        traits = getAllTraits()
+    elif traits is not None:
+        if studyTypes is None:
+            studyTypes = ["HI", "LC", "O"]
+
+    if traits is not None and studyTypes is not None:
+        params = {
+            "traits": traits, 
+            "studyTypes": studyTypes
+        }
+        traitData = {**urlWithParams("https://prs.byu.edu/get_studies", params)}
+
+    if traitData:
+        # filter for ethnicity
+        finalTraitList = []
+        for trait in traitData:
+            tmpStudyHolder = []
+            for study in traitData[trait]:
+                if (ethnicity and ethnicity.lower() in study["ethnicity"].lower() and study["studyID"] not in tmpStudyHolder):
+                    tmpStudyHolder.append(study["studyID"])
+                elif not ethnicity and study["studyID"] not in tmpStudyHolder:
+                    tmpStudyHolder.append(study["studyID"])
+            
+            traitObj = {
+                "trait": trait,
+                "studyIDs": tmpStudyHolder
+            }
+            finalTraitList.append(traitObj)
+
+    if studyIDspecificData:
+        for obj in studyIDspecificData:
+            if obj["trait"] in finalTraitList and obj["studyID"] not in finalTraitList[obj["trait"]]:
+                finalTraitList[obj["trait"]].append(obj["studyID"])
+            else:
+                finalTraitList[obj["trait"]] = [obj["studyID"]]
+
+    associations = getAssociations("https://prs.byu.edu/get_associations", finalTraitList, pValue, refGen, 1)
+    return formatAssociationsForReturn(associations)
+
+
+def getAssociations(url, traits, pValue, refGen, turnString = None):
     associations = {}
-    url_a = "https://prs.byu.edu/all_associations"
     h=0
     for i in range(100, len(traits), 100):
-        print("In for loop ")
         params = {
-            "traits": traits[h:i],
+            "traits": json.dumps(traits[h:i]) if turnString else traits[h:i],
             "pValue": pValue,
             "refGen": refGen
         }
-        response = requests.get(url=url_a, params=params)
-        response.close()
-        if (response):
-            associations = {**response.json(), **associations}
-            h = i
-        else:
-            print(response.status_code)
-            break
+        associations = {**associations, **urlWithParams(url, params)}
+        h = i
     else:
-        print("Last ones")
         params = {
-            "traits": traits[h:len(traits)],
+            "traits": json.dumps(traits[h:len(traits)]) if turnString else traits[h:len(traits)],
             "pValue": pValue,
             "refGen": refGen
         }
-        response = requests.get(url=url_a, params=params)
-        response.close()
-        associations = {**response.json(), **associations}
-    
+        associations = {**associations, **urlWithParams(url, params)}
+    return associations
+
+
+def formatAssociationsForReturn(associations):
     snps = "-e #CHROM "
     for disease in associations:
         for study in associations[disease]:
-            print(study)
             for association in associations[disease][study]["associations"]:
-                snps += "-e {0} ".format(association['snp'])
-    
+                snps += "-e {0} ".format(association['pos'])
+
     associations = "[" + ', '.join(map(str, associations)) + "]"
-    print(snps)
-    return [snps, associations]
-
-def getSpecificAssociations(pValue, refGen, ):
-    pass
+    return (snps, associations)
 
 
-def getSNPsforGrep(diseaseArray, studyTypes, pValue, refGen):
-    url = "https://prs.byu.edu/study_table"
-    params = {"diseaseArray": diseaseArray,
-              "studyType": studyTypes, "pValue": pValue, "refGen": refGen}
-    tableObjList = requests.get(url=url, params=params).text
-    tableObjList = ast.literal_eval(tableObjList)
-    snps = "-e #CHROM "
-    for diseaseEntry in tableObjList:
-        for studyEntry in diseaseEntry['studiesRows']:
-            for row in studyEntry['rows']:
-                pos = row['pos']
-                bases = pos.split(':')
-                snps += "-e "
-                snps += str(bases[1])
-                snps += " "
-    tableObjListStr = "[" + ', '.join(map(str, tableObjList)) + "]"
-    return [snps, tableObjListStr]
+def getAllTraits():
+    url_t = "https://prs.byu.edu/get_traits"
+    response = requests.get(url=url_t)
+    response.close()
+    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    return response.json()
+
+
+def urlWithParams(url, params):
+    response = requests.get(url=url, params=params)
+    response.close()
+    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    return response.json()  
 
 
 def calculateScore(vcfFile, diseaseArray, pValue, outputType, tableObjList):
