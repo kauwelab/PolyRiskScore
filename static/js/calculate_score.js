@@ -31,6 +31,33 @@ function getTraits() {
     })
 }
 
+function getEthnicities() {
+    //make sure the select is reset/empty so that the multiselect command will function properly
+    $('#ethnicitySelect').replaceWith("<select id='ethnicitySelect' multiple></select>");
+
+    //call the API and populate the ethnicity dropdown/multiselct with the results
+    $.ajax({
+        type: "GET",
+        url: "ethnicities",
+        success: async function (data) {
+            ethnicityList = data;
+            var selector1 = document.getElementById("ethnicitySelect");
+            var selector2 = document.getElementById("LD-ethnicitySelect");
+            for (i=0; i<ethnicityList.length; i++) {
+                var opt = document.createElement('option')
+                opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(ethnicityList[i])))
+                opt.value = ethnicityList[i]
+                selector1.appendChild(opt);
+                selector2.appendChild(opt);
+            }
+            document.multiselect('#ethnicitySelect');
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error loading the ethnicities: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
+
 function getStudies() { 
     //get the users selected traits, ethnicities, and studty types as arrays of values
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
