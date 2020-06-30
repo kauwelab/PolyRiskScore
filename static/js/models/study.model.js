@@ -26,6 +26,19 @@ Study.getTraits = result => {
     });
 };
 
+Study.getEthnicities = (result) => {
+    sql.query(`SELECT DISTINCT ethnicity FROM study_table`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        console.log(`${res.length} ethnicity result(s)`);
+        result(null, res);
+    });
+}
+
 Study.findTrait = (searchStr, result) => {
     sql.query(`SELECT DISTINCT trait FROM study_table WHERE trait LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {

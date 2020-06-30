@@ -27,15 +27,17 @@ Association.getFromTables = (traits, pValue, refGen, result) => {
         for (j=0; j<studyIDs.length; j++) {
             studyIDs[j] = "\"" + studyIDs[j] + "\"";
         }
-        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${traitObj.trait}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}); `)
+        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${formatter.formatForTableName(traitObj.trait)}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}); `)
     }
 
+    console.log(queryString)
     sql.query(queryString, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
+        console.log(res)
         result(null, res);
     });
 };
@@ -45,7 +47,8 @@ Association.getAll = (traits, pValue, refGen, result) => {
     queryString = ""
     
     for (i = 0; i < traits.length; i++) {
-        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${traits[i]}\` WHERE pValue <= ${pValue}`)
+        trait = formatter.formatForTableName(traits[i])
+        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${trait}\` WHERE pValue <= ${pValue}`)
         if (i < traits.length - 1) {
             queryString = queryString.concat("; ")
         }
