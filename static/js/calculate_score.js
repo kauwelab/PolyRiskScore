@@ -77,15 +77,18 @@ function getStudies() {
         url: "/get_studies",
         data: {studyTypes: selectedTypes, traits: selectedTraits},
         success: async function (data) {
-            var studyObjects = data;
-            var keys = Object.keys(data);
-            for (i=0; i<keys.length; i++) {
-                for (j = 0; j< data[keys[i]].length; j++){
+            //data ~ {traitName:[{study},{study},{study}], traitName:[{study},{study}],...}
+            var studyLists = data;
+            var traits = Object.keys(data);
+            for (i=0; i<traits.length; i++) {
+                var trait = traits[i];
+                for (j = 0; j< studyLists[trait].length; j++){
+                    var study = studyLists[trait][j];
                     var opt = document.createElement('option');
-                    var disp = studyObjects[i].citation + ' | ' + keys[i] + ' | ' + studyObjects[i].studyID;
-                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(disp)));
-                    opt.value = studyObjects[keys[i]].studyID;
-                    opt.setAttribute('data-trait', keys[i]);
+                    var displayString = study.citation + ' | ' + trait + ' | ' + study.studyID;
+                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(displayString)));
+                    opt.value = study.studyID;
+                    opt.setAttribute('data-trait', trait);
                     studySelector.appendChild(opt);
                 }
             }
@@ -127,7 +130,7 @@ function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
         url: "/get_associations",
         data: {traits: traitList, pValue: pValue, refGen: refGen},
         success: async function (data) {
-            //TODO write
+            return data;
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
@@ -166,7 +169,7 @@ var calculatePolyScore = async () => {
 
     //if the user doesn't specify a disease, study, or reference genome, prompt them to do so
     if (studies.length === 0) {
-        $('#response').html('Please specify a specific disease and study using the drop down menus above.');
+        $('#response').html('Please specify at least one trait and study from the dropdowns above');
         return;
     }
     if (refGen == "default") {
@@ -187,6 +190,7 @@ var calculatePolyScore = async () => {
         traitObj = {trait:traits[i], studies:studyList};
         traitList.push(traitObj)
     }
+    getSelectStudyAssociationsByTraits(traitList, pValue, refGen);
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
         var textArea = document.getElementById('input');
