@@ -41,14 +41,12 @@ function getEthnicities() {
         url: "ethnicities",
         success: async function (data) {
             ethnicityList = data;
-            var selector1 = document.getElementById("ethnicitySelect");
-            var selector2 = document.getElementById("LD-ethnicitySelect");
+            var selector = document.getElementById("ethnicitySelect");
             for (i=0; i<ethnicityList.length; i++) {
                 var opt = document.createElement('option')
                 opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(ethnicityList[i])))
                 opt.value = ethnicityList[i]
-                selector1.appendChild(opt);
-                selector2.appendChild(opt);
+                selector.appendChild(opt);
             }
             document.multiselect('#ethnicitySelect');
         },
@@ -190,7 +188,10 @@ var calculatePolyScore = async () => {
         traitObj = {trait:traits[i], studies:studyList};
         traitList.push(traitObj)
     }
-    getSelectStudyAssociationsByTraits(traitList, pValue, refGen);
+
+    //send a get request to the server with the specified traits and studies
+    associationData = getSelectStudyAssociationsByTraits(traitList, pValue, refGen);
+
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
         var textArea = document.getElementById('input');

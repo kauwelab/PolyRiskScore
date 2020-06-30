@@ -382,6 +382,7 @@
     exports.getIdentifierMap = function (tableObj, isPosBased) {
         var usefulIdentifiers = new Map()
         //for each database trait
+        //tableObj Format {traitName: { studyID: { citation, associationsList }}}
         for (let i = 0; i < tableObj.length; ++i) {
             //for each study in the database trait
             for (let j = 0; j < tableObj[i].studiesRows.length; ++j) {

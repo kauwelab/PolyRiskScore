@@ -103,7 +103,13 @@
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
                   <h5>2: Specify Ethnicity and Reference Genome&nbsp;</h5>
-                    <select id='LD-ethnicitySelect'></select>
+                    <select id='LD-ethnicitySelect'>
+                      <option>African</option>
+                      <option>American</option>
+                      <option>East Asian</option>
+                      <option></option>
+                      <option></option>
+                    </select>
                     <select id="refGenome">
                       <option selected="selected" value="default">--Reference Genome--</option>
                       <option value="hg38">GRCh38/hg38</option>
@@ -129,9 +135,7 @@
                       <option value="LC" >Large Cohort Studies</option>
                       <option value="O" >All Other Studies</option>    
                     </select>
-                    <select id='ethnicitySelect' multiple>
-                      <option value="Admixed Ancestry" selected='selected'>Admixed Ancestry</option>
-                    </select>
+                    <select id='ethnicitySelect' multiple></select>
                     <button class="btn btn-primary btn-sm" onClick="getStudies()">
                       Apply Filters
                     </button>
