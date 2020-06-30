@@ -7,6 +7,8 @@ module.exports = app => {
     // returns a list of trait objects -> see trait.model.js for format
     app.get("/get_traits", studies.getTraits);
 
+    app.get("/ethnicities", studies.getEthnicities);
+
     // Searches for traits using search string
     app.get("/find_traits/:searchStr", studies.findTraits);
 
