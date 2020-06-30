@@ -82,10 +82,10 @@ function getStudies() {
             for (i=0; i<keys.length; i++) {
                 for (j = 0; j< data[keys[i]].length; j++){
                     var opt = document.createElement('option');
-                    var disp = studyObjects[i].citation + ' (' + keys[i] + ', ' + studyObjects[i].studyID + ')';
+                    var disp = studyObjects[i].citation + ' | ' + keys[i] + ' | ' + studyObjects[i].studyID;
                     opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(disp)));
                     opt.value = studyObjects[keys[i]].studyID;
-                    opt.value2 = keys[i];
+                    opt.setAttribute('data-trait', keys[i]);
                     studySelector.appendChild(opt);
                 }
             }
@@ -118,15 +118,14 @@ function getAllAssociations (pValue, refGen) {
     })
 }
 
-function getSelectStudyAssociationsByTraits(pValue, refGen) {
-    var trait = traitSelectElement.options[traitSelectElement.selectedIndex].value;
-    trait = formatHelper.formatForTableName(trait);
-    var studyIDs = selectedStudies;
-
+function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
+    // var trait = traitSelectElement.options[traitSelectElement.selectedIndex].value;
+    // trait = formatHelper.formatForTableName(trait);
+    // var studyIDs = selectedStudies;
     $.ajax({
         type: "GET",
         url: "/get_associations",
-        data: {trait: trait, studyIDs: studyIDs, pValue: pValue, refGen: refGen},
+        data: {traits: traitList, pValue: pValue, refGen: refGen},
         success: async function (data) {
             //TODO write
         },
@@ -138,46 +137,56 @@ function getSelectStudyAssociationsByTraits(pValue, refGen) {
 
 // ------------------- END functions for retrieving associations --------------------------
 
+    // //gets the disease name from the drop down list
+    // var traitSelectElement = document.getElementById("disease");
+    // var diseaseSelected = traitSelectElement.options[traitSelectElement.selectedIndex].value;
+
+    // //create a disease array (usually just the one disease unless "All dieases" is selected)
+    // var diseaseArray = makeDiseaseArray(diseaseSelected);
+
+
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
 var calculatePolyScore = async () => {
     document.getElementById('resultsDisplay').style.display = 'block';
-    //user feedback while they are waiting for their score
     $('#response').html("Calculating. Please wait...");
 
-    // get value of selected 'pvalue' from the 'pvalInput' form
+    // get the values from the user's inputs/selections
+    var vcfFile = document.getElementById("files").files[0];
+    var refGenElement = document.getElementById("refGenome");
+    var refGen = refGenElement.options[refGenElement.selectedIndex].value
+    var ethElement = document.getElementById("LD-ethnicitySelect");
+    var ethnicity = ethElement.options[ethElement.selectedIndex].value
+    var traitNodes = document.querySelectorAll('#traitSelect :checked');
+    var traits = [...traitNodes].map(option => option.value);
+    var studyNodes = document.querySelectorAll('#studySelect :checked');
+    var studies = [...studyNodes].map(option => [option.value, option.data.trait]);
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
-    var pValue = pValueScalar.concat("e".concat(pValMagnitute))
+    var pValue = pValueScalar.concat("e".concat(pValMagnitute));
 
-    //gets the disease name from the drop down list
-    var traitSelectElement = document.getElementById("disease");
-    var diseaseSelected = traitSelectElement.options[traitSelectElement.selectedIndex].value;
-
-    //create a disease array (usually just the one disease unless "All dieases" is selected)
-    var diseaseArray = makeDiseaseArray(diseaseSelected);
-
-    //gets the study name from the drop down list
-    //TODO!!!! - this will need to be adapted to allow for multiple
-    var studySelectElement = document.getElementById("diseaseStudy");
-    var study = studySelectElement.options[studySelectElement.selectedIndex].value
-
-    //if the user doesn't specify a disease or study, prompt them to do so
-    if (diseaseSelected === "--Disease--" || study === "--Study--") {
+    //if the user doesn't specify a disease, study, or reference genome, prompt them to do so
+    if (studies.length === 0) {
         $('#response').html('Please specify a specific disease and study using the drop down menus above.');
         return;
     }
-
-    //get the reference genome to be used
-    var refGenElement = document.getElementById("refGenome");
-    var refGen = refGenElement.options[refGenElement.selectedIndex].value
     if (refGen == "default") {
         $('#response').html('Please select the reference genome corresponding to your file.');
         return;
     }
 
-    //get user SNPs
-    var vcfFile = document.getElementById("files").files[0];
-
+    //convert the studies into a list of trait-study object pairs
+    var traitList = [];
+    for (i = 0; i < traits.length; i++) {
+        trait = traits[i];
+        studyList = []
+        for (j = 0; j < studies.length; j++){
+            if(studies[1] === trait){
+                studyList.push(studies[j]);
+            }
+        }
+        traitObj = {trait:traits[i], studies:studyList};
+        traitList.push(traitObj)
+    }
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
         var textArea = document.getElementById('input');
@@ -218,7 +227,7 @@ var calculatePolyScore = async () => {
                         return;
                     }
                 }
-                snpsObj.set(snpArray[0], alleles)
+                snpsObj.set(snpArray[0], alleles);
             }
         }
         ClientCalculateScoreTxtInput(snpsObj, diseaseArray, study, pValue, refGen)
@@ -406,19 +415,6 @@ async function shrinkFile(vcfFile, usefulPos) {
 function getPosFromLine(line) {
     var secondTab = line.indexOf('\t', line.indexOf('\t') + 1);
     return line.substr(0, secondTab).replace('\t', ':');
-}
-
-/**
- * Returns an array containing just the disease, or if the disease is "all diseases",
- * returns a list of all the diseases in the database
- * @param {*} disease
- */
-function makeDiseaseArray(trait) {
-    if (disease.toLowerCase() == "all") {
-        //all returns all of the traits
-        return traits;
-    }
-    return [trait];
 }
 
 function formatText(jsonObject) {
