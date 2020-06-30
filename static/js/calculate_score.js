@@ -1,5 +1,3 @@
-const formatter = require('./formatHelper')
-
 var resultJSON = "";
 //TODO gzip and zip still need work
 var validExtensions = ["vcf", "gzip", "zip"]
@@ -110,7 +108,7 @@ function getAllAssociations (pValue, refGen) {
 
 function getSelectStudyAssociationsByTraits(pValue, refGen) {
     var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-    trait = formatter.formatForTableName(trait);
+    trait = formatHelper.formatForTableName(trait);
     var studyIDs = selectedStudies;
 
     $.ajax({

@@ -2,7 +2,7 @@ const Association = require("../models/association.model.js");
 
 exports.getFromTables = (req, res) => {
     //traits format :: [{trait: trait, studyIDs: [list of studyIDs]}, {trait: trait, studyIDs: [list of studyIDs]}]
-    var traits = req.query.traits
+    var traits = JSON.parse(req.query.traits)
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
 
@@ -99,11 +99,11 @@ async function separateStudies(associations, refGen) {
             oddsRatio: association.oddsRatio
         }
 
-        if (association.citation in studiesAndAssociations) {
-            studiesAndAssociations[association.citation].associations.push(row)
+        if (association.studyID in studiesAndAssociations) {
+            studiesAndAssociations[association.studyID].associations.push(row)
         }
         else {
-            studiesAndAssociations[association.citation] = {studyID: association.studyID, associations: [row]}
+            studiesAndAssociations[association.studyID] = {citation: association.citation, associations: [row]}
         }
     }
     return studiesAndAssociations

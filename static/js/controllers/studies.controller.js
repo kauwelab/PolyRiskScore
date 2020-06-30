@@ -21,6 +21,32 @@ exports.getTraits = (req, res) => {
     })
 }
 
+exports.getEthnicities = (req, res) => {
+    Study.getEthnicities((err, data) => {
+        if (err) {
+            res.status(500).send({
+                message:
+                err.message || "Error occured while retrieving ethnicities."
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            ethnicities = []
+            for (i=0; i<data.length; i++) {
+                ethnicityString = data[i].ethnicity
+                ethnicityList = ethnicityString.split("|")
+                for (j=0; j<ethnicityList.length; j++){
+                    if (ethnicityList[j].toLowerCase() != "na" && !(ethnicities.includes(ethnicityList[j]))) {
+                        ethnicities.push(ethnicityList[j])
+                    }
+                }
+            }
+
+            res.send(ethnicities);
+        }
+    })
+}
+
 exports.findTraits = (req, res) => {
     Study.findTraits(req.params.searchStr, (err, data) => {
         if (err) {
@@ -69,17 +95,24 @@ exports.getByTypeAndTrait = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             traitsList = {}
+            
+            if (data.length == 1) {
+                traitsList[data[0].trait] = [data[0]]
+            }
 
-            for (i=0; i<data.length; i++) {
-                for (j=0; j<data[i].length; j++) {
-                    if (data[i][j].trait in traitsList) {
-                        traitsList[data[i][j].trait].push(data[i][j])
-                    }
-                    else {
-                        traitsList[data[i][j].trait] = [data[i][j]]
+            else {
+                for (i=0; i<data.length; i++) {
+                    for (j=0; j<data[i].length; j++) {
+                        if (data[i][j].trait in traitsList) {
+                            traitsList[data[i][j].trait].push(data[i][j])
+                        }
+                        else {
+                            traitsList[data[i][j].trait] = [data[i][j]]
+                        }
                     }
                 }
             }
+
             res.send(traitsList);
         }
     });
