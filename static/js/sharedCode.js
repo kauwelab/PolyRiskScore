@@ -121,92 +121,6 @@
     }
 
     /**
- * Calculates the polygenetic risk score using table rows from the database and the textSnps.
- * If the textSnps is undefined, throws an error message that can be printed to the user.
- * P-value is required so the result can also return information about the calculation.
- * @param {*} tableObj 
- * @param {*} textSnps 
- * @param {*} pValue 
- * @return a string in JSON format of the calculated score and other information about it.
- */
-    exports.calculateScoreFromText = function (tableObj, textSnps, pValue) {
-        var resultJsons = [];
-        if (textSnps == undefined) {
-            throw "The snps were undefined when calculating the score. Please retype the snps or choose a vcf."
-        }
-        else {
-            //push information about the calculation to the result
-            resultJsons.push({ pValueCutoff: pValue, totalVariants: textSnps.size })
-            //for each individual and each disease and each study in each disease and each snp of each individual, 
-            //calculate scores and push results and relevant info to objects that are added to the diseaseResults array
-
-            var diseaseResults = [];
-            tableObj.forEach(function (diseaseEntry) {
-                var studyResults;
-                studyResults = [];
-                diseaseEntry.studiesRows.forEach(function (studyEntry) {
-                    var ORs = []
-                    var snpsIncluded = [];
-                    var chromPositionsIncluded = []
-                    textSnps.forEach(function (value, key) {
-                        studyEntry.rows.forEach(function (tableRow) {
-                            if (tableRow.snp === key) {
-                                switch (value.length) {
-                                    case 2:
-                                        if (value[0] === tableRow.riskAllele) {
-                                            ORs.push(tableRow.oddsRatio);
-                                            snpsIncluded.push(tableRow.snp);
-                                            chromPositionsIncluded.push(tableRow.pos);
-                                        }
-                                        if (value[1] === tableRow.riskAllele) {
-                                            ORs.push(tableRow.oddsRatio);
-                                            snpsIncluded.push(tableRow.snp);
-                                            chromPositionsIncluded.push(tableRow.pos);
-                                        }
-                                        break;
-                                    case 1:
-                                        if (value[0] === tableRow.riskAllele) {
-                                            ORs.push(tableRow.oddsRatio);
-                                            snpsIncluded.push(tableRow.snp);
-                                            chromPositionsIncluded.push(tableRow.pos);
-                                        }
-                                        ORs.push(tableRow.oddsRatio);
-                                        snpsIncluded.push(tableRow.snp);
-                                        chromPositionsIncluded.push(tableRow.pos);
-                                        break;
-                                    default:
-                                        ORs.push(tableRow.oddsRatio);
-                                        snpsIncluded.push(tableRow.snp);
-                                        chromPositionsIncluded.push(tableRow.pos);
-
-                                        ORs.push(tableRow.oddsRatio);
-                                        snpsIncluded.push(tableRow.snp);
-                                        chromPositionsIncluded.push(tableRow.pos);
-                                        break;
-                                }
-                            }
-                        })
-                    });
-                    studyResults.push({
-                        study: studyEntry.study,
-                        oddsRatio: getCombinedORFromArray(ORs),
-                        percentile: "",
-                        numSNPsIncluded: ORs.length,
-                        chromPositionsIncluded: chromPositionsIncluded,
-                        snpsIncluded: snpsIncluded
-                    });
-                });
-                diseaseResults.push({
-                    disease: diseaseEntry.disease.toUpperCase(),
-                    studyResults: studyResults
-                });
-            });
-            resultJsons.push({ individualName: 'textInputResults', diseaseResults: diseaseResults })
-            return JSON.stringify(resultJsons);
-        }
-    };
-
-    /**
      * Calculates the polygenetic risk score using table rows from the database and the vcfObj.
      * If the vcfObj is undefined, throws an error message that can be printed to the user.
      * P-value is required so the result can also return information about the calculation.
@@ -215,19 +129,20 @@
      * @param {*} pValue 
      * @return a string in JSON format of each idividual, their scores, and other information about their scores.
      */
-    exports.calculateScore = function (tableObj, vcfObj, pValue, usefulPos) {
+    //TODO redo
+    exports.calculateScore = function (assocationData, greppedSNPs, pValue, associMap) {
         var resultJsons = [];
-        if (vcfObj == undefined || vcfObj.size <= 0) {
-            throw "The vcf was undefined when calculating the score. Please choose a different vcf or reload the page and try again."
+        if (greppedSNPs == undefined || greppedSNPs.size <= 0) {
+            throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
         }
         else {
             //push information about the calculation to the result
-            resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(vcfObj.entries())[0][1].length })
+            resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(greppedSNPs.entries())[0][1].length })
 
             //for each individual, get a map containing all studies to the oddsRatios, snps and pos associated to each study and individual
             //then convert this map into the right format for results
             //for each individual and their snp info in the vcf object
-            for (const [individualName, individualSNPObjs] of vcfObj.entries()) {
+            for (const [individualName, individualSNPObjs] of greppedSNPs.entries()) {
                 //key value pairs- study:{oddsRatios, snps, pos}
                 var studyObjs = new Map();
                 //for each snp of the individual in the vcf
@@ -235,7 +150,7 @@
                     //using the individualSNPObj.pos as key, gets all corresponding databasePosObjs from the database through
                     //usefulPos. Each databasePosObj contains: snp, pos, oddsRatio, allele, study, and disease
                     //databasePosObjs will normally only be size 1, but when mutiple studies have the same allele, it will be longer
-                    var databasePosObjs = Array.from(usefulPos.get(individualSNPObj.pos))
+                    var databasePosObjs = Array.from(associMap.get(individualSNPObj.pos))
                     databasePosObjs.forEach(function (databasePosObj) {
                         var oddsRatioTempList = [];
                         var snpTempList = [];
@@ -271,7 +186,7 @@
 
                 var diseaseResults = [];
                 //for each database trait
-                tableObj.forEach(function (diseaseEntry) {
+                assocationData.forEach(function (diseaseEntry) {
                     var studyResults = [];
                     //for each study in the database trait
                     diseaseEntry.studiesRows.forEach(function (studyEntry) {
@@ -379,7 +294,19 @@
      * The keys depend on the "isPosBased boolean." If isPosBased is true, the keys are pos, otherwise they are snp ids
      * isPosBased is true for file calculations and false for text calculations
      */
-    exports.getIdentifierMap = function (tableObj, isPosBased) {
+    //TODO rename
+    exports.getIdentifierMap = function (associationData, isPosBased) {
+        var tableObj = [];
+        var tableObj = Object.keys(associationData).map(function(key) {
+            return [key, associationData[key]];
+          });
+        //convert object keys to list
+        // for (let i = 0; i < Object.keys(associationData).length; ++i) {
+        //     var diseaseMap = Map()
+        //     diseaseMap.set(Object.keys(associationData)[i])
+        //     tableObj.push(diseaseMap)
+        // }
+
         var usefulIdentifiers = new Map()
         //for each database trait
         //tableObj Format {traitName: { studyID: { citation, associationsList }}}

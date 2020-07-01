@@ -99,7 +99,8 @@ function getStudies() {
 }
 
 function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
-    $.ajax({
+    traitList = JSON.stringify(traitList)
+    return Promise.resolve($.ajax({
         type: "GET",
         url: "/get_associations",
         data: { traits: traitList, pValue: pValue, refGen: refGen },
@@ -111,7 +112,7 @@ function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
             $('#response').html(errMsg);
             alert(errMsg);
         }
-    })
+    }));
 }
 
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
@@ -128,7 +129,7 @@ var calculatePolyScore = async () => {
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
     var traits = [...traitNodes].map(option => option.value);
     var studyNodes = document.querySelectorAll('#studySelect :checked');
-    var studies = [...studyNodes].map(option => [option.value, option.data.trait]);
+    var studies = [...studyNodes].map(option => [option.value, option.dataset.trait]);
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
@@ -150,8 +151,8 @@ var calculatePolyScore = async () => {
         trait = formatHelper.formatForTableName(trait);
         studyList = []
         for (j = 0; j < studies.length; j++) {
-            if (studies[1] === trait) {
-                studyList.push(studies[j]);
+            if (studies[j][1] === trait) {
+                studyList.push(studies[j][0]);
             }
         }
         traitObj = { trait: traits[i], studies: studyList };
@@ -159,7 +160,7 @@ var calculatePolyScore = async () => {
     }
 
     //send a get request to the server with the specified traits and studies
-    associationData = getSelectStudyAssociationsByTraits(traitList, pValue, refGen);
+    associationData = await getSelectStudyAssociationsByTraits(traitList, pValue, refGen);
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
