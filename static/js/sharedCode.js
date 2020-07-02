@@ -5,7 +5,7 @@
     diseasesAndStudies['all'] = ['High Impact', 'Largest Cohort'];
     diseasesAndStudies['adhd'] = ['Demontis et al. 2018', 'Hawi et al. 2018', 'Hinney et al. 2011', 'Mick et al. 2010',
         'Stergiakouli et al. 2012', 'Zayats et al. 2015'];
-    diseasesAndStudies['ad'] = ['Lambert et al. 2013 (High Impact)', 'Lee et al. 2010', 'Mez et al. 2017', 'Miyashita et al. 2013', 
+    diseasesAndStudies['ad'] = ['Lambert et al. 2013 (High Impact)', 'Lee et al. 2010', 'Mez et al. 2017', 'Miyashita et al. 2013',
         'Moreno et al. 2017', 'Naj et al. 2011 (Joint)', 'Naj et al. 2011 (Meta)', 'Reitz et al. 2013'];
     diseasesAndStudies['als'] = ['Ahmeti et al. 2012 (Joint)', 'Ahmeti et al. 2012 (Meta)', 'Diekstra et al. 2014', 'Laaksovirta et al. 2010',
         'Landers et al. 2009', 'van Es MA et al. 2007', 'van Rheenen W et al. 2016 (High Impact)'];
@@ -290,37 +290,38 @@
     };
 
     /**
-     * Gets a map of pos/snp -> set of objects {snp, pos, oddsRatio, allele, study, disease}
-     * The keys depend on the "isPosBased boolean." If isPosBased is true, the keys are pos, otherwise they are snp ids
-     * isPosBased is true for file calculations and false for text calculations
+     * Gets a map where the keys are pos or snpIDs and the values are sets of objects correspoinding to a single association
+     * {snp, pos, oddsRatio, allele, study, disease}. Whethere the keys are pos or snpIDs depends on the "isPosBased boolean." 
+     * If isPosBased is true, the keys are pos, otherwise they are snp ids. isPosBased is true for file calculations and false
+     * for text calculations.
      */
-    //TODO rename
-    exports.getIdentifierMap = function (associationData, isPosBased) {
-        var tableObj = [];
-        var tableObj = Object.keys(associationData).map(function(key) {
-            return [key, associationData[key]];
-          });
-        //convert object keys to list
-        // for (let i = 0; i < Object.keys(associationData).length; ++i) {
-        //     var diseaseMap = Map()
-        //     diseaseMap.set(Object.keys(associationData)[i])
-        //     tableObj.push(diseaseMap)
-        // }
+    exports.getAssociationMap = function (associationData, isPosBased) {
+        var tableObj = associationData;
 
         var usefulIdentifiers = new Map()
+
+        var traits = Object.keys(tableObj)
         //for each database trait
-        //tableObj Format {traitName: { studyID: { citation, associationsList }}}
-        for (let i = 0; i < tableObj.length; ++i) {
+        for (let i = 0; i < traits.length; ++i) {
+            var trait = traits[i];
+            var traitObj = tableObj[trait];
+            var studyIDs = Object.keys(traitObj)
+
             //for each study in the database trait
-            for (let j = 0; j < tableObj[i].studiesRows.length; ++j) {
+            for (let j = 0; j < studyIDs.length; ++j) {
+                var studyID = studyIDs[j]
+                var studyIDObj = traitObj[studyID]
+                var citation = studyIDObj["citation"]
+                var associations = studyIDObj["associations"]
+
                 //for each row  of the study in the database trait
-                for (let k = 0; k < tableObj[i].studiesRows[j].rows.length; ++k) {
-                    //create a key value pair with the key being the position or snpid
+                for (let k = 0; k < associations.length; ++k) {
+                    //create a key value pair with the key being the position or snpID
                     //and the value being a set of identifier objects corresponding to
                     //row values within the database
                     var identifier = "";
-                    var pos = tableObj[i].studiesRows[j].rows[k].pos;
-                    var snp = tableObj[i].studiesRows[j].rows[k].snp;
+                    var pos = associations[k].pos;
+                    var snp = associations[k].snp;
                     if (isPosBased) {
                         identifier = pos;
                     }
@@ -330,10 +331,10 @@
                     var indentifierObj = {
                         snp: snp,
                         pos: pos,
-                        oddsRatio: tableObj[i].studiesRows[j].rows[k].oddsRatio,
-                        allele: tableObj[i].studiesRows[j].rows[k].riskAllele,
-                        study: tableObj[i].studiesRows[j].study,
-                        disease: tableObj[i].disease
+                        oddsRatio: associations[k].oddsRatio,
+                        allele: associations[k].riskAllele,
+                        study: citation,
+                        disease: trait
                     }
                     //if the pos or id is already in the map, add the new indentifierObj to the set at that key
                     if (usefulIdentifiers.has(identifier)) {

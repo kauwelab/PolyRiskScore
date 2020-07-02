@@ -236,7 +236,7 @@ function resetOutput() {
  */
 var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => {
     //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, disease}
-    var associMap = sharedCode.getIdentifierMap(associationData, isVCF);
+    var associMap = sharedCode.getAssociationMap(associationData, isVCF);
 
     //remove SNPs that aren't relevant from the snpsInput object
     var greppedSNPs;
