@@ -130,19 +130,19 @@
      * @return a string in JSON format of each idividual, their scores, and other information about their scores.
      */
     //TODO redo
-    exports.calculateScore = function (assocationData, greppedSNPs, pValue, associMap) {
+    exports.calculateScore = function (assocationData, greppedSamples, pValue, associMap) {
         var resultJsons = [];
-        if (greppedSNPs == undefined || greppedSNPs.size <= 0) {
+        if (greppedSamples == undefined || greppedSamples.size <= 0) {
             throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
         }
         else {
             //push information about the calculation to the result
-            resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(greppedSNPs.entries())[0][1].length })
+            resultJsons.push({ pValueCutoff: pValue, totalVariants: Array.from(greppedSamples.entries())[0][1].length })
 
             //for each individual, get a map containing all studies to the oddsRatios, snps and pos associated to each study and individual
             //then convert this map into the right format for results
             //for each individual and their snp info in the vcf object
-            for (const [individualName, individualSNPObjs] of greppedSNPs.entries()) {
+            for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
                 //key value pairs- study:{oddsRatios, snps, pos}
                 var studyObjs = new Map();
                 //for each snp of the individual in the vcf
@@ -164,47 +164,54 @@
                                 posTempList.push(databasePosObj.pos)
                             }
                         });
-                        //if the study has already been initialized and added to studyObjs, add the new data to the existing studyObj
-                        if (studyObjs.has(databasePosObj.study)) {
-                            var studyObj = studyObjs.get(databasePosObj.study);
-                            studyObj.oddsRatios = studyObj.oddsRatios.concat(oddsRatioTempList);
-                            studyObj.snps = studyObj.snps.concat(snpTempList);
-                            studyObj.pos = studyObj.pos.concat(posTempList);
-                            studyObjs.set(databasePosObj.study, studyObj)
-                        }
-                        //otherwise create a new study entry in studyObjs with the new data
-                        else {
-                            var studyObj = {
-                                oddsRatios: oddsRatioTempList,
-                                snps: snpTempList,
-                                pos: posTempList
+                        //if there is new data to be added (one or both of the sample alleles matched the risk allele),
+                        //add the new data to the studyObjs
+                        if (oddsRatioTempList.length > 0) {
+                            //if the study has already been initialized and added to studyObjs add the new data to the existing studyObj
+                            if (studyObjs.has(databasePosObj.study)) {
+                                var studyObj = studyObjs.get(databasePosObj.study);
+                                studyObj.oddsRatios = studyObj.oddsRatios.concat(oddsRatioTempList);
+                                studyObj.snps = studyObj.snps.concat(snpTempList);
+                                studyObj.pos = studyObj.pos.concat(posTempList);
+                                studyObjs.set(databasePosObj.study, studyObj)
                             }
-                            studyObjs.set(databasePosObj.study, studyObj)
+                            //otherwise create a new study entry in studyObjs with the new data
+                            else {
+                                var studyObj = {
+                                    oddsRatios: oddsRatioTempList,
+                                    snps: snpTempList,
+                                    pos: posTempList
+                                }
+                                studyObjs.set(databasePosObj.study, studyObj)
+                            }
                         }
                     });
                 });
 
                 var diseaseResults = [];
                 //for each database trait
-                assocationData.forEach(function (diseaseEntry) {
+                Object.keys(assocationData).forEach(function (trait) {
+                    var traitEntry = assocationData[trait]
                     var studyResults = [];
                     //for each study in the database trait
-                    diseaseEntry.studiesRows.forEach(function (studyEntry) {
+                    Object.keys(traitEntry).forEach(function (studyID) {
+                        var studyEntry = traitEntry[studyID];
+                        var citation = studyEntry["citation"];
                         //if the study has results, push the study results to the study results for the trait
-                        if (studyObjs.has(studyEntry.study)) {
+                        if (studyObjs.has(citation)) {
                             studyResults.push({
-                                study: studyEntry.study,
-                                oddsRatio: getCombinedORFromArray(studyObjs.get(studyEntry.study).oddsRatios),
+                                study: citation,
+                                oddsRatio: getCombinedORFromArray(studyObjs.get(citation).oddsRatios),
                                 percentile: "",
-                                numSNPsIncluded: studyObjs.get(studyEntry.study).snps.length,
-                                chromPositionsIncluded: studyObjs.get(studyEntry.study).pos,
-                                snpsIncluded: studyObjs.get(studyEntry.study).snps
+                                numSNPsIncluded: studyObjs.get(citation).snps.length,
+                                chromPositionsIncluded: studyObjs.get(citation).pos,
+                                snpsIncluded: studyObjs.get(citation).snps
                             });
                         }
                         //otherwise create empty results
                         else {
                             studyResults.push({
-                                study: studyEntry.study,
+                                study: citation,
                                 oddsRatio: 1,
                                 percentile: "",
                                 numSNPsIncluded: 0,
@@ -215,7 +222,8 @@
                     });
                     //push the trait to the trait results list
                     diseaseResults.push({
-                        disease: diseaseEntry.disease.toUpperCase(),
+                        //TODO format trait for result here
+                        disease: trait,
                         studyResults: studyResults
                     });
                 });
