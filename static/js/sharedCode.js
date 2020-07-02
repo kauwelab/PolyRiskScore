@@ -222,7 +222,6 @@
                     });
                     //push the trait to the trait results list
                     diseaseResults.push({
-                        //TODO format trait for result here
                         disease: trait,
                         studyResults: studyResults
                     });

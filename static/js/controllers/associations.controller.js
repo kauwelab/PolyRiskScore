@@ -6,7 +6,6 @@ exports.getFromTables = (req, res) => {
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
 
-    //TODO Alzheimer's returns empty studyIDs list
     Association.getFromTables(traits, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({

@@ -148,14 +148,13 @@ var calculatePolyScore = async () => {
     var traitList = [];
     for (i = 0; i < traits.length; i++) {
         trait = traits[i];
-        formatedTrait = formatHelper.formatForTableName(trait);
         studyList = []
         for (j = 0; j < studies.length; j++) {
             if (studies[j][1] === trait) {
                 studyList.push(studies[j][0]);
             }
         }
-        traitObj = { trait: formatedTrait, studies: studyList };
+        traitObj = { trait: trait, studies: studyList };
         traitList.push(traitObj);
     }
 
