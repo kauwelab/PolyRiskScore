@@ -17,7 +17,7 @@ Clump.getClumps = (studyIDs, superpopclump, result) => {
         studyIDs[i] = "\"" + studyIDs[i] + "\"";
     }
 
-    sql.query(`SELECT studyID, snp, hg38_pos, ${superpopclump} FROM clumps WHERE studyID IN (${studyIDs})`, (err, res) => {
+    sql.query(`SELECT studyID, snp, hg38_pos, ${superpopclump} AS clumpNumber FROM clumps WHERE studyID IN (${studyIDs})`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
