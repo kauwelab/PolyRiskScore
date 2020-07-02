@@ -30,6 +30,6 @@ module.exports = app => {
 
     app.get("/all_snps", associations.getAllSnps);
 
-    // Gets the clumping numbers for studies and ethnicities
+    // Gets the clumping numbers for snps and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 }
