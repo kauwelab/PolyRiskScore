@@ -2,9 +2,9 @@ const Clump = require("../models/clump.model.js");
 const formatter = require("../formatHelper")
 
 exports.getClumping = (req, res) => {
-    snps = req.query.snps
+    studyIDs = req.query.studyIDs
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
-    Clump.getClumps(snps, superPopulation, (err, data) => {
+    Clump.getClumps(studyIDs, superPopulation, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving clumping data"
@@ -16,11 +16,11 @@ exports.getClumping = (req, res) => {
             clumpsList = {}
 
             for (i=0; i<data.length; i++) {
-                if (data[i].snp in clumpsList) {
-                    clumpsList[data[i].snp].push(data[i])
+                if (data[i].studyID in clumpsList) {
+                    clumpsList[data[i].studyID].push(data[i])
                 }
                 else {
-                    clumpsList[data[i].snp] = [data[i]]
+                    clumpsList[data[i].studyID] = [data[i]]
                 }
             }
 

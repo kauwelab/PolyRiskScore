@@ -12,19 +12,19 @@ const Clump = function(mclump) {
     this.southAsian_Clump = mclump.southAsian_Clump
 }
 
-Clump.getClumps = (snps, superpop, result) => {
-    for (i=0; i < snps.length; i++) {
-        snps[i] = "\"" + snps[i] + "\"";
+Clump.getClumps = (studyIDs, superpopclump, result) => {
+    for (i=0; i < studyIDs.length; i++) {
+        studyIDs[i] = "\"" + studyIDs[i] + "\"";
     }
 
-    sql.query(`SELECT snp, hg38_pos, ${superpop} AS clumpNumber FROM clumps WHERE snp IN (${snps})`, (err, res) => {
+    sql.query(`SELECT studyID, snp, hg38_pos, ${superpopclump} AS clumpNumber FROM clumps WHERE studyID IN (${studyIDs})`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
             return;
         }
 
-        console.log(`Clumps queried for ${snps.length} snps, ${res.length} result(s)`);
+        console.log(`Clumps quetied for ${studyIDs}, ${res.length} result(s)`);
         result(null, res);
     });
 };
