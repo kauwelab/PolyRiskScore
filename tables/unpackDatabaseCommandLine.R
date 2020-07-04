@@ -161,7 +161,7 @@ if (is_ebi_reachable()) {
   #for each trait
   for (i in startIndex:stopIndex) {
     tryCatch({
-      #starts a timer to time how long it takes to output this disease's results
+      #starts a timer to time how long it takes to output this trait's results
       disease_time <- Sys.time()
       
       #gets the trait data, including all studies associated
@@ -181,7 +181,7 @@ if (is_ebi_reachable()) {
       efo_publications <- efo_studies@publications
       efo_ancestral_groups <- efo_studies@ancestral_groups
       
-      #initializes disease table for CSV data
+      #initializes trait table for CSV data
       disease_table <- tibble()
       
       #for each study, get all its data
@@ -239,7 +239,7 @@ if (is_ebi_reachable()) {
         #renames columns to names the database will understand
         disease_table <- ungroup(disease_table) %>%
           dplyr::rename(snp = variant_id,raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, oddsRatio = or_per_copy_number)
-        #arranges the disease table by author, then studyID, then snpid. also adds a unique identifier column
+        #arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
         disease_table <- select(disease_table, c(snp, hg38, gene, raf, riskAllele, pValue, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
           arrange(citation, studyID, snp) %>%
           add_column(id = rownames(disease_table), .before = "snp")

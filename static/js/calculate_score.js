@@ -134,7 +134,7 @@ var calculatePolyScore = async () => {
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
 
-    //if the user doesn't specify a disease, study, or reference genome, prompt them to do so
+    //if the user doesn't specify a trait, study, or reference genome, prompt them to do so
     if (studies.length === 0) {
         $('#response').html('Please specify at least one trait and study from the dropdowns above');
         return;
@@ -234,7 +234,7 @@ function resetOutput() {
  * No return- prints the simplified scores result onto the webpage
  */
 var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => {
-    //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, disease}
+    //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
     var associMap = sharedCode.getAssociationMap(associationData, isVCF);
 
     //remove SNPs that aren't relevant from the snpsInput object
@@ -353,7 +353,7 @@ function formatText(jsonObject) {
         }
         returnText += "\nIndividual Name: " + jsonObject[i].individualName;
         jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
-            returnText += " \n  Disease: " + diseaseResult.disease;
+            returnText += " \n  Trait: " + diseaseResult.trait;
             diseaseResult.studyResults.forEach(function (studyResult) {
                 returnText +=
                     " \n    Study: " + studyResult.study +
@@ -370,18 +370,18 @@ function formatText(jsonObject) {
 
 function formatCSV(jsonObject) {
     //Look for a csv writer npm module
-    var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
+    var returnText = "Individual Name, Trait, Study, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
 
     for (var i = 0; i < jsonObject.length; ++i) {
         if (i == 0) {
             continue;
         }
-        jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
+        jsonObject[i].traitResults.forEach(function (traitResult) {
 
-            diseaseResult.studyResults.forEach(function (studyResult) {
+            traitResult.studyResults.forEach(function (studyResult) {
                 returnText +=
                     "\n" + jsonObject[i].individualName +
-                    "," + diseaseResult.disease +
+                    "," + traitResult.trait +
                     "," + studyResult.study +
                     "," + studyResult.oddsRatio +
                     "," + studyResult.percentile +
