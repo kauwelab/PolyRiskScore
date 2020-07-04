@@ -10274,7 +10274,8 @@ a.text-dark:hover, a.text-dark:focus {
 .crop {
   margin: 0 auto;
   height: auto;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   overflow: hidden;
   border-style: groove;
   border-color: darkgrey;
@@ -10282,5 +10283,19 @@ a.text-dark:hover, a.text-dark:focus {
  }
  .crop img {
   height: auto;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
+ }
+
+ .formula {
+  margin: 0 auto;
+  height: auto;
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+ }
+ .formula img {
+  height: auto;
+  width: 100%;
+  max-width: 600px;
  }
