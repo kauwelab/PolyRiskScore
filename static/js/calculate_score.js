@@ -356,7 +356,8 @@ function formatText(jsonObject) {
             returnText += " \n  Trait: " + traitResult.trait;
             traitResult.studyResults.forEach(function (studyResult) {
                 returnText +=
-                    " \n    Study: " + studyResult.study +
+                    " \n    Study ID: " + studyResult.studyID +
+                    " \n      Citation: " + studyResult.citation +
                     " \n      Odds Ratio: " + studyResult.oddsRatio +
                     " \n      Percentile: " + studyResult.percentile +
                     " \n      # SNPs in OR: " + studyResult.numSNPsIncluded +
@@ -370,7 +371,7 @@ function formatText(jsonObject) {
 
 function formatCSV(jsonObject) {
     //Look for a csv writer npm module
-    var returnText = "Individual Name, Trait, Study, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
+    var returnText = "Individual Name, Trait, Study ID, Citation, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
 
     for (var i = 0; i < jsonObject.length; ++i) {
         if (i == 0) {
@@ -382,7 +383,8 @@ function formatCSV(jsonObject) {
                 returnText +=
                     "\n" + jsonObject[i].individualName +
                     "," + traitResult.trait +
-                    "," + studyResult.study +
+                    "," + studyResult.studyID +
+                    "," + studyResult.citation +
                     "," + studyResult.oddsRatio +
                     "," + studyResult.percentile +
                     "," + studyResult.numSNPsIncluded +
