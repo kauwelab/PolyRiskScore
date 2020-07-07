@@ -111,17 +111,17 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             traits[i] = "\"" + traits[i] + "\"";
         }
         // studyMaxes is a view in the database used to find the max values we need 
-        traitQuery  = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
+        studyMaxQuery  = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
     } 
     else if (traits ==="all") {
-        traitQuery = `SELECT * FROM studyMaxes`
+        studyMaxQuery = `SELECT * FROM studyMaxes`
     }
     else {
-        result("invalid query", null)
+        result("invalid request", null)
         return;
     }
-    
-    sql.query(traitQuery, (err, res) => {
+
+    sql.query(studyMaxQuery, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
