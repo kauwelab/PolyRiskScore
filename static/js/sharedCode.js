@@ -113,7 +113,7 @@
                     });
                 });
                 //create a new JSON object containing the individual name followed by their trait results list
-                resultJsons.push({ individualName: this.trim(individualName), diseaseResults: traitResults })
+                resultJsons.push({ individualName: this.trim(individualName), traitResults: traitResults })
             }
             //convert the result JSON list to a string and return
             return JSON.stringify(resultJsons);
