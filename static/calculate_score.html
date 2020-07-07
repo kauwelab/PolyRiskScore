@@ -11,7 +11,8 @@
   <link href="css/bootstrap-tour.min.css" rel="stylesheet">
   <link href="css/multiselect.css" rel="stylesheet"> <!-- TODO -->
 </head>
-<script src="js/multiselect.min.js"></script> 
+<script src="js/multiselect.min.js"></script>
+
 <body onload="getTraits(); getEthnicities();">
   <div class='p-9 bg-primary text-center'>
     <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of
@@ -103,53 +104,54 @@
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
                   <h5>2: Specify Reference Genome and Ethnicity of Individuals in the File &nbsp;</h5>
-                    <select id="refGenome">
-                      <option selected="selected" value="default">--Reference Genome--</option>
-                      <option value="hg38">GRCh38/hg38</option>
-                      <option value="hg19">GRCh37/hg19</option>
-                      <option value="hg18">NCBI36/hg18</option>
-                      <option value="hg17">NCBI35/hg17</option>
-                    </select>
-                    <select id='LD-ethnicitySelect'>
-                      <option selected="selected" value="default">--LD Ethnicity--</option>
-                      <option>African</option>
-                      <option>American</option>
-                      <option>East Asian</option>
-                      <option>European</option>
-                      <option>South Asian</option>
-                    </select>
+                  <select id="refGenome" onchange="moveToNextTourIndex('refGen')">
+                    <option selected="selected" value="default">--Reference Genome--</option>
+                    <option value="hg38">GRCh38/hg38</option>
+                    <option value="hg19">GRCh37/hg19</option>
+                    <option value="hg18">NCBI36/hg18</option>
+                    <option value="hg17">NCBI35/hg17</option>
+                  </select>
+                  <select id='LD-ethnicitySelect'>
+                    <option selected="selected" value="default">--LD Ethnicity--</option>
+                    <option>African</option>
+                    <option>American</option>
+                    <option>East Asian</option>
+                    <option>European</option>
+                    <option>South Asian</option>
+                  </select>
                 </div>
               </div>
 
-              <div class='child'>
+              <!--This div id is used for the bootstrap tour-->
+              <div id='traitSelectContainer' class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
                   <h5>3: Select Trait(s) of Interest&nbsp;</h5>
-                    <select id='traitSelect' multiple></select>
+                  <select id='traitSelect' multiple></select>
                 </div>
               </div>
 
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
                   <h5>4: Filter Studies by Type or Ethnicity&nbsp;</h5>
-                    <select id='studyTypeSelect' multiple>
-                      <option value="HI" selected="selected">High Impact Studies</option>
-                      <option value="LC" >Large Cohort Studies</option>
-                      <option value="O" >All Other Studies</option>    
-                    </select>
-                    <select id='ethnicitySelect' multiple></select>
-                    <button class="btn btn-primary btn-sm" onClick="getStudies()">
-                      Apply Filters
-                    </button>
+                  <select id='studyTypeSelect' multiple>
+                    <option value="HI" selected="selected">High Impact Studies</option>
+                    <option value="LC" selected="selected">Large Cohort Studies</option>
+                    <option value="O" selected="selected">All Other Studies</option>
+                  </select>
+                  <select id='ethnicitySelect' multiple></select>
+                  <button id='applyFilters' class="btn btn-primary btn-sm" onClick="getStudies()">
+                    Apply Filters
+                  </button>
                 </div>
               </div>
-              
+
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left">
                   <h5>5: Select from Filtered Studies&nbsp;</h5>
-                    <div id='studySelectContainer'>
-                      <select id='studySelect' multiple>
-                      </select>
-                    </div>
+                  <div id='studySelectContainer'>
+                    <select id='studySelect' multiple>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -159,9 +161,11 @@
                   <form action="#" method="POST" id="pvalInput" name="pvalOptions">
                     <div class="form-inline">
                       <div>
-                        <input type="number" value="1.0" name = "pValScalarIn" id ="pValScalarIn" size = 5 min = 1.0 max = 10.0 onchange = "changePValScalar()">
+                        <input type="number" value="1.0" name="pValScalarIn" id="pValScalarIn" size=5 min=1.0 max=10.0
+                          onchange="changePValScalar()">
                         x10^-
-                        <input type="number" value="5" name="pValMagIn" id="pValMagIn" size = 5 min = 0.0 max = 100.0 onchange="changePValMagnitude()">
+                        <input type="number" value="5" name="pValMagIn" id="pValMagIn" size=5 min=0.0 max=100.0
+                          onchange="changePValMagnitude()">
                       </div>
                       <label>
                         &nbsp;&nbsp;&nbsp;(
@@ -252,7 +256,7 @@
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
   <script src="js/bootstrap-tour.min.js"></script>
-  <script src="js/multiselect.min.js"></script> 
+  <script src="js/multiselect.min.js"></script>
   <script src="js/sharedCode.js"></script>
   <script>
     //document.multiselect('#ethnicitySelect')

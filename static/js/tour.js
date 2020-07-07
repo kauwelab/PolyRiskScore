@@ -10,8 +10,7 @@ var templateWithoutNext = `<div class='popover tour'>
     <button class="btn btn-sm btn-primary" data-role="end">End tour</button> 
 </div> 
 </div>`
-var traitTourIndex = 3
-var refGenTourIndex = 4
+var refGenTourIndex = 3
 
 function startTour() {
     // Instance the tour
@@ -48,18 +47,44 @@ function startTour() {
                 template: templateWithoutNext
             },
             {
-                element: "#diseaseStudy",
-                title: "Select traits and studies",
-                content: "Select the traits and studies for which you would like to calulate polygenic risk scores. \
-                Note: selecting all traits may take some time depending on the size of your VCF file.",
-                template: templateWithoutNext
-            },
-            {
                 element: "#refGenome",
                 title: "Select reference genome",
                 content: "Select the reference genome corresponding to the VCF you have uploaded. \
                 Choose the \"GRCh37/hg19\" option for the example VCF.",
                 template: templateWithoutNext
+            },
+            {
+                element: "#LD-ethnicitySelect",
+                title: "Select ethnicity of individual(s) in your VCF file.",
+                content: "This will be used to perform LD clumping on your data (see the learn more \
+                page). If you are unsure about the ethnicity of the individual(s) in your file, \
+                leave this field blank. For now, just press the next button."
+            },
+            {
+                element: "#traitSelectContainer",
+                title: "Select traits",
+                content: "Use the search bar to search specific traits for which you would like to \
+                calulate polygenic risk scores. Click on one or more traits to include them in your \
+                results. Note: you can select all traits using the \"Select all\" button. However, \
+                calculations may take some time depending on the size of your VCF file. When you are\
+                done selecting traits, press the \"next\" button to continue the tour.",
+            },
+            {
+                element: "#applyFilters",
+                title: "Select additional study filters",
+                content: "Studies about the traits you selected can be further filtered by choosing \
+                study type or study ethnicity. Each trait has one highest impact study and largest cohort \
+                study. \"High impact\" is mesured by Altmetric score while \"large cohort\" is measured \
+                by the size of a study's initial sample size plus its replication sample size. Once you have \
+                finished selecting your filters, press the \"Apply filters\" button to update the studies list.",
+                reflex: true,
+                template: templateWithoutNext
+            },
+            {
+                element: "#studySelectContainer",
+                title: "Select studies",
+                content: "Search and select studies to include in your results. A separate polygenic risk score \
+                will be calculated for each study."
             },
             {
                 element: "#pvalInput",
@@ -111,12 +136,11 @@ function startTour() {
 
 /**
  * Advances the tour if currently going and if the stepName matches 
- * @param {*} stepName- either "trait" or "refGen", corresponding to traitTourIndex and refGenTourIndex respectively
+ * @param {*} stepName- currently only expected to be "refGen" (we can add other steps later), corresponding to refGenTourIndex
  */
 function moveToNextTourIndex(stepName) {
-    //check if the tour is at the trait selection or refGen selection point to 
-    //prevent advances at the wrong times 
-    if ((stepName == "trait" && tour.getCurrentStep() == traitTourIndex) || (stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
+    //check if the tour is at the refGen selection point to prevent advances at the wrong times 
+    if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
         tour.next()
     }
 }
