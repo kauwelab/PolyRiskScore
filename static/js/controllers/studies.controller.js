@@ -36,13 +36,13 @@ exports.getEthnicities = (req, res) => {
                 ethnicityString = data[i].ethnicity
                 ethnicityList = ethnicityString.split("|")
                 for (j=0; j<ethnicityList.length; j++){
-                    if (ethnicityList[j].toLowerCase() != "na" && !(ethnicities.includes(ethnicityList[j]))) {
+                    if (ethnicityList[j].toLowerCase() != "na" && ethnicityList[j] != "" && !(ethnicities.includes(ethnicityList[j]))) {
                         ethnicities.push(ethnicityList[j])
                     }
                 }
             }
 
-            res.send(ethnicities);
+            res.send(ethnicities.sort());
         }
     })
 }
