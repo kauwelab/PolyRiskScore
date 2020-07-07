@@ -1,12 +1,4 @@
 (function (exports) {
-
-    /**
-     * Rurns the diseasesAndStudies object
-     * TODO soon to be removed
-     */
-    exports.getDiseasesAndStudiesObj = function () {
-        return diseasesAndStudies
-    }
     /**
      * Calculates the polygenetic risk score using table rows from the database and the vcfObj.
      * If the vcfObj is undefined, throws an error message that can be printed to the user.
@@ -87,7 +79,6 @@
                         if (studyObjs.has(citation)) {
                             studyResults.push({
                                 citation: citation,
-                                //studyID: ,
                                 oddsRatio: getCombinedORFromArray(studyObjs.get(citation).oddsRatios),
                                 percentile: "",
                                 numSNPsIncluded: studyObjs.get(citation).snps.length,
