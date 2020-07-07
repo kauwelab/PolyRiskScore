@@ -10274,7 +10274,8 @@ a.text-dark:hover, a.text-dark:focus {
 .crop {
   margin: 0 auto;
   height: auto;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   overflow: hidden;
   border-style: groove;
   border-color: darkgrey;
@@ -10282,7 +10283,8 @@ a.text-dark:hover, a.text-dark:focus {
  }
  .crop img {
   height: auto;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
  }
 
  /*for the autocomplete search*/
@@ -10330,3 +10332,18 @@ a.text-dark:hover, a.text-dark:focus {
   background-color: DodgerBlue !important; 
   color: #ffffff; 
 }
+
+
+ /*formula css on learn more page*/
+ .formula {
+  margin: 0 auto;
+  height: auto;
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+ }
+ .formula img {
+  height: auto;
+  width: 100%;
+  max-width: 600px;
+ }

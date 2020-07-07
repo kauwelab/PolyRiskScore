@@ -64,7 +64,7 @@ function loadStudies(newStudyObjects) {
         var traits = studyObject.trait;
 
         //add the citation element and add the title and first trait to the publication info list element
-        var publicationHTMLString = `<li class="publication" style="list-style:none;"><a href="#` + citation + `">` + citation + `</a> </li>
+        var publicationHTMLString = `<li class="publication" style="list-style:none;color:#007bff;"><a>` + citation + `</a> </li>
         <ul>
             <li>Title: ` + title + `</li>
             <li>Traits: ` + traits[0]
@@ -84,7 +84,7 @@ function loadStudies(newStudyObjects) {
         //add the study ids to the html element
         for (var k = 0; k < studyIDs.length; ++k) {
             studyID = studyIDs[k]
-            publicationHTMLString += `<a href="https://www.ebi.ac.uk/gwas/publications/` + studyID + `/" target="_blank"> ` + studyID + `</a>`;
+            publicationHTMLString += `<a href="https://www.ebi.ac.uk/gwas/studies/` + studyID + `/" target="_blank"> ` + studyID + `</a>`;
         }
         publicationHTMLString += `</li></ul>`
 
@@ -117,6 +117,8 @@ function searchPublications() {
         }
         else {
             var citation = elementList[i].textContent || elementList[i].innerText;
+            //ignores accented characters when filtering
+            citation = citation.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             //gets a string list containing the publication info (ex: [title, traits, pubMedID, studyIDs])
             var infoTexts = $(publicationInfoElements).find('li').filter(function () {
                 return $(this).find('ul').length === 0;
