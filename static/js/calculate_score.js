@@ -352,9 +352,9 @@ function formatText(jsonObject) {
             continue;
         }
         returnText += "\nIndividual Name: " + jsonObject[i].individualName;
-        jsonObject[i].traitResults.forEach(function (diseaseResult) {
-            returnText += " \n  Trait: " + diseaseResult.trait;
-            diseaseResult.studyResults.forEach(function (studyResult) {
+        jsonObject[i].traitResults.forEach(function (traitResult) {
+            returnText += " \n  Trait: " + traitResult.trait;
+            traitResult.studyResults.forEach(function (studyResult) {
                 returnText +=
                     " \n    Study: " + studyResult.study +
                     " \n      Odds Ratio: " + studyResult.oddsRatio +
