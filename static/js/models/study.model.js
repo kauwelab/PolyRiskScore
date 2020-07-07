@@ -105,6 +105,55 @@ Study.getByTypeAndTrait = (traits, studyTypes, result) => {
     });
 };
 
+Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
+    if (Array.isArray(traits)) {
+        for (i=0; i < traits.length; i++) {
+            traits[i] = "\"" + traits[i] + "\"";
+        }
+        // studyMaxes is a view in the database used to find the max values we need 
+        traitQuery  = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
+    } 
+    else if (traits ==="all") {
+        traitQuery = `SELECT * FROM studyMaxes`
+    }
+    else {
+        result("invalid query", null)
+        return;
+    }
+    
+    sql.query(traitQuery, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        sqlQueryString = ""
+        for (i=0; i<res.length; i++) {
+            if (studyTypes.includes("LC")) {
+                sqlQueryString = sqlQueryString.concat(`SELECT *, "LC" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND cohort = ${res[i].cohort}; `)
+            }
+            if (studyTypes.includes("HI")) {
+                sqlQueryString = sqlQueryString.concat(`SELECT *, "HI" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore = ${res[i].studyScore}; `)
+            }
+            if (studyTypes.includes("O")) {
+                sqlQueryString = sqlQueryString.concat(`SELECT *, "O" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore <> ${res[i].studyScore} AND cohort <> ${res[i].cohort}; `)
+            }
+        }
+
+        console.log(`traits queried, ${res.length} result(s)`);
+        sql.query(sqlQueryString, (err, data) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            console.log(`studies queried, ${data.length} result(s)`)
+            result(null, data) 
+        });
+    });
+};
+
 Study.findStudy = (searchStr, result) => {
     sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {
