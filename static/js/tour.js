@@ -139,8 +139,11 @@ function startTour() {
  * @param {*} stepName- currently only expected to be "refGen" (we can add other steps later), corresponding to refGenTourIndex
  */
 function moveToNextTourIndex(stepName) {
-    //check if the tour is at the refGen selection point to prevent advances at the wrong times 
-    if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
-        tour.next()
+    //if the tour has been initialized before (isn't undefinded)
+    if (typeof tour !== "undefined") {
+        //check if the tour is at the refGen selection point to prevent advances at the wrong times 
+        if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
+            tour.next()
+        }
     }
 }

@@ -86,7 +86,8 @@
                         //if the study has results, push the study results to the study results for the trait
                         if (studyObjs.has(citation)) {
                             studyResults.push({
-                                study: citation,
+                                citation: citation,
+                                //studyID: ,
                                 oddsRatio: getCombinedORFromArray(studyObjs.get(citation).oddsRatios),
                                 percentile: "",
                                 numSNPsIncluded: studyObjs.get(citation).snps.length,
