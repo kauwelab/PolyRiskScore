@@ -352,7 +352,7 @@ function formatText(jsonObject) {
             continue;
         }
         returnText += "\nIndividual Name: " + jsonObject[i].individualName;
-        jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
+        jsonObject[i].traitResults.forEach(function (diseaseResult) {
             returnText += " \n  Trait: " + diseaseResult.trait;
             diseaseResult.studyResults.forEach(function (studyResult) {
                 returnText +=
