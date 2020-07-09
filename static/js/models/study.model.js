@@ -82,12 +82,24 @@ Study.getByTypeAndTrait = (traits, studyTypes, result) => {
         sqlQueryString = ""
         for (i=0; i<res.length; i++) {
             if (studyTypes.includes("LC")) {
+                if (res[i].cohort == "NA") {
+                    res[i].cohort = `\"${res[i].cohort}\"`
+                }
                 sqlQueryString = sqlQueryString.concat(`SELECT *, "LC" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND cohort = ${res[i].cohort}; `)
             }
             if (studyTypes.includes("HI")) {
+                if (res[i].studyScore == "NA") {
+                    res[i].studyScore = `\"${res[i].studyScore}\"`
+                }
                 sqlQueryString = sqlQueryString.concat(`SELECT *, "HI" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore = ${res[i].studyScore}; `)
             }
             if (studyTypes.includes("O")) {
+                if (res[i].cohort == "NA") {
+                    res[i].cohort = `\"${res[i].cohort}\"`
+                }
+                if (res[i].studyScore == "NA") {
+                    res[i].studyScore = `\"${res[i].studyScore}\"`
+                }
                 sqlQueryString = sqlQueryString.concat(`SELECT *, "O" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore <> ${res[i].studyScore} AND cohort <> ${res[i].cohort}; `)
             }
         }
