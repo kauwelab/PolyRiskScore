@@ -44,7 +44,7 @@ function getOrderedPublicationsAndLoad() {
             loadStudies(newStudyObjects)
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error loadfing the studies: ${XMLHttpRequest.responseText}`);
+            alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
         }
     })
 }

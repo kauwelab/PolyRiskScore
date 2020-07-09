@@ -2,7 +2,7 @@
 
 #TODO test output path
 #TODO remove snps that have "(conditioned on rsid)" in their pvalue_description
-#TODO argument: optional list of diseases to update
+#TODO argument: optional list of traits to update
 #TODO argument: optional list of studies to update
 #TODO create shell script that automates the running of this script multiple times on different
   #sections of the GWAS catolog, making it faster to download data
@@ -161,8 +161,8 @@ if (is_ebi_reachable()) {
   #for each trait
   for (i in startIndex:stopIndex) {
     tryCatch({
-      #starts a timer to time how long it takes to output this disease's results
-      disease_time <- Sys.time()
+      #starts a timer to time how long it takes to output this trait's results
+      trait_time <- Sys.time()
       
       #gets the trait data, including all studies associated
       trait <- pull(traits[i, "trait"])
@@ -181,8 +181,8 @@ if (is_ebi_reachable()) {
       efo_publications <- efo_studies@publications
       efo_ancestral_groups <- efo_studies@ancestral_groups
       
-      #initializes disease table for CSV data
-      disease_table <- tibble()
+      #initializes trait table for CSV data
+      trait_table <- tibble()
       
       #for each study, get all its data
       for (j in 1:nrow(efo_studies_tibble)) {
@@ -230,33 +230,33 @@ if (is_ebi_reachable()) {
           }
           #otherwise add the rows to the trait table
           else {
-            disease_table <- bind_rows(study_table, disease_table)
+            trait_table <- bind_rows(study_table, trait_table)
           }
         }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
       }
       
-      if (nrow(disease_table) > 0) {
+      if (nrow(trait_table) > 0) {
         #renames columns to names the database will understand
-        disease_table <- ungroup(disease_table) %>%
+        trait_table <- ungroup(trait_table) %>%
           dplyr::rename(snp = variant_id,raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, oddsRatio = or_per_copy_number)
-        #arranges the disease table by author, then studyID, then snpid. also adds a unique identifier column
-        disease_table <- select(disease_table, c(snp, hg38, gene, raf, riskAllele, pValue, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
+        #arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
+        trait_table <- select(trait_table, c(snp, hg38, gene, raf, riskAllele, pValue, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
           arrange(citation, studyID, snp) %>%
-          add_column(id = rownames(disease_table), .before = "snp")
+          add_column(id = rownames(trait_table), .before = "snp")
       }
-      if (nrow(disease_table) > 0) {
+      if (nrow(trait_table) > 0) {
         #gets hg19, hg18, hg17 for the traits
-        disease_table <- add_column(disease_table, hg19 = hgToHg(disease_table["hg38"], "hg19"), .after = "hg38")
-        disease_table <- add_column(disease_table, hg18 = hgToHg(disease_table["hg19"], "hg18"), .after = "hg19")
-        disease_table <- add_column(disease_table, hg17 = hgToHg(disease_table["hg19"], "hg17"), .after = "hg18")
+        trait_table <- add_column(trait_table, hg19 = hgToHg(trait_table["hg38"], "hg19"), .after = "hg38")
+        trait_table <- add_column(trait_table, hg18 = hgToHg(trait_table["hg19"], "hg18"), .after = "hg19")
+        trait_table <- add_column(trait_table, hg17 = hgToHg(trait_table["hg19"], "hg17"), .after = "hg18")
         #writes out the data into CSVs at the outPath specified
-        write.csv(disease_table, file.path(outPath, paste0(str_replace(trait, "/", "-"), ".csv")), row.names=FALSE) #"NK/T cell lymphoma" requires that we replace "/" with "-"
+        write.csv(trait_table, file.path(outPath, paste0(str_replace(trait, "/", "-"), ".csv")), row.names=FALSE) #"NK/T cell lymphoma" requires that we replace "/" with "-"
       }
       else {
         DevPrint(paste0("No valid SNPs for '", trait, "'!"))
         invalidTraits <- c(invalidTraits, trait)
       }
-      print(paste0(trait, " complete! ", "took: ", format(Sys.time() - disease_time)))
+      print(paste0(trait, " complete! ", "took: ", format(Sys.time() - trait_time)))
       print(paste0("Time elapsed: ", format(Sys.time() - start_time)))
     }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
   }
