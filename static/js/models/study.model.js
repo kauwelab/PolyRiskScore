@@ -1,16 +1,16 @@
 const sql = require('./database')
 
-const Study = function(mstudy) {
+const Study = function (mstudy) {
     this.studyID = mstudy.studyID,
-    this.pubMedID = mstudy.pubMedID,
-    this.trait = mstudy.trait,
-    this.citation = mstudy.citation,
-    this.studyScore = mstudy.studyScore,
-    this.ethnicity = mstudy.ethnicity,
-    this.cohort = mstudy.cohort,
-    this.title = mstudy.title,
-    this.lastUpdated = mstudy.lastUpdated,
-    this.studyType = mstudy.studyType
+        this.pubMedID = mstudy.pubMedID,
+        this.trait = mstudy.trait,
+        this.citation = mstudy.citation,
+        this.studyScore = mstudy.studyScore,
+        this.ethnicity = mstudy.ethnicity,
+        this.cohort = mstudy.cohort,
+        this.title = mstudy.title,
+        this.lastUpdated = mstudy.lastUpdated,
+        this.studyType = mstudy.studyType
 }
 
 Study.getTraits = result => {
@@ -67,7 +67,7 @@ Study.getAll = result => {
 
 Study.getByTypeAndTrait = (traits, studyTypes, result) => {
 
-    for (i=0; i < traits.length; i++) {
+    for (i = 0; i < traits.length; i++) {
         traits[i] = "\"" + traits[i] + "\"";
     }
 
@@ -80,7 +80,7 @@ Study.getByTypeAndTrait = (traits, studyTypes, result) => {
         }
 
         sqlQueryString = ""
-        for (i=0; i<res.length; i++) {
+        for (i = 0; i < res.length; i++) {
             if (studyTypes.includes("LC")) {
                 sqlQueryString = sqlQueryString.concat(`SELECT *, "LC" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND cohort = ${res[i].cohort}; `)
             }
@@ -100,20 +100,20 @@ Study.getByTypeAndTrait = (traits, studyTypes, result) => {
                 return;
             }
             console.log(`studies queried, ${data.length} result(s)`)
-            result(null, data) 
+            result(null, data)
         });
     });
 };
 
 Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
     if (Array.isArray(traits)) {
-        for (i=0; i < traits.length; i++) {
+        for (i = 0; i < traits.length; i++) {
             traits[i] = "\"" + traits[i] + "\"";
         }
         // studyMaxes is a view in the database used to find the max values we need 
-        studyMaxQuery  = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
-    } 
-    else if (traits ==="all") {
+        studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
+    }
+    else if (traits === "all") {
         studyMaxQuery = `SELECT * FROM studyMaxes`
     }
     else {
@@ -127,20 +127,36 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             result(err, null);
             return;
         }
-
-        sqlQueryString = ""
-        for (i=0; i<res.length; i++) {
+        appendor = "AND"
+        for (i = 0; i < res.length; i++) {
+            sqlQueryString = `SELECT * as studyType FROM study_table WHERE trait = "${res[i].trait}"`
             if (studyTypes.includes("LC")) {
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "LC" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND cohort = ${res[i].cohort}; `)
+                appendor + 
+                ` cohort = ${res[i].cohort}`
+                appendor = OR
             }
             if (studyTypes.includes("HI")) {
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "HI" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore = ${res[i].studyScore}; `)
+                appendor + 
+                 `AND studyScore = ${res[i].studyScore}`
+                 appendor = OR
             }
             if (studyTypes.includes("O")) {
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "O" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore <> ${res[i].studyScore} AND cohort <> ${res[i].cohort}; `)
+                appendor + 
+                ` studyScore <> ${res[i].studyScore} `
+                appendor + 
+                ` cohort <> ${res[i].cohort}`
+                appendor = OR
             }
+            appendor = AND
+            if (Array.isArray(ethnicities)) {
+                for(j=0; j < ethnicities.length; j++){
+                    appendor + 
+                    `ethnicity LIKE '%${ethnicities[j]}%'`
+                    appendor = OR
+                }
+            }
+            `;`
         }
-
         console.log(`traits queried, ${res.length} result(s)`);
         sql.query(sqlQueryString, (err, data) => {
             if (err) {
@@ -149,7 +165,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                 return;
             }
             console.log(`studies queried, ${data.length} result(s)`)
-            result(null, data) 
+            result(null, data)
         });
     });
 };
