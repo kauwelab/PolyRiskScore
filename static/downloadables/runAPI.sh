@@ -9,7 +9,6 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 function prskbMenu {
-    echo -e "${LIGHTRED}Too few arguments!${NC} Starting Menu:"
     echo -e "\n$HORIZONTALLINE"
     echo -e "                   ${LIGHTBLUE}PRSKB Command Line Menu/Instructions${NC}"
     echo -e "$HORIZONTALLINE"
@@ -20,8 +19,6 @@ function prskbMenu {
     echo ""
     echo "Select an option below by entering the corresponding character"
     echo "then pressing [Enter]."
-    echo -e "\n$HORIZONTALLINE"
-    echo ""
 }
 
 function listOptions {
@@ -29,7 +26,7 @@ function listOptions {
     echo -e " ${LIGHTBLUE}2${NC} - Search for a specific study or disease"
     echo -e " ${LIGHTBLUE}3${NC} - Learn how to run the calculator without opening this menu"
     echo -e " ${LIGHTBLUE}4${NC} - Run the PRSKB calculator"
-    echo -e " ${LIGHTBLUE}Q${NC} - Quit"
+    echo -e " ${LIGHTBLUE}5${NC} - Quit"
     echo ""
 }
 
@@ -45,33 +42,51 @@ function usage {
 }
 
 function chooseOption {
-    read -p "#?" option
-    if [ $option -eq 1 ]; then
+    while true
+    do
         echo -e "\n$HORIZONTALLINE"
         echo ""
-        echo "YAY option 1"
-    elif [ $option -eq 2]; then
-        echo "YAY option 2"
-    elif [ $option -eq 3]; then
-        echo "YAY option 3"
-    elif [ $option -eq 4]; then
-        echo "YAY option 4"
-    elif [ "$option" -eq "Q"]; then # fix this
-        echo "QUIT ME"
-    fi
+        echo -e " ${LIGHTBLUE}Options Menu${NC}"
+        echo -e " ${LIGHTBLUE}1${NC} - Learn about Parameters"
+        echo -e " ${LIGHTBLUE}2${NC} - Search for a specific study or disease"
+        echo -e " ${LIGHTBLUE}3${NC} - Learn how to run the calculator without opening this menu"
+        echo -e " ${LIGHTBLUE}4${NC} - Run the PRSKB calculator"
+        echo -e " ${LIGHTBLUE}5${NC} - Quit"
+        echo ""
+
+        read -p "#? " option
+
+        case $option in 
+            1 ) echo "You picked $option" ;;
+            2 ) searchTraitsAndStudies ;;
+            3 ) echo "You picked $option" ;;
+            4 ) echo "You picked $option" ;;
+            5 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
+                exit;;
+            * ) echo "INVALID OPTION";;
+        esac
+    done
 }
+
+function searchTraitsAndStudies {
+    echo -e " ${LIGHTBLUE}SEARCH STUDIES AND TRAITS:${NC}"
+    echo " Which would you like to search, studies or traits? (s/t)"
+    read -p "(s/t)? " option
+
+    case $option in 
+        [sS]* ) read -p "Enter the search term you wish to use: " searchTerm 
+                echo $searchTerm;;
+        [tT]* ) echo "you picked traits" ;;
+    esac
+}
+
+# function 
 
 function learnAboutParameters {
     echo "TODO: Intro blurb about the parameters"
     echo "The order of parameters?"
     echo ""
 }
-
-function optionsLoop {
-    listOptions
-    chooseOption
-}
-
 
 #function runPRS {
 
@@ -93,14 +108,30 @@ function optionsLoop {
 HORIZONTALLINE="============================================================================="
 
 if [ $# -lt 4 ]; then
-    echo -e "${RED}Too few arguments! Usage: ${NC}"
+    echo -e "${LIGHTRED}Too few arguments! ${NC}"
+    echo -e "Show usage (u) or start menu (m)? "
+    read -p "(u/m)? " decision
     echo ""
-    usage
+
+    case $decision in 
+        [uU]* ) echo -e "${LIGHTBLUE}USAGE:${NC} \n"
+                usage
+                exit;;
+        [mM]* ) prskbMenu
+                chooseOption;;
+        * ) echo -e "Invalid option. ${LIGHTRED}Quitting...${NC}"
+            exit;;
+    esac
+
+    # usage
+    # prskbMenu
+    # chooseOption
+
     # give a menu and make the script interactive, giving access
     # to know what studies and diseases they can choose from, 
     # what valid parameters are, ect, what explanations of parameters are
-    prskbMenu
-    optionsLoop
+    
+    
 
     read -p "Press [Enter] key to quit..."
 elif [ ! -f "$1" ]; then
