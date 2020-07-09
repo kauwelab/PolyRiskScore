@@ -139,35 +139,54 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             result(err, null);
             return;
         }
-        appendor = "AND"
+        sqlQueryString = "";
         for (i = 0; i < res.length; i++) {
-            sqlQueryString = `SELECT * as studyType FROM study_table WHERE trait = "${res[i].trait}"`
+            //format NA values correctly
+            if (res[i].cohort == "NA") {
+                res[i].cohort = `\"${res[i].cohort}\"`
+            }
+            if (res[i].studyScore == "NA") {
+                res[i].studyScore = `\"${res[i].studyScore}\"`
+            }
+
+            //subQueryString is the string that we append query constraints to from the HTTP request
+            subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}) "`;
+
+            //append sql conditional filters for studyType
+            appendor = "AND (";
             if (studyTypes.includes("LC")) {
-                appendor + 
-                ` cohort = ${res[i].cohort}`
-                appendor = OR
+                subQueryString = subQueryString.concat(appendor).concat(` cohort = ${res[i].cohort} `);
+                appendor = "OR";
             }
             if (studyTypes.includes("HI")) {
-                appendor + 
-                 `AND studyScore = ${res[i].studyScore}`
-                 appendor = OR
+                subQueryString = subQueryString.concat(appendor).concat(` studyScore = ${res[i].studyScore} `);
+                appendor = "OR";
             }
             if (studyTypes.includes("O")) {
-                appendor + 
-                ` studyScore <> ${res[i].studyScore} `
-                appendor + 
-                ` cohort <> ${res[i].cohort}`
-                appendor = OR
+                subQueryString = subQueryString.concat(appendor).concat(` studyScore <> ${res[i].studyScore} AND  cohort <> ${res[i].cohort} `);
+                appendor = "OR";
             }
-            appendor = AND
+
+            //if the appendor has been updated, then close the parenthesis
+            if (appendor !== "AND (") {
+                subQueryString = subQueryString.concat(") ")
+            }
+
+            //append sql conditional filters for ethnicity
+            appendor = "AND (";
             if (Array.isArray(ethnicities)) {
                 for(j=0; j < ethnicities.length; j++){
-                    appendor + 
-                    `ethnicity LIKE '%${ethnicities[j]}%'`
-                    appendor = OR
+                    subQueryString = subQueryString.concat(appendor).concat(`ethnicity LIKE '%${ethnicities[j]}%'`);
+                    appendor = "OR";
                 }
             }
-            `;`
+
+            //if the appendor has been updated, then close the parenthesis
+            if (appendor !== "AND (") {
+                subQueryString = subQueryString.concat(") ")
+            }
+            subQueryString = subQueryString.concat("; ")
+            sqlQueryString = sqlQueryString.concat(subQueryString);
         }
         console.log(`traits queried, ${res.length} result(s)`);
         sql.query(sqlQueryString, (err, data) => {
