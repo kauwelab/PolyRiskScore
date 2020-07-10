@@ -2,18 +2,27 @@
 function handleFileSelect(evt) {
     var f = evt.target.files[0]; // FileList object
     var output = [];
-    //sessionStorage.removeItem("riskResults");
 
-    resetOutput();
-
-    $('#response').html("");
-
-    output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-        f.size, ' bytes, last modified: ',
-        f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-        '</li>');
-    var vcfText = "";
-    printFileEnds(f, 2048);
+    //if the file isn't undefined
+    if (typeof f !== "undefined") {
+        //delete previous results
+        resetOutput();
+        $('#response').html("");
+    
+        //gather information about the file for printing
+        output.push('<li><strong>', f.name, '</strong> (', f.type || 'n/a', ') - ',
+            f.size, ' bytes, last modified: ',
+            f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+            '</li>');
+        //print out a summary of the file in the input box
+        printFileEnds(f, 2048);
+    }
+    else {
+        //if the file is undefined, reset the input box and storage
+        document.getElementById('input').value = "";
+        document.getElementById('savedVCFInput').value = "";
+    }
+    //if the file is undefined, this prints nothing, otherwise it prints information about the file uploaded
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 }
 
@@ -128,10 +137,11 @@ var printFileEnds = async (file, sizeToPrint) => {
         else if (state == 1) {
             fr.readAsText(file.slice(file.size - CHUNK_SIZE, file.size));
         }
-        //print both chunks
         else {
+            //print both chunks to the input box
             document.getElementById('input').value = output;
-            document.getElementById('uploadText').value = output;
+            //save both chunks to an invisible box
+            document.getElementById('savedVCFInput').value = output;
             return;
         }
     }
@@ -163,7 +173,7 @@ var getZipText = async (f) => {
                 });
             });
             */
-}, function (e) {
-    $('#response').html("There was an error reading the zip file:\n" + e.message);
-});
+        }, function (e) {
+            $('#response').html("There was an error reading the zip file:\n" + e.message);
+        });
 }

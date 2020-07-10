@@ -5,6 +5,8 @@ var traitObjects = []
 var studyObjects = [] //holds the study object so that their additional data (ethnicity, cohort, ect) can be accessed
 var traitsList = []
 var selectedStudies = []
+//if false, the VCF button is selected- used as a toggle to prevent action on double click
+var textButtonSelected = true;
 
 function getTraits() {
     //make sure the select is reset/empty so that the multiselect command will function properly
@@ -136,11 +138,11 @@ var calculatePolyScore = async () => {
 
     //if the user doesn't specify a trait, study, or reference genome, prompt them to do so
     if (studies.length === 0) {
-        $('#response').html('Please specify at least one trait and study from the dropdowns above');
+        $('#response').html('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
         return;
     }
     if (refGen == "default") {
-        $('#response').html('Please select the reference genome corresponding to your file.');
+        $('#response').html('Please select the reference genome corresponding to your file (step 2).');
         return;
     }
 
@@ -167,53 +169,65 @@ var calculatePolyScore = async () => {
 
         //if text input is empty, return error
         if (!textArea.value) {
-            $('#response').html("Please input an rs id accoding to the procedures above or import a vcf file using the \"Choose File\" button above.");
+            $('#response').html("Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1).");
             return;
         }
 
         var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
-        var snpsObj = new Map();
+        var snpObjs = new Map();
         for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
+            var snpObj;
             snp = arrayOfInputtedSnps[i]
             //snp entry is split into two elements, the snpid (0) and the alleles (1)
             snpArray = snp.split(':');
             //if the snpid is invalid, return error
             if (!snpArray[0].toLowerCase().startsWith("rs") || isNaN(snpArray[0].substring(2, snpArray[0].length))) {
-                $('#response').html("Invalid snp id " + snpArray[0] + " Each id should start with \"rs\" followed by a string of numbers.");
+                $('#response').html("Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers.");
                 return;
             }
-            //if the snp entry doesn't have alleles, create a snpsObj with an empty list
-            if (snpArray.length < 2) {
-                snpsObj.set(snpArray[0], [])
+            if (snpArray.length > 2) {
+                $('#response').html("Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon.");
+                return;
             }
-            else {
+            else if (snpArray.length == 2) {
                 //get the alleles in list form
-                var alleles = snpArray[1].split("");
+                var alleleArray = snpArray[1].split("");
                 //if more than 2 alleles, return error
-                if (alleles.length > 2) {
-                    $('#response').html("Too many alleles for " + snp + ". Each snp should have a maximum of two alleles.");
+                if (alleleArray.length > 2) {
+                    $('#response').html("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
                     return;
                 }
-                for (var i = 0; i < alleles.length; ++i) {
+                for (var j = 0; j < alleleArray.length; ++j) {
                     //if any allele is not  A, T, G, or C, return error
-                    if (["A", "T", "G", "C"].indexOf(alleles[i].toUpperCase()) < 0) {
-                        $('#response').html("Allele \"" + alleles[i] + "\" is invalid. Must be A, T, G, or C.");
+                    if (["A", "T", "G", "C"].indexOf(alleleArray[j].toUpperCase()) < 0) {
+                        $('#response').html("Allele \"" + alleleArray[j] + "\" is invalid. Must be A, T, G, or C.");
                         return;
                     }
                 }
-                snpsObj.set(snpArray[0], alleles);
             }
+            snpObj = {
+                pos: snpArray[0],
+                alleleArray: alleleArray
+            }
+            snpObjs.set(snpArray[0], snpObj);
         }
-        ClientCalculateScore(snpsObj, associationData, pValue, false);
+        ClientCalculateScore(snpObjs, associationData, pValue, false);
     }
     else {
-        var extension = vcfFile.name.split(".").pop();
-        if (!validExtensions.includes(extension.toLowerCase())) {
-            //if here, the user uploded a file with an invalid format
-            $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+        //if text input is empty, return error
+        if (typeof vcfFile === "undefined") {
+            $('#response').html("Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (step 1).");
             return;
         }
-        ClientCalculateScore(vcfFile, associationData, pValue, true);
+        else {
+            var extension = vcfFile.name.split(".").pop();
+            if (!validExtensions.includes(extension.toLowerCase())) {
+                //if here, the user uploded a file with an invalid format
+                $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+                return;
+            }
+            ClientCalculateScore(vcfFile, associationData, pValue, true);
+        }
     }
 }
 
@@ -239,12 +253,16 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
 
     //remove SNPs that aren't relevant from the snpsInput object
     var greppedSNPs;
+    var totalInputVariants = 0;
     if (isVCF) {
         try {
             //greps the vcf file, removing snps not in the database table object returned
-            vcfLines = await shrinkFile(snpsInput, associMap)
+            var vcfLines = await getFileLines(snpsInput);
+            totalInputVariants = getNumDatalines(vcfLines);
+            var reducedVCFLines = await getGreppedFileLines(vcfLines, associMap);
+
             //converts the vcf lines into an object that can be parsed
-            greppedSNPs = vcf_parser.getVCFObj(vcfLines);
+            greppedSNPs = vcf_parser.getVCFObj(reducedVCFLines);
         }
         catch (err) {
             $('#response').html(getErrorMessage(err));
@@ -252,16 +270,19 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
         }
     }
     else {
-        greppedSNPs = snpsInput;
+        var greppedSNPsList = [];
+        totalInputVariants = snpsInput.size;
         for (const key of snpsInput.keys()) {
-            if (!associMap.has(key)) {
-                greppedSNPs.delete(key);
+            if (associMap.has(key)) {
+                greppedSNPsList.push(snpsInput.get(key));
             }
         }
+        var greppedSNPs = new Map();
+        greppedSNPs.set("TextInput", greppedSNPsList);
     }
 
     try {
-        var result = sharedCode.calculateScore(associationData, greppedSNPs, pValue, associMap);
+        var result = sharedCode.calculateScore(associationData, greppedSNPs, pValue, associMap, totalInputVariants);
         //shortens the result for website desplay
         outputVal = getSimpleOutput(result)
         $('#response').html(outputVal);
@@ -320,17 +341,38 @@ function simplifyResultJson(resultJsonStr) {
 }
 
 /**
- * Removes all lines that don't have positions found in the associationData. Returns a list of lines that are valid, including the header lines
+ * returns a list of lines from a file
  * @param {} vcfFile 
- * @param {*} usefulPos 
  */
-async function shrinkFile(vcfFile, usefulPos) {
+async function getFileLines(vcfFile) {
     var fileContents = await readFile(vcfFile);
-    var fileLines = fileContents.split("\n");
-    var fileLinesSmall = jQuery.grep(fileLines, function (line) {
-        return line[0] === '#' || usefulPos.has(getPosFromLine(line));
+    return fileContents.split("\n");
+}
+
+/**
+ * Returns the number of lines from fileLines that are data lines.
+ * @param {} fileLines 
+ */
+function getNumDatalines(fileLines) {
+    var numSNPLines = 0;
+    for (var i = 0; i < fileLines.length; ++i) {
+        if (!fileLines[i].startsWith("#") && fileLines[i] != "") {
+            numSNPLines += 1;
+        }
+    }
+    return numSNPLines;
+}
+
+/**
+ * Removes all lines that don't have positions found in the associationData. 
+ * Returns a list of lines that are valid, including the metadata and header lines
+ * @param {} fileLines 
+ * @param {*} associMap 
+ */
+async function getGreppedFileLines(fileLines, associMap) {
+    return jQuery.grep(fileLines, function (line) {
+        return line[0] === '#' || associMap.has(getPosFromLine(line));
     });
-    return fileLinesSmall;
 }
 
 /**
@@ -527,28 +569,61 @@ function exampleInput() {
         type: "overide/mimetype" // optional - default = ''
     });
     document.getElementById("files").files = new FileListItem(file);
-    document.getElementById('input').value = (result);
-    document.getElementById('input').setAttribute("wrap", "soft");
+    var textInput = document.getElementById('input');
+    //print the file's contents into the input box
+    textInput.value = (result);
+    //print the file's contents into an invisible storage box
+    document.getElementById('savedVCFInput').value = (result);
+    textInput.setAttribute("wrap", "soft");
+    //removes file information text if a file was uploaded previously
+    document.getElementById('list').innerHTML = ""
 }
 
+//code run when the 'Text input' button is pressed
 function clickTextInput() {
-    var textInput = document.getElementById('input');
-    textInput.value = null;
-    textInput.removeAttribute('readonly');
-    var browseButton = document.getElementById('file-form');
-    browseButton.style.visibility = 'hidden';
+    //if the text button isn't already pressed
+    if (!textButtonSelected) {
+        textButtonSelected = true
+        var textInput = document.getElementById('input');
+        //clear the input box text 
+        textInput.value = null;
+        //make the input text box writable
+        textInput.removeAttribute('readonly');
+        //make the choose file button invisible
+        var browseButton = document.getElementById('file-form');
+        browseButton.style.visibility = 'hidden';
+        //if there was text in the text input before, writes it the the input box
+        var previousText = document.getElementById('savedTextInput');
+        if (previousText.value !== "") {
+            document.getElementById('input').value = previousText.value;
+        }
+    }
 }
 
+//code run when the 'File upload' button is pressed
 function clickFileUpload() {
-    var textInput = document.getElementById('input');
-    textInput.value = null;
-    textInput.setAttribute('readonly', 'readonly');
-    var browseButton = document.getElementById('file-form');
-    browseButton.style.visibility = 'visible';
-    var previousFileText = document.getElementById('uploadText');
-    if (previousFileText.value !== "") {
-        document.getElementById('input').value = previousFileText.value;
+    //if the VCf button isn't already pressed
+    if (textButtonSelected) {
+        textButtonSelected = false;
+        //saves the contents of the text input box if it is not empty
+        var textInput = document.getElementById('input');
+        if (textInput.value !== "") {
+            document.getElementById('savedTextInput').value = textInput.value;
+        }
+        //clears the input box text
+        textInput.value = null;
+        //make input box unwritable
+        textInput.setAttribute('readonly', 'readonly');
+        //makes the choose file button visible
+        var browseButton = document.getElementById('file-form');
+        browseButton.style.visibility = 'visible';
+        //if there was text in the file upload input box before, writes it to the input box
+        var previousFileText = document.getElementById('savedVCFInput');
+        if (previousFileText.value !== "") {
+            document.getElementById('input').value = previousFileText.value;
+        }
     }
+
 }
 
 function changePValScalar() {
