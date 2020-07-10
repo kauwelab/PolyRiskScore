@@ -73,7 +73,7 @@ function getStudies() {
     $.ajax({
         type: "GET",
         url: "/get_studies",
-        data: { studyTypes: selectedTypes, traits: selectedTraits },
+        data: { studyTypes: selectedTypes, traits: selectedTraits, ethnicities: selectedEthnicities },
         success: async function (data) {
             //data ~ {traitName:[{study},{study},{study}], traitName:[{study},{study}],...}
             var studyLists = data;
@@ -98,6 +98,8 @@ function getStudies() {
     })
 }
 
+//called in calculatePolyScore below, 
+//queries the server for associations with the given traits, studies, pValue, and reference genome
 function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
     traitList = JSON.stringify(traitList)
     return Promise.resolve($.ajax({
@@ -163,6 +165,7 @@ var calculatePolyScore = async () => {
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
+        //TODO: is it possible to refactor the next ~20 lines of code into its own function for increased readability?
         var textArea = document.getElementById('input');
 
         //if text input is empty, return error
@@ -551,12 +554,12 @@ function clickFileUpload() {
     }
 }
 
+//when the user updates the pvalue scalar or magnitude, update the display and reset the output
 function changePValScalar() {
     $("#pvalScalar").html($("#pValScalarIn").val());
     resetOutput()
     $('#response').html("");
 }
-
 function changePValMagnitude() {
     $("#pvalMagnigtude").html(-1 * $("#pValMagIn").val());
     resetOutput()
