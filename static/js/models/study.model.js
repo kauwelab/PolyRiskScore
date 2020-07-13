@@ -147,7 +147,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             }
 
             //subQueryString is the string that we append query constraints to from the HTTP request
-            var subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}) "`;
+            var subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}") `;
             var appendor = "";
 
             //append sql conditional filters for studyType
@@ -188,6 +188,9 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             sqlQueryString = sqlQueryString.concat(subQueryString);
         }
         console.log(`traits queried, ${res.length} result(s)`);
+
+        console.log(sqlQueryString)
+
         sql.query(sqlQueryString, (err, data) => {
             if (err) {
                 console.log("error: ", err);
@@ -195,6 +198,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                 return;
             }
             console.log(`studies queried, ${data.length} result(s)`)
+            console.log(data)
             result(null, data)
         });
     });
