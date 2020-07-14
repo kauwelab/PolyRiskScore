@@ -70,14 +70,14 @@ function chooseOption {
 
 function searchTraitsAndStudies {
     echo -e " ${LIGHTBLUE}SEARCH STUDIES AND TRAITS:${NC}"
-    echo " Which would you like to search, studies or traits? (s/t)"
+    echo -e " Which would you like to search, studies or traits? ${GREEN}(s/t)${NC}"
     read -p "(s/t)? " option
 
     case $option in 
         [sS]* ) read -p "Enter the search term you wish to use: " searchTerm 
-                curl -s "https://prs.byu.edu/find_studies/${searchTerm}" | jq '.[]'
-                # echo $testVar
-                echo $searchTerm;;
+                echo ""
+                echo -e "${LIGHTPURPLE}First Author and Year | Trait | GWAS Catalog Study ID | Title${NC}"
+                curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r '.[] | .citation + " | " + .trait + " | " + .studyID + " | " + .title';;
         [tT]* ) echo "you picked traits" ;;
     esac
 }
