@@ -65,58 +65,6 @@ Study.getAll = result => {
     });
 };
 
-Study.getByTypeAndTrait = (traits, studyTypes, result) => {
-
-    for (i = 0; i < traits.length; i++) {
-        traits[i] = "\"" + traits[i] + "\"";
-    }
-
-    // studyMaxes is a view in the database used to find the max values we need 
-    sql.query(`SELECT * FROM studyMaxes WHERE trait IN (${traits})`, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(err, null);
-            return;
-        }
-
-        sqlQueryString = ""
-        for (i = 0; i < res.length; i++) {
-            if (studyTypes.includes("LC")) {
-                if (res[i].cohort == "NA") {
-                    res[i].cohort = `\"${res[i].cohort}\"`
-                }
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "LC" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND cohort = ${res[i].cohort}; `)
-            }
-            if (studyTypes.includes("HI")) {
-                if (res[i].studyScore == "NA") {
-                    res[i].studyScore = `\"${res[i].studyScore}\"`
-                }
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "HI" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore = ${res[i].studyScore}; `)
-            }
-            if (studyTypes.includes("O")) {
-                if (res[i].cohort == "NA") {
-                    res[i].cohort = `\"${res[i].cohort}\"`
-                }
-                if (res[i].studyScore == "NA") {
-                    res[i].studyScore = `\"${res[i].studyScore}\"`
-                }
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "O" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore <> ${res[i].studyScore} AND cohort <> ${res[i].cohort}; `)
-            }
-        }
-
-        console.log(`traits queried, ${res.length} result(s)`);
-        sql.query(sqlQueryString, (err, data) => {
-            if (err) {
-                console.log("error: ", err);
-                result(err, null);
-                return;
-            }
-            console.log(`studies queried, ${data.length} result(s)`)
-            result(null, data)
-        });
-    });
-};
-
 Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
     //if traits is null, assume they want all 
     if (traits) {
