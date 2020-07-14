@@ -78,7 +78,10 @@ function searchTraitsAndStudies {
                 echo ""
                 echo -e "${LIGHTPURPLE}First Author and Year | Trait | GWAS Catalog Study ID | Title${NC}"
                 curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r '.[] | .citation + " | " + .trait + " | " + .studyID + " | " + .title';;
-        [tT]* ) echo "you picked traits" ;;
+        [tT]* ) read -p "Enter the search term you wish to use: " searchTerm 
+                echo -e "${LIGHTPURPLE}"
+                curl -s https://prs.byu.edu/find_traits/${searchTerm} | jq -r '.[]'
+                echo -e "${NC}";;
     esac
 }
 
