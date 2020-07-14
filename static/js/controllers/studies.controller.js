@@ -48,7 +48,7 @@ exports.getEthnicities = (req, res) => {
 }
 
 exports.findTraits = (req, res) => {
-    Study.findTraits(req.params.searchStr, (err, data) => {
+    Study.findTrait(req.params.searchStr, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
