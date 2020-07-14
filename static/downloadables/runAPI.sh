@@ -75,6 +75,8 @@ function searchTraitsAndStudies {
 
     case $option in 
         [sS]* ) read -p "Enter the search term you wish to use: " searchTerm 
+                curl -s "https://prs.byu.edu/find_studies/${searchTerm}" | jq '.[]'
+                # echo $testVar
                 echo $searchTerm;;
         [tT]* ) echo "you picked traits" ;;
     esac
