@@ -137,12 +137,8 @@ exports.getFiltered = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             traitsList = {}
             
-            if (data.length == 1) {
-                traitsList[data[0].trait] = [data[0]]
-            }
-
-            else {
-                for (i=0; i<data.length; i++) {
+            for (i=0; i<data.length; i++) {
+                if (Array.isArray(data[i])){
                     for (j=0; j<data[i].length; j++) {
                         if (data[i][j].trait in traitsList) {
                             traitsList[data[i][j].trait].push(data[i][j])
@@ -150,6 +146,14 @@ exports.getFiltered = (req, res) => {
                         else {
                             traitsList[data[i][j].trait] = [data[i][j]]
                         }
+                    }
+                }
+                else {
+                    if (data[i].trait in traitsList) {
+                        traitsList[data[i].trait].push(data[i])
+                    }
+                    else {
+                        traitsList[data[i].trait] = [data[i]]
                     }
                 }
             }
