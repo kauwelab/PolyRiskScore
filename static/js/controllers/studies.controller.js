@@ -82,11 +82,12 @@ exports.getAll = (req, res) => {
     });
 };
 
-exports.getByTypeAndTrait = (req, res) => {
+exports.getFiltered = (req, res) => {
     traits = req.query.traits
     studyTypes = req.query.studyTypes
+    ethnicities = req.query.ethnicities
     console.log("getting studies");
-    Study.getByTypeAndTrait(traits, studyTypes, (err, data) => {
+    Study.getFiltered(traits, studyTypes, ethnicities, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"
