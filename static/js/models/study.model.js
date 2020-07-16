@@ -146,7 +146,6 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                 return;
             }
             console.log(`studies queried, ${data.length} result(s)`)
-            console.log(data)
             result(null, data)
         });
     });
