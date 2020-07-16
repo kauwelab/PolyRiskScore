@@ -14,24 +14,24 @@ function prskbMenu {
     echo -e "$HORIZONTALLINE"
     echo "Welcome to the PRSKB commandline menu. Here you can learn about the different" 
     echo "parameters required to run a polygenic risk score (PRS) calculation, search" 
-    echo "for a specific study or diesease, learn how to run the PRSKB calculator"
-    echo "without opening this menu, or run the PRSKB calculator."
+    echo "for a specific study or diesease, view usage, or run the PRSKB calculator."
     echo ""
-    echo "Select an option below by entering the corresponding character"
+    echo "Select an option below by entering the corresponding number"
     echo "then pressing [Enter]."
 }
 
 function listOptions {
     echo -e " ${LIGHTBLUE}1${NC} - Learn about Parameters"
     echo -e " ${LIGHTBLUE}2${NC} - Search for a specific study or disease"
-    echo -e " ${LIGHTBLUE}3${NC} - Learn how to run the calculator without opening this menu"
+    echo -e " ${LIGHTBLUE}3${NC} - View usage"
     echo -e " ${LIGHTBLUE}4${NC} - Run the PRSKB calculator"
     echo -e " ${LIGHTBLUE}5${NC} - Quit"
     echo ""
 }
 
 function usage {
-    echo -e "runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv, json, or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
+    echo -e "${LIGHTBLUE}USAGE:${NC} \n"
+    echo -e "./runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv, json, or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
     echo ""
     echo -e "${GREEN}Optional parameters: "
     echo -e "   ${GREEN}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
@@ -49,7 +49,7 @@ function chooseOption {
         echo -e " ${LIGHTBLUE}Options Menu${NC}"
         echo -e " ${LIGHTBLUE}1${NC} - Learn about Parameters"
         echo -e " ${LIGHTBLUE}2${NC} - Search for a specific study or disease"
-        echo -e " ${LIGHTBLUE}3${NC} - Learn how to run the calculator without opening this menu"
+        echo -e " ${LIGHTBLUE}3${NC} - View usage"
         echo -e " ${LIGHTBLUE}4${NC} - Run the PRSKB calculator"
         echo -e " ${LIGHTBLUE}5${NC} - Quit"
         echo ""
@@ -59,13 +59,19 @@ function chooseOption {
         case $option in 
             1 ) echo "You picked $option" ;;
             2 ) searchTraitsAndStudies ;;
-            3 ) echo "You picked $option" ;;
+            3 ) usage ;;
             4 ) echo "You picked $option" ;;
             5 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
                 exit;;
             * ) echo "INVALID OPTION";;
         esac
     done
+}
+
+function learnAboutParameters {
+    echo "TODO: Intro blurb about the parameters"
+    echo "The order of parameters?"
+    echo ""
 }
 
 function searchTraitsAndStudies {
@@ -85,17 +91,10 @@ function searchTraitsAndStudies {
     esac
 }
 
-# function 
-
-function learnAboutParameters {
-    echo "TODO: Intro blurb about the parameters"
-    echo "The order of parameters?"
-    echo ""
+function runPRS {
+    echo -e " ${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
+    
 }
-
-#function runPRS {
-
-#}
 
 # v1.0.0
 # Parameter order:
@@ -119,8 +118,7 @@ if [ $# -lt 4 ]; then
     echo ""
 
     case $decision in 
-        [uU]* ) echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-                usage
+        [uU]* ) usage
                 exit;;
         [mM]* ) prskbMenu
                 chooseOption;;
