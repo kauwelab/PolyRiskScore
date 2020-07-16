@@ -16,7 +16,7 @@ mysql -u polyscore -p --local-infile polyscore
 USE polyscore;
 ```
 
-5. OPTIONAL: If you already have a table for the disease and want to replace it, first drop the table.
+5. OPTIONAL: If you already have a table for the trait and want to replace it, first drop the table.
 ```sql 
 DROP TABLE t2d;
 ```
