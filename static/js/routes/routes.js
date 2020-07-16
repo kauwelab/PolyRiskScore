@@ -15,7 +15,7 @@ module.exports = app => {
     app.get("/get_all_studies", studies.getAll);
 
     // Retrieves study general data for specified studies
-    app.get("/get_studies", studies.getByTypeAndTrait);
+    app.get("/get_studies", studies.getFiltered);
 
     // Retrieves study data using a list of study ids
     app.get("/get_studies_by_id", studies.getStudyByID);

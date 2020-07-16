@@ -10287,6 +10287,53 @@ a.text-dark:hover, a.text-dark:focus {
   max-width: 600px;
  }
 
+ /*for the autocomplete search*/
+ .autocomplete {
+   position: relative;
+   display: inline-block;
+ }
+
+ input[type=text] {
+   width: 100%;
+ }
+
+ input[type=submit] {
+   background-color:  #0179be;
+   color: #fff;
+   cursor: pointer;
+   border: none;
+ }
+
+ .autocomplete-items {
+   position: absolute;
+   border: 1px solid #d4d4d4;
+   border-bottom: none;
+   border-top: none;
+   z-index: 99;
+   top: 100%;
+   left: 0;
+   right: 0;
+ }
+
+ .autocomplete-items div {
+  padding: 5px;
+  cursor: pointer;
+  background-color: #fff; 
+  border-bottom: 1px solid #d4d4d4; 
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+  background-color: #e9e9e9; 
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+  background-color: DodgerBlue !important; 
+  color: #ffffff; 
+}
+
+
  /*formula css on learn more page*/
  .formula {
   margin: 0 auto;

@@ -1,7 +1,7 @@
 const sql = require('./database')
 const formatter = require('../formatHelper')
 
-const Association = function(massociation) {
+const Association = function (massociation) {
     this.id = massociation.id;
     this.snp = massociation.snp;
     this.hg38 = massociation.hg38;
@@ -21,15 +21,16 @@ const Association = function(massociation) {
 
 Association.getFromTables = (traits, pValue, refGen, result) => {
     queryString = ""
-    for (i=0; i < traits.length; i++) {
+    for (i = 0; i < traits.length; i++) {
         traitObj = traits[i]
-        studyIDs = traitObj.studyIDs
-        for (j=0; j<studyIDs.length; j++) {
+        studyIDs = traitObj.studies
+        for (j = 0; j < studyIDs.length; j++) {
             studyIDs[j] = "\"" + studyIDs[j] + "\"";
         }
         queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${formatter.formatForTableName(traitObj.trait)}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}); `)
     }
 
+    //TODO remove
     console.log(queryString)
     sql.query(queryString, (err, res) => {
         if (err) {
@@ -45,7 +46,7 @@ Association.getFromTables = (traits, pValue, refGen, result) => {
 Association.getAll = (traits, pValue, refGen, result) => {
     console.log(refGen, pValue, traits)
     queryString = ""
-    
+
     for (i = 0; i < traits.length; i++) {
         trait = formatter.formatForTableName(traits[i])
         queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${trait}\` WHERE pValue <= ${pValue}`)
@@ -53,10 +54,10 @@ Association.getAll = (traits, pValue, refGen, result) => {
             queryString = queryString.concat("; ")
         }
     }
-    
+
     console.log(queryString)
 
-    sql.query(queryString, (err, res) =>{
+    sql.query(queryString, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -80,7 +81,7 @@ Association.getAllSnps = result => {
         console.log("num Traits: ", res.length);
         queryString = ""
         // turn traits into table names 
-        for (i=0; i<res.length; i++) {
+        for (i = 0; i < res.length; i++) {
             trait = formatter.formatForTableName(res[i].trait)
             queryString = queryString.concat(`SELECT DISTINCT snp, hg38 FROM \`${trait}\`; `)
         }
@@ -94,7 +95,7 @@ Association.getAllSnps = result => {
 
             result(null, data)
         })
-        
+
     });
 }
 
