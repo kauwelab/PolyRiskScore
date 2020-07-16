@@ -44,23 +44,24 @@ function usage {
 function chooseOption {
     while true
     do
-        echo -e "\n$HORIZONTALLINE"
-        echo ""
-        echo -e " ${LIGHTBLUE}Options Menu${NC}"
-        echo -e " ${LIGHTBLUE}1${NC} - Learn about Parameters"
-        echo -e " ${LIGHTBLUE}2${NC} - Search for a specific study or disease"
-        echo -e " ${LIGHTBLUE}3${NC} - View usage"
-        echo -e " ${LIGHTBLUE}4${NC} - Run the PRSKB calculator"
-        echo -e " ${LIGHTBLUE}5${NC} - Quit"
-        echo ""
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
+        echo    "|                                             |"
+        echo -e "| ${LIGHTBLUE}Options Menu${NC}                                |"
+        echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                  |"
+        echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or disease  |"
+        echo -e "| ${LIGHTBLUE}3${NC} - View usage                              |"
+        echo -e "| ${LIGHTBLUE}4${NC} - Run the PRSKB calculator                |"
+        echo -e "| ${LIGHTBLUE}5${NC} - Quit                                    |"
+        echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
+        echo ""
 
         case $option in 
             1 ) echo "You picked $option" ;;
             2 ) searchTraitsAndStudies ;;
             3 ) usage ;;
-            4 ) echo "You picked $option" ;;
+            4 ) runPRS ;;
             5 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
                 exit;;
             * ) echo "INVALID OPTION";;
@@ -92,7 +93,13 @@ function searchTraitsAndStudies {
 }
 
 function runPRS {
-    echo -e " ${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
+    echo -e "${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
+    echo "The calculator will run and then the program will exit. Enter the parameters "
+    echo "as you would if you were running the program without opening the menu. The "
+    echo "usage is given below for your conviencen (You don't need to include ./runPRS.sh) "
+    echo ""
+    usage
+    read -p "./runPRS.sh " commandlineargs
     
 }
 
