@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-function prskbMenu {
+prskbMenu () {
     echo -e "\n$HORIZONTALLINE"
     echo -e "                   ${LIGHTBLUE}PRSKB Command Line Menu/Instructions${NC}"
     echo -e "$HORIZONTALLINE"
@@ -20,7 +20,7 @@ function prskbMenu {
     echo "then pressing [Enter]."
 }
 
-function listOptions {
+listOptions () {
     echo -e " ${LIGHTBLUE}1${NC} - Learn about Parameters"
     echo -e " ${LIGHTBLUE}2${NC} - Search for a specific study or disease"
     echo -e " ${LIGHTBLUE}3${NC} - View usage"
@@ -29,7 +29,7 @@ function listOptions {
     echo ""
 }
 
-function usage {
+usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
     echo -e "./runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv, json, or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
     echo ""
@@ -41,7 +41,7 @@ function usage {
     echo ""
 }
 
-function chooseOption {
+chooseOption () {
     while true
     do
         echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
@@ -69,13 +69,13 @@ function chooseOption {
     done
 }
 
-function learnAboutParameters {
+learnAboutParameters () {
     echo "TODO: Intro blurb about the parameters"
     echo "The order of parameters?"
     echo ""
 }
 
-function searchTraitsAndStudies {
+searchTraitsAndStudies () {
     echo -e " ${LIGHTBLUE}SEARCH STUDIES AND TRAITS:${NC}"
     echo -e " Which would you like to search, studies or traits? ${GREEN}(s/t)${NC}"
     read -p "(s/t)? " option
@@ -92,15 +92,26 @@ function searchTraitsAndStudies {
     esac
 }
 
-function runPRS {
+runPRS () {
     echo -e "${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
     echo "The calculator will run and then the program will exit. Enter the parameters "
     echo "as you would if you were running the program without opening the menu. The "
     echo "usage is given below for your conviencen (You don't need to include ./runPRS.sh) "
     echo ""
     usage
-    read -p "./runPRS.sh " commandlineargs
+    read -p "./runPRS.sh " args
+    args=( $(xargs -n1 <<<"$args") )
+    calculatePRS $args[*]
     
+}
+
+calculatePRS () {
+    echo $1
+    for arg in "$1";
+    do
+        echo $arg
+        echo ""
+    done
 }
 
 # v1.0.0
@@ -133,17 +144,10 @@ if [ $# -lt 4 ]; then
             exit;;
     esac
 
-    # usage
-    # prskbMenu
-    # chooseOption
-
     # give a menu and make the script interactive, giving access
     # to know what studies and diseases they can choose from, 
     # what valid parameters are, ect, what explanations of parameters are
-    
-    
 
-    read -p "Press [Enter] key to quit..."
 elif [ ! -f "$1" ]; then
     echo "The file $1 does not exist."
     echo "Check the path and try again."
@@ -213,7 +217,7 @@ else
     # Calls a python function to get a list of SNPs from our database
     # res is a string composed of two strings separated by a '%'
     # The string is split into a list containing both strings
-    # echo "${traitsForCalc[@]}"
+    
     export traitsForCalc=${traitsForCalc[@]}
     export studyTypesForCalc=${studyTypesForCalc[@]}
     export studyIDsForCalc=${studyIDsForCalc[@]}
