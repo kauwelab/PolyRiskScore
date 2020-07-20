@@ -11,11 +11,14 @@
                 // #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsample1\tsample2\tsample3
                 // set number of samples in vcf file
                 if (line.match(/^#CHROM/)) {
+                    //trim off the whitespace on the last sample's name
+                    line = sharedCode.trim(line);
                     var sampleinfo = line.split('\t')
                     numSamples = sampleinfo.length - 9
 
                     for (var i = 0; i < numSamples; i++) {
                         sampleIndex[i] = sampleinfo[9 + i]
+                        //remove white space from sample names
                         vcfObj.set(sampleinfo[9 + i], []);
                     }
                 }
