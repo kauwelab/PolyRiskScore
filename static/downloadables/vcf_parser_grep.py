@@ -13,25 +13,16 @@ import time
 import datetime
 
 def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
-    outputFile = open('output.txt', 'a')
 
     traits = traits.split(" ") if traits != "" else None
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
-    print(datetime.datetime.today(), file=outputFile)
-    print(traits, file=outputFile)
-    print(studyTypes, file=outputFile)
-    print(studyIDs, file=outputFile)
-    print(ethnicity, file=outputFile)
-
     if (studyTypes is None and studyIDs is None and ethnicity is None):
         toReturn = getAllAssociations(pValue, refGen, traits)
     else:
         toReturn = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
-    print(toReturn, file=outputFile)
-    outputFile.close()
     print('%'.join(toReturn))
 
 
@@ -61,28 +52,26 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
     if traits is not None and studyTypes is not None:
         params = {
             "traits": traits, 
-            "studyTypes": studyTypes
+            "studyTypes": studyTypes,
+            "ethnicities": ethnicity
         }
         traitData = {**urlWithParams("https://prs.byu.edu/get_studies", params)}
 
     if traitData:
-        # filter for ethnicity
         finalTraitList = []
         for trait in traitData:
             tmpStudyHolder = []
             for study in traitData[trait]:
-                if (ethnicity and ethnicity.lower() in study["ethnicity"].lower() and study["studyID"] not in tmpStudyHolder):
-                    tmpStudyHolder.append(study["studyID"])
-                elif not ethnicity and study["studyID"] not in tmpStudyHolder:
-                    tmpStudyHolder.append(study["studyID"])
+                tmpStudyHolder.append(study["studyID"])
             
             traitObj = {
                 "trait": trait,
-                "studyIDs": tmpStudyHolder
+                "studies": tmpStudyHolder
             }
             finalTraitList.append(traitObj)
 
     if studyIDspecificData:
+        # this will need to be fixed
         for obj in studyIDspecificData:
             if obj["trait"] in finalTraitList and obj["studyID"] not in finalTraitList[obj["trait"]]:
                 finalTraitList[obj["trait"]].append(obj["studyID"])

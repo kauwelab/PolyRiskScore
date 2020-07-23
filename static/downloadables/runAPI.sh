@@ -101,70 +101,11 @@ runPRS () {
     usage
     read -p "./runPRS.sh " args
     args=( $(xargs -n1 <<<"$args") )
-    calculatePRS $args[*]
-    
+    calculatePRS ${args[@]}
+    exit;
 }
 
 calculatePRS () {
-    echo $1
-    for arg in "$1";
-    do
-        echo $arg
-        echo ""
-    done
-}
-
-# v1.0.0
-# Parameter order:
-#1 VCF file path
-#2 output file path (csv or txt format)
-#3 p-value cutoff (ex: 0.05)
-#4 refGen {hg17, hg18, hg19, hg38}
-
-#OPTIONAL PARAMETERS:
-# --t traitList ex. ["acne", "insomnia"]
-# --k studyType ex. ["HI", "LC", "O"]
-# --s studyIDs ex. ["GCST000727", "GCST009496"]
-# --e ethnicity ex. ["European", "East Asian"]
-
-HORIZONTALLINE="============================================================================="
-
-if [ $# -lt 4 ]; then
-    echo -e "${LIGHTRED}Too few arguments! ${NC}"
-    echo -e "Show usage (u) or start menu (m)? "
-    read -p "(u/m)? " decision
-    echo ""
-
-    case $decision in 
-        [uU]* ) usage
-                exit;;
-        [mM]* ) prskbMenu
-                chooseOption;;
-        * ) echo -e "Invalid option. ${LIGHTRED}Quitting...${NC}"
-            exit;;
-    esac
-
-    # give a menu and make the script interactive, giving access
-    # to know what studies and diseases they can choose from, 
-    # what valid parameters are, ect, what explanations of parameters are
-
-elif [ ! -f "$1" ]; then
-    echo "The file $1 does not exist."
-    echo "Check the path and try again."
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$2" =~ .csv|.json|.txt$ ]]; then
-    echo "$2 is not in the right format."
-    echo "Valid formats are csv, json, and txt"
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$3" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-    echo "$3 is your p-value, but it is not a number."
-    echo "Check the value and try again."
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$4" == 'hg17' ]] && ! [[ "$4" = 'hg19' ]] && ! [[ "$4" == 'hg18' ]] && ! [[ "$4" == 'hg38' ]]; then
-    echo "$4 should be hg17, hg18, hg19, or hg38"
-    echo "Check the value and try again."
-    read -p "Press [Enter] key to quit..."
-else
     args=("${@:5}")
 
     trait=0
@@ -218,12 +159,12 @@ else
     # res is a string composed of two strings separated by a '%'
     # The string is split into a list containing both strings
     
-    export traitsForCalc=${traitsForCalc[@]}
-    export studyTypesForCalc=${studyTypesForCalc[@]}
-    export studyIDsForCalc=${studyIDsForCalc[@]}
-    export ethnicityForCalc=${ethnicityForCalc[@]}
+    export traits=${traitsForCalc[@]}
+    export studyTypes=${studyTypesForCalc[@]}
+    export studyIDs=${studyIDsForCalc[@]}
+    export ethnicities=${ethnicityForCalc[@]}
 
-    res=$(python -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traitsForCalc}', '$studyTypesForCalc', '$studyIDsForCalc','$ethnicityForCalc')")
+    res=$(python -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
     read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
@@ -246,8 +187,63 @@ else
     echo "Caculated score"
     rm intermediate.vcf
     rm tableObj.txt
+    rm -r __pycache__
     echo "Cleaned up intermediate files"
     echo "Results saved to $2"
     echo ""
-    read -p "Press [Enter] key to finish..."
+    exit;
+}
+
+# v1.0.0
+# Parameter order:
+#1 VCF file path
+#2 output file path (csv or txt format)
+#3 p-value cutoff (ex: 0.05)
+#4 refGen {hg17, hg18, hg19, hg38}
+
+#OPTIONAL PARAMETERS:
+# --t traitList ex. ["acne", "insomnia"]
+# --k studyType ex. ["HI", "LC", "O"]
+# --s studyIDs ex. ["GCST000727", "GCST009496"]
+# --e ethnicity ex. ["European", "East Asian"]
+
+HORIZONTALLINE="============================================================================="
+
+if [ $# -lt 4 ]; then
+    echo -e "${LIGHTRED}Too few arguments! ${NC}"
+    echo -e "Show usage (u) or start menu (m)? "
+    read -p "(u/m)? " decision
+    echo ""
+
+    case $decision in 
+        [uU]* ) usage
+                exit;;
+        [mM]* ) prskbMenu
+                chooseOption;;
+        * ) echo -e "Invalid option. ${LIGHTRED}Quitting...${NC}"
+            exit;;
+    esac
+
+    # give a menu and make the script interactive, giving access
+    # to know what studies and diseases they can choose from, 
+    # what valid parameters are, ect, what explanations of parameters are
+
+elif [ ! -f "$1" ]; then
+    echo "The file $1 does not exist."
+    echo "Check the path and try again."
+    read -p "Press [Enter] key to quit..."
+elif ! [[ "$2" =~ .csv|.json|.txt$ ]]; then
+    echo "$2 is not in the right format."
+    echo "Valid formats are csv, json, and txt"
+    read -p "Press [Enter] key to quit..."
+elif ! [[ "$3" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
+    echo "$3 is your p-value, but it is not a number."
+    echo "Check the value and try again."
+    read -p "Press [Enter] key to quit..."
+elif ! [[ "$4" == 'hg17' ]] && ! [[ "$4" = 'hg19' ]] && ! [[ "$4" == 'hg18' ]] && ! [[ "$4" == 'hg38' ]]; then
+    echo "$4 should be hg17, hg18, hg19, or hg38"
+    echo "Check the value and try again."
+    read -p "Press [Enter] key to quit..."
+else
+    calculatePRS "${@}"
 fi
