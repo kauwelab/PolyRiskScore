@@ -23,6 +23,7 @@ def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
         toReturn = getAllAssociations(pValue, refGen, traits)
     else:
         toReturn = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
+    
     print('%'.join(toReturn))
 
 
@@ -141,8 +142,8 @@ def calculateScore(vcfFile, diseaseArray, pValue, outputType, tableObjList):
 def getSNPsFromTableObj(tableObjList):
     posList = []
     for diseaseEntry in tableObjList:
-        for studyEntry in diseaseEntry['studiesRows']:
-            for row in studyEntry['rows']:
+        for studyID in tableObjList[diseaseEntry]:
+            for row in tableObjList[diseaseEntry][studyID]["associations"]:
                 posList.append(row['pos'])
     return posList
 
@@ -214,7 +215,7 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, outputType):
             studies = []
             diseaseResults = {}
             # Iterate through each of the studies pertaining to the disease
-            for studyEntry in diseaseEntry['studiesRows']:
+            for studyID in tableObjList[diseaseEntry]:
                 oddRatios = []
                 rsids = []
                 chromPosList = []
@@ -224,7 +225,7 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, outputType):
                     # Also iterate through each of the alleles
                     for allele in vcfObj[samp][chromPos]:
                         # Then compare to the data in each row of the study
-                        for row in studyEntry['rows']:
+                        for row in tableObjList[diseaseEntry][studyID]["associations"]:
                             if allele != None:
                                 # Compare the individual's snp and allele to the study row's snp and risk allele
                                 if chromPos == row['pos'] and allele == row['riskAllele']:
@@ -239,7 +240,8 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, outputType):
                                     if row['snp'] is not None:
                                         rsids.append(row['snp'])
                 studyResults.update({
-                    "study": studyEntry['study'],
+                    "study": studyID,
+                    "citation": tableObjList[diseaseEntry][studyID]["citation"],
                     "oddsRatio": getCombinedORFromArray(oddRatios),
                     "percentile": "",
                     "numSNPsIncluded": len(oddRatios),
@@ -249,7 +251,7 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, outputType):
                 studies.append(studyResults)
 
             diseaseResults.update({
-                "disease": diseaseEntry['disease'],
+                "disease": diseaseEntry,
                 "studyResults": studies
             })
             diseases.append(diseaseResults)
