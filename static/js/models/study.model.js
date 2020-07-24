@@ -68,7 +68,7 @@ Study.getAll = result => {
 Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
     //if traits is null, assume they want all 
     if (traits) {
-        if (typeof traits === "string" || traits instanceof String) {
+        if (typeof traits === 'string' || traits instanceof String) {
             traits = "\"" + traits + "\"";
         }
         else {
