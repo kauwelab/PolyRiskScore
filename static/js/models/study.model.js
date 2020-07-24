@@ -68,9 +68,15 @@ Study.getAll = result => {
 Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
     //if traits is null, assume they want all 
     if (traits) {
-        for (i = 0; i < traits.length; i++) {
-            traits[i] = "\"" + traits[i] + "\"";
+        if (typeof traits === "string" || traits instanceof String) {
+            traits = "\"" + traits + "\"";
         }
+        else {
+            for (i = 0; i < traits.length; i++) {
+                traits[i] = "\"" + traits[i] + "\"";
+            }
+        }
+        
         // studyMaxes is a view in the database used to find the max values we need 
         studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
     }
