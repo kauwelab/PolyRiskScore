@@ -6,6 +6,7 @@ LIGHTBLUE='\033[1;34m'
 LIGHTPURPLE='\033[1;35m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
+MYSTERYCOLOR='\033[1;49;36m'
 NC='\033[0m' # No Color
 
 prskbMenu () {
@@ -31,13 +32,13 @@ listOptions () {
 
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTPURPLE}[output file path (csv, json, or txt format)] ${LIGHTBLUE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC}"
+    echo -e "./runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
-    echo -e "${GREEN}Optional parameters: "
-    echo -e "   ${GREEN}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
-    echo -e "   ${GREEN}--k${NC} studyType ex. HI LC O (High Impact, Large Cohort, Other studies)"
-    echo -e "   ${GREEN}--s${NC} studyIDs ex. GCST000727 GCST009496"
-    echo -e "   ${GREEN}--e${NC} ethnicity ex. European \"East Asian\""    
+    echo -e "${MYSTERYCOLOR}Optional parameters: "
+    echo -e "   ${MYSTERYCOLOR}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
+    echo -e "   ${MYSTERYCOLOR}--k${NC} studyType ex. HI LC O (High Impact, Large Cohort, Other studies)"
+    echo -e "   ${MYSTERYCOLOR}--s${NC} studyIDs ex. GCST000727 GCST009496"
+    echo -e "   ${MYSTERYCOLOR}--e${NC} ethnicity ex. European \"East Asian\""    
     echo ""
 }
 
@@ -58,7 +59,7 @@ chooseOption () {
         echo ""
 
         case $option in 
-            1 ) echo "You picked $option" ;;
+            1 ) learnAboutParameters ;;
             2 ) searchTraitsAndStudies ;;
             3 ) usage ;;
             4 ) runPRS ;;
@@ -70,9 +71,106 @@ chooseOption () {
 }
 
 learnAboutParameters () {
-    echo "TODO: Intro blurb about the parameters"
-    echo "The order of parameters?"
+    cont=1
     echo ""
+    echo -e "                    ${LIGHTPURPLE}PARAMETERS: ${NC}"
+    echo "Not sure what you need to input for a certain parameter, or "
+    echo "unsure why a parameter is required? Pick the number corresponding "
+    echo "to the parameter to learn more about it. "
+    echo ""
+
+    while [[ "$cont" != "0" ]]
+    do 
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
+        echo    "|                                             |"
+        echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                            |"
+        echo -e "| ${LIGHTPURPLE}1${NC} - VCF File                                |"
+        echo -e "| ${LIGHTPURPLE}2${NC} - Output file                             |"
+        echo -e "| ${LIGHTPURPLE}3${NC} - P-value Cutoff                          |"
+        echo -e "| ${LIGHTPURPLE}4${NC} - RefGen                                  |"
+        echo -e "| ${LIGHTPURPLE}5${NC} - Subject Ethnicity                       |"
+        echo    "|                                             |"
+        echo -e "|${LIGHTPURPLE}OPTIONAL PARAMS: ${NC}                            |"
+        echo -e "| ${LIGHTPURPLE}6${NC} - --t traitList                           |"
+        echo -e "| ${LIGHTPURPLE}7${NC} - --k studyType                           |"
+        echo -e "| ${LIGHTPURPLE}8${NC} - --s studyIDs                            |"
+        echo -e "| ${LIGHTPURPLE}9${NC} - --e ethnicity                           |"
+        echo -e "|                                             |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - Done                                   |"
+        echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
+
+        read -p "#? " option
+        echo ""
+
+        case $option in 
+            1 ) echo -e "${MYSTERYCOLOR} VCF File path: ${NC}" 
+                echo "The path to the VCF file that contains samples for calculation their " 
+                echo "polygenic risk score. ";;
+            2 ) echo -e "${MYSTERYCOLOR} Output File path: ${NC}" 
+                echo "The path to the file that will contain the outputted scores. The "
+                echo -e "permitted extensions are ${GREEN}.csv${NC}, ${GREEN}.json${NC}, or ${GREEN}.txt${NC} and will dictate the" 
+                echo "format of the outputted results.";;
+            3 ) echo -e "${MYSTERYCOLOR} P-value Cutoff: ${NC}"
+                echo "This parameter dictates which SNPs will be used in the PRS calculation. "
+                echo "Those SNPs with p-values less than or equal to the given cutoff will be " 
+                echo "included. "  
+                echo "" ;;
+            4 ) echo -e "${MYSTERYCOLOR} RefGen (Reference Genome): ${NC}"
+                echo "This parameter tells us which reference genome the given VCF file is in. " # need better explanation
+                echo "" ;;
+            5 ) echo -e "${MYSTERYCOLOR} Subject Ethnicity: ${NC}"
+                echo "This parameter is required for us to run Linkage Disequilibrium on "
+                echo "SNPs for PRS calculation. We use the five super populations from the " 
+                echo "1000 Genomes as the available options. Below are the acceptable codes. " # this will need some re-work on the language
+                echo "" #AFR, AMR, EAS, EUR, SAS
+                echo -e "   ${GREEN}AFR${NC} - African population " 
+                echo -e "   ${GREEN}AMR${NC} - Ad Mixed American population " 
+                echo -e "   ${GREEN}EAS${NC} - East Asian population " 
+                echo -e "   ${GREEN}EUR${NC} - European population " 
+                echo -e "   ${GREEN}SAS${NC} - South Asian population " 
+                echo "" ;;
+            6 ) echo -e "${MYSTERYCOLOR} --t traitsList: ${NC}"
+                echo "This parameter allows you to pick specifically which traits "
+                echo "you would like to use to calculate PRS scores. You can see available "
+                echo "traits by choosing the search option in the Options Menu " 
+                echo "" ;;
+            7 ) echo -e "${MYSTERYCOLOR} --k studyType: ${NC}"
+                echo "This parameter allows you to pick what kind of studies you "
+                echo -e "wish to run the PRS calculator on. The options are ${GREEN}HI${NC} (High Impact), " 
+                echo -e "${GREEN}LC${NC} (Largest Cohort), and${GREEN} O${NC} (Other). You can include any combination "
+                echo "of these and we will ... " 
+                echo ""
+                echo -e "   ${GREEN}HI (High Impact)${NC} - determined by study scores pulled from ____. Only " 
+                echo "   the studies with the highest impact are chosen with this option. "
+                echo -e "   ${GREEN}LC (Largest Cohort)${NC} - determined by study cohort size. Only the" 
+                echo "   studies with the highest impact are chosen with this option." 
+                echo -e "   ${GREEN}O (Other)${NC} - studies are those that do not fall under Highest Impact or" 
+                echo "   Largest Cohort. " 
+                echo "" ;;
+            8 ) echo -e "${MYSTERYCOLOR} --s studyIDs: ${NC}"
+                echo "This parameter allows you to pick specifically which studies "
+                echo "you would like to use to calculate PRS scores. You can see available "
+                echo "studies by choosing the search option in the Options Menu. Enter the "
+                echo "GWAS Catalog Study ID of the studies you wish to use. " 
+                echo "" ;;
+            9 ) echo -e "${MYSTERYCOLOR} --e ethnicity: ${NC}"
+                echo "This parameter allows you to filter studies to use by the ethnicity "
+                echo "of the subjects used in the study. These correspond to those listed " 
+                echo "by the authors. " # should we maybe show ethnicities when they search studies?
+                echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
+                echo "" ;;
+            10 ) cont=0 ;;
+            * ) echo "INVALID OPTION";;
+        esac
+        if [[ "$cont" != "0" ]]; then
+            read -p "Return to Parameters? (y/n) " returnToParams
+            echo ""
+            case $returnToParams in 
+                [yY]* ) ;;
+                * ) cont=0;;
+            esac
+        fi
+    done
 }
 
 searchTraitsAndStudies () {
@@ -89,6 +187,7 @@ searchTraitsAndStudies () {
                 echo -e "${LIGHTPURPLE}"
                 curl -s https://prs.byu.edu/find_traits/${searchTerm} | jq -r '.[]'
                 echo -e "${NC}";;
+        * ) echo -e "Invalid option." ;;
     esac
 }
 
@@ -106,7 +205,7 @@ runPRS () {
 }
 
 calculatePRS () {
-    args=("${@:5}")
+    args=("${@:6}")
 
     trait=0
     studyType=0
