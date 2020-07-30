@@ -34,7 +34,7 @@ usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
     echo -e "./runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
-    echo -e "${MYSTERYCOLOR}Optional parameters: "
+    echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
     echo -e "   ${MYSTERYCOLOR}--k${NC} studyType ex. HI LC O (High Impact, Large Cohort, Other studies)"
     echo -e "   ${MYSTERYCOLOR}--s${NC} studyIDs ex. GCST000727 GCST009496"
@@ -105,11 +105,13 @@ learnAboutParameters () {
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR} VCF File path: ${NC}" 
                 echo "The path to the VCF file that contains samples for calculation their " 
-                echo "polygenic risk score. ";;
+                echo "polygenic risk score. "
+                echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR} Output File path: ${NC}" 
                 echo "The path to the file that will contain the outputted scores. The "
                 echo -e "permitted extensions are ${GREEN}.csv${NC}, ${GREEN}.json${NC}, or ${GREEN}.txt${NC} and will dictate the" 
-                echo "format of the outputted results.";;
+                echo "format of the outputted results."
+                echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR} P-value Cutoff: ${NC}"
                 echo "This parameter dictates which SNPs will be used in the PRS calculation. "
                 echo "Those SNPs with p-values less than or equal to the given cutoff will be " 
@@ -133,6 +135,7 @@ learnAboutParameters () {
                 echo "This parameter allows you to pick specifically which traits "
                 echo "you would like to use to calculate PRS scores. You can see available "
                 echo "traits by choosing the search option in the Options Menu " 
+                echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             7 ) echo -e "${MYSTERYCOLOR} --k studyType: ${NC}"
                 echo "This parameter allows you to pick what kind of studies you "
@@ -146,6 +149,7 @@ learnAboutParameters () {
                 echo "   studies with the highest impact are chosen with this option." 
                 echo -e "   ${GREEN}O (Other)${NC} - studies are those that do not fall under Highest Impact or" 
                 echo "   Largest Cohort. " 
+                echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             8 ) echo -e "${MYSTERYCOLOR} --s studyIDs: ${NC}"
                 echo "This parameter allows you to pick specifically which studies "
@@ -200,6 +204,7 @@ runPRS () {
     usage
     read -p "./runPRS.sh " args
     args=( $(xargs -n1 <<<"$args") )
+    # TODO: put the validity check here for variables. 
     calculatePRS ${args[@]}
     exit;
 }
