@@ -154,7 +154,7 @@ def getSNPsFromTableObj(tableObjList, refGen):
     pos_pval_map = defaultDict(dict)
     for diseaseEntry in tableObjList:
         disease = diseaseEntry['disease']
-        for studyEntry in diseaseEntry['studiesRows']
+        for studyEntry in diseaseEntry['studiesRows']:
             study = studyEntry['study']
             for row in studyEntry['rows']:
                 chrom = row['pos'].split(':')[0]
@@ -177,7 +177,7 @@ def getClumps(studyIDs, superPop):
                 "studyIDs":studyIDs,
                 "superPop":superPop
         }
-        res = urlWithParams("https://prs.byu.edu/ld_clumping", params)a
+        res = urlWithParams("https://prs.byu.edu/ld_clumping", params)
     return res
 
 def parse_vcf(vcfFile, posList, pos_pval_map, refGen, studyIDs, superPop):
@@ -253,7 +253,8 @@ def parse_vcf(vcfFile, posList, pos_pval_map, refGen, studyIDs, superPop):
                                 if pvalue < index_pvalue:
                                     del index_snp_map[study_name][clumpNum]
                                     index_snp_map[study_name][clumpNum] = chromPos
-                                    del sample_map[study_name][chromPos] = alleles
+                                    del sample_map[study_name][index_snp]
+                                    sample_map[study_name][chromPos] = alleles
                             else:
                                 index_snp_map[study_name][clumpNum] = chromPos
                                 sample_map[study_name][chromPos] = alleles
