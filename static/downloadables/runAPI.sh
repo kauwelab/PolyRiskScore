@@ -268,7 +268,7 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    res=$(python -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
+    res=$(python3 -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
     read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
@@ -286,8 +286,8 @@ calculatePRS () {
     echo "Greped the VCF file"
 
     outputType="csv" #this is the default
-    #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=outputFile
-    python run_prs_grep.py intermediate.vcf "$diseaseArray" "$3" "$outputType" tableObj.txt "$2"
+    #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
+    python3 run_prs_grep.py intermediate.vcf "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2"
     echo "Caculated score"
     rm intermediate.vcf
     rm tableObj.txt
