@@ -37,4 +37,23 @@
             }
         );
     }
+
+    exports.formatForClumpsTable = function (superPop) {
+        if (superPop.toLowerCase() == "african") {
+            return "african_Clump"
+        }
+        else if (superPop.toLowerCase() == "american") {
+            return "american_Clump"
+        }
+        else if (superPop.toLowerCase() == "east asian") {
+            return "eastAsian_Clump"
+        }
+        else if (superPop.toLowerCase() == "european") {
+            return "european_Clump"
+        }
+        else if (superPop.toLowerCase() == "south asian") {
+            return "southAsian_Clump"
+        }
+        return "error"
+    }
 })(typeof exports === 'undefined' ? this['formatHelper'] = {} : exports);
