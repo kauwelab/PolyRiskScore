@@ -26,6 +26,10 @@
   --danger: #dc3545;
   --light: #f8f9fa;
   --dark: #343a40;
+  --themeblue: #416d9d;
+  --themepurple: #525592;
+  --themegreen: #507874;
+  --themeyellow: #c49a5a;
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;
@@ -5244,12 +5248,12 @@ a.badge-dark:hover, a.badge-dark:focus {
 }
 
 .jumbotron {
-  padding: 2rem 1rem;
-  background-color: #DBF5FF;
+  padding: 1rem;
+  background-color: white;
   border-radius: 0.3rem;
 }
-.jumotron-white {
-  padding: 2rem 1rem;
+.jumbotron-white {
+  padding: 1rem;
   margin-bottom: 2rem;
   background-color: white;
   border-radius: 0.3rem;
@@ -5257,7 +5261,7 @@ a.badge-dark:hover, a.badge-dark:focus {
 
 @media (min-width: 576px) {
   .jumbotron {
-    padding: 4rem 2rem;
+    padding: 2rem;
   }
 }
 

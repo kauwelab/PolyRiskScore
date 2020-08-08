@@ -7,6 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
+  <link href="css/topnav.css" rel="stylesheet">
+  <link href="css/tile.css" rel="stylesheet">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
 </head>
 
@@ -15,13 +17,23 @@
     <a href="#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website!
       --Click here to leave us comments or questions</a>
   </div>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+
+  <div id="topnav" class='topnav'>
+    <a href="#news">HOME</a>
+    <a href="#contact">THE LAB</a>
+    <a href="#search">CALCULATE</a>
+    <a href="#about">CITE</a>
+  </div>
+
+  <img class="img-responsive" src="/images/BannerImg.jpg" width="100%" style="max-height: 50%; overflow: hidden;">
+
+  <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <a class="navbar-brand" href="#">PRS Knowledge Base</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
-        class="navbar-toggler-icon"></span> </button>
+        class="navbar-toggler-icon"></span> </button> -->
     <!-- The justify-content-end command in the next line aligns the menu to the right.-->
-    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+    <!-- <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
       <ul class="navbar-nav">
         <div class="active-page">
           <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
@@ -32,12 +44,12 @@
         <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
       </ul>
     </div>
-  </nav>
+  </nav> -->
 
-  <header>
+  <section>
     <div class="jumbotron">
       <!--style="background-image: url('images/Ollie.jpg')"> -->
-      <h1 class="forMobile font-weight-bold text-center">Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
+      <h1 class="forMobile text-center" style="color: #416d9d;">Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
       <div class="container">
         <div class="row">
           <div class="col-12">
@@ -55,28 +67,79 @@
         </div>
       </div>
     </div>
-  </header>
+  </section>
 
   <section>
-    <div class="container">
+    <div class="container" style="background-color: whitesmoke;">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h1 style="margin-top: 2rem; color: #2192D3;">Use the PRS Knowledge Base</h1><br>
-          <div id="flex-grid-container">
-            <div class="row justify-content-center">
-              <div class="flex-grid-item-center col-md-5 align-self-center">
+          <h1 style="margin-top: 2rem; color: #416d9d;">Use the PRS Knowledge Base</h1><br>
+          <div id="flex-grid-container" style="background-color: gray;">
+            <div class="row" style="margin-right: 0em; margin-left: 0em;">
+              <div class="tile">
+                <div class="tile-icon">
+                  <img src="/images/Icons/CalculateIcon.svg" alt="calculator icon" >
+                </div>
+                <div class="tile-content">
+                  <h5>Calculate Polygenic Risk Scores</h5>
+                  <p>Upload a VCF file or type in rs ids with or without alleles to use in your calculation. Choose one or
+                    all traits in our database, the p-value cutoff for odds ratios, and the reference genome. </p>
+                  <p class="text-center"><a class="btn btn-primary btn-md" href="calculate_score.html"
+                    role="button">Upload VCF</a> </p>
+                </div>
+              </div>            
+              <div class="tile">
+                <div class="tile-icon">
+                  <img src="/images/Icons/CLIicon.svg" alt="calculator icon" >
+                </div>
+                <div class="tile-content">
+                  <h5>PRS Knowledge Base API</h5>
+                  <p>Download our API to submit your VCF files to the analysis pipeline via the command line.</p>
+                  <!-- <p>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line.</p> -->
+                  <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api
+                      Documentation</a> </p>
+                </div>
+              </div>
+              <div class="tile">
+                <div class="tile-icon">
+                  <img src="/images/Icons/LearnMoreIcon.svg" alt="calculator icon" >
+                </div>
+                <div class="tile-content">
+                  <h5>Learn More</h5>
+                  <p>What is a Polygenic Risk Score? How do we calculate it? How is it used? Why choose the PRS knowledge
+                    base?
+                    These questions and others are answered here.
+                  <p class="text-center"><a class="btn btn-primary btn-md" href="learn_more.html" role="button">Learn
+                      More</a> </p>
+                </div>
+              </div>
+              <div class="tile">
+                <div class="tile-icon">
+                  <img src="/images/Icons/CiteIcon.svg" alt="calculator icon" >
+                </div>
+                <div class="tile-content">
+                  <h5>Cite the PRS Knowledge Base</h5>
+                  <p>We ask that if you use the PRS Knowledge Base for published work, you cite the
+                    PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of
+                    all publications used by the PRS Knowledge Base, organized by trait, please follow the link below.
+                  </p>
+                  <p class="text-center"><a class="btn btn-primary btn-md" href="citations.html" role="button">Cite</a>
+                    </p>
+                </div>
+              </div>
+            </div>
+              <!-- <div class="flex-grid-item-center col-md-5 align-self-center">
                 <h5>Calculate Polygenic Risk Scores</h5>
                 <p>Upload a VCF file or type in rs ids with or without alleles to use in your calculation. Choose one or
-                  all traits in our database, the p-value cutoff for odds ratios, and the reference genome. </p>
+                  all traits in our database, the p-value cutoff for odds ratios, and the reference genome. </p> -->
                 <!-- <p>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p> -->
-                <p class="text-center"><a class="btn btn-primary btn-md" href="calculate_score.html"
-                    role="button">Upload VCF</a> </p>
-              </div>
+                
+              <!-- </div>
               <div class="flex-grid-item-center col-md-5 align-self-center">
                 <h5>PRS Knowledge Base API</h5>
-                <p>Download our API to submit your VCF files to the analysis pipeline via the command line.</p>
+                <p>Download our API to submit your VCF files to the analysis pipeline via the command line.</p> -->
                 <!-- <p>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line.</p> -->
-                <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api
+                <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api
                     Documentation</a> </p>
               </div>
               <div class="flex-grid-item-center col-md-5 align-self-center">
@@ -95,8 +158,8 @@
                 </p>
                 <p class="text-center"><a class="btn btn-primary btn-md" href="citations.html" role="button">Cite</a>
                 </p>
-              </div>
-            </div>
+              </div> -->
+            <!-- </div> -->
           </div>
         </div>
       </div>
@@ -152,6 +215,21 @@
       </div>
     </div>
   </footer>
+  <!-- Making the top menu sticky -->
+  <script>
+    window.onscroll = function() {myFunction()};
+    
+    var topnav = document.getElementById("topnav");
+    var sticky = topnav.offsetTop;
+    
+    function myFunction() {
+      if (window.pageYOffset >= sticky) {
+        topnav.classList.add("sticky")
+      } else {
+        topnav.classList.remove("sticky");
+      }
+    }
+  </script>
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->

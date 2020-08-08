@@ -1,0 +1,27 @@
+.tile {
+    float: left;
+    margin: 10px;
+    width: 22%;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.tile:hover {
+    height: auto;
+    
+}
+.tile-content {
+    padding: 15px;
+}
+
+.tile-icon {
+    width: 100%;
+}
+
+@media (max-width : 1000px ){
+    .tile {
+        width: 45%;
+    }
+    .tile-icon {
+        width: 100%;
+    }
+  }
