@@ -33,6 +33,9 @@ exports.getFromTables = (req, res) => {
 
 exports.getAll = (req, res) => {
     var allTraits = req.query.traits;
+    if (typeof(allTraits) == "string") {
+	    allTraits = [allTraits]
+    }
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
     console.log(`Number of traits: ${allTraits.length}`)
