@@ -199,7 +199,7 @@ runPRS () {
     echo -e "${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
     echo "The calculator will run and then the program will exit. Enter the parameters "
     echo "as you would if you were running the program without opening the menu. The "
-    echo "usage is given below for your conviencen (You don't need to include ./runPRS.sh) "
+    echo "usage is given below for your convenience (You don't need to include ./runPRS.sh) "
     echo ""
     usage
     read -p "./runPRS.sh " args
@@ -246,6 +246,8 @@ calculatePRS () {
                 studyID=0
                 ethnicity=1
             elif [ $trait -eq 1 ] ; then
+	#TODO: check if there's a space in the trait name
+	#TODO: check for apostrophes
                 traitsForCalc+=("$arg")
             elif [ $studyType -eq 1 ] ; then
                 studyTypesForCalc+=("$arg")
@@ -268,7 +270,7 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    res=$(python3 -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
+    res=$(python3 -c "import vcf_parser_grep_test as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
     read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
@@ -287,7 +289,7 @@ calculatePRS () {
 
     outputType="csv" #this is the default
     #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
-    python3 run_prs_grep.py intermediate.vcf "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2"
+    python3 run_prs_grep.py intermediate.vcf "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
     echo "Caculated score"
     rm intermediate.vcf
     rm tableObj.txt
