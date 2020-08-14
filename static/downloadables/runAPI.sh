@@ -104,11 +104,11 @@ learnAboutParameters () {
 
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR} VCF File path: ${NC}" 
-                echo "The path to the VCF file that contains samples for calculation their " 
-                echo "polygenic risk score. "
+                echo "The path to the VCF file that contains the samples for which you would like " 
+                echo "the polygenic risk scores calculated."
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR} Output File path: ${NC}" 
-                echo "The path to the file that will contain the outputted scores. The "
+                echo "The path to the file that will contain the final polygenic risk scores. The "
                 echo -e "permitted extensions are ${GREEN}.csv${NC}, ${GREEN}.json${NC}, or ${GREEN}.txt${NC} and will dictate the" 
                 echo "format of the outputted results."
                 echo "" ;;
@@ -118,7 +118,8 @@ learnAboutParameters () {
                 echo "included. "  
                 echo "" ;;
             4 ) echo -e "${MYSTERYCOLOR} RefGen (Reference Genome): ${NC}"
-                echo "This parameter tells us which reference genome the given VCF file is in. " # need better explanation
+                echo "This parameter tells us which reference genome was used to identify the variants " 
+		echo "in the input VCF file."
                 echo "" ;;
             5 ) echo -e "${MYSTERYCOLOR} Subject Ethnicity: ${NC}"
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
@@ -181,13 +182,23 @@ searchTraitsAndStudies () {
     echo -e " ${LIGHTBLUE}SEARCH STUDIES AND TRAITS:${NC}"
     echo -e " Which would you like to search, studies or traits? ${GREEN}(s/t)${NC}"
     read -p "(s/t)? " option
+    sub="'"
+    backslash='\'
+    NEWLINE='\n'
 
     case $option in 
         [sS]* ) read -p "Enter the search term you wish to use: " searchTerm 
+		if [[ "$searchTerm" = *"'"* ]]; then
+			searchTerm=${searchTerm//${sub}/${backslash}${sub}}
+		fi
                 echo ""
                 echo -e "${LIGHTPURPLE}First Author and Year | Trait | GWAS Catalog Study ID | Title${NC}"
-                curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r '.[] | .citation + " | " + .trait + " | " + .studyID + " | " + .title';;
+		curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .trait + " | " + .studyID + " | " + .title + "\n"';;
         [tT]* ) read -p "Enter the search term you wish to use: " searchTerm 
+		if [[ "$searchTerm" = *"'"* ]]; then
+			echo "in if"
+			searchTerm=${searchTerm//${sub}/${backslash}${sub}}
+		fi
                 echo -e "${LIGHTPURPLE}"
                 curl -s https://prs.byu.edu/find_traits/${searchTerm} | jq -r '.[]'
                 echo -e "${NC}";;
