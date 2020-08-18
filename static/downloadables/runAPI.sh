@@ -214,7 +214,9 @@ runPRS () {
     echo ""
     usage
     read -p "./runPRS.sh " args
-    args=( $(xargs -n1 <<<"$args") )
+    args=$(echo "$args" | sed -r "s/([a-zA-Z])(')([a-zA-z])/\1\\\\\2\3/g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
+    args=( $(xargs -n1 -0 <<<"$args") )
+    echo "${args[@]}" 
     # TODO: put the validity check here for variables. 
     calculatePRS ${args[@]}
     exit;
@@ -257,8 +259,9 @@ calculatePRS () {
                 studyID=0
                 ethnicity=1
             elif [ $trait -eq 1 ] ; then
-	#TODO: check if there's a space in the trait name
-	#TODO: check for apostrophe
+<<<<<<< HEAD
+=======
+>>>>>>> 6eff09b34e8f410834a37eff6f1805a305a41fc4
                 traitsForCalc+=("$arg")
             elif [ $studyType -eq 1 ] ; then
 		if [ $arg != "HI" ] && [ "$arg" != "LC" ] && [ $arg != "O" ]
