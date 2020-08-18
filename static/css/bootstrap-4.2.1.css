@@ -6305,7 +6305,7 @@ dfn:hover::before {top: 20px;}
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  margin: 3 5;
+  margin: 3 3;
 }
 
 .flex-grid-item-center {

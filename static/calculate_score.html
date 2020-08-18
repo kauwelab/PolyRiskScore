@@ -7,6 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
+  <link href="css/topnav.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   <link href="css/bootstrap-tour.min.css" rel="stylesheet">
   <link href="css/multiselect.css" rel="stylesheet"> <!-- TODO -->
@@ -18,14 +20,37 @@
     <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of
       our website! --Click here to leave us comments or questions</a>
   </div>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+
+  <div id="topnav" class='topnav'>
+    <a href="index.html">HOME</a>
+    <a href="calculate_score.html">CALCULATE</a>
+    <a href="citations.html">CITE</a>
+    <a href="api.html">DOWNLOAD</a>
+    <a href="learn_more.html">ABOUT</a>
+    <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
+    <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+
+  <script>
+    function sidemenuFunction() {
+      var x = document.getElementById("topnav");
+      if (x.className === "topnav") {
+        x.className += " responsive";
+      } else {
+        x.className = "topnav";
+      }
+    }
+  </script>
+  <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <a class="navbar-brand" href="#">Calculate Risk Scores</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
         class="navbar-toggler-icon"></span> </button>
     <!-- The justify-content-end command in the next line aligns the menu to the right.-->
-    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+    <!-- <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
       <ul class="navbar-nav">
 
         <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
@@ -38,7 +63,7 @@
         <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
       </ul>
     </div>
-  </nav>
+  </nav> --> -->
   <div class="jumbotron">
     <div class="container">
       <div class="row">
@@ -251,6 +276,21 @@
       </div>
     </div>
   </footer>
+  <!-- Making the top menu sticky -->
+  <script>
+    window.onscroll = function() {myFunction()};
+    
+    var topnav = document.getElementById("topnav");
+    var sticky = topnav.offsetTop;
+    
+    function myFunction() {
+      if (window.pageYOffset >= sticky) {
+        topnav.classList.add("sticky")
+      } else {
+        topnav.classList.remove("sticky");
+      }
+    }
+  </script>
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->
