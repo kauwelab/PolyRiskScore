@@ -258,9 +258,15 @@ calculatePRS () {
                 ethnicity=1
             elif [ $trait -eq 1 ] ; then
 	#TODO: check if there's a space in the trait name
-	#TODO: check for apostrophes
+	#TODO: check for apostrophe
                 traitsForCalc+=("$arg")
             elif [ $studyType -eq 1 ] ; then
+		if [ $arg != "HI" ] && [ "$arg" != "LC" ] && [ $arg != "O" ]
+		then
+			echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
+			echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
+			exit 1
+	        fi	
                 studyTypesForCalc+=("$arg")
             elif [ $studyID -eq 1 ] ; then
                 studyIDsForCalc+=("$arg")
