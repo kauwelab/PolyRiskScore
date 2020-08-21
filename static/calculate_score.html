@@ -8,6 +8,7 @@
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
   <link href="css/topnav.css" rel="stylesheet">
+  <link href="css/banner.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   <link href="css/bootstrap-tour.min.css" rel="stylesheet">
@@ -16,10 +17,6 @@
 <script src="js/multiselect.min.js"></script>
 
 <body onload="getTraits(); getEthnicities();">
-  <div class='p-9 bg-primary text-center'>
-    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of
-      our website! --Click here to leave us comments or questions</a>
-  </div>
 
   <div id="topnav" class='topnav'>
     <a href="index.html">HOME</a>
@@ -35,35 +32,29 @@
 
   <script>
     function sidemenuFunction() {
-      var x = document.getElementById("topnav");
-      if (x.className === "topnav") {
-        x.className += " responsive";
-      } else {
-        x.className = "topnav";
+      var topnav = document.getElementById("topnav");
+      if (topnav.className.includes("responsive")) {
+        topnav.classList.remove("responsive");
+      } 
+      else {
+        topnav.classList.add("responsive");
       }
     }
   </script>
-  <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <a class="navbar-brand" href="#">Calculate Risk Scores</a>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
-        class="navbar-toggler-icon"></span> </button>
-    <!-- The justify-content-end command in the next line aligns the menu to the right.-->
-    <!-- <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-
-        <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
-
-        <div class="active-page">
-          <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
-        </div>
-        <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
-      </ul>
+  <header>
+    <div class="banner">
+      <img src="/images/dnaCalcBanner.jpg" width="100%" style="overflow: hidden;">
+      <div class="centered-title">How to Use the Calculator</div>
+      <div class="centered-subtitle"> (in 7 easy steps) </div>
+      <script src="js/tour.js"></script>
+      <div class="centered-button">
+        <button type="button" id="startTour" onclick="startTour();" class="btn btn-primary btn-lg">Start a Tour</button> 
+      </div>
     </div>
-  </nav> --> -->
+    
+  </header>
+
   <div class="jumbotron">
     <div class="container">
       <div class="row">
@@ -71,15 +62,7 @@
 
           <div class="row text-center">
             <div class="text-center col-12">
-              <h2>How to Use the Calculator</h2>
-              <h3 style="margin-bottom: 1rem;"> (in 7 easy steps) </h3>
-
-              <script src="js/tour.js"></script>
-              <button type="button" id="startTour" onclick="startTour();" class="btn btn-primary btn-lg">Start a
-                Tour</button>
               <h3><br>1: Input RS IDs and Alleles</h3>
-
-
             </div>
             <div class="text-center col-12">
               <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->

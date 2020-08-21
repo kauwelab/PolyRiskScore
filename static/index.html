@@ -8,17 +8,13 @@
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
   <link href="css/topnav.css" rel="stylesheet">
+  <link href="css/banner.css" rel="stylesheet">
   <link href="css/tile.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
 </head>
 
 <body>
-  <div class='p-9 bg-primary text-center'>
-    <a href="#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website!
-      --Click here to leave us comments or questions</a>
-  </div>
-
   <div id="topnav" class='topnav'>
     <a href="index.html">HOME</a>
     <a href="calculate_score.html">CALCULATE</a>
@@ -33,41 +29,44 @@
 
   <script>
     function sidemenuFunction() {
-      var x = document.getElementById("topnav");
-      if (x.className === "topnav") {
-        x.className += " responsive";
-      } else {
-        x.className = "topnav";
+      var topnav = document.getElementById("topnav");
+      if (topnav.className.includes("responsive")) {
+        topnav.classList.remove("responsive");
+      } 
+      else {
+        topnav.classList.add("responsive");
       }
     }
   </script>
 
-
-    <img src="/images/BannerImg.jpg" width="100%" style="overflow: hidden;">
-
-  <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <a class="navbar-brand" href="#">PRS Knowledge Base</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
-        class="navbar-toggler-icon"></span> </button> -->
-    <!-- The justify-content-end command in the next line aligns the menu to the right.-->
-    <!-- <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-        <div class="active-page">
-          <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
-        </div>
-        <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
-      </ul>
+<header>
+  <div class="banner">
+    <img src="/images/dnaBanner.jpg" width="100%" style="overflow: hidden;">
+    <div class="centered-title" style="font-size: 5vw; margin-top: 1em;">Welcome to the <br>Polygenic Risk Score <br>Knowledge Base</div>
+    <!-- <div class="centered-subtitle"> (in 7 easy steps) </div>
+    <script src="js/tour.js"></script>
+    <div class="centered-button">
+      <button type="button" id="startTour" onclick="startTour();" class="btn btn-primary btn-lg">Start a Tour</button> 
+    </div> -->
+  </div>
+	<!-- <div class="one">
+    <div class="text-center">
+      <img src="images/dnaBanner.jpg" id="videosubstitute" alt="" >
+      <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop" id="video2">
+        <source src="images/dna.mp4" type="video/mp4" style="background-color: rgba(0,0,0,0.25);">
+      </video>
+    
     </div>
-  </nav> -->
+    <div class="text-center text-white"> 
+      <h1 class="display-1 font-weight-bold"><br>Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
+  	</div>
+	</div> -->
+</header>
 
   <section>
     <div class="jumbotron">
       <!--style="background-image: url('images/Ollie.jpg')"> -->
-      <h1 class="forMobile text-center" style="color: #416d9d;">Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
+      <!-- <h1 class="forMobile text-center">Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1> -->
       <div class="container">
         <div class="row">
           <div class="col-12">
@@ -191,47 +190,6 @@
       </div>
     </div>
   </section>
-  <!-- <div class="jumbotron" id='feedback'>
-    <div class="container">
-      <div class="row">
-        <div class="col-12 col-md-8 mx-auto">
-
-          <div class="row text-center">
-            <div class="text-center col-12">
-              <h1 class="">Questions or Comments about the PRS Knowledge Base?</h1>
-            </div>
-            <div class="text-center col-12"> -->
-              <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-              <!-- <form action="/contact" id="feedbackForm" method="post" role="form">
-                <div class="form-group text-left">
-                  <label for="name"><br><b>Name</b></label>
-                  <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
-                    aria-describedby="nameHelp">
-                  <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
-                </div>
-                <div class="form-group text-left">
-                  <label for="email"><b>E-Mail</b></label>
-                  <input type="email" class="form-control" id="email" name="email"
-                    placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
-                  <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail
-                    address.</span>
-                </div>
-                <div class="form-group text-left">
-                  <label for="message"><b>Message</b></label>
-                  <textarea rows="10" cols="100" class="form-control" id="message" name="message"
-                    placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
-                  <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
-                    message.</span>
-                </div>
-                <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
   <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
       <div class="row">

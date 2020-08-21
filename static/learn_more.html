@@ -7,41 +7,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
+  <link href="css/topnav.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 </head>
 
 <body>
-  <div class='p-9 bg-primary text-center'>
-    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of
-      our website! --Click here to leave us comments or questions</a>
+
+  <div id="topnav" class='topnav'>
+    <a href="index.html">HOME</a>
+    <a href="calculate_score.html">CALCULATE</a>
+    <a href="citations.html">CITE</a>
+    <a href="api.html">DOWNLOAD</a>
+    <a href="learn_more.html">ABOUT</a>
+    <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
+    <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
   </div>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <a class="navbar-brand" href="#">Learn More</a>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
-        class="navbar-toggler-icon"></span> </button>
-    <!-- The justify-content-end command in the next line aligns the menu to the right.-->
-    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-        <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
-        <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
-        <div class="active-page">
-          <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
-        </div>
-
-      </ul>
-    </div>
-  </nav>
+  <script>
+    function sidemenuFunction() {
+      var topnav = document.getElementById("topnav");
+      if (topnav.className.includes("responsive")) {
+        topnav.classList.remove("responsive");
+      } 
+      else {
+        topnav.classList.add("responsive");
+      }
+    }
+  </script>
 
 
   <header>
     <div class="jumbotron">
       <div class="container">
-        <div class="row">
+        <div class="row" style="margin-top: 4em;">
           <div class="col-12">
             <h1 class="text-center">What is a Polygenic Risk Score?</h1><br>
             <ul>
@@ -242,6 +244,21 @@
       </div>
     </div>
   </footer>
+  <!-- Making the top menu sticky -->
+  <script>
+    window.onscroll = function() {myFunction()};
+    
+    var topnav = document.getElementById("topnav");
+    var sticky = topnav.offsetTop;
+    
+    function myFunction() {
+      if (window.pageYOffset >= sticky) {
+        topnav.classList.add("sticky")
+      } else {
+        topnav.classList.remove("sticky");
+      }
+    }
+  </script>
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->
