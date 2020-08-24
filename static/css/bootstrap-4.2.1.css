@@ -6309,9 +6309,12 @@ dfn:hover::before {top: 20px;}
   cursor: pointer;
 }
 
-#shadow:hover {
-  box-shadow: 0 6px 14px 0 rgba(0,0,0,0.5),0 4px 20px 0 rgba(0,0,0,0.5);
+
+.text_shadow:hover {
+  /*box-shadow: 0 6px 14px 0 rgba(0,0,0,0.5),0 4px 20px 0 rgba(0,0,0,0.5);*/
+  text-shadow: 2px 2px 5px #2192D3;
 }
+
 
 #flex-grid-container > .container {
   display: flex;
