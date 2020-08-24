@@ -1,8 +1,8 @@
 function displayPanel(elID){
     var x = document.getElementById(elID);
-    if (x.style.display === "none") {
-      x.style.display = "block";
+    if (x.style.height === "0px") {
+      x.style.height = "100px";
     } else {
-      x.style.display = "none";
+      x.style.height = "0px";
     }
 }
