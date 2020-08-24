@@ -9,6 +9,7 @@
   <!-- Bootstrap -->
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+  <script src="https://kit.fontawesome.com/3aa9d240b2.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -93,42 +94,51 @@
             <script src="js/learn_more.js"></script>
             <p class="text-center">
             <ul class="prsList" style="text-align: left">
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')"><a>Disease
-                  prediction</a></li>
-              <div id="diseasePredictionPanel" style="display: none;">
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')">
+                <i id="diseasePredictionPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Disease prediction</a>
+              </li>
+              <div class="" id="diseasePredictionPanel" style="max-height: 70px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>Polygenic risk scores can be used to assess the risk of expressing a trait. An individual with a risk
                   score that is higher than the population average is more likely to express that trait. Predicting late
                   onset diseases with this method is particularly useful because preventative treatment can be applied
                   sooner.
                 </p>
               </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')"><a>Clinical trial
-                  screening</a></li>
-              <div id="screeningPanel" style="display: none;">
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')">
+                <i id="screeningPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Clinical trial screening</a>
+              </li>
+              <div id="screeningPanel" style="max-height: 50px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>Clinical trials, such as drug testing, rely on removing confounding factors. Selecting individuals
                   with similar risk scores for many traits eliminates potential confounding factors between these
                   traits.
                 </p>
               </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')"><a>Additional
-                  filtering in genome-wide association
-                  studies</a></li>
-              <div id="filterPanel" style="display: none;">
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')">
+                <i id="filterPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Additional filtering in genome-wide association studies</a>
+              </li>
+              <div id="filterPanel" style="max-height: 50px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>Polygenic risk scores can act as an additional filter for novel loci associated with a trait. If an
                   indiviudal has a trait, but has a low risk score, or does not have a trait, but has a high risk score,
                   the individual likely has novel genetic polymorphisms that need futher study.
                 </p>
               </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')"><a>Mendelian
-                  Randomization studies</a></li>
-              <div id="mdsPanel" style="display: none;">
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')">
+                <i id="mdsPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Mendelian Randomization studies</a>
+              </li>
+              <div id="mdsPanel" style="max-height: 50px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>Mendelian randomization studies use polygenic risk scores to predict the effect a particular
                   treatment or exposure will have on an indiviual.
                 </p>
               </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')"><a>Infer disease
-                  status in cohorts lacking phenotypic data</a></li>
-              <div id="inferPanel" style="display: none;">
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')">
+                <i id="inferPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Infer disease status in cohorts lacking phenotypic data</a>
+                </li>
+              <div id="inferPanel" style="max-height: 25px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>An individual's phenotype can be infered by comparing their risk scores to other individuals in their
                   population or ethnicity.
                 </p>
@@ -146,7 +156,7 @@
           <h2 style="margin-top: 2rem; color: #2192D3;">Benefits of the PRS Knowledge Base</h2><br><br>
           <div id="flex-container">
             <div class="row justify-content-center">
-              <div class="flex-item col-md-3 align-self-top">
+              <div class="flex-item col-md-3 align-self-top" style="margin-right: 4%;">
                 <h5>User-Friendly</h5>
                 <p>Until now, the only tools available for calculating polygenic risk scores were on the command line.
                   Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
@@ -157,7 +167,7 @@
                   to compute the scores. As new studies are performed and added to the NHGRI-EBI GWAS Catalog, they will
                   be added to the PRSKB database.</p>
               </div>
-              <div class="flex-item col-md-3 align-self-top">
+              <div class="flex-item col-md-3 align-self-top" style="margin-left: 4%;">
                 <h5>UK Bio-Bank</h5>
                 <p>We provide a tool for individual score results to be compared to average scores calculated from the
                   UK Bio-Bank. Coming soon!</p>
