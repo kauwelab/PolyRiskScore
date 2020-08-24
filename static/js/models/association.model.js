@@ -47,6 +47,7 @@ Association.getAll = (traits, pValue, refGen, result) => {
     console.log(refGen, pValue, traits)
     queryString = ""
 
+    console.log(typeof(traits))
     for (i = 0; i < traits.length; i++) {
         trait = formatter.formatForTableName(traits[i])
         queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${trait}\` WHERE pValue <= ${pValue}`)

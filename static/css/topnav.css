@@ -5,7 +5,7 @@
     overflow: hidden;
     box-shadow: 0 6px 6px -6px rgba(0, 0, 0, 0.3);
     width: 100%;
-    /* z-index: 1; */
+    z-index: 1;
     transition: 0.5s;
   }
   
@@ -55,6 +55,9 @@
 
   @media screen and (max-width: 600px) {
     .topnav a:not(:first-child) {display: none;}
+    .topnav a {
+      font-size: 17px;
+    }
     .topnav a.icon {
       float: right;
       display: block;
@@ -62,9 +65,9 @@
   }
   
   @media screen and (max-width: 600px) {
-    .topnav.responsive {position: relative;}
+    .topnav.responsive {position: fixed;}
     .topnav.responsive .icon {
-      position: absolute;
+      position: fixed;
       right: 0;
       top: 0;
     }
