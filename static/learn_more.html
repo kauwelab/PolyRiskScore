@@ -42,12 +42,12 @@
 
 
   <header>
-    <div class="jumbotron">
+    <div class="jumbotron" style="background-image: url('images/dnaBanner.jpg');">
       <div class="container">
         <div class="row" style="margin-top: 4em;">
           <div class="col-12">
-            <h1 class="text-center">What is a Polygenic Risk Score?</h1><br>
-            <ul>
+            <h1 class="text-center" style="color: white;">What is a Polygenic Risk Score?</h1><br>
+            <ul style="color: white;">
               <p class="drop-cap">For decades, most genetic research focused on single, common mutations significantly
                 associated with certain diseases like breast cancer or Huntington’s disease. </p>
               <p class="drop-cap">The majority of complex traits, however, are determined by multiple variants with
@@ -210,13 +210,14 @@
     <div class="row">
       <div class="col-12 col-md-8 mx-auto">
 
-        <div class="row text-center">
-          <div class="text-center col-12">
+        <div class="row text-center" id="shadow" style="background-color: rgba(223, 123, 0, 0.7); padding: 30px; border-radius: 30px;">
+          <div class="text-center col-12" onclick="displayPanel('feedbackForm')" style="cursor: pointer;">
             <h1 class="font-weight-bold">Questions or Comments about the PRS Knowledge Base?</h1>
+            <i id="feedbackForm_sign" class="fa fa-angle-down" aria-hidden="true" style="text-align: center; font-size: 72px; margin-top:15px"></i>
           </div>
           <div class="text-center col-12">
             <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-            <form action="/contact" id="feedbackForm" method="post" role="form">
+            <form action="/contact" id="feedbackForm" method="post" role="form" style="max-height: 550px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
               <div class="form-group text-left">
                 <label for="name"><br><b>Name</b></label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
