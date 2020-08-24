@@ -6306,6 +6306,7 @@ dfn:hover::before {top: 20px;}
 .listItems a:hover {
   /*background: #f3f3f3dc;*/
   font-size: 1.3em;
+  cursor: pointer;
 }
 
 #flex-grid-container > .container {
