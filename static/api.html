@@ -8,6 +8,7 @@
   <title class="lead">Polygenic Risk Scores: API Documentation</title>
   <!-- Bootstrap -->
   <link href="css/topnav.css" rel="stylesheet">
+  <link href="css/banner.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
 </head>
@@ -38,121 +39,65 @@
     }
   </script>
 
-
   <header>
+    <div class="banner">
+      <img src="/images/dnaCalcBanner.jpg" width="100%" style="overflow: hidden;">
+      <div class="centered-title">Using the PRSKB Command Line Interface Tool</div>
+    </div>
+  </header>
+
+  <section>
     <div class="jumbotron">
       <div class="container">
-        <div class="row" style="margin-top: 4em;">
+        <div class="row">
           <div class="col-12">
-            <h1 class="text-center">Using the PRS Knowledge Base API</h1>
-            <p class="lead"><br>Here, we outline how to download and use the API on your own computer, and thus gain the
+            <p class="lead"><br>Here, we outline how to download and use the CLI on your own computer, and thus gain the
               capability to submit VCF files to the analysis pipeline via the command line, bypassing unnecessary
-              overhead through this website and the need for email.</p>
-            <!-- <p class="text-center"><a class="btn btn-primary btn-lg" href="learn_more.html" role="button">Learn more</a> </p> -->
+              overhead through this website.</p>
           </div>
         </div>
       </div>
     </div>
-  </header>
-  <section>
-    <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
+  </section>
+  <section style="background-color: whitesmoke;">
+    <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h2>Step 1: Download the API scripts onto your computer</h2>
-          <p1><br>To get started, download these files onto your computer, which use a combination of bash commands and
-            python to call our server directly.</p1>
-          <p>&nbsp;</p>
-          <p class="text-center"><a class="btn btn-primary btn-lg" href="downloadables/PRS_API.zip"
-              role="button">Download API files</a> </p>
+          <h2 style="margin-top: 2rem;">Download the CLI scripts onto your computer</h2>
+          <p><br>To get started, download these files onto your computer, which use a combination of bash commands and
+            python to call our server directly. <i>Note: You must have python 3 and bash in the environment you plan to use the CLI.</i></p>
+          <p class="text-center"><a class="btn btn-primary btn-lg" href="downloadables/PRSKB_CLI.zip"
+              role="button">Download CLI files</a> </p>
         </div>
       </div>
     </div>
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h2>Step 2: Unzip the zip file</h2>
-          <p>&nbsp;</p>
-          <ul>
-            <li class='crop'>
-              <img src="/images/Download1.png" alt="Commandline1">
-            </li>
-            <li class='crop'>
-              <img src="/images/Unzip1.png" />
-            </li>
-            <li class='crop'>
-              <img src="/images/Extract1.png" />
-            </li>
-            <li class='crop'>
-              <img src="/images/Extract2.png" />
-            </li>
-            <li class='crop'>
-              <img src="/images/Unzip2.png" />
-            </li>
-          </ul>
+          <h2>Unzip the zip file</h2>
+          <p>The CLI scripts are compressed to allow for easy download. They must be unzipped in order to be used.</p>
+          <video playsinline="playsinline" controls muted="muted" style="max-width: 75%;">
+            <source src="images/ExtractFilesPlaceholder.mp4" type="video/mp4">
+          </video>
         </div>
       </div>
     </div>
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h2>Step 3: Using the command line</h2>
-          <p>&nbsp;</p>
-          <ul>
-            <li class='crop'>
-              <img src="/images/CommandPrompt1.png">
-            </li>
-            <li class='crop'>
-              <img src="/images/CommandPrompt2.png" />
-            </li>
-            <li class='crop'>
-              <img src="/images/CommandPrompt3.png" />
-            </li>
-            <li class='crop'>
-              <img src="/images/CommandPrompt4.png" />
-            </li>
-            <li class='crop'>
-              <img src="/images/CommandPrompt5.png" />
-            </li>
-          </ul>
+          <h2 style="margin-top: 1rem;">Using the Command Line Interface</h2>
+          <p>There are two ways the CLI tool can be used. First, you can run the bash script without any parameters. This 
+            bring up the options of showing the usage statement or starting the interactive menu. Secondly, you can pass
+            the correct parameters to the script and the calculator will automatically run. 
+          </p>
+          <video playsinline="playsinline" controls muted="muted" style="max-width: 75%;">
+            <source src="images/ExtractFilesPlaceholder.mp4" type="video/mp4">
+          </video>
         </div>
       </div>
     </div>
   </section>
-  <div class="jumbotron">
-    <div class="container">
-      <div class="row text-center">
-        <div class="text-center col-12">
-          <h1 class="font-weight-bold">Questions or Comments about the PRS Knowledge Base?</h1>
-        </div>
-        <div class="text-center col-12">
-          <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-          <form action="/contact" id="feedbackForm" method="post" role="form">
-            <div class="form-group text-left">
-              <label for="name"><br><b>Name</b></label>
-              <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
-                aria-describedby="nameHelp">
-              <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
-            </div>
-            <div class="form-group text-left">
-              <label for="email"><b>E-Mail</b></label>
-              <input type="email" class="form-control" id="email" name="email"
-                placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
-              <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail
-                address.</span>
-            </div>
-            <div class="form-group text-left">
-              <label for="message"><b>Message</b></label>
-              <textarea rows="10" cols="100" class="form-control" id="message" name="message"
-                placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
-              <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a message.</span>
-            </div>
-            <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  
   <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
       <div class="row">

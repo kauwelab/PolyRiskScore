@@ -3117,6 +3117,13 @@ fieldset:disabled a.btn {
   border-radius: 0.3rem;
 }
 
+.btn-bnnr, .btn-group-bnnr > .btn {
+  padding: .75vw 1.25vw;
+  font-size: 1.5vw;
+  line-height: 1.5;
+  border-radius: 0.3vw;
+}
+
 .btn-sm, .btn-group-sm > .btn {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
