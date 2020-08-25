@@ -10368,7 +10368,9 @@ a.text-dark:hover, a.text-dark:focus {
 
  /*formula css on learn more page*/
  .formula {
-  margin: 0 auto;
+  /*margin: 0 auto;*/
+  margin-bottom: 30px;
+  margin-top: 10px;
   height: auto;
   width: 100%;
   max-width: 600px;
