@@ -6341,12 +6341,19 @@ dfn:hover::before {top: 20px;}
   border-top-width: .2em;
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.507);
 }
-
-#flex-container > .container {
+/*DELETED: #flex-container > .container*/
+#flex-container {
+  margin: 0 auto;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
+  display: -ms-flexbox;
+  display: flex;
+  margin-right: -15px;
+  margin-left: -15px;
+  -ms-flex-pack: center !important;
+  justify-content: center !important;
 }
 
 .flex-item {
@@ -6356,8 +6363,16 @@ dfn:hover::before {top: 20px;}
   text-align: left;
   border-bottom: rgb(223, 122, 0);
   border-bottom-style: solid;
-  flex-grow: 1;
-  transition: all 300ms ease-in-out;
+
+  position: relative;
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+
+  -ms-flex: 0 0 25%;
+    flex: 0 0 25%;
+    max-width: 25%;
+    
 }
 
 .flex-item:hover {
