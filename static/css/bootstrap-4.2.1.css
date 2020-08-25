@@ -6363,6 +6363,7 @@ dfn:hover::before {top: 20px;}
   text-align: left;
   border-bottom: rgb(223, 122, 0);
   border-bottom-style: solid;
+  flex-grow: 1;
 }
 
 .bs-popover-left .arrow::before, .bs-popover-auto[x-placement^="left"] .arrow::before,
