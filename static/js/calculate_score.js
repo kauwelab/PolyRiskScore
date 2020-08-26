@@ -67,6 +67,12 @@ function getStudies() {
     var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
     var selectedTypes = [...typeNodes].map(option => option.value);
 
+    if (selectedTraits.length == 0) {
+        console.log("NO TRAIT SELECTED")
+        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
+        return;
+    }
+
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#studySelect').replaceWith("<select id='studySelect' multiple></select>");
     var studySelector = document.getElementById("studySelect");
