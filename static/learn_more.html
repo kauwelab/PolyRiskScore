@@ -68,21 +68,22 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h2 style="margin-top: 2rem; color: #2192D3;">Calculating a Polygenic Risk Score</h2>
+          <h2 style="margin-top: 2rem;">Calculating a Polygenic Risk Score</h2>
           <p class="lead"><br>The score is derived by the data collected in<dfn
               data-info="an observational study of a genome-wide set of genetic variants in a group of individuals that calculates associations between variants and traits.">genome-wide
               association studies</dfn>The odds ratios from the studies in our database are used as weights for each
             variant in order to compute a cumulative risk score for each sample.</p>
-          <div class="text-center">
-            <img class="formula" src="/images/formula.png" />
-          </div>
-          <p class="text-center" style="font-style: italic">Equation 1: The equation we use for calculating polygenic
+          <p class="lead"> The equation we use for calculating polygenic
             risk scores sums the risk alleles present in the individual as seen here, where a<sub>i</sub> is the number
             of risk
             alleles at the i<sup>th</sup> locus, r<sub>i</sub> is the odds ratio at that locus, and c is the exponent
             for the p-value cutoff.
             The p-value cutoff is an input for the calculation that is chosen by users.
           </p>
+          <p>&nbsp;</p>
+          <div class="text-center">
+            <img class="formula" src="/images/formula.png" />
+          </div>
           <p>&nbsp;</p>
         </div>
       </div>
@@ -92,7 +93,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Using a Polygenic Risk Score</h2><br>
+            <h2 style="color: #416d9d;">Using a Polygenic Risk Score</h2><br>
             <script src="js/learn_more.js"></script>
             <p class="text-center">
             <ul class="prsList" style="text-align: left">
@@ -100,7 +101,7 @@
                 <i id="diseasePredictionPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
                 <a>Disease prediction</a>
               </li>
-              <div class="" id="diseasePredictionPanel" style="max-height: 70px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+              <div class="" id="diseasePredictionPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>Polygenic risk scores can be used to assess the risk of expressing a trait. An individual with a risk
                   score that is higher than the population average is more likely to express that trait. Predicting late
                   onset diseases with this method is particularly useful because preventative treatment can be applied
@@ -111,38 +112,38 @@
                 <i id="screeningPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
                 <a>Clinical trial screening</a>
               </li>
-              <div id="screeningPanel" style="max-height: 50px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+              <div id="screeningPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>Clinical trials, such as drug testing, rely on removing confounding factors. Selecting individuals
                   with similar risk scores for many traits eliminates potential confounding factors between these
-                  traits.
+                  traits.<br>
                 </p>
               </div>
               <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')">
                 <i id="filterPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
                 <a>Additional filtering in genome-wide association studies</a>
               </li>
-              <div id="filterPanel" style="max-height: 50px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+              <div id="filterPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>Polygenic risk scores can act as an additional filter for novel loci associated with a trait. If an
                   indiviudal has a trait, but has a low risk score, or does not have a trait, but has a high risk score,
-                  the individual likely has novel genetic polymorphisms that need futher study.
+                  the individual likely has novel genetic polymorphisms that need futher study.<br>
                 </p>
               </div>
               <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')">
                 <i id="mdsPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
                 <a>Mendelian Randomization studies</a>
               </li>
-              <div id="mdsPanel" style="max-height: 50px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+              <div id="mdsPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>Mendelian randomization studies use polygenic risk scores to predict the effect a particular
-                  treatment or exposure will have on an indiviual.
+                  treatment or exposure will have on an indiviual.<br>
                 </p>
               </div>
               <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')">
                 <i id="inferPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
                 <a>Infer disease status in cohorts lacking phenotypic data</a>
                 </li>
-              <div id="inferPanel" style="max-height: 25px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+              <div id="inferPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
                 <p>An individual's phenotype can be infered by comparing their risk scores to other individuals in their
-                  population or ethnicity.
+                  population or ethnicity.<br>
                 </p>
               </div>
             </ul>
@@ -187,29 +188,27 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h2 id="test_title" style="margin-top: 2rem; color: #2192D3;">Benefits of the PRS Knowledge Base</h2><br><br>
+          <h2 id="test_title" style="margin-top: 2rem;">Benefits of the PRS Knowledge Base</h2><br>
           <div id="flex-container">
             <div class="row justify-content-center">
-              <div id="box1" class="box flex-item col-md-3 align-self-top" style="margin-right: 4%; visibility:hidden;">
+              <div id="box1" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
                 <h5>User-Friendly</h5>
                 <p>Until now, the only tools available for calculating polygenic risk scores were on the command line.
                   Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
               </div>
-              <div id="box2" class="box flex-item col-md-3 align-self-top" style="visibility:hidden;">
+              <div id="box2" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
                 <h5>Centralized Database</h5>
                 <p>The PRSKB has a centralized database for all of the genome-wide association studies used
                   to compute the scores. As new studies are performed and added to the NHGRI-EBI GWAS Catalog, they will
                   be added to the PRSKB database.</p>
               </div>
-              <div id="box3" class="box flex-item col-md-3 align-self-top" style="margin-left: 4%; visibility:hidden;">
+              <div id="box3" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
                 <h5>UK Bio-Bank</h5>
                 <p>We provide a tool for individual score results to be compared to average scores calculated from the
                   UK Bio-Bank. Coming soon!</p>
               </div>
             </div>
           </div>
-          <p>&nbsp;</p>
-          <p>&nbsp;</p>
         </div>
       </div>
     </div>
@@ -219,7 +218,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2>Additional Comments</h2><br>
+            <h2 style="color: #416d9d;">Additional Comments</h2><br>
             <p style="text-align: left">The power of a polygenic risk score is contingent on the power and scope of
               the corresponding genome-wide association study data. One significant problem is the lack of diversity in
               the current genetic studies. 79% of all genome-wide association study data participants are of European
@@ -310,13 +309,13 @@
   <script>
     window.onscroll = function() {myFunction()};
     function myFunction() {
-      if (document.body.scrollTop > 700 || document.documentElement.scrollTop > 700) {
+      if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
         document.getElementById("box1").classList.add("slideUp");
       }
-      if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+      if (document.body.scrollTop > 900 || document.documentElement.scrollTop > 900) {
         document.getElementById("box2").classList.add("slideUp");
       }
-      if (document.body.scrollTop > 900 || document.documentElement.scrollTop > 900) {
+      if (document.body.scrollTop > 1000 || document.documentElement.scrollTop > 1000) {
         document.getElementById("box3").classList.add("slideUp");
       }
     }

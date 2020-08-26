@@ -6224,7 +6224,8 @@ a.close.disabled {
   margin: 0.3rem 0;
 }
 .drop-cap:first-child:first-letter {
-  color: rgba(223, 123, 0, 0.8);
+  color: tomato;
+  opacity: 75%;
   float: left;
   font-family: Georgia;
   font-size: 5em;
@@ -6305,8 +6306,8 @@ dfn:hover::before {top: 20px;}
 
 .listItems a:hover {
   /*background: #f3f3f3dc;*/
-  font-size: 1.3em;
-  cursor: pointer;
+  /* font-size: 1.3em; */
+  cursor: pointer;  
 }
 
 .grow_text {
@@ -6361,7 +6362,7 @@ dfn:hover::before {top: 20px;}
   margin-left: .5rem;
   margin-right: .5rem;
   text-align: left;
-  border-bottom: rgb(223, 122, 0);
+  border-bottom: rgba(255, 99, 71, 0.9);
   border-bottom-style: solid;
   flex-grow: 1;
 }
