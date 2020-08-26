@@ -2,3 +2,5 @@
 /uploads
 /static/js/passwords.js
 node_modules
+.DS_Store
+static/.DS_Store
