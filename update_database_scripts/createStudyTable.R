@@ -1,5 +1,5 @@
 #get args from the commandline
-#args[1]- path where csvs are stored
+#args[1]- path to association csv tables (default: "./association_tables/")
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
   args[1] <- "./association_tables/"
@@ -9,7 +9,6 @@ print("Initializing script!")
 start_time <- Sys.time()
 
 studyTableDirPath <- args[1]
-
 
 ##imports and import downloads----------------------------------------------------------------------------------------------------------------------
 my_packages <- c("BiocManager", "rtracklayer", "remotes", "gwasrapidd", "tidyverse", "rAltmetric", "magrittr", "purrr")

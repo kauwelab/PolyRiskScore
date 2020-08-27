@@ -8,22 +8,27 @@
   #sections of the GWAS catolog, making it faster to download data
 
 #get args from the commandline- these are evaluated after imports section below
-#variables:
-#1. output folder
-#2. path to chain file folder
-#3. start trait index
-#4. stop trait index
+#args:
+#1. output folder (default: "./association_tables/")
+#2. path to chain file folder (default: ".")
+#3. group number (default: 1)
+#4. number of times to run the program concurrently (default: 1)
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
   args[1] <- "./association_tables/"
   args[2] <- "."
   args[3] <- 1
+  args[4] <- 1
 } else if (length(args)==1) {
   # default chain file path
   args[2] <- "."
   args[3] <- 1
+  args[4] <- 1
 } else if (length(args)==2) {
   args[3] <- 1
+  args[4] <- 1
+} else if (length(args)==3) {
+  args[4] <- 1
 }
 
 print("Initializing script!")
@@ -33,7 +38,8 @@ start_time <- Sys.time()
 my_packages <- c("BiocManager", "rtracklayer", "remotes", "gwasrapidd", "tidyverse", "rAltmetric", "magrittr", "purrr")                                  # Specify your packages
 not_installed <- my_packages[!(my_packages %in% installed.packages()[ , "Package"])]              # Extract not installed packages
 if(length(not_installed)) {
-  print("Installing required packages, please wait...")
+  print("Installing the following required packages:")
+  print(not_installed)
   #packages with unique install procedures
   if ("BiocManager" %in% not_installed) {
     install.packages("BiocManager", repos = "http://cran.us.r-project.org")
@@ -49,9 +55,11 @@ if(length(not_installed)) {
   }
   #if there are still packages to install, do it
   not_installed <- my_packages[!(my_packages %in% installed.packages()[ , "Package"])]
-  if(length(not_installed)) {
+  if (length(not_installed)) {
     install.packages(not_installed, dependencies = TRUE, repos = "http://cran.us.r-project.org") # Install not installed packages
   }
+} else {
+  print('All required packages already installed.')
 }
 
 #imports
@@ -68,8 +76,6 @@ if (is_ebi_reachable()) {
   #evaulate command line arguments if supplied
   outPath <- args[1]
   chainFilePath <- args[2]
-  startIndex <- as.numeric(args[3])
-  stopIndex <- as.numeric(args[4])
   dir.create(file.path(outPath), showWarnings = FALSE)
   
   #the minimum number of SNPs a study must have to be valid and outputted
@@ -141,6 +147,31 @@ if (is_ebi_reachable()) {
     }
     return(secondHgTibble[[1]])
   }
+
+  #splits numTraits into minimaly sized groups, then returns the start and stop indicies for the given group number.
+  #when groups aren't even, the remainder is split between the last groups. The first group starts at 1 and the 
+  #last group stops at numTraits. eg: if there are 3000 traits and 2 groups, then the groupings are as follows
+  #group 1: (1, 1500), group 2: (1501, 3000)
+  getStartAndEndIndecies <- function(numTraits, groupNum, numGroups) {
+    #if there are more groups than traits, this function doesn't work
+    if (numTraits < numGroups) {
+      return("Error")
+    }
+    else { 
+      #split up the remainder between the last groups
+      zp = numGroups - (numTraits %% numGroups)
+      increment = floor(numTraits / numGroups) 
+      if(groupNum > zp) {
+        startIndex <- (increment * (groupNum - 1)) + ((groupNum - 1) - zp) + 1
+        stopIndex <- (increment * groupNum) + (groupNum - zp)
+      }
+      else {
+        startIndex <- increment * (groupNum - 1) + 1
+        stopIndex <- increment * groupNum
+      }
+      return(c(startIndex, stopIndex))
+    }
+  }
   
   ##------------------------------------------------------------------------------------------------------------------------
   
@@ -148,10 +179,9 @@ if (is_ebi_reachable()) {
   print("Downloading trait data!")
   traits <- get_traits()@traits
   print("Trait data downloaded!")
-  #if no stopIndex was supplied, set it to the number of traits
-  if (is.na(stopIndex)) {
-    stopIndex <- nrow(traits)
-  }
+  startAndStopIndecies <- getStartAndEndIndecies(nrow(traits), as.numeric(args[3]), as.numeric(args[4]))
+  startIndex <- startAndStopIndecies[1]
+  stopIndex <- startAndStopIndecies[2]
   
   invalidTraits <- c()
   invalidStudies <- c()
@@ -260,10 +290,10 @@ if (is_ebi_reachable()) {
       print(paste0("Time elapsed: ", format(Sys.time() - start_time)))
     }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
   }
-  DevPrint("Traits with no valid snps:")
-  DevPrint(invalidTraits)
+  DevPrint(paste("Traits with no valid snps: ", invalidTraits))
 
 } else {
   is_ebi_reachable(chatty = TRUE)
   stop("The EBI API is unreachable. Check internet connection and try again.", call.=FALSE)
 }
+
