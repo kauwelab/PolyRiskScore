@@ -48,8 +48,15 @@ function getEthnicities() {
                 var opt = document.createElement('option')
                 opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(ethnicityList[i])))
                 opt.value = ethnicityList[i]
+                opt.selected = "selected"
                 selector.appendChild(opt);
             }
+            // adds an unspecified option to account for studies with a blank ethnicity column
+            var opt = document.createElement('option')
+            opt.appendChild(document.createTextNode("Unspecified"))
+            opt.value = "unspecified"
+            opt.selected = "selected"
+            selector.appendChild(opt);
             document.multiselect('#ethnicitySelect');
         },
         error: function (XMLHttpRequest) {
