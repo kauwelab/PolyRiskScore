@@ -97,6 +97,7 @@ function getStudies() {
             if (traits.length == 0) {
                 alert(`No results were found using the specified filters. Try using different filters.`)
             }
+            
             for (i = 0; i < traits.length; i++) {
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
