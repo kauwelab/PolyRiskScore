@@ -5,23 +5,27 @@ var traitObjects = []
 var studyObjects = [] //holds the study object so that their additional data (ethnicity, cohort, ect) can be accessed
 var traitsList = []
 var selectedStudies = []
+//if false, the VCF button is selected- used as a toggle to prevent action on double click
+var textButtonSelected = true;
 
 function getTraits() {
+    //make sure the select is reset/empty so that the multiselect command will function properly
+    $('#traitSelect').replaceWith("<select id='traitSelect' multiple></select>");
+
+    //call the API and populate the traits dropdown/multiselct with the results
     $.ajax({
         type: "GET",
         url: "get_traits",
         success: async function (data) {
-            traitObjects = data;
-            traitsList = Object.getOwnPropertyNames(traitObjects)            
-            
-            //populate the dropdown
-            var selector = document.getElementById("disease");
-            for (i=0; i<traitsList.length; i++) {
+            traitsList = data;
+            var selector = document.getElementById("traitSelect");
+            for (i = 0; i < traitsList.length; i++) {
                 var opt = document.createElement('option')
-                    opt.appendChild(document.createTextNode(traitsList[i]))
-                    opt.value = traitsList[i]
-                    selector.appendChild(opt);
+                opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(traitsList[i])))
+                opt.value = traitsList[i]
+                selector.appendChild(opt);
             }
+            document.multiselect('#traitSelect');
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
@@ -29,200 +33,223 @@ function getTraits() {
     })
 }
 
-function getStudies() { 
-    //gets the disease name from the drop down list
-    var diseaseSelectElement = document.getElementById("disease");
-    var selectedTrait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-    var selector = document.getElementById("diseaseStudy");
+function getEthnicities() {
+    //make sure the select is reset/empty so that the multiselect command will function properly
+    $('#ethnicitySelect').replaceWith("<select id='ethnicitySelect' multiple></select>");
 
-    // clear studies that are already there
-    while (selector.firstChild) {
-        selector.removeChild(selector.lastChild)
-    }
-
-    // make sure we keep the --Study--
-    var opt = document.createElement('option')
-    opt.appendChild(document.createTextNode("--Study--"))
-    opt.value = ""
-    selector.appendChild(opt);
-
-    //var selectedTrait = traitList[0] // TODO to Ed - this needs to be filled correctly, not sure how (Maddy)
-    if (selectedTrait == "") {
-        // do nothing
-    }
-    else if (selectedTrait.toLowerCase() == "all") {
-        selectedTrait = traitsList
-        studyTypes = ["All", "Largest Cohort", "High Impact"]
-
-        for (i=0; i<studyTypes.length; i++) {
-            var opt = document.createElement('option')
-            opt.appendChild(document.createTextNode(studyTypes[i]))
-            opt.value = studyTypes[i]
-            selector.appendChild(opt);
-        }
-    }
-    else {
-        sIds = traitObjects[selectedTrait].studyIDs
-        $.ajax({
-            type: "GET",
-            url: "/get_studies",
-            data: {studyIDs: sIds},
-            success: async function (data) {
-                studyObjects = data;
-
-                //populate the dropdown
-                for (i=0; i<studyObjects.length; i++) {
-                    var opt = document.createElement('option')
-                    opt.appendChild(document.createTextNode(studyObjects[i].citation))
-                    opt.value = studyObjects[i].studyID
-                    selector.appendChild(opt);
-                }
-            },
-            error: function (XMLHttpRequest) {
-                alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
-            }
-        })
-    }
-}
-
-// ------------------ Functions for retrieving associaitons ------------------------------
-function getAllAssociations (pValue, refGen) {
-    var formattedTraits = traitsList 
-
-    for (i = 0; i < formattedTraits.length; i++) {
-        formattedTraits[i] = formatForTableName(formattedTraits[i]) 
-    }
-
+    //call the API and populate the ethnicity dropdown/multiselct with the results
     $.ajax({
         type: "GET",
-        url: "/all_associations",
-        data: {traits: formattedTraits, pValue: pValue, refGen: refGen},
+        url: "ethnicities",
         success: async function (data) {
-            //TODO write
+            ethnicityList = data;
+            var selector = document.getElementById("ethnicitySelect");
+            for (i = 0; i < ethnicityList.length; i++) {
+                var opt = document.createElement('option')
+                opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(ethnicityList[i])))
+                opt.value = ethnicityList[i]
+                opt.selected = "selected"
+                selector.appendChild(opt);
+            }
+            // adds an unspecified option to account for studies with a blank ethnicity column
+            var opt = document.createElement('option')
+            opt.appendChild(document.createTextNode("Unspecified"))
+            opt.value = "unspecified"
+            opt.selected = "selected"
+            selector.appendChild(opt);
+            document.multiselect('#ethnicitySelect');
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
+            alert(`There was an error loading the ethnicities: ${XMLHttpRequest.responseText}`);
         }
     })
 }
 
-function getSelectStudyAssociationsByTraits(pValue, refGen) {
-    var trait = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-    trait = formatHelper.formatForTableName(trait);
-    var studyIDs = selectedStudies;
+function getStudies() {
+    //get the users selected traits, ethnicities, and studty types as arrays of values
+    var traitNodes = document.querySelectorAll('#traitSelect :checked');
+    var selectedTraits = [...traitNodes].map(option => option.value);
+    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked');
+    var selectedEthnicities = [...ethnicityNodes].map(option => option.value);
+    var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
+    var selectedTypes = [...typeNodes].map(option => option.value);
 
+    if (selectedTraits.length == 0) {
+        console.log("NO TRAIT SELECTED")
+        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
+        return;
+    }
+
+    //make sure the select is reset/empty so that the multiselect command will function properly
+    $('#studySelect').replaceWith("<select id='studySelect' multiple></select>");
+    var studySelector = document.getElementById("studySelect");
+
+    //call the API and populate the study dropdown/multiselect with the results
     $.ajax({
+        type: "GET",
+        url: "/get_studies",
+        data: { studyTypes: selectedTypes, traits: selectedTraits, ethnicities: selectedEthnicities },
+        success: async function (data) {
+            //data ~ {traitName:[{study},{study},{study}], traitName:[{study},{study}],...}
+            var studyLists = data;
+            var traits = Object.keys(data);
+
+            if (traits.length == 0) {
+                alert(`No results were found using the specified filters. Try using different filters.`)
+            }
+            
+            for (i = 0; i < traits.length; i++) {
+                var trait = traits[i];
+                for (j = 0; j < studyLists[trait].length; j++) {
+                    var study = studyLists[trait][j];
+                    var opt = document.createElement('option');
+                    var displayString = study.citation + ' | ' + trait + ' | ' + study.studyID;
+                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(displayString)));
+                    opt.value = study.studyID;
+                    opt.setAttribute('data-trait', trait);
+                    studySelector.appendChild(opt);
+                }
+            }
+
+            document.multiselect('#studySelect');
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
+
+//called in calculatePolyScore below, 
+//queries the server for associations with the given traits, studies, pValue, and reference genome
+function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
+    traitList = JSON.stringify(traitList)
+    return Promise.resolve($.ajax({
         type: "GET",
         url: "/get_associations",
-        data: {trait: trait, studyIDs: studyIDs, pValue: pValue, refGen: refGen},
+        data: { traits: traitList, pValue: pValue, refGen: refGen },
         success: async function (data) {
-            //TODO write
+            return data;
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`);
+            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            $('#response').html(errMsg);
+            alert(errMsg);
         }
-    })
+    }));
 }
-
-// ------------------- END functions for retrieving associations --------------------------
 
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
 var calculatePolyScore = async () => {
     document.getElementById('resultsDisplay').style.display = 'block';
-    //user feedback while they are waiting for their score
     $('#response').html("Calculating. Please wait...");
 
-    //get ethnicity
-    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked')
-    var ethnicityArray = [...ethnicityNodes].map(option => option.value);
-
-    // get value of selected 'pvalue' from the 'pvalInput' form
-    var pValueScalar = document.getElementById('pValScalarIn').value;
-    var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
-    var pValue = pValueScalar.concat("e".concat(pValMagnitute))
-
-    //gets the disease name from the drop down list
-    var diseaseSelectElement = document.getElementById("disease");
-    var diseaseSelected = diseaseSelectElement.options[diseaseSelectElement.selectedIndex].value;
-
-    //create a disease array (usually just the one disease unless "All dieases" is selected)
-    var diseaseArray = makeDiseaseArray(diseaseSelected);
-
-    //gets the study name from the drop down list
-    //TODO!!!! - this will need to be adapted to allow for multiple
-    var studySelectElement = document.getElementById("diseaseStudy");
-    var study = studySelectElement.options[studySelectElement.selectedIndex].value
-
-    //if the user doesn't specify a disease or study, prompt them to do so
-    if (diseaseSelected === "--Disease--" || study === "--Study--") {
-        $('#response').html('Please specify a specific disease and study using the drop down menus above.');
-        return;
-    }
-
-    //get the reference genome to be used
+    // get the values from the user's inputs/selections
+    var vcfFile = document.getElementById("files").files[0];
     var refGenElement = document.getElementById("refGenome");
     var refGen = refGenElement.options[refGenElement.selectedIndex].value
+    var ethElement = document.getElementById("LD-ethnicitySelect");
+    var ethnicity = ethElement.options[ethElement.selectedIndex].value
+    var traitNodes = document.querySelectorAll('#traitSelect :checked');
+    var traits = [...traitNodes].map(option => option.value);
+    var studyNodes = document.querySelectorAll('#studySelect :checked');
+    var studies = [...studyNodes].map(option => [option.value, option.dataset.trait]);
+    var pValueScalar = document.getElementById('pValScalarIn').value;
+    var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
+    var pValue = pValueScalar.concat("e".concat(pValMagnitute));
+
+    //if the user doesn't specify a trait, study, or reference genome, prompt them to do so
+    if (studies.length === 0) {
+        $('#response').html('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
+        return;
+    }
     if (refGen == "default") {
-        $('#response').html('Please select the reference genome corresponding to your file.');
+        $('#response').html('Please select the reference genome corresponding to your file (step 2).');
         return;
     }
 
-    //get user SNPs
-    var vcfFile = document.getElementById("files").files[0];
+    //convert the studies into a list of trait-study object pairs
+    var traitList = [];
+    for (i = 0; i < traits.length; i++) {
+        trait = traits[i];
+        studyList = []
+        for (j = 0; j < studies.length; j++) {
+            if (studies[j][1] === trait) {
+                studyList.push(studies[j][0]);
+            }
+        }
+        traitObj = { trait: trait, studies: studyList };
+        traitList.push(traitObj);
+    }
+
+    //send a get request to the server with the specified traits and studies
+    associationData = await getSelectStudyAssociationsByTraits(traitList, pValue, refGen);
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
+        //TODO: is it possible to refactor the next ~20 lines of code into its own function for increased readability?
         var textArea = document.getElementById('input');
 
         //if text input is empty, return error
         if (!textArea.value) {
-            $('#response').html("Please input an rs id accoding to the procedures above or import a vcf file using the \"Choose File\" button above.");
+            $('#response').html("Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1).");
             return;
         }
 
         var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
-        var snpsObj = new Map();
+        var snpObjs = new Map();
         for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
+            var snpObj;
             snp = arrayOfInputtedSnps[i]
             //snp entry is split into two elements, the snpid (0) and the alleles (1)
             snpArray = snp.split(':');
             //if the snpid is invalid, return error
             if (!snpArray[0].toLowerCase().startsWith("rs") || isNaN(snpArray[0].substring(2, snpArray[0].length))) {
-                $('#response').html("Invalid snp id " + snpArray[0] + " Each id should start with \"rs\" followed by a string of numbers.");
+                $('#response').html("Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers.");
                 return;
             }
-            //if the snp entry doesn't have alleles, create a snpsObj with an empty list
-            if (snpArray.length < 2) {
-                snpsObj.set(snpArray[0], [])
+            if (snpArray.length > 2) {
+                $('#response').html("Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon.");
+                return;
             }
-            else {
+            else if (snpArray.length == 2) {
                 //get the alleles in list form
-                var alleles = snpArray[1].split("");
+                var alleleArray = snpArray[1].split("");
                 //if more than 2 alleles, return error
-                if (alleles.length > 2) {
-                    $('#response').html("Too many alleles for " + snp + ". Each snp should have a maximum of two alleles.");
+                if (alleleArray.length > 2) {
+                    $('#response').html("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
                     return;
                 }
-                for (var i = 0; i < alleles.length; ++i) {
+                for (var j = 0; j < alleleArray.length; ++j) {
                     //if any allele is not  A, T, G, or C, return error
-                    if (["A", "T", "G", "C"].indexOf(alleles[i].toUpperCase()) < 0) {
-                        $('#response').html("Allele \"" + alleles[i] + "\" is invalid. Must be A, T, G, or C.");
+                    if (["A", "T", "G", "C"].indexOf(alleleArray[j].toUpperCase()) < 0) {
+                        $('#response').html("Allele \"" + alleleArray[j] + "\" is invalid. Must be A, T, G, or C.");
                         return;
                     }
                 }
-                snpsObj.set(snpArray[0], alleles)
             }
+            snpObj = {
+                pos: snpArray[0],
+                alleleArray: alleleArray
+            }
+            snpObjs.set(snpArray[0], snpObj);
         }
-        ClientCalculateScoreTxtInput(snpsObj, diseaseArray, study, pValue, refGen)
+        ClientCalculateScore(snpObjs, associationData, pValue, false);
     }
     else {
-        var extension = vcfFile.name.split(".").pop();
-        if (!validExtensions.includes(extension.toLowerCase())) {
-            //if here, the user uploded a file with an invalid format
-            $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+        //if text input is empty, return error
+        if (typeof vcfFile === "undefined") {
+            $('#response').html("Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (step 1).");
             return;
         }
-        ClientCalculateScore(vcfFile, extension, diseaseArray, study, pValue, refGen);
+        else {
+            var extension = vcfFile.name.split(".").pop();
+            if (!validExtensions.includes(extension.toLowerCase())) {
+                //if here, the user uploded a file with an invalid format
+                $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+                return;
+            }
+            ClientCalculateScore(vcfFile, associationData, pValue, true);
+        }
     }
 }
 
@@ -233,102 +260,60 @@ function resetOutput() {
     resultJSON = "";
 }
 
-// /**
-//  * Gets whether the study is high impact, largest cohort, or none and returns a string to represent it.
-//  * Used to determine what the studyType will be, which is used for producing the diseaseStudyMapArray server side.
-//  * @param {*} study
-//  */
-// function getStudyTypeFromStudy(study) {
-//     if (study.toLowerCase().includes("high impact")) {
-//         return "high impact";
-//     }
-//     else if (study.toLowerCase().includes("largest cohort")) {
-//         return "largest cohort";
-//     }
-//     return "all";
-// }
-
-//textSnps is a map of positions and alleles
-var ClientCalculateScoreTxtInput = async (textSnps, diseaseArray, studyTypeList, pValue, refGen) => {
-    $.ajax({
-        type: "GET",
-        url: "study_table",
-        data: { diseaseArray: diseaseArray, studyTypeList: studyTypeList, pValue: pValue, refGen: refGen },
-        success: async function (studyTableRows) {
-            var tableObj = studyTableRows;
-
-            var usefulSNPs = sharedCode.getIdentifierMap(tableObj, false);
-            var textSnpsMatched = textSnps;
-            for (const key of textSnps.keys()) {
-                if (!usefulSNPs.has(key)) {
-                    textSnpsMatched.delete(key)
-                }
-            }
-
-            try {
-                var result = sharedCode.calculateScoreFromText(tableObj, textSnpsMatched, pValue);
-                outputVal = getSimpleOutput(result)
-                $('#response').html(outputVal);
-                resultJSON = result;
-            }
-            catch (err) {
-                $('#response').html('There was an error computing the risk score:\n' + err);
-            }
-        },
-        error: function (XMLHttpRequest) {
-            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
-        }
-    })
-}
 
 /**
  * Calculates scores client side for the file input from the user
- * @param {*} vcfFile- the file input by the user
- * @param {*} extension- the extension of the file input from the user
- * @param {*} diseaseArray- the traits the user has chosen to do calculations for
- * @param {*} studyTypeList- the types of studies to do calculations for 
- *                              (high impact, large cohort, all studies [if blank]) TODO- soon to be obsolete
+ * @param {*} snpsInput- the file or text input by the user (specifiying snps of interest)
+ * @param {*} associationData- the associations from get_associations (specifying traits and studies for calculations)
  * @param {*} pValue- the pvalue cutoff for scores
- * @param {*} refGen- the reference genome for which to calculate scores
+ * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var ClientCalculateScore = async (vcfFile, extension, diseaseArray, studyTypeList, pValue, refGen) => {
-    var vcfObj;
-    //use ajax to query the server for a tableObject of database information using the given parameters
-    $.ajax({
-        type: "GET",
-        url: "study_table",
-        data: { diseaseArray: diseaseArray, studyTypeList: studyTypeList, pValue: pValue, refGen: refGen },
-        success: async function (studyTableRows) {
-            var tableObj = studyTableRows;
-            //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, disease}
-            var usefulPos = sharedCode.getIdentifierMap(tableObj, true);
-            try {
-                //greps the vcf file, removing snps not in the database table object returned
-                vcfLines = await shrinkFile(vcfFile, usefulPos)
-                //converts the vcf lines into an object that can be parsed
-                vcfObj = vcf_parser.getVCFObj(vcfLines);
-            }
-            catch (err) {
-                $('#response').html(getErrorMessage(err));
-                return;
-            }
-            try {
-                var result = sharedCode.calculateScore(tableObj, vcfObj, pValue, usefulPos);
-                //shortens the result for website desplay
-                outputVal = getSimpleOutput(result)
-                $('#response').html(outputVal);
-                //saves the full result on currently open session of the website for further modifications 
-                resultJSON = result;
-            }
-            catch (err) {
-                $('#response').html(getErrorMessage(err));
-            }
-        },
-        error: function (XMLHttpRequest) {
-            $('#response').html('There was an error computing the risk score:\n' + XMLHttpRequest.responseText);
+var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => {
+    //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
+    var associMap = sharedCode.getAssociationMap(associationData, isVCF);
+
+    //remove SNPs that aren't relevant from the snpsInput object
+    var greppedSNPs;
+    var totalInputVariants = 0;
+    if (isVCF) {
+        try {
+            //greps the vcf file, removing snps not in the database table object returned
+            var vcfLines = await getFileLines(snpsInput);
+            totalInputVariants = getNumDatalines(vcfLines);
+            var reducedVCFLines = await getGreppedFileLines(vcfLines, associMap);
+
+            //converts the vcf lines into an object that can be parsed
+            greppedSNPs = vcf_parser.getVCFObj(reducedVCFLines);
         }
-    });
+        catch (err) {
+            $('#response').html(getErrorMessage(err));
+            return;
+        }
+    }
+    else {
+        var greppedSNPsList = [];
+        totalInputVariants = snpsInput.size;
+        for (const key of snpsInput.keys()) {
+            if (associMap.has(key)) {
+                greppedSNPsList.push(snpsInput.get(key));
+            }
+        }
+        var greppedSNPs = new Map();
+        greppedSNPs.set("TextInput", greppedSNPsList);
+    }
+
+    try {
+        var result = sharedCode.calculateScore(associationData, greppedSNPs, pValue, associMap, totalInputVariants);
+        //shortens the result for website desplay
+        outputVal = getSimpleOutput(result)
+        $('#response').html(outputVal);
+        //saves the full result on currently open session of the website for further modifications 
+        resultJSON = result;
+    }
+    catch (err) {
+        $('#response').html(getErrorMessage(err));
+    }
 }
 
 function getErrorMessage(err) {
@@ -378,17 +363,38 @@ function simplifyResultJson(resultJsonStr) {
 }
 
 /**
- * Removes all lines that don't have positions found in the tableObj. Returns a list of lines that are valid, including the header lines
+ * returns a list of lines from a file
  * @param {} vcfFile 
- * @param {*} usefulPos 
  */
-async function shrinkFile(vcfFile, usefulPos) {
+async function getFileLines(vcfFile) {
     var fileContents = await readFile(vcfFile);
-    var fileLines = fileContents.split("\n");
-    var fileLinesSmall = jQuery.grep(fileLines, function (line) {
-        return line[0] === '#' || usefulPos.has(getPosFromLine(line));
+    return fileContents.split("\n");
+}
+
+/**
+ * Returns the number of lines from fileLines that are data lines.
+ * @param {} fileLines 
+ */
+function getNumDatalines(fileLines) {
+    var numSNPLines = 0;
+    for (var i = 0; i < fileLines.length; ++i) {
+        if (!fileLines[i].startsWith("#") && fileLines[i] != "") {
+            numSNPLines += 1;
+        }
+    }
+    return numSNPLines;
+}
+
+/**
+ * Removes all lines that don't have positions found in the associationData. 
+ * Returns a list of lines that are valid, including the metadata and header lines
+ * @param {} fileLines 
+ * @param {*} associMap 
+ */
+async function getGreppedFileLines(fileLines, associMap) {
+    return jQuery.grep(fileLines, function (line) {
+        return line[0] === '#' || associMap.has(getPosFromLine(line));
     });
-    return fileLinesSmall;
 }
 
 /**
@@ -398,19 +404,6 @@ async function shrinkFile(vcfFile, usefulPos) {
 function getPosFromLine(line) {
     var secondTab = line.indexOf('\t', line.indexOf('\t') + 1);
     return line.substr(0, secondTab).replace('\t', ':');
-}
-
-/**
- * Returns an array containing just the disease, or if the disease is "all diseases",
- * returns a list of all the diseases in the database
- * @param {*} disease
- */
-function makeDiseaseArray(trait) {
-    if (disease.toLowerCase() == "all") {
-        //all returns all of the traits
-        return traits;
-    }
-    return [trait];
 }
 
 function formatText(jsonObject) {
@@ -423,11 +416,12 @@ function formatText(jsonObject) {
             continue;
         }
         returnText += "\nIndividual Name: " + jsonObject[i].individualName;
-        jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
-            returnText += " \n  Disease: " + diseaseResult.disease;
-            diseaseResult.studyResults.forEach(function (studyResult) {
+        jsonObject[i].traitResults.forEach(function (traitResult) {
+            returnText += " \n  Trait: " + traitResult.trait;
+            traitResult.studyResults.forEach(function (studyResult) {
                 returnText +=
-                    " \n    Study: " + studyResult.study +
+                    " \n    Study ID: " + studyResult.studyID +
+                    " \n      Citation: " + studyResult.citation +
                     " \n      Odds Ratio: " + studyResult.oddsRatio +
                     " \n      Percentile: " + studyResult.percentile +
                     " \n      # SNPs in OR: " + studyResult.numSNPsIncluded +
@@ -441,19 +435,20 @@ function formatText(jsonObject) {
 
 function formatCSV(jsonObject) {
     //Look for a csv writer npm module
-    var returnText = "Individual Name, Disease, Study, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
+    var returnText = "Individual Name, Trait, Study ID, Citation, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
 
     for (var i = 0; i < jsonObject.length; ++i) {
         if (i == 0) {
             continue;
         }
-        jsonObject[i].diseaseResults.forEach(function (diseaseResult) {
+        jsonObject[i].traitResults.forEach(function (traitResult) {
 
-            diseaseResult.studyResults.forEach(function (studyResult) {
+            traitResult.studyResults.forEach(function (studyResult) {
                 returnText +=
                     "\n" + jsonObject[i].individualName +
-                    "," + diseaseResult.disease +
-                    "," + studyResult.study +
+                    "," + traitResult.trait +
+                    "," + studyResult.studyID +
+                    "," + studyResult.citation +
                     "," + studyResult.oddsRatio +
                     "," + studyResult.percentile +
                     "," + studyResult.numSNPsIncluded +
@@ -596,36 +591,69 @@ function exampleInput() {
         type: "overide/mimetype" // optional - default = ''
     });
     document.getElementById("files").files = new FileListItem(file);
-    document.getElementById('input').value = (result);
-    document.getElementById('input').setAttribute("wrap", "soft");
+    var textInput = document.getElementById('input');
+    //print the file's contents into the input box
+    textInput.value = (result);
+    //print the file's contents into an invisible storage box
+    document.getElementById('savedVCFInput').value = (result);
+    textInput.setAttribute("wrap", "soft");
+    //removes file information text if a file was uploaded previously
+    document.getElementById('list').innerHTML = ""
 }
 
+//code run when the 'Text input' button is pressed
 function clickTextInput() {
-    var textInput = document.getElementById('input');
-    textInput.value = null;
-    textInput.removeAttribute('readonly');
-    var browseButton = document.getElementById('file-form');
-    browseButton.style.visibility = 'hidden';
-}
-
-function clickFileUpload() {
-    var textInput = document.getElementById('input');
-    textInput.value = null;
-    textInput.setAttribute('readonly', 'readonly');
-    var browseButton = document.getElementById('file-form');
-    browseButton.style.visibility = 'visible';
-    var previousFileText = document.getElementById('uploadText');
-    if (previousFileText.value !== "") {
-        document.getElementById('input').value = previousFileText.value;
+    //if the text button isn't already pressed
+    if (!textButtonSelected) {
+        textButtonSelected = true
+        var textInput = document.getElementById('input');
+        //clear the input box text 
+        textInput.value = null;
+        //make the input text box writable
+        textInput.removeAttribute('readonly');
+        //make the choose file button invisible
+        var browseButton = document.getElementById('file-form');
+        browseButton.style.visibility = 'hidden';
+        //if there was text in the text input before, writes it the the input box
+        var previousText = document.getElementById('savedTextInput');
+        if (previousText.value !== "") {
+            document.getElementById('input').value = previousText.value;
+        }
     }
 }
 
+//code run when the 'File upload' button is pressed
+function clickFileUpload() {
+    //if the VCf button isn't already pressed
+    if (textButtonSelected) {
+        textButtonSelected = false;
+        //saves the contents of the text input box if it is not empty
+        var textInput = document.getElementById('input');
+        if (textInput.value !== "") {
+            document.getElementById('savedTextInput').value = textInput.value;
+        }
+        //clears the input box text
+        textInput.value = null;
+        //make input box unwritable
+        textInput.setAttribute('readonly', 'readonly');
+        //makes the choose file button visible
+        var browseButton = document.getElementById('file-form');
+        browseButton.style.visibility = 'visible';
+        //if there was text in the file upload input box before, writes it to the input box
+        var previousFileText = document.getElementById('savedVCFInput');
+        if (previousFileText.value !== "") {
+            document.getElementById('input').value = previousFileText.value;
+        }
+    }
+
+}
+
+//when the user updates the pvalue scalar or magnitude, update the display and reset the output
 function changePValScalar() {
     $("#pvalScalar").html($("#pValScalarIn").val());
     resetOutput()
     $('#response').html("");
 }
-
 function changePValMagnitude() {
     $("#pvalMagnigtude").html(-1 * $("#pValMagIn").val());
     resetOutput()

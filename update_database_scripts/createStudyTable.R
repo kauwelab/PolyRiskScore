@@ -64,8 +64,6 @@ getAltmetrics <- function(pubmed_id) {
 
 #gets a tibble containing the results of a list of Altmetrics queries, with only pubmed_id and score selected
 getScoresList <- function(ids) {
-  #TODO
-  ids <<- ids
   scores <- pmap_df(ids, getAltmetrics) %>%
     dplyr::rename(pubmed_id = pmid) %>%
     select(c(pubmed_id, score)) %>%

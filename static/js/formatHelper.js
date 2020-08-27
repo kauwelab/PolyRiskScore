@@ -37,4 +37,23 @@
             }
         );
     }
+
+    exports.formatForClumpsTable = function (superPop) {
+        if (superPop.toLowerCase() == "african" || superPop.toLowerCase() == "afr") {
+            return "african_Clump"
+        }
+        else if (superPop.toLowerCase() == "american" || superPop.toLowerCase() == "amr") {
+            return "american_Clump"
+        }
+        else if (superPop.toLowerCase() == "east asian" || superPop.toLowerCase() == "eas") {
+            return "eastAsian_Clump"
+        }
+        else if (superPop.toLowerCase() == "european" || superPop.toLowerCase() == "eur") {
+            return "european_Clump"
+        }
+        else if (superPop.toLowerCase() == "south asian" || superPop.toLowerCase() == "sas") {
+            return "southAsian_Clump"
+        }
+        return "error"
+    }
 })(typeof exports === 'undefined' ? this['formatHelper'] = {} : exports);

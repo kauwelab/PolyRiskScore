@@ -48,7 +48,7 @@ exports.getEthnicities = (req, res) => {
 }
 
 exports.findTraits = (req, res) => {
-    Study.findTraits(req.params.searchStr, (err, data) => {
+    Study.findTrait(req.params.searchStr, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -82,11 +82,12 @@ exports.getAll = (req, res) => {
     });
 };
 
-exports.getByTypeAndTrait = (req, res) => {
+exports.getFiltered = (req, res) => {
     traits = req.query.traits
     studyTypes = req.query.studyTypes
+    ethnicities = req.query.ethnicities
     console.log("getting studies");
-    Study.getByTypeAndTrait(traits, studyTypes, (err, data) => {
+    Study.getFiltered(traits, studyTypes, ethnicities, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"
@@ -96,12 +97,8 @@ exports.getByTypeAndTrait = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             traitsList = {}
             
-            if (data.length == 1) {
-                traitsList[data[0].trait] = [data[0]]
-            }
-
-            else {
-                for (i=0; i<data.length; i++) {
+            for (i=0; i<data.length; i++) {
+                if (Array.isArray(data[i])){
                     for (j=0; j<data[i].length; j++) {
                         if (data[i][j].trait in traitsList) {
                             traitsList[data[i][j].trait].push(data[i][j])
@@ -111,12 +108,34 @@ exports.getByTypeAndTrait = (req, res) => {
                         }
                     }
                 }
+                else {
+                    if (data[i].trait in traitsList) {
+                        traitsList[data[i].trait].push(data[i])
+                    }
+                    else {
+                        traitsList[data[i].trait] = [data[i]]
+                    }
+                }
             }
 
             res.send(traitsList);
         }
     });
 };
+
+exports.getStudyByID = (req, res) => {
+    Study.getByID(req.params.ids, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving studies"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(data);
+        }
+    })
+}
 
 exports.findStudies = (req, res) => {
     Study.findStudy(req.params.searchStr, (err, data) => {

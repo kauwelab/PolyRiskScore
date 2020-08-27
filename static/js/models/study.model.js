@@ -1,16 +1,16 @@
 const sql = require('./database')
 
-const Study = function(mstudy) {
+const Study = function (mstudy) {
     this.studyID = mstudy.studyID,
-    this.pubMedID = mstudy.pubMedID,
-    this.trait = mstudy.trait,
-    this.citation = mstudy.citation,
-    this.studyScore = mstudy.studyScore,
-    this.ethnicity = mstudy.ethnicity,
-    this.cohort = mstudy.cohort,
-    this.title = mstudy.title,
-    this.lastUpdated = mstudy.lastUpdated,
-    this.studyType = mstudy.studyType
+        this.pubMedID = mstudy.pubMedID,
+        this.trait = mstudy.trait,
+        this.citation = mstudy.citation,
+        this.studyScore = mstudy.studyScore,
+        this.ethnicity = mstudy.ethnicity,
+        this.cohort = mstudy.cohort,
+        this.title = mstudy.title,
+        this.lastUpdated = mstudy.lastUpdated,
+        this.studyType = mstudy.studyType
 }
 
 Study.getTraits = result => {
@@ -65,34 +65,92 @@ Study.getAll = result => {
     });
 };
 
-Study.getByTypeAndTrait = (traits, studyTypes, result) => {
-
-    for (i=0; i < traits.length; i++) {
-        traits[i] = "\"" + traits[i] + "\"";
+Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
+    //if traits is null, assume they want all 
+    if (traits) {
+        if (typeof traits === 'string' || traits instanceof String) {
+            traits = "\"" + traits + "\"";
+        }
+        else {
+            for (i = 0; i < traits.length; i++) {
+                traits[i] = "\"" + traits[i] + "\"";
+            }
+        }
+        
+        // studyMaxes is a view in the database used to find the max values we need 
+        studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
+    }
+    else {
+        studyMaxQuery = `SELECT * FROM studyMaxes`
     }
 
-    // studyMaxes is a view in the database used to find the max values we need 
-    sql.query(`SELECT * FROM studyMaxes WHERE trait IN (${traits})`, (err, res) => {
+    sql.query(studyMaxQuery, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
+        var sqlQueryString = "";
+        for (i = 0; i < res.length; i++) {
+            //format NA values correctly
+            if (res[i].cohort == "NA") {
+                res[i].cohort = `\"${res[i].cohort}\"`
+            }
+            if (res[i].studyScore == "NA") {
+                res[i].studyScore = `\"${res[i].studyScore}\"`
+            }
 
-        sqlQueryString = ""
-        for (i=0; i<res.length; i++) {
-            if (studyTypes.includes("LC")) {
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "LC" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND cohort = ${res[i].cohort}; `)
+            //subQueryString is the string that we append query constraints to from the HTTP request
+            var subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}") `;
+            var appendor = "";
+
+            //append sql conditional filters for studyType
+            if(studyTypes){
+                appendor = "AND (";
+                if (studyTypes.includes("LC")) {
+                    subQueryString = subQueryString.concat(appendor).concat(` cohort = ${res[i].cohort} `);
+                    appendor = "OR";
+                }
+                if (studyTypes.includes("HI")) {
+                    subQueryString = subQueryString.concat(appendor).concat(` studyScore = ${res[i].studyScore} `);
+                    appendor = "OR";
+                }
+                if (studyTypes.includes("O")) {
+                    subQueryString = subQueryString.concat(appendor).concat(` studyScore <> ${res[i].studyScore} AND  cohort <> ${res[i].cohort} `);
+                    appendor = "OR";
+                }
+                //if the appendor has been updated, then close the parenthesis
+                if (appendor !== "AND (") {
+                    subQueryString = subQueryString.concat(") ")
+                }
             }
-            if (studyTypes.includes("HI")) {
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "HI" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore = ${res[i].studyScore}; `)
+
+            //append sql conditional filters for ethnicity
+            if (ethnicities) {
+                appendor = "AND (";
+                for(j=0; j < ethnicities.length; j++){
+                    //TODO check for "unspecified/blank" ethnicity studies
+                    if (ethnicities[j] == "unspecified") {
+                        subQueryString = subQueryString.concat(appendor).concat(` ethnicity = '' OR ethnicity = ' ' `);
+                        appendor = "OR";
+                    }
+                    else {
+                        subQueryString = subQueryString.concat(appendor).concat(` ethnicity LIKE '%${ethnicities[j]}%' `);
+                        appendor = "OR";
+                    }
+                }
+                //if the appendor has been updated, then close the parenthesis
+                if (appendor !== "AND (") {
+                    subQueryString = subQueryString.concat(") ")
+                }
             }
-            if (studyTypes.includes("O")) {
-                sqlQueryString = sqlQueryString.concat(`SELECT *, "O" as studyType FROM study_table WHERE trait = "${res[i].trait}" AND studyScore <> ${res[i].studyScore} AND cohort <> ${res[i].cohort}; `)
-            }
+            subQueryString = subQueryString.concat("; ")
+            sqlQueryString = sqlQueryString.concat(subQueryString);
         }
-
         console.log(`traits queried, ${res.length} result(s)`);
+
+        console.log(sqlQueryString)
+
         sql.query(sqlQueryString, (err, data) => {
             if (err) {
                 console.log("error: ", err);
@@ -100,11 +158,25 @@ Study.getByTypeAndTrait = (traits, studyTypes, result) => {
                 return;
             }
             console.log(`studies queried, ${data.length} result(s)`)
-            result(null, data) 
+            result(null, data)
         });
     });
 };
 
+Study.getByID = (ids, result) => {
+    for (j=0; j<ids.length; j++) {
+        ids[j] = "\"" + ids[j] + "\"";
+    }
+    sql.query(`SELECT trait, studyID FROM study_table WHERE studyID in (${ids})`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        result(null, res);
+    })
+}
 Study.findStudy = (searchStr, result) => {
     sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {
