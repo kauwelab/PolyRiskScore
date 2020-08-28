@@ -2,6 +2,7 @@ module.exports = app => {
     const studies = require("../controllers/studies.controller");
     const associations = require("../controllers/associations.controller");
     const clumps = require("../controllers/clumps.controller");
+    const cli = require("../controllers/cli.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -35,4 +36,6 @@ module.exports = app => {
 
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
+
+    app.get("/cli_version", cli.version);
 }

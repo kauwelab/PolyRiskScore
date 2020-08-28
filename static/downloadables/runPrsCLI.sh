@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# ########################################################################
+# 
+version="1.0.0"
+#
+# 
+# 
+# HISTORY:
+# 
+# * 8/28/2020 - v1.0.0  - First Creation
+# 
+# ########################################################################
+
 RED='\033[0;31m'
 LIGHTRED='\033[1;31m'
 LIGHTBLUE='\033[1;34m'
@@ -259,17 +271,14 @@ calculatePRS () {
                 studyID=0
                 ethnicity=1
             elif [ $trait -eq 1 ] ; then
-<<<<<<< HEAD
-=======
->>>>>>> 6eff09b34e8f410834a37eff6f1805a305a41fc4
                 traitsForCalc+=("$arg")
             elif [ $studyType -eq 1 ] ; then
-		if [ $arg != "HI" ] && [ "$arg" != "LC" ] && [ $arg != "O" ]
-		then
-			echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
-			echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
-			exit 1
-	        fi	
+                if [ $arg != "HI" ] && [ "$arg" != "LC" ] && [ $arg != "O" ]
+                then
+                    echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
+                    echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
+                    exit 1
+                fi	
                 studyTypesForCalc+=("$arg")
             elif [ $studyID -eq 1 ] ; then
                 studyIDsForCalc+=("$arg")
@@ -334,6 +343,11 @@ calculatePRS () {
 # --e ethnicity ex. ["European", "East Asian"]
 
 HORIZONTALLINE="============================================================================="
+
+newestVersion=$(curl -X GET --header "Accept: */*" "http://localhost:3000/cli_version")
+echo "Response from server"
+echo $result
+exit
 
 if [ $# -lt 4 ]; then
     echo -e "${LIGHTRED}Too few arguments! ${NC}"
