@@ -1,0 +1,160 @@
+.banner {
+    position: relative;
+    text-align: center;
+    color: white;
+}
+
+.centered-title {
+    color: white;
+    position: absolute;
+    text-align: center;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5vw;
+    line-height: 1.0;
+    margin-top: 1em;
+  }
+.centered-subtitle {
+    color: white;
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2vw;
+}
+
+.centered-title-button {
+    color: white;
+    position: absolute;
+    text-align: center;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4vw;
+    line-height: 1.0;
+  }
+.centered-subtitle-button {
+    color: white;
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2vw;
+}
+.centered-button {
+    position: absolute;
+    text-align: center;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@media (max-width : 900px ){
+    .centered-title {
+        color: white;
+        position: absolute;
+        text-align: center;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 5vw;
+        line-height: 1.0;
+        margin-top: 1em;
+      }
+    .centered-subtitle {
+        color: white;
+        position: absolute;
+        text-align: center;
+        top: 55%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2vw;
+    }
+    .centered-button {
+        position: absolute;
+        text-align: center;
+        top: 70%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .centered-title-button {
+        color: white;
+        position: absolute;
+        text-align: center;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4vw;
+        line-height: 1.0;
+      }
+    .centered-subtitle-button {
+        color: white;
+        position: absolute;
+        text-align: center;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2vw;
+    }
+    .centered-button {
+        position: absolute;
+        text-align: center;
+        top: 75%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@media (max-width : 600px) {
+    .centered-title {
+        color: white;
+        position: absolute;
+        text-align: center;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 5vw;
+        line-height: 1.0;
+        margin-top: 1em;
+      }
+    .centered-subtitle {
+        color: white;
+        position: absolute;
+        text-align: center;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2vw;
+    }
+    
+    .centered-title-button {
+        color: white;
+        position: absolute;
+        text-align: center;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4vw;
+        line-height: 1.0;
+      }
+    .centered-subtitle-button {
+        color: white;
+        position: absolute;
+        text-align: center;
+        top: 65%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2vw;
+    }
+    .centered-button {
+        position: absolute;
+        text-align: center;
+        top: 80%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+  }
