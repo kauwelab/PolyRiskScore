@@ -7,29 +7,35 @@ import os
 from os import getcwd
 from sys import argv
 
-# returns a dictionary from the database with the following format:
+# returns the database study table in dictionary format where:
 # key: studyID
 # value: [pubMedID, trait, lastUpdated]
 def getDatabaseStudyTable(config):
     databaseStudyTableDict = {}
+    # open database connections
     connection = getConnection(config)
     cursor = connection.cursor()
 
+    # select relevent rows from the study_table in the PRSKB database
     sql = ("SELECT studyID, pubMedID, trait, lastUpdated FROM study_table")
-
     cursor.execute(sql)
-    for (studyID, pubMedID, trait, lastUpdated) in cursor:
-        databaseStudyTableDict[studyID] = [pubMedID, trait, lastUpdated]
 
+    # turn the sql statement results into a dictionary
+    for (studyID, pubMedID, trait, lastUpdated) in cursor:
+        databaseStudyTableDict[studyID] = [pubMedID, trait, datetime.datetime.strptime(lastUpdated, "%Y-%m-%d")]
+
+    # close database connections
     cursor.close()
     connection.close()
+
     return databaseStudyTableDict
 
-# returns a dictionary from the new study table with the following format:
+# returns the new updated study table in dictionary format where:
 # key: studyID
 # value: [pubMedID, trait, lastUpdated]
 def getNewStudyTable(config, studyTableFolderPath):
     newStudyTable = {}
+    # open the new study_table.csv
     with open(studyTableFolderPath, "r", encoding="utf8") as studyTable:
         headerlineItems = studyTable.readline().strip().replace("\"", "").split(",")
         studyIDIndex = headerlineItems.index("studyID")
@@ -37,17 +43,23 @@ def getNewStudyTable(config, studyTableFolderPath):
         traitIndex = headerlineItems.index("trait")
         lastUpdatedIndex = headerlineItems.index("lastUpdated")
 
+        # read the table into a dictionary
         reader = csv.reader(studyTable)
         for row in reader:
             studyID =  row[studyIDIndex]
             pubMedID =  row[pubMedIDIndex]
             trait =  row[traitIndex]
             lastUpdated =  row[lastUpdatedIndex]
-            newStudyTable[studyID] = [pubMedID, trait, lastUpdated]
+            newStudyTable[studyID] = [pubMedID, trait, datetime.datetime.strptime(lastUpdated, "%Y-%m-%d")]
 
 
     return newStudyTable
 
+# returns two sets, updatedStudies and updatedTraits, where entries of each are based on differences
+# between the databaseStudyTable and newStudyTable dictionaries. If an key is in the newStudyTable, but 
+# not in the databaseStudyTable, or if the date of an entry in newStudyTable is newer than the same 
+# entry in the databaseStudyTable, it is added to updatedStudies and the corresponding trait is added
+# to updatedTraits.
 def getUpdatedStudiesAndTraits(databaseStudyTable, newStudyTable):
     updatedStudies = set()
     updatedTraits = set()
@@ -56,11 +68,13 @@ def getUpdatedStudiesAndTraits(databaseStudyTable, newStudyTable):
     for newStudyTableID in newStudyTable.keys():
         # if the study is also in the database study table
         if newStudyTableID in databaseStudyTable:
+            # save the like values from both dictionaries
             newDictVal = newStudyTable[newStudyTableID]
             databaseDictVal = databaseStudyTable[newStudyTableID]
 
-            databaseDate = datetime.datetime.strptime(databaseDictVal[2], "%Y-%m-%d")
-            newDate = datetime.datetime.strptime(newDictVal[2], "%Y-%m-%d")
+            # get the dates from the like values of the dictionaries
+            databaseDate = databaseDictVal[2]
+            newDate = newDictVal[2]
             # check if the study has been updated
             if newDate > databaseDate:
                 # add study
@@ -71,7 +85,7 @@ def getUpdatedStudiesAndTraits(databaseStudyTable, newStudyTable):
             # if the date of the new table is older than the database table, print a warning- this shouldn't happen!
             elif newDate < databaseDate:
                 print("Warning: the new date from the study table is older than the database date. This shouldn't happen!")
-        # if the study is not in the database study table, add it to the set to be updated!
+        # if the study is not in the database study table, add it to the set to be updated
         else:
             # add study
             updatedStudies.add(newStudyTableID)
@@ -128,11 +142,10 @@ def main():
     
     # arg handling for study folder path
     if len(argv) <= 2:
-        #TODO
-        studyTableFolderPath = getcwd().replace("\\", "/") + "/study_table_new.csv"
+        studyTableFolderPath = getcwd().replace("\\", "/") + "/study_table.csv"
         print("Using default study table path: \"" + studyTableFolderPath + "\"")
     else:
-        studyTableFolderPath = argv[2] + "/study_table_new.csv"
+        studyTableFolderPath = argv[2] + "/study_table.csv"
     
     #if there are too many arguments, quit
     if len(argv) > 3:
@@ -151,11 +164,14 @@ def main():
         'auth_plugin': 'mysql_native_password',
     }
 
+    # get database and new study tables as dictionaries
     databaseStudyTableDict = getDatabaseStudyTable(config)
     newStudyTableDict = getNewStudyTable(config, studyTableFolderPath)
 
+    # get the updated differences between the old and new study tables
     updatedStudies, updatedTraits = getUpdatedStudiesAndTraits(databaseStudyTableDict, newStudyTableDict)
 
+    # print the updates so the master_script.sh can read them
     print(updatedStudies)
     print(updatedTraits)
 
