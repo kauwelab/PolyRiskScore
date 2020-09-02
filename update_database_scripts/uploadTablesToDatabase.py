@@ -181,7 +181,7 @@ def main():
         password = argv[1]
     if len(argv) > 6:
         # if too many arguments are provided
-        print("Too many arguments!")
+        print("Too many arguments: " + str(argv))
         usage()
         exit()
 
