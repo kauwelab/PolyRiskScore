@@ -1,10 +1,8 @@
 #!/usr/bin/env Rscript
 
-#TODO test output path
 #TODO remove snps that have "(conditioned on rsid)" in their pvalue_description
 #TODO argument: optional list of traits to update
 #TODO argument: optional list of studies to update
-#TODO create shell script that automates the running of this script multiple times on different
   #sections of the GWAS catolog, making it faster to download data
 
 #get args from the commandline- these are evaluated after imports section below
@@ -280,7 +278,7 @@ if (is_ebi_reachable()) {
         trait_table <- add_column(trait_table, hg18 = hgToHg(trait_table["hg19"], "hg18"), .after = "hg19")
         trait_table <- add_column(trait_table, hg17 = hgToHg(trait_table["hg19"], "hg17"), .after = "hg18")
         #writes out the data into CSVs at the outPath specified
-        write.csv(trait_table, file.path(outPath, paste0(str_replace(trait, "/", "-"), ".csv")), row.names=FALSE) #"NK/T cell lymphoma" requires that we replace "/" with "-"
+        write.csv(trait_table, file.path(outPath, paste0(str_replace(trait, "/", "-"), ".csv")), row.names=FALSE, fileEncoding = "UTF-8") #"NK/T cell lymphoma" requires that we replace "/" with "-"
       }
       else {
         DevPrint(paste0("No valid SNPs for '", trait, "'!"))
