@@ -6,12 +6,10 @@ exports.version = async (req,res) => {
     version = await lineReader.eachLine(path.join(__dirname, '../..', 'downloadables/runPrsCLI.sh'), function(line) {
         if (line.match('^version=')) {
             console.log(line)
-            version = line.match('([0-9]+.[0-9]+.[0-9]+)')
-            return version
+            version = line.match('([0-9]+.[0-9]+.[0-9]+)')[0]
+            res.send(version)
         }
     })
-    console.log(version)
-    res.send(version)
 }
 
 exports.download = (req,res) => {
