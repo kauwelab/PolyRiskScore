@@ -235,6 +235,8 @@ runPRS () {
 }
 
 calculatePRS () {
+    checkForNewVersion
+    
     args=("${@:6}")
 
     trait=0
