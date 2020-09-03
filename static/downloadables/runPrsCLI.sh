@@ -330,7 +330,7 @@ calculatePRS () {
 }
 
 checkForNewVersion () {
-    newestVersion=$(curl -s "http://localhost:3000/cli_version") # checks the version on the
+    newestVersion=$(curl -s "https://prs.byu.edu/cli_version") # checks the version on the
     
     # asks user if they want to download the newest version
     if [[ "$newestVersion" =~ ^[0-9]*(\.[0-9]+)?(\.[0-9]+)?$ ]] && [ "$newestVersion" != "$version" ]; then
@@ -338,7 +338,7 @@ checkForNewVersion () {
         read -p "(y/n)? " decision
 
         case $decision in 
-            [yY]* ) curl -s "http://localhost:3000/download_cli" -o "PrskbCLITool.zip"
+            [yY]* ) curl -s "https://prs.byu.edu/download_cli" -o "PrskbCLITool.zip"
                     echo ""
                     echo 'A zip file containing the updated scripts has been downloaded.'
                     echo 'Go ahead and delete the old files, extract the new ones, and run the program.'
