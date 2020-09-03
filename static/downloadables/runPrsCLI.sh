@@ -200,17 +200,17 @@ searchTraitsAndStudies () {
 
     case $option in 
         [sS]* ) read -p "Enter the search term you wish to use: " searchTerm 
-		if [[ "$searchTerm" = *"'"* ]]; then
-			searchTerm=${searchTerm//${sub}/${backslash}${sub}}
-		fi
+                if [[ "$searchTerm" = *"'"* ]]; then
+                    searchTerm=${searchTerm//${sub}/${backslash}${sub}}
+                fi
                 echo ""
                 echo -e "${LIGHTPURPLE}First Author and Year | Trait | GWAS Catalog Study ID | Title${NC}"
-		curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .trait + " | " + .studyID + " | " + .title + "\n"';;
+		        curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .trait + " | " + .studyID + " | " + .title + "\n"';;
         [tT]* ) read -p "Enter the search term you wish to use: " searchTerm 
-		if [[ "$searchTerm" = *"'"* ]]; then
-			echo "in if"
-			searchTerm=${searchTerm//${sub}/${backslash}${sub}}
-		fi
+                if [[ "$searchTerm" = *"'"* ]]; then
+                    echo "in if"
+                    searchTerm=${searchTerm//${sub}/${backslash}${sub}}
+                fi
                 echo -e "${LIGHTPURPLE}"
                 curl -s https://prs.byu.edu/find_traits/${searchTerm} | jq -r '.[]'
                 echo -e "${NC}";;
@@ -329,6 +329,28 @@ calculatePRS () {
     exit;
 }
 
+checkForNewVersion () {
+    newestVersion=$(curl -s "http://localhost:3000/cli_version") # checks the version on the
+    
+    # asks user if they want to download the newest version
+    if [[ "$newestVersion" =~ ^[0-9]*(\.[0-9]+)?(\.[0-9]+)?$ ]] && [ "$newestVersion" != "$version" ]; then
+        echo "There is a newer version available. Download new version? (y/n)"
+        read -p "(y/n)? " decision
+
+        case $decision in 
+            [yY]* ) curl -s "http://localhost:3000/cli_download" -o "PrsCLITool.zip"
+                    echo ""
+                    echo 'A zip file containing the updated scripts has been downloaded.'
+                    echo 'Go ahead and delete the old files, extract the new ones, and run the program.'
+                    # todo - make this replace the files 
+                    exit;;
+            [nN]* ) ;;
+            * ) echo -e "Invalid option. ${LIGHTRED}New version will not be downloaded${NC}";;
+        esac
+    fi
+
+}
+
 # v1.0.0
 # Parameter order:
 #1 VCF file path
@@ -344,12 +366,11 @@ calculatePRS () {
 
 HORIZONTALLINE="============================================================================="
 
-newestVersion=$(curl -X GET --header "Accept: */*" "http://localhost:3000/cli_version")
-echo "Response from server"
-echo $result
-exit
+if [[ "$1" =~ "--version" ]]; then 
+    echo -e "Running version ${version}"
+    checkForNewVersion
 
-if [ $# -lt 4 ]; then
+elif [ $# -lt 4 ]; then
     echo -e "${LIGHTRED}Too few arguments! ${NC}"
     echo -e "Show usage (u) or start menu (m)? "
     read -p "(u/m)? " decision

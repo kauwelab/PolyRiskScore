@@ -38,4 +38,6 @@ module.exports = app => {
     app.get("/ld_clumping", clumps.getClumping);
 
     app.get("/cli_version", cli.version);
+
+    app.get("/cli_download", cli.download);
 }
