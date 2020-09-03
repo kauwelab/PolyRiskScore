@@ -177,6 +177,7 @@ Study.getByID = (ids, result) => {
         result(null, res);
     })
 }
+
 Study.findStudy = (searchStr, result) => {
     sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {
