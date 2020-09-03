@@ -1,8 +1,16 @@
 const path = require("path")
+const lineReader = require('line-reader')
 
 exports.version = (req,res) => {
-    // todo access the file to give the version
-    res.send("1.0.1")
+    version = "1.0.0"
+    version = lineReader.eachLine(path.join(__dirname, '../..', 'downloadables/runPrsCLI.sh'), function(line) {
+        if (line.match('^version=')) {
+            console.log(line)
+            version = line.match('([0-9]+.[0-9]+.[0-9]+)')
+            return version
+        }
+    })
+    res.send(version)
 }
 
 exports.download = (req,res) => {
