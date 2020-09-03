@@ -39,5 +39,5 @@ module.exports = app => {
 
     app.get("/cli_version", cli.version);
 
-    app.get("/cli_download", cli.download);
+    app.get("/download_cli", cli.download);
 }

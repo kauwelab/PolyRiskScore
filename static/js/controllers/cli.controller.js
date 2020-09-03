@@ -7,7 +7,6 @@ exports.version = (req,res) => {
 
 exports.download = (req,res) => {
     downloadPath = path.join(__dirname, '../..', 'downloadables')
-    console.log(downloadPath)
     res.zip({
         files: [{
             path: path.join(downloadPath, '/run_prs_grep.py'),
@@ -19,6 +18,6 @@ exports.download = (req,res) => {
             path: path.join(downloadPath, '/runPrsCLI.sh'),
             name: '/runPrsCLI.sh'
         }],
-        filename: 'test.zip'
-    })
+        filename: 'PrskbCLITool.zip'
+    });
 }

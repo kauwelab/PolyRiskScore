@@ -338,7 +338,7 @@ checkForNewVersion () {
         read -p "(y/n)? " decision
 
         case $decision in 
-            [yY]* ) curl -s "http://localhost:3000/cli_download" -o "PrsCLITool.zip"
+            [yY]* ) curl -s "http://localhost:3000/download_cli" -o "PrskbCLITool.zip"
                     echo ""
                     echo 'A zip file containing the updated scripts has been downloaded.'
                     echo 'Go ahead and delete the old files, extract the new ones, and run the program.'
