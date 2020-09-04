@@ -86,7 +86,7 @@ function getStudies() {
 
     //call the API and populate the study dropdown/multiselect with the results
     $.ajax({
-        type: "GET",
+        type: "POST",
         url: "/get_studies",
         data: { studyTypes: selectedTypes, traits: selectedTraits, ethnicities: selectedEthnicities },
         success: async function (data) {
@@ -124,7 +124,7 @@ function getStudies() {
 function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
     traitList = JSON.stringify(traitList)
     return Promise.resolve($.ajax({
-        type: "GET",
+        type: "POST",
         url: "/get_associations",
         data: { traits: traitList, pValue: pValue, refGen: refGen },
         success: async function (data) {
