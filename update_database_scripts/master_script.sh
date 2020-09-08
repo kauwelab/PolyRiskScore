@@ -72,25 +72,49 @@ else
 
 #===============Get Updated Studies and Traits===============
     # get updated studies and traits
-    output=`python getUpdatedStudiesAndTraitsLists.py "$password"`
+    echo "Getting the updated studies and traits lists."
+    output=`python getUpdatedStudiesAndTraitsLists.py "$password" "$studyTableFolderPath"`
+    updatedListsReturnCode=$?
     readarray -t arrayOutput <<<"$output"
 
-    #print all script output from getUpdatedStudiesAndTraitsLists.py, except the study and trait lists
+    # if the getUpdatedStudiesAndTraitsLists exited with errors, print the errors and abort
+    if ! [[ $updatedListsReturnCode == 0 ]]; then
+        echo "The updated studies and traits could not be determined. Aborting."
+        END=${#arrayOutput[@]}
+        for ((i=0;i<=END;i++)); do
+            echo ${arrayOutput[$i]}
+        done
+        read -p "Press [Enter] key to finish..."
+        exit 1
+    fi
+
+    # print all but the last 3 lines, two of which are the updated studies 
+    # and trait lists and the last is an empty line (for the error code)
+
     END=${#arrayOutput[@]}-3
-    for ((i=1;i<=END;i++)); do
+    for ((i=0;i<=END;i++)); do
         echo ${arrayOutput[$i]}
     done
 
-    #capture the study and trait lists as strings
-    updatedStudies=${arrayOutput[$i+1]}
-    updatedTraits=${arrayOutput[$i+1]}
+    # capture the study and trait lists as strings and remove \r and \n
+    updatedStudies=$(echo ${arrayOutput[$i]} | sed -e 's/\r\n//g')
+    updatedTraits=$(echo ${arrayOutput[$i+1]} | sed -e 's/\r\n//g')
+
+    echo $updatedStudies > updatedStudies.txt
+    echo "Printed out updated studies to updatedStudies.txt for LD clumping script."
+
+    # add a space between sections in the output
+    echo ""
 
 #===============Upload Tables to PRSKB Database========================================================
-    #TODO make this require user input?
-    # echo "Uploading tables to the PRSKB database."
-    # python uploadTablesToDatabase.py $password $associationTablesFolderPath $studyTableFolderPath
-    # wait
-    # echo -e "Finished uploading tables to the PRSKB database.\n"
+    if [ -z "$updatedStudies" ] || [ "$updatedStudies" == "none" ]; then
+        echo -e "No GWAS catalog tables have been updated, so no tables were updated or uploaded to the PRSKB database.\n"
+    else
+        echo "Uploading tables to the PRSKB database."
+        python uploadTablesToDatabase.py "$password" $associationTablesFolderPath $studyTableFolderPath "false" "$updatedTraits"
+        wait
+        echo -e "Finished uploading tables to the PRSKB database.\n"
+    fi
 
     read -p "Press [Enter] key to finish..."
 fi
