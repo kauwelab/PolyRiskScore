@@ -7,6 +7,23 @@ import os
 from os import getcwd
 from sys import argv
 
+# returns a string representation of the date format of the date given the date format is 
+# obtained by trying different date formats until the correct one is found
+def getDateFormat(date):
+    dateFormat = "%m/%d/%Y"
+    # if the month-first format doesn't work, try the year-first format and update the format
+    try:
+        datetime.datetime.strptime(date, dateFormat)
+        return dateFormat
+    except ValueError:
+        dateFormat = "%Y-%m-%d"
+        # if the year-first format doesn't work, exit with a custom error
+        try:
+            datetime.datetime.strptime(date, dateFormat)
+            return dateFormat
+        except ValueError:
+            exit("Error: day " + date + " has an irregular date format.")
+
 # returns the database study table in dictionary format where:
 # key: studyID
 # value: [pubMedID, trait, lastUpdated]
@@ -21,9 +38,15 @@ def getDatabaseStudyTable(config):
     cursor.execute(sql)
 
     # turn the sql statement results into a dictionary
+    dateFormat = ""
     for (studyID, pubMedID, trait, lastUpdated) in cursor:
-        databaseStudyTableDict[studyID] = [pubMedID, trait, datetime.datetime.strptime(lastUpdated, "%Y-%m-%d")]
-
+        # if the date format hasn't been found yet, find it (this has to be done in the for loop)
+        # so that no row is lost from the cursor
+        if dateFormat == "":
+            dateFormat = getDateFormat(lastUpdated)
+        lastUpdatedDate = datetime.datetime.strptime(lastUpdated, dateFormat)
+        databaseStudyTableDict[studyID] = [pubMedID, trait, lastUpdatedDate]
+    
     # close database connections
     cursor.close()
     connection.close()
@@ -44,14 +67,18 @@ def getNewStudyTable(config, studyTableFolderPath):
         lastUpdatedIndex = headerlineItems.index("lastUpdated")
 
         # read the table into a dictionary
+        dateFormat = ""
         reader = csv.reader(studyTable)
         for row in reader:
             studyID =  row[studyIDIndex]
             pubMedID =  row[pubMedIDIndex]
             trait =  row[traitIndex]
             lastUpdated =  row[lastUpdatedIndex]
-            newStudyTable[studyID] = [pubMedID, trait, datetime.datetime.strptime(lastUpdated, "%Y-%m-%d")]
+            if dateFormat == "":
+                dateFormat = getDateFormat(lastUpdated)
+            lastUpdatedDate = datetime.datetime.strptime(lastUpdated, dateFormat)
 
+            newStudyTable[studyID] = [pubMedID, trait, lastUpdatedDate]
 
     return newStudyTable
 
@@ -152,7 +179,7 @@ def main():
         # if too many arguments are provided
         print("Too many arguments!")
         usage()
-        exit("Too many arguments!" + str(argv))
+        exit("Too many arguments: " + str(argv))
 
     # set other default variables
     config = {
@@ -172,8 +199,14 @@ def main():
     updatedStudies, updatedTraits = getUpdatedStudiesAndTraits(databaseStudyTableDict, newStudyTableDict)
 
     # print the updates so the master_script.sh can read them
-    print(updatedStudies)
-    print(updatedTraits)
+    if len(updatedStudies) != 0:
+        print(", ".join(updatedStudies))
+        print(", ".join(updatedTraits))
+    # if the sets are empty, print "none" which the master_script will interpret as empty
+    # printing "" doesn't show up in the bash script variable
+    else:
+        print("none")
+        print("none")
 
 if __name__ == "__main__":
     main()
