@@ -154,9 +154,9 @@ def main():
     # the location of the study table
     studyTableFolderPath = ""
     # a list of the studies that have been updated
-    studiesUpdated = []
+    updatedStudies = set()
     # a list of traits that have been updated
-    traitsUpdated = []
+    updatedTraits = set()
 
     # arg handling for password
     if len(argv) <= 1:
