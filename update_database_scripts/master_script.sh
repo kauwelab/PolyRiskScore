@@ -73,7 +73,7 @@ else
 #===============Get Updated Studies and Traits===============
     # get updated studies and traits
     echo "Getting the updated studies and traits lists."
-    output=`python getUpdatedStudiesAndTraitsLists.py "$password" "$studyTableFolderPath"`
+    output=`python3 getUpdatedStudiesAndTraitsLists.py "$password" "$studyTableFolderPath"`
     updatedListsReturnCode=$?
     readarray -t arrayOutput <<<"$output"
 
@@ -111,7 +111,7 @@ else
         echo -e "No GWAS catalog tables have been updated, so no tables were updated or uploaded to the PRSKB database.\n"
     else
         echo "Uploading tables to the PRSKB database."
-        python uploadTablesToDatabase.py "$password" $associationTablesFolderPath $studyTableFolderPath "false" "$updatedTraits"
+        python3 uploadTablesToDatabase.py "$password" $associationTablesFolderPath $studyTableFolderPath "false" "$updatedTraits"
         wait
         echo -e "Finished uploading tables to the PRSKB database.\n"
     fi
