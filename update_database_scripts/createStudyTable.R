@@ -1,7 +1,7 @@
 # This script uses data from an existing folder populated with CSV trait data and the GWAS catalog acccessable via the gwasrapidd library 
 # to make a study table CSV. 
 #
-# How to run: RScript createStudyTable.R "path/to/association_tables/"
+# How to run: Rscript createStudyTable.R "path/to/association_tables/"
 # where "path/to/association_tables/" is the path to the folder where the association table CSV's are stored (default: "../tables/association_tables/")
 #
 # The format of the study table is as follows:
