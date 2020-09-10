@@ -200,8 +200,8 @@ def main():
 
     # print the updates so the master_script.sh can read them
     if len(updatedStudies) != 0:
-        print(", ".join(updatedStudies))
-        print(", ".join(updatedTraits))
+        print("|".join(updatedStudies))
+        print("|".join(updatedTraits))
     # if the sets are empty, print "none" which the master_script will interpret as empty
     # printing "" doesn't show up in the bash script variable
     else:

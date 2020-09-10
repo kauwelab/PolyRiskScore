@@ -17,8 +17,8 @@ import time
 # 3. path to study table (dafault: ".")
 # 4. boolean indicating whether the database should be cleaned of all tables except the ones in arg 4,
 #    or if arg 4 is blank, the tables found at arg 2 (default: false)
-# 5. a ", " (comma space) separated list of trait names to be updated (default: "", or all tables
-#    found in arg 2)
+# 5. a pipe (|) separated list of trait names to be updated (default: "", or all tables 
+#    found in arg 2) ex: "Alzheimer's disease|acne|osteoarthritis, hip"
 
 # creates a connection to the MySQL database using the given config dictionary
 # The config should be given in the following form:
@@ -192,7 +192,7 @@ def main():
     if len(argv) >= 5:
         cleanDatabase = bool(distutils.util.strtobool(argv[4]))
     if len(argv) == 6:
-        tablesToUpdate = argv[5].split(', ')
+        tablesToUpdate = argv[5].split("|")
 
     # set other default variables
     config = {
