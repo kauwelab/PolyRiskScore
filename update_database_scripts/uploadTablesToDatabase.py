@@ -11,14 +11,16 @@ from time import sleep
 import datetime
 import time
 
-# args:
-# 1. password
-# 2. path to association csv tables (default: "./association_tables/")
-# 3. path to study table (dafault: ".")
-# 4. boolean indicating whether the database should be cleaned of all tables except the ones in arg 4,
-#    or if arg 4 is blank, the tables found at arg 2 (default: false)
-# 5. a pipe (|) separated list of trait names to be updated (default: "", or all tables 
-#    found in arg 2) ex: "Alzheimer's disease|acne|osteoarthritis, hip"
+# This script uploads association CSV tables and the study_table.csv to the PRSKB database. By default, it uploads all tables in the specified 
+# association tables folder, but it can also upload only the association tables specified. It also has the option to clean out any tables not in the
+# association tables folder from the PRSKB database.
+#
+# How to run: python3 uploadTablesToDatabase.py "password" "associationTableFolderPath" "studyTableFolderPath" "cleanDatabase" "tablesToUpdate"
+# where: "password" is the password to the PRSKB database
+#        "associationTableFolderPath" is the path to the association CSV tables folder (default: "../tables/association_tables/")
+#        "studyTableFolderPath" is the path to the folder where the study_table.csv is stored (default: "../tables/")
+#        "cleanDatabase" is a boolean indicating whether the database should be cleaned of tables not found at the "associationTableFolderPath" or in "tablesToUpdate" (default: False)
+#        "tablesToUpdate" is a a pipe (|) separated list of trait names to be updated (default: "", or all tables found in "associationTableFolderPath") ex: "Alzheimer's disease|acne|osteoarthritis, hip"
 
 # creates a connection to the MySQL database using the given config dictionary
 # The config should be given in the following form:
@@ -41,7 +43,7 @@ def getConnection(config):
     else:
         return connection
 
-# returns true if 'tableName' exists in the MySQL database
+# returns true if "tableName" exists in the MySQL database
 def checkTableExists(cursor, tableName):
     exists = False
     cursor.execute("""
@@ -55,7 +57,7 @@ def checkTableExists(cursor, tableName):
     cursor.close()
     return exists
 
-# deletes 'dbTableName' from the database
+# deletes "dbTableName" from the database
 def deleteTable(cursor, dbTableName):
     if dbTableName == "studyMaxes":
         cursor.close()
@@ -64,7 +66,7 @@ def deleteTable(cursor, dbTableName):
     cursor.execute(sql)
     cursor.close()
 
-# creates 'dbTableName' and adds it to the database with no data
+# creates "dbTableName" and adds it to the database with no data
 def createTable(cursor, dbTableName):
     tableColumns = ""
     if dbTableName == "study_table":
@@ -93,9 +95,8 @@ def createFreshTable(config, tableName, dbTableName):
         print(dbTableName + " created")
     connection.close()
 
-# the same as the addDataToTable function except if there is an excception, it waits and
-    # then attepts to excecute it addDataToTable again (this catches the occational hitch where
-    # the table isn't created before the program tries to add data to it)
+# the same as the addDataToTable function except if there is an exception, it waits and then attepts to excecute addDataToTable again (this catches the 
+# occational hitch where the table isn't created before the program tries to add data to it)
 def addDataToTableCatch(config, tablesFolderPath, tableName, dbTableName):
     try:
         addDataToTable(config, tablesFolderPath, tableName, dbTableName)
@@ -105,7 +106,7 @@ def addDataToTableCatch(config, tablesFolderPath, tableName, dbTableName):
         sleep(0.1)
         addDataToTable(config, tablesFolderPath, tableName, dbTableName)
 
-# adds 'tableName' csv data to the 'dbTableName' table of the database
+# adds "tableName" csv data to the "dbTableName" table of the database
 def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     connection = getConnection(config)
     cursor = connection.cursor()
@@ -128,8 +129,7 @@ def getAllExistingTables(cursor):
     cursor.close()
     return existingTableNames
 
-# gets the trait name formated for website and database use
-  # all lowercase, spaces to underscores, forward slashes to dashes, and no commas or apostrophies
+# gets the trait name formated for website and database use (all lowercase, spaces to underscores, forward slashes to dashes, and no commas or apostrophies)
 def getDatabaseTableName(traitName):
     dbTableName = traitName.lower().replace(" ", "_").replace(
         ",", "").replace("/", "-").replace("'", "")[:64]
@@ -148,7 +148,7 @@ def usage():
         associationTablesFolderPath- the path to the association tables folder
         studyTableFolderPath- the path to the folder containing the study table (study_table.csv)
         cleanDatabase- optional boolean- if True, removes all non-updated tables from the DB
-        commaSeparatedTableString- optional list of table names to update, separated by a comma and a space (ex: "ad, als")
+        tablesToUpdate- optional list of table names to update, separated by a pipe (|) (ex: "Alzheimer's disease|acne|osteoarthritis, hip")
     """)
 
 # returns the path if it is valid, otherwise exits the program
@@ -157,15 +157,15 @@ def setPathWithCheck(path):
         return path
     else:
         print("\"" + path + "\" is not an existing path. Please check your arguments and try again.")
-        exit()
+        exit(1)
 
 def main():
     # the password for connecting to the database
     password = ""
     # the location of the association tables
-    associationTablesFolderPath = "./association_tables/"
+    associationTablesFolderPath = "../tables/association_tables/"
     # the location of the study table
-    studyTableFolderPath = os.getcwd().replace("\\", "/") + "/"
+    studyTableFolderPath =  "../tables/"
     # the boolean for whether the database should be cleaned of tables not found in "tablesToUpdate"
     cleanDatabase = False
     # a list of names of the tables that will be updated/added
@@ -203,10 +203,11 @@ def main():
         'allow_local_infile': True,
         'auth_plugin': 'mysql_native_password',
     }
+
     connection = getConnection(config)
 
-    # if cleanDatabase is True, removes all the tables in the database not listed in tablesToUpdate or if argv[5] is not specified,
-    # removes the all the tables in the database that are not csvs in the associationTablesFolderPath folder
+    # if cleanDatabase is True, removes all the tables in the database not listed in tablesToUpdate or if tablesToUpdate is not specified, removes all 
+    # the tables in the database that are not csvs in the associationTablesFolderPath folder
     if cleanDatabase:
         # gets the names of all tables in the database
         existingTables = getAllExistingTables(connection.cursor())
@@ -219,15 +220,14 @@ def main():
             "You are about to remove the following tables from the database " + str(existingTables))
         if input("Are you sure? (y/n)") != "y":
             print("Aborted by user.")
-            exit()
+            exit(1)
         else:
             print('Cleaning the database')
             for dbTableName in existingTables:
                 deleteTable(connection.cursor(), dbTableName)
                 print(dbTableName + " removed")
-    # gets the names of the tables to update from the commaSeparatedTableString, or if there is no
-    # commaSeparatedTableString, gets the tables to update from the csvs in the
-    # associationTablesFolderPath folder
+    # gets the names of the tables to update from the commaSeparatedTableString, or if there is no commaSeparatedTableString, gets the tables to 
+    # update from the csvs in the associationTablesFolderPath folder
     if len(tablesToUpdate) > 0:
         # check to see if the table paths in the commaSeparatedTableString exist
         invalidTableNames = []
@@ -237,10 +237,9 @@ def main():
             if not os.path.exists(pathToTableName):
                 invalidTableNames.append(tableName)
         if len(invalidTableNames) > 0:
-            print("The following csv tables don't exist: " +
-                  str(invalidTableNames))
+            print("The following csv tables don't exist: " + str(invalidTableNames))
             print("Please check your commaSeparatedTableString variable and try again.")
-            exit()
+            exit(1)
         else:
             # if all the csv tables exist, keep going
             print("Updating database tables: " + str(tablesToUpdate))
@@ -258,13 +257,11 @@ def main():
     for tableName in tablesToUpdate:
         dbTableName = getDatabaseTableName(tableName)
         createFreshTable(config, tableName, dbTableName)
-        addDataToTableCatch(
-            config, associationTablesFolderPath, tableName, dbTableName)
+        addDataToTableCatch( config, associationTablesFolderPath, tableName, dbTableName)
 
     # add the study_table to the database
     createFreshTable(config, "study_table", "study_table")
-    addDataToTableCatch(config, studyTableFolderPath,
-                        "study_table", "study_table")
+    addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
 
     print("Done!")
 
