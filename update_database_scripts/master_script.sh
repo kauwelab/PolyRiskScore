@@ -23,7 +23,7 @@ if [ $# -lt 2 ]; then
     echo "  [password]"
     echo "  [number of nodes to download data (default: 1)]"
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
-    echo "  [optional: path to association csvs folder (default: \"./association_tables/\")]"
+    echo "  [optional: path to association csvs folder (default: \"../tables/association_tables/\")]"
     echo "  [optional: path to study table folder (not same as association csvs folder) (default: \"./\")]"
     read -p "Press [Enter] key to quit..."
 # check if $2 is a number
@@ -48,8 +48,8 @@ else
     numGroups=$2
     # if $3, $4, or $5 aren't populated, set them to default values
     consoleOutputFolder=${3:-"./console_files/"}
-    associationTablesFolderPath=${4:-"./association_tables"} 
-    studyTableFolderPath=${5:-"./"}
+    associationTablesFolderPath=${4:-"../tables/association_tables/"} 
+    studyTableFolderPath=${5:-"../tables/"}
 
 #===============Creating Output Paths========================================================
     # if the default path doesn't exist, create it

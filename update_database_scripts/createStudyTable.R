@@ -2,7 +2,7 @@
 # to make a study table CSV. 
 #
 # How to run: RScript createStudyTable.R "path/to/association_tables/"
-# where "path/to/association_tables/" is the path to the folder where the association table CSV's are stored (default: "./association_tables/")
+# where "path/to/association_tables/" is the path to the folder where the association table CSV's are stored (default: "../tables/association_tables/")
 #
 # The format of the study table is as follows:
 # studyID pubMedID	trait	citation	studyScore	ethnicity	cohort	title	lastUpdated
@@ -19,7 +19,7 @@
 # get args from the commandline
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
-  args[1] <- "./association_tables/"
+  args[1] <- "../tables/association_tables/"
 }
 
 print("Initializing script!")

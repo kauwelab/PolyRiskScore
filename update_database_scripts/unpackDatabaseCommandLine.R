@@ -7,13 +7,13 @@
 
 #get args from the commandline- these are evaluated after imports section below
 #args:
-#1. output folder (default: "./association_tables/")
+#1. output folder (default: "../tables/association_tables/")
 #2. path to chain file folder (default: ".")
 #3. group number (default: 1)
 #4. number of times to run the program concurrently (default: 1)
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
-  args[1] <- "./association_tables/"
+  args[1] <- "../tables/association_tables/"
   args[2] <- "."
   args[3] <- 1
   args[4] <- 1
