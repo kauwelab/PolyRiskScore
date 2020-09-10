@@ -1,5 +1,22 @@
-#get args from the commandline
-#args[1]- path to association csv tables (default: "./association_tables/")
+# This script uses data from an existing folder populated with CSV trait data and the GWAS catalog acccessable via the gwasrapidd library 
+# to make a study table CSV. 
+#
+# How to run: RScript createStudyTable.R "path/to/association_tables/"
+# where "path/to/association_tables/" is the path to the folder where the association table CSV's are stored (default: "./association_tables/")
+#
+# The format of the study table is as follows:
+# studyID pubMedID	trait	citation	studyScore	ethnicity	cohort	title	lastUpdated
+# where: "studyID" is the unique ID assigned by the GWAS database
+#        "pubMedID" is the PubMed ID of the study
+#        "trait" is the name of the trait associated with the study
+#        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
+#        "studyScore" is the Altmetric score given to the study- it is a measure of the popularity of the study (see altmetric.com for more info)
+#        "ethnicity" a pipe (|) separated list of ethnicities involved in the study
+#        "cohort" a sum of the intitial sample size to the replication sample size of the study
+#        "title" the title of the study
+#        "lastUpdated" the date the study was last updated in the GWAS database
+
+# get args from the commandline
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
   args[1] <- "./association_tables/"
@@ -10,12 +27,12 @@ start_time <- Sys.time()
 
 studyTableDirPath <- args[1]
 
-##imports and import downloads----------------------------------------------------------------------------------------------------------------------
+## imports and import downloads (dupicate from master_script.sh)---------------------------------------------------------------------------------
 my_packages <- c("BiocManager", "rtracklayer", "remotes", "gwasrapidd", "tidyverse", "rAltmetric", "magrittr", "purrr")
 not_installed <- my_packages[!(my_packages %in% installed.packages()[ , "Package"])] # Extract not installed packages
 if(length(not_installed)) {
   print("Installing required packages, please wait...")
-  #packages with unique install procedures
+  # packages with unique install procedures
   if ("BiocManager" %in% not_installed) {
     install.packages("BiocManager", repos = "http://cran.us.r-project.org")
   }
@@ -28,14 +45,14 @@ if(length(not_installed)) {
   if ("gwasrapidd" %in% not_installed) {
     remotes::install_github("ramiromagno/gwasrapidd")
   }
-  #if there are still packages to install, do it
+  # if there are still packages to install, do it
   not_installed <- my_packages[!(my_packages %in% installed.packages()[ , "Package"])]
   if(length(not_installed)) {
     install.packages(not_installed, dependencies = TRUE, repos = "http://cran.us.r-project.org") # Install not installed packages
   }
 }
 
-#imports
+# imports
 suppressMessages(library(dplyr))
 suppressMessages(library(tidyverse))
 suppressMessages(library(gwasrapidd))
@@ -44,16 +61,16 @@ suppressMessages(library(rAltmetric))
 suppressMessages(library(magrittr))
 suppressMessages(library(purrr))
 
-##functions-----------------------------------------------------------------------------------------
+## functions-----------------------------------------------------------------------------------------
 
-#prints string by default unless isDev = FALSE- used for debugging
+# prints string by default unless isDev = FALSE- used for debugging
 DevPrint <- function(string, isDev = TRUE) {
   if (isDev) {
     print(string)
   }
 }
 
-#gets a tibble containing the results of a single Altmetrics query
+# gets a tibble containing the results of a single Altmetrics query
 getAltmetrics <- function(pubmed_id) {
   result <- tryCatch(altmetrics(pmid = pubmed_id) %>% altmetric_data(), error=function(err) {
     tibble("pmid" = character(), "score" = character()) %>%
@@ -62,7 +79,7 @@ getAltmetrics <- function(pubmed_id) {
   return(result)
 }
 
-#gets a tibble containing the results of a list of Altmetrics queries, with only pubmed_id and score selected
+# gets a tibble containing the results of a list of Altmetrics queries, with only pubmed_id and score selected
 getScoresList <- function(ids) {
   scores <- pmap_df(ids, getAltmetrics) %>%
     dplyr::rename(pubmed_id = pmid) %>%
@@ -71,12 +88,12 @@ getScoresList <- function(ids) {
   return(scores)
 }
 
-#given a studyID, returns the most recent date a snp has been updated
+# given a studyID, returns the most recent date a snp has been updated
 getLastUpdated <- function(studyID) {
   return(max(as.Date(get_associations(study_id = studyID)@associations$last_update_date)))
 }
 
-#given a list of studyIDs, returns a list of the most recent dates each study has been updated
+# given a list of studyIDs, returns a list of the most recent dates each study has been updated
 getLastUpdatedList <- function(studyIDs) {
   lastUpdatedList <- c()
   for (i in 1:length(studyIDs)) {
@@ -85,7 +102,7 @@ getLastUpdatedList <- function(studyIDs) {
   return(lastUpdatedList)
 }
 
-#sums all the numbers found in a string- used to calculate cohort size (if given a list, returns a list of nums)
+# sums all the numbers found in a string- used to calculate cohort size (if given a list, returns a list of nums)
 SumNumsFromString <- function(string){
   sums <- c()
   result <- 0
@@ -103,7 +120,7 @@ SumNumsFromString <- function(string){
   return(sums)
 }
 
-#adds two numbers, accounting for NAs. If both are NA, returns NA, otherwise treats NA as 0
+# adds two numbers, accounting for NAs. If both are NA, returns NA, otherwise treats NA as 0
 addWithNA <- function(var1, var2) {
   if (is.na(var1) && is.na(var2)){
     return(NA)
@@ -119,13 +136,12 @@ addWithNA <- function(var1, var2) {
   }
 }
 
-#given a study, adds the intitial sample size to the replication sample size and returns the resulting integer
+# given a study, adds the intitial sample size to the replication sample size and returns the resulting integer
 getCohort <- function(study) {
-  study <<- study
   return(addWithNA(SumNumsFromString(pull(study@studies["initial_sample_size"])), SumNumsFromString(pull(study@studies["replication_sample_size"]))))
 }
 
-#gets cohort size from each study
+# gets cohort size from each study
 getCohorts <- function(studies) {
   cohorts <- c()
   for (i in 1:nrow(studies@studies)) {
@@ -134,23 +150,24 @@ getCohorts <- function(studies) {
   return(cohorts)
 }
 
-#gets the trait name formated for website and database use
-  #all lowercase, spaces to underscores, forward slashes to dashes, and no commas or apostrophies
+# gets the trait name formated for website and database use (all lowercase, spaces to underscores, forward slashes to dashes, 
+# and no commas or apostrophies)
 getDatabaseTraitName <- function(traitName) {
   dbTraitName <- str_replace_all(str_replace_all(str_replace_all(str_replace_all(tolower(traitName), " ", "_"), ",", ""), "/", "-"), "'", "")
   return(dbTraitName)
 }
-#code body---------------------------------------------------------------------------------------------------
 
-#if the GWAS catalog is available
+# code body---------------------------------------------------------------------------------------------------
+
+# if the GWAS catalog is available
 if (is_ebi_reachable()) {
-  #Get all the csvs in the folder
+  # get all the csvs in the folder
   files <- list.files(path = studyTableDirPath, pattern = "\\.csv$")
   if (length(files) <= 0) {
     print(paste0("No CSV files at ", studyTableDirPath))
   }
   else {
-    #initialize table
+    # initialize table
     studyTable <- tibble("studyID" = character(0), "pubMedID" = character(0), "trait" = character(0), "citation" = character(0), "studyScore" = character(0), "ethnicity" = character(0), "cohort" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
 
     DevPrint(paste0("Startup took ", format(Sys.time() - start_time)))
@@ -158,28 +175,29 @@ if (is_ebi_reachable()) {
     
     for (i in 1:length(files)) {
       tryCatch({
-        #get name of trait from name of csv file
+        # get name of trait from name of csv file
         traitName <- substr(files[i], 0, nchar(files[i])-4)
-        traitName <- str_replace_all(traitName, "ö", "o") #removes the ö from Löfgren's syndrome to make it easier to put it in the database
-        #read the csv file and get its studyIDs
+        # TODO make this more robust
+        traitName <- str_replace_all(traitName, "ö", "o") # removes the ö from Löfgren's syndrome to make it easier to put it in the database
+        # read the csv file and get its studyIDs
         filePath = paste0(studyTableDirPath, files[i])
         csvTable <- read.csv(filePath) %>%
           group_by(studyID) %>%
           distinct(studyID, .keep_all = TRUE) %>%
           select(studyID, citation)
         studyIDs <- as.character(unlist(csvTable$studyID))
-        #from the studyIDs, get their information from the GWAS catalog
+        # from the studyIDs, get their information from the GWAS catalog
         studies <- get_studies(study_id = studyIDs)
         
         publications <- distinct(studies@publications, study_id, .keep_all = TRUE)
         citations <- tibble(citation = paste(publications$author_fullname, substr(publications$publication_date, 1, 4)))
         
-        #get an Altmetric score for each pubMedID and association pubMedID to score in dictionary-like form
+        # get an Altmetric score for each pubMedID and association pubMedID to score in dictionary-like form
         pubMedIDs <- as.character(publications$pubmed_id)
         pubMedIDToScoreTibble <- getScoresList(list(pubMedIDs))
         pubMedIDToScoreDict <- with(pubMedIDToScoreTibble, setNames(score, pubmed_id))
         
-        #create a dictionary-like object with study_ids as keys and ancestry strings as values (used for the ethnicity column)
+        # create a dictionary-like object with study_ids as keys and ancestry strings as values (used for the ethnicity column)
         ethnicity <- select(studies@ancestral_groups, -ancestry_id) %>%
           group_by(study_id) %>%
           mutate(ethnicity = str_replace_all(paste0(unique(ancestral_group[!is.na(ancestral_group)]), collapse = "|"), ",", "")) %>%
@@ -187,14 +205,16 @@ if (is_ebi_reachable()) {
           select(-ancestral_group) %>%
           dplyr::rename(studyID = "study_id")
         ethnicity <- full_join(tibble(studyID = studyIDs), ethnicity, by = "studyID")
-#-------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
         
-        #match studyID to the most recent time the study was updated, then get the lastUpdated list in order
+        # match studyID to the most recent time the study was updated, then get the lastUpdated list in order
         lastUpdatedTibble <- tibble(studyID = studyIDs)
         lastUpdatedTibble <- add_column(lastUpdatedTibble, lastUpdated = getLastUpdatedList(lastUpdatedTibble$studyID))
         lastUpdated = as.character(lastUpdatedTibble$lastUpdated)
         
         cohort <- getCohorts(studies)
+
+        # populate the studyTable with data from the study
         studyTable <- add_row(studyTable, 
                               studyID = studyIDs, 
                               pubMedID = pubMedIDs,
@@ -207,13 +227,15 @@ if (is_ebi_reachable()) {
                               lastUpdated = lastUpdated)
         
         DevPrint(paste0(i, " of ", length(files), " ", traitName, " complete with ", length(studyIDs), " studies."))
+
+        # print out a time stamp for how long the script has taken so far
         if (mod(i, 5) == 0) {
           print(paste0("Time elapsed: ", format(Sys.time() - start_time)))
         }
       }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
     }
     studyTable <- arrange(studyTable, trait, studyID)
-    #write out the trait and study tables
+    # write out the trait and study tables
     write.csv(studyTable, file.path(getwd(), "study_table.csv"), row.names=FALSE, fileEncoding = "UTF-8")
   }
 } else {
