@@ -7,6 +7,13 @@ import os
 from os import getcwd
 from sys import argv
 
+# This script prints two sets, a set of updated traits and a set of updated study IDs. It compares the lastUpdated values between the database study 
+# table and the study table found at the path indicated. The sets are printed instead of returned so a shell script can interpret them.
+#
+# How to run: python3 getUpdatedStudiesAndTraitsLists.py "password" "studyTableFolderPath"
+# where: "password" is the password to the PRSKB database
+#        "studyTableFolderPath" is the path to the folder where the study_table.csv is stored
+
 # returns a string representation of the date format of the date given the date format is 
 # obtained by trying different date formats until the correct one is found
 def getDateFormat(date):
@@ -40,10 +47,10 @@ def getDatabaseStudyTable(config):
     # turn the sql statement results into a dictionary
     dateFormat = ""
     for (studyID, pubMedID, trait, lastUpdated) in cursor:
-        # if the date format hasn't been found yet, find it (this has to be done in the for loop)
-        # so that no row is lost from the cursor
+        # if the date format hasn't been found yet, find it (this has to be done in the for loop so that no row is lost from the cursor)
         if dateFormat == "":
             dateFormat = getDateFormat(lastUpdated)
+        # convert the date string to a datetime object
         lastUpdatedDate = datetime.datetime.strptime(lastUpdated, dateFormat)
         databaseStudyTableDict[studyID] = [pubMedID, trait, lastUpdatedDate]
     
@@ -74,8 +81,10 @@ def getNewStudyTable(config, studyTableFolderPath):
             pubMedID =  row[pubMedIDIndex]
             trait =  row[traitIndex]
             lastUpdated =  row[lastUpdatedIndex]
+            # if the date format hasn't been found yet, find it (this has to be done in the for loop so that no row is lost from the cursor)
             if dateFormat == "":
                 dateFormat = getDateFormat(lastUpdated)
+            # convert the date string to a datetime object
             lastUpdatedDate = datetime.datetime.strptime(lastUpdated, dateFormat)
 
             newStudyTable[studyID] = [pubMedID, trait, lastUpdatedDate]
@@ -108,17 +117,17 @@ def getUpdatedStudiesAndTraits(databaseStudyTable, newStudyTable):
                 updatedStudies.add(newStudyTableID)
                 # add trait
                 updatedTraits.add(newDictVal[1])
-                print("\"{}\" was updated for: {}".format(newStudyTableID, newDictVal[1]))
+                print("\"{}\" was updated for {}".format(newStudyTableID, newDictVal[1]))
             # if the date of the new table is older than the database table, print a warning- this shouldn't happen!
             elif newDate < databaseDate:
-                print("Warning: the new date from the study table is older than the database date. This shouldn't happen!")
+                print("Warning: the new date from the study table for " + newStudyTableID + " is older than the database date. This shouldn't happen!")
         # if the study is not in the database study table, add it to the set to be updated
         else:
             # add study
             updatedStudies.add(newStudyTableID)
             # add trait
             updatedTraits.add(newDictVal[1])
-            print("The new study \"{}\" was added to: {}".format(newStudyTableID, newStudyTable[newStudyTableID][1]))
+            print("The new study \"{}\" was added to {}".format(newStudyTableID, newStudyTable[newStudyTableID][1]))
 
     return updatedStudies, updatedTraits
 
@@ -177,9 +186,9 @@ def main():
     #if there are too many arguments, quit
     if len(argv) > 3:
         # if too many arguments are provided
-        print("Too many arguments!")
+        print("Too many arguments: " + str(argv))
         usage()
-        exit("Too many arguments: " + str(argv))
+        exit(1)
 
     # set other default variables
     config = {
