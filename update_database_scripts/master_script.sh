@@ -1,12 +1,20 @@
 #!/bin/bash
 
-# command to run:
-# sudo ./master_script.sh "password" "numNodes" &> outputFile.txt &
+# This script calls the other scripts in the folder to:
+#   1. download data from the GWAS catalog, 
+#   2. put the data in association tables,
+#   3. create a study table,
+#   4. find new and updated studies and traits, 
+#   5. and upload these studies and traits to the PRSKB database. 
+# It usually takes 6ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
+# you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
+# console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
+#
+# How to run: sudo ./master_script.sh "password" "numNodes" &> output.txt &
 # where "password" is the password to the PRSKB database
 #       "numNodes" is the number of times the GWAS database will be divided for download (higher is better for beefy computers)
 #       "outputFile.txt" is the file where terminal output will be stored
-# Note: this command will take many hours to run, but runs in the background. 
-# This means you can leave the server and it will keep running!
+# See below for other optional arguments
 
 #===============Argument Handling================================================================
 if [ $# -lt 2 ]; then
@@ -74,7 +82,9 @@ else
     # get updated studies and traits
     echo "Getting the updated studies and traits lists."
     output=`python3 getUpdatedStudiesAndTraitsLists.py "$password" "$studyTableFolderPath"`
+    # 1 if there was an error executing getUpdatedStudiesAndTraitsLists.py, 0 if there was no error
     updatedListsReturnCode=$?
+    # read the output into an array of lines
     readarray -t arrayOutput <<<"$output"
 
     # if the getUpdatedStudiesAndTraitsLists exited with errors, print the errors and abort
@@ -88,9 +98,7 @@ else
         exit 1
     fi
 
-    # print all but the last 3 lines, two of which are the updated studies 
-    # and trait lists and the last is an empty line (for the error code)
-
+    # print all but the last 3 lines, two of which are the updated studies and trait lists and the last is an empty line (not sure why)
     END=${#arrayOutput[@]}-3
     for ((i=0;i<=END;i++)); do
         echo ${arrayOutput[$i]}
@@ -100,13 +108,17 @@ else
     updatedStudies=$(echo ${arrayOutput[$i]} | sed -e 's/\r\n//g')
     updatedTraits=$(echo ${arrayOutput[$i+1]} | sed -e 's/\r\n//g')
 
+    # send the updatedStudies to a txt file
     echo $updatedStudies > updatedStudies.txt
-    echo "Printed out updated studies to updatedStudies.txt for LD clumping script."
+    # send the updatedTraits to a txt file
+    echo $updatedTraits > updatedTraits.txt
+    echo "Printed out updated studies to updatedStudies.txt and updated traits to updatedTraits.txt for LD clumping script."
 
     # add a space between sections in the output
     echo ""
 
 #===============Upload Tables to PRSKB Database========================================================
+    # if updatedStudies is empty or none, dont' upload, otherwise upload new tables
     if [ -z "$updatedStudies" ] || [ "$updatedStudies" == "none" ]; then
         echo -e "No GWAS catalog tables have been updated, so no tables were updated or uploaded to the PRSKB database.\n"
     else
