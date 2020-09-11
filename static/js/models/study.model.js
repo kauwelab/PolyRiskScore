@@ -130,8 +130,14 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                 appendor = "AND (";
                 for(j=0; j < ethnicities.length; j++){
                     //TODO check for "unspecified/blank" ethnicity studies
-                    subQueryString = subQueryString.concat(appendor).concat(` ethnicity LIKE '%${ethnicities[j]}%' `);
-                    appendor = "OR";
+                    if (ethnicities[j] == "unspecified") {
+                        subQueryString = subQueryString.concat(appendor).concat(` ethnicity = '' OR ethnicity = ' ' `);
+                        appendor = "OR";
+                    }
+                    else {
+                        subQueryString = subQueryString.concat(appendor).concat(` ethnicity LIKE '%${ethnicities[j]}%' `);
+                        appendor = "OR";
+                    }
                 }
                 //if the appendor has been updated, then close the parenthesis
                 if (appendor !== "AND (") {
@@ -171,6 +177,7 @@ Study.getByID = (ids, result) => {
         result(null, res);
     })
 }
+
 Study.findStudy = (searchStr, result) => {
     sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {

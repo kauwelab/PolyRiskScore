@@ -2,6 +2,7 @@ module.exports = app => {
     const studies = require("../controllers/studies.controller");
     const associations = require("../controllers/associations.controller");
     const clumps = require("../controllers/clumps.controller");
+    const cli = require("../controllers/cli.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -16,7 +17,7 @@ module.exports = app => {
     app.get("/get_all_studies", studies.getAll);
 
     // Retrieves study general data for specified studies
-    app.get("/get_studies", studies.getFiltered);
+    app.post("/get_studies", studies.getFiltered);
 
     // Retrieves study data using a list of study ids
     app.get("/get_studies_by_id", studies.getStudyByID);
@@ -25,7 +26,7 @@ module.exports = app => {
     app.get("/find_studies/:searchStr", studies.findStudies);
 
     // Retrieves applicable associations given correct query parameters -> see association.model.js
-    app.get("/get_associations", associations.getFromTables);
+    app.post("/get_associations", associations.getFromTables);
 
     // Returns all associations for all traits and diseases, given the correct query params
     // organized {trait: {studies: [associations]}}
@@ -35,4 +36,8 @@ module.exports = app => {
 
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
+
+    app.get("/cli_version", cli.version);
+
+    app.get("/download_cli", cli.download);
 }
