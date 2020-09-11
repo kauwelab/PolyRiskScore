@@ -240,21 +240,21 @@ runPRS () {
         echo -e "The file${LIGHTRED} ${args[1]} ${NC}does not exist."
         echo "Check the path and try again."
         read -p "Press [Enter] key to quit..."
-    elif ! [[ "${args[2]}" =~ .csv|.json|.txt$ ]]; then
-        echo -e "${LIGHTRED} ${args[2]} ${NC} is not in the right format."
+    elif ! [[ "${args[2]}" =~ .csv$|.json$|.txt$ ]]; then
+        echo -e "${LIGHTRED}${args[2]} ${NC} is not in the right format."
         echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
         read -p "Press [Enter] key to quit..."
     elif ! [[ "${args[3]}" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-        echo -e "${LIGHTRED} ${args[3]} ${NC} is your p-value, but it is not a number."
+        echo -e "${LIGHTRED}${args[3]} ${NC} is your p-value, but it is not a number."
         echo "Check the value and try again."
         read -p "Press [Enter] key to quit..."
-    elif ! [[ "${args[4]}" =~ ^hg17|hg19|hg18|hg38$ ]]; then
-        echo -e "${LIGHTRED} ${args[4]} ${NC} should be hg17, hg18, hg19, or hg38"
+    elif ! [[ "${args[4]}" =~ ^hg17$|^hg19$|^hg18$|^hg38$ ]]; then
+        echo -e "${LIGHTRED}${args[4]} ${NC}should be hg17, hg18, hg19, or hg38"
         echo "Check the value and try again."
         read -p "Press [Enter] key to quit..."
     #AFR, AMR, EAS, EUR, SAS (add code to make case insensitive)
-    elif ! [[ "${args[5]}" =~ ^AFR|AMR||EAS|EUR|SAS$ ]]; then
-        echo -e "${LIGHTRED} ${args[5]} ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+    elif ! [[ "${args[5]}" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
+        echo -e "${LIGHTRED}${args[5]} ${NC} should be AFR, AMR, EAS, EUR, or SAS."
         echo "Check the value and try again."
         read -p "Press [Enter] key to quit..."
     else
@@ -407,21 +407,21 @@ elif [ ! -f "$1" ]; then
     echo -e "The file${LIGHTRED} $1 ${NC}does not exist."
     echo "Check the path and try again."
     read -p "Press [Enter] key to quit..."
-elif ! [[ "$2" =~ .csv|.json|.txt$ ]]; then
-    echo -e "${LIGHTRED} $2 ${NC} is not in the right format."
+elif ! [[ "$2" =~ .csv$|.json$|.txt$ ]]; then
+    echo -e "${LIGHTRED}$2 ${NC} is not in the right format."
     echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
     read -p "Press [Enter] key to quit..."
 elif ! [[ "$3" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-    echo -e "${LIGHTRED} $3 ${NC} is your p-value, but it is not a number."
+    echo -e "${LIGHTRED}$3 ${NC} is your p-value, but it is not a number."
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
-elif ! [[ "$4" =~ ^hg17|hg18|hg19|hg38$ ]]; then
-    echo -e "${LIGHTRED} $4 ${NC} should be hg17, hg18, hg19, or hg38"
+elif ! [[ "$4" =~ ^hg17$|^hg18$|^hg19$|^hg38$ ]]; then
+    echo -e "${LIGHTRED}$4 ${NC}should be hg17, hg18, hg19, or hg38"
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
 #AFR, AMR, EAS, EUR, SAS (add code to make case insensitive)
-elif ! [[ "$5" =~ ^AFR|AMR|EAS|EUR|SAS$ ]]; then
-    echo -e "${LIGHTRED} $5 ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+elif ! [[ "$5" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
+    echo -e "${LIGHTRED}$5 ${NC} should be AFR, AMR, EAS, EUR, or SAS."
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
 else
