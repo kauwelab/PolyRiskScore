@@ -34,6 +34,8 @@ module.exports = app => {
 
     app.get("/all_snps", associations.getAllSnps);
 
+    app.get("/single_snp_from_each_study", associations.getSingleSnpFromEachStudy)
+
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 

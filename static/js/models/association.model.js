@@ -100,4 +100,34 @@ Association.getAllSnps = result => {
     });
 }
 
+Association.getSingleSnpFromEachStudy = result => {
+    sql.query(`SELECT DISTINCT trait FROM study_table`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        console.log("num Traits: ", res.length);
+        queryString = ""
+        // turn traits into table names 
+        for (i = 0; i < res.length; i++) {
+            trait = formatter.formatForTableName(res[i].trait)
+            queryString = queryString.concat(`SELECT snp, riskAllele, hg19 FROM \`${trait}\` WHERE id IN ( SELECT min(id) FROM \`${trait}\` GROUP BY studyID ); `)
+        }
+
+        sql.query(queryString, (err2, data) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+
+            console.log(data)
+            result(null, data)
+        })
+
+    });
+}
+
 module.exports = Association;

@@ -90,6 +90,22 @@ exports.getAllSnps = (req, res) => {
     })
 }
 
+exports.getSingleSnpFromEachStudy = (req, res) => {
+    Association.getSingleSnpFromEachStudy((err,data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            console.log(data)
+            res.send(data);
+        }
+    })
+}
+
 async function separateStudies(associations, refGen) {
     var studiesAndAssociations = {}
     for (j = 0; j < associations.length; j++) {
