@@ -10,7 +10,7 @@ version="1.0.0"
 # 
 # * 8/28/2020 - v1.0.0  - First Creation
 #   Parameter order:
-#       1 VCF file path
+#       1 VCF file path OR rsIDs file path 
 #       2 output file path (csv or txt format)
 #       3 p-value cutoff (ex: 0.05)
 #       4 refGen {hg17, hg18, hg19, hg38}
@@ -47,7 +47,7 @@ prskbMenu () {
 
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}[VCF file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}[VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
@@ -99,7 +99,7 @@ learnAboutParameters () {
         echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
         echo    "|                                             |"
         echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                            |"
-        echo -e "| ${LIGHTPURPLE}1${NC} - VCF File                                |"
+        echo -e "| ${LIGHTPURPLE}1${NC} - VCF File or rsIDs:genotypes file        |"
         echo -e "| ${LIGHTPURPLE}2${NC} - Output file                             |"
         echo -e "| ${LIGHTPURPLE}3${NC} - P-value Cutoff                          |"
         echo -e "| ${LIGHTPURPLE}4${NC} - RefGen                                  |"
@@ -118,9 +118,12 @@ learnAboutParameters () {
         echo ""
 
         case $option in 
-            1 ) echo -e "${MYSTERYCOLOR} VCF File path: ${NC}" 
+            1 ) echo -e "${MYSTERYCOLOR} VCF File path or rsIDs:genotypes file path: ${NC}" 
                 echo "The path to the VCF file that contains the samples for which you would like " 
-                echo "the polygenic risk scores calculated."
+                echo "the polygenic risk scores calculated. Alternativly, the path to a TXT file that"
+                echo "contains rsIDs in the format of 1 rsID per line, with the genotypes following"
+                echo "on the same line. (ex. rs6656401:AA or rs6656401:A) In this format, we will"
+                echo "assume that any missing alleles are the risk allele."
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR} Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
