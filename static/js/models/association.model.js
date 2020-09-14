@@ -130,4 +130,34 @@ Association.getSingleSnpFromEachStudy = result => {
     });
 }
 
+Association.searchMissingRsIDs = result => {
+    sql.query(`SELECT DISTINCT trait FROM study_table`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        console.log("num Traits: ", res.length);
+        queryString = ""
+        // turn traits into table names 
+        for (i = 0; i < res.length; i++) {
+            trait = formatter.formatForTableName(res[i].trait)
+            queryString = queryString.concat(`SELECT * FROM \`${trait}\` WHERE snp = "" or snp = " " or snp IS NULL; `)
+        }
+
+        sql.query(queryString, (err2, data) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+
+            console.log(data)
+            result(null, data)
+        })
+
+    });
+}
+
 module.exports = Association;
