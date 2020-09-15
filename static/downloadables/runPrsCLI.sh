@@ -225,7 +225,7 @@ runPRS () {
     echo "usage is given below for your convenience (You don't need to include ./runPRS.sh) "
     echo ""
     usage
-    read -p "./runPRS.sh " args
+    read -p "./runPrsCLI.sh " args
     #args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
     apostrophe="'"
     backslash='\'
@@ -234,11 +234,7 @@ runPRS () {
     argc=$#
     args=${args//${apostrophe}/${backslash}${apostrophe}}
     args=$(echo "$args" | sed ':a;s/^\(\([^"]*"[^"]*"[^"]*\)*[^"]*"[^"]*\) /\1_/;ta')
-   # args=$(echo "$args" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
-    echo "args:"
-    echo "$args"
     args=( $(xargs -n1 -0 <<<"$args") )
-    echo "$args"
     # TODO: put the validity check here for variables. 
     calculatePRS ${args[@]}
     exit;
@@ -248,8 +244,6 @@ calculatePRS () {
     checkForNewVersion
     
     args=("${@:6}")
-    echo "sub string args"
-    echo "$args"
 
     trait=0
     studyType=0
@@ -261,10 +255,6 @@ calculatePRS () {
     studyIDsForCalc=()
     ethnicityForCalc=()
 
-    echo "if statement args"
-    echo "${#args[@]}"
-    echo "for loop args"
-    echo "${args[@]}"
 
     if [ ${#args[@]} -gt 0 ]; then
         for arg in "${args[@]}";
@@ -320,8 +310,6 @@ calculatePRS () {
     export ethnicities=${ethnicityForCalc[@]}
 
     
-    echo "traits:"
-    echo "$traits"
     res=$(python3 -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
