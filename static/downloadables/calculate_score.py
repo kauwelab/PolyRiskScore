@@ -5,6 +5,9 @@ import tarfile
 import gzip
 from collections import defaultdict
 from collections import namedtuple
+import json
+import requests
+import math
 
 
 def urlWithParams(url, params):
@@ -23,12 +26,17 @@ def convertRefGen(chrom, pos, refGen):
     return final_pos
 
 def calculateScore(inputFile, diseaseArray, pValue, outputType, tableObjList, refGen, superPop):
+    sample = open('samplefile.txt', 'w') 
+  
     tableObjList = json.loads(tableObjList)
     if (inputFile.endswith(".txt") or inputFile.endswith(".TXT")):
         posList, pos_pval_map, studyIDs, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen, True)
-        txtObj, totalVariants = parse_vcf(inputFile, posList, pos_pval_map, refGen, diseaseStudyIDs, studyIDs, superPop)
-        results = calculations(tableObjList, txtObj,
+        txtObj, totalVariants = parse_txt(inputFile, posList, pos_pval_map, diseaseStudyIDs, studyIDs, superPop)
+        results = txtcalculations(tableObjList, txtObj,
                             totalVariants, pValue, refGen, outputType)
+
+        print(results, file = sample) 
+        sample.close() 
         return(results)
 
     else:
@@ -406,7 +414,7 @@ def formatCSV(results):
                 oddsRatio = studyEntry['oddsRatio']
                 percentile = studyEntry['percentile']
                 numSNPsinOR = studyEntry['numSNPsIncluded']
-                if (name != "fromTextFile")
+                if (name != "fromTextFile"):
                     chromPosinOR = ";".join(studyEntry['chromPositionsIncluded'])
                 snpsinOR = ";".join(studyEntry['snpsIncluded'])
                 line = str(name) + "," + str(diseaseName) + "," + str(study) + "," + str(oddsRatio) + "," + \
