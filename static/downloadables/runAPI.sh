@@ -214,16 +214,29 @@ runPRS () {
     echo ""
     usage
     read -p "./runPRS.sh " args
-    args=$(echo "$args" | sed -r "s/([a-zA-Z])(')([a-zA-z])/\1\\\\\2\3/g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
+    #args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
+    apostrophe="'"
+    backslash='\'
+    space=" "
+    underscore="_"
+    argc=$#
+    args=${args//${apostrophe}/${backslash}${apostrophe}}
+    args=$(echo "$args" | sed ':a;s/^\(\([^"]*"[^"]*"[^"]*\)*[^"]*"[^"]*\) /\1_/;ta')
+   # args=$(echo "$args" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
+    echo "args:"
+    echo "$args"
     args=( $(xargs -n1 -0 <<<"$args") )
-    echo "${args[@]}" 
+    echo "$args"
     # TODO: put the validity check here for variables. 
     calculatePRS ${args[@]}
     exit;
 }
 
 calculatePRS () {
+    echo "in calculate prs"
     args=("${@:6}")
+    echo "sub string args"
+    echo "$args"
 
     trait=0
     studyType=0
@@ -235,10 +248,16 @@ calculatePRS () {
     studyIDsForCalc=()
     ethnicityForCalc=()
 
+    echo "if statement args"
+    echo "${#args[@]}"
+    echo "for loop args"
+    echo "${args[@]}"
+
     if [ ${#args[@]} -gt 0 ]; then
         for arg in "${args[@]}";
         do
             if [ "$arg" = "--t" ]; then
+		echo "in --t"
                 trait=1
                 studyType=0
                 studyID=0
@@ -259,9 +278,6 @@ calculatePRS () {
                 studyID=0
                 ethnicity=1
             elif [ $trait -eq 1 ] ; then
-<<<<<<< HEAD
-=======
->>>>>>> 6eff09b34e8f410834a37eff6f1805a305a41fc4
                 traitsForCalc+=("$arg")
             elif [ $studyType -eq 1 ] ; then
 		if [ $arg != "HI" ] && [ "$arg" != "LC" ] && [ $arg != "O" ]
@@ -290,7 +306,10 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    res=$(python3 -c "import vcf_parser_grep_test as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
+    
+    echo "traits:"
+    echo "$traits"
+    res=$(python3 -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
     read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
