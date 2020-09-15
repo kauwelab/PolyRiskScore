@@ -160,7 +160,10 @@ Association.searchMissingRsIDs = result => {
     });
 }
 
+//get all SNPS for each study that has the ethnicities specified
 Association.snpsByEthnicity = (ethnicities, result) => {
+
+    //select traits and studyIDs from the study table associated with the given ethnicities
     queryString = ""
     for (i = 0; i < ethnicities.length; i++) {
         queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
@@ -175,15 +178,19 @@ Association.snpsByEthnicity = (ethnicities, result) => {
 
         queryString = ""
 
+        //get snps associated with the studyIDs found above 
         for (i = 0; i < res.length; i++) {
+            //if there is more than one ethnicity in the selector, select the SNPs for each study
             if(ethnicities.length > 1) {
                 for (j = 0; j < res[i].length; j++) {
-                    //TODO clean this to remove duplicate code
+                    //TODO clean to remove duplicate code
                     trait = formatter.formatForTableName(res[i][j].trait)
                     queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i][j].studyID}'; `)
                 }
             }
+            //if there is only on ethnicity in the selector, only select SNPs for the studies in that ethnicity
             else {
+                //TODO clean to remove duplicate code
                 trait = formatter.formatForTableName(res[i].trait)
                 queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i].studyID}'; `)
             }
@@ -196,15 +203,22 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 return;
             }
 
+            //convert the results to the correct format
             results = []
-
+            //handling for more than one ethnicity
             if (ethnicities.length > 1) {
+                //TODO clean to remove duplicate code
+                //for each ethnicity
                 for (i = 0; i < res.length; i++) {
                     ethnicity = ethnicities[i]
+
+                    //for each study
                     studyObjs = []
                     for (j = 0; j < res[i].length; j++) {
                         studyID = res[i][j].studyID
                         snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
+
+                        //for each row in the study
                         snps = []
                         for (k = 0; k < data[snpIndex].length; k++) {
                             snps.push(data[snpIndex][k].snp)
@@ -223,13 +237,17 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                     results.push(ethnicityObj)
                 }
             }
+            //handling for a single ethnicity
             else {
+                //TODO clean to remove duplicate code
                 console.log(res.length)
                 studyObjs = []
                 ethnicity = ethnicities[0]
+                //for each study
                 for (i = 0; i < res.length; i++) {
                     studyID = res[i].studyID
                     snps = []
+                    //for each row in the study
                     for (k = 0; k < data[i].length; k++) {
                         snps.push(data[i][k].snp)
                     }
