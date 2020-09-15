@@ -15,6 +15,7 @@ import datetime
 import re
 
 def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
+    abc = open("test_output.txt", "a")
     if traits != "":
         traits = traits.split(" ")
     else:
@@ -26,6 +27,7 @@ def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
     if (studyTypes is None and studyIDs is None and ethnicity is None):
+        abc.write("in get all\n")
         toReturn = getAllAssociations(pValue, refGen, traits)
     else:
         toReturn = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
@@ -34,9 +36,16 @@ def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
 
 
 def getAllAssociations(pValue, refGen, traits = ""): 
-    if traits == "":
+    abc = open("test_output.txt", "a")
+    if traits == []:
         traits = getAllTraits()
+        abc.write("traits from getAllTraits\n")
+        abc.write(str(traits))
     associations = getAssociations("https://prs.byu.edu/all_associations", traits, pValue, refGen)
+    abc.write("\nassociations\n")
+    abc.write(str(associations))
+    abc.write(str(associations))
+    abc.write('\n')
     return formatAssociationsForReturn(associations)
 
 
@@ -44,7 +53,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
     studyIDspecificData = {}
 
     if (studyIDs is not None):
-        url_get_by_study_id = "https://prs.byu.edu/get_studies"
+        url_get_by_study_id = "https://prs.byu.edu/get_studies_by_id"
         params = {
             "ids": studyIDs
         }
@@ -90,6 +99,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
 
 
 def getAssociations(url, traits, pValue, refGen, turnString = None):
+    abc = open("test_output.txt", "a")
     associations = {}
     h=0
     for i in range(25, len(traits), 25):
@@ -98,6 +108,9 @@ def getAssociations(url, traits, pValue, refGen, turnString = None):
             "pValue": pValue,
             "refGen": refGen
         }
+        abc.write("\nparams for urlwithparams\n")
+        abc.write(str(params))
+        abc.write('\n')
         associations = {**associations, **urlWithParams(url, params)}
         h = i
     else:
@@ -106,6 +119,9 @@ def getAssociations(url, traits, pValue, refGen, turnString = None):
             "pValue": pValue,
             "refGen": refGen
         }
+        abc.write("\nparams for urlwithparams\n")
+        abc.write(str(params))
+        abc.write('\n')
         associations = {**associations, **urlWithParams(url, params)}
     return associations
 
@@ -133,7 +149,7 @@ def getAllTraits():
 def urlWithParams(url, params):
     response = requests.get(url=url, params=params)
     response.close()
-    assert (response), "THIS TRAIT IS NOT YET INCLUDED IN OUR DATABASE. Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()  
 
 def convertRefGen(chrom, pos, lo):
@@ -157,6 +173,7 @@ def calculateScore(vcfFile, diseaseArray, pValue, outputType, tableObjList, refG
 
 
 def getSNPsFromTableObj(tableObjList, refGen):
+    abc = open("test_output.txt", "a")
     lo = LiftOver(refGen, 'hg38')
     posListMap = {}
     posList = []
@@ -168,23 +185,49 @@ def getSNPsFromTableObj(tableObjList, refGen):
             diseaseStudyIDs.append((diseaseEntry, studyID))
             studyIDs.append(studyID)
             for row in tableObjList[diseaseEntry][studyID]['associations']:
-                chrom = row['pos'].split(':')[0]
-                pos = row['pos'].split(':')[1]
-                if refGen != 'hg38':
-                    hg38_pos = convertRefGen(chrom, pos, lo)
-                else:
-                    hg38_pos = str(chrom) + ':' + str(pos)
-                pos_pval_map[studyID][hg38_pos] = row['pValue']
-                posList.append(row['pos'])
+                abc.write('\n')
+                abc.write("row association\n")
+                abc.write(str(row['pos']))
+                abc.write('\n')
+                abc.write(str(row))
+                abc.write('\n')
+                if row['pos'] != 'NA':
+                    chrom = row['pos'].split(':')[0]
+                    pos = row['pos'].split(':')[1]
+                    if refGen != 'hg38':
+                        hg38_pos = convertRefGen(chrom, pos, lo)
+                    else:
+                        hg38_pos = str(chrom) + ':' + str(pos)
+                
+                    pos_pval_map[studyID][hg38_pos] = row['pValue']
+                    posList.append(row['pos'])
             posListMap[studyID] = posList
     return posList, pos_pval_map, studyIDs, diseaseStudyIDs, lo
 
 def getClumps(studyIDs, superPop):
-    params = {
-    "studyIDs":studyIDs,
-    "superPop":superPop
-    }
-    res = urlWithParams("https://prs.byu.edu/ld_clumping", params)
+    h=0
+    res = {}
+    for i in range(25, len(studyIDs), 25):
+        params = {
+        "studyIDs":studyIDs[h:i],
+        "superPop":superPop
+        }
+        abc = open("test_output.txt", "a")
+        abc.write('\nclumps params\n')
+        abc.write(str(params))
+        abc.write('\n')
+        res = {**res, **urlWithParams("https://prs.byu.edu/ld_clumping", params)}
+        h = i
+    else:
+        params = {
+            "studyIDs":studyIDs[h:len(studyIDs)],
+            "superPop":superPop
+        }
+        abc.write('\nclumps params\n')
+        abc.write(str(params))
+        abc.write('\n')
+        res = {**res, **urlWithParams("https://prs.byu.edu/ld_clumping", params)}
+    abc.write(str(res))
     return res
 
 def parse_vcf(vcfFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, studyIDs, superPop):
@@ -217,6 +260,9 @@ def parse_vcf(vcfFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, study
     clumpMap = defaultdict(dict)
 
     output2 = open('output2.txt', 'w')
+    output2.write("clumps\n")
+    output2.write(str(clumps))
+    output2.write('\n\n\n')
     for study in clumps:
         for snpObj in clumps[study]:
             hg38_pos = snpObj['hg38_pos']
@@ -357,15 +403,18 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, refGen, lo, output
                         # Then compare to the data in each row of the study
                 for row in tableObjList[disease][studyID]['associations']:
                     output3.write("in new table object row\n")
-                    chrom = row['pos'].split(':')[0]
-                    pos = row['pos'].split(':')[1]
-                    if refGen != 'hg38':
-                        hg38_pos = convertRefGen(chrom, pos, lo)
+                    if row['pos'] != 'NA':
+                        chrom = row['pos'].split(':')[0]
+                        pos = row['pos'].split(':')[1]
+                        if refGen != 'hg38':
+                            hg38_pos = convertRefGen(chrom, pos, lo)
+                        else:
+                            hg38_pos = str(chrom) + ':' + str(pos)
+                        output3.write("hg38 pos: ")
+                        output3.write(hg38_pos)
+                        output3.write('\n')
                     else:
-                        hg38_pos = str(chrom) + ':' + str(pos)
-                    output3.write("hg38 pos: ")
-                    output3.write(hg38_pos)
-                    output3.write('\n')
+                        hg38_pos = "NA"
                     if allele != None:
                         # Compare the individual's snp and allele to the study row's snp and risk allele
                         if chromPos == hg38_pos and allele == row['riskAllele']:
@@ -443,9 +492,12 @@ def formatCSV(results):
                 numSNPsinOR = studyEntry['numSNPsIncluded']
                 chromPosinOR = ";".join(studyEntry['chromPositionsIncluded'])
                 snpsinOR = ";".join(studyEntry['snpsIncluded'])
-                line = str(name) + "," + str(diseaseName) + "," + str(study) + "," + str(oddsRatio) + "," + \
-                    str(percentile) + "," + str(numSNPsinOR) + \
-                    "," + str(chromPosinOR) + "," + str(snpsinOR)
+                if numSNPsinOR > 0:
+                    line = str(name) + "," + str(diseaseName) + "," + str(study) + "," + str(oddsRatio) + "," + \
+                        str(percentile) + "," + str(numSNPsinOR) + \
+                        "," + str(chromPosinOR) + "," + str(snpsinOR)
+                else:
+                    line = str(name) + "," + str(diseaseName) + "," + str(study) + "," + "NO VARIANTS FROM THIS STUDY WERE PRESENT IN THIS INDIVIDUAL"
                 finalText += "\n" + line
     finalText += '\n'
     return finalText

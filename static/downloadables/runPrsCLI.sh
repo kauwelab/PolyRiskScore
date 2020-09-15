@@ -44,7 +44,7 @@ listOptions () {
 
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runAPI.sh ${LIGHTRED}[VCF file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}[VCF file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
@@ -222,15 +222,13 @@ runPRS () {
     echo -e "${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
     echo "The calculator will run and then the program will exit. Enter the parameters "
     echo "as you would if you were running the program without opening the menu. The "
-    echo "usage is given below for your convenience (You don't need to include ./runPRS.sh) "
+    echo "usage is given below for your convenience (You don't need to include ./runPrsCLI.sh) "
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
     #args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
     apostrophe="'"
     backslash='\'
-    space=" "
-    underscore="_"
     argc=$#
     args=${args//${apostrophe}/${backslash}${apostrophe}}
     args=$(echo "$args" | sed ':a;s/^\(\([^"]*"[^"]*"[^"]*\)*[^"]*"[^"]*\) /\1_/;ta')
@@ -325,12 +323,12 @@ calculatePRS () {
     grep -w ${resArr[0]} "$1" > intermediate.vcf
     # prints out the tableObj string to a file so python can read it in
     # (passing the string as a parameter doesn't work because it is too large)
-    echo "Greped the VCF file"
+    echo "Filtered the input VCF file to include only the variants present in the PRSKB"
 
     outputType="csv" #this is the default
     #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
     python3 run_prs_grep.py intermediate.vcf "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
-    echo "Caculated score"
+    echo "Calculated score"
     rm intermediate.vcf
     rm tableObj.txt
     rm -r __pycache__
