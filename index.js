@@ -4,6 +4,7 @@ const path = require('path');
 const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars')
+var zip = require('express-easy-zip')
 //the shared code module between the browser and server
 const passwords = require('./static/js/passwords')
 
@@ -20,6 +21,7 @@ app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
 var busboy = require('connect-busboy'); //middleware for form/file upload
 app.use(busboy());
+app.use(zip());
 
 // API endpoints for get requests
 require("./static/js/routes/routes.js")(app);

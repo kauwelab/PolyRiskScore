@@ -26,6 +26,10 @@
   --danger: #dc3545;
   --light: #f8f9fa;
   --dark: #343a40;
+  --themeblue: #416d9d;
+  --themepurple: #525592;
+  --themegreen: #507874;
+  --themeyellow: #c49a5a;
   --breakpoint-xs: 0;
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;
@@ -49,7 +53,7 @@
 
 .one {
     width: 100%;
-    height: 25vw;
+    height: 30vw;
     overflow: hidden;
     margin-bottom: 0px;
     position: relative;
@@ -90,6 +94,7 @@ header video {
   width: auto;
   height: auto;
   z-index: -1;
+  background-color: rgba(0,0,0,0.25);
 
 	   
 
@@ -449,7 +454,7 @@ h6, .h6 {
 }
 
 .display-1 {
-  font-size: 8vw;
+  font-size: 6vw;
   font-weight: 300;
   line-height: 1.0;
 }
@@ -457,7 +462,7 @@ h6, .h6 {
 .display-2 {
   font-size: 5.5rem;
   font-weight: 300;
-  line-height: 1.2;
+  line-height: 1.0;
 }
 
 .display-3 {
@@ -3112,6 +3117,13 @@ fieldset:disabled a.btn {
   border-radius: 0.3rem;
 }
 
+.btn-bnnr, .btn-group-bnnr > .btn {
+  padding: .75vw 1.25vw;
+  font-size: 1.5vw;
+  line-height: 1.5;
+  border-radius: 0.3vw;
+}
+
 .btn-sm, .btn-group-sm > .btn {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
@@ -5244,12 +5256,12 @@ a.badge-dark:hover, a.badge-dark:focus {
 }
 
 .jumbotron {
-  padding: 2rem 1rem;
-  background-color: #DBF5FF;
+  padding: 1rem;
+  background-color: white;
   border-radius: 0.3rem;
 }
-.jumotron-white {
-  padding: 2rem 1rem;
+.jumbotron-white {
+  padding: 1rem;
   margin-bottom: 2rem;
   background-color: white;
   border-radius: 0.3rem;
@@ -5257,7 +5269,7 @@ a.badge-dark:hover, a.badge-dark:focus {
 
 @media (min-width: 576px) {
   .jumbotron {
-    padding: 4rem 2rem;
+    padding: 2rem;
   }
 }
 
@@ -6212,7 +6224,8 @@ a.close.disabled {
   margin: 0.3rem 0;
 }
 .drop-cap:first-child:first-letter {
-  color: rgba(223, 123, 0, 0.8);
+  color: tomato;
+  opacity: 75%;
   float: left;
   font-family: Georgia;
   font-size: 5em;
@@ -6292,16 +6305,35 @@ dfn:hover::before {top: 20px;}
 }
 
 .listItems a:hover {
-  background: #f3f3f3dc;
-  font-size: 1.3em;
+  /*background: #f3f3f3dc;*/
+  /* font-size: 1.3em; */
+  cursor: pointer;  
 }
+
+.grow_text {
+  -webkit-transition: font-size 0.3s ease;
+  -moz-transition: font-size 0.3s ease;
+  -o-transition: font-size 0.3s ease;
+  -ms-transition: font-size 0.3s ease;
+  transition: font-size 0.3s ease;
+}
+
+.grow_text:hover {
+  font-size: 2.7em;
+}
+
+.text_shadow:hover {
+  /*box-shadow: 0 6px 14px 0 rgba(0,0,0,0.5),0 4px 20px 0 rgba(0,0,0,0.5);*/
+  text-shadow: 2px 2px 5px #2192D3;
+}
+
 
 #flex-grid-container > .container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  margin: 3 5;
+  margin: 3 3;
 }
 
 .flex-grid-item-center {
@@ -6330,8 +6362,9 @@ dfn:hover::before {top: 20px;}
   margin-left: .5rem;
   margin-right: .5rem;
   text-align: left;
-  border-bottom: rgb(223, 122, 0);
+  border-bottom: rgba(255, 99, 71, 0.9);
   border-bottom-style: solid;
+  flex-grow: 1;
 }
 
 .bs-popover-left .arrow::before, .bs-popover-auto[x-placement^="left"] .arrow::before,

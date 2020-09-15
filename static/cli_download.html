@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title class="lead">Polygenic Risk Scores: API Documentation</title>
+  <!-- Bootstrap -->
+  <link href="css/topnav.css" rel="stylesheet">
+  <link href="css/banner.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <div id="topnav" class='topnav'>
+    <a href="index.html">HOME</a>
+    <a href="calculate_score.html">CALCULATE</a>
+    <a href="cite.html">CITE</a>
+    <a href="cli_download.html">DOWNLOAD</a>
+    <a href="about.html">ABOUT</a>
+    <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
+    <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+
+  <script>
+    function sidemenuFunction() {
+      var topnav = document.getElementById("topnav");
+      if (topnav.className.includes("responsive")) {
+        topnav.classList.remove("responsive");
+      } 
+      else {
+        topnav.classList.add("responsive");
+      }
+    }
+  </script>
+
+  <header>
+    <div class="banner">
+      <img src="/images/dnaCalcBanner.jpg" width="100%" style="overflow: hidden;">
+      <div class="centered-title">Using the PRSKB Command Line Interface Tool</div>
+    </div>
+  </header>
+
+  <section>
+    <div class="jumbotron">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <p class="lead"><br>Here, we outline how to download and use the CLI on your own computer, and thus gain the
+              capability to submit VCF files to the analysis pipeline via the command line, bypassing unnecessary
+              overhead through this website.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section style="background-color: whitesmoke;">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mb-4 mt-2 text-center">
+          <h2 style="margin-top: 2rem;">Download the CLI scripts onto your computer</h2>
+          <p><br>To get started, download these files onto your computer, which use a combination of bash commands and
+            python to call our server directly. <i>Note: You must have python 3 and bash in the environment you plan to use the CLI.</i></p>
+            <p class="text-center"><a class="btn btn-primary btn-lg" href="download_cli"
+              role="button">Download CLI files</a> </p>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mb-4 mt-2 text-center">
+          <h2>Unzip the zip file</h2>
+          <p>The CLI scripts are compressed to allow for easy download. They must be unzipped in order to be used.</p>
+          <video playsinline="playsinline" controls muted="muted" style="max-width: 75%;">
+            <source src="images/ExtractFilesPlaceholder.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mb-4 mt-2 text-center">
+          <h2 style="margin-top: 1rem;">Using the Command Line Interface</h2>
+          <p>There are two ways the CLI tool can be used. First, you can run the bash script without any parameters. This 
+            bring up the options of showing the usage statement or starting the interactive menu. Secondly, you can pass
+            the correct parameters to the script and the calculator will automatically run. 
+          </p>
+          <video playsinline="playsinline" controls muted="muted" style="max-width: 75%;">
+            <source src="images/ExtractFilesPlaceholder.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <footer class="text-center" style="background-color: #343a40;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-white" style="margin-top: 1rem;">
+          <p>Copyright © Miller et al. (2020) All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- Making the top menu sticky -->
+  <script>
+    window.onscroll = function() {myFunction()};
+    
+    var topnav = document.getElementById("topnav");
+    var sticky = topnav.offsetTop;
+    
+    function myFunction() {
+      if (window.pageYOffset >= sticky) {
+        topnav.classList.add("sticky")
+      } else {
+        topnav.classList.remove("sticky");
+      }
+    }
+  </script>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap-4.2.1.js"></script>
+</body>
+
+</html>

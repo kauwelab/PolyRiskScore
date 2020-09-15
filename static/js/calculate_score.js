@@ -48,8 +48,15 @@ function getEthnicities() {
                 var opt = document.createElement('option')
                 opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(ethnicityList[i])))
                 opt.value = ethnicityList[i]
+                opt.selected = "selected"
                 selector.appendChild(opt);
             }
+            // adds an unspecified option to account for studies with a blank ethnicity column
+            var opt = document.createElement('option')
+            opt.appendChild(document.createTextNode("Unspecified"))
+            opt.value = "unspecified"
+            opt.selected = "selected"
+            selector.appendChild(opt);
             document.multiselect('#ethnicitySelect');
         },
         error: function (XMLHttpRequest) {
@@ -67,6 +74,12 @@ function getStudies() {
     var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
     var selectedTypes = [...typeNodes].map(option => option.value);
 
+    if (selectedTraits.length == 0) {
+        console.log("NO TRAIT SELECTED")
+        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
+        return;
+    }
+
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#studySelect').replaceWith("<select id='studySelect' multiple></select>");
     var studySelector = document.getElementById("studySelect");
@@ -80,6 +93,11 @@ function getStudies() {
             //data ~ {traitName:[{study},{study},{study}], traitName:[{study},{study}],...}
             var studyLists = data;
             var traits = Object.keys(data);
+
+            if (traits.length == 0) {
+                alert(`No results were found using the specified filters. Try using different filters.`)
+            }
+            
             for (i = 0; i < traits.length; i++) {
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
@@ -92,6 +110,7 @@ function getStudies() {
                     studySelector.appendChild(opt);
                 }
             }
+
             document.multiselect('#studySelect');
         },
         error: function (XMLHttpRequest) {

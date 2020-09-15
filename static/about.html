@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title class="lead">Polygenic Risk Scores</title>
+  <!-- Bootstrap -->
+  <link href="css/topnav.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+  <script src="https://kit.fontawesome.com/3aa9d240b2.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+  <div id="topnav" class='topnav'>
+    <a href="index.html">HOME</a>
+    <a href="calculate_score.html">CALCULATE</a>
+    <a href="cite.html">CITE</a>
+    <a href="cli_download.html">DOWNLOAD</a>
+    <a href="about.html">ABOUT</a>
+    <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
+    <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+
+  <script>
+    function sidemenuFunction() {
+      var topnav = document.getElementById("topnav");
+      if (topnav.className.includes("responsive")) {
+        topnav.classList.remove("responsive");
+      } 
+      else {
+        topnav.classList.add("responsive");
+      }
+    }
+  </script>
+
+
+  <header>
+    <div class="jumbotron" style="background-image: url('images/dnaBanner.jpg');">
+      <div class="container">
+        <div class="row" style="margin-top: 4em;">
+          <div class="col-12">
+            <h1 class="text-center" style="color: white;">What is a Polygenic Risk Score?</h1><br>
+            <ul style="color: white;">
+              <p class="drop-cap">For decades, most genetic research focused on single, common mutations significantly
+                associated with certain diseases like breast cancer or Huntington’s disease. </p>
+              <p class="drop-cap">The majority of complex traits, however, are determined by multiple variants with
+                smaller effect sizes.</p>
+              <p class="drop-cap">A polygenic risk score calculates an individual’s overall genetic risk for a condition
+                and is the summation of the variants across their genome, weighted by the effect sizes on the disease or
+                trait of interest.</p>
+            </ul>
+            <p>&nbsp;</p>
+            <p class="text-center"><a class="btn btn-primary btn-lg" href="images/Our PRS Paper.pdf" target="_blank"
+                role="button">Miller et al. (2020)</a> </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <section>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mb-4 mt-2 text-center">
+          <h2 style="margin-top: 2rem;">Calculating a Polygenic Risk Score</h2>
+          <p class="lead"><br>The score is derived by the data collected in<dfn
+              data-info="an observational study of a genome-wide set of genetic variants in a group of individuals that calculates associations between variants and traits.">genome-wide
+              association studies</dfn>The odds ratios from the studies in our database are used as weights for each
+            variant in order to compute a cumulative risk score for each sample.</p>
+          <p class="lead"> The equation we use for calculating polygenic
+            risk scores sums the risk alleles present in the individual as seen here, where a<sub>i</sub> is the number
+            of risk
+            alleles at the i<sup>th</sup> locus, r<sub>i</sub> is the odds ratio at that locus, and c is the exponent
+            for the p-value cutoff.
+            The p-value cutoff is an input for the calculation that is chosen by users.
+          </p>
+          <p>&nbsp;</p>
+          <div class="text-center">
+            <img class="formula" src="/images/formula.png" />
+          </div>
+          <p>&nbsp;</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="jumbotron" style="background-color: whitesmoke;">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2 style="color: #416d9d;">Using a Polygenic Risk Score</h2><br>
+            <script src="js/learn_more.js"></script>
+            <p class="text-center">
+            <ul class="prsList" style="text-align: left">
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')">
+                <i id="diseasePredictionPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Disease prediction</a>
+              </li>
+              <div class="" id="diseasePredictionPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+                <p>Polygenic risk scores can be used to assess the risk of expressing a trait. An individual with a risk
+                  score that is higher than the population average is more likely to express that trait. Predicting late
+                  onset diseases with this method is particularly useful because preventative treatment can be applied
+                  sooner.
+                </p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')">
+                <i id="screeningPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Clinical trial screening</a>
+              </li>
+              <div id="screeningPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+                <p>Clinical trials, such as drug testing, rely on removing confounding factors. Selecting individuals
+                  with similar risk scores for many traits eliminates potential confounding factors between these
+                  traits.<br>
+                </p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')">
+                <i id="filterPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Additional filtering in genome-wide association studies</a>
+              </li>
+              <div id="filterPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+                <p>Polygenic risk scores can act as an additional filter for novel loci associated with a trait. If an
+                  indiviudal has a trait, but has a low risk score, or does not have a trait, but has a high risk score,
+                  the individual likely has novel genetic polymorphisms that need futher study.<br>
+                </p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')">
+                <i id="mdsPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Mendelian Randomization studies</a>
+              </li>
+              <div id="mdsPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+                <p>Mendelian randomization studies use polygenic risk scores to predict the effect a particular
+                  treatment or exposure will have on an indiviual.<br>
+                </p>
+              </div>
+              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')">
+                <i id="inferPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+                <a>Infer disease status in cohorts lacking phenotypic data</a>
+                </li>
+              <div id="inferPanel" style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+                <p>An individual's phenotype can be infered by comparing their risk scores to other individuals in their
+                  population or ethnicity.<br>
+                </p>
+              </div>
+            </ul>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .slideUp {
+        animation-name: slideUp;
+        -webkit-animation-name: slideUp;
+        animation-duration: 1s;
+        -webkit-animation-duration: 1s;
+        visibility: visible !important;
+      }
+      
+      @keyframes slideUp {
+        0% {
+          opacity: 0;
+          -webkit-transform: translateX(70%);
+        } 
+        100% {
+          opacity: 1;
+          -webkit-transform: translateX(0%);
+        }
+      }
+      
+      @-webkit-keyframes slideUp {
+        0% {
+          opacity: 0;
+          -webkit-transform: translateX(70%);
+        } 
+        100% {
+          opacity: 1;
+          -webkit-transform: translateX(0%);
+        }
+      }
+      </style>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mb-4 mt-2 text-center">
+          <h2 id="test_title" style="margin-top: 2rem;">Benefits of the PRS Knowledge Base</h2><br>
+          <div id="flex-container">
+            <div class="row justify-content-center">
+              <div id="box1" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
+                <h5>User-Friendly</h5>
+                <p>Until now, the only tools available for calculating polygenic risk scores were on the command line.
+                  Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
+              </div>
+              <div id="box2" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
+                <h5>Centralized Database</h5>
+                <p>The PRSKB has a centralized database for all of the genome-wide association studies used
+                  to compute the scores. As new studies are performed and added to the NHGRI-EBI GWAS Catalog, they will
+                  be added to the PRSKB database.</p>
+              </div>
+              <div id="box3" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
+                <h5>UK Bio-Bank</h5>
+                <p>We provide a tool for individual score results to be compared to average scores calculated from the
+                  UK Bio-Bank. Coming soon!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="jumbotron" style="background-color: whitesmoke;">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 mb-4 mt-2 text-center">
+            <h2 style="color: #416d9d;">Additional Comments</h2><br>
+            <p style="text-align: left">The power of a polygenic risk score is contingent on the power and scope of
+              the corresponding genome-wide association study data. One significant problem is the lack of diversity in
+              the current genetic studies. 79% of all genome-wide association study data participants are of European
+              descent. Scores for an individual are most accurate when computed from data of the same ethnicity. As
+              such, the PRS Knowledge Base is currently more robust for studying subjects of European ancestry. As
+              future studies begin incorporating greater diversity, the holistic accuracy of our Knowledge Base will
+              similarly increase.
+            </p>
+            <p style="text-align: left">
+              There are other environmental and genetic factors not measured in a polygenic risk score that can
+              contribute to disease risk. Lifestyle factors, non-additive loci, epistasis, and gene by environment
+              interactions play a role in actual disease phenotype.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
+    <div class="row">
+      <div class="col-12 col-md-8 mx-auto">
+
+        <div class="row text-center" style="/*background-color: rgba(223, 123, 0, 0.7); */">
+          <div class="text-center col-12">
+            <h1 class="font-weight-bold grow_text" onclick="displayPanel('feedbackForm')" style="cursor: pointer;">Questions or Comments about the PRS Knowledge Base?</h1>
+            <i id="feedbackForm_sign" class="fa fa-angle-down" aria-hidden="true" style="text-align: center; font-size:50px"></i>
+          </div>
+          <div class="text-center col-12">
+            <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+            <form action="/contact" id="feedbackForm" method="post" role="form" style="max-height: 550px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+              <div class="form-group text-left">
+                <label for="name"><br><b>Name</b></label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
+                  aria-describedby="nameHelp">
+                <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
+              </div>
+              <div class="form-group text-left">
+                <label for="email"><b>E-Mail</b></label>
+                <input type="email" class="form-control" id="email" name="email"
+                  placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
+                <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail
+                  address.</span>
+              </div>
+              <div class="form-group text-left">
+                <label for="message"><b>Message</b></label>
+                <textarea rows="10" cols="100" class="form-control" id="message" name="message"
+                  placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
+                <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
+                  message.</span>
+              </div>
+              <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center" style="background-color: #343a40;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-white" style="margin-top: 1rem;">
+          <p>Copyright © Miller et al. (2020) All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- Making the top menu sticky -->
+  <script>
+    window.onscroll = function() {myFunction()};
+    
+    var topnav = document.getElementById("topnav");
+    var sticky = topnav.offsetTop;
+    
+    function myFunction() {
+      if (window.pageYOffset >= sticky) {
+        topnav.classList.add("sticky")
+      } else {
+        topnav.classList.remove("sticky");
+      }
+    }
+  </script>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap-4.2.1.js"></script>
+  <script>
+    window.onscroll = function() {myFunction()};
+    function myFunction() {
+      if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+        document.getElementById("box1").classList.add("slideUp");
+      }
+      if (document.body.scrollTop > 900 || document.documentElement.scrollTop > 900) {
+        document.getElementById("box2").classList.add("slideUp");
+      }
+      if (document.body.scrollTop > 1000 || document.documentElement.scrollTop > 1000) {
+        document.getElementById("box3").classList.add("slideUp");
+      }
+    }
+  </script>
+</body>
+</html>

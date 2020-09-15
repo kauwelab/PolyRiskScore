@@ -7,42 +7,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
+  <link href="css/topnav.css" rel="stylesheet">
+  <link href="css/banner.css" rel="stylesheet">
+  <link href="css/tile.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
 </head>
 
 <body>
-  <div class='p-9 bg-primary text-center'>
-    <a href="#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of our website!
-      --Click here to leave us comments or questions</a>
+  <div id="topnav" class='topnav'>
+    <a href="index.html">HOME</a>
+    <a href="calculate_score.html">CALCULATE</a>
+    <a href="cite.html">CITE</a>
+    <a href="cli_download.html">DOWNLOAD</a>
+    <a href="about.html">ABOUT</a>
+    <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
+    <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
   </div>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <a class="navbar-brand" href="#">PRS Knowledge Base</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
-        class="navbar-toggler-icon"></span> </button>
-    <!-- The justify-content-end command in the next line aligns the menu to the right.-->
-    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-        <div class="active-page">
-          <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
-        </div>
-        <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
-      </ul>
-    </div>
-  </nav>
 
-  <header>
+  <script>
+    function sidemenuFunction() {
+      var topnav = document.getElementById("topnav");
+      if (topnav.className.includes("responsive")) {
+        topnav.classList.remove("responsive");
+      } 
+      else {
+        topnav.classList.add("responsive");
+      }
+    }
+  </script>
+
+<header>
+  <div class="banner">
+    <img src="/images/dnaBanner.jpg" width="100%" style="overflow: hidden;">
+    <div class="centered-title">Welcome to the <br>Polygenic Risk Score <br>Knowledge Base</div>
+    <!-- <div class="centered-subtitle"> (in 7 easy steps) </div>
+    <script src="js/tour.js"></script>
+    <div class="centered-button">
+      <button type="button" id="startTour" onclick="startTour();" class="btn btn-primary btn-lg">Start a Tour</button> 
+    </div> -->
+  </div>
+</header>
+
+  <section>
     <div class="jumbotron">
       <!--style="background-image: url('images/Ollie.jpg')"> -->
-      <h1 class="forMobile font-weight-bold text-center">Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1>
+      <!-- <h1 class="forMobile text-center">Welcome to the<br>Polygenic Risk Score<br>Knowledge Base</h1> -->
       <div class="container">
         <div class="row">
           <div class="col-12">
             <!--<h1 class="text-center">The Polygenic Risk Score Knowledge Base</h1>-->
-            <h1 class="forDesktop text-center font-weight-bold">What is the PRS Knowledge Base?</h1>
+            <h1 class="forDesktop text-center" >What is the PRS Knowledge Base?</h1>
             <h5 class="text-justify"><br>The purpose of the PRS Knowledge Base is to allow researchers to quickly
               calculate polygenic risk scores for various traits based on published genome-wide association studies
               (GWAS).<br><br>The PRS Knowledge Base uses data downloaded and curated from the NHGRI-EBI GWAS Catalog
@@ -55,94 +72,79 @@
         </div>
       </div>
     </div>
-  </header>
+  </section>
 
-  <section>
+  <section style="background-color: whitesmoke;">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h1 style="margin-top: 2rem; color: #2192D3;">Use the PRS Knowledge Base</h1><br>
-          <div id="flex-grid-container">
-            <div class="row justify-content-center">
-              <div class="flex-grid-item-center col-md-5 align-self-center">
-                <h5>Calculate Polygenic Risk Scores</h5>
-                <p>Upload a VCF file or type in rs ids with or without alleles to use in your calculation. Choose one or
-                  all traits in our database, the p-value cutoff for odds ratios, and the reference genome. </p>
-                <!-- <p>We allow users to choose the studies to be included in their anlayses by clicking on "Upload VCF" below. By default, we will analyze the VCF against all studies in the database and send you the results by email when they are completed.</p> -->
-                <p class="text-center"><a class="btn btn-primary btn-md" href="calculate_score.html"
-                    role="button">Upload VCF</a> </p>
+          <h1 style="margin-top: 2rem; color: #416d9d;">Use the PRS Knowledge Base</h1><br>
+          <!-- <div id="flex-grid-container" style="background-color: gray;"> -->
+            <div class="row" style="margin-right: 0em; margin-left: 0em;">
+              <div class="tile" onclick="location.href='calculate_score.html';" style="cursor: pointer;">
+                <div>
+                  <img class="tile-icon" src="/images/Icons/CalculateIcon.svg" alt="calculator icon" onContextMenu="return false;">
+                  <div class="middle"></div>
+                </div>
+                <div class="tile-content">
+                  <h5>Calculate Polygenic Risk Scores</h5>
+                  <!-- <p>Upload a VCF file or type in rs ids with or without alleles to use in your calculation. Choose one or
+                    all traits in our database, the p-value cutoff for odds ratios, and the reference genome. </p> -->
+                  <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="calculate_score.html"
+                    role="button">Upload VCF</a> </p> -->
+                </div>
+              </div>    
+              <div class="tile" onclick="location.href='cli_download.html';" style="cursor: pointer;">
+                <div>
+                  <img class="tile-icon" src="/images/Icons/CLIicon.svg" alt="command line icon" onContextMenu="return false;">
+                  <div class="middle"></div>
+                </div> 
+                <div class="tile-content">
+                  <h5>Download CLI tool</h5>
+                  <!-- <p>Download our API to submit your VCF files to the analysis pipeline via the command line.</p> -->
+                  <!-- <p>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line.</p> -->
+                  <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api
+                      Documentation</a> </p> -->
+                </div>
               </div>
-              <div class="flex-grid-item-center col-md-5 align-self-center">
-                <h5>PRS Knowledge Base API</h5>
-                <p>Download our API to submit your VCF files to the analysis pipeline via the command line.</p>
-                <!-- <p>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line.</p> -->
-                <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api
-                    Documentation</a> </p>
+            
+              <div class="tile" onclick="location.href='about.html';" style="cursor: pointer;">
+                <div>
+                  <img class="tile-icon" src="/images/Icons/LearnMoreIcon.svg" alt="learn more icon" onContextMenu="return false;">
+                  <div class="middle"></div>
+                </div>
+                <div class="tile-content">
+                  <h5>Learn More</h5>
+                  <!-- <p>What is a Polygenic Risk Score? How do we calculate it? How is it used? Why choose the PRS knowledge
+                    base?
+                    These questions and others are answered here.</p> -->
+                  <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="learn_more.html" role="button">Learn
+                      More</a> </p> -->
+                </div>
               </div>
-              <div class="flex-grid-item-center col-md-5 align-self-center">
-                <h5>Learn More</h5>
-                <p>What is a Polygenic Risk Score? How do we calculate it? How is it used? Why choose the PRS knowledge
-                  base?
-                  These questions and others are answered here.
-                <p class="text-center"><a class="btn btn-primary btn-md" href="learn_more.html" role="button">Learn
-                    More</a> </p>
+              <div class="tile" onclick="location.href='cite.html';" style="cursor: pointer;">
+                <div>
+                  <img class="tile-icon" src="/images/Icons/CiteIcon.svg" alt="citation icon" onContextMenu="return false;">
+                  <div class="middle"></div>
+                </div>
+                <div class="tile-content">
+                  <h5>Cite the PRS Knowledge Base</h5>
+                  <!-- <p>We ask that if you use the PRS Knowledge Base for published work, you cite the
+                    PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of
+                    all publications used by the PRS Knowledge Base, organized by trait, please follow the link below.
+                  </p> -->
+                  <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="citations.html" role="button">Cite</a>
+                    </p> -->
+                </div>
               </div>
-              <div class="flex-grid-item-center col-md-5 align-self-center">
-                <h5>Cite the PRS Knowledge Base</h5>
-                <p>We ask that if you use the PRS Knowledge Base for published work, you cite the
-                  PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of
-                  all publications used by the PRS Knowledge Base, organized by trait, please follow the link below.
-                </p>
-                <p class="text-center"><a class="btn btn-primary btn-md" href="citations.html" role="button">Cite</a>
-                </p>
-              </div>
+              <script>
+
+              </script>
             </div>
-          </div>
         </div>
       </div>
     </div>
   </section>
-  <div class="jumbotron" id='feedback'>
-    <div class="container">
-      <div class="row">
-        <div class="col-12 col-md-8 mx-auto">
-
-          <div class="row text-center">
-            <div class="text-center col-12">
-              <h1 class="font-weight-bold">Questions or Comments about the PRS Knowledge Base?</h1>
-            </div>
-            <div class="text-center col-12">
-              <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-              <form action="/contact" id="feedbackForm" method="post" role="form">
-                <div class="form-group text-left">
-                  <label for="name"><br><b>Name</b></label>
-                  <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
-                    aria-describedby="nameHelp">
-                  <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
-                </div>
-                <div class="form-group text-left">
-                  <label for="email"><b>E-Mail</b></label>
-                  <input type="email" class="form-control" id="email" name="email"
-                    placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
-                  <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail
-                    address.</span>
-                </div>
-                <div class="form-group text-left">
-                  <label for="message"><b>Message</b></label>
-                  <textarea rows="10" cols="100" class="form-control" id="message" name="message"
-                    placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
-                  <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
-                    message.</span>
-                </div>
-                <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
       <div class="row">
@@ -152,6 +154,21 @@
       </div>
     </div>
   </footer>
+  <!-- Making the top menu sticky -->
+  <script>
+    window.onscroll = function() {myFunction()};
+    
+    var topnav = document.getElementById("topnav");
+    var sticky = topnav.offsetTop;
+    
+    function myFunction() {
+      if (window.pageYOffset >= sticky) {
+        topnav.classList.add("sticky")
+      } else {
+        topnav.classList.remove("sticky");
+      }
+    }
+  </script>
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->
