@@ -116,6 +116,23 @@ exports.searchMissingRsIDs = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             // formating returned data
+            console.log("Printing first line of data", data[0])
+            res.send(data);
+        }
+    })
+}
+
+exports.snpsByEthnicity = (req, res) => {
+    var ethnicities = req.query.ethnicities
+    Association.snpsByEthnicity(ethnicities, (err,data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
             console.log(data)
             res.send(data);
         }
