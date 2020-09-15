@@ -368,13 +368,21 @@ calculatePRS () {
     # (passing the string as a parameter doesn't work because it is too large)
     echo "Greped the VCF file"
 
-    exit; #TODO DELETE
+    IFS='.'
+    read -a fileName <<< "$2"
+    outputType=${fileName[1]}
+    IFS=' '
 
-    outputType="csv" #this is the default
+    #outputType="csv" #this is the default
     #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
-    python3 run_prs_grep.py intermediate.vcf "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
+    if [[ "$pyVer" == "python" ]]; then 
+        python run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
+    else
+        python3 run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
+    fi
+
     echo "Caculated score"
-    rm intermediate.vcf
+    rm $intermediate
     rm tableObj.txt
     rm -r __pycache__
     echo "Cleaned up intermediate files"
