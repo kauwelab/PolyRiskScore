@@ -176,9 +176,16 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         queryString = ""
 
         for (i = 0; i < res.length; i++) {
-            for (j = 0; j < res[i].length; j++) {
-                trait = formatter.formatForTableName(res[i][j].trait)
-                queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i][j].studyID}'; `)
+            if(ethnicities.length > 1) {
+                for (j = 0; j < res[i].length; j++) {
+                    //TODO clean this to remove duplicate code
+                    trait = formatter.formatForTableName(res[i][j].trait)
+                    queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i][j].studyID}'; `)
+                }
+            }
+            else {
+                trait = formatter.formatForTableName(res[i].trait)
+                queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i].studyID}'; `)
             }
         }
 
@@ -188,6 +195,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 result(err2, null);
                 return;
             }
+            
 
             results = []
             for (i = 0; i < res.length; i++) {
