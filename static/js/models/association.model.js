@@ -195,20 +195,45 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 result(err2, null);
                 return;
             }
-            
 
             results = []
-            for (i = 0; i < res.length; i++) {
-                ethnicity = ethnicities[i]
-                studyObjs = []
-                for (j = 0; j < res[i].length; j++) {
-                    studyID = res[i][j].studyID
-                    snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
-                    snps = []
-                    for (k = 0; k < data[snpIndex].length; k++) {
-                        snps.push(data[snpIndex][k].snp)
-                    }
 
+            if (ethnicities.length > 1) {
+                for (i = 0; i < res.length; i++) {
+                    ethnicity = ethnicities[i]
+                    studyObjs = []
+                    for (j = 0; j < res[i].length; j++) {
+                        studyID = res[i][j].studyID
+                        snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
+                        snps = []
+                        for (k = 0; k < data[snpIndex].length; k++) {
+                            snps.push(data[snpIndex][k].snp)
+                        }
+    
+                        obj = {
+                            "studyID": studyID,
+                            "snps": snps
+                        }
+                        studyObjs.push(obj)
+                    }
+                    ethnicityObj = {
+                        "ethnicity": ethnicity,
+                        "studies": studyObjs
+                    }
+                    results.push(ethnicityObj)
+                }
+            }
+            else {
+                console.log(res.length)
+                studyObjs = []
+                ethnicity = ethnicities[0]
+                for (i = 0; i < res.length; i++) {
+                    studyID = res[i].studyID
+                    snps = []
+                    for (k = 0; k < data[i].length; k++) {
+                        snps.push(data[i][k].snp)
+                    }
+    
                     obj = {
                         "studyID": studyID,
                         "snps": snps
