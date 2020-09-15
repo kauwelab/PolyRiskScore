@@ -188,7 +188,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                     queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i][j].studyID}'; `)
                 }
             }
-            //if there is only on ethnicity in the selector, only select SNPs for the studies in that ethnicity
+            //if there is only one ethnicity in the selector, only select SNPs for the studies in that ethnicity
             else {
                 //TODO clean to remove duplicate code
                 trait = formatter.formatForTableName(res[i].trait)

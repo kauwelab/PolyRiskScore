@@ -116,7 +116,7 @@ exports.searchMissingRsIDs = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             // formating returned data
-            console.log(data)
+            console.log("Printing first line of data", data[0])
             res.send(data);
         }
     })
