@@ -324,6 +324,15 @@ calculatePRS () {
 
     echo "Running PRSKB on $1"
 
+    pyVer=""
+    ver=$(python --version)
+    read -a strarr <<< $"ver"
+    if [[ ${strarr[1]} =~ ^3 ]]; then
+        pyVer="python"
+    else
+        pyVer="python3"
+    fi
+
     # Calls a python function to get a list of SNPs from our database
     # res is a string composed of two strings separated by a '%'
     # The string is split into a list containing both strings
@@ -333,7 +342,13 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    res=$(python3 -c "import vcf_parser_grep_test as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
+    res=""
+    if [[ "$1" =~ .TXT$|.txt$ ]]; then 
+        res=$($pyVar -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', 'rsID')")
+    else
+        res=$($pyVar -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', 'vcf')")
+    fi 
+
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
     read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
@@ -409,6 +424,10 @@ elif [ $# -lt 5 ]; then
 elif [ ! -f "$1" ]; then
     echo -e "The file${LIGHTRED} $1 ${NC}does not exist."
     echo "Check the path and try again."
+    read -p "Press [Enter] key to quit..."
+elif ! [[ "$1" =~ .vcf$|.VCF$|.txt$|.TXT$ ]]; then
+    echo -e "The file${LIGHTRED} $1 ${NC}is in the wrong format."
+    echo -e "Please use a vcf or txt file."
     read -p "Press [Enter] key to quit..."
 elif ! [[ "$2" =~ .csv$|.json$|.txt$ ]]; then
     echo -e "${LIGHTRED}$2 ${NC} is not in the right format."

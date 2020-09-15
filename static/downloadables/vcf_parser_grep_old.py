@@ -14,11 +14,8 @@ import time
 import datetime
 
 def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
-    if traits != "":
-        traits = traits.split(" ")
-    else:
-        None
-#    traits = traits.split(" ") if traits != "" else None
+
+    traits = traits.split(" ") if traits != "" else None
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
@@ -32,8 +29,8 @@ def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
 
 
 def getAllAssociations(pValue, refGen, traits = ""): 
-    if traits == "":
-        traits = getAllTraits()
+    traits = traits.split(" ") if traits != "" else getAllTraits()
+
     associations = getAssociations("https://prs.byu.edu/all_associations", traits, pValue, refGen)
     return formatAssociationsForReturn(associations)
 
@@ -90,7 +87,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
 def getAssociations(url, traits, pValue, refGen, turnString = None):
     associations = {}
     h=0
-    for i in range(25, len(traits), 25):
+    for i in range(100, len(traits), 100):
         params = {
             "traits": json.dumps(traits[h:i]) if turnString else traits[h:i],
             "pValue": pValue,
@@ -113,8 +110,7 @@ def formatAssociationsForReturn(associations):
     for disease in associations:
         for study in associations[disease]:
             for association in associations[disease][study]["associations"]:
-                if association['pos'] != 'NA':
-                    snps += "-e {0} ".format(association['pos'].split(":")[1])
+                snps += "-e {0} ".format(association['pos'].split(":")[1])
 
     associations = json.dumps(associations)
     return [snps, associations]
@@ -131,7 +127,7 @@ def getAllTraits():
 def urlWithParams(url, params):
     response = requests.get(url=url, params=params)
     response.close()
-    assert (response), "THIS TRAIT IS NOT YET INCLUDED IN OUR DATABASE. Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()  
 
 def convertRefGen(chrom, pos, refGen):
@@ -143,10 +139,10 @@ def convertRefGen(chrom, pos, refGen):
     final_pos = str(chrom) + ':' + str(pos)
     return final_pos
 
-def calculateScore(vcfFile, diseaseArray, pValue, outputType, tableObjList, refGen, superPop):
+def calculateScore(vcfFile, diseaseArray, pValue, outputType, tableObjList, refGen):
     tableObjList = json.loads(tableObjList)
-    posList, pos_pval_map, studyIDs, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen)
-    vcfObj, totalVariants = parse_vcf(vcfFile, posList, pos_pval_map, refGen, diseaseStudyIDs, studyIDs, superPop)
+    posList, pos_pval_map = getSNPsFromTableObj(tableObjList, refGen)
+    vcfObj, totalVariants = parse_vcf(vcfFile, posList, refGen)
     results = calculations(tableObjList, vcfObj,
                            totalVariants, pValue, refGen, outputType)
     return(results)
@@ -155,24 +151,22 @@ def calculateScore(vcfFile, diseaseArray, pValue, outputType, tableObjList, refG
 def getSNPsFromTableObj(tableObjList, refGen):
     posListMap = {}
     posList = []
-    diseaseStudyIDs = []
-    studyIDs = []
-    pos_pval_map = defaultdict(dict)
+    pos_pval_map = defaultDict(dict)
     for diseaseEntry in tableObjList:
-        for studyID in tableObjList[diseaseEntry]:
-            diseaseStudyIDs.append((diseaseEntry, studyID))
-            studyIDs.append(studyID)
-            for row in tableObjList[diseaseEntry][studyID]['associations']:
+        disease = diseaseEntry['disease']
+        for studyEntry in diseaseEntry['studiesRows']:
+            study = studyEntry['study']
+            for row in studyEntry['rows']:
                 chrom = row['pos'].split(':')[0]
                 pos = row['pos'].split(':')[1]
                 if refGen != 'hg38':
                     hg38_pos = convertRefGen(chrom, pos, refGen)
                 else:
                     hg38_pos = str(chrom) + ':' + str(pos)
-                pos_pval_map[studyID][hg38_pos] = row['pValue']
+                pos_pval_map[study][hg38_pos] = row['pValue']
                 posList.append(row['pos'])
-            posListMap[studyID] = posList
-    return posList, pos_pval_map, studyIDs, diseaseStudyIDs
+            posListMap[study] = posList
+    return posList, pos_pval_map
 
 def getClumps(studyIDs, superPop):
     if studyIDs is None:
@@ -186,7 +180,7 @@ def getClumps(studyIDs, superPop):
         res = urlWithParams("https://prs.byu.edu/ld_clumping", params)
     return res
 
-def parse_vcf(vcfFile, posList, pos_pval_map, refGen, diseaseStudyIDs, studyIDs, superPop):
+def parse_vcf(vcfFile, posList, pos_pval_map, refGen, studyIDs, superPop):
     filename = vcfFile
     matchedSNPs = 0
     totalLines = 0
@@ -209,17 +203,16 @@ def parse_vcf(vcfFile, posList, pos_pval_map, refGen, diseaseStudyIDs, studyIDs,
     # Create a defautlt dictionary (nested dictionary)
     sample_map = defaultdict(dict)
     # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
-    index_snp_map = defaultdict(dict)
+    index_snp_map = dfaultdict(dict)
 
     # Access the snp clumps from the database
     clumps = getClumps(studyIDs, superPop)
     clumpMap = defaultdict(dict)
 
-    output = open('output.txt', 'w')
     for study in clumps:
-        for snpObj in clumps[study]:
-            hg38_pos = snpObj['hg38_pos']
-            clumpNum = snpObj['clumpNumber']
+        for snpDict in study:
+            hg38_pos = snpDict['hg38_pos']
+            clumpNum = snpDict['clumpNumber']
             clumpMap[study][hg38_pos] = clumpNum
 
     # Iterate through each record in the file and save the SNP rs ID
@@ -231,123 +224,116 @@ def parse_vcf(vcfFile, posList, pos_pval_map, refGen, diseaseStudyIDs, studyIDs,
             chromPos = convertRefGen(chrom, pos, refGen)
         else:
             chromPos = str(record.CHROM) + ":" + str(record.POS)
-        for disease_study in diseaseStudyIDs:
-            disease, study = disease_study
+        for study in studyIDs:
             if chromPos in clumpMap[study]:
                 clumpNum = clumpMap[study][chromPos]
                 # Look up the pvalue from hte map that was given as a parameter to this function
-                if chromPos in pos_pval_map[study]:
-                    pValue = pos_pval_map[study][chromPos]
-                    totalLines += 1
+                pValue = pos_pval_map[study][chromPos]
+                totalLines += 1
+                if (chromPos in posList):
                     matchedSNPs += 1
-                # if snp:  # If the SNP rs ID exists, move forward
-                    for call in record.samples:  # Iterate through each of the samples for the record
-                        gt = call.gt_bases     # Save the genotype bases
-                        name = call.sample     # Save the name of the sample
-                        # Create a list of the genotype alleles
-                        if gt is not None:
-                            if "|" in gt:
-                                alleles = gt.split('|')
-                            elif "/" in gt:
-                                alleles = gt.split('/')
+            # if snp:  # If the SNP rs ID exists, move forward
+                for call in record.samples:  # Iterate through each of the samples for the record
+                    gt = call.gt_bases     # Save the genotype bases
+                    name = call.sample     # Save the name of the sample
+                    # Create a list of the genotype alleles
+                    if gt is not None:
+                        if "|" in gt:
+                            alleles = gt.split('|')
+                        elif "/" in gt:
+                            alleles = gt.split('/')
+                        else:
+                            alleles = list(gt)
+                    # Add to the nested map so that the outer key = sample name; value = inner map--where key = SNP ID and value = allele list
+                        study_name = (study, name)
+                        if study_name in index_snp_map:
+                            if clumpNum in index_snp_map[study_name]:
+                                index_snp = index_snp_map[study_name][clumpNum]
+                                index_pvalue = pos_pval_map[study][index_snp]
+                                if pvalue < index_pvalue:
+                                    del index_snp_map[study_name][clumpNum]
+                                    index_snp_map[study_name][clumpNum] = chromPos
+                                    del sample_map[study_name][index_snp]
+                                    sample_map[study_name][chromPos] = alleles
                             else:
-                                alleles = list(gt)
-                        # Add to the nested map so that the outer key = sample name; value = inner map--where key = SNP ID and value = allele list
-                            disease_study_name = (disease, study, name)
-                            if disease_study_name in index_snp_map:
-                                if clumpNum in index_snp_map[disease_study_name]:
-                                    index_snp = index_snp_map[disease_study_name][clumpNum]
-                                    index_pvalue = pos_pval_map[study][index_snp]
-                                    if pvalue < index_pvalue:
-                                        del index_snp_map[disease_study_name][clumpNum]
-                                        index_snp_map[disease_study_name][clumpNum] = chromPos
-                                        del sample_map[disease_study_name][index_snp]
-                                        sample_map[disease_study_name][chromPos] = alleles
-                                else:
-                                    index_snp_map[disease_study_name][clumpNum] = chromPos
-                                    sample_map[disease_study_name][chromPos] = alleles
-                            else:
-                                index_snp_map[disease_study_name][clumpNum] = chromPos
-                                sample_map[disease_study_name][chromPos] = alleles
-            if matchedSNPs == 0:
-                for name in vcf_reader.samples:
-                    disease_study_name = (disease, study, name)
-                    sample_map[disease_study_name][""] = ""
+                                index_snp_map[study_name][clumpNum] = chromPos
+                                sample_map[study_name][chromPos] = alleles
+                        else:
+                            index_snp_map[study_name][clumpNum] = chromPos
+                            sample_map[study_name][chromPos] = alleles
+    if matchedSNPs == 0:
+        for name in vcf_reader.samples:
+            sample_map[name][""] = ""
     final_map = dict(sample_map)
-    output.write(str(final_map))
-    output.close()
     return final_map, totalLines
 
 
 def calculations(tableObjList, vcfObj, totalVariants, pValue, refGen, outputType):
-    output2 = open('output2.txt', 'a')
     resultJsons = []
     resultJsons.append({
         "pValueCutoff": pValue,
         "totalVariants": totalVariants
     })
     # For every sample in the vcf nested dictionary
-    for disease_study_samp in vcfObj:
-        disease, studyID, samp = disease_study_samp
+    for samp in vcfObj:
         diseases = []    # Each sample will have its own array of diseaseResults
         # For each disease in the table object (list of diseaseRows which are disease names with list of studyrows)
-        #for diseaseEntry in tableObjList:
-        studies = []
-        diseaseResults = {}
+        for diseaseEntry in tableObjList:
+            studies = []
+            diseaseResults = {}
             # Iterate through each of the studies pertaining to the disease
-        #    for studyID in tableObjList[diseaseEntry]:
-        oddRatios = []
-        rsids = []
-        chromPosList = []
-        studyResults = {}
+            for studyEntry in diseaseEntry['studiesRows']:
+                oddRatios = []
+                rsids = []
+                chromPosList = []
+                studyResults = {}
+                study = studyEntry['study']
                 # Create a tuple with study and sample name
-#        study_samp = (studyID, samp)
+                study_samp = (study, samp)
                 # For each study, iterate through the snps related to the sample
-        
-        for chromPos in vcfObj[disease_study_samp]:
+                for chromPos in vcfObj[study_samp]:
                     # Also iterate through each of the alleles
-            for allele in vcfObj[disease_study_samp][chromPos]:
+                    for allele in vcfObj[study_samp][chromPos]:
                         # Then compare to the data in each row of the study
-                for row in tableObjList[disease][studyID]['associations']:
-                    chrom = row['pos'].split(':')[0]
-                    pos = row['pos'].split(':')[1]
-                    if refGen != 'hg38':
-                        hg38_pos = convertRefGen(chrom, pos, refGen)
-                    else:
-                        hg38_pos = str(chrom) + ':' + str(pos)
-                    if allele != None:
-                        # Compare the individual's snp and allele to the study row's snp and risk allele
-                        if chromPos == hg38_pos and allele == row['riskAllele']:
-                            oddRatios.append(row['oddsRatio'])
-                            chromPosList.append(row['pos'])
-                            if row['snp'] is not None:
-                                rsids.append(row['snp'])
-                    #TODO: is this correct? do we add the OR and snp to the calculation if the allele is None? This theoretically shouldn't be happening, right?
-                    # Because the only way the snp was added to the individual in the sample map was if the genotype was not None. Maybe one of their
-                    # alleles could be None, though? In which case we shouldn't add it to the calculation, correct?
-                    else:
-                        if chromPos == hg38_pos:
-                            oddRatios.append(row['oddsRatio'])
-                            chromPosList.append(row['pos'])
-                            if row['snp'] is not None:
-                                rsids.append(row['snp'])
-        studyResults.update({
-            "study": studyID,
-            "citation": tableObjList[disease][studyID]['citation'],
-            "oddsRatio": getCombinedORFromArray(oddRatios),
-            "percentile": "",
-            "numSNPsIncluded": len(oddRatios),
-            "chromPositionsIncluded": chromPosList,
-            "snpsIncluded": rsids
-        })
-        studies.append(studyResults)
+                        for row in studyEntry['associations']:
+                            chrom = row['pos'].split(':')[0]
+                            pos = row['pos'].split(':')[1]
+                            if refGen != 'hg38':
+                                hg38_pos = convertRefGen(chrom, pos, refGen)
+                            else:
+                                hg38_pos = str(chrom) + ':' + str(pos)
+                            if allele != None:
+                                # Compare the individual's snp and allele to the study row's snp and risk allele
+                                if chromPos == hg38_pos and allele == row['riskAllele']:
+                                    oddRatios.append(row['oddsRatio'])
+                                    chromPosList.append(row['pos'])
+                                    if row['snp'] is not None:
+                                        rsids.append(row['snp'])
+                            #TODO: is this correct? do we add the OR and snp to the calculation if the allele is None? This theoretically shouldn't be happening, right?
+                            # Because the only way the snp was added to the individual in the sample map was if the genotype was not None. Maybe one of their
+                            # alleles could be None, though? In which case we shouldn't add it to the calculation, correct?
+                            else:
+                                if chromPos == hg38_pos:
+                                    oddRatios.append(row['oddsRatio'])
+                                    chromPosList.append(row['pos'])
+                                    if row['snp'] is not None:
+                                        rsids.append(row['snp'])
+                studyResults.update({
+                    "study": studyEntry['study'],
+                    "citation": studyEntry['citation'],
+                    "oddsRatio": getCombinedORFromArray(oddRatios),
+                    "percentile": "",
+                    "numSNPsIncluded": len(oddRatios),
+                    "chromPositionsIncluded": chromPosList,
+                    "snpsIncluded": rsids
+                })
+                studies.append(studyResults)
 
-        diseaseResults.update({
-            "disease": disease,
-            "studyResults": studies
-        })
-        diseases.append(diseaseResults)
-
+            diseaseResults.update({
+                "disease": diseaseEntry['disease'],
+                "studyResults": studies
+            })
+            diseases.append(diseaseResults)
         resultJsons.append({
             "individualName": samp,
             "diseaseResults": diseases
@@ -359,7 +345,7 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, refGen, outputType
         # TODO Test this!
         output = json.dumps(resultJsons)
         return(output)
-    output2.close()
+
 
 def getCombinedORFromArray(oddRatios):
     combinedOR = 0
