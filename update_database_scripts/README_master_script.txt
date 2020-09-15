@@ -1,0 +1,56 @@
+All the files and scripts in this folder are for automatically downloading, processing, and uploading data from the NHGRI-EBI GWAS Catalog. The following 
+is a tutorial on what each script does and how they work together.
+
+To update the PRSKB database automatically with the latest studies from the NHGRI-EBI GWAS Catalog, follow the following steps:
+1. ssh into the PRSKB server at lsprs.byu.edu with your username and password.
+2. Navigate to the scripts folder where the website is stored: cd /var/www/prs.byu.edu/html/update_database_scripts/
+3. Run the following command, replacing "password" with the password for the PRSKB MySQL password: sudo ./master_script.sh "password" 8 &> output.txt &
+    a. See the master_script file for additional information on its parameters.
+    b. This command will run in the background and write its terminal output to "output.txt" This means that you can close your ssh terminal and 
+       the script will continue to run.
+    c. The "8" in the command is the number of times the GWAS catalog will be split to download different parts of the database concurrently. 
+       Increase this number to speed up the download, but don't increase the number too much since the website computer only has 2 cores.
+4. This command will take several hours to run. It is done when the last line of "output.txt" says "Press [Enter] key to finish..." At this point, 
+   all of the new data is already uploaded to the database and you just need to move the CSVs to the tables folder as explained in the next steps.
+5. Move the association_tables folder and the study_table.csv file to the tables folder. Make sure they are deleted from the update_database_scripts 
+   folder.
+6. Upload the new CSVs to github: (This may be another script in the future)
+    a. git add .
+    b. git commit -m "updated database *MM/DD/YY*"
+    c. git push origin master
+7. If you run the master script, but then want to stop it, you can use the following process:
+    a. When you ran the "./master_script.sh" command, it should have returned a number. This number is the PID, or the process ID for the background
+       process you started. To stop it, do: sudo kill "PID" where PID is the number returned.
+    b. If you have somehow lost the PID mentioned in the previous step, you can find it with the following process:
+        i. Run: sudo ps -aux | less
+        ii. Scroll until you find your command under the "COMMAND" column (choose the one that starts with "sudo" not "/bin/bash") Note the PID.
+        iii. Exit "less" with "q" 
+        iv. Execute sudo kill "PID" where PID is the number you found.
+
+The following is a simplified description of the files in the update_database_scripts folder. They are listed in the order they are used when running 
+the master_script. Please see the beginning of each of the files for command line parameters, usage, and additional information.
+
+master_script.sh- a shell script that calls the other files in the update_database_scripts folder to download, format, and upload new data from the 
+    GWAS catalog to the PRSKB database. See the file for details on command line arguments.
+
+unpackDatabaseCommandLine.R- An R script that downloads data from the GWAS catalog and formats it into CSV tables that can be uploaded to the PRSKB 
+    database. This script can be run multiple times simultaneously on different portions of the GWAS catalog so the data can be downloaded faster. 
+    This script can also be used as a stand-alone script.
+
+hg19ToHg17.over.chain, hg19ToHg18.over.chain, and hg38ToHg19.over.chain- These are three chain files used to convert coordinate systems between 
+    reference genomes by the unpackDatabaseCommandLine.R script. The GWAS catalog only gives SNP locations in hg38, but these chain files allow the 
+    unpackDatabaseCommandLine.R to convert hg38 locations to hg19, hg18, and hg17.
+
+createStudyTable.R- This R script takes information from the association table CSVs created by the unpackDatabaseCommandLine.R script as well as the 
+    GWAS catalog to create a study_table.csv file. The study table is a summary of all studies found in each of the association table CSVs and includes 
+    additional information on each study, including the last time it was updated and the name of the study.
+
+getUpdatedStudiesAndTraitsLists.py- A Python script that prints two lists, a list of studies and a list of traits that have been updated since the last 
+    time the PRSKB database was updated. These two lists are captured in the master_script.sh and used to upload only the new tables to the PRSKB 
+    database. This script isn't intended to be run on its own because it only prints its output but can still be used to get a quick look at GWAS 
+    catalog updates. 
+
+uploadTablesToDatabase.py- This Python script uploads the new association tables and study table to the PRSKB database. This script can also be run by 
+    itself, independently of the master_script.
+
+

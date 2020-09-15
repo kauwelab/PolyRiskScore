@@ -17,7 +17,7 @@ module.exports = app => {
     app.get("/get_all_studies", studies.getAll);
 
     // Retrieves study general data for specified studies
-    app.get("/get_studies", studies.getFiltered);
+    app.post("/get_studies", studies.getFiltered);
 
     // Retrieves study data using a list of study ids
     app.get("/get_studies_by_id", studies.getStudyByID);
@@ -26,13 +26,19 @@ module.exports = app => {
     app.get("/find_studies/:searchStr", studies.findStudies);
 
     // Retrieves applicable associations given correct query parameters -> see association.model.js
-    app.get("/get_associations", associations.getFromTables);
+    app.post("/get_associations", associations.getFromTables);
 
     // Returns all associations for all traits and diseases, given the correct query params
     // organized {trait: {studies: [associations]}}
     app.get("/all_associations", associations.getAll);
 
     app.get("/all_snps", associations.getAllSnps);
+
+    app.get("/single_snp_from_each_study", associations.getSingleSnpFromEachStudy)
+
+    app.get("/search_for_missing_snps", associations.searchMissingRsIDs)
+
+    app.get("/snps_by_ethnicity", associations.snpsByEthnicity)
 
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);

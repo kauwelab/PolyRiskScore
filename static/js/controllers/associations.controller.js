@@ -2,9 +2,9 @@ const Association = require("../models/association.model.js");
 
 exports.getFromTables = (req, res) => {
     //traits format :: [{trait: trait, studyIDs: [list of studyIDs]}, {trait: trait, studyIDs: [list of studyIDs]}]
-    var traits = JSON.parse(req.query.traits)
-    var pValue = parseFloat(req.query.pValue);
-    var refGen = req.query.refGen;
+    var traits = JSON.parse(req.body.traits)
+    var pValue = parseFloat(req.body.pValue);
+    var refGen = req.body.refGen;
 
     Association.getFromTables(traits, pValue, refGen, async (err, data) => {
         if (err) {
@@ -86,6 +86,55 @@ exports.getAllSnps = (req, res) => {
 
             console.log(`Total snps: ${testArray.length}`)
             res.send(Array.from(testArray));
+        }
+    })
+}
+
+exports.getSingleSnpFromEachStudy = (req, res) => {
+    Association.getSingleSnpFromEachStudy((err,data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            console.log(data)
+            res.send(data);
+        }
+    })
+}
+
+exports.searchMissingRsIDs = (req, res) => {
+    Association.searchMissingRsIDs((err,data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            console.log("Printing first line of data", data[0])
+            res.send(data);
+        }
+    })
+}
+
+exports.snpsByEthnicity = (req, res) => {
+    var ethnicities = req.query.ethnicities
+    Association.snpsByEthnicity(ethnicities, (err,data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            console.log(data)
+            res.send(data);
         }
     })
 }
