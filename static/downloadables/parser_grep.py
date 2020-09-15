@@ -13,7 +13,7 @@ import requests
 import time
 import datetime
 
-def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
+def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType):
     if traits != "":
         traits = traits.split(" ")
     else:
@@ -24,21 +24,21 @@ def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
     if (studyTypes is None and studyIDs is None and ethnicity is None):
-        toReturn = getAllAssociations(pValue, refGen, traits)
+        toReturn = getAllAssociations(pValue, refGen, fileType, traits)
     else:
-        toReturn = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
+        toReturn = getSpecificAssociations(pValue, refGen, fileType, traits, studyTypes, studyIDs, ethnicity)
     
     print('%'.join(toReturn))
 
 
-def getAllAssociations(pValue, refGen, traits = ""): 
+def getAllAssociations(pValue, refGen, fileType, traits = ""): 
     if traits == "":
         traits = getAllTraits()
     associations = getAssociations("https://prs.byu.edu/all_associations", traits, pValue, refGen)
-    return formatAssociationsForReturn(associations)
+    return formatAssociationsForReturn(associations, fileType)
 
 
-def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
+def getSpecificAssociations(pValue, refGen, fileType, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
     studyIDspecificData = {}
 
     if (studyIDs is not None):
@@ -84,7 +84,7 @@ def getSpecificAssociations(pValue, refGen, traits = None, studyTypes = None, st
                 finalTraitList[obj["trait"]] = [obj["studyID"]]
 
     associations = getAssociations("https://prs.byu.edu/get_associations", finalTraitList, pValue, refGen, 1)
-    return formatAssociationsForReturn(associations)
+    return formatAssociationsForReturn(associations, fileType)
 
 
 def getAssociations(url, traits, pValue, refGen, turnString = None):
@@ -108,13 +108,20 @@ def getAssociations(url, traits, pValue, refGen, turnString = None):
     return associations
 
 
-def formatAssociationsForReturn(associations):
-    snps = "-e #CHROM "
+def formatAssociationsForReturn(associations, fileType):
+    snps = ""
+    if fileType == "rsID":
+        snps = "-e #ID "
+    else:
+        snps = "-e #CHROM "
+
     for disease in associations:
         for study in associations[disease]:
             for association in associations[disease][study]["associations"]:
-                if association['pos'] != 'NA':
+                if fileType == "vcf" and association['pos'] != 'NA':
                     snps += "-e {0} ".format(association['pos'].split(":")[1])
+                elif fileType == "rsID" and association['snp'] != 'NA':
+                    snps += "-e {0} ".format(association['snp'])
 
     associations = json.dumps(associations)
     return [snps, associations]

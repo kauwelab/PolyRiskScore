@@ -326,8 +326,8 @@ calculatePRS () {
 
     pyVer=""
     ver=$(python --version)
-    read -a strarr <<< $"ver"
-    if [[ ${strarr[1]} =~ ^3 ]]; then
+    read -a strarr <<< "$ver"
+    if [[ "${strarr[1]}" =~ ^3 ]]; then
         pyVer="python"
     else
         pyVer="python3"
@@ -343,10 +343,13 @@ calculatePRS () {
     export ethnicities=${ethnicityForCalc[@]}
 
     res=""
+    intermediate=""
     if [[ "$1" =~ .TXT$|.txt$ ]]; then 
-        res=$($pyVar -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', 'rsID')")
+        res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', 'rsID')")
+        intermediate="intermediate.txt"
     else
-        res=$($pyVar -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', 'vcf')")
+        res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', 'vcf')")
+        intermediate="intermediate.vcf"
     fi 
 
     declare -a resArr
@@ -360,10 +363,12 @@ calculatePRS () {
     echo "Got SNPs and disease information from PRSKB"
 
     # Filters the input VCF to only include the lines that correspond to the SNPs in our GWAS database
-    grep -w ${resArr[0]} "$1" > intermediate.vcf
+    grep -w ${resArr[0]} "$1" > $intermediate
     # prints out the tableObj string to a file so python can read it in
     # (passing the string as a parameter doesn't work because it is too large)
     echo "Greped the VCF file"
+
+    exit; #TODO DELETE
 
     outputType="csv" #this is the default
     #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
