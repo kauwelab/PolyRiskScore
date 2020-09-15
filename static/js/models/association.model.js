@@ -178,7 +178,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         for (i = 0; i < res.length; i++) {
             for (j = 0; j < res[i].length; j++) {
                 trait = formatter.formatForTableName(res[i][j].trait)
-                queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = ${res[i][j].studyID}; `)
+                queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i][j].studyID}'; `)
             }
         }
 
