@@ -160,4 +160,63 @@ Association.searchMissingRsIDs = result => {
     });
 }
 
+Association.snpsByEthnicity = (ethnicities, result) => {
+    queryString = ""
+    for (i = 0; i < ethnicities.length; i++) {
+        queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
+    }
+
+    sql.query(queryString, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        queryString = ""
+
+        for (i = 0; i < res.length; i++) {
+            for (j = 0; j < res[i].length; j++) {
+                trait = formatter.formatForTableName(res[i][j].trait)
+                queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = ${res[i][j].studyID}; `)
+            }
+        }
+
+        sql.query(queryString, (err2, data) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+
+            results = []
+            for (i = 0; i < res.length; i++) {
+                ethnicity = ethnicities[i]
+                studyObjs = []
+                for (j = 0; j < res[i].length; j++) {
+                    studyID = res[i][j].studyID
+                    snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
+                    snps = []
+                    for (k = 0; k < data[snpIndex].length; k++) {
+                        snps.append(data[snpIndex][k].snp)
+                    }
+
+                    obj = {
+                        "studyID": studyID,
+                        "snps": snps
+                    }
+                    studyObjs.append(obj)
+                }
+                ethnicityObj = {
+                    "ethnicity": ethnicity,
+                    "studies": studyObjs
+                }
+                results.append(ethnicityObj)
+            }
+
+            result(null, results)
+        })
+    })
+}
+
 module.exports = Association;
