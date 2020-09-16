@@ -6,11 +6,10 @@ import time
 import datetime
 
 def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType):
-    if traits != "":
-        traits = traits.split(" ")
-    else:
-        None
-#    traits = traits.split(" ") if traits != "" else None
+
+    traits = traits.split(" ") if traits != "" else None
+    if traits is not None:
+        traits = [sub.replace('_', ' ') for sub in traits]
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
@@ -23,8 +22,8 @@ def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType):
     print('%'.join(toReturn))
 
 
-def getAllAssociations(pValue, refGen, fileType, traits = ""): 
-    if traits == "":
+def getAllAssociations(pValue, refGen, fileType, traits = None): 
+    if traits is None:
         traits = getAllTraits()
     associations = getAssociations("https://prs.byu.edu/all_associations", traits, pValue, refGen)
     return formatAssociationsForReturn(associations, fileType)
@@ -34,7 +33,7 @@ def getSpecificAssociations(pValue, refGen, fileType, traits = None, studyTypes 
     studyIDspecificData = {}
 
     if (studyIDs is not None):
-        url_get_by_study_id = "https://prs.byu.edu/get_studies"
+        url_get_by_study_id = "https://prs.byu.edu/get_studies_by_id"
         params = {
             "ids": studyIDs
         }
@@ -130,5 +129,5 @@ def getAllTraits():
 def urlWithParams(url, params):
     response = requests.get(url=url, params=params)
     response.close()
-    assert (response), "THIS TRAIT IS NOT YET INCLUDED IN OUR DATABASE. Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()  
