@@ -393,7 +393,6 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, refGen, lo, output
         # TODO Test this!
         output = json.dumps(resultJsons)
         return(output)
-    output3.close()
 
 def getCombinedORFromArray(oddRatios):
     combinedOR = 0
