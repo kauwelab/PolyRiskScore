@@ -232,8 +232,14 @@ runPRS () {
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
-    args=$(echo "$args" | sed -r "s/([a-zA-Z])(')([a-zA-z])/\1\\\\\2\3/g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
+    #args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
+    apostrophe="'"
+    backslash='\'
+    argc=$#
+    args=${args//${apostrophe}/${backslash}${apostrophe}}
+    args=$(echo "$args" | sed ':a;s/^\(\([^"]*"[^"]*"[^"]*\)*[^"]*"[^"]*\) /\1_/;ta')
     args=( $(xargs -n1 -0 <<<"$args") )
+
     echo "${args[@]}" 
 
     if [ ${#args[@]} -lt 5 ]; then
@@ -281,10 +287,12 @@ calculatePRS () {
     studyIDsForCalc=()
     ethnicityForCalc=()
 
+
     if [ ${#args[@]} -gt 0 ]; then
         for arg in "${args[@]}";
         do
             if [ "$arg" = "--t" ]; then
+		echo "in --t"
                 trait=1
                 studyType=0
                 studyID=0
@@ -366,7 +374,7 @@ calculatePRS () {
     grep -w ${resArr[0]} "$1" > $intermediate
     # prints out the tableObj string to a file so python can read it in
     # (passing the string as a parameter doesn't work because it is too large)
-    echo "Greped the VCF file"
+    echo "Filtered the input VCF file to include only the variants present in the PRSKB"
 
     IFS='.'
     read -a fileName <<< "$2"
