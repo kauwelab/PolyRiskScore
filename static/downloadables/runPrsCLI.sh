@@ -9,6 +9,18 @@ version="1.0.0"
 # HISTORY:
 # 
 # * 8/28/2020 - v1.0.0  - First Creation
+#   Parameter order:
+#       1 VCF file path
+#       2 output file path (csv or txt format)
+#       3 p-value cutoff (ex: 0.05)
+#       4 refGen {hg17, hg18, hg19, hg38}
+#       5 super population {AFR, AMR, EAS, EUR, SAS}
+
+#   OPTIONAL PARAMETERS:
+#       --t traitList ex. ["acne", "insomnia"]
+#       --k studyType ex. ["HI", "LC", "O"]
+#       --s studyIDs ex. ["GCST000727", "GCST009496"]
+#       --e ethnicity ex. ["European", "East Asian"]
 # 
 # ########################################################################
 
@@ -31,15 +43,6 @@ prskbMenu () {
     echo ""
     echo "Select an option below by entering the corresponding number"
     echo "then pressing [Enter]."
-}
-
-listOptions () {
-    echo -e " ${LIGHTBLUE}1${NC} - Learn about Parameters"
-    echo -e " ${LIGHTBLUE}2${NC} - Search for a specific study or disease"
-    echo -e " ${LIGHTBLUE}3${NC} - View usage"
-    echo -e " ${LIGHTBLUE}4${NC} - Run the PRSKB calculator"
-    echo -e " ${LIGHTBLUE}5${NC} - Quit"
-    echo ""
 }
 
 usage () {
@@ -131,7 +134,7 @@ learnAboutParameters () {
                 echo "" ;;
             4 ) echo -e "${MYSTERYCOLOR} RefGen (Reference Genome): ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
-		echo "in the input VCF file."
+		        echo "in the input VCF file."
                 echo "" ;;
             5 ) echo -e "${MYSTERYCOLOR} Subject Ethnicity: ${NC}"
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
@@ -154,9 +157,9 @@ learnAboutParameters () {
                 echo "This parameter allows you to pick what kind of studies you "
                 echo -e "wish to run the PRS calculator on. The options are ${GREEN}HI${NC} (High Impact), " 
                 echo -e "${GREEN}LC${NC} (Largest Cohort), and${GREEN} O${NC} (Other). You can include any combination "
-                echo "of these and we will ... " 
+                echo "of these and we will run calculations on the appropriate studies." 
                 echo ""
-                echo -e "   ${GREEN}HI (High Impact)${NC} - determined by study scores pulled from ____. Only " 
+                echo -e "   ${GREEN}HI (High Impact)${NC} - determined by study scores pulled from Almetric. Only " 
                 echo "   the studies with the highest impact are chosen with this option. "
                 echo -e "   ${GREEN}LC (Largest Cohort)${NC} - determined by study cohort size. Only the" 
                 echo "   studies with the highest impact are chosen with this option." 
@@ -233,8 +236,36 @@ runPRS () {
     args=${args//${apostrophe}/${backslash}${apostrophe}}
     args=$(echo "$args" | sed ':a;s/^\(\([^"]*"[^"]*"[^"]*\)*[^"]*"[^"]*\) /\1_/;ta')
     args=( $(xargs -n1 -0 <<<"$args") )
-    # TODO: put the validity check here for variables. 
-    calculatePRS ${args[@]}
+
+    echo "${args[@]}" 
+
+    if [ ${#args[@]} -lt 5 ]; then
+        echo -e "${LIGHTRED}Too few arguments! Quitting...${NC}"
+        exit
+    elif [ ! -f "${args[1]}" ]; then
+        echo -e "The file${LIGHTRED} ${args[1]} ${NC}does not exist."
+        echo "Check the path and try again."
+        read -p "Press [Enter] key to quit..."
+    elif ! [[ "${args[2]}" =~ .csv$|.json$|.txt$ ]]; then
+        echo -e "${LIGHTRED}${args[2]} ${NC} is not in the right format."
+        echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
+        read -p "Press [Enter] key to quit..."
+    elif ! [[ "${args[3]}" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
+        echo -e "${LIGHTRED}${args[3]} ${NC} is your p-value, but it is not a number."
+        echo "Check the value and try again."
+        read -p "Press [Enter] key to quit..."
+    elif ! [[ "${args[4]}" =~ ^hg17$|^hg19$|^hg18$|^hg38$ ]]; then
+        echo -e "${LIGHTRED}${args[4]} ${NC}should be hg17, hg18, hg19, or hg38"
+        echo "Check the value and try again."
+        read -p "Press [Enter] key to quit..."
+    #AFR, AMR, EAS, EUR, SAS (add code to make case insensitive)
+    elif ! [[ "${args[5]}" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
+        echo -e "${LIGHTRED}${args[5]} ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+        echo "Check the value and try again."
+        read -p "Press [Enter] key to quit..."
+    else
+        calculatePRS ${args[@]}
+    fi
     exit;
 }
 
@@ -360,26 +391,14 @@ checkForNewVersion () {
 
 }
 
-# v1.0.0
-# Parameter order:
-#1 VCF file path
-#2 output file path (csv or txt format)
-#3 p-value cutoff (ex: 0.05)
-#4 refGen {hg17, hg18, hg19, hg38}
-
-#OPTIONAL PARAMETERS:
-# --t traitList ex. ["acne", "insomnia"]
-# --k studyType ex. ["HI", "LC", "O"]
-# --s studyIDs ex. ["GCST000727", "GCST009496"]
-# --e ethnicity ex. ["European", "East Asian"]
-
+# BEGINNING OF 'MAIN' FUNCTIONALITY
 HORIZONTALLINE="============================================================================="
 
 if [[ "$1" =~ "--version" ]]; then 
     echo -e "Running version ${version}"
     checkForNewVersion
 
-elif [ $# -lt 4 ]; then
+elif [ $# -lt 5 ]; then
     echo -e "${LIGHTRED}Too few arguments! ${NC}"
     echo -e "Show usage (u) or start menu (m)? "
     read -p "(u/m)? " decision
@@ -393,25 +412,25 @@ elif [ $# -lt 4 ]; then
         * ) echo -e "Invalid option. ${LIGHTRED}Quitting...${NC}"
             exit;;
     esac
-
-    # give a menu and make the script interactive, giving access
-    # to know what studies and diseases they can choose from, 
-    # what valid parameters are, ect, what explanations of parameters are
-
 elif [ ! -f "$1" ]; then
-    echo "The file $1 does not exist."
+    echo -e "The file${LIGHTRED} $1 ${NC}does not exist."
     echo "Check the path and try again."
     read -p "Press [Enter] key to quit..."
-elif ! [[ "$2" =~ .csv|.json|.txt$ ]]; then
-    echo "$2 is not in the right format."
-    echo "Valid formats are csv, json, and txt"
+elif ! [[ "$2" =~ .csv$|.json$|.txt$ ]]; then
+    echo -e "${LIGHTRED}$2 ${NC} is not in the right format."
+    echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
     read -p "Press [Enter] key to quit..."
 elif ! [[ "$3" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-    echo "$3 is your p-value, but it is not a number."
+    echo -e "${LIGHTRED}$3 ${NC} is your p-value, but it is not a number."
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
-elif ! [[ "$4" == 'hg17' ]] && ! [[ "$4" = 'hg19' ]] && ! [[ "$4" == 'hg18' ]] && ! [[ "$4" == 'hg38' ]]; then
-    echo "$4 should be hg17, hg18, hg19, or hg38"
+elif ! [[ "$4" =~ ^hg17$|^hg18$|^hg19$|^hg38$ ]]; then
+    echo -e "${LIGHTRED}$4 ${NC}should be hg17, hg18, hg19, or hg38"
+    echo "Check the value and try again."
+    read -p "Press [Enter] key to quit..."
+#AFR, AMR, EAS, EUR, SAS (add code to make case insensitive)
+elif ! [[ "$5" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
+    echo -e "${LIGHTRED}$5 ${NC} should be AFR, AMR, EAS, EUR, or SAS."
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
 else

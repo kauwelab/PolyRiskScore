@@ -83,9 +83,9 @@ exports.getAll = (req, res) => {
 };
 
 exports.getFiltered = (req, res) => {
-    traits = req.query.traits
-    studyTypes = req.query.studyTypes
-    ethnicities = req.query.ethnicities
+    traits = req.body.traits
+    studyTypes = req.body.studyTypes
+    ethnicities = req.body.ethnicities
     console.log("getting studies");
     Study.getFiltered(traits, studyTypes, ethnicities, (err, data) => {
         if (err) {
