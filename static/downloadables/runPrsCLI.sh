@@ -235,7 +235,6 @@ runPRS () {
     args=$(echo "$args" | sed -r "s/([a-zA-Z])(')([a-zA-z])/\1\\\\\2\3/g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
     args=( $(xargs -n1 -0 <<<"$args") )
     echo "${args[@]}" 
-
     if [ ${#args[@]} -lt 5 ]; then
         echo -e "${LIGHTRED}Too few arguments! Quitting...${NC}"
         exit

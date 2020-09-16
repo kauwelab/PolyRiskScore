@@ -8,7 +8,7 @@ from collections import namedtuple
 import json
 import requests
 import math
-
+from pyliftover import LiftOver
 
 def urlWithParams(url, params):
     response = requests.get(url=url, params=params)
