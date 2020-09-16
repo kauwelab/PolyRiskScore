@@ -99,9 +99,14 @@ exports.getSingleSnpFromEachStudy = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            // formating returned data
-            console.log(data)
-            res.send(data);
+            snps = []
+            for (i = 0; i < data.length; i++) {
+                for (j = 0; j < data[i].length; j++) {
+                    snps.push(data[i][j])
+                }
+            }
+            console.log("single snp from each study: 1 shown", snps[0])
+            res.send(snps);
         }
     })
 }
