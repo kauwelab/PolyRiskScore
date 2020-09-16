@@ -229,8 +229,14 @@ runPRS () {
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
-    args=$(echo "$args" | sed -r "s/([a-zA-Z])(')([a-zA-z])/\1\\\\\2\3/g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
+    #args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
+    apostrophe="'"
+    backslash='\'
+    argc=$#
+    args=${args//${apostrophe}/${backslash}${apostrophe}}
+    args=$(echo "$args" | sed ':a;s/^\(\([^"]*"[^"]*"[^"]*\)*[^"]*"[^"]*\) /\1_/;ta')
     args=( $(xargs -n1 -0 <<<"$args") )
+
     echo "${args[@]}" 
 
     if [ ${#args[@]} -lt 5 ]; then
@@ -278,10 +284,12 @@ calculatePRS () {
     studyIDsForCalc=()
     ethnicityForCalc=()
 
+
     if [ ${#args[@]} -gt 0 ]; then
         for arg in "${args[@]}";
         do
             if [ "$arg" = "--t" ]; then
+		echo "in --t"
                 trait=1
                 studyType=0
                 studyID=0
@@ -330,7 +338,8 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    res=$(python3 -c "import vcf_parser_grep_test as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
+    
+    res=$(python3 -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
     read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
@@ -345,12 +354,12 @@ calculatePRS () {
     grep -w ${resArr[0]} "$1" > intermediate.vcf
     # prints out the tableObj string to a file so python can read it in
     # (passing the string as a parameter doesn't work because it is too large)
-    echo "Greped the VCF file"
+    echo "Filtered the input VCF file to include only the variants present in the PRSKB"
 
     outputType="csv" #this is the default
     #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
     python3 run_prs_grep.py intermediate.vcf "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
-    echo "Caculated score"
+    echo "Calculated score"
     rm intermediate.vcf
     rm tableObj.txt
     rm -r __pycache__
