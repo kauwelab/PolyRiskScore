@@ -16,6 +16,7 @@ def urlWithParams(url, params):
     assert (response), "THIS TRAIT IS NOT YET INCLUDED IN OUR DATABASE. Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()  
 
+# converts chrom pos to the hg38 position
 def convertRefGen(chrom, pos, lo):
     chrom_string = 'chr' + chrom
     hg38_pos = lo.convert_coordinate(chrom_string, int(pos))
@@ -29,7 +30,7 @@ def convertRefGen(chrom, pos, lo):
 
 def calculateScore(inputFile, diseaseArray, pValue, outputType, tableObjList, refGen, superPop):
     tableObjList = json.loads(tableObjList)
-    if (inputFile.endswith(".txt") or inputFile.endswith(".TXT")):
+    if (inputFile.lower().endswith(".txt")):
         posList, pos_pval_map, studyIDs, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen)
         txtObj, totalVariants = parse_txt(inputFile, posList, pos_pval_map, diseaseStudyIDs, studyIDs, superPop)
         results = txtcalculations(tableObjList, txtObj,
@@ -39,10 +40,10 @@ def calculateScore(inputFile, diseaseArray, pValue, outputType, tableObjList, re
 
     else:
         from pyliftover import LiftOver
-        lo = lo = LiftOver(refGen, 'hg38')
+        lo = LiftOver(refGen, 'hg38')
         posList, pos_pval_map, studyIDs, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen, lo)
         vcfObj, totalVariants = parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, studyIDs, superPop)
-        results = calculations(tableObjList, vcfObj,
+        results = vcfcalculations(tableObjList, vcfObj,
                             totalVariants, pValue, refGen, lo, outputType)
         return(results)
 
@@ -58,10 +59,12 @@ def getSNPsFromTableObj(tableObjList, refGen, lo = None):
             diseaseStudyIDs.append((diseaseEntry, studyID))
             studyIDs.append(studyID)
             for row in tableObjList[diseaseEntry][studyID]['associations']:
+                # if is a txt file, get the rsID and pValue
                 if not lo:
                     snp = row['snp']
                     pos_pval_map[studyID][snp] = row['pValue']
                     posList.append(snp)
+                # else it is a vcf AND the if position is not NA, get the chrom pos and pValue 
                 elif row['pos'] != 'NA':
                     chrom = row['pos'].split(':')[0]
                     pos = row['pos'].split(':')[1]
@@ -80,8 +83,8 @@ def getClumps(studyIDs, superPop):
     res = {}
     for i in range(25, len(studyIDs), 25):
         params = {
-        "studyIDs":studyIDs[h:i],
-        "superPop":superPop
+            "studyIDs":studyIDs[h:i],
+            "superPop":superPop
         }
         res = {**res, **urlWithParams("https://prs.byu.edu/ld_clumping", params)}
         h = i
@@ -99,7 +102,7 @@ def parse_txt(txtFile, posList, pos_pval_map, diseaseStudyIDs, studyIDs, superPo
     openFile = open(txtFile, 'r')
     Lines = openFile.readlines()
 
-    # Create a defautlt dictionary (nested dictionary)
+    # Create a default dictionary (nested dictionary)
     sample_map = defaultdict(dict)
     # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
     index_snp_map = defaultdict(dict)
@@ -183,10 +186,10 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, stu
     # Check if file is gzipped and open it with vcf reader
     elif filename.endswith(".gz") or filename.endswith(".gzip") or filename.endswith(".tgz"):
         vcf_reader = vcf.Reader(filename=filename)
-        # If the file is normal, open it with the vcf reader
+    # If the file is normal, open it with the vcf reader
     else:
         vcf_reader = vcf.Reader(open(filename, "r"))
-    # Create a defautlt dictionary (nested dictionary)
+    # Create a default dictionary (nested dictionary)
     sample_map = defaultdict(dict)
     # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
     index_snp_map = defaultdict(dict)
@@ -346,7 +349,7 @@ def txtcalculations(tableObjList, txtObj, totalVariants, pValue, refGen, outputT
         return(output)
 
 
-def calculations(tableObjList, vcfObj, totalVariants, pValue, refGen, lo, outputType):
+def vcfcalculations(tableObjList, vcfObj, totalVariants, pValue, refGen, lo, outputType):
     resultJsons = []
     resultJsons.append({
         "pValueCutoff": pValue,
