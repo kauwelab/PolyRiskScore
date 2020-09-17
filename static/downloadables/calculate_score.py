@@ -211,7 +211,7 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, stu
     for record in vcf_reader:
         chrom = record.CHROM
         pos = record.POS
-        ALT = record.ALT
+        ALT = record.ALT[0]
         REF = record.REF
         # If the refGen isn't hg38, convert it to hg38
         if refGen != 'hg38':
@@ -277,7 +277,7 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, stu
                                     if gt_nums[1] == '0':
                                         alleles.append(REF)
                                     elif gt_nums[1] == '1':
-                                        alleles.append(ALT[0])
+                                        alleles.append(ALT)
                                 elif count == 2:
                                     if gt_nums[0] == 0:
                                         alleles.append(REF)
