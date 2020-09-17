@@ -162,13 +162,19 @@ Association.searchMissingRsIDs = result => {
 
 //get all SNPS for each study that has the ethnicities specified
 Association.snpsByEthnicity = (ethnicities, result) => {
-
     //select traits and studyIDs from the study table associated with the given ethnicities
     queryString = ""
-    for (i = 0; i < ethnicities.length; i++) {
-        queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
-    }
 
+    if (Array.isArray(ethnicities)) {
+        for (i = 0; i < ethnicities.length; i++) {
+            queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
+        }
+    }
+    else {
+        queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities}%'; `)
+    }
+    
+    console.log(queryString)
     sql.query(queryString, (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -181,7 +187,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         //get snps associated with the studyIDs found above 
         for (i = 0; i < res.length; i++) {
             //if there is more than one ethnicity in the selector, select the SNPs for each study
-            if(ethnicities.length > 1) {
+            if(Array.isArray(ethnicities)) {
                 for (j = 0; j < res[i].length; j++) {
                     //TODO clean to remove duplicate code
                     trait = formatter.formatForTableName(res[i][j].trait)
@@ -196,6 +202,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
             }
         }
 
+        console.log(queryString)
         sql.query(queryString, (err2, data) => {
             if (err2) {
                 console.log("error: ", err2);
@@ -206,33 +213,26 @@ Association.snpsByEthnicity = (ethnicities, result) => {
             //convert the results to the correct format
             results = []
             //handling for more than one ethnicity
-            if (ethnicities.length > 1) {
+            if (Array.isArray(ethnicities)) {
                 //TODO clean to remove duplicate code
                 //for each ethnicity
                 for (i = 0; i < res.length; i++) {
                     ethnicity = ethnicities[i]
 
                     //for each study
-                    studyObjs = []
+                    snps = []
                     for (j = 0; j < res[i].length; j++) {
-                        studyID = res[i][j].studyID
                         snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
 
                         //for each row in the study
-                        snps = []
                         for (k = 0; k < data[snpIndex].length; k++) {
                             snps.push(data[snpIndex][k].snp)
                         }
     
-                        obj = {
-                            "studyID": studyID,
-                            "snps": snps
-                        }
-                        studyObjs.push(obj)
                     }
                     ethnicityObj = {
                         "ethnicity": ethnicity,
-                        "studies": studyObjs
+                        "snps": snps
                     }
                     results.push(ethnicityObj)
                 }
@@ -241,26 +241,17 @@ Association.snpsByEthnicity = (ethnicities, result) => {
             else {
                 //TODO clean to remove duplicate code
                 console.log(res.length)
-                studyObjs = []
-                ethnicity = ethnicities[0]
+                snps = []
                 //for each study
                 for (i = 0; i < res.length; i++) {
-                    studyID = res[i].studyID
-                    snps = []
                     //for each row in the study
                     for (k = 0; k < data[i].length; k++) {
                         snps.push(data[i][k].snp)
                     }
-    
-                    obj = {
-                        "studyID": studyID,
-                        "snps": snps
-                    }
-                    studyObjs.push(obj)
                 }
                 ethnicityObj = {
-                    "ethnicity": ethnicity,
-                    "studies": studyObjs
+                    "ethnicity": ethnicities,
+                    "snps": snps
                 }
                 results.push(ethnicityObj)
             }
