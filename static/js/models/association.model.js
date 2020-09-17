@@ -220,7 +220,6 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                         snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
 
                         //for each row in the study
-                        
                         for (k = 0; k < data[snpIndex].length; k++) {
                             snps.push(data[snpIndex][k].snp)
                         }
