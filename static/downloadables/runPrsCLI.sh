@@ -351,13 +351,16 @@ calculatePRS () {
 
     res=""
     intermediate=""
+    inputType=""
     if [[ "$1" =~ .TXT$|.txt$ ]]; then 
-        res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', 'rsID')")
+        inputType="rsID"
         intermediate="intermediate.txt"
     else
-        res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', 'vcf')")
+        inputType="vcf"
         intermediate="intermediate.vcf"
     fi 
+
+    res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$inputType')")
 
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
