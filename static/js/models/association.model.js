@@ -165,7 +165,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
     //select traits and studyIDs from the study table associated with the given ethnicities
     queryString = ""
 
-    if (ethnicities.isArray()) {
+    if (Array.isArray(ethnicities)) {
         for (i = 0; i < ethnicities.length; i++) {
             queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
         }
@@ -187,7 +187,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         //get snps associated with the studyIDs found above 
         for (i = 0; i < res.length; i++) {
             //if there is more than one ethnicity in the selector, select the SNPs for each study
-            if(ethnicities.isArray()) {
+            if(Array.isArray(ethnicities)) {
                 for (j = 0; j < res[i].length; j++) {
                     //TODO clean to remove duplicate code
                     trait = formatter.formatForTableName(res[i][j].trait)
@@ -213,7 +213,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
             //convert the results to the correct format
             results = []
             //handling for more than one ethnicity
-            if (ethnicities.isArray()) {
+            if (Array.isArray(ethnicities)) {
                 //TODO clean to remove duplicate code
                 //for each ethnicity
                 for (i = 0; i < res.length; i++) {
