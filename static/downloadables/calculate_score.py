@@ -8,7 +8,6 @@ from collections import namedtuple
 import json
 import requests
 import math
-from pyliftover import LiftOver
 
 def urlWithParams(url, params):
     response = requests.get(url=url, params=params)
@@ -39,7 +38,7 @@ def calculateScore(inputFile, diseaseArray, pValue, outputType, tableObjList, re
 
     else:
         from pyliftover import LiftOver
-        lo = lo = LiftOver(refGen, 'hg38')
+        lo = LiftOver(refGen, 'hg38')
         posList, pos_pval_map, studyIDs, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen, lo)
         vcfObj, totalVariants = parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, studyIDs, superPop)
         results = calculations(tableObjList, vcfObj,
@@ -209,6 +208,8 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, stu
     for record in vcf_reader:
         chrom = record.CHROM
         pos = record.POS
+        ALT = record.ALT
+        REF = record.REF
         # If the refGen isn't hg38, convert it to hg38
         if refGen != 'hg38':
             chromPos = convertRefGen(chrom, pos, lo)
@@ -221,6 +222,7 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, stu
             for call in record.samples:  
                 gt = call.gt_bases    
                 name = call.sample 
+                genotype = record.genotype(name)['GT']
                 # Create a tuple with the disease, study, and sample name
                 disease_study_name = (disease, study, name)
                 # Check to see if the snp position from this line in the vcf exists in the clump table for this study
@@ -235,15 +237,84 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, stu
                         pValue = pos_pval_map[study][chromPos]
                         totalLines += 1
                         # Check whether the genotype for this sample and snp exists
-                        if gt is not None:
-                            if "|" in gt:
-                                alleles = gt.split('|')
-                            elif "/" in gt:
-                                alleles = gt.split('/')
+                        if genotype != "./.":
+                            count = 0
+                            alleles = []
+                            if "|" in genotype:
+                                gt_nums = genotype.split('|')
+                                if gt_nums[0] == ".":
+                                    count = 1
+                                elif gt_nums[1] == ".":
+                                    count = 2
+                                if count == 0:
+                                    alleles = gt.split('|')
+                                elif count == 1:
+                                    alleles.append("")
+                                    if gt_nums[1] == 0:
+                                        alleles.append(REF)
+                                    elif gt_nums[1] == 1:
+                                        alleles.append(ALT)
+                                elif count == 2:
+                                    if gt_nums[0] == 0:
+                                        alleles.append(REF)
+                                    elif gt_nums[1] == 1:
+                                        alleles.append(ALT)
+                                    alleles.append("")
+                                    
+                            elif "/" in genotype:
+                                gt_nums = genotype.split('/')
+                                if gt_nums[0] == ".":
+                                    count = 1
+                                elif gt_nums[1] == ".":
+                                    count = 2
+                                if count == 0:
+                                    alleles = gt.split('/')
+                                elif count == 1:
+                                    alleles.append("")
+                                    if gt_nums[1] == '0':
+                                        alleles.append(REF)
+                                    elif gt_nums[1] == '1':
+                                        alleles.append(ALT[0])
+                                elif count == 2:
+                                    if gt_nums[0] == 0:
+                                        alleles.append(REF)
+                                    elif gt_nums[1] == 1:
+                                        alleles.append(ALT)
+                                    alleles.append("")
+
                             else:
-                                alleles = list(gt)
+                                gt_nums = list(genotype)
+                                if gt_nums[0] == ".":
+                                    count = 1
+                                elif gt_nums[1] == ".":
+                                    count = 2
+                                if count == 0:
+                                    alleles = list(gt)
+                                elif count == 1:
+                                    alleles.append("")
+                                    if gt_nums[1] == 0:
+                                        alleles.append(REF)
+                                    elif gt_nums[1] == 1:
+                                        alleles.append(ALT)
+                                elif count == 2:
+                                    if gt_nums[0] == 0:
+                                        alleles.append(REF)
+                                    elif gt_nums[1] == 1:
+                                        alleles.append(ALT)
+                                    alleles.append("")
+                                
+
                         else:
-                            alleles=""
+                            alleles = ""
+#                        if gt is not None:
+#                            if "|" in gt:
+#                                alleles = gt.split('|')
+#                            elif "/" in gt:
+#                                alleles = gt.split('/')
+#                            else:
+#                                alleles = list(gt)
+#                        else:
+#                            alleles=""
                         # Check if the disease/study/name combo has been used in the index snp map yet
                         if disease_study_name in index_snp_map:
                             # if the clump number for this snp position and disease/study/name is alraedy in the index map, move forward
@@ -283,6 +354,7 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, stu
                 if disease_study_name not in counter_list:
                     sample_map[disease_study_name][""] = ""
 
+    
     final_map = dict(sample_map)
     return final_map, totalLines
 
@@ -367,6 +439,7 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, refGen, lo, output
         for chromPos in vcfObj[disease_study_samp]:
              # Also iterate through each of the alleles for the snp
             for allele in vcfObj[disease_study_samp][chromPos]:
+                allele = str(allele)
                 # Then compare to the gwa study
                 for row in tableObjList[disease][studyID]['associations']:
                     if row['pos'] != 'NA':
@@ -378,7 +451,7 @@ def calculations(tableObjList, vcfObj, totalVariants, pValue, refGen, lo, output
                             hg38_pos = str(chrom) + ':' + str(pos)
                     else:
                         hg38_pos = "NA"
-                    if allele != None: #TODO check this 
+                    if allele != "": #TODO check this 
                         # Compare the individual's snp and allele to the study row's snp and risk allele
                         # If they match, use that snp's odds ratio to the calculation
                         if chromPos == hg38_pos and allele == row['riskAllele']:
