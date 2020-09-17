@@ -169,6 +169,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
     }
 
+    console.log(queryString)
     sql.query(queryString, (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -196,6 +197,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
             }
         }
 
+        console.log(queryString)
         sql.query(queryString, (err2, data) => {
             if (err2) {
                 console.log("error: ", err2);
