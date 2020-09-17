@@ -241,7 +241,6 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 ethnicity = ethnicities[0]
                 //for each study
                 for (i = 0; i < res.length; i++) {
-                    snps = []
                     //for each row in the study
                     for (k = 0; k < data[i].length; k++) {
                         snps.push(data[i][k].snp)
