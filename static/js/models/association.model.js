@@ -215,20 +215,26 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                     ethnicity = ethnicities[i]
 
                     //for each study
-                    snps = []
+                    studyObjs = []
                     for (j = 0; j < res[i].length; j++) {
+                        studyID = res[i][j].studyID
                         snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
 
                         //for each row in the study
-                        
+                        snps = []
                         for (k = 0; k < data[snpIndex].length; k++) {
                             snps.push(data[snpIndex][k].snp)
                         }
     
+                        obj = {
+                            "studyID": studyID,
+                            "snps": snps
+                        }
+                        studyObjs.push(obj)
                     }
                     ethnicityObj = {
                         "ethnicity": ethnicity,
-                        "snps": snps
+                        "studies": studyObjs
                     }
                     results.push(ethnicityObj)
                 }
@@ -237,19 +243,26 @@ Association.snpsByEthnicity = (ethnicities, result) => {
             else {
                 //TODO clean to remove duplicate code
                 console.log(res.length)
-                snps = []
+                studyObjs = []
                 ethnicity = ethnicities[0]
                 //for each study
                 for (i = 0; i < res.length; i++) {
+                    studyID = res[i].studyID
                     snps = []
                     //for each row in the study
                     for (k = 0; k < data[i].length; k++) {
                         snps.push(data[i][k].snp)
                     }
+    
+                    obj = {
+                        "studyID": studyID,
+                        "snps": snps
+                    }
+                    studyObjs.push(obj)
                 }
                 ethnicityObj = {
                     "ethnicity": ethnicity,
-                    "snps": snps
+                    "studies": studyObjs
                 }
                 results.push(ethnicityObj)
             }
