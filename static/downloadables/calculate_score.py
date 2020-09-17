@@ -12,7 +12,7 @@ import math
 def urlWithParams(url, params):
     response = requests.get(url=url, params=params)
     response.close()
-    assert (response), "THIS TRAIT IS NOT YET INCLUDED IN OUR DATABASE. Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()  
 
 # converts chrom pos to the hg38 position
