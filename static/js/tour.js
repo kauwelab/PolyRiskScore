@@ -73,7 +73,7 @@ function startTour() {
                 element: "#applyFilters",
                 title: "Select additional study filters",
                 content: "Studies about the traits you selected can be further filtered by choosing \
-                study type or study ethnicity. Each trait has one highest impact study and largest cohort \
+                study type or study ethnicity. Each trait has one highest impact study and one largest cohort \
                 study. \"High impact\" is mesured by Altmetric score while \"large cohort\" is measured \
                 by the size of a study's initial sample size plus its replication sample size. Once you have \
                 finished selecting your filters, press the \"Apply filters\" button to update the studies list.",
@@ -84,7 +84,8 @@ function startTour() {
                 element: "#studySelectContainer",
                 title: "Select studies",
                 content: "Search and select studies to include in your results. A separate polygenic risk score \
-                will be calculated for each study."
+                will be calculated for each study. Once you have finished selecting your filters, press the \"next\" \
+                button to continue the tour."
             },
             {
                 element: "#pvalInput",
@@ -117,7 +118,8 @@ function startTour() {
             {
                 element: "#startTour",
                 title: "You're all set!",
-                content: "Now give it a try with your own data! If you have any questions, contact us using the form at the bottom of the homepage.",
+                content: "Now give it a try with your own data! If you have any questions, contact us using the form at the \
+                bottom of the homepage. Thanks for using PRSKB",
                 template: templateWithoutNext
             }
         ]
