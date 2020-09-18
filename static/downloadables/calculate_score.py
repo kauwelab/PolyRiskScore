@@ -92,8 +92,8 @@ def parse_txt(txtFile, posList, pos_pval_map, diseaseStudyIDs, clumpsObjList, su
             clumpNum = snpObj['clumpNumber']
             clumpMap[study][snp] = clumpNum
 
-    # Create a list to keep track of which disease/study/samples have viable snps and which ones don't 
-    counter_list = []
+    # Create a set to keep track of which disease/study/samples have viable snps and which ones don't 
+    counter_set = set()
 
     # Iterate through each record in the file and save the SNP rs ID
     for line in Lines:
@@ -111,7 +111,7 @@ def parse_txt(txtFile, posList, pos_pval_map, diseaseStudyIDs, clumpsObjList, su
                 if snp in pos_pval_map[study]:
                     # Add the disease/study tuple to the counter list because we now know at least there is
                     # at least one viable snp for this combination
-                    counter_list.append(disease_study)
+                    counter_set.add(disease_study)
                     pValue = pos_pval_map[study][snp]
                     totalLines += 1
                     # Check if the disease/study combo has been used in the index snp map yet
@@ -136,7 +136,7 @@ def parse_txt(txtFile, posList, pos_pval_map, diseaseStudyIDs, clumpsObjList, su
                         index_snp_map[disease_study][clumpNum] = snp
                         sample_map[disease_study][snp] = alleles
 
-            if disease_study not in counter_list:
+            if disease_study not in counter_set:
                 sample_map[disease_study][""] = ""
    
     openFile.close()
@@ -180,7 +180,7 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, clu
             clumpMap[study][hg38_pos] = clumpNum
 
     # Create a list to keep track of which disease/study/samples have viable snps and which ones don't 
-    counter_list = []
+    counter_set = set()
 
     # Iterate through each line in the vcf file
     for record in vcf_reader:
@@ -211,7 +211,7 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, clu
                     if chromPos in pos_pval_map[study]:
                         # Add the disease/study/sample tuple to the counter list because we now know at least there is
                         # at least one viable snp for this combination
-                        counter_list.append(disease_study_name)
+                        counter_set.add(disease_study_name)
                         pValue = pos_pval_map[study][chromPos]
                         totalLines += 1
                         # Check whether the genotype for this sample and snp exists
@@ -329,7 +329,7 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, clu
             # and create blank entries for the sample map for those that didn't
             for name in vcf_reader.samples:
                 disease_study_name = (disease, study, name)
-                if disease_study_name not in counter_list:
+                if disease_study_name not in counter_set:
                     sample_map[disease_study_name][""] = ""
 
     
