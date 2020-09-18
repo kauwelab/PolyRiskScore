@@ -5,7 +5,7 @@ import requests
 import time
 import datetime
 
-def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType):
+def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType, superPop):
 
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
@@ -18,6 +18,9 @@ def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType):
         toReturn = getAllAssociations(pValue, refGen, fileType, traits)
     else:
         toReturn = getSpecificAssociations(pValue, refGen, fileType, traits, studyTypes, studyIDs, ethnicity)
+    
+    toReturn.append(json.dumps(getClumps(toReturn[2], superPop)))
+    toReturn.pop(2)
     
     print('%'.join(toReturn))
 
@@ -101,6 +104,7 @@ def getAssociations(url, traits, pValue, refGen, turnString = None):
 
 def formatAssociationsForReturn(associations, fileType):
     snps = ""
+    studyIDs = []
     if fileType == "rsID":
         snps = "-e #ID "
     else:
@@ -108,6 +112,7 @@ def formatAssociationsForReturn(associations, fileType):
 
     for disease in associations:
         for study in associations[disease]:
+            studyIDs.append(study)
             for association in associations[disease][study]["associations"]:
                 if fileType == "vcf" and association['pos'] != 'NA':
                     snps += "-e {0} ".format(association['pos'].split(":")[1])
@@ -115,7 +120,7 @@ def formatAssociationsForReturn(associations, fileType):
                     snps += "-e {0} ".format(association['snp'])
 
     associations = json.dumps(associations)
-    return [snps, associations]
+    return [snps, associations, studyIDs]
 
 
 def getAllTraits():
@@ -131,3 +136,22 @@ def urlWithParams(url, params):
     response.close()
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()  
+
+
+def getClumps(studyIDs, superPop):
+    h=0
+    res = {}
+    for i in range(25, len(studyIDs), 25):
+        params = {
+            "studyIDs":studyIDs[h:i],
+            "superPop":superPop
+        }
+        res = {**res, **urlWithParams("https://prs.byu.edu/ld_clumping", params)}
+        h = i
+    else:
+        params = {
+            "studyIDs":studyIDs[h:len(studyIDs)],
+            "superPop":superPop
+        }
+        res = {**res, **urlWithParams("https://prs.byu.edu/ld_clumping", params)}
+    return res

@@ -6,14 +6,7 @@ import gzip
 from collections import defaultdict
 from collections import namedtuple
 import json
-import requests
 import math
-
-def urlWithParams(url, params):
-    response = requests.get(url=url, params=params)
-    response.close()
-    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
-    return response.json()  
 
 # converts chrom pos to the hg38 position
 def convertRefGen(chrom, pos, lo):
@@ -27,10 +20,11 @@ def convertRefGen(chrom, pos, lo):
         final_pos = hg38_pos
     return final_pos
 
-def calculateScore(inputFile, diseaseArray, pValue, outputType, tableObjList, refGen, superPop):
+def calculateScore(inputFile, diseaseArray, pValue, outputType, tableObjList, clumpsObjList, refGen, superPop):
     tableObjList = json.loads(tableObjList)
+    clumpsObjList = json.loads(clumpsObjList)
     if (inputFile.lower().endswith(".txt")):
-        posList, pos_pval_map, studyIDs, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen)
+        posList, pos_pval_map, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen)
         txtObj, totalVariants = parse_txt(inputFile, posList, pos_pval_map, diseaseStudyIDs, studyIDs, superPop)
         results = txtcalculations(tableObjList, txtObj,
                             totalVariants, pValue, refGen, outputType)
@@ -40,8 +34,8 @@ def calculateScore(inputFile, diseaseArray, pValue, outputType, tableObjList, re
     else:
         from pyliftover import LiftOver
         lo = LiftOver(refGen, 'hg38')
-        posList, pos_pval_map, studyIDs, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen, lo)
-        vcfObj, totalVariants = parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, studyIDs, superPop)
+        posList, pos_pval_map, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen, lo)
+        vcfObj, totalVariants = parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, clumpsObjList, superPop)
         results = vcfcalculations(tableObjList, vcfObj,
                             totalVariants, pValue, refGen, lo, outputType)
         return(results)
@@ -51,12 +45,10 @@ def getSNPsFromTableObj(tableObjList, refGen, lo = None):
     posListMap = {}
     posList = []
     diseaseStudyIDs = []
-    studyIDs = []
     pos_pval_map = defaultdict(dict)
     for diseaseEntry in tableObjList:
         for studyID in tableObjList[diseaseEntry]:
             diseaseStudyIDs.append((diseaseEntry, studyID))
-            studyIDs.append(studyID)
             for row in tableObjList[diseaseEntry][studyID]['associations']:
                 # if is a txt file, get the rsID and pValue
                 if not lo:
@@ -75,27 +67,10 @@ def getSNPsFromTableObj(tableObjList, refGen, lo = None):
                     pos_pval_map[studyID][hg38_pos] = row['pValue']
                     posList.append(row['pos'])
             posListMap[studyID] = posList
-    return posList, pos_pval_map, studyIDs, diseaseStudyIDs
+    return posList, pos_pval_map, diseaseStudyIDs
 
-def getClumps(studyIDs, superPop):
-    h=0
-    res = {}
-    for i in range(25, len(studyIDs), 25):
-        params = {
-            "studyIDs":studyIDs[h:i],
-            "superPop":superPop
-        }
-        res = {**res, **urlWithParams("https://prs.byu.edu/ld_clumping", params)}
-        h = i
-    else:
-        params = {
-            "studyIDs":studyIDs[h:len(studyIDs)],
-            "superPop":superPop
-        }
-        res = {**res, **urlWithParams("https://prs.byu.edu/ld_clumping", params)}
-    return res
 
-def parse_txt(txtFile, posList, pos_pval_map, diseaseStudyIDs, studyIDs, superPop):
+def parse_txt(txtFile, posList, pos_pval_map, diseaseStudyIDs, clumpsObjList, superPop):
     totalLines = 0 #TODO add this back in
     
     openFile = open(txtFile, 'r')
@@ -106,8 +81,8 @@ def parse_txt(txtFile, posList, pos_pval_map, diseaseStudyIDs, studyIDs, superPo
     # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
     index_snp_map = defaultdict(dict)
 
-    # Access the snp clumps from the database
-    clumps = getClumps(studyIDs, superPop)
+    # Access the snp clumps 
+    clumps = clumpsObjList
     clumpMap = defaultdict(dict)
 
     # Loop through each study in the clump object and grab the position and clump number
@@ -169,7 +144,7 @@ def parse_txt(txtFile, posList, pos_pval_map, diseaseStudyIDs, studyIDs, superPo
     return final_map, totalLines
 
 
-def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, studyIDs, superPop):
+def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, clumpsObjList, superPop):
     filename = inputFile
     totalLines = 0 #TODO add this functionality back
     # Check if the file is zipped
@@ -193,8 +168,8 @@ def parse_vcf(inputFile, posList, pos_pval_map, refGen, lo, diseaseStudyIDs, stu
     # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
     index_snp_map = defaultdict(dict)
 
-    # Access the snp clumps from the database
-    clumps = getClumps(studyIDs, superPop)
+    # Access the snp clumps
+    clumps = clumpsObjList
     clumpMap = defaultdict(dict)
 
     # Loop through each study in the clump object and grab the position and clump number

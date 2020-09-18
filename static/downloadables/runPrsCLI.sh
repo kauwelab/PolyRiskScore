@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.0.0"
+version="1.1.0"
 #
 # 
 # 
@@ -22,6 +22,12 @@ version="1.0.0"
 #       --s studyIDs ex. ["GCST000727", "GCST009496"]
 #       --e ethnicity ex. ["European", "East Asian"]
 # 
+# * 9/18/2020 - v1.1.0  - Option for two steps and no grepping
+#
+#   OPTIONAL PARAMETERS (added):
+#       --step stepNumber ex. (1 or 2)
+#       --ng noGrep
+#
 # ########################################################################
 
 RED='\033[0;31m'
@@ -53,7 +59,10 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
     echo -e "   ${MYSTERYCOLOR}--k${NC} studyType ex. HI LC O (High Impact, Large Cohort, Other studies)"
     echo -e "   ${MYSTERYCOLOR}--s${NC} studyIDs ex. GCST000727 GCST009496"
-    echo -e "   ${MYSTERYCOLOR}--e${NC} ethnicity ex. European \"East Asian\""    
+    echo -e "   ${MYSTERYCOLOR}--e${NC} ethnicity ex. European \"East Asian\"" 
+    echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
+    echo -e "   ${MYSTERYCOLOR}--step${NC} stepNumber ex. 1 2"
+    echo -e "   ${MYSTERYCOLOR}--ng${NC} noGrep "    
     echo ""
 }
 
@@ -110,8 +119,10 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}7${NC} - --k studyType                           |"
         echo -e "| ${LIGHTPURPLE}8${NC} - --s studyIDs                            |"
         echo -e "| ${LIGHTPURPLE}9${NC} - --e ethnicity                           |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - --step stepNumber                      |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - --ng noGrep                            |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}12${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -182,7 +193,13 @@ learnAboutParameters () {
                 echo "by the authors. " # should we maybe show ethnicities when they search studies?
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) cont=0 ;;
+            10 ) echo -e "${MYSTERYCOLOR} --step stepNumber: ${NC}"
+                echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
+                echo "" ;;
+            11 ) echo -e "${MYSTERYCOLOR} --ng noGrep: ${NC}"
+                echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
+                echo "" ;;
+            12 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -272,14 +289,16 @@ runPRS () {
 }
 
 calculatePRS () {
-    checkForNewVersion
-    
+  
     args=("${@:6}")
 
     trait=0
     studyType=0
     studyID=0
     ethnicity=0
+    stepNumberBool=0
+    stepNumber=0
+    noGrep=0
 
     traitsForCalc=()
     studyTypesForCalc=()
@@ -291,26 +310,43 @@ calculatePRS () {
         for arg in "${args[@]}";
         do
             if [ "$arg" = "--t" ]; then
-		echo "in --t"
+		        echo "in --t"
                 trait=1
                 studyType=0
                 studyID=0
                 ethnicity=0
+                stepNumberBool=0
             elif [ "$arg" = "--k" ]; then
                 trait=0
                 studyType=1
                 studyID=0
                 ethnicity=0
+                stepNumberBool=0
             elif [ "$arg" = "--s" ]; then
                 trait=0
                 studyType=0
                 studyID=1
                 ethnicity=0
+                stepNumberBool=0
             elif [ "$arg" = "--e" ]; then
                 trait=0
                 studyType=0
                 studyID=0
                 ethnicity=1
+                stepNumberBool=0
+            elif [ "$arg" = "--step" ]; then
+                trait=0
+                studyType=0
+                studyID=0
+                ethnicity=0
+                stepNumberBool=1
+            elif [ "$arg" = "--ng" ]; then
+                trait=0
+                studyType=0
+                studyID=0
+                ethnicity=0
+                stepNumberBool=0
+                noGrep=1
             elif [ $trait -eq 1 ] ; then
                 traitsForCalc+=("$arg")
             elif [ $studyType -eq 1 ] ; then
@@ -325,11 +361,11 @@ calculatePRS () {
                 studyIDsForCalc+=("$arg")
             elif [ $ethnicity -eq 1 ] ; then
                 ethnicityForCalc+=("$arg")
+            elif [ $stepNumberBool -eq 1 ]; then
+                stepNumber=("$arg")
             fi
         done
     fi
-
-    echo "Running PRSKB on $1"
 
     pyVer=""
     ver=$(python --version)
@@ -358,47 +394,68 @@ calculatePRS () {
     else
         inputType="vcf"
         intermediate="intermediate.vcf"
-    fi 
-
-    res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$inputType')")
-
-    declare -a resArr
-    IFS='%' # percent (%) is set as delimiter
-    read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
-    for i in "${ADDR[@]}"; do # access each element of array
-        resArr+=( "$i" )
-    done
-    IFS=' ' # reset to default value after usage
-    echo ${resArr[1]} > tableObj.txt
-    echo "Got SNPs and disease information from PRSKB"
-
-    # Filters the input VCF to only include the lines that correspond to the SNPs in our GWAS database
-    grep -w ${resArr[0]} "$1" > $intermediate
-    # prints out the tableObj string to a file so python can read it in
-    # (passing the string as a parameter doesn't work because it is too large)
-    echo "Filtered the input VCF file to include only the variants present in the PRSKB"
-
-    IFS='.'
-    read -a fileName <<< "$2"
-    outputType=${fileName[1]}
-    IFS=' '
-
-    #outputType="csv" #this is the default
-    #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
-    if [[ "$pyVer" == "python" ]]; then 
-        python run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
-    else
-        python3 run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
     fi
 
-    echo "Caculated score"
-    rm $intermediate
-    rm tableObj.txt
-    rm -r __pycache__
-    echo "Cleaned up intermediate files"
-    echo "Results saved to $2"
-    echo ""
-    exit;
+    if [[ $noGrep -eq 1 ]] && [[ $stepNumber -eq 2 ]]; then
+        intermediate="$1"
+    fi
+
+    if [[ $stepNumber -eq 0 ]] || [[ $stepNumber -eq 1 ]]; then
+        checkForNewVersion
+        echo "Running PRSKB on $1"
+
+        res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$inputType', '$5')")
+
+        declare -a resArr
+        IFS='%' # percent (%) is set as delimiter
+        read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
+        for i in "${ADDR[@]}"; do # access each element of array
+            resArr+=( "$i" )
+        done
+        IFS=' ' # reset to default value after usage
+        echo ${resArr[1]} > tableObj.txt
+        echo "Got SNPs and disease information from PRSKB"
+
+        echo ${resArr[2]} > clumpsObj.txt
+        echo "Got Clumping information from PRSKB"
+
+        if [[ $noGrep -eq 0 ]]; then
+            # Filters the input VCF to only include the lines that correspond to the SNPs in our GWAS database
+            grep -w ${resArr[0]} "$1" > $intermediate
+            # prints out the tableObj string to a file so python can read it in
+            # (passing the string as a parameter doesn't work because it is too large)
+            echo "Filtered the input VCF file to include only the variants present in the PRSKB"
+        fi
+    fi
+
+
+    if [[ $stepNumber -eq 0 ]] || [[ $stepNumber -eq 2 ]]; then
+        IFS='.'
+        read -a fileName <<< "$2"
+        outputType=${fileName[1]}
+        IFS=' '
+
+        echo "Calculating prs on $1"
+        #outputType="csv" #this is the default
+        #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
+        if [[ "$pyVer" == "python" ]]; then 
+            python run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt clumpsObj.txt "$4" "$2" "$5"
+        else
+            python3 run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt clumpsObj.txt "$4" "$2" "$5"
+        fi
+
+        echo "Caculated score"
+        if [[ $noGrep -eq 0 ]]; then
+            rm $intermediate
+        fi
+        rm tableObj.txt
+        rm clumpsObj.txt
+        rm -r __pycache__
+        echo "Cleaned up intermediate files"
+        echo "Results saved to $2"
+        echo ""
+        exit;
+    fi
 }
 
 checkForNewVersion () {
