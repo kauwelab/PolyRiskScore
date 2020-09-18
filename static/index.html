@@ -32,24 +32,24 @@
       var topnav = document.getElementById("topnav");
       if (topnav.className.includes("responsive")) {
         topnav.classList.remove("responsive");
-      } 
+      }
       else {
         topnav.classList.add("responsive");
       }
     }
   </script>
 
-<header>
-  <div class="banner">
-    <img src="/images/dnaBanner.jpg" width="100%" style="overflow: hidden;">
-    <div class="centered-title">Welcome to the <br>Polygenic Risk Score <br>Knowledge Base</div>
-    <!-- <div class="centered-subtitle"> (in 7 easy steps) </div>
+  <header>
+    <div class="banner">
+      <img src="/images/dnaBanner.jpg" width="100%" style="overflow: hidden;">
+      <div class="centered-title">Welcome to the <br>Polygenic Risk Score <br>Knowledge Base</div>
+      <!-- <div class="centered-subtitle"> (in 7 easy steps) </div>
     <script src="js/tour.js"></script>
     <div class="centered-button">
       <button type="button" id="startTour" onclick="startTour();" class="btn btn-primary btn-lg">Start a Tour</button> 
     </div> -->
-  </div>
-</header>
+    </div>
+  </header>
 
   <section>
     <div class="jumbotron">
@@ -59,7 +59,7 @@
         <div class="row">
           <div class="col-12">
             <!--<h1 class="text-center">The Polygenic Risk Score Knowledge Base</h1>-->
-            <h1 class="forDesktop text-center" >What is the PRS Knowledge Base?</h1>
+            <h1 class="forDesktop text-center">What is the PRS Knowledge Base?</h1>
             <h5 class="text-justify"><br>The purpose of the PRS Knowledge Base is to allow researchers to quickly
               calculate polygenic risk scores for various traits based on published genome-wide association studies
               (GWAS).<br><br>The PRS Knowledge Base uses data downloaded and curated from the NHGRI-EBI GWAS Catalog
@@ -80,71 +80,118 @@
         <div class="col-lg-12 mb-4 mt-2 text-center">
           <h1 style="margin-top: 2rem; color: #416d9d;">Use the PRS Knowledge Base</h1><br>
           <!-- <div id="flex-grid-container" style="background-color: gray;"> -->
-            <div class="row" style="margin-right: 0em; margin-left: 0em;">
-              <div class="tile" onclick="location.href='calculate_score.html';" style="cursor: pointer;">
-                <div>
-                  <img class="tile-icon" src="/images/Icons/CalculateIcon.svg" alt="calculator icon" onContextMenu="return false;">
-                  <div class="middle"></div>
-                </div>
-                <div class="tile-content">
-                  <h5>Calculate Polygenic Risk Scores</h5>
-                  <!-- <p>Upload a VCF file or type in rs ids with or without alleles to use in your calculation. Choose one or
-                    all traits in our database, the p-value cutoff for odds ratios, and the reference genome. </p> -->
-                  <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="calculate_score.html"
-                    role="button">Upload VCF</a> </p> -->
-                </div>
-              </div>    
-              <div class="tile" onclick="location.href='cli_download.html';" style="cursor: pointer;">
-                <div>
-                  <img class="tile-icon" src="/images/Icons/CLIicon.svg" alt="command line icon" onContextMenu="return false;">
-                  <div class="middle"></div>
-                </div> 
-                <div class="tile-content">
-                  <h5>Download CLI tool</h5>
-                  <!-- <p>Download our API to submit your VCF files to the analysis pipeline via the command line.</p> -->
-                  <!-- <p>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line.</p> -->
-                  <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api
-                      Documentation</a> </p> -->
-                </div>
+          <div class="row" style="margin-right: 0em; margin-left: 0em;">
+            <div class="tile" onclick="location.href='calculate_score.html';" style="cursor: pointer;">
+              <div>
+                <img class="tile-icon" src="/images/Icons/CalculateIcon.svg" alt="calculator icon"
+                  onContextMenu="return false;">
+                <div class="middle"></div>
               </div>
-            
-              <div class="tile" onclick="location.href='about.html';" style="cursor: pointer;">
-                <div>
-                  <img class="tile-icon" src="/images/Icons/LearnMoreIcon.svg" alt="learn more icon" onContextMenu="return false;">
-                  <div class="middle"></div>
-                </div>
-                <div class="tile-content">
-                  <h5>Learn More</h5>
-                  <!-- <p>What is a Polygenic Risk Score? How do we calculate it? How is it used? Why choose the PRS knowledge
+              <div class="tile-content">
+                <h5>Calculate Polygenic Risk Scores</h5>
+                <!-- <p>Upload a VCF file or type in rs ids with or without alleles to use in your calculation. Choose one or
+                    all traits in our database, the p-value cutoff for odds ratios, and the reference genome. </p> -->
+                <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="calculate_score.html"
+                    role="button">Upload VCF</a> </p> -->
+              </div>
+            </div>
+            <div class="tile" onclick="location.href='cli_download.html';" style="cursor: pointer;">
+              <div>
+                <img class="tile-icon" src="/images/Icons/CLIicon.svg" alt="command line icon"
+                  onContextMenu="return false;">
+                <div class="middle"></div>
+              </div>
+              <div class="tile-content">
+                <h5>Download CLI tool</h5>
+                <!-- <p>Download our API to submit your VCF files to the analysis pipeline via the command line.</p> -->
+                <!-- <p>The API is intended to allow researchers to submit VCF files to the analysis pipeline via the command line.</p> -->
+                <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="api.html" role="button">Api
+                      Documentation</a> </p> -->
+              </div>
+            </div>
+
+            <div class="tile" onclick="location.href='about.html';" style="cursor: pointer;">
+              <div>
+                <img class="tile-icon" src="/images/Icons/LearnMoreIcon.svg" alt="learn more icon"
+                  onContextMenu="return false;">
+                <div class="middle"></div>
+              </div>
+              <div class="tile-content">
+                <h5>Learn More</h5>
+                <!-- <p>What is a Polygenic Risk Score? How do we calculate it? How is it used? Why choose the PRS knowledge
                     base?
                     These questions and others are answered here.</p> -->
-                  <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="learn_more.html" role="button">Learn
+                <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="learn_more.html" role="button">Learn
                       More</a> </p> -->
-                </div>
               </div>
-              <div class="tile" onclick="location.href='cite.html';" style="cursor: pointer;">
-                <div>
-                  <img class="tile-icon" src="/images/Icons/CiteIcon.svg" alt="citation icon" onContextMenu="return false;">
-                  <div class="middle"></div>
-                </div>
-                <div class="tile-content">
-                  <h5>Cite the PRS Knowledge Base</h5>
-                  <!-- <p>We ask that if you use the PRS Knowledge Base for published work, you cite the
+            </div>
+            <div class="tile" onclick="location.href='cite.html';" style="cursor: pointer;">
+              <div>
+                <img class="tile-icon" src="/images/Icons/CiteIcon.svg" alt="citation icon"
+                  onContextMenu="return false;">
+                <div class="middle"></div>
+              </div>
+              <div class="tile-content">
+                <h5>Cite the PRS Knowledge Base</h5>
+                <!-- <p>We ask that if you use the PRS Knowledge Base for published work, you cite the
                     PRS Knowledge Base, as well as all studies used in the conducted analysis. For a comprehensive list of
                     all publications used by the PRS Knowledge Base, organized by trait, please follow the link below.
                   </p> -->
-                  <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="citations.html" role="button">Cite</a>
+                <!-- <p class="text-center"><a class="btn btn-primary btn-md" href="citations.html" role="button">Cite</a>
                     </p> -->
-                </div>
               </div>
-              <script>
-
-              </script>
             </div>
+            <script>
+
+            </script>
+          </div>
         </div>
       </div>
     </div>
   </section>
+
+  <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
+    <div class="row">
+      <div class="col-12 col-md-8 mx-auto">
+        <div class="row text-center">
+          <div class="text-center col-12">
+            <h1 class="font-weight-bold grow_text" onclick="displayPanel('feedbackForm')" style="cursor: pointer;">
+              Questions or Comments about the PRS Knowledge Base?</h1>
+            <i id="feedbackForm_sign" class="fa fa-angle-down" aria-hidden="true"
+              style="text-align: center; font-size:50px"></i>
+          </div>
+          <div class="text-center col-12">
+            <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
+            <form action="/contact" id="feedbackForm" method="post" role="form"
+              style="max-height: 550px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+              <div class="form-group text-left">
+                <label for="name"><br><b>Name</b></label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
+                  aria-describedby="nameHelp">
+                <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
+              </div>
+              <div class="form-group text-left">
+                <label for="email"><b>E-Mail</b></label>
+                <input type="email" class="form-control" id="email" name="email"
+                  placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
+                <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail
+                  address.</span>
+              </div>
+              <div class="form-group text-left">
+                <label for="message"><b>Message</b></label>
+                <textarea rows="10" cols="100" class="form-control" id="message" name="message"
+                  placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
+                <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
+                  message.</span>
+              </div>
+              <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
       <div class="row">
@@ -156,11 +203,11 @@
   </footer>
   <!-- Making the top menu sticky -->
   <script>
-    window.onscroll = function() {myFunction()};
-    
+    window.onscroll = function () { myFunction() };
+
     var topnav = document.getElementById("topnav");
     var sticky = topnav.offsetTop;
-    
+
     function myFunction() {
       if (window.pageYOffset >= sticky) {
         topnav.classList.add("sticky")
@@ -174,6 +221,7 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
+  <script src="js/displayPanel.js"></script>
 </body>
 
 </html>
