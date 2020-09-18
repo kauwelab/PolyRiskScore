@@ -1,0 +1,11 @@
+##fileformat=VCFv4.2
+##FORMAT=<ID=GT,Number=1,Type=Integer,Description="Genotype">
+##FORMAT=<ID=GP,Number=G,Type=Float,Description="Genotype Probabilities">
+##FORMAT=<ID=PL,Number=G,Type=Float,Description="Phred-scaled Genotype Likelihoods">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMP001	
+11	47176005	rs747650	T	G	.	PASS	.	GT	0/1	
+1	169651044	rs7531806	C	A	.	PASS	.	GT	0/1	
+4	187921499	rs7660345	G	T	.	PASS	.	GT	0/1	
+1	218844906	rs1159268	T	A	.	PASS	.	GT	0/1	
+5	169624772	rs13153995	G	C	.	PASS	.	GT	0/1	
+3	45384683	rs146692665	G	T	.	PASS	.	GT	0/1	

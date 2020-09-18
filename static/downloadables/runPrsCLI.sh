@@ -10,7 +10,7 @@ version="1.0.0"
 # 
 # * 8/28/2020 - v1.0.0  - First Creation
 #   Parameter order:
-#       1 VCF file path
+#       1 VCF file path OR rsIDs file path 
 #       2 output file path (csv or txt format)
 #       3 p-value cutoff (ex: 0.05)
 #       4 refGen {hg17, hg18, hg19, hg38}
@@ -47,7 +47,7 @@ prskbMenu () {
 
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}[VCF file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}[VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
@@ -99,7 +99,7 @@ learnAboutParameters () {
         echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
         echo    "|                                             |"
         echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                            |"
-        echo -e "| ${LIGHTPURPLE}1${NC} - VCF File                                |"
+        echo -e "| ${LIGHTPURPLE}1${NC} - VCF File or rsIDs:genotypes file        |"
         echo -e "| ${LIGHTPURPLE}2${NC} - Output file                             |"
         echo -e "| ${LIGHTPURPLE}3${NC} - P-value Cutoff                          |"
         echo -e "| ${LIGHTPURPLE}4${NC} - RefGen                                  |"
@@ -118,9 +118,12 @@ learnAboutParameters () {
         echo ""
 
         case $option in 
-            1 ) echo -e "${MYSTERYCOLOR} VCF File path: ${NC}" 
+            1 ) echo -e "${MYSTERYCOLOR} VCF File path or rsIDs:genotypes file path: ${NC}" 
                 echo "The path to the VCF file that contains the samples for which you would like " 
-                echo "the polygenic risk scores calculated."
+                echo "the polygenic risk scores calculated. Alternativly, the path to a TXT file that"
+                echo "contains rsIDs in the format of 1 rsID per line, with the genotypes following"
+                echo "on the same line. (ex. rs6656401:AA or rs6656401:A) In this format, we will"
+                echo "assume that any missing alleles are the risk allele."
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR} Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
@@ -238,29 +241,28 @@ runPRS () {
     args=( $(xargs -n1 -0 <<<"$args") )
 
     echo "${args[@]}" 
-
     if [ ${#args[@]} -lt 5 ]; then
         echo -e "${LIGHTRED}Too few arguments! Quitting...${NC}"
         exit
-    elif [ ! -f "${args[1]}" ]; then
-        echo -e "The file${LIGHTRED} ${args[1]} ${NC}does not exist."
+    elif [ ! -f "${args[0]}" ]; then
+        echo -e "The file${LIGHTRED} ${args[0]} ${NC}does not exist."
         echo "Check the path and try again."
         read -p "Press [Enter] key to quit..."
-    elif ! [[ "${args[2]}" =~ .csv$|.json$|.txt$ ]]; then
-        echo -e "${LIGHTRED}${args[2]} ${NC} is not in the right format."
+    elif ! [[ "${args[1]}" =~ .csv$|.json$|.txt$ ]]; then
+        echo -e "${LIGHTRED}${args[1]} ${NC} is not in the right format."
         echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
         read -p "Press [Enter] key to quit..."
-    elif ! [[ "${args[3]}" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-        echo -e "${LIGHTRED}${args[3]} ${NC} is your p-value, but it is not a number."
+    elif ! [[ "${args[2]}" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
+        echo -e "${LIGHTRED}${args[2]} ${NC} is your p-value, but it is not a number."
         echo "Check the value and try again."
         read -p "Press [Enter] key to quit..."
-    elif ! [[ "${args[4]}" =~ ^hg17$|^hg19$|^hg18$|^hg38$ ]]; then
-        echo -e "${LIGHTRED}${args[4]} ${NC}should be hg17, hg18, hg19, or hg38"
+    elif ! [[ "${args[3]}" =~ ^hg17$|^hg19$|^hg18$|^hg38$ ]]; then
+        echo -e "${LIGHTRED}${args[3]} ${NC}should be hg17, hg18, hg19, or hg38"
         echo "Check the value and try again."
         read -p "Press [Enter] key to quit..."
     #AFR, AMR, EAS, EUR, SAS (add code to make case insensitive)
-    elif ! [[ "${args[5]}" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
-        echo -e "${LIGHTRED}${args[5]} ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+    elif ! [[ "${args[4]}" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
+        echo -e "${LIGHTRED}${args[4]} ${NC} should be AFR, AMR, EAS, EUR, or SAS."
         echo "Check the value and try again."
         read -p "Press [Enter] key to quit..."
     else
@@ -329,6 +331,15 @@ calculatePRS () {
 
     echo "Running PRSKB on $1"
 
+    pyVer=""
+    ver=$(python --version)
+    read -a strarr <<< "$ver"
+    if [[ "${strarr[1]}" =~ ^3 ]]; then
+        pyVer="python"
+    else
+        pyVer="python3"
+    fi
+
     # Calls a python function to get a list of SNPs from our database
     # res is a string composed of two strings separated by a '%'
     # The string is split into a list containing both strings
@@ -338,8 +349,19 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    
-    res=$(python3 -c "import vcf_parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities')")
+    res=""
+    intermediate=""
+    inputType=""
+    if [[ "$1" =~ .TXT$|.txt$ ]]; then 
+        inputType="rsID"
+        intermediate="intermediate.txt"
+    else
+        inputType="vcf"
+        intermediate="intermediate.vcf"
+    fi 
+
+    res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$inputType')")
+
     declare -a resArr
     IFS='%' # percent (%) is set as delimiter
     read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
@@ -351,16 +373,26 @@ calculatePRS () {
     echo "Got SNPs and disease information from PRSKB"
 
     # Filters the input VCF to only include the lines that correspond to the SNPs in our GWAS database
-    grep -w ${resArr[0]} "$1" > intermediate.vcf
+    grep -w ${resArr[0]} "$1" > $intermediate
     # prints out the tableObj string to a file so python can read it in
     # (passing the string as a parameter doesn't work because it is too large)
     echo "Filtered the input VCF file to include only the variants present in the PRSKB"
 
-    outputType="csv" #this is the default
+    IFS='.'
+    read -a fileName <<< "$2"
+    outputType=${fileName[1]}
+    IFS=' '
+
+    #outputType="csv" #this is the default
     #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
-    python3 run_prs_grep.py intermediate.vcf "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
-    echo "Calculated score"
-    rm intermediate.vcf
+    if [[ "$pyVer" == "python" ]]; then 
+        python run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
+    else
+        python3 run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt "$4" "$2" "$5"
+    fi
+
+    echo "Caculated score"
+    rm $intermediate
     rm tableObj.txt
     rm -r __pycache__
     echo "Cleaned up intermediate files"
@@ -415,6 +447,10 @@ elif [ $# -lt 5 ]; then
 elif [ ! -f "$1" ]; then
     echo -e "The file${LIGHTRED} $1 ${NC}does not exist."
     echo "Check the path and try again."
+    read -p "Press [Enter] key to quit..."
+elif ! [[ "$1" =~ .vcf$|.VCF$|.txt$|.TXT$ ]]; then
+    echo -e "The file${LIGHTRED} $1 ${NC}is in the wrong format."
+    echo -e "Please use a vcf or txt file."
     read -p "Press [Enter] key to quit..."
 elif ! [[ "$2" =~ .csv$|.json$|.txt$ ]]; then
     echo -e "${LIGHTRED}$2 ${NC} is not in the right format."
