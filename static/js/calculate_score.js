@@ -97,7 +97,7 @@ function getStudies() {
             if (traits.length == 0) {
                 alert(`No results were found using the specified filters. Try using different filters.`)
             }
-            
+
             for (i = 0; i < traits.length; i++) {
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
@@ -310,6 +310,11 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
         $('#response').html(outputVal);
         //saves the full result on currently open session of the website for further modifications 
         resultJSON = result;
+        //go the the result output box
+        $('#responseBox')[0].scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        })
     }
     catch (err) {
         $('#response').html(getErrorMessage(err));
