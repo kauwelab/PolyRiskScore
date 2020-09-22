@@ -7,39 +7,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title class="lead">Polygenic Risk Scores</title>
   <!-- Bootstrap -->
+  <link href="css/topnav.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+  <script src="https://kit.fontawesome.com/3aa9d240b2.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
-  <div class='p-9 bg-primary text-center'>
-    <a href="index.html#feedback" class="mb-4 text-center text-bold text-white old-bv">Welcome to the Beta version of
-      our website! --Click here to leave us comments or questions</a>
+  <div id="topnav" class='topnav'>
+    <a href="index.html">HOME</a>
+    <a href="calculate_score.html">CALCULATE</a>
+    <a href="cite.html">CITE</a>
+    <a href="cli_download.html">DOWNLOAD</a>
+    <a href="about.html">ABOUT</a>
+    <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
+    <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
   </div>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <a class="navbar-brand" href="#">PRS Knowledge Base</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span
-        class="navbar-toggler-icon"></span> </button>
-    <!-- The justify-content-end command in the next line aligns the menu to the right.-->
-    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-        <div class="active-page">
-          <li class="nav-item active"> <a class="nav-link" href="index.html">Home </a> </li>
-        </div>
-        <li class="nav-item"> <a class="nav-link" href="calculate_score.html">Calculate Score</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="citations.html">Cite</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="api.html">API</a> </li>
-        <li class="nav-item"> <a class="nav-link" href="learn_more.html">Learn More</a> </li>
-      </ul>
-    </div>
-  </nav>
+
+  <script>
+    function sidemenuFunction() {
+      var topnav = document.getElementById("topnav");
+      if (topnav.className.includes("responsive")) {
+        topnav.classList.remove("responsive");
+      }
+      else {
+        topnav.classList.add("responsive");
+      }
+    }
+  </script>
 
   <header>
     <div class="jumbotron">
       <div class="container">
         <div class="row">
           <div class="col-12">
-            <h1 class="text-center">Message Failure</h1>
+            <h1 class="text-center" style="margin-top: 2rem;">Message Failure</h1>
             <p class="text-center">Please verify the email address you provided or try again later</p>
             <p class="text-center"><a class="btn btn-primary btn-lg" href="index.html" role="button">Home Page</a></p>
             <p>&nbsp;</p>
