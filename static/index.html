@@ -150,42 +150,17 @@
     </div>
   </section>
 
+  <!--Questions or comments section-->
   <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
     <div class="row">
       <div class="col-12 col-md-8 mx-auto">
         <div class="row text-center">
           <div class="text-center col-12">
-            <h1 class="font-weight-bold grow_text" onclick="displayPanel('feedbackForm')" style="cursor: pointer;">
-              Questions or Comments about the PRS Knowledge Base?</h1>
-            <i id="feedbackForm_sign" class="fa fa-angle-down" aria-hidden="true"
-              style="text-align: center; font-size:50px"></i>
-          </div>
-          <div class="text-center col-12">
-            <!-- CONTACT FORM https://github.com/jonmbake/bootstrap3-contact-form -->
-            <form action="/contact" id="feedbackForm" method="post" role="form"
-              style="max-height: 550px; height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
-              <div class="form-group text-left">
-                <label for="name"><br><b>Name</b></label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Please enter your name."
-                  aria-describedby="nameHelp">
-                <span id="nameHelp" class="form-text text-muted" style="display: none;">Please enter your name.</span>
-              </div>
-              <div class="form-group text-left">
-                <label for="email"><b>E-Mail</b></label>
-                <input type="email" class="form-control" id="email" name="email"
-                  placeholder="Please enter a valid e-mail address." aria-describedby="emailHelp">
-                <span id="emailHelp" class="form-text text-muted" style="display: none;">Please enter a valid e-mail
-                  address.</span>
-              </div>
-              <div class="form-group text-left">
-                <label for="message"><b>Message</b></label>
-                <textarea rows="10" cols="100" class="form-control" id="message" name="message"
-                  placeholder="Please enter a message." aria-describedby="messageHelp"></textarea>
-                <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
-                  message.</span>
-              </div>
-              <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg text-center"> Send</button>
-            </form>
+            <h1 class="font-weight-bold">
+              Questions or Comments?</h1><br>
+            <p class="lead">Email us at <a class="email" href="#"
+                onclick="javascript:window.location='mailto:kauwelab19@gmail.com';return false;">kauwelab19@gmail.com</a>
+            </p>
           </div>
         </div>
       </div>
