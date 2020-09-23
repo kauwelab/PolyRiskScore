@@ -118,8 +118,7 @@ function startTour() {
             {
                 element: "#startTour",
                 title: "You're all set!",
-                content: "Now give it a try with your own data! If you have any questions, contact us using the form at the \
-                bottom of the homepage. Thanks for using PRSKB",
+                content: "Now give it a try with your own data! If you have any questions, contact us at kauwelab19@gmail.com",
                 template: templateWithoutNext
             }
         ]
