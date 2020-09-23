@@ -20,12 +20,12 @@ def convertRefGen(chrom, pos, lo):
         final_pos = hg38_pos
     return final_pos
 
-def calculateScore(inputFile, diseaseArray, pValue, outputType, tableObjList, clumpsObjList, refGen, superPop):
+def calculateScore(inputFile, pValue, outputType, tableObjList, clumpsObjList, refGen, superPop):
     tableObjList = json.loads(tableObjList)
     clumpsObjList = json.loads(clumpsObjList)
     if (inputFile.lower().endswith(".txt")):
         posList, pos_pval_map, diseaseStudyIDs = getSNPsFromTableObj(tableObjList, refGen)
-        txtObj, totalVariants = parse_txt(inputFile, posList, pos_pval_map, diseaseStudyIDs, studyIDs, superPop)
+        txtObj, totalVariants = parse_txt(inputFile, posList, pos_pval_map, diseaseStudyIDs, clumpsObjList, superPop)
         results = txtcalculations(tableObjList, txtObj,
                             totalVariants, pValue, refGen, outputType)
 

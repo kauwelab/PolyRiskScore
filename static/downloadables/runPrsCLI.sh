@@ -419,11 +419,11 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         #outputType="csv" #this is the default
-        #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
+        #$1=intermediateFile $2=pValue $3=csv $4="${tableObj}" $5="${clumpsObj}" $6=refGen $7=outputFile $8=superPop
         if [[ "$pyVer" == "python" ]]; then 
-            python run_prs_grep.py "$intermediate" "$diseaseArray" "$cutoff" "$outputType" tableObj.txt clumpsObj.txt "$refgen" "$output" "$superPop"
+            python run_prs_grep.py "$intermediate" "$cutoff" "$outputType" tableObj.txt clumpsObj.txt "$refgen" "$output" "$superPop"
         else
-            python3 run_prs_grep.py "$intermediate" "$diseaseArray" "$cutoff" "$outputType" tableObj.txt clumpsObj.txt "$refgen" "$output" "$superPop"
+            python3 run_prs_grep.py "$intermediate" "$cutoff" "$outputType" tableObj.txt clumpsObj.txt "$refgen" "$output" "$superPop"
         fi
 
         echo "Caculated score"
