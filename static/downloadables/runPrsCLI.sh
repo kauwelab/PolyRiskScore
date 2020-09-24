@@ -388,7 +388,7 @@ calculatePRS () {
         # Calls a python function to get a list of SNPs from our database
         # res is a string composed of two strings separated by a '%'
         # The string is split into a list containing both strings  
-        res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$inputType', '$superPop')")
+        res=$($pyVer -c "import connect_to_server as cts; cts.retrieveAssociations('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$inputType', '$superPop')")
 
         declare -a resArr
         IFS='%' # percent (%) is set as delimiter

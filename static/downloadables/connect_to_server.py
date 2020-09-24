@@ -5,7 +5,7 @@ import requests
 import time
 import datetime
 
-def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType, superPop):
+def retrieveAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType, superPop):
 
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
@@ -20,7 +20,7 @@ def grepRes(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, fileType, s
         toReturn = getSpecificAssociations(pValue, refGen, fileType, traits, studyTypes, studyIDs, ethnicity)
     
     toReturn.append(json.dumps(getClumps(toReturn[2], superPop)))
-    toReturn.pop(2)
+    toReturn.pop(1)
     
     print('%'.join(toReturn))
 
@@ -29,7 +29,7 @@ def getAllAssociations(pValue, refGen, fileType, traits = None):
     if traits is None:
         traits = getAllTraits()
     associations = getAssociations("https://prs.byu.edu/all_associations", traits, pValue, refGen)
-    return formatAssociationsForReturn(associations, fileType)
+    return [json.dumps(associations), getStudyIDs(associations)]
 
 
 def getSpecificAssociations(pValue, refGen, fileType, traits = None, studyTypes = None, studyIDs = None, ethnicity = None):
@@ -78,7 +78,7 @@ def getSpecificAssociations(pValue, refGen, fileType, traits = None, studyTypes 
                 finalTraitList[obj["trait"]] = [obj["studyID"]]
 
     associations = getAssociations("https://prs.byu.edu/get_associations", finalTraitList, pValue, refGen, 1)
-    return formatAssociationsForReturn(associations, fileType)
+    return [json.dumps(associations), getStudyIDs(associations)]
 
 
 def getAssociations(url, traits, pValue, refGen, turnString = None):
@@ -102,25 +102,14 @@ def getAssociations(url, traits, pValue, refGen, turnString = None):
     return associations
 
 
-def formatAssociationsForReturn(associations, fileType):
-    snps = ""
+def getStudyIDs(associations):
     studyIDs = []
-    if fileType == "rsID":
-        snps = "-e #ID "
-    else:
-        snps = "-e #CHROM "
 
     for disease in associations:
         for study in associations[disease]:
             studyIDs.append(study)
-            for association in associations[disease][study]["associations"]:
-                if fileType == "vcf" and association['pos'] != 'NA':
-                    snps += "-e {0} ".format(association['pos'].split(":")[1])
-                elif fileType == "rsID" and association['snp'] != 'NA':
-                    snps += "-e {0} ".format(association['snp'])
 
-    associations = json.dumps(associations)
-    return [snps, associations, studyIDs]
+    return studyIDs
 
 
 def getAllTraits():
