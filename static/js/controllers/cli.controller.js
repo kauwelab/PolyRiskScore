@@ -19,8 +19,11 @@ exports.download = (req,res) => {
             path: path.join(downloadPath, '/run_prs_grep.py'),
             name: '/run_prs_grep.py'
         }, {
-            path: path.join(downloadPath, '/vcf_parser_grep.py'),
-            name: '/vcf_parser_grep.py'
+            path: path.join(downloadPath, '/parser_grep.py'),
+            name: '/parser_grep.py'
+        }, {
+            path: path.join(downloadPath, '/calculate_score.py'),
+            name: '/calculate_score.py'
         }, {
             path: path.join(downloadPath, '/runPrsCLI.sh'),
             name: '/runPrsCLI.sh'
