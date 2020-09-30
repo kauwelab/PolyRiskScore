@@ -2,6 +2,7 @@ import requests
 import myvariant
 import sys
 from sys import argv
+import json
 
 
 
@@ -14,14 +15,15 @@ response = requests.get("https://prs.byu.edu/single_snp_from_each_study")
 response.close()
 assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
 snpsData = response.json()
+snpsData = list({v['snp']:v for v in snpsData}.values())
 snps = set()
 
 for obj in snpsData:
     snps.add(obj['snp'])
 
-# grab the reference allele for 
+# grab the information about the rsID
 mv = myvariant.MyVariantInfo()
-queryResults = mv.querymany(snps, scopes='dbsnp.rsid', fields='dbsnp.ref, dbsnp.hg19.start, dbsnp.chrom')
+queryResults = mv.querymany(snps, scopes='dbsnp.rsid', fields='dbsnp.ref, dbsnp.alt, dbsnp.hg19.start, dbsnp.chrom')
 snpRefAlleleDict = {}
 
 for line in queryResults:
@@ -31,14 +33,17 @@ for line in queryResults:
                 'ref': '.',
                 'pos': 'NA',
                 'chrom': 'NA',
+                'alt': '.',
             }
         else:
             snpRefAlleleDict[line['query']] = {
                 'ref': line['dbsnp']['ref'],
                 'pos': line['dbsnp']['hg19']['start'] if 'hg19' in line['dbsnp'].keys() else "",
-                'chrom': line['dbsnp']['chrom']
+                'chrom': line['dbsnp']['chrom'],
+                'alt': line['dbsnp']['alt']
             }
 
+# write to the sample file
 f = open(output, "w")
 f.write("##fileformat=VCFv4.2\n")
 f.write("##FORMAT=<ID=GT,Number=1,Type=Integer,Description=\"Genotype\">\n")
@@ -49,7 +54,10 @@ f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMP001	SAMP002 SAMP003\n
 for i in range(len(snpsData)):
     snp = snpsData[i]['snp']
     ref = snpRefAlleleDict[snp]['ref']
-    alt = snpsData[i]['riskAllele']
+    if  snpsData[i]['riskAllele'] == ref[0]:
+        alt = snpRefAlleleDict[snp]['alt']
+    else: 
+        alt = snpsData[i]['riskAllele']
     hg19 = snpsData[i].pop('hg19')
     if (hg19 != "NA"):
         chrom, pos = hg19.split(":")
