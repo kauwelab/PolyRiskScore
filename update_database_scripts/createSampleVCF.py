@@ -1,30 +1,65 @@
 import requests
 import myvariant
+import sys
+from sys import argv
+
+
+
+# name of sample output vcf
+output = argv[1] if len(sys.argv) > 1 else "sample.vcf"
+print(output)
 
 # get a single snp from each study
 response = requests.get("https://prs.byu.edu/single_snp_from_each_study")
 response.close()
 assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
 snpsData = response.json()
-snps = []
+snps = set()
 
 for obj in snpsData:
-    snps.append(obj['snp'])
+    snps.add(obj['snp'])
 
-# 
+# grab the reference allele for 
 mv = myvariant.MyVariantInfo()
-queryResults = mv.querymany(snps, scopes='dbsnp.rsid', fields='dbsnp.ref')
+queryResults = mv.querymany(snps, scopes='dbsnp.rsid', fields='dbsnp.ref, dbsnp.hg19.start, dbsnp.chrom')
 snpRefAlleleDict = {}
 
 for line in queryResults:
     if line['query'] not in snpRefAlleleDict.keys():
         if "notfound" in line.keys():
-            snpRefAlleleDict[line['query']] = '.'
+            snpRefAlleleDict[line['query']] = {
+                'ref': '.',
+                'pos': 'NA',
+                'chrom': 'NA',
+            }
         else:
-            snpRefAlleleDict[line['query']] = line['dbsnp']['ref']
+            snpRefAlleleDict[line['query']] = {
+                'ref': line['dbsnp']['ref'],
+                'pos': line['dbsnp']['hg19']['start'] if 'hg19' in line['dbsnp'].keys() else "",
+                'chrom': line['dbsnp']['chrom']
+            }
+
+f = open(output, "w")
+f.write("##fileformat=VCFv4.2\n")
+f.write("##FORMAT=<ID=GT,Number=1,Type=Integer,Description=\"Genotype\">\n")
+f.write("##FORMAT=<ID=GP,Number=G,Type=Float,Description=\"Genotype Probabilities\">\n")
+f.write("##FORMAT=<ID=PL,Number=G,Type=Float,Description=\"Phred-scaled Genotype Likelihoods\">\n")
+f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMP001	SAMP002 SAMP003\n")
 
 for i in range(len(snpsData)):
-    snpsData[i]['refAllele'] = snpRefAlleleDict[snpsData[i]['snp']]
+    snp = snpsData[i]['snp']
+    ref = snpRefAlleleDict[snp]['ref']
+    alt = snpsData[i]['riskAllele']
+    hg19 = snpsData[i].pop('hg19')
+    if (hg19 != "NA"):
+        chrom, pos = hg19.split(":")
+        f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
+    elif snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "":
+        chrom = snpRefAlleleDict[snpsData[i]['snp']]['chrom']
+        pos = snpRefAlleleDict[snpsData[i]['snp']]['pos']
+        f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
+        
+f.close()
 
 
 
