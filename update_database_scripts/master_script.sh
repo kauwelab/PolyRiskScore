@@ -128,5 +128,11 @@ else
         echo -e "Finished uploading tables to the PRSKB database.\n"
     fi
 
+#===============Create Sample VCF=====================================================================
+    echo "Creating sample vcf"
+    python3 createSampleVCF.py
+    wait 
+    echo "Finished creating sample vcf"
+    
     read -p "Press [Enter] key to finish..."
 fi
