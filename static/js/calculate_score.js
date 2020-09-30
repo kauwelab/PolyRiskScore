@@ -575,7 +575,7 @@ function exampleInput() {
     document.getElementById('fileUploadButton').click();
     var result = null;
     var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open('GET', "ad_test.vcf", false);
+    xmlhttp.open('GET', "sample.vcf", false);
     xmlhttp.send();
     if (xmlhttp.status == 200) {
         result = xmlhttp.responseText;
