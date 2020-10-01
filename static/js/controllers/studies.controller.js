@@ -57,12 +57,13 @@ exports.findTraits = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            traits = []
+            traits = Set()
             for (i=0; i<data.length; i++) {
-                traits.push(data[i].trait)
+                traits.add(data[i].trait)
+                traits.add(data[i].reportedTrait)
             }
 
-            res.send(traits);
+            res.send(Array.from(traits));
         }
     });
 };
@@ -122,20 +123,6 @@ exports.getFiltered = (req, res) => {
         }
     });
 };
-
-exports.getStudyByID = (req, res) => {
-    Study.getByID(req.params.ids, (err, data) => {
-        if (err) {
-            res.status(500).send({
-                message: "Error retrieving studies"
-            });
-        }
-        else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(data);
-        }
-    })
-}
 
 exports.findStudies = (req, res) => {
     Study.findStudy(req.params.searchStr, (err, data) => {

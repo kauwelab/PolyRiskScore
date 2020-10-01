@@ -19,9 +19,6 @@ module.exports = app => {
     // Retrieves study general data for specified studies
     app.post("/get_studies", studies.getFiltered);
 
-    // Retrieves study data using a list of study ids
-    app.get("/get_studies_by_id", studies.getStudyByID);
-
     //searches for study titles or citations containing the given search string
     app.get("/find_studies/:searchStr", studies.findStudies);
 
