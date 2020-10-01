@@ -2,15 +2,16 @@ const sql = require('./database')
 
 const Study = function (mstudy) {
     this.studyID = mstudy.studyID,
-        this.pubMedID = mstudy.pubMedID,
-        this.trait = mstudy.trait,
-        this.citation = mstudy.citation,
-        this.studyScore = mstudy.studyScore,
-        this.ethnicity = mstudy.ethnicity,
-        this.cohort = mstudy.cohort,
-        this.title = mstudy.title,
-        this.lastUpdated = mstudy.lastUpdated,
-        this.studyType = mstudy.studyType
+    this.pubMedID = mstudy.pubMedID,
+    this.trait = mstudy.trait,
+    this.reportedTrait = mstudy.reportedTrait,
+    this.citation = mstudy.citation,
+    this.studyScore = mstudy.studyScore,
+    this.ethnicity = mstudy.ethnicity,
+    this.cohort = mstudy.cohort,
+    this.title = mstudy.title,
+    this.lastUpdated = mstudy.lastUpdated,
+    this.studyType = mstudy.studyType
 }
 
 Study.getTraits = result => {
