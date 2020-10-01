@@ -40,7 +40,7 @@ Study.getEthnicities = (result) => {
 }
 
 Study.findTrait = (searchStr, result) => {
-    sql.query(`SELECT DISTINCT trait FROM study_table WHERE trait LIKE '%${searchStr}%'`, (err, res) => {
+    sql.query(`SELECT DISTINCT trait, reportedTrait FROM study_table WHERE (trait LIKE '%${searchStr}%' OR reportedTrait LIKE '%${searchStr}%') `, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -78,7 +78,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
         }
         
         // studyMaxes is a view in the database used to find the max values we need 
-        studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
+        studyMaxQuery = `SELECT * FROM studyMaxes WHERE (trait IN (${traits}) OR reportedTrait IN (${traits}))`
     }
     else {
         studyMaxQuery = `SELECT * FROM studyMaxes`
@@ -101,7 +101,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             }
 
             //subQueryString is the string that we append query constraints to from the HTTP request
-            var subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}") `;
+            var subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}" OR reportedTrait = "${res[i].trait}") `;
             var appendor = "";
 
             //append sql conditional filters for studyType
@@ -179,7 +179,8 @@ Study.getByID = (ids, result) => {
 }
 
 Study.findStudy = (searchStr, result) => {
-    sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
+    // search by citation, title, or pubMedID
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%' OR pubMedID LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
