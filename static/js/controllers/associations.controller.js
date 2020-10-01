@@ -1,73 +1,46 @@
 const Association = require("../models/association.model.js");
 
 exports.getFromTables = (req, res) => {
-    //traits format :: [{trait: trait, studyIDs: [list of studyIDs]}, {trait: trait, studyIDs: [list of studyIDs]}]
-    var traits = JSON.parse(req.body.traits)
+    var studyIDs = req.body.studyIDS
     var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
 
-    Association.getFromTables(traits, pValue, refGen, async (err, data) => {
+    Association.getFromTables(studyIDs, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
-                message: "Error retrieving associations"
+                message: `Error retrieving associations: ${err}`
             });
         }
         else {
-            returnData = {}
             res.setHeader('Access-Control-Allow-Origin', '*');
 
-            if (traits.length == 1){
-                returnData[traits[0].trait] = await separateStudies(data, refGen)
-            }
-            else {
-                for (i=0; i<data.length; i++) {
-                    var associations = data[i]
-                    console.log(`Num associations for trait ${traits[i].trait}: ${associations.length}`)
-                    returnData[traits[i].trait] = await separateStudies(associations, refGen)
-                }
-            }
+            returnData = await separateStudies(data, refGen)
             res.send(returnData);
         }
     });
 };
 
 exports.getAll = (req, res) => {
-    var allTraits = req.query.traits;
-    if (typeof(allTraits) == "string") {
-	    allTraits = [allTraits]
-    }
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
-    console.log(`Number of traits: ${allTraits.length}`)
-    Association.getAll(allTraits, pValue, refGen, async (err, data) => {
+    Association.getAll(pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
-                message: "Error retrieving associations"
+                message: `Error retrieving associations; ${err}`
             });
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            // formating returned data
-            traits = {}
-            if (allTraits.length == 1) {
-                console.log(`Num associations for trait ${allTraits[0]}: ${data.length}`)
-                traits[allTraits[0]] = await separateStudies(data, refGen) 
-            }
-            else {
-                for (i = 0; i < data.length; i++) {
-                    var associations = data[i]
-                    console.log(`Num associations for trait ${allTraits[i]}: ${associations.length}`)
-                    traits[allTraits[i]] = await separateStudies(associations, refGen)
-                }
-            }
+            returnData = await separateStudies(data, refGen)
             
-            res.send(traits);
+            res.send(returnData);
         }
     });
 }
 
 exports.getAllSnps = (req, res) => {
-    Association.getAllSnps((err, data) => {
+    var refGen = req.query.refGen; //todo need to put a check here is they don't give it to us
+    Association.getAllSnps(refgen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving snps"
@@ -91,7 +64,8 @@ exports.getAllSnps = (req, res) => {
 }
 
 exports.getSingleSnpFromEachStudy = (req, res) => {
-    Association.getSingleSnpFromEachStudy((err,data) => {
+    var refGen = req.query.refGen; //todo need to put a check here is they don't give it to us
+    Association.getSingleSnpFromEachStudy(refGen, (err,data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving snps"
