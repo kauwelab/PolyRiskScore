@@ -8,6 +8,12 @@ var selectedStudies = []
 //if false, the VCF button is selected- used as a toggle to prevent action on double click
 var textButtonSelected = true;
 
+//updates the output box and resultJSON string with the new string
+function updateResultBoxAndStoredValue(str) {
+    $('#response').html(str);
+    resultJSON = str
+}
+
 function getTraits() {
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#traitSelect').replaceWith("<select id='traitSelect' multiple></select>");
@@ -97,7 +103,7 @@ function getStudies() {
             if (traits.length == 0) {
                 alert(`No results were found using the specified filters. Try using different filters.`)
             }
-            
+
             for (i = 0; i < traits.length; i++) {
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
@@ -132,7 +138,7 @@ function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
         },
         error: function (XMLHttpRequest) {
             var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            $('#response').html(errMsg);
+            updateResultBoxAndStoredValue(errMsg)
             alert(errMsg);
         }
     }));
@@ -141,7 +147,7 @@ function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
 var calculatePolyScore = async () => {
     document.getElementById('resultsDisplay').style.display = 'block';
-    $('#response').html("Calculating. Please wait...");
+    updateResultBoxAndStoredValue("Calculating. Please wait...")
 
     // get the values from the user's inputs/selections
     var vcfFile = document.getElementById("files").files[0];
@@ -159,11 +165,11 @@ var calculatePolyScore = async () => {
 
     //if the user doesn't specify a trait, study, or reference genome, prompt them to do so
     if (studies.length === 0) {
-        $('#response').html('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
+        updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
         return;
     }
     if (refGen == "default") {
-        $('#response').html('Please select the reference genome corresponding to your file (step 2).');
+        updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
         return;
     }
 
@@ -191,7 +197,7 @@ var calculatePolyScore = async () => {
 
         //if text input is empty, return error
         if (!textArea.value) {
-            $('#response').html("Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1).");
+            updateResultBoxAndStoredValue("Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1).");
             return;
         }
 
@@ -204,11 +210,11 @@ var calculatePolyScore = async () => {
             snpArray = snp.split(':');
             //if the snpid is invalid, return error
             if (!snpArray[0].toLowerCase().startsWith("rs") || isNaN(snpArray[0].substring(2, snpArray[0].length))) {
-                $('#response').html("Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers.");
+                updateResultBoxAndStoredValue("Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers.");
                 return;
             }
             if (snpArray.length > 2) {
-                $('#response').html("Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon.");
+                updateResultBoxAndStoredValue("Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon.");
                 return;
             }
             else if (snpArray.length == 2) {
@@ -216,13 +222,14 @@ var calculatePolyScore = async () => {
                 var alleleArray = snpArray[1].split("");
                 //if more than 2 alleles, return error
                 if (alleleArray.length > 2) {
-                    $('#response').html("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
+                    
+                    updateResultBoxAndStoredValue("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
                     return;
                 }
                 for (var j = 0; j < alleleArray.length; ++j) {
                     //if any allele is not  A, T, G, or C, return error
                     if (["A", "T", "G", "C"].indexOf(alleleArray[j].toUpperCase()) < 0) {
-                        $('#response').html("Allele \"" + alleleArray[j] + "\" is invalid. Must be A, T, G, or C.");
+                        updateResultBoxAndStoredValue("Allele \"" + alleleArray[j] + "\" is invalid. Must be A, T, G, or C.");
                         return;
                     }
                 }
@@ -238,14 +245,14 @@ var calculatePolyScore = async () => {
     else {
         //if text input is empty, return error
         if (typeof vcfFile === "undefined") {
-            $('#response').html("Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (step 1).");
+            updateResultBoxAndStoredValue("Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (step 1).");
             return;
         }
         else {
             var extension = vcfFile.name.split(".").pop();
             if (!validExtensions.includes(extension.toLowerCase())) {
                 //if here, the user uploded a file with an invalid format
-                $('#response').html("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+                updateResultBoxAndStoredValue("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
                 return;
             }
             ClientCalculateScore(vcfFile, associationData, pValue, true);
@@ -287,7 +294,7 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
             greppedSNPs = vcf_parser.getVCFObj(reducedVCFLines);
         }
         catch (err) {
-            $('#response').html(getErrorMessage(err));
+            updateResultBoxAndStoredValue(getErrorMessage(err));
             return;
         }
     }
@@ -310,9 +317,14 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
         $('#response').html(outputVal);
         //saves the full result on currently open session of the website for further modifications 
         resultJSON = result;
+        //go the the result output box
+        $('#responseBox')[0].scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        })
     }
     catch (err) {
-        $('#response').html(getErrorMessage(err));
+        updateResultBoxAndStoredValue(getErrorMessage(err));
     }
 }
 
@@ -481,7 +493,14 @@ function getResultOutput(data) {
         return "";
     }
     else {
-        var jsonObject = JSON.parse(data);
+        var jsonObject = ""
+        //if the data string isn't in JSON format, just return the string, otherwise format the data accordingly
+        try {
+            jsonObject = JSON.parse(data);
+        } catch (e) {
+            return data;
+        }
+        
         var outputVal = "";
         var formatDropdown = document.getElementById("fileType");
         var format = formatDropdown.options[formatDropdown.selectedIndex].value;
@@ -652,10 +671,10 @@ function clickFileUpload() {
 function changePValScalar() {
     $("#pvalScalar").html($("#pValScalarIn").val());
     resetOutput()
-    $('#response').html("");
+    updateResultBoxAndStoredValue("");
 }
 function changePValMagnitude() {
     $("#pvalMagnigtude").html(-1 * $("#pValMagIn").val());
     resetOutput()
-    $('#response').html("");
+    updateResultBoxAndStoredValue("");
 }
