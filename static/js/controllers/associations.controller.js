@@ -40,7 +40,7 @@ exports.getAll = (req, res) => {
 
 exports.getAllSnps = (req, res) => {
     var refGen = req.query.refGen; //todo need to put a check here is they don't give it to us
-    Association.getAllSnps(refgen, async (err, data) => {
+    Association.getAllSnps(refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving snps"
@@ -49,15 +49,13 @@ exports.getAllSnps = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             // formating returned data
-            let testArray = []
+            let testArray = new Set()
 
             for (i=0; i<data.length; i++) {
-                for (j=0; j<data[i].length; j++) {
-                    testArray.push(data[i][j])
-                }
+                testArray.add(data[i])
             }
 
-            console.log(`Total snps: ${testArray.length}`)
+            console.log(`Total snps: ${testArray.size}`)
             res.send(Array.from(testArray));
         }
     })

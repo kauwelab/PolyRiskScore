@@ -57,17 +57,19 @@ Association.getAll = (pValue, refGen, result) => {
 }
 
 Association.getAllSnps = (refGen, result) => {
-    if (typeof(refGen) != "string") {
+    if (typeof(refGen) == "undefined") {
         refGen = "hg38"
     }
-
-    sql.query(`SELECT DISTINCT snp, ${refGen} FROM associations_table; `, (err, res) => {
+    console.log(refGen)
+    sqlQ = `SELECT DISTINCT snp, ${refGen} as pos FROM associations_table; `
+    console.log(sqlQ)
+    sql.query(sqlQ, (err, data) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-
+        console.log(data)
         result(null, data)
     })
 }
