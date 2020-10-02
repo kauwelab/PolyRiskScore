@@ -75,7 +75,7 @@ Association.getAllSnps = (refGen, result) => {
 }
 
 Association.getSingleSnpFromEachStudy = (refGen, result) => {
-    if (typeof(refGen) != "string") {
+    if (typeof(refGen) == "undefined") {
         refGen = "hg19"
     }
 
@@ -86,7 +86,6 @@ Association.getSingleSnpFromEachStudy = (refGen, result) => {
             return;
         }
 
-        console.log(data)
         result(null, data)
 
     });

@@ -39,7 +39,7 @@ exports.getAll = (req, res) => {
 }
 
 exports.getAllSnps = (req, res) => {
-    var refGen = req.query.refGen; //todo need to put a check here is they don't give it to us
+    var refGen = req.query.refGen; 
     Association.getAllSnps(refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
@@ -62,7 +62,7 @@ exports.getAllSnps = (req, res) => {
 }
 
 exports.getSingleSnpFromEachStudy = (req, res) => {
-    var refGen = req.query.refGen; //todo need to put a check here is they don't give it to us
+    var refGen = req.query.refGen;
     Association.getSingleSnpFromEachStudy(refGen, (err,data) => {
         if (err) {
             res.status(500).send({
@@ -73,9 +73,7 @@ exports.getSingleSnpFromEachStudy = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             snps = []
             for (i = 0; i < data.length; i++) {
-                for (j = 0; j < data[i].length; j++) {
-                    snps.push(data[i][j])
-                }
+                snps.push(data[i])
             }
             console.log("single snp from each study: 1 shown", snps[0])
             res.send(snps);
