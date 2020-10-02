@@ -41,14 +41,14 @@ Study.getEthnicities = (result) => {
 }
 
 Study.findTrait = (searchStr, result) => {
-    sql.query(`SELECT DISTINCT trait, reportedTrait FROM study_table WHERE (trait LIKE '%${searchStr}%' OR reportedTrait LIKE '%${searchStr}%') `, (err, res) => {
+    sql.query(`SELECT DISTINCT trait FROM study_table WHERE (trait LIKE '%${searchStr}%') ; SELECT DISTINCT reportedTrait FROM study_table WHERE (reportedTrait LIKE '%${searchStr}%');  `, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log(`find traits queried with '${searchStr}', with ${res.length} result(s)`);
+        console.log(`find traits queried with '${searchStr}', with ${res[0].length} and ${res[1].length} result(s)`);
         result(null, res);
     });
 }

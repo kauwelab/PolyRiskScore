@@ -62,8 +62,14 @@ exports.findTraits = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             traits = new Set()
             for (i=0; i<data.length; i++) {
-                traits.add(data[i].trait)
-                traits.add(data[i].reportedTrait)
+                for (j=0; j<data[i].length; j++) {
+                    if (typeof(data[i][j].trait) !== "undefined") {
+                        traits.add(data[i][j].trait)
+                    }
+                    else {
+                        traits.add(data[i][j].reportedTrait)
+                    }
+                }
             }
 
             res.send(Array.from(traits).sort(function (a, b) {
