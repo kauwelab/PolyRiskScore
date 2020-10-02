@@ -15,7 +15,7 @@ const Study = function (mstudy) {
 }
 
 Study.getTraits = result => {
-    sql.query("SELECT DISTINCT trait FROM study_table ORDER BY trait", (err, res) => {
+    sql.query("SELECT DISTINCT trait, reportedTrait FROM study_table ORDER BY trait", (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);

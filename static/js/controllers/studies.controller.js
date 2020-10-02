@@ -11,12 +11,15 @@ exports.getTraits = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            traits = []
+            traits = new Set()
             for (i=0; i<data.length; i++) {
-                traits.push(data[i].trait)
+                traits.add(data[i].trait)
+                traits.add(data[i].reportedTrait)
             }
 
-            res.send(traits);
+            res.send(Array.from(traits).sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            }));
         }
     })
 }
@@ -57,13 +60,15 @@ exports.findTraits = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            traits = Set()
+            traits = new Set()
             for (i=0; i<data.length; i++) {
                 traits.add(data[i].trait)
                 traits.add(data[i].reportedTrait)
             }
 
-            res.send(Array.from(traits));
+            res.send(Array.from(traits).sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            }));
         }
     });
 };
