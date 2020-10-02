@@ -1,7 +1,7 @@
 const Association = require("../models/association.model.js");
 
 exports.getFromTables = (req, res) => {
-    var studyIDs = req.body.studyIDS
+    var studyIDs = req.body.studyIDs
     var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
 

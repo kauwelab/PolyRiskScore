@@ -27,21 +27,19 @@ Association.getFromTables = (studyIDs, pValue, refGen, result) => {
 
     queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM associations_table WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}) ORDER BY studyID; `)
 
-    //TODO remove
-    console.log(queryString)
     sql.query(queryString, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-        console.log(res)
+        console.log(`Got ${res.length} associations from table`)
         result(null, res);
     });
 };
 
 Association.getAll = (pValue, refGen, result) => {
-    console.log(refGen, pValue, traits)
+    console.log(refGen, pValue)
 
     queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM associations_table WHERE pValue <= ${pValue}; `
     console.log(queryString)
