@@ -67,6 +67,7 @@ Study.getAll = result => {
 };
 
 Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
+    // potentially change the output format??
     //if traits is null, assume they want all 
     if (traits) {
         if (typeof traits === 'string' || traits instanceof String) {
@@ -79,7 +80,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
         }
         
         // studyMaxes is a view in the database used to find the max values we need 
-        studyMaxQuery = `SELECT * FROM studyMaxes WHERE (trait IN (${traits}) OR reportedTrait IN (${traits}))`
+        studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
     }
     else {
         studyMaxQuery = `SELECT * FROM studyMaxes`
