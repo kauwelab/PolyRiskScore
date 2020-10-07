@@ -173,16 +173,10 @@ var calculatePolyScore = async () => {
         return;
     }
 
-    console.log(studies)
-    //convert the studies into a list of trait-study object pairs
+    //convert the studies into a list of studyIDs
     var studyList = [];
-    for (i = 0; i < traits.length; i++) {
-        trait = traits[i];
-        for (j = 0; j < studies.length; j++) {
-            if (studies[j][1] === trait) {
-                studyList.push(studies[j][0]);
-            }
-        }
+    for (i = 0; i < studies.length; i++) {
+        studyList.push(studies[i][0]);
     }
 
     //send a get request to the server with the specified traits and studies

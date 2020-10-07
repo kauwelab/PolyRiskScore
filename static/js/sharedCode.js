@@ -192,54 +192,49 @@
      * for text calculations.
      */
     exports.getAssociationMap = function (associationData, isPosBased) {
-        var tableObj = associationData;
 
         var usefulIdentifiers = new Map()
 
-        var traits = Object.keys(tableObj)
-        //for each database trait
-        for (let i = 0; i < traits.length; ++i) {
-            var trait = traits[i];
-            var traitObj = tableObj[trait];
-            var studyIDs = Object.keys(traitObj)
-
-            //for each study in the database trait
-            for (let j = 0; j < studyIDs.length; ++j) {
-                var studyID = studyIDs[j]
-                var studyIDObj = traitObj[studyID]
-                var citation = studyIDObj["citation"]
-                var associations = studyIDObj["associations"]
-
-                //for each row  of the study in the database trait
-                for (let k = 0; k < associations.length; ++k) {
-                    //create a key value pair with the key being the position or snpID
-                    //and the value being a set of identifier objects corresponding to
-                    //row values within the database
-                    var identifier = "";
-                    var pos = associations[k].pos;
-                    var snp = associations[k].snp;
-                    if (isPosBased) {
-                        identifier = pos;
-                    }
-                    else {
-                        identifier = snp;
-                    }
-                    var indentifierObj = {
-                        snp: snp,
-                        pos: pos,
-                        oddsRatio: associations[k].oddsRatio,
-                        allele: associations[k].riskAllele,
-                        study: citation,
-                        trait: trait
-                    }
-                    //if the pos or id is already in the map, add the new indentifierObj to the set at that key
-                    if (usefulIdentifiers.has(identifier)) {
-                        usefulIdentifiers.set(identifier, usefulIdentifiers.get(identifier).add(indentifierObj));
-                    }
-                    //otherwise create a new key value pair
-                    else {
-                        usefulIdentifiers.set(identifier, new Set([indentifierObj]));
-                    }
+        var studyIDs = Object.keys(associationData)
+        //for each database study
+        for (let i = 0; i < studyIDs.length; ++i) {
+            var studyID = studyIDs[i];
+            var studyIDObj = associationData[studyID];
+            var citation = studyIDObj["citation"]
+            var associations = studyIDObj["associations"]
+            var traits = studyIDObj["traits"]
+            var reportedTraits = studyIDObj["reportedTraits"]
+            //for each row of the study in the database study
+            for (let k = 0; k < associations.length; ++k) {
+                //create a key value pair with the key being the position or snpID
+                //and the value being a set of identifier objects corresponding to
+                //row values within the database
+                var identifier = "";
+                var pos = associations[k].pos;
+                var snp = associations[k].snp;
+                if (isPosBased) {
+                    identifier = pos;
+                }
+                else {
+                    identifier = snp;
+                }
+                var indentifierObj = {
+                    snp: snp,
+                    pos: pos,
+                    oddsRatio: associations[k].oddsRatio,
+                    allele: associations[k].riskAllele,
+                    study: citation,
+                    traits: traits,
+                    reportedTraits: reportedTraits,
+                    studyID: studyID
+                }
+                //if the pos or id is already in the map, add the new indentifierObj to the set at that key
+                if (usefulIdentifiers.has(identifier)) {
+                    usefulIdentifiers.set(identifier, usefulIdentifiers.get(identifier).add(indentifierObj));
+                }
+                //otherwise create a new key value pair
+                else {
+                    usefulIdentifiers.set(identifier, new Set([indentifierObj]));
                 }
             }
         }
