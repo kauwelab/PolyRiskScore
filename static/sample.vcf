@@ -2,7 +2,7 @@
 ##FORMAT=<ID=GT,Number=1,Type=Integer,Description="Genotype">
 ##FORMAT=<ID=GP,Number=G,Type=Float,Description="Genotype Probabilities">
 ##FORMAT=<ID=PL,Number=G,Type=Float,Description="Phred-scaled Genotype Likelihoods">
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMP001	SAMP002 SAMP003
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMP001	SAMP002	SAMP003
 12	57534470	rs1466535	G	C	.	PASS	.	GT	0/1	0/0	1/1
 9	22115959	rs2383207	A	G	.	PASS	.	GT	0/1	0/0	1/1
 9	22096055	rs10757274	A	G	.	PASS	.	GT	0/1	0/0	1/1

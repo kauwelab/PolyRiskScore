@@ -49,7 +49,7 @@ f.write("##fileformat=VCFv4.2\n")
 f.write("##FORMAT=<ID=GT,Number=1,Type=Integer,Description=\"Genotype\">\n")
 f.write("##FORMAT=<ID=GP,Number=G,Type=Float,Description=\"Genotype Probabilities\">\n")
 f.write("##FORMAT=<ID=PL,Number=G,Type=Float,Description=\"Phred-scaled Genotype Likelihoods\">\n")
-f.write("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMP001	SAMP002 SAMP003\n")
+f.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMP001\tSAMP002\tSAMP003\n")
 
 for i in range(len(snpsData)):
     snp = snpsData[i]['snp']
