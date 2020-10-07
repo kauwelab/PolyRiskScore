@@ -13,8 +13,10 @@ exports.getFromTables = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
+            associations = data[0]
+            traits = data[1]
 
-            returnData = await separateStudies(data, refGen)
+            returnData = await separateStudies(associations, traits, refGen)
             res.send(returnData);
         }
     });
@@ -31,7 +33,9 @@ exports.getAll = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            returnData = await separateStudies(data, refGen)
+            associations = data[0]
+            traits = data[1]
+            returnData = await separateStudies(associations, traits, refGen)
             
             res.send(returnData);
         }
@@ -114,7 +118,19 @@ exports.snpsByEthnicity = (req, res) => {
     })
 }
 
-async function separateStudies(associations, refGen) {
+async function separateStudies(associations, traitData, refGen) {
+    var studyToTraits = {}
+    for (i=0; i < traitData.length; i++) {
+        var studyObj = traitData[i]
+        if (studyObj.studyID in studyToTraits) {
+            studyToTraits[studyObj.studyID].traits.add(studyObj.trait)
+            studyToTraits[studyObj.studyID].reportedTraits.add(studyObj.reportedTrait)
+        }
+        else {
+            studyToTraits[studyObj.studyID] = {traits: new Set([studyObj.trait]), reportedTraits: new Set([studyObj.reportedTrait])}
+        }
+    }
+
     var studiesAndAssociations = {}
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
@@ -130,8 +146,14 @@ async function separateStudies(associations, refGen) {
             studiesAndAssociations[association.studyID].associations.push(row)
         }
         else {
-            studiesAndAssociations[association.studyID] = {citation: association.citation, associations: [row]}
+            studiesAndAssociations[association.studyID] = {
+                citation: association.citation, 
+                traits: Array.from(studyToTraits[association.studyID].traits), 
+                reportedTraits: Array.from(studyToTraits[association.studyID].reportedTraits),
+                associations: [row]
+            }
         }
     }
+
     return studiesAndAssociations
 }

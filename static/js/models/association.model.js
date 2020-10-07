@@ -34,7 +34,15 @@ Association.getFromTables = (studyIDs, pValue, refGen, result) => {
             return;
         }
         console.log(`Got ${res.length} associations from table`)
-        result(null, res);
+        console.log("Getting the traits associated with the studies")
+        sql.query(`SELECT studyID, trait, reportedTrait FROM study_table WHERE studyID IN (${studyIDs}) ORDER BY studyID; `, (err2, traitData) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+            result(null, [res, traitData]);
+        })
     });
 };
 
@@ -52,7 +60,15 @@ Association.getAll = (pValue, refGen, result) => {
         }
 
         console.log("associations (first): ", res[0]);
-        result(null, res);
+
+        sql.query("SELECT studyID, trait, reportedTrait FROM study_table", (err2, traits) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+            result(null, [res, traits]);
+        })
     });
 }
 
