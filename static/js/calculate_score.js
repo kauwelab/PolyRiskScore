@@ -128,7 +128,6 @@ function getStudies() {
 //called in calculatePolyScore below, 
 //queries the server for associations with the given studyIDs, pValue, and reference genome
 function getSelectStudyAssociationsByID(studyList, pValue, refGen) {
-    studyList = JSON.stringify(studyList)
     return Promise.resolve($.ajax({
         type: "POST",
         url: "/get_associations",
