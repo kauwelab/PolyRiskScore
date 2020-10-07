@@ -126,14 +126,15 @@ function getStudies() {
 }
 
 //called in calculatePolyScore below, 
-//queries the server for associations with the given traits, studies, pValue, and reference genome
-function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
-    traitList = JSON.stringify(traitList)
+//queries the server for associations with the given studyIDs, pValue, and reference genome
+function getSelectStudyAssociationsByID(studyList, pValue, refGen) {
+    studyList = JSON.stringify(studyList)
     return Promise.resolve($.ajax({
         type: "POST",
         url: "/get_associations",
-        data: { traits: traitList, pValue: pValue, refGen: refGen },
+        data: { studyIDs: studyList, pValue: pValue, refGen: refGen },
         success: async function (data) {
+            console.log(data)
             return data;
         },
         error: function (XMLHttpRequest) {
@@ -173,22 +174,20 @@ var calculatePolyScore = async () => {
         return;
     }
 
+    console.log(studies)
     //convert the studies into a list of trait-study object pairs
-    var traitList = [];
+    var studyList = [];
     for (i = 0; i < traits.length; i++) {
         trait = traits[i];
-        studyList = []
         for (j = 0; j < studies.length; j++) {
             if (studies[j][1] === trait) {
                 studyList.push(studies[j][0]);
             }
         }
-        traitObj = { trait: trait, studies: studyList };
-        traitList.push(traitObj);
     }
 
     //send a get request to the server with the specified traits and studies
-    associationData = await getSelectStudyAssociationsByTraits(traitList, pValue, refGen);
+    associationData = await getSelectStudyAssociationsByID(studyList, pValue, refGen);
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
