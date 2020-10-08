@@ -144,6 +144,22 @@ exports.snpsByEthnicity = (req, res) => {
     })
 }
 
+exports.joinTest = (req, res) => {
+    Association.joinTest((err,data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving join"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            console.log(data)
+            res.send(data);
+        }
+    })
+}
+
 async function separateStudies(associations, refGen) {
     var studiesAndAssociations = {}
     for (j = 0; j < associations.length; j++) {

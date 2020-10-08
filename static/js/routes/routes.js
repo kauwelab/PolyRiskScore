@@ -46,4 +46,6 @@ module.exports = app => {
     app.get("/cli_version", cli.version);
 
     app.get("/download_cli", cli.download);
+
+    app.get("/join_test", associations.joinTest)
 }

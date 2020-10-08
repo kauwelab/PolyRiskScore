@@ -261,4 +261,19 @@ Association.snpsByEthnicity = (ethnicities, result) => {
     })
 }
 
+Association.joinTest = (result) => {
+    queryString = "SELECT * FROM study_table JOIN Associations ON study_table.studyID = Associations.studyID;"
+
+    //TODO remove
+    console.log(queryString)
+    sql.query(queryString, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        result(null, res);
+    });
+};
+
 module.exports = Association;
