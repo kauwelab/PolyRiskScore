@@ -27,7 +27,7 @@
                     //for each snp of the individual in the vcf
                     individualSNPObjs.forEach(function (individualSNPObj) {
                         //using the individualSNPObj.pos as key, gets all corresponding databasePosObjs from the database through
-                        //usefulPos. Each databasePosObj contains: snp, pos, oddsRatio, allele, study, and trait
+                        //usefulPos. Each databasePosObj contains: snp, pos, oddsRatio, allele, study, traits, reportedTraits, and studyID
                         //databasePosObjs will normally only be size 1, but when mutiple studies have the same allele, it will be longer
                         var databasePosObjs = Array.from(associMap.get(individualSNPObj.pos))
                         databasePosObjs.forEach(function (databasePosObj) {
@@ -37,7 +37,7 @@
                             //for each allele of the vcf snp obj
                             individualSNPObj.alleleArray.forEach(function (allele) {
                                 //if the vcf allele matches the database allele 
-                                if ((allele !== null && databasePosObj.allele === allele) || allele == null) {
+                                if ((allele !== null && databasePosObj.allele === allele)) {
                                     oddsRatioTempList.push(databasePosObj.oddsRatio)
                                     snpTempList.push(databasePosObj.snp)
                                     posTempList.push(databasePosObj.pos)
@@ -47,12 +47,12 @@
                             //add the new data to the studyObjs
                             if (oddsRatioTempList.length > 0) {
                                 //if the study has already been initialized and added to studyObjs add the new data to the existing studyObj
-                                if (studyObjs.has(databasePosObj.study)) {
-                                    var studyObj = studyObjs.get(databasePosObj.study);
+                                if (studyObjs.has(databasePosObj.studyID)) {
+                                    var studyObj = studyObjs.get(databasePosObj.studyID);
                                     studyObj.oddsRatios = studyObj.oddsRatios.concat(oddsRatioTempList);
                                     studyObj.snps = studyObj.snps.concat(snpTempList);
                                     studyObj.pos = studyObj.pos.concat(posTempList);
-                                    studyObjs.set(databasePosObj.study, studyObj)
+                                    studyObjs.set(databasePosObj.studyID, studyObj)
                                 }
                                 //otherwise create a new study entry in studyObjs with the new data
                                 else {
@@ -61,56 +61,51 @@
                                         snps: snpTempList,
                                         pos: posTempList
                                     }
-                                    studyObjs.set(databasePosObj.study, studyObj)
+                                    studyObjs.set(databasePosObj.studyID, studyObj)
                                 }
                             }
                         });
                     });
 
-                    //takes the studyObj results and organizes them to return according to the order of traits
-                    //and studies in associationData
-                    var traitResults = [];
-                    //for each database trait
-                    Object.keys(assocationData).forEach(function (trait) {
-                        var traitEntry = assocationData[trait]
-                        var studyResults = [];
-                        //for each study in the database trait
-                        Object.keys(traitEntry).forEach(function (studyID) {
-                            var studyEntry = traitEntry[studyID];
-                            var citation = studyEntry["citation"];
-                            //if the study has results, push the study results to the study results for the trait
-                            if (studyObjs.has(citation)) {
-                                studyResults.push({
-                                    studyID: studyID,
-                                    citation: citation,
-                                    oddsRatio: getCombinedORFromArray(studyObjs.get(citation).oddsRatios),
-                                    percentile: "",
-                                    numSNPsIncluded: studyObjs.get(citation).snps.length,
-                                    chromPositionsIncluded: studyObjs.get(citation).pos,
-                                    snpsIncluded: studyObjs.get(citation).snps
-                                });
-                            }
-                            //otherwise create empty results
-                            else {
-                                studyResults.push({
-                                    studyID: studyID,
-                                    citation: citation,
-                                    oddsRatio: 1,
-                                    percentile: "",
-                                    numSNPsIncluded: 0,
-                                    chromPositionsIncluded: [],
-                                    snpsIncluded: []
-                                });
-                            }
-                        });
-                        //push the trait to the trait results list
-                        traitResults.push({
-                            trait: trait,
-                            studyResults: studyResults
-                        });
+                    //takes the studyObj results and organizes them to return according to the order
+                    //studies in associationData
+                    var studyResults = [];
+                    //for each database study
+                    Object.keys(assocationData).forEach(function (studyID) {
+                        var studyEntry = assocationData[studyID]
+                        var citation = studyEntry["citation"];
+                        var traits = studyEntry["traits"];
+                        var reportedTraits = studyEntry["reportedTraits"];
+                            
+                        //if the study has results, push the study results to the study results for the trait
+                        if (studyObjs.has(studyID)) {
+                            studyResults.push({
+                                studyID: studyID,
+                                citation: citation,
+                                traits: traits,
+                                reportedTraits: reportedTraits,
+                                oddsRatio: getCombinedORFromArray(studyObjs.get(studyID).oddsRatios),
+                                numSNPsIncluded: studyObjs.get(studyID).snps.length,
+                                chromPositionsIncluded: studyObjs.get(studyID).pos,
+                                snpsIncluded: studyObjs.get(studyID).snps
+                            });
+                        }
+                        //otherwise create empty results
+                        else {
+                            studyResults.push({
+                                studyID: studyID,
+                                citation: citation,
+                                traits: traits,
+                                reportedTraits: reportedTraits,
+                                oddsRatio: "No variants matched", //TODO make this prettier like the CLI
+                                numSNPsIncluded: 0,
+                                chromPositionsIncluded: [],
+                                snpsIncluded: []
+                            });
+                        }
                     });
                     //create a new JSON object containing the individual name followed by their trait results list
-                    resultJsons.push({ individualName: this.trim(individualName), traitResults: traitResults })
+                    resultJsons.push({ individualName: this.trim(individualName), studyResults: studyResults })
                 }
             }
             //if the input data doesn't have an individual in it (we can assume this is a text input query with no matching SNPs)

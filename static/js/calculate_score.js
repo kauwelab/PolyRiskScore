@@ -133,7 +133,6 @@ function getSelectStudyAssociationsByID(studyList, pValue, refGen) {
         url: "/get_associations",
         data: { studyIDs: studyList, pValue: pValue, refGen: refGen },
         success: async function (data) {
-            console.log(data)
             return data;
         },
         error: function (XMLHttpRequest) {
@@ -420,18 +419,17 @@ function formatText(jsonObject) {
             continue;
         }
         returnText += "\nIndividual Name: " + jsonObject[i].individualName;
-        jsonObject[i].traitResults.forEach(function (traitResult) {
-            returnText += " \n  Trait: " + traitResult.trait;
-            traitResult.studyResults.forEach(function (studyResult) {
+        jsonObject[i].studyResults.forEach(function (studyResult) {
                 returnText +=
-                    " \n    Study ID: " + studyResult.studyID +
-                    " \n      Citation: " + studyResult.citation +
-                    " \n      Odds Ratio: " + studyResult.oddsRatio +
-                    " \n      Percentile: " + studyResult.percentile +
-                    " \n      # SNPs in OR: " + studyResult.numSNPsIncluded +
-                    " \n      Chrom Positions in OR: " + studyResult.chromPositionsIncluded +
-                    " \n      SNPs in OR: " + studyResult.snpsIncluded;
-            });
+                    " \n  Study ID: " + studyResult.studyID +
+                    " \n    Reported Traits: " + studyResult.reportedTraits.join(";") +
+                    " \n    Traits: " + studyResult.traits.join(";") +
+                    " \n    Citation: " + studyResult.citation +
+                    " \n    Odds Ratio: " + studyResult.oddsRatio +
+                    " \n    Percentile: " + studyResult.percentile +
+                    " \n    # SNPs in OR: " + studyResult.numSNPsIncluded +
+                    " \n    Chrom Positions in OR: " + studyResult.chromPositionsIncluded +
+                    " \n    SNPs in OR: " + studyResult.snpsIncluded;
         });
     }
     return returnText;
@@ -439,26 +437,23 @@ function formatText(jsonObject) {
 
 function formatCSV(jsonObject) {
     //Look for a csv writer npm module
-    var returnText = "Individual Name, Trait, Study ID, Citation, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
+    var returnText = "Individual Name, Study ID, Reported Traits, Traits, Citation, Odds Ratio, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
 
     for (var i = 0; i < jsonObject.length; ++i) {
         if (i == 0) {
             continue;
         }
-        jsonObject[i].traitResults.forEach(function (traitResult) {
-
-            traitResult.studyResults.forEach(function (studyResult) {
-                returnText +=
-                    "\n" + jsonObject[i].individualName +
-                    "," + traitResult.trait +
-                    "," + studyResult.studyID +
-                    "," + studyResult.citation +
-                    "," + studyResult.oddsRatio +
-                    "," + studyResult.percentile +
-                    "," + studyResult.numSNPsIncluded +
-                    "," + studyResult.chromPositionsIncluded.join(";") +
-                    "," + studyResult.snpsIncluded.join(";");
-            });
+        jsonObject[i].studyResults.forEach(function (studyResult) {
+            returnText +=
+                "\n" + jsonObject[i].individualName +
+                "," + studyResult.studyID +
+                "," + studyResult.reportedTraits.join(";") +
+                "," + studyResult.traits.join(";") +
+                "," + studyResult.citation +
+                "," + studyResult.oddsRatio +
+                "," + studyResult.numSNPsIncluded +
+                "," + studyResult.chromPositionsIncluded.join(";") +
+                "," + studyResult.snpsIncluded.join(";");
         });
     }
     // var pattern = new RegExp("2016");
