@@ -41,35 +41,3 @@ app.listen(port, () => {
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
-
-// ROUTES
-
-// POST route from contact form
-app.post('/contact', function (req, res) {
-    let mailOpts, smptTrans;
-    smptTrans = nodeMailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-            user: 'kauwelab19@gmail.com',
-            pass: passwords.getEmailPassword()
-        }
-    });
-    mailOpts = {
-        from: req.body.name + ' &lt;' + req.body.email + '&gt;',
-        to: 'kauwelab19@gmail.com',
-        subject: 'New message from contact form at PRS.byu.edu',
-        text: `${req.body.name} (${req.body.email}) says: ${req.body.message}`,
-    };
-    smptTrans.sendMail(mailOpts, (err, data) => {
-        if (err) {
-            res.writeHead(301, { Location: 'fail.html' });
-            res.end();
-        }
-    });
-    res.writeHead(301, { Location: 'success.html' });
-    res.end();
-});
-
-// end Post Routes ---------------------------------------------------------------------------------
