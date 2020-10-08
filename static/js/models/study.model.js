@@ -2,19 +2,20 @@ const sql = require('./database')
 
 const Study = function (mstudy) {
     this.studyID = mstudy.studyID,
-        this.pubMedID = mstudy.pubMedID,
-        this.trait = mstudy.trait,
-        this.citation = mstudy.citation,
-        this.studyScore = mstudy.studyScore,
-        this.ethnicity = mstudy.ethnicity,
-        this.cohort = mstudy.cohort,
-        this.title = mstudy.title,
-        this.lastUpdated = mstudy.lastUpdated,
-        this.studyType = mstudy.studyType
+    this.pubMedID = mstudy.pubMedID,
+    this.trait = mstudy.trait,
+    this.reportedTrait = mstudy.reportedTrait,
+    this.citation = mstudy.citation,
+    this.studyScore = mstudy.studyScore,
+    this.ethnicity = mstudy.ethnicity,
+    this.cohort = mstudy.cohort,
+    this.title = mstudy.title,
+    this.lastUpdated = mstudy.lastUpdated,
+    this.studyType = mstudy.studyType
 }
 
 Study.getTraits = result => {
-    sql.query("SELECT DISTINCT trait FROM study_table ORDER BY trait", (err, res) => {
+    sql.query("SELECT DISTINCT trait, reportedTrait FROM study_table ORDER BY trait", (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
@@ -40,14 +41,14 @@ Study.getEthnicities = (result) => {
 }
 
 Study.findTrait = (searchStr, result) => {
-    sql.query(`SELECT DISTINCT trait FROM study_table WHERE trait LIKE '%${searchStr}%'`, (err, res) => {
+    sql.query(`SELECT DISTINCT trait FROM study_table WHERE (trait LIKE '%${searchStr}%') ; SELECT DISTINCT reportedTrait FROM study_table WHERE (reportedTrait LIKE '%${searchStr}%');  `, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log(`find traits queried with '${searchStr}', with ${res.length} result(s)`);
+        console.log(`find traits queried with '${searchStr}', with ${res[0].length} and ${res[1].length} result(s)`);
         result(null, res);
     });
 }
@@ -66,6 +67,7 @@ Study.getAll = result => {
 };
 
 Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
+    // potentially change the output format??
     //if traits is null, assume they want all 
     if (traits) {
         if (typeof traits === 'string' || traits instanceof String) {
@@ -101,7 +103,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             }
 
             //subQueryString is the string that we append query constraints to from the HTTP request
-            var subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}") `;
+            var subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}" OR reportedTrait = "${res[i].trait}") `;
             var appendor = "";
 
             //append sql conditional filters for studyType
@@ -163,23 +165,9 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
     });
 };
 
-Study.getByID = (ids, result) => {
-    for (j=0; j<ids.length; j++) {
-        ids[j] = "\"" + ids[j] + "\"";
-    }
-    sql.query(`SELECT trait, studyID FROM study_table WHERE studyID in (${ids})`, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(err, null);
-            return;
-        }
-
-        result(null, res);
-    })
-}
-
 Study.findStudy = (searchStr, result) => {
-    sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%'`, (err, res) => {
+    // search by citation, title, or pubMedID
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%' OR pubMedID LIKE '%${searchStr}%'`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);

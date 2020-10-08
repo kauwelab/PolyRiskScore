@@ -19,43 +19,37 @@ const Association = function (massociation) {
     this.studyID = massociation.studyID;
 };
 
-Association.getFromTables = (traits, pValue, refGen, result) => {
+Association.getFromTables = (studyIDs, pValue, refGen, result) => {
     queryString = ""
-    for (i = 0; i < traits.length; i++) {
-        traitObj = traits[i]
-        studyIDs = traitObj.studies
-        for (j = 0; j < studyIDs.length; j++) {
-            studyIDs[j] = "\"" + studyIDs[j] + "\"";
-        }
-        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${formatter.formatForTableName(traitObj.trait)}\` WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}); `)
+    for (j = 0; j < studyIDs.length; j++) {
+        studyIDs[j] = "\"" + studyIDs[j] + "\"";
     }
 
-    //TODO remove
-    console.log(queryString)
+    queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM associations_table WHERE pValue <= ${pValue} AND studyID IN (${studyIDs}) ORDER BY studyID; `)
+
     sql.query(queryString, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-        console.log(res)
-        result(null, res);
+        console.log(`Got ${res.length} associations from table`)
+        console.log("Getting the traits associated with the studies")
+        sql.query(`SELECT studyID, trait, reportedTrait FROM study_table WHERE studyID IN (${studyIDs}) ORDER BY studyID; `, (err2, traitData) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+            result(null, [res, traitData]);
+        })
     });
 };
 
-Association.getAll = (traits, pValue, refGen, result) => {
-    console.log(refGen, pValue, traits)
-    queryString = ""
+Association.getAll = (pValue, refGen, result) => {
+    console.log(refGen, pValue)
 
-    console.log(typeof(traits))
-    for (i = 0; i < traits.length; i++) {
-        trait = formatter.formatForTableName(traits[i])
-        queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM \`${trait}\` WHERE pValue <= ${pValue}`)
-        if (i < traits.length - 1) {
-            queryString = queryString.concat("; ")
-        }
-    }
-
+    queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM associations_table WHERE pValue <= ${pValue}; `
     console.log(queryString)
 
     sql.query(queryString, (err, res) => {
@@ -66,97 +60,63 @@ Association.getAll = (traits, pValue, refGen, result) => {
         }
 
         console.log("associations (first): ", res[0]);
-        result(null, res);
+
+        sql.query("SELECT studyID, trait, reportedTrait FROM study_table", (err2, traits) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+            result(null, [res, traits]);
+        })
     });
 }
 
-Association.getAllSnps = result => {
-    //selects unique trait names for querying all association tables
-    sql.query(`SELECT DISTINCT trait FROM study_table`, (err, res) => {
+Association.getAllSnps = (refGen, result) => {
+    if (typeof(refGen) == "undefined") {
+        refGen = "hg38"
+    }
+    console.log(refGen)
+    sqlQ = `SELECT DISTINCT snp, ${refGen} as pos FROM associations_table; `
+    console.log(sqlQ)
+    sql.query(sqlQ, (err, data) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        console.log(data)
+        result(null, data)
+    })
+}
+
+Association.getSingleSnpFromEachStudy = (refGen, result) => {
+    if (typeof(refGen) == "undefined") {
+        refGen = "hg19"
+    }
+
+    sql.query(`SELECT snp, riskAllele, ${refGen}, studyID FROM associations_table WHERE id IN ( SELECT min(id) FROM associations_table GROUP BY studyID ); `, (err, data) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log("num Traits: ", res.length);
-        queryString = ""
-        // turn traits into table names 
-        for (i = 0; i < res.length; i++) {
-            trait = formatter.formatForTableName(res[i].trait)
-            queryString = queryString.concat(`SELECT DISTINCT snp, hg38 FROM \`${trait}\`; `)
-        }
-
-        sql.query(queryString, (err2, data) => {
-            if (err2) {
-                console.log("error: ", err2);
-                result(err2, null);
-                return;
-            }
-
-            result(null, data)
-        })
-
-    });
-}
-
-Association.getSingleSnpFromEachStudy = result => {
-    sql.query(`SELECT DISTINCT trait FROM study_table`, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(err, null);
-            return;
-        }
-
-        console.log("num Traits: ", res.length);
-        queryString = ""
-        // turn traits into table names 
-        for (i = 0; i < res.length; i++) {
-            trait = formatter.formatForTableName(res[i].trait)
-            queryString = queryString.concat(`SELECT snp, riskAllele, hg19, studyID FROM \`${trait}\` WHERE id IN ( SELECT min(id) FROM \`${trait}\` GROUP BY studyID ); `)
-        }
-
-        sql.query(queryString, (err2, data) => {
-            if (err2) {
-                console.log("error: ", err2);
-                result(err2, null);
-                return;
-            }
-
-            console.log(data)
-            result(null, data)
-        })
+        result(null, data)
 
     });
 }
 
 Association.searchMissingRsIDs = result => {
-    sql.query(`SELECT DISTINCT trait FROM study_table`, (err, res) => {
+    sql.query(`SELECT * FROM associations_table WHERE snp = "" or snp = " " or snp IS NULL; `, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log("num Traits: ", res.length);
-        queryString = ""
-        // turn traits into table names 
-        for (i = 0; i < res.length; i++) {
-            trait = formatter.formatForTableName(res[i].trait)
-            queryString = queryString.concat(`SELECT * FROM \`${trait}\` WHERE snp = "" or snp = " " or snp IS NULL; `)
-        }
-
-        sql.query(queryString, (err2, data) => {
-            if (err2) {
-                console.log("error: ", err2);
-                result(err2, null);
-                return;
-            }
-
-            console.log(data)
-            result(null, data)
-        })
-
+        console.log(res)
+        result(null, res)
     });
 }
 
@@ -167,11 +127,11 @@ Association.snpsByEthnicity = (ethnicities, result) => {
 
     if (Array.isArray(ethnicities)) {
         for (i = 0; i < ethnicities.length; i++) {
-            queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
+            queryString = queryString.concat(`SELECT studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
         }
     }
     else {
-        queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities}%'; `)
+        queryString = queryString.concat(`SELECT studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities}%'; `)
     }
     
     console.log(queryString)
@@ -190,15 +150,14 @@ Association.snpsByEthnicity = (ethnicities, result) => {
             if(Array.isArray(ethnicities)) {
                 for (j = 0; j < res[i].length; j++) {
                     //TODO clean to remove duplicate code
-                    trait = formatter.formatForTableName(res[i][j].trait)
-                    queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i][j].studyID}'; `)
+                    queryString = queryString.concat(`SELECT snp FROM associations_table WHERE studyID = '${res[i][j].studyID}'; `)
                 }
             }
             //if there is only one ethnicity in the selector, only select SNPs for the studies in that ethnicity
             else {
                 //TODO clean to remove duplicate code
                 trait = formatter.formatForTableName(res[i].trait)
-                queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i].studyID}'; `)
+                queryString = queryString.concat(`SELECT snp FROM associations_table WHERE studyID = '${res[i].studyID}'; `)
             }
         }
 
