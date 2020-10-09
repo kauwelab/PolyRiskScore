@@ -29,6 +29,7 @@ version="1.1.0"
 #
 # ########################################################################
 
+# colors for text printing
 RED='\033[0;31m'
 LIGHTRED='\033[1;31m'
 LIGHTBLUE='\033[1;34m'
@@ -39,6 +40,7 @@ MYSTERYCOLOR='\033[1;49;36m'
 NC='\033[0m' # No Color
 HORIZONTALLINE="============================================================================="
 
+# introduces the PRSKB menu
 prskbMenu () {
     echo -e "\n$HORIZONTALLINE"
     echo -e "                   ${LIGHTBLUE}PRSKB Command Line Menu/Instructions${NC}"
@@ -51,6 +53,7 @@ prskbMenu () {
     echo "then pressing [Enter]."
 }
 
+# the usage statement of the tool
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
     echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (csv, json, or txt format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
@@ -65,6 +68,7 @@ usage () {
     echo ""
 }
 
+# the options menu - prints the menu, waits for user input, and then directs them where they want to go
 chooseOption () {
     while true
     do
@@ -93,6 +97,9 @@ chooseOption () {
     done
 }
 
+# teaches the user about the tools parameters
+# pulls up a new Params menu, which will take the input and tell the user about the parameters they want to know about
+# loops until the user wants to go back to the main menu
 learnAboutParameters () {
     cont=1
     echo ""
@@ -208,6 +215,8 @@ learnAboutParameters () {
     done
 }
 
+# User has the option to search studies or traits
+# calls the appropriate api endpoint for the query and formats the results for the user to view
 searchTraitsAndStudies () {
     echo -e " ${LIGHTBLUE}SEARCH STUDIES AND TRAITS:${NC}"
     echo -e " Which would you like to search, studies or traits? ${GREEN}(s/t)${NC}"
@@ -236,6 +245,8 @@ searchTraitsAndStudies () {
     esac
 }
 
+# will allow the user to run the PRSKB calculator from the menu
+# takes in the required params, then passes to calculatePRS
 runPRS () {
     echo -e "${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
     echo "The calculator will run and then the program will exit. Enter the parameters "
@@ -248,6 +259,8 @@ runPRS () {
     exit;
 }
 
+# parses the arguments for calculation
+# then calls the scripts required for calculations
 calculatePRS () {
     # parse arguments 
     traitsForCalc=()
@@ -356,6 +369,8 @@ calculatePRS () {
     pyVer=""
     ver=$(python --version)
     read -a strarr <<< "$ver"
+
+    # python version is 3.something, then use python as the call
     if [[ "${strarr[1]}" =~ ^3 ]]; then
         pyVer="python"
     else
