@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.1.0"
+version="1.2.0"
 #
 # 
 # 
@@ -26,6 +26,23 @@ version="1.1.0"
 #
 #   OPTIONAL PARAMETERS (added):
 #       --step stepNumber ex. (1 or 2)
+#
+# * 10/8/2020 - v1.2.0 (should technically be 2.0.0)
+# 
+#   Now using getopts. Parameters updated
+#   REQUIRED PARAMS:
+#       -f input file path (VCF or TXT with rsIDs)
+#       -o output file path (CSV or TXT)
+#       -c p-value cutoff
+#       -r refGen (hg17, hg18, hg19, hg38)
+#       -p super population (AFR, AMR, EAS, EUR, SAS)
+#
+#   OPTIONAL PARAMS:
+#       -t traitList
+#       -k studyType
+#       -i studyIDs
+#       -e ethnicity
+#       -s stepNumber
 #
 # ########################################################################
 
@@ -230,9 +247,9 @@ searchTraitsAndStudies () {
                 if [[ "$searchTerm" = *"'"* ]]; then
                     searchTerm=${searchTerm//${sub}/${backslash}${sub}}
                 fi
-                echo ""
-                echo -e "${LIGHTPURPLE}First Author and Year | Trait | GWAS Catalog Study ID | Title${NC}"
-		        curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .trait + " | " + .studyID + " | " + .title + "\n"';;
+                echo "" # might need to do something to combine results with the same studyID?
+                echo -e "${LIGHTPURPLE}First Author and Year | GWAS Catalog Study ID | Reported Trait | Trait | Title${NC}"
+		        curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .title + "\n"';;
         [tT]* ) read -p "Enter the search term you wish to use: " searchTerm 
                 if [[ "$searchTerm" = *"'"* ]]; then
                     echo "in if"
@@ -345,7 +362,7 @@ calculatePRS () {
                     exit 1
                 fi
                 step=$OPTARG
-                if [[ $step -gt 3 ]]; then 
+                if [[ $step -gt 2 ]] || [[ $step -lt 0 ]]; then 
                     echo -e "${LIGHTRED}$step ${NC} is not a valid step number"
                     echo "Valid step numbers are 1 and 2"
                     exit 1
@@ -383,46 +400,24 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    # determines what kind of file is being used, so we can correctly use rsids or positions
-    intermediate=""
-    inputType=""
-    if [[ "$filename" =~ .TXT$|.txt$ ]]; then 
-        inputType="rsID"
-        intermediate="intermediate.txt"
-    else
-        inputType="vcf"
-        intermediate="intermediate.vcf"
-    fi
-
     res=""
+
+    # Creates a hash to put on the associations file if needed or to call the correct associations file
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}" | cut -f 1 -d ' ')
+    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
 
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
-        # Calls a python function to get a list of SNPs from our database
-        # res is a string composed of two strings separated by a '%'
-        # The string is split into a list containing both strings  
-        res=$($pyVer -c "import connect_to_server as cts; cts.retrieveAssociations('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$inputType', '$superPop')")
+        # Calls a python function to get a list of SNPs and clumps from our Database
+        # saves them to files
+        # associations --> either allAssociations.txt OR associations_{fileHash}.txt
+        # clumps --> {superPop}_clumps_{refGen}.txt
+        $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop')"
 
-        declare -a resArr
-        IFS='%' # percent (%) is set as delimiter
-        read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
-        for i in "${ADDR[@]}"; do # access each element of array
-            resArr+=( "$i" )
-        done
-        IFS=' ' # reset to default value after usage
-        # prints out the tableObj string to a file so python can read it in
-        # (passing the string as a parameter doesn't work because it is too large)
-        echo ${resArr[1]} > tableObj.txt
         echo "Got SNPs and disease information from PRSKB"
-
-        echo ${resArr[2]} > clumpsObj.txt
         echo "Got Clumping information from PRSKB"
-
-        # Filters the input VCF to only include the lines that correspond to the SNPs in our GWAS database
-        grep -w ${resArr[0]} "$filename" > $intermediate
-        echo "Filtered the input VCF file to include only the variants present in the PRSKB"
     fi
 
 
@@ -434,20 +429,18 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         #outputType="csv" #this is the default
-        #$1=intermediateFile $2=pValue $3=csv $4="${tableObj}" $5="${clumpsObj}" $6=refGen $7=outputFile $8=superPop
-        if [[ "$pyVer" == "python" ]]; then 
-            python run_prs_grep.py "$intermediate" "$cutoff" "$outputType" tableObj.txt clumpsObj.txt "$refgen" "$output" "$superPop"
-        else
-            python3 run_prs_grep.py "$intermediate" "$cutoff" "$outputType" tableObj.txt clumpsObj.txt "$refgen" "$output" "$superPop"
-        fi
+        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=fileHash $8=requiredParamsHash
+
+        $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$fileHash" "$requiredParamsHash"
 
         echo "Caculated score"
-        rm $intermediate
-        rm tableObj.txt
-        rm clumpsObj.txt
+        if [[ $fileHash != $requiredParamsHash]]; then
+            rm ".workingFiles/associations_${fileHash}.txt"
+        fi
+        # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
         rm -r __pycache__
         echo "Cleaned up intermediate files"
-        echo "Results saved to $2"
+        echo "Results saved to $output"
         echo ""
         exit;
     fi
