@@ -2,11 +2,13 @@ import json
 import math
 import ast
 import requests
+import os
+import os.path
 import time
 import datetime
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop):
+def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash):
     # Format variables used for getting associations
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
@@ -14,18 +16,89 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
-
+    
+    # TODO still need to test this - can't be done until the new server is live with the new api code
+    dnldNewAllAssociFile, dnldNewRefGenSuperPopClumpsFile = checkForWorkingFiles(refGen, superPop)
+    
+    workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles"))
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
-        toReturn = getAllAssociations(pValue, refGen)
+        # if we need to download a new all associations file, write to file
+        if (dnldNewAllAssociFile):
+            allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt"))
+            allAssociations = getAllAssociations(pValue, refGen)
+            f = open(allAssociationsPath, 'w')
+            f.write(allAssociationsPath)
+            f.close()
+            # add a key or something to a key file??
+        else:
+            #TODO do we need this?
+            toReturn = ["fileExists"]
     # else get the associations using the given filters
     else:
-        toReturn = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
+        fileName = "associations_{ahash}.txt".format(ahash = fileHash)
+        specificAssociationsPath = os.path.join(workingFilesPath, fileName)
+        specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
+        f = open(specificAssociationsPath, 'w')
+        f.write(specificAssociations)
+        f.close()
     
-    # get clumps using the refGen and superpopulation
-    toReturn.append(getClumps(refGen, superPop))
+    # if we should download a new clumps file
+    if (dnldNewRefGenSuperPopClumpsFile):
+        fileName = "{p}_clumps_{r}.txt".format(p = superPop, r = refGen)
+        clumpsPath = os.path.join(workingFilesPath, fileName)
+        # get clumps using the refGen and superpopulation
+        clumpsData = getClumps(refGen, superPop)
+        f = open(clumpsPath, 'w')
+        f.write(clumpsData)
+        f.close()
     
+    # WE WON"T NEED IT LIKE THIS ANYMORE
     print('%'.join(toReturn))
+
+
+def checkForWorkingFiles(refGen, superPop):
+    # assume we will need to download new files
+    dnldNewAllAssociFile = True
+    dnldNewRefGenSuperPopClumpsFile = True
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+
+    # if the directory doesn't exist, make it, and we will need to download the files
+    if not os.path.exists(workingFilesPath):        
+        os.mkdir(workingFilesPath) # need a better name for this?
+        return [dnldNewAllAssociFile, dnldNewRefGenSuperPopClumpsFile]
+    
+    else:
+        # get date the database was last updated
+        lastDatabaseUpdate = getUrlWithParams("https://prs.byu.edu/last_database_update", params={})
+        lastDatabaseUpdate = lastDatabaseUpdate.split("-")
+        lastDBUpdateDate = date(lastDatabaseUpdate[0], lastDatabaseUpdate[1], lastDatabaseUpdate[2])
+
+        # path to a file containing all the associations from the database
+        allAssociationsFile = os.path.join(workingFilesPath, "allAssociations.txt")
+
+        # if the path exists, check if we don't need to download a new one
+        if os.path.exists(allAssociationsFile):
+            fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
+            fileModDate = date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+            # if the file is newer than the database update, we don't need to download a new file
+            if (lastDBUpdateDate < fileModDate):
+                dnldNewAllAssociFile = False                
+
+        # path to a clumps file using the refGen and superPop
+        refGenSuperPopClumpsFile = os.path.join(workingFilesPath, "{superPop}_clumps_{refGen}.txt".format(superPop = superPop, refGen = refGen))
+        
+        # if the path exists, check if we don't need to download a new one 
+        if os.path.exists(refGenSuperPopClumpsFile):
+            clumpsModDateObj = time.localtime(os.path.getmtime(refGenSuperPopClumpsFile))
+            clumpsModDate = date(clumpsModDateObj.tm_year, clumpsModDateObj.tm_mon, clumpsModDateObj.tm_mday)
+            # if the file is newer than the database update, we don't need to download a new file
+            if ( lastDBUpdateDate < clumpsModDate ):
+                dnldNewRefGenSuperPopClumpsFile = False
+        
+        return [dnldNewAllAssociFile, dnldNewRefGenSuperPopClumpsFile]
 
 
 # gets all associations from the Server
@@ -36,7 +109,7 @@ def getAllAssociations(pValue, refGen):
     }
     associations = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
     # Organized with studyIDs as the Keys
-    return json.dumps(associations)
+    return [json.dumps(associations)]
 
 
 # gets associations using the given filters
@@ -69,7 +142,7 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
     }
 
     associations = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
-    return json.dumps(associations)
+    return [json.dumps(associations)]
 
 
 # for POST urls
