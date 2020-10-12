@@ -419,7 +419,7 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop')"
+        $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash')"
 
         echo "Got SNPs and disease information from PRSKB"
         echo "Got Clumping information from PRSKB"
@@ -439,7 +439,7 @@ calculatePRS () {
         $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$fileHash" "$requiredParamsHash"
 
         echo "Caculated score"
-        if [[ $fileHash != $requiredParamsHash]]; then
+        if [[ $fileHash != $requiredParamsHash ]]; then
             rm ".workingFiles/associations_${fileHash}.txt"
         fi
         # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
