@@ -20,15 +20,15 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     # TODO still need to test this - can't be done until the new server is live with the new api code
     dnldNewAllAssociFile, dnldNewRefGenSuperPopClumpsFile = checkForWorkingFiles(refGen, superPop)
     
-    workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles"))
+    workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
         if (dnldNewAllAssociFile):
-            allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt"))
+            allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
             allAssociations = getAllAssociations(pValue, refGen)
             f = open(allAssociationsPath, 'w')
-            f.write(allAssociationsPath)
+            f.write(allAssociations)
             f.close()
             # add a key or something to a key file??
         else:
@@ -74,7 +74,7 @@ def checkForWorkingFiles(refGen, superPop):
         # get date the database was last updated
         lastDatabaseUpdate = getUrlWithParams("https://prs.byu.edu/last_database_update", params={})
         lastDatabaseUpdate = lastDatabaseUpdate.split("-")
-        lastDBUpdateDate = date(lastDatabaseUpdate[0], lastDatabaseUpdate[1], lastDatabaseUpdate[2])
+        lastDBUpdateDate = datetime.date(lastDatabaseUpdate[0], lastDatabaseUpdate[1], lastDatabaseUpdate[2])
 
         # path to a file containing all the associations from the database
         allAssociationsFile = os.path.join(workingFilesPath, "allAssociations.txt")
@@ -82,7 +82,7 @@ def checkForWorkingFiles(refGen, superPop):
         # if the path exists, check if we don't need to download a new one
         if os.path.exists(allAssociationsFile):
             fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
-            fileModDate = date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+            fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
             # if the file is newer than the database update, we don't need to download a new file
             if (lastDBUpdateDate < fileModDate):
                 dnldNewAllAssociFile = False                
@@ -93,7 +93,7 @@ def checkForWorkingFiles(refGen, superPop):
         # if the path exists, check if we don't need to download a new one 
         if os.path.exists(refGenSuperPopClumpsFile):
             clumpsModDateObj = time.localtime(os.path.getmtime(refGenSuperPopClumpsFile))
-            clumpsModDate = date(clumpsModDateObj.tm_year, clumpsModDateObj.tm_mon, clumpsModDateObj.tm_mday)
+            clumpsModDate = datetime.date(clumpsModDateObj.tm_year, clumpsModDateObj.tm_mon, clumpsModDateObj.tm_mday)
             # if the file is newer than the database update, we don't need to download a new file
             if ( lastDBUpdateDate < clumpsModDate ):
                 dnldNewRefGenSuperPopClumpsFile = False
@@ -148,7 +148,7 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
 # for POST urls
 def postUrlWithBody(url, body):
     #TODO still need to test this
-    response = requests.post(url=url, body=body)
+    response = requests.post(url=url, data=body)
     response.close()
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json() 
