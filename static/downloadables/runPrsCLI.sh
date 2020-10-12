@@ -272,6 +272,9 @@ runPRS () {
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
+    args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\")(\S*)(\s)(\S*)(\")/\2_\4/g")
+    echo $args
+
     calculatePRS $args
     exit;
 }
@@ -285,7 +288,7 @@ calculatePRS () {
     studyIDsForCalc=()
     ethnicityForCalc=()
 
-    while getopts 'f:o:c:r:p:t:k:i:e:s:' c $@
+    while getopts 'f:o:c:r:p:t:k:i:e:s:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -347,8 +350,10 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
-            t)  traitsForCalc+=("$OPTARG");;
-            k)  if [ $OPTARG != "HI" ] && [ "$OPTARG" != "LC" ] && [ $OPTARG != "O" ]; then
+            t)  trait=$(echo $OPTARG | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\S*)(\s)(\S*)/\1_\3/g")
+                echo $trait
+                traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
+            k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
                     echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
                     exit 1
@@ -493,4 +498,4 @@ if [[ "$1" =~ "--version" ]] || [[ "$1" =~ "-v" ]]; then
 fi
 
 # pass arguments to calculatePRS
-calculatePRS $@
+calculatePRS "$@" 
