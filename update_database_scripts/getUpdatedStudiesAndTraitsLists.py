@@ -12,7 +12,7 @@ from sys import argv
 #
 # How to run: python3 getUpdatedStudiesAndTraitsLists.py "password" "studyTableFolderPath"
 # where: "password" is the password to the PRSKB database
-#        "studyTableFolderPath" is the path to the folder where the study_table.csv is stored
+#        "studyTableFolderPath" is the path to the folder where the study_table.tsv is stored
 
 # returns a string representation of the date format of the date given the date format is 
 # obtained by trying different date formats until the correct one is found
@@ -41,18 +41,18 @@ def getDatabaseStudyTable(config):
     cursor = connection.cursor()
 
     # select relevent rows from the study_table in the PRSKB database
-    sql = ("SELECT studyID, pubMedID, trait, lastUpdated FROM study_table")
+    sql = ("SELECT studyID, pubMedID, trait, reportedTrait, lastUpdated FROM study_table")
     cursor.execute(sql)
 
     # turn the sql statement results into a dictionary
     dateFormat = ""
-    for (studyID, pubMedID, trait, lastUpdated) in cursor:
+    for (studyID, pubMedID, trait, reportedTrait, lastUpdated) in cursor:
         # if the date format hasn't been found yet, find it (this has to be done in the for loop so that no row is lost from the cursor)
         if dateFormat == "":
             dateFormat = getDateFormat(lastUpdated)
         # convert the date string to a datetime object
         lastUpdatedDate = datetime.datetime.strptime(lastUpdated, dateFormat)
-        databaseStudyTableDict[studyID] = [pubMedID, trait, lastUpdatedDate]
+        databaseStudyTableDict[studyID] = [pubMedID, trait, reportedTrait, lastUpdatedDate]
     
     # close database connections
     cursor.close()
@@ -178,10 +178,10 @@ def main():
     
     # arg handling for study folder path
     if len(argv) <= 2:
-        studyTableFolderPath = getcwd().replace("\\", "/") + "/study_table.csv"
+        studyTableFolderPath = getcwd().replace("\\", "/") + "/study_table.tsv"
         print("Using default study table path: \"" + studyTableFolderPath + "\"")
     else:
-        studyTableFolderPath = argv[2] + "/study_table.csv"
+        studyTableFolderPath = argv[2] + "/study_table.tsv"
     
     #if there are too many arguments, quit
     if len(argv) > 3:
