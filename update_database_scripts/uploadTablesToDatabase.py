@@ -134,10 +134,9 @@ def enableLocalLoad(cursor):
 
 # prints the usage statement
 def usage():
-    print("""Usage: uploadTablesToDatabase.py password tablesFolderPath cleanDatabase tablesToUpdate
+    print("""Usage: uploadTablesToDatabase.py password tablesFolderPath
         password- the MySQL password
         tablesFolderPath- the path to the folder containing the study table (study_table.tsv) and association table (association_table.tsv)
-        cleanDatabase- optional boolean- if True, removes all non-updated tables from the DB
     """)
 
 # returns the path if it is valid, otherwise exits the program
