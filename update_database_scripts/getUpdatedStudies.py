@@ -7,10 +7,10 @@ import os
 from os import getcwd
 from sys import argv
 
-# This script prints two sets, a set of updated traits and a set of updated study IDs. It compares the lastUpdated values between the database study 
-# table and the study table found at the path indicated. The sets are printed instead of returned so a shell script can interpret them.
+# This script prints a set of updated study IDs. It compares the lastUpdated values between the database study 
+# table and the study table found at the path indicated. The set is printed instead of returned so a shell script can interpret it.
 #
-# How to run: python3 getUpdatedStudiesAndTraitsLists.py "password" "studyTableFolderPath"
+# How to run: python3 getUpdatedStudies.py "password" "studyTableFolderPath"
 # where: "password" is the password to the PRSKB database
 #        "studyTableFolderPath" is the path to the folder where the study_table.tsv is stored
 
@@ -33,14 +33,14 @@ def getDateFormat(date):
 
 # returns the database study table in dictionary format where:
 # key: studyID
-# value: [pubMedID, trait, lastUpdated]
+# value: {pubMedID, trait, reportedTrait, lastUpdated}
 def getDatabaseStudyTable(config):
     databaseStudyTableDict = {}
     # open database connections
     connection = getConnection(config)
     cursor = connection.cursor()
 
-    # select relevent rows from the study_table in the PRSKB database
+    # select relevent columns from the study_table in the PRSKB database
     sql = ("SELECT studyID, pubMedID, trait, reportedTrait, lastUpdated FROM study_table")
     cursor.execute(sql)
 
@@ -52,7 +52,12 @@ def getDatabaseStudyTable(config):
             dateFormat = getDateFormat(lastUpdated)
         # convert the date string to a datetime object
         lastUpdatedDate = datetime.datetime.strptime(lastUpdated, dateFormat)
-        databaseStudyTableDict[studyID] = [pubMedID, trait, reportedTrait, lastUpdatedDate]
+        databaseStudyTableDict[studyID] = {
+                "pubMedID": pubMedID,
+                "trait": trait,
+                "reportedTrait": reportedTrait,
+                "lastUpdated": lastUpdatedDate
+            }
     
     # close database connections
     cursor.close()
@@ -62,7 +67,7 @@ def getDatabaseStudyTable(config):
 
 # returns the new updated study table in dictionary format where:
 # key: studyID
-# value: [pubMedID, trait, lastUpdated]
+# value: {pubMedID, trait, reportedTrait, lastUpdated}
 def getNewStudyTable(config, studyTableFolderPath):
     newStudyTable = {}
     # open the new study_table.csv
@@ -71,6 +76,7 @@ def getNewStudyTable(config, studyTableFolderPath):
         studyIDIndex = headerlineItems.index("studyID")
         pubMedIDIndex = headerlineItems.index("pubMedID")
         traitIndex = headerlineItems.index("trait")
+        reportedTraitIndex = headerlineItems.index("reportedTrait")
         lastUpdatedIndex = headerlineItems.index("lastUpdated")
 
         # read the table into a dictionary
@@ -80,6 +86,7 @@ def getNewStudyTable(config, studyTableFolderPath):
             studyID =  row[studyIDIndex]
             pubMedID =  row[pubMedIDIndex]
             trait =  row[traitIndex]
+            reportedTrait = row[reportedTraitIndex]
             lastUpdated =  row[lastUpdatedIndex]
             # if the date format hasn't been found yet, find it (this has to be done in the for loop so that no row is lost from the cursor)
             if dateFormat == "":
@@ -87,37 +94,34 @@ def getNewStudyTable(config, studyTableFolderPath):
             # convert the date string to a datetime object
             lastUpdatedDate = datetime.datetime.strptime(lastUpdated, dateFormat)
 
-            newStudyTable[studyID] = [pubMedID, trait, lastUpdatedDate]
+            newStudyTable[studyID] = {
+                "pubMedID": pubMedID,
+                "trait": trait,
+                "reportedTrait": reportedTrait,
+                "lastUpdated": lastUpdatedDate
+            }
 
     return newStudyTable
 
-# returns two sets, updatedStudies and updatedTraits, where entries of each are based on differences
+# returns updatedStudies, where entries are based on differences
 # between the databaseStudyTable and newStudyTable dictionaries. If an key is in the newStudyTable, but 
 # not in the databaseStudyTable, or if the date of an entry in newStudyTable is newer than the same 
-# entry in the databaseStudyTable, it is added to updatedStudies and the corresponding trait is added
-# to updatedTraits.
-def getUpdatedStudiesAndTraits(databaseStudyTable, newStudyTable):
+# entry in the databaseStudyTable, it is added to updatedStudies.
+def getUpdatedStudies(databaseStudyTable, newStudyTable):
     updatedStudies = set()
-    updatedTraits = set()
 
     # go through all studies in the new study table
     for newStudyTableID in newStudyTable.keys():
         # if the study is also in the database study table
         if newStudyTableID in databaseStudyTable:
-            # save the like values from both dictionaries
-            newDictVal = newStudyTable[newStudyTableID]
-            databaseDictVal = databaseStudyTable[newStudyTableID]
-
             # get the dates from the like values of the dictionaries
-            databaseDate = databaseDictVal[2]
-            newDate = newDictVal[2]
+            databaseDate = databaseStudyTable[newStudyTableID]["lastUpdated"]
+            newDate = newStudyTable[newStudyTableID]["lastUpdated"]
             # check if the study has been updated
             if newDate > databaseDate:
                 # add study
                 updatedStudies.add(newStudyTableID)
-                # add trait
-                updatedTraits.add(newDictVal[1])
-                print("\"{}\" was updated for {}".format(newStudyTableID, newDictVal[1]))
+                print("\"{}\" was updated".format(newStudyTableID))
             # if the date of the new table is older than the database table, print a warning- this shouldn't happen!
             elif newDate < databaseDate:
                 print("Warning: the new date from the study table for " + newStudyTableID + " is older than the database date. This shouldn't happen!")
@@ -125,11 +129,9 @@ def getUpdatedStudiesAndTraits(databaseStudyTable, newStudyTable):
         else:
             # add study
             updatedStudies.add(newStudyTableID)
-            # add trait
-            updatedTraits.add(newDictVal[1])
-            print("The new study \"{}\" was added to {}".format(newStudyTableID, newStudyTable[newStudyTableID][1]))
+            print("The new study \"{}\" was added".format(newStudyTableID))
 
-    return updatedStudies, updatedTraits
+    return updatedStudies
 
 # TODO duplicated method from uploadTablesToDatabase.py script
 # creates a connection to the MySQL database using the given config dictionary
@@ -205,16 +207,14 @@ def main():
     newStudyTableDict = getNewStudyTable(config, studyTableFolderPath)
 
     # get the updated differences between the old and new study tables
-    updatedStudies, updatedTraits = getUpdatedStudiesAndTraits(databaseStudyTableDict, newStudyTableDict)
+    updatedStudies = getUpdatedStudies(databaseStudyTableDict, newStudyTableDict)
 
     # print the updates so the master_script.sh can read them
     if len(updatedStudies) != 0:
         print("|".join(updatedStudies))
-        print("|".join(updatedTraits))
     # if the sets are empty, print "none" which the master_script will interpret as empty
     # printing "" doesn't show up in the bash script variable
     else:
-        print("none")
         print("none")
 
 if __name__ == "__main__":
