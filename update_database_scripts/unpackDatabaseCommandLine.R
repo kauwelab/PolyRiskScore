@@ -13,6 +13,24 @@
 #        "groupNum" is the integer group number or index between 1 and numGroups inclusive. 
 #        "numGroups" is the integer number of times the database will be split. This particular instance will run on the "groupNum" section (default: 1).
 #
+# The format of the association table is as follows:
+# snp hg38  hg19  hg18  hg17  gene  raf riskAllele  pValue  pValueAnnotation  oddsRatio lowerCI upperCI citation  studyID
+# where: "snp" is the rs id for the given SNP
+#        "hg38" is hg38 mapped location
+#        "hg19" is hg19 mapped location
+#        "hg18" is hg18 mapped location
+#        "hg17" is hg17 mapped location
+#        "gene" is a is a pipe (|) separated list of gene:distanceToGene strings (ex: C1orf140:107304|AL360013.2:64825)
+#        "raf" is the risk allele frequency
+#        "riskAllele" is the risk allele
+#        "pValue" is the p-value
+#        "pValueAnnotation" is the description associated with the given p-value (TODO-temporary!!!)
+#        "oddsRatio" is the odds ratio associated with the given p-value
+#        "lowerCI" is the lower confidence interval of the odds ratio
+#        "upperCI" is the upper confidence interval of the odds ratio
+#        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
+#        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
+#
 #TODO remove snps that have "(conditioned on rsid)" in their pvalue_description
 #TODO argument: optional list of traits to update
 #TODO argument: optional list of studies to update
@@ -85,7 +103,7 @@ suppressMessages(library(purrr))
 if (is_ebi_reachable()) {
   # evaulate command line arguments if supplied
   outPath <- args[1]
-  rawGWASTSVPath <- args[2]
+  studyAndPubTSVFolderPath <- args[2]
   chainFilePath <- args[3]
   groupNum <- as.numeric(args[4])
   numGroups <- as.numeric(args[5])
@@ -214,14 +232,14 @@ if (is_ebi_reachable()) {
     write_tsv(associationsTable, file.path(outPath, "associations_table.tsv"), append = TRUE)
   }
   
-##------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
   
   # get study data from TSVs
   print("Reading study data from TSVs!")
   # get study data for all the studies
-  studiesTibble <- read_tsv(paste0(rawGWASTSVPath, "rawGWASStudyData.tsv"), col_types = cols())
+  studiesTibble <- read_tsv(file.path(studyAndPubTSVFolderPath, "rawGWASStudyData.tsv"), col_types = cols())
   # get publication data for all the studies
-  publications <- read_tsv(paste0(rawGWASTSVPath, "rawGWASPublications.tsv"), col_types = cols())
+  publications <- read_tsv(file.path(studyAndPubTSVFolderPath, "rawGWASPublications.tsv"), col_types = cols())
   print("Study data read!")
 
   # get the start and stop indecies of the study data given groupNum and numGroups
