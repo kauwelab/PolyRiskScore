@@ -360,7 +360,8 @@ calculatePRS () {
                 fi
                 studyTypesForCalc+=("$OPTARG");;
             i)  studyIDsForCalc+=("$OPTARG");;
-            e)  ethnicityForCalc+=("$OPTARG");;
+            e)  ethnicity=$(echo $OPTARG | sed -r "s/(\S*)(\s)(\S*)/\1_\3/g")
+                ethnicityForCalc+=("$ethnicity");;
             s)  if ! [ -z "$step" ]; then
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
