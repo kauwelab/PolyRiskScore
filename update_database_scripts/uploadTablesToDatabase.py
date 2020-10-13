@@ -11,7 +11,7 @@ from time import sleep
 import datetime
 import time
 
-# This script uploads the association_table.tsv and the study_table.tsv to the PRSKB database.
+# This script uploads the associations_table.tsv and the study_table.tsv to the PRSKB database.
 #
 # How to run: python3 uploadTablesToDatabase.py "password" "tablesFolderPath"
 # where: "password" is the password to the PRSKB database
@@ -136,7 +136,7 @@ def enableLocalLoad(cursor):
 def usage():
     print("""Usage: uploadTablesToDatabase.py password tablesFolderPath
         password- the MySQL password
-        tablesFolderPath- the path to the folder containing the study table (study_table.tsv) and association table (association_table.tsv)
+        tablesFolderPath- the path to the folder containing the study table (study_table.tsv) and associations table (associations_table.tsv)
     """)
 
 # returns the path if it is valid, otherwise exits the program
@@ -185,9 +185,9 @@ def main():
     enableLocalLoad(connection.cursor())
     connection.close()
 
-    # add the association_table to the database
-    createFreshTable(config, "association_table.tsv", "association_table")
-    addDataToTableCatch( config, tablesFolderPath, "association_table.tsv", "association_table")
+    # add the associations_table to the database
+    createFreshTable(config, "associations_table.tsv", "associations_table")
+    addDataToTableCatch( config, tablesFolderPath, "associations_table.tsv", "associations_table")
 
     # add the study_table to the database
     createFreshTable(config, "study_table.tsv", "study_table")
