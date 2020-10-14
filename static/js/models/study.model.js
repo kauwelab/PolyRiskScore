@@ -6,9 +6,10 @@ const Study = function (mstudy) {
     this.trait = mstudy.trait,
     this.reportedTrait = mstudy.reportedTrait,
     this.citation = mstudy.citation,
-    this.studyScore = mstudy.studyScore,
+    this.altmetricScore = mstudy.altmetricScore,
     this.ethnicity = mstudy.ethnicity,
-    this.cohort = mstudy.cohort,
+    this.initialSampleSize = mstudy.initialSampleSize,
+    this.replicationsSampleSize = mstudy.replicationSampleSize,
     this.title = mstudy.title,
     this.lastUpdated = mstudy.lastUpdated,
     this.studyType = mstudy.studyType
@@ -98,8 +99,8 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             if (res[i].cohort == "NA") {
                 res[i].cohort = `\"${res[i].cohort}\"`
             }
-            if (res[i].studyScore == "NA") {
-                res[i].studyScore = `\"${res[i].studyScore}\"`
+            if (res[i].altmetricScore == "NA") {
+                res[i].altmetricScore = `\"${res[i].altmetricScore}\"`
             }
 
             //subQueryString is the string that we append query constraints to from the HTTP request
@@ -114,11 +115,11 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                     appendor = "OR";
                 }
                 if (studyTypes.includes("HI")) {
-                    subQueryString = subQueryString.concat(appendor).concat(` studyScore = ${res[i].studyScore} `);
+                    subQueryString = subQueryString.concat(appendor).concat(` altmetricScore = ${res[i].altmetricScore} `);
                     appendor = "OR";
                 }
                 if (studyTypes.includes("O")) {
-                    subQueryString = subQueryString.concat(appendor).concat(` studyScore <> ${res[i].studyScore} AND  cohort <> ${res[i].cohort} `);
+                    subQueryString = subQueryString.concat(appendor).concat(` altmetricScore <> ${res[i].altmetricScore} AND  cohort <> ${res[i].cohort} `);
                     appendor = "OR";
                 }
                 //if the appendor has been updated, then close the parenthesis
