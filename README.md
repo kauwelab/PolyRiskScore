@@ -1,4 +1,30 @@
-## Loading a Table into MySQL
+# PRSKB
+
+The Polygenic Risk Score Knowledge Base is a website and command-line interface designed to facilitate the calculation of polygenic risk scores using genome-wide association studies from the [NHGRI-EBI Catalog](https://www.ebi.ac.uk/gwas). 
+
+## Website
+
+Blurb about the website
+Website Link: [https://prs.byu.edu](https://prs.byu.edu)
+
+## Command-Line Interface
+
+The command-line interface (CLI) allows users to run larger analyses straight from their command-line. In addition to this, the tool comes with an interactive menu for searching studies and traits in our database and learning more about tool parameters. 
+
+[Download CLI](https://prs.byu.edu/download_cli)
+Required installed programs: Bash, Python3
+
+## CLI Example
+
+
+
+## Citing this work
+
+
+
+## Acknowledgements
+
+<!-- ## Loading a Table into MySQL
 
 1. Make sure you have the necessary files in lsprs.
 If you haven't added them to the github, do so now. Once added, follow the directions for re-uploading the repository
@@ -45,4 +71,4 @@ This code would get rid of an extra \r character in the study column
 UPDATE hf 
 SET study = REPLACE(study, '\r', '');
 ```
-
+ -->
