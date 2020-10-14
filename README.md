@@ -5,6 +5,7 @@ The Polygenic Risk Score Knowledge Base is a website and command-line interface 
 ## Website
 
 Blurb about the website
+
 Website Link: [https://prs.byu.edu](https://prs.byu.edu)
 
 ## Command-Line Interface
@@ -12,6 +13,7 @@ Website Link: [https://prs.byu.edu](https://prs.byu.edu)
 The command-line interface (CLI) allows users to run larger analyses straight from their command-line. In addition to this, the tool comes with an interactive menu for searching studies and traits in our database and learning more about tool parameters. 
 
 [Download CLI](https://prs.byu.edu/download_cli)
+
 Required installed programs: Bash, Python3
 
 ## CLI Example
