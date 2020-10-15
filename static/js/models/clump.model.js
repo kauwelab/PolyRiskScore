@@ -11,50 +11,86 @@ const Clump = function(mclump) {
 }
 
 Clump.getClumps = (superpopclump, refGenome, result) => {
-    sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGenome}_clumps`, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(null, err);
-            return;
-        }
+    try {
+        clumpsTable = getClumpsTableName(refGenome)
+        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${clumpsTable}`, (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
 
-        console.log(`Clumps queried for ${superpopclump}, ${res.length} result(s)`);
-        result(null, res);
-    });
+            console.log(`Clumps queried for ${superpopclump}, ${res.length} result(s)`);
+            result(null, res);
+        });
+    } catch (e) {
+        console.log("ERROR:", e)
+        result(e, null)
+    }
+    
+    
 };
 
 Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
-    for (i=0; i < positions.length; i++) {
-        positions[i] = "\"" + positions[i] + "\"";
-    }
-
-    sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGenome}_clumps WHERE position IN (${positions})`, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(null, err);
-            return;
+    try {
+        sqlQuestionMarks = ""
+        for (i=0; i < positions.length - 1; i++) {
+            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
         }
+        sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
-        console.log(`Clumps queried by position for ${superpopclump}; ex: ${positions[0]} - ${res.length} result(s)`);
-        result(null, res);
-    });
+        clumpsTable = getClumpsTableName(refGenome)
+
+        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${clumpsTable} WHERE position IN (${sqlQuestionMarks})`, positions, (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(null, err);
+                return;
+            }
+
+            console.log(`Clumps queried by position for ${superpopclump}; ex: ${positions[0]} - ${res.length} result(s)`);
+            result(null, res);
+        });
+    } catch (e) {
+        console.log("ERROR:", e)
+        result(e, null)
+    }
+    
 }
 
 Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
-    for (i=0; i < snps.length; i++) {
-        snps[i] = "\"" + snps[i] + "\"";
-    }
-
-    sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGenome}_clumps WHERE snp IN (${snps})`, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(null, err);
-            return;
+    try {
+        sqlQuestionMarks = ""
+        for (i=0; i < snps.length - 1; i++) {
+            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
         }
+        sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
-        console.log(`Clumps queried by snp for ${superpopclump}, ex: ${snp[0]} - ${res.length} result(s)`);
-        result(null, res);
-    });
+        clumpsTable = getClumpsTableName(refGenome)
+    
+        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${clumpsTable} WHERE snp IN (${sqlQuestionMarks})`, snps, (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(null, err);
+                return;
+            }
+    
+            console.log(`Clumps queried by snp for ${superpopclump}, ex: ${snp[0]} - ${res.length} result(s)`);
+            result(null, res);
+        });
+    } catch (e) {
+        console.log("ERROR:", e)
+        result(e, null)
+    }
+}
+
+function getClumpsTableName(refGen) {
+    if (["hg17", "hg18", "hg19", "hg38"].includes(refGen.toLowerCase())){
+        return `${refGen.toLowerCase()}_clumps`
+    }
+    else {
+        throw "invalid reference genome"
+    }
 }
 
 module.exports = Clump;
