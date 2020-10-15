@@ -119,7 +119,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                     appendor = "OR";
                 }
                 if (studyTypes.includes("O")) {
-                    subQueryString = subQueryString.concat(appendor).concat(` altmetricScore <> ${res[i].altmetricScore} AND  cohort <> ${res[i].cohort} `);
+                    subQueryString = subQueryString.concat(appendor).concat(` altmetricScore <> ${res[i].altmetricScore} AND  initialSampleSize+replicationSampleSize <> ${res[i].cohort} `);
                     appendor = "OR";
                 }
                 //if the appendor has been updated, then close the parenthesis
