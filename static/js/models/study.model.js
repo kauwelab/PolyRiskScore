@@ -42,7 +42,8 @@ Study.getEthnicities = (result) => {
 }
 
 Study.findTrait = (searchStr, result) => {
-    sql.query(`SELECT DISTINCT trait FROM study_table WHERE (trait LIKE '%${searchStr}%') ; SELECT DISTINCT reportedTrait FROM study_table WHERE (reportedTrait LIKE '%${searchStr}%');  `, (err, res) => {
+    searchString = `%${searchStr}%`
+    sql.query(`SELECT DISTINCT trait FROM study_table WHERE (trait LIKE ?) ; SELECT DISTINCT reportedTrait FROM study_table WHERE (reportedTrait LIKE ?); `, [searchString, searchString], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -68,58 +69,58 @@ Study.getAll = result => {
 };
 
 Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
+    // use for adding the correct number of ? for using parameterization for the traits
+    sqlQuestionMarks = ""
+
     // potentially change the output format??
     //if traits is null, assume they want all 
     if (traits) {
-        if (typeof traits === 'string' || traits instanceof String) {
-            traits = "\"" + traits + "\"";
+        for (i = 0; i < traits.length - 1; i++) {
+            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
         }
-        else {
-            for (i = 0; i < traits.length; i++) {
-                traits[i] = "\"" + traits[i] + "\"";
-            }
-        }
+        sqlQuestionMarks = sqlQuestionMarks.concat("?")
         
         // studyMaxes is a view in the database used to find the max values we need 
-        studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait IN (${traits})`
+        studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait IN (${sqlQuestionMarks})`
     }
     else {
         studyMaxQuery = `SELECT * FROM studyMaxes`
     }
 
-    sql.query(studyMaxQuery, (err, res) => {
+    // the query, the array of items to fill in the question marks, the callback function
+    sql.query(studyMaxQuery, traits, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
         var sqlQueryString = "";
+        sqlQueryParams  = []
         for (i = 0; i < res.length; i++) {
-            //format NA values correctly
-            if (res[i].cohort == "NA") {
-                res[i].cohort = `\"${res[i].cohort}\"`
-            }
-            if (res[i].altmetricScore == "NA") {
-                res[i].altmetricScore = `\"${res[i].altmetricScore}\"`
-            }
 
             //subQueryString is the string that we append query constraints to from the HTTP request
-            var subQueryString = `SELECT * FROM study_table WHERE (trait = "${res[i].trait}" OR reportedTrait = "${res[i].trait}") `;
+            var subQueryString = `SELECT * FROM study_table WHERE ( trait = ? OR reportedTrait = ? ) `;
+            sqlQueryParams.push(res[i].trait)
+            sqlQueryParams.push(res[i].trait)
             var appendor = "";
 
             //append sql conditional filters for studyType
             if(studyTypes){
                 appendor = "AND (";
                 if (studyTypes.includes("LC")) {
-                    subQueryString = subQueryString.concat(appendor).concat(` cohort = ${res[i].cohort} `);
+                    subQueryString = subQueryString.concat(appendor).concat(` initialSampleSize+replicationSampleSize = ? `);
+                    sqlQueryParams.push(res[i].cohort)
                     appendor = "OR";
                 }
                 if (studyTypes.includes("HI")) {
-                    subQueryString = subQueryString.concat(appendor).concat(` altmetricScore = ${res[i].altmetricScore} `);
+                    subQueryString = subQueryString.concat(appendor).concat(` altmetricScore = ? `);
+                    sqlQueryParams.push(res[i].altmetricScore)
                     appendor = "OR";
                 }
                 if (studyTypes.includes("O")) {
-                    subQueryString = subQueryString.concat(appendor).concat(` altmetricScore <> ${res[i].altmetricScore} AND  initialSampleSize+replicationSampleSize <> ${res[i].cohort} `);
+                    subQueryString = subQueryString.concat(appendor).concat(` altmetricScore <> ? AND  initialSampleSize+replicationSampleSize <> ? `);
+                    sqlQueryParams.push(res[i].altmetricScore)
+                    sqlQueryParams.push(res[i].cohort)
                     appendor = "OR";
                 }
                 //if the appendor has been updated, then close the parenthesis
@@ -138,7 +139,8 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                         appendor = "OR";
                     }
                     else {
-                        subQueryString = subQueryString.concat(appendor).concat(` ethnicity LIKE '%${ethnicities[j]}%' `);
+                        subQueryString = subQueryString.concat(appendor).concat(` ethnicity LIKE ? `);
+                        sqlQueryParams.push(`%${ethnicities[j]}%`)
                         appendor = "OR";
                     }
                 }
@@ -154,7 +156,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
 
         console.log(sqlQueryString)
 
-        sql.query(sqlQueryString, (err, data) => {
+        sql.query(sqlQueryString, sqlQueryParams, (err, data) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -168,7 +170,8 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
 
 Study.findStudy = (searchStr, result) => {
     // search by citation, title, or pubMedID
-    sql.query(`SELECT * FROM study_table WHERE citation LIKE '%${searchStr}%' OR title LIKE '%${searchStr}%' OR pubMedID LIKE '%${searchStr}%'`, (err, res) => {
+    searchString = `%${searchStr}%`
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? ;`, [searchString, searchString, searchString],  (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
