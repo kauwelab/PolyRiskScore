@@ -1,4 +1,5 @@
 const sql = require('./database')
+const validator = require('../inputValidator')
 
 const Clump = function(mclump) {
     this.snp = mclump.snp,
@@ -12,8 +13,8 @@ const Clump = function(mclump) {
 
 Clump.getClumps = (superpopclump, refGenome, result) => {
     try {
-        clumpsTable = getClumpsTableName(refGenome)
-        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${clumpsTable}`, (err, res) => {
+        refGen = validator.validateRefgen(refGenome)
+        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGen}_clumps`, (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -39,9 +40,9 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
-        clumpsTable = getClumpsTableName(refGenome)
+        refGen = validator.validateRefgen(refGenome)
 
-        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${clumpsTable} WHERE position IN (${sqlQuestionMarks})`, positions, (err, res) => {
+        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGen}_clumps WHERE position IN (${sqlQuestionMarks})`, positions, (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(null, err);
@@ -66,9 +67,9 @@ Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
-        clumpsTable = getClumpsTableName(refGenome)
+        refGen = validator.validateRefgen(refGenome)
     
-        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${clumpsTable} WHERE snp IN (${sqlQuestionMarks})`, snps, (err, res) => {
+        sql.query(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGen}_clumps WHERE snp IN (${sqlQuestionMarks})`, snps, (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(null, err);
@@ -81,15 +82,6 @@ Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
     } catch (e) {
         console.log("ERROR:", e)
         result(e, null)
-    }
-}
-
-function getClumpsTableName(refGen) {
-    if (["hg17", "hg18", "hg19", "hg38"].includes(refGen.toLowerCase())){
-        return `${refGen.toLowerCase()}_clumps`
-    }
-    else {
-        throw "invalid reference genome"
     }
 }
 
