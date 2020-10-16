@@ -4,8 +4,8 @@
 #   1. download data from the GWAS catalog, 
 #   2. put the data in association tables,
 #   3. create a study table,
-#   4. find new and updated studies and traits, 
-#   5. and upload these studies and traits to the PRSKB database. 
+#   4. find new and updated studies, 
+#   5. and upload these studies to the PRSKB database. 
 # It usually takes 6ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
@@ -78,52 +78,13 @@ else
     wait
     echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
 
-#===============Get Updated Studies and Traits===============
-    # get updated studies and traits
-    echo "Getting the updated studies and traits lists."
-    output=`python3 getUpdatedStudiesAndTraitsLists.py "$password" "$studyTableFolderPath"`
-    # 1 if there was an error executing getUpdatedStudiesAndTraitsLists.py, 0 if there was no error
-    updatedListsReturnCode=$?
-    # read the output into an array of lines
-    readarray -t arrayOutput <<<"$output"
-
-    # if the getUpdatedStudiesAndTraitsLists exited with errors, print the errors and abort
-    if ! [[ $updatedListsReturnCode == 0 ]]; then
-        echo "The updated studies and traits could not be determined. Aborting."
-        END=${#arrayOutput[@]}
-        for ((i=0;i<=END;i++)); do
-            echo ${arrayOutput[$i]}
-        done
-        read -p "Press [Enter] key to finish..."
-        exit 1
-    fi
-
-    # print all but the last 3 lines, two of which are the updated studies and trait lists and the last is an empty line (not sure why)
-    END=${#arrayOutput[@]}-3
-    for ((i=0;i<=END;i++)); do
-        echo ${arrayOutput[$i]}
-    done
-
-    # capture the study and trait lists as strings and remove \r and \n
-    updatedStudies=$(echo ${arrayOutput[$i]} | sed -e 's/\r\n//g')
-    updatedTraits=$(echo ${arrayOutput[$i+1]} | sed -e 's/\r\n//g')
-
-    # send the updatedStudies to a txt file
-    echo $updatedStudies > updatedStudies.txt
-    # send the updatedTraits to a txt file
-    echo $updatedTraits > updatedTraits.txt
-    echo "Printed out updated studies to updatedStudies.txt and updated traits to updatedTraits.txt for LD clumping script."
-
-    # add a space between sections in the output
-    echo ""
-
 #===============Upload Tables to PRSKB Database========================================================
     # if updatedStudies is empty or none, dont' upload, otherwise upload new tables
     if [ -z "$updatedStudies" ] || [ "$updatedStudies" == "none" ]; then
         echo -e "No GWAS catalog tables have been updated, so no tables were updated or uploaded to the PRSKB database.\n"
     else
         echo "Uploading tables to the PRSKB database."
-        python3 uploadTablesToDatabase.py "$password" $associationTablesFolderPath $studyTableFolderPath "false" "$updatedTraits"
+        python3 uploadTablesToDatabase.py "$password" $studyTableFolderPath 
         wait
         echo -e "Finished uploading tables to the PRSKB database.\n"
     fi
