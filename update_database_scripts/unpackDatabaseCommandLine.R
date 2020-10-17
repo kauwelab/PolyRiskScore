@@ -6,9 +6,9 @@
 # but it can also be run manually. If you want the whole GWAS catalog downloaded in 8 instances manually, set numGroups to 8 and run the script 8 times, 
 # incrementing groupNum between each instance starting at 1 and going to 8 (see commandline arguments below).
 #
-# How to run: Rscript unpackDatabaseCommandLine.R "associationTableFolderPath" "studyAndPubTSVFolderPath" "chainFileFolderPath" "groupNum" "numGroups"
+# How to run: Rscript unpackDatabaseCommandLine.R "associationTableFolderPath" "rawGWASTSVFolderPath" "chainFileFolderPath" "groupNum" "numGroups"
 # where: "associationTableFolderPath" is the path to the association TSV table folder where table will be written (default: "../tables/").
-#        "studyAndPubTSVFolderPath" is the path to the folder where the TSVs rawGWASStudyData.tsv and rawGWASPublications.tsv are located (default: "./").
+#        "rawGWASTSVFolderPath" is the path to the folder where the TSVs rawGWASStudyData.tsv and rawGWASPublications.tsv are located (default: "./").
 #        "chainFileFolderPath" is the path to the folder where chain files will be stored (default: 1).
 #        "groupNum" is the integer group number or index between 1 and numGroups inclusive. 
 #        "numGroups" is the integer number of times the database will be split. This particular instance will run on the "groupNum" section (default: 1).
@@ -103,7 +103,7 @@ suppressMessages(library(purrr))
 if (is_ebi_reachable()) {
   # evaulate command line arguments if supplied
   outPath <- args[1]
-  studyAndPubTSVFolderPath <- args[2]
+  rawGWASTSVFolderPath <- args[2]
   chainFilePath <- args[3]
   groupNum <- as.numeric(args[4])
   numGroups <- as.numeric(args[5])
@@ -237,9 +237,9 @@ if (is_ebi_reachable()) {
   # get study data from TSVs
   print("Reading study data from TSVs!")
   # get study data for all the studies
-  studiesTibble <- read_tsv(file.path(studyAndPubTSVFolderPath, "rawGWASStudyData.tsv"), col_types = cols())
+  studiesTibble <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASStudyData.tsv"), col_types = cols())
   # get publication data for all the studies
-  publications <- read_tsv(file.path(studyAndPubTSVFolderPath, "rawGWASPublications.tsv"), col_types = cols())
+  publications <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASPublications.tsv"), col_types = cols())
   print("Study data read!")
 
   # get the start and stop indecies of the study data given groupNum and numGroups
