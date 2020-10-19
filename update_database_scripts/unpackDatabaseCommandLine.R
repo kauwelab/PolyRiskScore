@@ -303,7 +303,10 @@ if (is_ebi_reachable()) {
         group_by(variant_id) %>% 
         summarise_all(list(~toString(unique(na.omit(.))))) %>%
         mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
-      master_variants[master_variants == ""] <- NA
+      # set the values of all empty cells to NA
+      if (nrow(master_variants) > 0) {
+        master_variants[master_variants == ""] <- NA
+      }
       master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
       studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
         unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
@@ -317,7 +320,7 @@ if (is_ebi_reachable()) {
       # if there are not enough snps left in the study table, add it to a list of ignored studies
       if (nrow(studyData) < minNumStudyAssociations) {
         invalidStudies <- c(invalidStudies, studyID)
-        DevPrint(paste0("    Not enough info for ", citation)) #TODO
+        DevPrint(paste0("    Not enough info for ", citation))
       } else { # otherwise add the rows to the association table
         associationsTable <- bind_rows(studyData, associationsTable)
         studyIndeciesAppended <- c(studyIndeciesAppended, i)
@@ -326,7 +329,6 @@ if (is_ebi_reachable()) {
       # for every 10 studies, append to the associations_table.tsv
       if (i %% 10 == 0) {
         associationsTable <- formatAssociationsTable(associationsTable)
-        DevPrint(ncol(associationsTable)) #TODO
         appendToAssociationsTable(associationsTable)
         # reset the associationsTable and keep going
         associationsTable <- tibble()
