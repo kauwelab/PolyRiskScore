@@ -76,6 +76,7 @@ if (is_ebi_reachable()) {
     write_tsv(publications, rawGWASPublicationsPath)
     write_tsv(ancestries, rawGWASAncestriesPath)
     print(paste0("GWAS data written to: ", args[1]))
+    print(paste0("Data download complete! ", "took: ", format(Sys.time() - start_time)))
   }
 } else {
   is_ebi_reachable(chatty = TRUE)
