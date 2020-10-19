@@ -4,8 +4,7 @@
 #   1. download data from the GWAS catalog, 
 #   2. put the data in an association table,
 #   3. create a study table,
-#   4. find new and updated studies and traits, 
-#   5. and upload the new study and association tables to the PRSKB database. 
+#   4. and upload the new study and association tables to the PRSKB database. 
 # It usually takes 6ish (TODO test) hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
@@ -91,7 +90,7 @@ else
     wait
     echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
     #TODO test
-    delete the raw study data files after the study table has been created
+    # delete the raw study data files after the study table has been created
     rm "./rawGWASStudyData.tsv"
     rm "./rawGWASPublications.tsv"
     rm "./rawGWASAncestries.tsv"

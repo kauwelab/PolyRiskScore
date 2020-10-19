@@ -252,6 +252,9 @@ if (is_ebi_reachable()) {
   #initiaize the new assocations table
   associationsTable <- tibble()
   
+  # holds the indices (i) that have been appended to the associationsTable
+  studyIndeciesAppended <- c()
+  
   DevPrint(paste0("Startup took ", format(Sys.time() - start_time)))
   DevPrint(paste0("Getting data from studies ", startIndex, " to ", stopIndex))
   # for each study
@@ -314,22 +317,26 @@ if (is_ebi_reachable()) {
       # if there are not enough snps left in the study table, add it to a list of ignored studies
       if (nrow(studyData) < minNumStudyAssociations) {
         invalidStudies <- c(invalidStudies, studyID)
+        DevPrint(paste0("    Not enough info for ", citation)) #TODO
       } else { # otherwise add the rows to the association table
         associationsTable <- bind_rows(studyData, associationsTable)
+        studyIndeciesAppended <- c(studyIndeciesAppended, i)
       }
       
       # for every 10 studies, append to the associations_table.tsv
-      studiesInterval <- 10
-      if (i %% studiesInterval == 0) {
+      if (i %% 10 == 0) {
         associationsTable <- formatAssociationsTable(associationsTable)
+        DevPrint(ncol(associationsTable)) #TODO
         appendToAssociationsTable(associationsTable)
         # reset the associationsTable and keep going
         associationsTable <- tibble()
-        DevPrint(paste0("Appended studies to output file: ", i-studiesInterval+1, "-", i))
+        indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+        DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
+        studyIndeciesAppended <- c()
       }
       
     }, error=function(e){
-      cat("ERROR :",conditionMessage(e), "\n")
+      cat("ERROR:",conditionMessage(e), "\n")
       if (conditionMessage(e) == "cannot open the connection") {
         stop("The table was likely opened during the download process and can't be used by the program. Please close the table and try again.")
       }
@@ -340,6 +347,8 @@ if (is_ebi_reachable()) {
   if (nrow(associationsTable) > 0) {
     associationsTable <- formatAssociationsTable(associationsTable)
     appendToAssociationsTable(associationsTable)
+    indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+    DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
   }
 } else {
   is_ebi_reachable(chatty = TRUE)
