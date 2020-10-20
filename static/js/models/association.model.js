@@ -113,7 +113,7 @@ Association.getSingleSnpFromEachStudy = result => {
         // turn traits into table names 
         for (i = 0; i < res.length; i++) {
             trait = formatter.formatForTableName(res[i].trait)
-            queryString = queryString.concat(`SELECT snp, riskAllele, hg19 FROM \`${trait}\` WHERE id IN ( SELECT min(id) FROM \`${trait}\` GROUP BY studyID ); `)
+            queryString = queryString.concat(`SELECT snp, riskAllele, hg19, studyID FROM \`${trait}\` WHERE id IN ( SELECT min(id) FROM \`${trait}\` GROUP BY studyID ); `)
         }
 
         sql.query(queryString, (err2, data) => {
