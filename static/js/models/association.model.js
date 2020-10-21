@@ -113,7 +113,7 @@ Association.getSingleSnpFromEachStudy = result => {
         // turn traits into table names 
         for (i = 0; i < res.length; i++) {
             trait = formatter.formatForTableName(res[i].trait)
-            queryString = queryString.concat(`SELECT snp, riskAllele, hg19 FROM \`${trait}\` WHERE id IN ( SELECT min(id) FROM \`${trait}\` GROUP BY studyID ); `)
+            queryString = queryString.concat(`SELECT snp, riskAllele, hg19, studyID FROM \`${trait}\` WHERE id IN ( SELECT min(id) FROM \`${trait}\` GROUP BY studyID ); `)
         }
 
         sql.query(queryString, (err2, data) => {
@@ -158,6 +158,107 @@ Association.searchMissingRsIDs = result => {
         })
 
     });
+}
+
+//get all SNPS for each study that has the ethnicities specified
+Association.snpsByEthnicity = (ethnicities, result) => {
+    //select traits and studyIDs from the study table associated with the given ethnicities
+    queryString = ""
+
+    if (Array.isArray(ethnicities)) {
+        for (i = 0; i < ethnicities.length; i++) {
+            queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities[i]}%'; `)
+        }
+    }
+    else {
+        queryString = queryString.concat(`SELECT trait, studyID FROM study_table WHERE ethnicity LIKE '%${ethnicities}%'; `)
+    }
+    
+    console.log(queryString)
+    sql.query(queryString, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        queryString = ""
+
+        //get snps associated with the studyIDs found above 
+        for (i = 0; i < res.length; i++) {
+            //if there is more than one ethnicity in the selector, select the SNPs for each study
+            if(Array.isArray(ethnicities)) {
+                for (j = 0; j < res[i].length; j++) {
+                    //TODO clean to remove duplicate code
+                    trait = formatter.formatForTableName(res[i][j].trait)
+                    queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i][j].studyID}'; `)
+                }
+            }
+            //if there is only one ethnicity in the selector, only select SNPs for the studies in that ethnicity
+            else {
+                //TODO clean to remove duplicate code
+                trait = formatter.formatForTableName(res[i].trait)
+                queryString = queryString.concat(`SELECT snp FROM \`${trait}\` WHERE studyID = '${res[i].studyID}'; `)
+            }
+        }
+
+        console.log(queryString)
+        sql.query(queryString, (err2, data) => {
+            if (err2) {
+                console.log("error: ", err2);
+                result(err2, null);
+                return;
+            }
+
+            //convert the results to the correct format
+            results = []
+            //handling for more than one ethnicity
+            if (Array.isArray(ethnicities)) {
+                //TODO clean to remove duplicate code
+                //for each ethnicity
+                for (i = 0; i < res.length; i++) {
+                    ethnicity = ethnicities[i]
+
+                    //for each study
+                    snps = []
+                    for (j = 0; j < res[i].length; j++) {
+                        snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
+
+                        //for each row in the study
+                        for (k = 0; k < data[snpIndex].length; k++) {
+                            snps.push(data[snpIndex][k].snp)
+                        }
+    
+                    }
+                    ethnicityObj = {
+                        "ethnicity": ethnicity,
+                        "snps": snps
+                    }
+                    results.push(ethnicityObj)
+                }
+            }
+            //handling for a single ethnicity
+            else {
+                //TODO clean to remove duplicate code
+                console.log(res.length)
+                snps = []
+                //for each study
+                for (i = 0; i < res.length; i++) {
+                    //for each row in the study
+                    for (k = 0; k < data[i].length; k++) {
+                        snps.push(data[i][k].snp)
+                    }
+                }
+                ethnicityObj = {
+                    "ethnicity": ethnicities,
+                    "snps": snps
+                }
+                results.push(ethnicityObj)
+            }
+
+            result(null, results)
+        })
+    })
 }
 
 module.exports = Association;

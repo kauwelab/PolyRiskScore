@@ -38,6 +38,8 @@ module.exports = app => {
 
     app.get("/search_for_missing_snps", associations.searchMissingRsIDs)
 
+    app.get("/snps_by_ethnicity", associations.snpsByEthnicity)
+
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 
