@@ -13,7 +13,7 @@ import time
 
 # This script uploads the associations_table.tsv and the study_table.tsv to the PRSKB database.
 #
-# How to run: python3 uploadTablesToDatabase.py "password" "tablesFolderPath"
+# How to run: python3 uploadTablesToDatabase.py "password" "associationTableFolderPath" "studyTableFolderPath"
 # where: "password" is the password to the PRSKB database
 #        "associationTableFolderPath" is the path to the associations_table.tsv (default: "../tables")
 #        "studyTableFolderPath" is the path to the study_table.tsv (default: "../tables")
