@@ -171,7 +171,7 @@ if (is_ebi_reachable()) {
     print("Study data read!")
     
     studyIDRows <- select(arrange(distinct(associationsTibble, studyID, .keep_all = TRUE), studyID), studyID, citation)
-    for (i in 1:length(studyIDRows)) {
+    for (i in 1:nrow(studyIDRows)) {
       tryCatch({
         studyIDRow <- studyIDRows[i,]
 
@@ -183,7 +183,7 @@ if (is_ebi_reachable()) {
         
         publication <- filter(publications, study_id == studyID)
 
-        citation <- paste(str_replace(publication[["author_fullname"]], "ö", "o"), substr(publication[["publication_date"]], 1, 4)) # TODO make more robust removing strange o from Löfgren's syndrome
+        citation <- paste(str_replace(publication[["author_fullname"]], "Ã¶", "o"), substr(publication[["publication_date"]], 1, 4)) # TODO make more robust removing strange o from LÃ¶fgren's syndrome
         
         # get an Altmetric score for each pubMedID and association pubMedID to score in dictionary-like form
         pubMedID <- publication[["pubmed_id"]]
@@ -221,7 +221,7 @@ if (is_ebi_reachable()) {
         
         # -------------------------------------------------------------------------------------------
         
-        DevPrint(paste0(i, " of ", length(studyIDRows), " ", studyID, " complete!"))
+        DevPrint(paste0(i, " of ", nrow(studyIDRows), " ", studyID, " complete!"))
 
         # print out a time stamp for how long the script has taken so far
         if (mod(i, 5) == 0) {
