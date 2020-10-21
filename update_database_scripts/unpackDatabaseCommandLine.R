@@ -333,9 +333,9 @@ if (is_ebi_reachable()) {
 	        indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
           DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
           studyIndeciesAppended <- c()
+        }
         DevPrint(paste0("Time elapsed: ", format(Sys.time() - start_time)))
       }
-      
     }, error=function(e){
       cat("ERROR:",conditionMessage(e), "\n")
       if (conditionMessage(e) == "cannot open the connection") {
