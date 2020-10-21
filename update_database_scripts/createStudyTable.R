@@ -7,10 +7,11 @@
 #       "rawStudyTSVFolderPath" is the path to the folder where the raw GWAS study TSVs are stored (default: "./")
 #
 # The format of the study table is as follows:
-# studyID pubMedID	trait	citation	studyScore	ethnicity	initialSampleSize replicationSampleSize	title	lastUpdated
+# studyID pubMedID  trait reportedTrait citation  altmetricScore  ethnicity initialSampleSize replicationSampleSize title lastUpdated
 # where: "studyID" is the unique ID assigned by the GWAS database
 #        "pubMedID" is the PubMed ID of the study
-#        "trait" is the name of the trait associated with the study
+#        "trait" is the name of the trait assigned the study by the GWAS catalog
+#        "reportedTrait" is the name of the trait that the authors listed for their study
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyScore" is the Altmetric score given to the study- it is a measure of the popularity of the study (see altmetric.com for more info)
 #        "ethnicity" is a pipe (|) separated list of ethnicities involved in the study
