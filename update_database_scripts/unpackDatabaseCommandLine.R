@@ -269,9 +269,9 @@ if (is_ebi_reachable()) {
       # get citation data (author + year published)
       citation <- paste(str_replace(pull(publications[i, "author_fullname"]), "�", "o"), str_sub(pull(publications[i, "publication_date"]), 1, 4)) #TODO make more robust removing strange o from L�fgren's syndrome
       # get pubmed ID for the study
-      pubmedID <- pull(publications[i, "pubmed_id"]) #TODO
+      pubmedID <- pull(publications[i, "pubmed_id"])
       
-      # if the study ID is invalid, skip it #TODO- where should this go?
+      # if the study ID is invalid, skip it
       if (studyID %in% invalidStudies) {
         DevPrint(paste0("    skipping study bc not enough snps: ", citation, "-", studyID))
         next
@@ -350,6 +350,7 @@ if (is_ebi_reachable()) {
     associationsTable <- formatAssociationsTable(associationsTable)
     appendToAssociationsTable(associationsTable)
     indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+    DevPrint(print(paste0("Time elapsed: ", format(Sys.time() - start_time))))
     DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
   }
 } else {
