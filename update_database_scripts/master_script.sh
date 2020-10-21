@@ -81,12 +81,11 @@ else
         Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
     done
     wait
-    #TODO delete study and pub tsvs  
     echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
 
 #===============Study Table Code============================================================
     echo "Creating the study table. This can take an hour or more to complete."
-    Rscript createStudyTable.R $outputFilesPath
+    Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
     wait
     echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
     #TODO test
