@@ -260,9 +260,6 @@ if (is_ebi_reachable()) {
   # for each study
   for (i in startIndex:stopIndex) {
     tryCatch({
-      # starts a timer to time how long it takes to output this study's results
-      study_time <- Sys.time()
-      
       # gets the study ID
       studyID <- pull(studiesTibble[i, "study_id"])
       
@@ -325,16 +322,18 @@ if (is_ebi_reachable()) {
         associationsTable <- bind_rows(studyData, associationsTable)
         studyIndeciesAppended <- c(studyIndeciesAppended, i)
       }
-      
       # for every 10 studies, append to the associations_table.tsv
       if (i %% 10 == 0) {
-        associationsTable <- formatAssociationsTable(associationsTable)
-        appendToAssociationsTable(associationsTable)
-        # reset the associationsTable and keep going
-        associationsTable <- tibble()
-        indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
-        DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
-        studyIndeciesAppended <- c()
+        # if there are studies in the associations table, print them out and reset the tibble
+        if (nrow(associationsTable) > 0) {
+	        associationsTable <- formatAssociationsTable(associationsTable)
+	        appendToAssociationsTable(associationsTable)
+	        # reset the associationsTable and keep going
+          associationsTable <- tibble()
+	        indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+          DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
+          studyIndeciesAppended <- c()
+        DevPrint(paste0("Time elapsed: ", format(Sys.time() - start_time)))
       }
       
     }, error=function(e){
@@ -350,7 +349,6 @@ if (is_ebi_reachable()) {
     associationsTable <- formatAssociationsTable(associationsTable)
     appendToAssociationsTable(associationsTable)
     indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
-    DevPrint(print(paste0("Time elapsed: ", format(Sys.time() - start_time))))
     DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
   }
 } else {
