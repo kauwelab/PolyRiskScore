@@ -15,8 +15,8 @@ import time
 #
 # How to run: python3 uploadTablesToDatabase.py "password" "tablesFolderPath"
 # where: "password" is the password to the PRSKB database
-#        "studyTableFolderPath" is the path to the study_table.tsv (default: "../tables")
 #        "associationTableFolderPath" is the path to the associations_table.tsv (default: "../tables")
+#        "studyTableFolderPath" is the path to the study_table.tsv (default: "../tables")
 
 # creates a connection to the MySQL database using the given config dictionary
 # The config should be given in the following form:
@@ -169,9 +169,9 @@ def main():
         usage()
         exit()
     if len(argv) >= 3:
-        studyTableFolderPath = setPathWithCheck(argv[2])
+        associationTableFolderPath = setPathWithCheck(argv[2])
     if len(argv) == 4:
-        associationTableFolderPath = setPathWithCheck(argv[3])
+        studyTableFolderPath = setPathWithCheck(argv[3])
 
     # set other default variables
     config = {

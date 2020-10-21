@@ -100,7 +100,7 @@ else
         echo -e "No GWAS catalog tables have been updated, so no tables were updated or uploaded to the PRSKB database.\n"
     else
         echo "Uploading tables to the PRSKB database."
-        python3 uploadTablesToDatabase.py "$password" $studyTableFolderPath $associationTableFolderPath
+        python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
         wait
         echo -e "Finished uploading tables to the PRSKB database.\n"
     fi
