@@ -3,6 +3,7 @@ module.exports = app => {
     const associations = require("../controllers/associations.controller");
     const clumps = require("../controllers/clumps.controller");
     const cli = require("../controllers/cli.controller");
+    const ukbbdata = require("../controllers/ukbbdata.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -46,4 +47,7 @@ module.exports = app => {
     app.get("/cli_version", cli.version);
 
     app.get("/download_cli", cli.download);
+
+    
+    app.get("/ukbb_template_code", ukbbdata.template);
 }
