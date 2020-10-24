@@ -1,12 +1,44 @@
 const sql = require('./database')
 
 const Ukbbdata = function (mUkbbdata) {
-    this.studyID = mUkbbdata.studyID
+    this.studyID = mUkbbdata.studyID,
+    this.disease = mUkbbdata.disease,
+    this.mean = mUkbbdata.mean,
+    this.median = mUkbbdata.median,
+    this.min = mUkbbdata.min,
+    this.max = mUkbbdata.max,
+    this.range = mUkbbdata.range
+    // the rest of the columns should be labled p1-p100
 }
 
-Ukbbdata.template = (test, result) => {
-    sqlStatement = `SELECT testData FROM ukbb_table WHERE column = ?`
-    sql.query(sqlStatement, [test], (err, res) => {
+Ukbbdata.getSummaryResults = (studyIDs, result) => {
+    sqlQuestionMarks = ""
+    for(i = 0; i < studyIDs.length - 1; i++) {
+        sqlQuestionMarks += "?, "
+    }
+    sqlQuestionMarks += "?"
+
+    sqlStatement = `SELECT disease, studyID, mean, median, min, max, range FROM ukbiobank_stats WHERE studyID in (${sqlQuestionMarks})`
+    sql.query(sqlStatement, studyIDs, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        result(null, res);
+    })
+}
+
+Ukbbdata.getFullResults = (studyIDs, result) => {
+    sqlQuestionMarks = ""
+    for(i = 0; i < studyIDs.length - 1; i++) {
+        sqlQuestionMarks += "?, "
+    }
+    sqlQuestionMarks += "?"
+
+    sqlStatement = `SELECT * FROM ukbiobank_stats WHERE studyID in (${sqlQuestionMarks})`
+    sql.query(sqlStatement, studyIDs, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
