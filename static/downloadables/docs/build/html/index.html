@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to PRSKB’s CLI documentation! &#8212; PRSKB CLI  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-prskb-s-cli-documentation">
+<h1>Welcome to PRSKB’s CLI documentation!<a class="headerlink" href="#welcome-to-prskb-s-cli-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>The PRSKB’s CLI tool is an extension of the PRSKB web application. It is designed to give more flexability and capability in calculating polygenic risk scores for large datasets. Features include:</p>
+<ul class="simple">
+<li><p>Searching our database for studies and traits</p></li>
+<li><p>Learning about required and optional parameters for performing calculations</p></li>
+<li><p>Calculating polygenic risk scores</p></li>
+</ul>
+<div class="section" id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>To download the PRSKB CLI tool, head over to the <a class="reference external" href="https://prs.byu.edu/cli_download.html">PRSKB website download page</a> or download the files directly from <a class="reference external" href="https://github.com/louisadayton/PolyRiskScore">GitHub</a>.</p>
+<p>Given the required params, the tool will calculate risk scores for each individual sample for each study in our database (this needs to be worded better).</p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c <span class="m">0</span>.05 -r hg19 -p EUR
+</pre></div>
+</div>
+<p>TODO: write about the download and running the calculator straight from the command line</p>
+</div>
+</div>
+</div>
+<div class="section" id="features">
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
+<p>The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI’s interactive menu. The menu includes the options to search our database and to learn more about the parameters involved in risk score calculations. To access the menu, run the script without parameters.</p>
+<div class="section" id="search-the-database">
+<h2>Search the Database<a class="headerlink" href="#search-the-database" title="Permalink to this headline">¶</a></h2>
+<p>Through the interactive menu, users can search our database for traits or studies. This can be helpful when filtering studies to run the calculator on.</p>
+</div>
+<div class="section" id="learn-about-parameters">
+<h2>Learn about Parameters<a class="headerlink" href="#learn-about-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The menu also has an option for learning about the parameters involved in filtering studies and calculating scores.</p>
+<div class="section" id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
+<p>Required:</p>
+<ul class="simple">
+<li><p>-f path to input file</p></li>
+<li><p>-o path to output file</p></li>
+<li><p>-c pvalue cutoff</p></li>
+<li><p>-r reference genome of samples</p></li>
+<li><p>-p super population (1000 genomes) of samples</p></li>
+</ul>
+<p>Optional:</p>
+<ul class="simple">
+<li><p>-t traits (for filtering)</p></li>
+<li><p>-k studyType (for filtering)</p></li>
+<li><p>-i studyIDs (choose specific studies)</p></li>
+<li><p>-e ethnicity (for filtering)</p></li>
+<li><p>-s step number</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="calculate-scores">
+<h2>Calculate Scores<a class="headerlink" href="#calculate-scores" title="Permalink to this headline">¶</a></h2>
+<p>Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in our database for each individual in the input file. Additional parameters will filter studies to be included in the calculation.</p>
+</div>
+</div>
+<div class="section" id="output-results">
+<h1>Output Results<a class="headerlink" href="#output-results" title="Permalink to this headline">¶</a></h1>
+<p>There are two choices for the output results - condensed (default) or full.</p>
+<div class="section" id="condensed">
+<h2>Condensed<a class="headerlink" href="#condensed" title="Permalink to this headline">¶</a></h2>
+<p>This version of the output results contains one row for each study with columns for each sample’s polygenic risk score.</p>
+<p>Study ID | Citation | Reported Trait | Trait(s) | Sample1 | Sample2 | Sample3 | ect.</p>
+</div>
+<div class="section" id="full">
+<h2>Full<a class="headerlink" href="#full" title="Permalink to this headline">¶</a></h2>
+<p>This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation.</p>
+<p>Sample | Study ID | Citation | Reported Trait | Traits(s) | Risk Score | Protective Alleles | Risk Alleles | Neutral Alleles</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">PRSKB CLI</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Madeline Page, Matthew Cloward, Elizabeth Ward, Louisa Dayton, Ed Ringger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
