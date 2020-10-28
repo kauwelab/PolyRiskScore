@@ -13,9 +13,10 @@ import time
 
 # This script uploads the associations_table.tsv and the study_table.tsv to the PRSKB database.
 #
-# How to run: python3 uploadTablesToDatabase.py "password" "tablesFolderPath"
+# How to run: python3 uploadTablesToDatabase.py "password" "associationTableFolderPath" "studyTableFolderPath"
 # where: "password" is the password to the PRSKB database
-#        "tableFolderPath" is the path to the tsv tables folder (default: "../tables")
+#        "associationTableFolderPath" is the path to the associations_table.tsv (default: "../tables")
+#        "studyTableFolderPath" is the path to the study_table.tsv (default: "../tables")
 
 # creates a connection to the MySQL database using the given config dictionary
 # The config should be given in the following form:
@@ -151,7 +152,8 @@ def main():
     # the password for connecting to the database
     password = ""
     # the location of the tables
-    tablesFolderPath =  "../tables/"
+    studyTableFolderPath =  "../tables/"
+    associationTableFolderPath = "../tables/"
 
     # arg handling
     if len(argv) <= 1:
@@ -161,13 +163,15 @@ def main():
         exit()
     else:
         password = argv[1]
-    if len(argv) > 3:
+    if len(argv) > 4:
         # if too many arguments are provided
         print("Too many arguments: " + str(argv))
         usage()
         exit()
-    if len(argv) == 3:
-        tablesFolderPath = setPathWithCheck(argv[2])
+    if len(argv) >= 3:
+        associationTableFolderPath = setPathWithCheck(argv[2])
+    if len(argv) == 4:
+        studyTableFolderPath = setPathWithCheck(argv[3])
 
     # set other default variables
     config = {
@@ -187,11 +191,11 @@ def main():
 
     # add the associations_table to the database
     createFreshTable(config, "associations_table.tsv", "associations_table")
-    addDataToTableCatch( config, tablesFolderPath, "associations_table.tsv", "associations_table")
+    addDataToTableCatch( config, associationTableFolderPath, "associations_table.tsv", "associations_table")
 
     # add the study_table to the database
     createFreshTable(config, "study_table.tsv", "study_table")
-    addDataToTableCatch(config, tablesFolderPath, "study_table.tsv", "study_table")
+    addDataToTableCatch(config, studyTableFolderPath, "study_table.tsv", "study_table")
 
     print("Done!")
 
