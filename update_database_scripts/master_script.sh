@@ -5,7 +5,7 @@
 #   2. put the data in an association table,
 #   3. create a study table,
 #   4. and upload the new study and association tables to the PRSKB database. 
-# It usually takes 6ish (TODO test) hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
+# It usually takes 4ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
 #
