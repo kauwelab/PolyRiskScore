@@ -95,14 +95,10 @@ else
 
 #===============Upload Tables to PRSKB Database========================================================
     # if updatedStudies is empty or none, dont' upload, otherwise upload new tables
-    if [ -z "$updatedStudies" ] || [ "$updatedStudies" == "none" ]; then
-        echo -e "No GWAS catalog tables have been updated, so no tables were updated or uploaded to the PRSKB database.\n"
-    else
-        echo "Uploading tables to the PRSKB database."
-        python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
-        wait
-        echo -e "Finished uploading tables to the PRSKB database.\n"
-    fi
+    echo "Uploading tables to the PRSKB database."
+    python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
+    wait
+    echo -e "Finished uploading tables to the PRSKB database.\n"
 
 #===============Create Sample VCF=====================================================================
     echo "Creating sample vcf"
