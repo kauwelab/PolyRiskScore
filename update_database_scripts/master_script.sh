@@ -88,7 +88,6 @@ else
     Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
     wait
     echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
-    #TODO test
     # delete the raw study data files after the study table has been created
     rm "./rawGWASStudyData.tsv"
     rm "./rawGWASPublications.tsv"
