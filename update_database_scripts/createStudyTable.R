@@ -190,6 +190,8 @@ if (is_ebi_reachable()) {
         pubMedID <- publication[["pubmed_id"]]
         altmetricScore <- getAltmetricScore(pubMedID)
 
+        # gets the enthnicities for the specified studyID by combining all the ethnicities found in the ancestries tibble returning a 
+        #list of all unique ethnicities separated by "|"
         ethnicity <- filter(ancestries, study_id == studyID) %>%
           select(-ancestry_id) %>%
           group_by(study_id) %>%
