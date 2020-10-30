@@ -10,7 +10,7 @@ To update the PRSKB database automatically with the latest studies from the NHGR
        the script will continue to run.
     c. The "8" in the command is the number of times the GWAS catalog will be split to download different parts of the database concurrently. 
        Increase this number to speed up the download, but don't increase the number too much since the website computer only has 2 cores.
-4. This command will take several hours to run. It is done when the last line of "output.txt" says "Press [Enter] key to finish..." At this point, 
+4. This command will take at least 4 hours to run. It is done when the last line of "output.txt" says "Press [Enter] key to finish..." At this point, 
    all of the new data is already uploaded to the database and and you just need to upload the new TSVs to Github.
 5. Upload the new TSVs to github: (This may be another script in the future)
     a. git add .
