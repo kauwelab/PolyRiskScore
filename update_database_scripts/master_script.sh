@@ -24,23 +24,28 @@ if [ $# -lt 2 ]; then
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
     echo "  [optional: path to association tsv file folder (default: \"../tables/\")]"
     echo "  [optional: path to study table tsv folder (default: \"../tables/\")]"
+    echo "  [optional: path to sample vcf  folder (default: \"../static/\")]"
     read -p "Press [Enter] key to quit..."
-# check if $2 is a number
+# check if $2, or numNodes, is a number
 elif ! [[ "$2" =~ ^[0-9]+$ ]]; then
     echo "$2 is the number of nodes you specified to download data, but it is not an integer."
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
-# check that if $3 is populated, it is a directory that exists
+# check that if $3, the consoleOutputFolder, is populated, it is a directory that exists
 elif [ ! -z $3 ] && [ ! -d $3 ]; then
     echo "Directory" $3 "does not exist."
     read -p "Press [Enter] key to quit..."
-# check that if $4 is populated, it is a directory that exists
+# check that if $4, the associationTableFolderPath,  is populated, it is a directory that exists
 elif [ ! -z $4 ] && [ ! -d $4 ]; then
     echo "Directory" $4 "does not exist."
     read -p "Press [Enter] key to quit..."
-# check that if $5 is populated, it is a directory that exists
+# check that if $5, the studyTableFolderPath, is populated, it is a directory that exists
 elif [ ! -z $5 ] && [ ! -d $5 ]; then
     echo "Directory " + $5 + " does not exist."
+    read -p "Press [Enter] key to quit..."
+# check that if $6, the sampleVCFFolderPath, is populated, it is a directory that exists
+elif [ ! -z $6 ] && [ ! -d $6 ]; then
+    echo "Directory " + $6 + " does not exist."
     read -p "Press [Enter] key to quit..."
 else
     password=$1
@@ -49,6 +54,7 @@ else
     consoleOutputFolder=${3:-"./console_files/"}
     associationTableFolderPath=${4:-"../tables/"} 
     studyTableFolderPath=${5:-"../tables/"}
+    sampleVCFFolderPath=${6:-"../static/"}
 
 #===============Creating Output Paths========================================================
     # if the default console output folder path doesn't exist, create it
@@ -102,10 +108,9 @@ else
 
 #===============Create Sample VCF=====================================================================
     echo "Creating sample vcf"
-    python3 createSampleVCF.py
+    python3 createSampleVCF.py "sample" $sampleVCFFolderPath
     wait 
     echo "Finished creating sample vcf"
-    # TODO need to move the vcf to the correct location...
 
     read -p "Press [Enter] key to finish..."
 fi
