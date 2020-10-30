@@ -30,10 +30,6 @@
 #        "upperCI" is the upper confidence interval of the odds ratio
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
-#
-#TODO remove snps that have "(conditioned on rsid)" in their pvalue_description
-#TODO argument: optional list of traits to update
-#TODO argument: optional list of studies to update
 
 # get args from the commandline- these are evaluated after imports section below
 args = commandArgs(trailingOnly=TRUE)
@@ -308,9 +304,10 @@ if (is_ebi_reachable()) {
           mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
           tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
           add_column(citation = citation) %>%
-          add_column(studyID = studyID, .after = "citation")
-        # remove rows missing risk alleles or odds ratios, or which have X as their chromosome
-        studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X"))
+          add_column(studyID = studyID, .after = "citation") %>% 
+          mutate(pvalue_description = tolower(pvalue_description))
+        # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
+        studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("conditioned on",pvalue_description))
         
         # if there are not enough snps left in the study table, add it to a list of ignored studies
         if (nrow(studyData) < minNumStudyAssociations) {
