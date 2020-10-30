@@ -280,7 +280,9 @@ if (is_ebi_reachable()) {
         
         # gets the variants data associated with the study ID
         variants <- get_variants(study_id = studyID)
+        # contains last update date for each variant ID
         variantsTibble <- variants@variants
+        # contains gene names, position, and distances from nearest genes for each variant ID
         genomicContexts <- variants@genomic_contexts
         
         # gets the traits data associated with the study ID
