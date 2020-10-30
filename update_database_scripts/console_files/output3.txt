@@ -1071,6 +1071,7 @@
 [1] "Time elapsed: 55.17123 mins"
 [1] "  3111. Tin A 2015"
 Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies/GCST003147/associations failed: response code was 500.
+#This warning was checked manually by Matthew- the study did not have enough data.
 [1] "    Not enough info for Tin A 2015"
 [1] "  3112. Kinnersley B 2015"
 [1] "  3113. Lin YJ 2015"
@@ -1213,6 +1214,7 @@ Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies/GCST003147/
 [1] "    Not enough info for Grondin Y 2015"
 [1] "  3184. Chauhan L 2015"
 ERROR: transfer closed with outstanding read data remaining 
+#This warning was checked manually by Matthew- the study did not have enough data.
 [1] "  3185. Ferrari R 2015"
 [1] "  3186. Schumacher FR 2015"
 [1] "  3187. Chen PL 2015"

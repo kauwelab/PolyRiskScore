@@ -400,8 +400,10 @@
 [1] "    Not enough info for German CA 2019"
 [1] "  6579. Saw J 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
+#This error was checked manually by Matthew- the study did not have enough data.
 [1] "  6580. Saw J 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#This error was checked manually by Matthew- the study did not have enough data.
 [1] "  6581. Graham PS 2018"
 [1] "  6582. Kanai M 2018"
 [1] "    Not enough info for Kanai M 2018"
@@ -908,6 +910,7 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  6828. Kakuta Y 2018"
 [1] "    Not enough info for Kakuta Y 2018"
 [1] "  6829. Vuckovic D 2020"
+#These errors were checked manually by Matthew- none of the studies had enough data.
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  6830. Vuckovic D 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
@@ -996,7 +999,8 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  6872. Chen MH 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  6873. Chen MH 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- none of the studies had enough data.
 [1] "  6874. Penney ME 2018"
 [1] "  6875. Nagel M 2018"
 [1] "    Not enough info for Nagel M 2018"
@@ -1449,7 +1453,8 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7104. Kakuta Y 2020"
 [1] "    Not enough info for Kakuta Y 2020"
 [1] "  7105. Choquet H 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#This error was checked manually by Matthew- the study did not have enough data.
 [1] "  7106. Kawafune K 2020"
 [1] "    Not enough info for Kawafune K 2020"
 [1] "  7107. Ye J 2020"
@@ -1504,6 +1509,7 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "    Not enough info for Meng Y 2020"
 [1] "  7132. Bensen JT 2018"
 [1] "  7133. Hillary RF 2020"
+#These errors were checked manually by Matthew- none of the studies had enough data.
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7134. Hillary RF 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
@@ -1640,7 +1646,8 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7200. Hillary RF 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7201. Hillary RF 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- none of the studies had enough data.
 [1] "  7202. Wei L 2019"
 [1] "    Not enough info for Wei L 2019"
 [1] "  7203. Ferreira MA 2009"
@@ -1733,9 +1740,11 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7247. de Las Fuentes L 2020"
 [1] "    Not enough info for de Las Fuentes L 2020"
 [1] "  7248. Ellinghaus D 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#This error was checked manually by Matthew- the study had data!
 [1] "  7249. Ellinghaus D 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#This error was checked manually by Matthew- the study had data!
 [1] "  7250. Han X 2020"
 [1] "    Not enough info for Han X 2020"
 [1] "Time elapsed: 2.049354 hours"
@@ -1815,6 +1824,7 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7286. Rode M 2020"
 [1] "    Not enough info for Rode M 2020"
 [1] "  7287. Meyer HV 2020"
+#These errors were checked manually by Matthew- none of the studies had enough data.
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7288. Meyer HV 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
@@ -1885,17 +1895,20 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7321. Yaghootkar H 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7322. Yaghootkar H 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- none of the studies had enough data.
 [1] "  7323. Jaworek T 2020"
 [1] "  7324. Zhang Y 2020"
 [1] "  7325. Cheng B 2020"
+#These errors were checked manually by Matthew- none of the studies had enough data.
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7326. Fiorica PN 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7327. Fiorica PN 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7328. Fiorica PN 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- none of the studies had enough data.
 [1] "  7329. Maxwell TJ 2018"
 [1] "    Not enough info for Maxwell TJ 2018"
 [1] "  7330. Pollack S 2018"
@@ -1963,6 +1976,7 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7361. Wu Y 2020"
 [1] "    Not enough info for Wu Y 2020"
 [1] "  7362. Hillary RF 2020"
+#These errors were checked manually by Matthew- none of the studies had enough data.
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7363. Gabryszewski SJ 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
@@ -1977,7 +1991,8 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7368. Gabryszewski SJ 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7369. Asgari S 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- none of the studies had enough data.
 [1] "  7370. Alic L 2020"
 [1] "    Not enough info for Alic L 2020"
 [1] "Time elapsed: 2.181574 hours"
@@ -1993,6 +2008,7 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "    Not enough info for Hughes DA 2020"
 [1] "  7376. Dapas M 2020"
 [1] "  7377. Sallah N 2020"
+#These errors were checked manually by Matthew- none of the studies had enough data.
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7378. Sallah N 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
@@ -2001,7 +2017,8 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7380. Sallah N 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7381. Sallah N 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- none of the studies had enough data.
 [1] "  7382. Matoba N 2020"
 [1] "  7383. Parviainen R 2020"
 [1] "    Not enough info for Parviainen R 2020"
@@ -2133,7 +2150,8 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7444. Yousaf A 2020"
 [1] "    Not enough info for Yousaf A 2020"
 [1] "  7445. Klimentidis YC 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#This error was checked manually by Matthew- the study did not have enough data.
 [1] "  7446. Yan J 2020"
 [1] "    Not enough info for Yan J 2020"
 [1] "  7447. Yan J 2020"
@@ -2238,6 +2256,7 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7496. Yamada Y 2018"
 [1] "  7497. Matoba N 2020"
 [1] "  7498. Chen MH 2020"
+#These errors were checked manually by Matthew- none of the studies had enough data.
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7499. Chen MH 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
@@ -2270,7 +2289,8 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7513. Chen MH 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  7514. Chen MH 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- none of the studies had enough data.
 [1] "  7515. Condreay LD 2019"
 [1] "    Not enough info for Condreay LD 2019"
 [1] "  7516. Dai J 2019"
@@ -2541,9 +2561,11 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  7656. Chung J 2017"
 [1] "    Not enough info for Chung J 2017"
 [1] "  7657. Chen MH 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#This error was checked manually by Matthew- the study did not have enough data.
 [1] "  7658. Chen MH 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
+#This error was checked manually by Matthew- the study did not have enough data.
 There were 50 or more warnings (use warnings() to see the first 50)
 [1] "Traits with no valid snps: 873"
   [1] "GCST009957" "GCST009985" "GCST010356" "GCST010377" "GCST010272"

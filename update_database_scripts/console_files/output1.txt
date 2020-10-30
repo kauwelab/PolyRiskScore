@@ -1824,6 +1824,7 @@
 [1] "    Not enough info for Sun L 2011"
 [1] "  976. Cozen W 2011"
 Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies/GCST001323/snps failed: response code was 500.
+#This warning was checked manually by Matthew- the study did not have enough data.
 [1] "    Not enough info for Cozen W 2011"
 [1] "  977. Simonson MA 2011"
 [1] "    Not enough info for Simonson MA 2011"

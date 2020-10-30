@@ -1075,6 +1075,7 @@
 [1] "    Not enough info for Wheeler E 2017"
 [1] "  9469. Wheeler E 2017"
 [1] "    Not enough info for Wheeler E 2017"
+#These errors were checked manually by Matthew- one of the studies had enough data.
 [1] "  9470. Orr<U+00F9> V 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  9471. Orr<U+00F9> V 2020"
@@ -2560,7 +2561,8 @@ ERROR: Elements 1 of is_study_id(study_id) are not true
 [1] "  10211. Orr<U+00F9> V 2020"
 ERROR: Elements 1 of is_study_id(study_id) are not true 
 [1] "  10212. Orr<U+00F9> V 2020"
-ERROR: Elements 1 of is_study_id(study_id) are not true 
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- one of the studies had enough data.
 [1] "Appended studies to output file: 9848,9849 of 10212"
 There were 50 or more warnings (use warnings() to see the first 50)
 [1] "Traits with no valid snps: 453"
