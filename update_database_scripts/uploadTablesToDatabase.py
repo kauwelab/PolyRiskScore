@@ -11,16 +11,12 @@ from time import sleep
 import datetime
 import time
 
-# This script uploads association CSV tables and the study_table.csv to the PRSKB database. By default, it uploads all tables in the specified 
-# association tables folder, but it can also upload only the association tables specified. It also has the option to clean out any tables not in the
-# association tables folder from the PRSKB database.
+# This script uploads the associations_table.tsv and the study_table.tsv to the PRSKB database.
 #
-# How to run: python3 uploadTablesToDatabase.py "password" "associationTableFolderPath" "studyTableFolderPath" "cleanDatabase" "tablesToUpdate"
+# How to run: python3 uploadTablesToDatabase.py "password" "associationTableFolderPath" "studyTableFolderPath"
 # where: "password" is the password to the PRSKB database
-#        "associationTableFolderPath" is the path to the association CSV tables folder (default: "../tables/association_tables/")
-#        "studyTableFolderPath" is the path to the folder where the study_table.csv is stored (default: "../tables/")
-#        "cleanDatabase" is a boolean indicating whether the database should be cleaned of tables not found at the "associationTableFolderPath" or in "tablesToUpdate" (default: False)
-#        "tablesToUpdate" is a a pipe (|) separated list of trait names to be updated (default: "", or all tables found in "associationTableFolderPath") ex: "Alzheimer's disease|acne|osteoarthritis, hip"
+#        "associationTableFolderPath" is the path to the associations_table.tsv (default: "../tables")
+#        "studyTableFolderPath" is the path to the study_table.tsv (default: "../tables")
 
 # creates a connection to the MySQL database using the given config dictionary
 # The config should be given in the following form:
@@ -70,9 +66,9 @@ def deleteTable(cursor, dbTableName):
 def createTable(cursor, dbTableName):
     tableColumns = ""
     if dbTableName == "study_table":
-        tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), citation varchar(50), studyScore varchar(10), ethnicity varchar(255), cohort int unsigned, title varchar(255), lastUpdated varchar(15) )';"
+        tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore float, ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )';"
     else:
-        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(255), raf float, riskAllele varchar(20), pValue double, oddsRatio float, lowerCI float, upperCI float, citation varchar(50), studyID varchar(20) )';"
+        tableColumns = "( snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, citation varchar(50), studyID varchar(20) )';"
     sql = "set names utf8mb4; SET @query = 'CREATE TABLE `" + dbTableName + "` " + \
         tableColumns + "PREPARE stmt FROM @query;" + \
         "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
@@ -95,6 +91,17 @@ def createFreshTable(config, tableName, dbTableName):
         print(dbTableName + " created")
     connection.close()
 
+# This is mostly here to document what the studyMaxes table is, it currently is not called anywhere
+def addStudyMaxesView(config):
+    connection = getConnection(config)
+    sql = "CREATE VIEW studyMaxes AS SELECT trait, max(cohort) AS cohort, max(studyScore) as studyScore FROM " + \
+            "(SELECT trait, max(cohort) AS cohort, max(studyScore) AS studyScore FROM study_table GROUP BY trait" + \
+            "UNION ALL SELECT reportedTrait AS trait, max(cohort) AS cohort, max(studyScore) AS studyScore FROM study_table GROUP BY reportedTrait)" + \
+            "AS intermediate GROUP BY trait ORDER BY trait;"
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    cursor.close()
+
 # the same as the addDataToTable function except if there is an exception, it waits and then attepts to excecute addDataToTable again (this catches the 
 # occational hitch where the table isn't created before the program tries to add data to it)
 def addDataToTableCatch(config, tablesFolderPath, tableName, dbTableName):
@@ -106,34 +113,19 @@ def addDataToTableCatch(config, tablesFolderPath, tableName, dbTableName):
         sleep(0.1)
         addDataToTable(config, tablesFolderPath, tableName, dbTableName)
 
-# adds "tableName" csv data to the "dbTableName" table of the database
+# adds "tableName" tsv data to the "dbTableName" table of the database
 def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     connection = getConnection(config)
     cursor = connection.cursor()
-    path = os.path.join(tablesFolderPath, tableName + ".csv")
+    path = os.path.join(tablesFolderPath, tableName + ".tsv")
     path = path.replace("\\", "/")
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
-        '`CHARACTER SET latin1 COLUMNS TERMINATED BY "," ENCLOSED BY \'"\' LINES TERMINATED BY "\r\n" IGNORE 1 LINES;'
+        '`CHARACTER SET latin1 COLUMNS TERMINATED BY "\t" ENCLOSED BY \'"\' LINES TERMINATED BY "\r\n" IGNORE 1 LINES;'
     cursor.execute(sql, multi=True)
     print(dbTableName + " data added")
     cursor.close()
     connection.close()
-
-# gets the names of all the tables in the database
-def getAllExistingTables(cursor):
-    cursor.execute("SHOW tables")
-    existingTableNames = []
-    for (table_name,) in cursor:
-        existingTableNames.append(table_name)
-    cursor.close()
-    return existingTableNames
-
-# gets the trait name formated for website and database use (all lowercase, spaces to underscores, forward slashes to dashes, and no commas or apostrophies)
-def getDatabaseTableName(traitName):
-    dbTableName = traitName.lower().replace(" ", "_").replace(
-        ",", "").replace("/", "-").replace("'", "")[:64]
-    return(dbTableName)
 
 # enables tables to be loaded from local files temporarily
 def enableLocalLoad(cursor):
@@ -143,12 +135,9 @@ def enableLocalLoad(cursor):
 
 # prints the usage statement
 def usage():
-    print("""Usage: uploadTablesToDatabase.py password associationTablesFolderPath studyTableFolderPath cleanDatabase commaSeparatedTableString
+    print("""Usage: uploadTablesToDatabase.py password tablesFolderPath
         password- the MySQL password
-        associationTablesFolderPath- the path to the association tables folder
-        studyTableFolderPath- the path to the folder containing the study table (study_table.csv)
-        cleanDatabase- optional boolean- if True, removes all non-updated tables from the DB
-        tablesToUpdate- optional list of table names to update, separated by a pipe (|) (ex: "Alzheimer's disease|acne|osteoarthritis, hip")
+        tablesFolderPath- the path to the folder containing the study table (study_table.tsv) and associations table (associations_table.tsv)
     """)
 
 # returns the path if it is valid, otherwise exits the program
@@ -162,14 +151,9 @@ def setPathWithCheck(path):
 def main():
     # the password for connecting to the database
     password = ""
-    # the location of the association tables
-    associationTablesFolderPath = "../tables/association_tables/"
-    # the location of the study table
+    # the location of the tables
     studyTableFolderPath =  "../tables/"
-    # the boolean for whether the database should be cleaned of tables not found in "tablesToUpdate"
-    cleanDatabase = False
-    # a list of names of the tables that will be updated/added
-    tablesToUpdate = []
+    associationTableFolderPath = "../tables/"
 
     # arg handling
     if len(argv) <= 1:
@@ -179,20 +163,15 @@ def main():
         exit()
     else:
         password = argv[1]
-    if len(argv) > 6:
+    if len(argv) > 4:
         # if too many arguments are provided
         print("Too many arguments: " + str(argv))
         usage()
         exit()
-
     if len(argv) >= 3:
-        associationTablesFolderPath = setPathWithCheck(argv[2])
-    if len(argv) >= 4:
+        associationTableFolderPath = setPathWithCheck(argv[2])
+    if len(argv) == 4:
         studyTableFolderPath = setPathWithCheck(argv[3])
-    if len(argv) >= 5:
-        cleanDatabase = bool(distutils.util.strtobool(argv[4]))
-    if len(argv) == 6:
-        tablesToUpdate = argv[5].split("|")
 
     # set other default variables
     config = {
@@ -206,58 +185,13 @@ def main():
 
     connection = getConnection(config)
 
-    # if cleanDatabase is True, removes all the tables in the database not listed in tablesToUpdate or if tablesToUpdate is not specified, removes all 
-    # the tables in the database that are not csvs in the associationTablesFolderPath folder
-    if cleanDatabase:
-        # gets the names of all tables in the database
-        existingTables = getAllExistingTables(connection.cursor())
-        # removes names already in tablesToUpdate from the list of all database tables so they aren't deleted
-        for tableName in tablesToUpdate:
-            dbTableName = getDatabaseTableName(tableName)
-            if dbTableName in existingTables:
-                existingTables.remove(dbTableName)
-        print(
-            "You are about to remove the following tables from the database " + str(existingTables))
-        if input("Are you sure? (y/n)") != "y":
-            print("Aborted by user.")
-            exit(1)
-        else:
-            print('Cleaning the database')
-            for dbTableName in existingTables:
-                deleteTable(connection.cursor(), dbTableName)
-                print(dbTableName + " removed")
-    # gets the names of the tables to update from the commaSeparatedTableString, or if there is no commaSeparatedTableString, gets the tables to 
-    # update from the csvs in the associationTablesFolderPath folder
-    if len(tablesToUpdate) > 0:
-        # check to see if the table paths in the commaSeparatedTableString exist
-        invalidTableNames = []
-        for tableName in tablesToUpdate:
-            pathToTableName = os.path.join(
-                associationTablesFolderPath, tableName + ".csv")
-            if not os.path.exists(pathToTableName):
-                invalidTableNames.append(tableName)
-        if len(invalidTableNames) > 0:
-            print("The following csv tables don't exist: " + str(invalidTableNames))
-            print("Please check your commaSeparatedTableString variable and try again.")
-            exit(1)
-        else:
-            # if all the csv tables exist, keep going
-            print("Updating database tables: " + str(tablesToUpdate))
-    else:
-        tablesToUpdate = [f[:-4]
-                          for f in listdir(associationTablesFolderPath) if f[-4:] == ".csv"]
-        print("Adding tables to database found at: \"" +
-              associationTablesFolderPath + "\"")
-
     # before adding data, sets a parameter so data can be loaded from local files
     enableLocalLoad(connection.cursor())
     connection.close()
 
-    # for each table, create a fresh table and add the data in the current directory with that table name to it
-    for tableName in tablesToUpdate:
-        dbTableName = getDatabaseTableName(tableName)
-        createFreshTable(config, tableName, dbTableName)
-        addDataToTableCatch( config, associationTablesFolderPath, tableName, dbTableName)
+    # add the associations_table to the database
+    createFreshTable(config, "associations_table", "associations_table")
+    addDataToTableCatch( config, associationTableFolderPath, "associations_table", "associations_table")
 
     # add the study_table to the database
     createFreshTable(config, "study_table", "study_table")

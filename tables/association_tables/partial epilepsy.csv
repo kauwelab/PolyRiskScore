@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs2601828","16:4053870","16:4103871","16:4043872","16:4043872","AC005736.1:20934|AC009171.1:76685|LOC102724927:103426|DBIP3:76722|ADCY9:0",NA,"A",1e-06,1.12,"1.12","1.31","Kasperaviciute D 2010","GCST000691"
