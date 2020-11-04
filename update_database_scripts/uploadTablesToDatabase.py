@@ -94,9 +94,9 @@ def createFreshTable(config, tableName, dbTableName):
 # This is mostly here to document what the studyMaxes table is, it currently is not called anywhere
 def addStudyMaxesView(config):
     connection = getConnection(config)
-    sql = "CREATE VIEW studyMaxes AS SELECT trait, max(cohort) AS cohort, max(studyScore) as studyScore FROM " + \
-            "(SELECT trait, max(cohort) AS cohort, max(studyScore) AS studyScore FROM study_table GROUP BY trait" + \
-            "UNION ALL SELECT reportedTrait AS trait, max(cohort) AS cohort, max(studyScore) AS studyScore FROM study_table GROUP BY reportedTrait)" + \
+    sql = "CREATE VIEW studyMaxes AS SELECT trait, max(cohort) AS cohort, max(altmetricScore) as altmetricScore FROM " + \
+            "(SELECT trait, max(initialSampleSize+replicationSampleSize) AS cohort, max(altmetricScore) AS altmetricScore FROM study_table GROUP BY trait " + \
+            "UNION ALL SELECT reportedTrait AS trait, max(initialSampleSize+replicationSampleSize) AS cohort, max(altmetricScore) AS altmetricScore FROM study_table GROUP BY reportedTrait) " + \ 
             "AS intermediate GROUP BY trait ORDER BY trait;"
     cursor = connection.cursor()
     cursor.execute(sql)
