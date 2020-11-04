@@ -1,4 +1,6 @@
 const Association = require("../models/association.model.js");
+const path = require("path")
+const fs = require("fs")
 
 exports.getFromTables = (req, res) => {
     var studyIDs = req.body.studyIDs
@@ -116,6 +118,14 @@ exports.snpsByEthnicity = (req, res) => {
             res.send(data);
         }
     })
+}
+
+// gets the last time the associations tsv was updated. Used for the cli to check if the user needs to re-download association data
+exports.getLastAssociationsUpdate = (req, res) => {
+    associationsPath = path.join(__dirname, '../../..', "tables/associations_table.tsv")
+    statsObj = fs.statSync(associationsPath)
+    updateTime = statsObj.mtime
+    res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
 }
 
 async function separateStudies(associations, traitData, refGen) {
