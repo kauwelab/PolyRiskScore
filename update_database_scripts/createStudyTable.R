@@ -1,31 +1,46 @@
 # This script uses data from an existing folder populated with CSV trait data and the GWAS catalog acccessable via the gwasrapidd library 
 # to make a study table CSV. 
 #
-# How to run: Rscript createStudyTable.R "path/to/association_tables/"
-# where "path/to/association_tables/" is the path to the folder where the association table CSV's are stored (default: "../tables/association_tables/")
+# How to run: Rscript createStudyTable.R "associationTableFolderPath" "studyTableFolderPath" "rawStudyTSVFolderPath"
+# where "associationTableFolderPath" is the path to the folder where the association table TSV is stored (default: "../tables/")
+#       "studyTableFolderPath" is the path to the folder where the study table TSV will be created (default: "../tables/")
+#       "rawStudyTSVFolderPath" is the path to the folder where the raw GWAS study TSVs are stored (default: "./")
 #
 # The format of the study table is as follows:
-# studyID pubMedID	trait	citation	studyScore	ethnicity	cohort	title	lastUpdated
+# studyID pubMedID  trait reportedTrait citation  altmetricScore  ethnicity initialSampleSize replicationSampleSize title lastUpdated
 # where: "studyID" is the unique ID assigned by the GWAS database
 #        "pubMedID" is the PubMed ID of the study
-#        "trait" is the name of the trait associated with the study
+#        "trait" is the name of the trait assigned the study by the GWAS catalog
+#        "reportedTrait" is the name of the trait that the authors listed for their study
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyScore" is the Altmetric score given to the study- it is a measure of the popularity of the study (see altmetric.com for more info)
-#        "ethnicity" a pipe (|) separated list of ethnicities involved in the study
-#        "cohort" a sum of the intitial sample size to the replication sample size of the study
-#        "title" the title of the study
-#        "lastUpdated" the date the study was last updated in the GWAS database
+#        "ethnicity" is a pipe (|) separated list of ethnicities involved in the study
+#        "initialSampleSize" is the intitial sample size of the study
+#        "replicationSampleSize" is the replication sample size of the study
+#        "title" is the the title of the study
+#        "lastUpdated" is the date the study was last updated in the GWAS database
 
 # get args from the commandline
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
-  args[1] <- "../tables/association_tables/"
+  args[1] <- "../tables/"
+  args[2] <- "../tables/"
+  args[3] <- "./"
+} else if (length(args)==1) {
+  args[2] <- "../tables/"
+  args[3] <- "./"
+} else if (length(args)==2) {
+  args[3] <- "./"
 }
 
 print("Initializing script!")
 start_time <- Sys.time()
 
-studyTableDirPath <- args[1]
+associationTablePath <- file.path(args[1], "associations_table.tsv")
+studyTablePath <- file.path(args[2], "study_table.tsv")
+rawStudyTablePath <- file.path(args[3], "rawGWASStudyData.tsv")
+publicationsPath <- file.path(args[3], "rawGWASPublications.tsv")
+ancestriesPath <- file.path(args[3], "rawGWASAncestries.tsv")
 
 ## imports and import downloads (dupicate from master_script.sh)---------------------------------------------------------------------------------
 my_packages <- c("BiocManager", "rtracklayer", "remotes", "gwasrapidd", "tidyverse", "rAltmetric", "magrittr", "purrr")
@@ -79,27 +94,14 @@ getAltmetrics <- function(pubmed_id) {
   return(result)
 }
 
-# gets a tibble containing the results of a list of Altmetrics queries, with only pubmed_id and score selected
-getScoresList <- function(ids) {
-  scores <- pmap_df(ids, getAltmetrics) %>%
-    dplyr::rename(pubmed_id = pmid) %>%
-    select(c(pubmed_id, score)) %>%
-    group_by(pubmed_id)
-  return(scores)
+# returns the Altmetric score for the specified pubmed_id
+getAltmetricScore <- function(pubmed_id) {
+  return(as.numeric(getAltmetrics(pubmed_id)[["score"]]))
 }
 
 # given a studyID, returns the most recent date a snp has been updated
 getLastUpdated <- function(studyID) {
   return(max(as.Date(get_associations(study_id = studyID)@associations$last_update_date)))
-}
-
-# given a list of studyIDs, returns a list of the most recent dates each study has been updated
-getLastUpdatedList <- function(studyIDs) {
-  lastUpdatedList <- c()
-  for (i in 1:length(studyIDs)) {
-    lastUpdatedList = append(lastUpdatedList, getLastUpdated(studyIDs[i]))
-  }
-  return(lastUpdatedList)
 }
 
 # sums all the numbers found in a string- used to calculate cohort size (if given a list, returns a list of nums)
@@ -136,20 +138,6 @@ addWithNA <- function(var1, var2) {
   }
 }
 
-# given a study, adds the intitial sample size to the replication sample size and returns the resulting integer
-getCohort <- function(study) {
-  return(addWithNA(SumNumsFromString(pull(study@studies["initial_sample_size"])), SumNumsFromString(pull(study@studies["replication_sample_size"]))))
-}
-
-# gets cohort size from each study
-getCohorts <- function(studies) {
-  cohorts <- c()
-  for (i in 1:nrow(studies@studies)) {
-    cohorts <- append(cohorts, getCohort(studies[i]))
-  }
-  return(cohorts)
-}
-
 # gets the trait name formated for website and database use (all lowercase, spaces to underscores, forward slashes to dashes, 
 # and no commas or apostrophies)
 getDatabaseTraitName <- function(traitName) {
@@ -157,76 +145,86 @@ getDatabaseTraitName <- function(traitName) {
   return(dbTraitName)
 }
 
-# code body---------------------------------------------------------------------------------------------------
+## code body---------------------------------------------------------------------------------------------------
 
 # if the GWAS catalog is available
 if (is_ebi_reachable()) {
-  # get all the csvs in the folder
-  files <- list.files(path = studyTableDirPath, pattern = "\\.csv$")
-  if (length(files) <= 0) {
-    print(paste0("No CSV files at ", studyTableDirPath))
+  if (!file.exists(associationTablePath) || !file.exists(rawStudyTablePath) || !file.exists(publicationsPath) || !file.exists(ancestriesPath)) {
+    print("One or more of the following tables do not exist. Please check which ones are missing and run the downloadStudiesToFile.R or unpackDatabaseCommandLine.R scripts to create them.")
+    print(associationTablePath)
+    print(rawStudyTablePath)
+    print(publicationsPath)
+    print(ancestriesPath)
   }
   else {
     # initialize table
-    studyTable <- tibble("studyID" = character(0), "pubMedID" = character(0), "trait" = character(0), "citation" = character(0), "studyScore" = character(0), "ethnicity" = character(0), "cohort" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
+    studyTable <- tibble("studyID" = character(0), "pubMedID" = double(0), "trait" = character(0), reportedTrait = character(0), "citation" = character(0), "altmetricScore" = double(0), "ethnicity" = character(0), "initialSampleSize" = numeric(0), "replicationSampleSize" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
 
     DevPrint(paste0("Startup took ", format(Sys.time() - start_time)))
     DevPrint("Creating Study Table")
     
-    for (i in 1:length(files)) {
+    # read in the associations table, and the raw studies, publications, and ancestries tables
+    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character()))
+    studiesTibble <- read_tsv(rawStudyTablePath, col_types = cols())
+    publications <- read_tsv(publicationsPath, col_types = cols())
+    ancestries <- read_tsv(ancestriesPath, col_types = cols())
+
+    print("Study data read!")
+    
+    studyIDRows <- select(arrange(distinct(associationsTibble, studyID, .keep_all = TRUE), studyID), studyID, citation)
+    for (i in 1:nrow(studyIDRows)) {
       tryCatch({
-        # get name of trait from name of csv file
-        traitName <- substr(files[i], 0, nchar(files[i])-4)
-        # TODO make this more robust
-        traitName <- str_replace_all(traitName, "ö", "o") # removes the ö from Löfgren's syndrome to make it easier to put it in the database
-        # read the csv file and get its studyIDs
-        filePath = paste0(studyTableDirPath, files[i])
-        csvTable <- read.csv(filePath) %>%
-          group_by(studyID) %>%
-          distinct(studyID, .keep_all = TRUE) %>%
-          select(studyID, citation)
-        studyIDs <- as.character(unlist(csvTable$studyID))
-        # from the studyIDs, get their information from the GWAS catalog
-        studies <- get_studies(study_id = studyIDs)
+        studyIDRow <- studyIDRows[i,]
+
+        studyID <- studyIDRow[["studyID"]]
+        rawStudyData <- filter(studiesTibble, study_id == studyID)
         
-        publications <- distinct(studies@publications, study_id, .keep_all = TRUE)
-        citations <- tibble(citation = paste(publications$author_fullname, substr(publications$publication_date, 1, 4)))
+        traitName <- get_traits(study_id = studyID)@traits[["trait"]]
+        reportedTrait <- rawStudyData[["reported_trait"]]
+        
+        publication <- filter(publications, study_id == studyID)
+
+        citation <- paste(str_replace(publication[["author_fullname"]], "ö", "o"), substr(publication[["publication_date"]], 1, 4)) # TODO make more robust removing strange o from Löfgren's syndrome
         
         # get an Altmetric score for each pubMedID and association pubMedID to score in dictionary-like form
-        pubMedIDs <- as.character(publications$pubmed_id)
-        pubMedIDToScoreTibble <- getScoresList(list(pubMedIDs))
-        pubMedIDToScoreDict <- with(pubMedIDToScoreTibble, setNames(score, pubmed_id))
-        
-        # create a dictionary-like object with study_ids as keys and ancestry strings as values (used for the ethnicity column)
-        ethnicity <- select(studies@ancestral_groups, -ancestry_id) %>%
+        pubMedID <- publication[["pubmed_id"]]
+        altmetricScore <- getAltmetricScore(pubMedID)
+
+        # gets the enthnicities for the specified studyID by combining all the ethnicities found in the ancestries tibble returning a 
+        #list of all unique ethnicities separated by "|"
+        ethnicity <- filter(ancestries, study_id == studyID) %>%
+          select(-ancestry_id) %>%
           group_by(study_id) %>%
           mutate(ethnicity = str_replace_all(paste0(unique(ancestral_group[!is.na(ancestral_group)]), collapse = "|"), ",", "")) %>%
           distinct(study_id, .keep_all = TRUE) %>%
           select(-ancestral_group) %>%
-          dplyr::rename(studyID = "study_id")
-        ethnicity <- full_join(tibble(studyID = studyIDs), ethnicity, by = "studyID")
-# -------------------------------------------------------------------------------------------
+          ungroup() %>%
+          select(-study_id)
+        ethnicity <- ethnicity[["ethnicity"]]
+
+        # get the last time the study was updated
+        lastUpdated <- as.character(getLastUpdated(studyID))
         
-        # match studyID to the most recent time the study was updated, then get the lastUpdated list in order
-        lastUpdatedTibble <- tibble(studyID = studyIDs)
-        lastUpdatedTibble <- add_column(lastUpdatedTibble, lastUpdated = getLastUpdatedList(lastUpdatedTibble$studyID))
-        lastUpdated = as.character(lastUpdatedTibble$lastUpdated)
-        
-        cohort <- getCohorts(studies)
+        initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
+        replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])
 
         # populate the studyTable with data from the study
         studyTable <- add_row(studyTable, 
-                              studyID = studyIDs, 
-                              pubMedID = pubMedIDs,
+                              studyID = studyID, 
+                              pubMedID = pubMedID,
                               trait = traitName,
-                              citation = citations$citation, 
-                              studyScore = unname(pubMedIDToScoreDict[pubMedID]),
-                              ethnicity = ethnicity$ethnicity,
-                              cohort = cohort, 
-                              title = studies@publications$title, 
+                              reportedTrait = reportedTrait,
+                              citation = citation,
+                              altmetricScore = altmetricScore,
+                              ethnicity = ethnicity,
+                              initialSampleSize = initialSampleSize,
+                              replicationSampleSize = replicationSampleSize,
+                              title = publication[["title"]], 
                               lastUpdated = lastUpdated)
         
-        DevPrint(paste0(i, " of ", length(files), " ", traitName, " complete with ", length(studyIDs), " studies."))
+        # -------------------------------------------------------------------------------------------
+        
+        DevPrint(paste0(i, " of ", nrow(studyIDRows), " ", studyID, " complete!"))
 
         # print out a time stamp for how long the script has taken so far
         if (mod(i, 5) == 0) {
@@ -236,7 +234,7 @@ if (is_ebi_reachable()) {
     }
     studyTable <- arrange(studyTable, trait, studyID)
     # write out the trait and study tables
-    write.csv(studyTable, file.path(getwd(), "study_table.csv"), row.names=FALSE, fileEncoding = "UTF-8")
+    write_tsv(studyTable, studyTablePath)
   }
 } else {
   is_ebi_reachable(chatty = TRUE)

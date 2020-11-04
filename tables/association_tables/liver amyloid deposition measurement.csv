@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs7820212","8:52506268","8:53418828","8:53581381","8:53581381","ST18:96389|ALKAL1:27769|ST18:45309",NA,"A",2e-08,1.86,"1.50","2.31","Meziane I 2017","GCST004807"
