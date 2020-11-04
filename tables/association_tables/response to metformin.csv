@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs11212617","11:108412434","11:108283161","11:107788371","11:107788371","EXPH5:92997|ATM:43332|C11orf65:0|KDELC2:59682|EXPH5:93001|POGLUT3:59678|LOC112267909:86627",NA,"C",3e-09,1.35,"1.22","1.49","Zhou K 2010","GCST000927"

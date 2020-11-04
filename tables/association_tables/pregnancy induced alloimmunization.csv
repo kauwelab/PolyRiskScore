@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs62163199","2:138709685","2:139467255","2:139183725","2:139300987","RN7SKP286:153912|NXPH2:0|SPOPL:136138|LINC02631:92216",NA,"A",2e-08,1.96,"1.54","2.44","Seielstad M 2017","GCST005156"
