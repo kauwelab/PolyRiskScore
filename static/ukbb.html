@@ -42,7 +42,7 @@
 
   <header>
     <div class="banner">
-      <img src="/images/dnaBanner.jpg" width="100%" style="overflow: hidden;">
+      <img src="/images/dnaCalcBanner.jpg" width="100%" style="overflow: hidden;">
       <div class="centered-title">UK BioBank Graphs and Percentiles</div>
     </div>
   </header>
@@ -68,32 +68,38 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h1 style="margin-top: 2rem; color: #416d9d;">Use the PRS Knowledge Base</h1><br>
-          <!-- <div id="flex-grid-container" style="background-color: gray;"> -->
-          <div class="row" style="margin-right: 0em; margin-left: 0em;">
-            <!-- code here for the select boxes, the name, and the graph and table -->
-          </div>
+          <!--Select 1 trait-->
+          <select id='trait-Selector' style="margin-top: 2em;">
+            <option selected="selected" value="default">--Trait--</option>
+          </select>
+          <!--Select 1 study type (add the all option)-->
+          <select id='studyType-Selector' style="margin-left: 5em; margin-right: 5em; margin-top: 2em;">
+            <option selected="selected" value="default">--Study Type--</option>
+          </select>
+          <!--Select 1 study-->
+          <select id='study-Selector' style="margin-top: 2em;">
+            <option selected="selected" value="default">--Study--</option>
+          </select>
         </div>
+      </div>
+      <div class="col-lg-12 mb-4 mt-2 text-center">
+        <h2 style="color: #416d9d;">Polulate with the study name</h2>
+        <div class="row" style="margin-right: 0em; margin-left: 0em;">
+          <!-- code here for the select boxes, the name, and the graph and table -->
+        </div>
+      </div>
+      <div class="row">
+        <img class="tile-icon" src="/images/Icons/CLIicon.svg" alt="command line icon"
+                onContextMenu="return false;" style="max-width: 48.25%; margin-right: 2em; margin-bottom: 3em;">
+        <img class="tile-icon" src="/images/Icons/CLIicon.svg" alt="command line icon"
+                onContextMenu="return false;" style="max-width: 48.25%; margin-bottom: 3em;">
+      </div>
+      <div>
+        <p>Details about the study</p>
+        <p>Name, cohort, studyscore, ect</p>
       </div>
     </div>
   </section>
-
-  <!--Questions or comments section-->
-  <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
-    <div class="row">
-      <div class="col-12 col-md-8 mx-auto">
-        <div class="row text-center">
-          <div class="text-center col-12">
-            <h1 class="font-weight-bold">
-              Questions or Comments?</h1><br>
-            <p class="lead">Email us at <a class="email" href="#"
-                onclick="javascript:window.location='mailto:kauwelab19@gmail.com';return false;">kauwelab19@gmail.com</a>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
