@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs11759064","6:162379633","6:162800665","6:162720655","6:162771076","LOC105369171:0|PRKN:0|KRT8P44:188746|KRT8P44:188670|AL138716.1:933617|LOC105378097:139720",0.1298,"T",3e-09,2.19,NA,NA,"Darlow JM 2017","GCST005044"
