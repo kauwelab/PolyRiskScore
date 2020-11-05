@@ -136,4 +136,7 @@ function displayGraphs() {
     }]
 
     Plotly.newPlot(tablePlot, tableData)
+    var studyMetadata = document.getElementById("studymetadata")
+    metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p><p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p><p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p><p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p><br>`
+    studyMetadata.innerHTML = metadatastring
 }
