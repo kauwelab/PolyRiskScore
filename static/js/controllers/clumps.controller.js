@@ -2,9 +2,9 @@ const Clump = require("../models/clump.model.js");
 const formatter = require("../formatHelper")
 
 exports.getClumping = (req, res) => {
-    studyIDs = req.query.studyIDs
+    refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
-    Clump.getClumps(studyIDs, superPopulation, (err, data) => {
+    Clump.getClumps(superPopulation, refGenome, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving clumping data"
@@ -12,19 +12,41 @@ exports.getClumping = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(data);
+        }
+    });
+};
 
-            clumpsList = {}
+exports.getClumpingByPos = (req, res) => {
+    refGenome = req.query.refGen
+    superPopulation = formatter.formatForClumpsTable(req.query.superPop)
+    positions = req.query.positions
+    Clump.getClumps(superPopulation, refGenome, positions, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving clumping data"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(data);
+        }
+    });
+};
 
-            for (i=0; i<data.length; i++) {
-                if (data[i].studyID in clumpsList) {
-                    clumpsList[data[i].studyID].push(data[i])
-                }
-                else {
-                    clumpsList[data[i].studyID] = [data[i]]
-                }
-            }
-
-            res.send(clumpsList);
+exports.getClumpingBySnp = (req, res) => {
+    refGenome = req.query.refGen
+    superPopulation = formatter.formatForClumpsTable(req.query.superPop)
+    snps = req.query.snps
+    Clump.getClumps(superPopulation, refGenome, snps, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving clumping data"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(data);
         }
     });
 };
