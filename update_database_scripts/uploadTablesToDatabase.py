@@ -96,7 +96,7 @@ def addStudyMaxesView(config):
     connection = getConnection(config)
     sql = "CREATE VIEW studyMaxes AS SELECT trait, max(cohort) AS cohort, max(altmetricScore) as altmetricScore FROM " + \
             "(SELECT trait, max(initialSampleSize+replicationSampleSize) AS cohort, max(altmetricScore) AS altmetricScore FROM study_table GROUP BY trait " + \
-            "UNION ALL SELECT reportedTrait AS trait, max(initialSampleSize+replicationSampleSize) AS cohort, max(altmetricScore) AS altmetricScore FROM study_table GROUP BY reportedTrait) " + \ 
+            "UNION ALL SELECT reportedTrait AS trait, max(initialSampleSize+replicationSampleSize) AS cohort, max(altmetricScore) AS altmetricScore FROM study_table GROUP BY reportedTrait) " + \
             "AS intermediate GROUP BY trait ORDER BY trait;"
     cursor = connection.cursor()
     cursor.execute(sql)
