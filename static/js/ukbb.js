@@ -76,7 +76,10 @@ function displayGraphs() {
     studyID = studySelector.value;
 
     //update the header name of the study
-    document.getElementById("studyName").hidden = false;
+    var studyName = document.getElementById("studyName")
+    selectedStudy = studySelector.options[studySelector.selectedIndex]
+    studyName.innerText = selectedStudy.getAttribute("data-citation");
+    studyName.hidden = false;
     var violinPlot = document.getElementById("violinPlot");
     var tablePlot = document.getElementById("tablePlot");
 
