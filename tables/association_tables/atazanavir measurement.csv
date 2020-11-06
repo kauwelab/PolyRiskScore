@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs73208473","4:7322869","4:7324596","4:7375497","4:7442668","MIR4798:12345|SORCS2:0|TRSUP-TTA3-1:1242|LOC105374371:59645|PSAPL1:107416",0.882,"C",2e-08,2.17,"1.64","2.86","Tamraz B 2018","GCST006203"
