@@ -1,73 +1,52 @@
 const Association = require("../models/association.model.js");
+const path = require("path")
+const fs = require("fs")
 
 exports.getFromTables = (req, res) => {
-    //traits format :: [{trait: trait, studyIDs: [list of studyIDs]}, {trait: trait, studyIDs: [list of studyIDs]}]
-    var traits = JSON.parse(req.body.traits)
+    var studyIDs = req.body.studyIDs
     var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
 
-    Association.getFromTables(traits, pValue, refGen, async (err, data) => {
+    Association.getFromTables(studyIDs, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
-                message: "Error retrieving associations"
+                message: `Error retrieving associations: ${err}`
             });
         }
         else {
-            returnData = {}
             res.setHeader('Access-Control-Allow-Origin', '*');
+            associations = data[0]
+            traits = data[1]
 
-            if (traits.length == 1){
-                returnData[traits[0].trait] = await separateStudies(data, refGen)
-            }
-            else {
-                for (i=0; i<data.length; i++) {
-                    var associations = data[i]
-                    console.log(`Num associations for trait ${traits[i].trait}: ${associations.length}`)
-                    returnData[traits[i].trait] = await separateStudies(associations, refGen)
-                }
-            }
+            returnData = await separateStudies(associations, traits, refGen)
             res.send(returnData);
         }
     });
 };
 
 exports.getAll = (req, res) => {
-    var allTraits = req.query.traits;
-    if (typeof(allTraits) == "string") {
-	    allTraits = [allTraits]
-    }
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
-    console.log(`Number of traits: ${allTraits.length}`)
-    Association.getAll(allTraits, pValue, refGen, async (err, data) => {
+    Association.getAll(pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
-                message: "Error retrieving associations"
+                message: `Error retrieving associations; ${err}`
             });
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            // formating returned data
-            traits = {}
-            if (allTraits.length == 1) {
-                console.log(`Num associations for trait ${allTraits[0]}: ${data.length}`)
-                traits[allTraits[0]] = await separateStudies(data, refGen) 
-            }
-            else {
-                for (i = 0; i < data.length; i++) {
-                    var associations = data[i]
-                    console.log(`Num associations for trait ${allTraits[i]}: ${associations.length}`)
-                    traits[allTraits[i]] = await separateStudies(associations, refGen)
-                }
-            }
+            associations = data[0]
+            traits = data[1]
+            returnData = await separateStudies(associations, traits, refGen)
             
-            res.send(traits);
+            res.send(returnData);
         }
     });
 }
 
 exports.getAllSnps = (req, res) => {
-    Association.getAllSnps((err, data) => {
+    var refGen = req.query.refGen; 
+    Association.getAllSnps(refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving snps"
@@ -76,22 +55,21 @@ exports.getAllSnps = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             // formating returned data
-            let testArray = []
+            let testArray = new Set()
 
             for (i=0; i<data.length; i++) {
-                for (j=0; j<data[i].length; j++) {
-                    testArray.push(data[i][j])
-                }
+                testArray.add(data[i])
             }
 
-            console.log(`Total snps: ${testArray.length}`)
+            console.log(`Total snps: ${testArray.size}`)
             res.send(Array.from(testArray));
         }
     })
 }
 
 exports.getSingleSnpFromEachStudy = (req, res) => {
-    Association.getSingleSnpFromEachStudy((err,data) => {
+    var refGen = req.query.refGen;
+    Association.getSingleSnpFromEachStudy(refGen, (err,data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving snps"
@@ -101,9 +79,7 @@ exports.getSingleSnpFromEachStudy = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             snps = []
             for (i = 0; i < data.length; i++) {
-                for (j = 0; j < data[i].length; j++) {
-                    snps.push(data[i][j])
-                }
+                snps.push(data[i])
             }
             console.log("single snp from each study: 1 shown", snps[0])
             res.send(snps);
@@ -144,7 +120,27 @@ exports.snpsByEthnicity = (req, res) => {
     })
 }
 
-async function separateStudies(associations, refGen) {
+// gets the last time the associations tsv was updated. Used for the cli to check if the user needs to re-download association data
+exports.getLastAssociationsUpdate = (req, res) => {
+    associationsPath = path.join(__dirname, '../../..', "tables/associations_table.tsv")
+    statsObj = fs.statSync(associationsPath)
+    updateTime = statsObj.mtime
+    res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
+}
+
+async function separateStudies(associations, traitData, refGen) {
+    var studyToTraits = {}
+    for (i=0; i < traitData.length; i++) {
+        var studyObj = traitData[i]
+        if (studyObj.studyID in studyToTraits) {
+            studyToTraits[studyObj.studyID].traits.add(studyObj.trait)
+            studyToTraits[studyObj.studyID].reportedTraits.add(studyObj.reportedTrait)
+        }
+        else {
+            studyToTraits[studyObj.studyID] = {traits: new Set([studyObj.trait]), reportedTraits: new Set([studyObj.reportedTrait])}
+        }
+    }
+
     var studiesAndAssociations = {}
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
@@ -160,8 +156,14 @@ async function separateStudies(associations, refGen) {
             studiesAndAssociations[association.studyID].associations.push(row)
         }
         else {
-            studiesAndAssociations[association.studyID] = {citation: association.citation, associations: [row]}
+            studiesAndAssociations[association.studyID] = {
+                citation: association.citation, 
+                traits: Array.from(studyToTraits[association.studyID].traits), 
+                reportedTraits: Array.from(studyToTraits[association.studyID].reportedTraits),
+                associations: [row]
+            }
         }
     }
+
     return studiesAndAssociations
 }
