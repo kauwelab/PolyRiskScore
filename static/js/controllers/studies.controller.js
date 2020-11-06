@@ -11,12 +11,15 @@ exports.getTraits = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            traits = []
+            traits = new Set()
             for (i=0; i<data.length; i++) {
-                traits.push(data[i].trait)
+                traits.add(data[i].trait)
+                traits.add(data[i].reportedTrait)
             }
 
-            res.send(traits);
+            res.send(Array.from(traits).sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            }));
         }
     })
 }
@@ -57,12 +60,21 @@ exports.findTraits = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            traits = []
+            traits = new Set()
             for (i=0; i<data.length; i++) {
-                traits.push(data[i].trait)
+                for (j=0; j<data[i].length; j++) {
+                    if (typeof(data[i][j].trait) !== "undefined") {
+                        traits.add(data[i][j].trait)
+                    }
+                    else {
+                        traits.add(data[i][j].reportedTrait)
+                    }
+                }
             }
 
-            res.send(traits);
+            res.send(Array.from(traits).sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            }));
         }
     });
 };
@@ -122,20 +134,6 @@ exports.getFiltered = (req, res) => {
         }
     });
 };
-
-exports.getStudyByID = (req, res) => {
-    Study.getByID(req.params.ids, (err, data) => {
-        if (err) {
-            res.status(500).send({
-                message: "Error retrieving studies"
-            });
-        }
-        else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(data);
-        }
-    })
-}
 
 exports.findStudies = (req, res) => {
     Study.findStudy(req.params.searchStr, (err, data) => {
