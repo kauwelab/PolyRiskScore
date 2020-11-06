@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs1967309","16:4015582","16:4065583","16:4005584","16:4005584","LINC02861:64996|LOC102724927:65138|ADCY9:0|DBIP3:115010|AC005736.1:16430",0.55,"G",2e-08,1.54,"1.32","1.79","Tardif JC 2015","GCST002747"

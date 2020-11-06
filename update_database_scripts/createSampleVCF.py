@@ -3,12 +3,23 @@ import myvariant
 import sys
 from sys import argv
 import json
+import os
 
+# This script creates a test VCF using one SNP from every study in the database. The VCF has 3 samples, 
+# one that is homozygous for the reference allele, one that is homozygous for the alternate allele and
+# one that is heterozygous.
+# How to run: python3 createSampleVCF.py "nameOfOutput" "sampleVCFFolderPath"
+# where: "nameOfOutput" is the name of the VCF created (default "sample")
+#        "sampleVCFFolderPath" is the path to the folder where the new VCF will be created (default: "../static/")
 
 
 # name of sample output vcf
-output = argv[1] if len(sys.argv) > 1 else "sample.vcf"
-print(output)
+output = argv[1] if len(sys.argv) > 1 else "sample"
+# path to sample output vcf folder
+sampleVCFFolderPath = argv[2] if len(sys.argv) > 2 else "../static/"
+# combine path and vcf name
+sampleVCFPath = os.path.join(sampleVCFFolderPath, output + ".vcf")
+print(sampleVCFPath)
 
 # get a single snp from each study
 response = requests.get("https://prs.byu.edu/single_snp_from_each_study")
@@ -44,7 +55,7 @@ for line in queryResults:
             }
 
 # write to the sample file
-f = open(output, "w")
+f = open(sampleVCFPath, "w")
 f.write("##fileformat=VCFv4.2\n")
 f.write("##FORMAT=<ID=GT,Number=1,Type=Integer,Description=\"Genotype\">\n")
 f.write("##FORMAT=<ID=GP,Number=G,Type=Float,Description=\"Genotype Probabilities\">\n")

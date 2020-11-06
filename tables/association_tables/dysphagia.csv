@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs17601696","10:121360522","10:123120036","10:123110026","10:123110026","RN7SKP167:50394|LOC105378523:37577|LINC01153:174556",0.08163,"T",5e-08,4.75,"2.72","8.32","Raginis-Zborowska A 2015","GCST002995"

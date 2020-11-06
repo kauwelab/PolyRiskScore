@@ -1,0 +1,2660 @@
+[1] "Initializing script!"
+[1] "All required packages already installed."
+[1] "Reading study data from TSVs!"
+[1] "Study data read!"
+[1] "Startup took 8.547522 secs"
+[1] "Getting data from studies 8936 to 10212"
+[1] "  8936. Hawcutt DB 2018"
+[1] "    Not enough info for Hawcutt DB 2018"
+[1] "  8937. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8938. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8939. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8940. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "Time elapsed: 16.33161 secs"
+[1] "  8941. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8942. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8943. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8944. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8945. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8946. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8947. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8948. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8949. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8950. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "Time elapsed: 25.47685 secs"
+[1] "  8951. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8952. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8953. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8954. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8955. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8956. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8957. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8958. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8959. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "  8960. van der Meer D 2018"
+[1] "    Not enough info for van der Meer D 2018"
+[1] "Time elapsed: 40.22206 secs"
+[1] "  8961. Teumer A 2018"
+[1] "    Not enough info for Teumer A 2018"
+[1] "  8962. Shah RL 2018"
+[1] "    Not enough info for Shah RL 2018"
+[1] "  8963. Teumer A 2018"
+[1] "    Not enough info for Teumer A 2018"
+[1] "  8964. MacInnes SJ 2019"
+[1] "    Not enough info for MacInnes SJ 2019"
+[1] "  8965. Styrkarsdottir U 2019"
+[1] "    Not enough info for Styrkarsdottir U 2019"
+[1] "  8966. Styrkarsdottir U 2019"
+[1] "    Not enough info for Styrkarsdottir U 2019"
+[1] "  8967. Meier SM 2019"
+[1] "  8968. de Vries PS 2019"
+[1] "    Not enough info for de Vries PS 2019"
+[1] "  8969. Yasukochi Y 2017"
+[1] "    Not enough info for Yasukochi Y 2017"
+[1] "  8970. Meier SM 2019"
+[1] "    Not enough info for Meier SM 2019"
+[1] "Appended studies to output file: 8967 of 10212"
+[1] "Time elapsed: 1.550408 mins"
+[1] "  8971. Meier SM 2019"
+[1] "    Not enough info for Meier SM 2019"
+[1] "  8972. Meier SM 2019"
+[1] "    Not enough info for Meier SM 2019"
+[1] "  8973. Meier SM 2019"
+[1] "    Not enough info for Meier SM 2019"
+[1] "  8974. Meier SM 2019"
+[1] "    Not enough info for Meier SM 2019"
+[1] "  8975. Yasukochi Y 2017"
+[1] "    Not enough info for Yasukochi Y 2017"
+[1] "  8976. Yasukochi Y 2017"
+[1] "    Not enough info for Yasukochi Y 2017"
+[1] "  8977. Yasukochi Y 2017"
+[1] "    Not enough info for Yasukochi Y 2017"
+[1] "  8978. Zhou W 2018"
+[1] "    Not enough info for Zhou W 2018"
+[1] "  8979. Zhou W 2018"
+[1] "    Not enough info for Zhou W 2018"
+[1] "  8980. Zhou W 2018"
+[1] "    Not enough info for Zhou W 2018"
+[1] "Time elapsed: 2.351086 mins"
+[1] "  8981. Real LM 2019"
+[1] "  8982. Du Z 2019"
+[1] "  8983. Sliz E 2019"
+[1] "    Not enough info for Sliz E 2019"
+[1] "  8984. Richards AL 2019"
+[1] "    Not enough info for Richards AL 2019"
+[1] "  8985. Carr DF 2019"
+[1] "    Not enough info for Carr DF 2019"
+[1] "  8986. Hou XH 2019"
+[1] "    Not enough info for Hou XH 2019"
+[1] "  8987. Demontis D 2019"
+[1] "  8988. Young KA 2019"
+[1] "    Not enough info for Young KA 2019"
+[1] "  8989. Deek R 2019"
+[1] "    Not enough info for Deek R 2019"
+[1] "  8990. Moon JY 2019"
+[1] "    Not enough info for Moon JY 2019"
+[1] "Appended studies to output file: 8981,8982,8987 of 10212"
+[1] "Time elapsed: 2.804199 mins"
+[1] "  8991. Rivera-Paredez B 2019"
+[1] "    Not enough info for Rivera-Paredez B 2019"
+[1] "  8992. Cabana-Dom<U+00ED>nguez J 2019"
+[1] "    Not enough info for Cabana-Dom<U+00ED>nguez J 2019"
+[1] "  8993. Li HQ 2019"
+[1] "  8994. Wilman HR 2019"
+[1] "    Not enough info for Wilman HR 2019"
+[1] "  8995. Ekenberg C 2019"
+[1] "    Not enough info for Ekenberg C 2019"
+[1] "  8996. de Vries PS 2019"
+[1] "    Not enough info for de Vries PS 2019"
+[1] "  8997. de Vries PS 2019"
+[1] "    Not enough info for de Vries PS 2019"
+[1] "  8998. Warrington NM 2019"
+[1] "    Not enough info for Warrington NM 2019"
+[1] "  8999. Huyghe JR 2012"
+[1] "    Not enough info for Huyghe JR 2012"
+[1] "  9000. Huyghe JR 2012"
+[1] "    Not enough info for Huyghe JR 2012"
+[1] "Appended studies to output file: 8993 of 10212"
+[1] "Time elapsed: 7.434916 mins"
+[1] "  9001. O'Connor D 2019"
+[1] "    Not enough info for O'Connor D 2019"
+[1] "  9002. O'Connor D 2019"
+[1] "    Not enough info for O'Connor D 2019"
+[1] "  9003. O'Connor D 2019"
+[1] "    Not enough info for O'Connor D 2019"
+[1] "  9004. Wells HRR 2019"
+[1] "    Not enough info for Wells HRR 2019"
+[1] "  9005. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9006. Fiorica PN 2019"
+[1] "    Not enough info for Fiorica PN 2019"
+[1] "  9007. Tin A 2019"
+[1] "    Not enough info for Tin A 2019"
+[1] "  9008. Niazi Y 2019"
+[1] "    Not enough info for Niazi Y 2019"
+[1] "  9009. Gilly A 2019"
+[1] "    Not enough info for Gilly A 2019"
+[1] "  9010. Warrier V 2019"
+[1] "    Not enough info for Warrier V 2019"
+[1] "Time elapsed: 8.837764 mins"
+[1] "  9011. Warrier V 2019"
+[1] "    Not enough info for Warrier V 2019"
+[1] "  9012. Scepanovic P 2019"
+[1] "    Not enough info for Scepanovic P 2019"
+[1] "  9013. Scepanovic P 2019"
+[1] "    Not enough info for Scepanovic P 2019"
+[1] "  9014. Scepanovic P 2019"
+[1] "    Not enough info for Scepanovic P 2019"
+[1] "  9015. Donati G 2019"
+[1] "    Not enough info for Donati G 2019"
+[1] "  9016. Donati G 2019"
+[1] "    Not enough info for Donati G 2019"
+[1] "  9017. Wells HRR 2019"
+[1] "    Not enough info for Wells HRR 2019"
+[1] "  9018. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9019. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9020. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "Time elapsed: 10.21609 mins"
+[1] "  9021. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9022. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9023. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9024. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9025. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9026. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9027. Gurung RL 2018"
+[1] "    Not enough info for Gurung RL 2018"
+[1] "  9028. Keaton JM 2018"
+[1] "    Not enough info for Keaton JM 2018"
+[1] "  9029. Loomis SJ 2018"
+[1] "    Not enough info for Loomis SJ 2018"
+[1] "  9030. Pande M 2018"
+[1] "Appended studies to output file: 9030 of 10212"
+[1] "Time elapsed: 10.70593 mins"
+[1] "  9031. Wray NR 2018"
+[1] "  9032. Shimanoe C 2018"
+[1] "    Not enough info for Shimanoe C 2018"
+[1] "  9033. Matana A 2018"
+[1] "    Not enough info for Matana A 2018"
+[1] "  9034. Cheon EJ 2018"
+[1] "    Not enough info for Cheon EJ 2018"
+[1] "  9035. Bonfiglio F 2018"
+[1] "  9036. de Toro-Mart<U+00ED>n J 2017"
+[1] "    Not enough info for de Toro-Mart<U+00ED>n J 2017"
+[1] "  9037. Zengini E 2018"
+[1] "  9038. Zengini E 2018"
+[1] "  9039. Zengini E 2018"
+[1] "  9040. Zengini E 2018"
+[1] "Appended studies to output file: 9031,9035,9037,9038,9039,9040 of 10212"
+[1] "Time elapsed: 11.74027 mins"
+[1] "  9041. Pei YF 2018"
+[1] "    Not enough info for Pei YF 2018"
+[1] "  9042. Hawcutt DB 2018"
+[1] "  9043. Eriksson AL 2018"
+[1] "    Not enough info for Eriksson AL 2018"
+[1] "  9044. Loomis SJ 2018"
+[1] "    Not enough info for Loomis SJ 2018"
+[1] "  9045. Loomis SJ 2018"
+[1] "    Not enough info for Loomis SJ 2018"
+[1] "  9046. Loomis SJ 2018"
+[1] "    Not enough info for Loomis SJ 2018"
+[1] "  9047. Malik R 2018"
+[1] "    Not enough info for Malik R 2018"
+[1] "  9048. Malik R 2018"
+[1] "    Not enough info for Malik R 2018"
+[1] "  9049. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9050. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "Appended studies to output file: 9042 of 10212"
+[1] "Time elapsed: 12.64059 mins"
+[1] "  9051. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9052. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9053. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9054. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9055. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9056. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9057. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9058. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9059. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9060. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "Time elapsed: 16.40644 mins"
+[1] "  9061. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9062. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9063. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9064. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9065. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9066. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9067. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9068. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9069. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "  9070. Wu Y 2019"
+[1] "    Not enough info for Wu Y 2019"
+[1] "Time elapsed: 17.38696 mins"
+[1] "  9071. Matana A 2019"
+[1] "    Not enough info for Matana A 2019"
+[1] "  9072. Lees JA 2019"
+[1] "    Not enough info for Lees JA 2019"
+[1] "  9073. Guan M 2019"
+[1] "  9074. Law PJ 2019"
+[1] "  9075. Wetherill L 2019"
+[1] "    Not enough info for Wetherill L 2019"
+[1] "  9076. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "  9077. Stein MB 2019"
+[1] "  9078. Choe EK 2019"
+[1] "  9079. Kerns SL 2019"
+[1] "    Not enough info for Kerns SL 2019"
+[1] "  9080. Gisbert L 2019"
+[1] "Appended studies to output file: 9073,9074,9077,9078,9080 of 10212"
+[1] "Time elapsed: 18.20423 mins"
+[1] "  9081. Fatumo S 2019"
+[1] "    Not enough info for Fatumo S 2019"
+[1] "  9082. Labreche K 2019"
+[1] "  9083. Fatumo S 2019"
+[1] "    Not enough info for Fatumo S 2019"
+[1] "  9084. Read RW 2019"
+[1] "    Not enough info for Read RW 2019"
+[1] "  9085. Read RW 2019"
+[1] "    Not enough info for Read RW 2019"
+[1] "  9086. Read RW 2019"
+[1] "    Not enough info for Read RW 2019"
+[1] "  9087. Thibord F 2019"
+[1] "    Not enough info for Thibord F 2019"
+[1] "  9088. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9089. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9090. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "Appended studies to output file: 9082 of 10212"
+[1] "Time elapsed: 18.51315 mins"
+[1] "  9091. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9092. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9093. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9094. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9095. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9096. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9097. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9098. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9099. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9100. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "Time elapsed: 18.64206 mins"
+[1] "  9101. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9102. Tao F 2019"
+[1] "    Not enough info for Tao F 2019"
+[1] "  9103. Andaleon A 2019"
+[1] "    Not enough info for Andaleon A 2019"
+[1] "  9104. Fulmer D 2019"
+[1] "    Not enough info for Fulmer D 2019"
+[1] "  9105. Yan C 2019"
+[1] "  9106. Sofer T 2019"
+[1] "    Not enough info for Sofer T 2019"
+[1] "  9107. van der Lee SJ 2019"
+[1] "    Not enough info for van der Lee SJ 2019"
+[1] "  9108. Sugier PE 2019"
+[1] "  9109. Adeyemo AA 2019"
+[1] "    Not enough info for Adeyemo AA 2019"
+[1] "  9110. Shaaban S 2018"
+[1] "Appended studies to output file: 9105,9108,9110 of 10212"
+[1] "Time elapsed: 18.99238 mins"
+[1] "  9111. Howard DM 2017"
+[1] "    Not enough info for Howard DM 2017"
+[1] "  9112. Arnau-Soler A 2018"
+[1] "    Not enough info for Arnau-Soler A 2018"
+[1] "  9113. Pei YF 2019"
+[1] "    Not enough info for Pei YF 2019"
+[1] "  9114. Arnau-Soler A 2018"
+[1] "    Not enough info for Arnau-Soler A 2018"
+[1] "  9115. Arnau-Soler A 2018"
+[1] "    Not enough info for Arnau-Soler A 2018"
+[1] "  9116. van der Lee SJ 2019"
+[1] "    Not enough info for van der Lee SJ 2019"
+[1] "  9117. Pazoki R 2019"
+[1] "    Not enough info for Pazoki R 2019"
+[1] "  9118. Rask-Andersen M 2019"
+[1] "    Not enough info for Rask-Andersen M 2019"
+[1] "  9119. Rask-Andersen M 2019"
+[1] "    Not enough info for Rask-Andersen M 2019"
+[1] "  9120. Adhikari K 2019"
+[1] "    Not enough info for Adhikari K 2019"
+[1] "Time elapsed: 20.72242 mins"
+[1] "  9121. Adhikari K 2019"
+[1] "    Not enough info for Adhikari K 2019"
+[1] "  9122. Mbarek H 2019"
+[1] "  9123. Gialluisi A 2019"
+[1] "    Not enough info for Gialluisi A 2019"
+[1] "  9124. Shin JH 2019"
+[1] "    Not enough info for Shin JH 2019"
+[1] "  9125. Strawbridge RJ 2019"
+[1] "    Not enough info for Strawbridge RJ 2019"
+[1] "  9126. Penney ME 2019"
+[1] "  9127. Kilpel<U+00E4>inen TO 2019"
+[1] "    Not enough info for Kilpel<U+00E4>inen TO 2019"
+[1] "  9128. Kilpel<U+00E4>inen TO 2019"
+[1] "    Not enough info for Kilpel<U+00E4>inen TO 2019"
+[1] "  9129. Kilpel<U+00E4>inen TO 2019"
+[1] "    Not enough info for Kilpel<U+00E4>inen TO 2019"
+[1] "  9130. Kilpel<U+00E4>inen TO 2019"
+[1] "    Not enough info for Kilpel<U+00E4>inen TO 2019"
+[1] "Appended studies to output file: 9122,9126 of 10212"
+[1] "Time elapsed: 21.64732 mins"
+[1] "  9131. Kilpel<U+00E4>inen TO 2019"
+[1] "    Not enough info for Kilpel<U+00E4>inen TO 2019"
+[1] "  9132. Zhu Z 2019"
+[1] "    Not enough info for Zhu Z 2019"
+[1] "  9133. Ligthart S 2018"
+[1] "    Not enough info for Ligthart S 2018"
+[1] "  9134. Estrada K 2012"
+[1] "    Not enough info for Estrada K 2012"
+[1] "  9135. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9136. Nakatochi M 2019"
+[1] "    Not enough info for Nakatochi M 2019"
+[1] "  9137. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9138. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9139. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9140. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "Time elapsed: 22.66037 mins"
+[1] "  9141. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9142. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9143. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9144. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9145. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9146. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9147. Liu M 2019"
+[1] "  9148. Hu B 2019"
+[1] "    Not enough info for Hu B 2019"
+[1] "  9149. Hu B 2019"
+[1] "    Not enough info for Hu B 2019"
+[1] "  9150. Hu B 2019"
+[1] "    Not enough info for Hu B 2019"
+[1] "Appended studies to output file: 9147 of 10212"
+[1] "Time elapsed: 22.91988 mins"
+[1] "  9151. Hu B 2019"
+[1] "    Not enough info for Hu B 2019"
+[1] "  9152. Hu B 2019"
+[1] "    Not enough info for Hu B 2019"
+[1] "  9153. Turcot V 2017"
+[1] "    Not enough info for Turcot V 2017"
+[1] "  9154. Hu B 2019"
+[1] "    Not enough info for Hu B 2019"
+[1] "  9155. Turcot V 2017"
+[1] "    Not enough info for Turcot V 2017"
+[1] "  9156. Turcot V 2017"
+[1] "    Not enough info for Turcot V 2017"
+[1] "  9157. Turcot V 2017"
+[1] "    Not enough info for Turcot V 2017"
+[1] "  9158. Turcot V 2017"
+[1] "    Not enough info for Turcot V 2017"
+[1] "  9159. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9160. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "Time elapsed: 23.0596 mins"
+[1] "  9161. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9162. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9163. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9164. Jung SY 2018"
+[1] "    Not enough info for Jung SY 2018"
+[1] "  9165. Ferreira MAR 2019"
+[1] "  9166. Ferreira MAR 2019"
+[1] "  9167. Jones SE 2019"
+[1] "    Not enough info for Jones SE 2019"
+[1] "  9168. Jones SE 2019"
+[1] "    Not enough info for Jones SE 2019"
+[1] "  9169. Jones SE 2019"
+[1] "    Not enough info for Jones SE 2019"
+[1] "  9170. Jones SE 2019"
+[1] "    Not enough info for Jones SE 2019"
+[1] "Appended studies to output file: 9165,9166 of 10212"
+[1] "Time elapsed: 24.29332 mins"
+[1] "  9171. Jones SE 2019"
+[1] "    Not enough info for Jones SE 2019"
+[1] "  9172. Jones SE 2019"
+[1] "    Not enough info for Jones SE 2019"
+[1] "  9173. Jones SE 2019"
+[1] "    Not enough info for Jones SE 2019"
+[1] "  9174. van der Plaat DA 2019"
+[1] "  9175. van der Plaat DA 2019"
+[1] "    Not enough info for van der Plaat DA 2019"
+[1] "  9176. van der Plaat DA 2019"
+[1] "  9177. Peloso GM 2014"
+[1] "    Not enough info for Peloso GM 2014"
+[1] "  9178. Peloso GM 2014"
+[1] "    Not enough info for Peloso GM 2014"
+[1] "  9179. Wessel J 2015"
+[1] "    Not enough info for Wessel J 2015"
+[1] "  9180. Mahajan A 2015"
+[1] "    Not enough info for Mahajan A 2015"
+[1] "Appended studies to output file: 9174,9176 of 10212"
+[1] "Time elapsed: 24.74991 mins"
+[1] "  9181. Truong DT 2019"
+[1] "    Not enough info for Truong DT 2019"
+[1] "  9182. Truong DT 2019"
+[1] "    Not enough info for Truong DT 2019"
+[1] "  9183. Truong DT 2019"
+[1] "    Not enough info for Truong DT 2019"
+[1] "  9184. Truong DT 2019"
+[1] "    Not enough info for Truong DT 2019"
+[1] "  9185. Kharazmi M 2019"
+[1] "  9186. Graham SE 2019"
+[1] "    Not enough info for Graham SE 2019"
+[1] "  9187. Graham SE 2019"
+[1] "    Not enough info for Graham SE 2019"
+[1] "  9188. Graham SE 2019"
+[1] "    Not enough info for Graham SE 2019"
+[1] "  9189. Evans KL 2019"
+[1] "    Not enough info for Evans KL 2019"
+[1] "  9190. Jiao H 2019"
+[1] "    Not enough info for Jiao H 2019"
+[1] "Appended studies to output file: 9185 of 10212"
+[1] "Time elapsed: 26.04044 mins"
+[1] "  9191. Grassmann F 2019"
+[1] "    Not enough info for Grassmann F 2019"
+[1] "  9192. Suvichapanich S 2019"
+[1] "  9193. Lees JA 2019"
+[1] "    Not enough info for Lees JA 2019"
+[1] "  9194. Lees JA 2019"
+[1] "    Not enough info for Lees JA 2019"
+[1] "  9195. Lees JA 2019"
+[1] "  9196. Vonk JM 2018"
+[1] "  9197. Scelsi MA 2018"
+[1] "    Not enough info for Scelsi MA 2018"
+[1] "  9198. Scelsi MA 2018"
+[1] "    Not enough info for Scelsi MA 2018"
+[1] "  9199. Jiang X 2015"
+[1] "    Not enough info for Jiang X 2015"
+[1] "  9200. Wei WH 2017"
+[1] "    Not enough info for Wei WH 2017"
+[1] "Appended studies to output file: 9192,9195,9196 of 10212"
+[1] "Time elapsed: 26.54228 mins"
+[1] "  9201. Warrier V 2017"
+[1] "    Not enough info for Warrier V 2017"
+[1] "  9202. Tedja MS 2018"
+[1] "    Not enough info for Tedja MS 2018"
+[1] "  9203. Hirata T 2018"
+[1] "    Not enough info for Hirata T 2018"
+[1] "  9204. Lor<U+00E9>s-Motta L 2018"
+[1] "    Not enough info for Lor<U+00E9>s-Motta L 2018"
+[1] "  9205. Davies G 2018"
+[1] "    Not enough info for Davies G 2018"
+[1] "  9206. Juli<U+00E0> A 2018"
+[1] "  9207. Chernus J 2018"
+[1] "    Not enough info for Chernus J 2018"
+[1] "  9208. Fan BJ 2018"
+[1] "    Not enough info for Fan BJ 2018"
+[1] "  9209. Hosoda Y 2018"
+[1] "    Not enough info for Hosoda Y 2018"
+[1] "  9210. Gao J 2018"
+[1] "Appended studies to output file: 9206,9210 of 10212"
+[1] "Time elapsed: 36.91254 mins"
+[1] "  9211. Loomis SJ 2018"
+[1] "    Not enough info for Loomis SJ 2018"
+[1] "  9212. Pardi<U+00F1>as AF 2018"
+[1] "    Not enough info for Pardi<U+00F1>as AF 2018"
+[1] "  9213. Qian M 2018"
+[1] "    Not enough info for Qian M 2018"
+[1] "  9214. Yan W 2018"
+[1] "    Not enough info for Yan W 2018"
+[1] "  9215. Mukherjee S 2018"
+[1] "  9216. Ferkingstad E 2018"
+[1] "    Not enough info for Ferkingstad E 2018"
+[1] "  9217. Franceschini N 2018"
+[1] "    Not enough info for Franceschini N 2018"
+[1] "  9218. Marklund M 2018"
+[1] "    Not enough info for Marklund M 2018"
+[1] "  9219. Franceschini N 2018"
+[1] "    Not enough info for Franceschini N 2018"
+[1] "  9220. Franceschini N 2016"
+[1] "    Not enough info for Franceschini N 2016"
+[1] "Appended studies to output file: 9215 of 10212"
+[1] "Time elapsed: 37.8958 mins"
+[1] "  9221. Hara M 2018"
+[1] "    Not enough info for Hara M 2018"
+[1] "  9222. Mukherjee S 2018"
+[1] "  9223. Mukherjee S 2018"
+[1] "  9224. Mukherjee S 2018"
+[1] "  9225. Mukherjee S 2018"
+[1] "  9226. Mukherjee S 2018"
+[1] "    Not enough info for Mukherjee S 2018"
+[1] "  9227. Kim S 2019"
+[1] "    Not enough info for Kim S 2019"
+[1] "  9228. Kim S 2019"
+[1] "    Not enough info for Kim S 2019"
+[1] "  9229. Kim S 2019"
+[1] "    Not enough info for Kim S 2019"
+[1] "  9230. Heilmann-Heimbach S 2017"
+[1] "    Not enough info for Heilmann-Heimbach S 2017"
+[1] "Appended studies to output file: 9222,9223,9224,9225 of 10212"
+[1] "Time elapsed: 38.90305 mins"
+[1] "  9231. Zekavat SM 2019"
+[1] "    Not enough info for Zekavat SM 2019"
+[1] "  9232. Nazarian A 2019"
+[1] "    Not enough info for Nazarian A 2019"
+[1] "  9233. Akinkuolie AO 2019"
+[1] "    Not enough info for Akinkuolie AO 2019"
+[1] "  9234. St Jean PL 2019"
+[1] "    Not enough info for St Jean PL 2019"
+[1] "  9235. Rongve A 2019"
+[1] "    Not enough info for Rongve A 2019"
+[1] "  9236. Nicoletti P 2019"
+[1] "  9237. Plotnikov D 2019"
+[1] "  9238. Zhao SX 2019"
+[1] "  9239. Styrkarsdottir U 2019"
+[1] "    Not enough info for Styrkarsdottir U 2019"
+[1] "  9240. Chen Z 2019"
+[1] "Appended studies to output file: 9236,9237,9238,9240 of 10212"
+[1] "Time elapsed: 39.36887 mins"
+[1] "  9241. Ivarsdottir EV 2019"
+[1] "    Not enough info for Ivarsdottir EV 2019"
+[1] "  9242. Ivarsdottir EV 2019"
+[1] "    Not enough info for Ivarsdottir EV 2019"
+[1] "  9243. Ivarsdottir EV 2019"
+[1] "    Not enough info for Ivarsdottir EV 2019"
+[1] "  9244. Jia Q 2019"
+[1] "    Not enough info for Jia Q 2019"
+[1] "  9245. Jia Q 2019"
+[1] "    Not enough info for Jia Q 2019"
+[1] "  9246. Westphal S 2019"
+[1] "    Not enough info for Westphal S 2019"
+[1] "  9247. Westphal S 2019"
+[1] "    Not enough info for Westphal S 2019"
+[1] "  9248. Westphal S 2019"
+[1] "    Not enough info for Westphal S 2019"
+[1] "  9249. Westphal S 2019"
+[1] "    Not enough info for Westphal S 2019"
+[1] "  9250. Westphal S 2019"
+[1] "    Not enough info for Westphal S 2019"
+[1] "Time elapsed: 39.95964 mins"
+[1] "  9251. Bjornsdottir G 2019"
+[1] "    Not enough info for Bjornsdottir G 2019"
+[1] "  9252. Jia Q 2019"
+[1] "    Not enough info for Jia Q 2019"
+[1] "  9253. Jonsson S 2017"
+[1] "    Not enough info for Jonsson S 2017"
+[1] "  9254. Jonsson S 2017"
+[1] "    Not enough info for Jonsson S 2017"
+[1] "  9255. Laskar RS 2019"
+[1] "  9256. Fung K 2019"
+[1] "    Not enough info for Fung K 2019"
+[1] "  9257. Jaeger M 2019"
+[1] "  9258. Swenson BR 2019"
+[1] "    Not enough info for Swenson BR 2019"
+[1] "  9259. Shungin D 2019"
+[1] "    Not enough info for Shungin D 2019"
+[1] "  9260. Khawaja AP 2019"
+[1] "    Not enough info for Khawaja AP 2019"
+[1] "Appended studies to output file: 9255,9257 of 10212"
+[1] "Time elapsed: 40.88935 mins"
+[1] "  9261. Brick LA 2019"
+[1] "    Not enough info for Brick LA 2019"
+[1] "  9262. Fawns-Ritchie C 2019"
+[1] "    Not enough info for Fawns-Ritchie C 2019"
+[1] "  9263. Edwards TL 2019"
+[1] "  9264. Chung S 2019"
+[1] "  9265. Chen MH 2017"
+[1] "    Not enough info for Chen MH 2017"
+[1] "  9266. Huyghe JR 2012"
+[1] "    Not enough info for Huyghe JR 2012"
+[1] "  9267. Huyghe JR 2012"
+[1] "    Not enough info for Huyghe JR 2012"
+[1] "  9268. Rietveld CA 2013"
+[1] "    Not enough info for Rietveld CA 2013"
+[1] "  9269. Mullins N 2019"
+[1] "  9270. Mullins N 2019"
+[1] "Appended studies to output file: 9263,9264,9269,9270 of 10212"
+[1] "Time elapsed: 41.51914 mins"
+[1] "  9271. Mullins N 2019"
+[1] "    Not enough info for Mullins N 2019"
+[1] "  9272. Mullins N 2019"
+[1] "  9273. Dashti HS 2019"
+[1] "    Not enough info for Dashti HS 2019"
+[1] "  9274. Benonisdottir S 2019"
+[1] "  9275. Kornilov SA 2019"
+[1] "    Not enough info for Kornilov SA 2019"
+[1] "  9276. Kornilov SA 2019"
+[1] "    Not enough info for Kornilov SA 2019"
+[1] "  9277. Kornilov SA 2019"
+[1] "    Not enough info for Kornilov SA 2019"
+[1] "  9278. Mahajan A 2018"
+[1] "  9279. Li Z 2016"
+[1] "  9280. Coltell O 2020"
+[1] "    Not enough info for Coltell O 2020"
+[1] "WARNING: failed to convert the following positions from hg19 to hg17"
+[1] "22:50356850 at index 140"
+[1] "Appended studies to output file: 9272,9274,9278,9279 of 10212"
+[1] "Time elapsed: 44.84631 mins"
+[1] "  9281. Coltell O 2020"
+[1] "    Not enough info for Coltell O 2020"
+[1] "  9282. Coltell O 2020"
+[1] "    Not enough info for Coltell O 2020"
+[1] "  9283. Coltell O 2020"
+[1] "    Not enough info for Coltell O 2020"
+[1] "  9284. Coltell O 2020"
+[1] "    Not enough info for Coltell O 2020"
+[1] "  9285. Coltell O 2020"
+[1] "    Not enough info for Coltell O 2020"
+[1] "  9286. Coltell O 2020"
+[1] "    Not enough info for Coltell O 2020"
+[1] "  9287. Chang J 2018"
+[1] "  9288. M<U+00E1>rquez A 2018"
+[1] "    Not enough info for M<U+00E1>rquez A 2018"
+[1] "  9289. Evangelou E 2018"
+[1] "    Not enough info for Evangelou E 2018"
+[1] "  9290. Evangelou E 2018"
+[1] "    Not enough info for Evangelou E 2018"
+[1] "Appended studies to output file: 9287 of 10212"
+[1] "Time elapsed: 46.29674 mins"
+[1] "  9291. Evangelou E 2018"
+[1] "    Not enough info for Evangelou E 2018"
+[1] "  9292. Evangelou E 2018"
+[1] "    Not enough info for Evangelou E 2018"
+[1] "  9293. Evangelou E 2018"
+[1] "    Not enough info for Evangelou E 2018"
+[1] "  9294. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9295. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9296. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9297. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9298. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9299. Ferreira MA 2009"
+[1] "    Not enough info for Ferreira MA 2009"
+[1] "  9300. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "Time elapsed: 47.4888 mins"
+[1] "  9301. Helgeland <U+00D8> 2019"
+[1] "    Not enough info for Helgeland <U+00D8> 2019"
+[1] "  9302. Tin A 2019"
+[1] "    Not enough info for Tin A 2019"
+[1] "  9303. Tin A 2019"
+[1] "    Not enough info for Tin A 2019"
+[1] "  9304. Tin A 2019"
+[1] "    Not enough info for Tin A 2019"
+[1] "  9305. Lam M 2019"
+[1] "    Not enough info for Lam M 2019"
+[1] "  9306. Cross-Disorder Group of the Psychiatric Genomics Consortium 2019"
+[1] "    Not enough info for Cross-Disorder Group of the Psychiatric Genomics Consortium 2019"
+[1] "  9307. von Berg J 2020"
+[1] "    Not enough info for von Berg J 2020"
+[1] "  9308. Hsieh AR 2020"
+[1] "  9309. Strawbridge RJ 2019"
+[1] "    Not enough info for Strawbridge RJ 2019"
+[1] "  9310. Strawbridge RJ 2019"
+[1] "    Not enough info for Strawbridge RJ 2019"
+[1] "Appended studies to output file: 9308 of 10212"
+[1] "Time elapsed: 50.72938 mins"
+[1] "  9311. Sun W 2019"
+[1] "    Not enough info for Sun W 2019"
+[1] "  9312. Schlauch KA 2020"
+[1] "    Not enough info for Schlauch KA 2020"
+[1] "  9313. Schlauch KA 2020"
+[1] "  9314. Shen H 2020"
+[1] "  9315. Shen H 2020"
+[1] "  9316. Liu L 2020"
+[1] "    Not enough info for Liu L 2020"
+[1] "  9317. Han X 2020"
+[1] "  9318. Im SW 2020"
+[1] "    Not enough info for Im SW 2020"
+[1] "  9319. Shete S 2020"
+[1] "  9320. Okuda H 2020"
+[1] "    Not enough info for Okuda H 2020"
+[1] "Appended studies to output file: 9313,9314,9315,9317,9319 of 10212"
+[1] "Time elapsed: 51.2155 mins"
+[1] "  9321. Justice CM 2020"
+[1] "  9322. Parisinos CA 2020"
+[1] "    Not enough info for Parisinos CA 2020"
+[1] "  9323. Penney KL 2019"
+[1] "    Not enough info for Penney KL 2019"
+[1] "  9324. Penney KL 2019"
+[1] "    Not enough info for Penney KL 2019"
+[1] "  9325. Penney KL 2019"
+[1] "    Not enough info for Penney KL 2019"
+[1] "  9326. Penney KL 2019"
+[1] "    Not enough info for Penney KL 2019"
+[1] "  9327. Traglia M 2020"
+[1] "    Not enough info for Traglia M 2020"
+[1] "  9328. Traglia M 2020"
+[1] "    Not enough info for Traglia M 2020"
+[1] "  9329. Traglia M 2020"
+[1] "    Not enough info for Traglia M 2020"
+[1] "  9330. Seo JY 2020"
+[1] "    Not enough info for Seo JY 2020"
+[1] "Appended studies to output file: 9321 of 10212"
+[1] "Time elapsed: 51.52003 mins"
+[1] "  9331. Seo JY 2020"
+[1] "    Not enough info for Seo JY 2020"
+[1] "  9332. Seo JY 2020"
+[1] "    Not enough info for Seo JY 2020"
+[1] "  9333. Wang H 2020"
+[1] "    Not enough info for Wang H 2020"
+[1] "  9334. Pott J 2020"
+[1] "    Not enough info for Pott J 2020"
+[1] "  9335. Matsunaga H 2020"
+[1] "  9336. Verma SS 2020"
+[1] "    Not enough info for Verma SS 2020"
+[1] "  9337. Zhou H 2020"
+[1] "    Not enough info for Zhou H 2020"
+[1] "  9338. Song L 2020"
+[1] "    Not enough info for Song L 2020"
+[1] "  9339. Pechlivanis S 2013"
+[1] "    Not enough info for Pechlivanis S 2013"
+[1] "  9340. Liu L 2020"
+[1] "    Not enough info for Liu L 2020"
+[1] "Appended studies to output file: 9335 of 10212"
+[1] "Time elapsed: 57.21301 mins"
+[1] "  9341. Manry J 2020"
+[1] "  9342. Pott J 2020"
+[1] "    Not enough info for Pott J 2020"
+[1] "  9343. Pott J 2020"
+[1] "    Not enough info for Pott J 2020"
+[1] "  9344. Pott J 2020"
+[1] "    Not enough info for Pott J 2020"
+[1] "  9345. Pott J 2020"
+[1] "    Not enough info for Pott J 2020"
+[1] "  9346. Pott J 2020"
+[1] "    Not enough info for Pott J 2020"
+[1] "  9347. Langefeld CD 2018"
+[1] "    Not enough info for Langefeld CD 2018"
+[1] "  9348. Gaudet MM 2013"
+[1] "  9349. Lacson JCA 2017"
+[1] "    Not enough info for Lacson JCA 2017"
+[1] "  9350. Moltke I 2014"
+[1] "    Not enough info for Moltke I 2014"
+[1] "Appended studies to output file: 9341,9348 of 10212"
+[1] "Time elapsed: 57.63287 mins"
+[1] "  9351. Day FR 2016"
+[1] "    Not enough info for Day FR 2016"
+[1] "  9352. Hackinger S 2018"
+[1] "  9353. Hackinger S 2018"
+[1] "    Not enough info for Hackinger S 2018"
+[1] "  9354. Arnau-Soler A 2019"
+[1] "    Not enough info for Arnau-Soler A 2019"
+[1] "  9355. Arnau-Soler A 2019"
+[1] "    Not enough info for Arnau-Soler A 2019"
+[1] "  9356. Arnau-Soler A 2019"
+[1] "    Not enough info for Arnau-Soler A 2019"
+[1] "  9357. Arnau-Soler A 2019"
+[1] "    Not enough info for Arnau-Soler A 2019"
+[1] "  9358. Arnau-Soler A 2019"
+[1] "    Not enough info for Arnau-Soler A 2019"
+[1] "  9359. Arnau-Soler A 2019"
+[1] "    Not enough info for Arnau-Soler A 2019"
+[1] "  9360. Whitfield JB 2018"
+[1] "    Not enough info for Whitfield JB 2018"
+[1] "Appended studies to output file: 9352 of 10212"
+[1] "Time elapsed: 59.83949 mins"
+[1] "  9361. Whitfield JB 2018"
+[1] "    Not enough info for Whitfield JB 2018"
+[1] "  9362. Whitfield JB 2018"
+[1] "    Not enough info for Whitfield JB 2018"
+[1] "  9363. Whitfield JB 2018"
+[1] "    Not enough info for Whitfield JB 2018"
+[1] "  9364. Whitfield JB 2018"
+[1] "    Not enough info for Whitfield JB 2018"
+[1] "  9365. Ganna A 2019"
+[1] "    Not enough info for Ganna A 2019"
+[1] "  9366. Ganna A 2019"
+[1] "    Not enough info for Ganna A 2019"
+[1] "  9367. Ganna A 2019"
+[1] "    Not enough info for Ganna A 2019"
+[1] "  9368. Ganna A 2019"
+[1] "    Not enough info for Ganna A 2019"
+[1] "  9369. Ganna A 2019"
+[1] "    Not enough info for Ganna A 2019"
+[1] "  9370. Ganna A 2019"
+[1] "    Not enough info for Ganna A 2019"
+[1] "Time elapsed: 1.006405 hours"
+[1] "  9371. Ganna A 2019"
+[1] "    Not enough info for Ganna A 2019"
+[1] "  9372. Ganna A 2019"
+[1] "    Not enough info for Ganna A 2019"
+[1] "  9373. Enroth S 2014"
+[1] "    Not enough info for Enroth S 2014"
+[1] "  9374. Lin GW 2019"
+[1] "  9375. Wei L 2019"
+[1] "    Not enough info for Wei L 2019"
+[1] "  9376. German CA 2019"
+[1] "    Not enough info for German CA 2019"
+[1] "  9377. Harvey PD 2019"
+[1] "    Not enough info for Harvey PD 2019"
+[1] "  9378. Kowalski MH 2019"
+[1] "    Not enough info for Kowalski MH 2019"
+[1] "  9379. Hosoda Y 2019"
+[1] "  9380. Hettema JM 2020"
+[1] "    Not enough info for Hettema JM 2020"
+[1] "Appended studies to output file: 9374,9379 of 10212"
+[1] "Time elapsed: 1.018063 hours"
+[1] "  9381. Schlauch KA 2020"
+[1] "    Not enough info for Schlauch KA 2020"
+[1] "  9382. Carrion-Castillo A 2019"
+[1] "    Not enough info for Carrion-Castillo A 2019"
+[1] "  9383. Sliz E 2020"
+[1] "    Not enough info for Sliz E 2020"
+[1] "  9384. Zhang S 2020"
+[1] "    Not enough info for Zhang S 2020"
+[1] "  9385. Matoba N 2020"
+[1] "    Not enough info for Matoba N 2020"
+[1] "  9386. Sunadome H 2019"
+[1] "    Not enough info for Sunadome H 2019"
+[1] "  9387. Moss LC 2018"
+[1] "    Not enough info for Moss LC 2018"
+[1] "  9388. Bonomi A 2020"
+[1] "    Not enough info for Bonomi A 2020"
+[1] "  9389. Micalizzi L 2020"
+[1] "    Not enough info for Micalizzi L 2020"
+[1] "  9390. Schlosser P 2020"
+[1] "    Not enough info for Schlosser P 2020"
+[1] "Time elapsed: 1.036438 hours"
+[1] "  9391. Nagel M 2020"
+[1] "    Not enough info for Nagel M 2020"
+[1] "  9392. Olafsdottir TA 2020"
+[1] "  9393. Oni-Orisan A 2020"
+[1] "    Not enough info for Oni-Orisan A 2020"
+[1] "  9394. Andersen MK 2020"
+[1] "    Not enough info for Andersen MK 2020"
+[1] "  9395. Masuda T 2019"
+[1] "    Not enough info for Masuda T 2019"
+[1] "  9396. Masuda T 2019"
+[1] "    Not enough info for Masuda T 2019"
+[1] "  9397. Masuda T 2019"
+[1] "    Not enough info for Masuda T 2019"
+[1] "  9398. Masuda T 2019"
+[1] "    Not enough info for Masuda T 2019"
+[1] "  9399. Do AN 2019"
+[1] "    Not enough info for Do AN 2019"
+[1] "  9400. M<U+00E1>rquez A 2018"
+[1] "Appended studies to output file: 9392,9400 of 10212"
+[1] "Time elapsed: 1.074516 hours"
+[1] "  9401. M<U+00E1>rquez A 2018"
+[1] "  9402. M<U+00E1>rquez A 2018"
+[1] "  9403. M<U+00E1>rquez A 2018"
+[1] "  9404. Rasmussen ER 2020"
+[1] "    Not enough info for Rasmussen ER 2020"
+[1] "  9405. Lee HS 2018"
+[1] "  9406. Kulyt<U+00E9> A 2020"
+[1] "    Not enough info for Kulyt<U+00E9> A 2020"
+[1] "  9407. Koks S 2019"
+[1] "  9408. Hoffmann TJ 2018"
+[1] "    Not enough info for Hoffmann TJ 2018"
+[1] "  9409. Hoffmann TJ 2018"
+[1] "    Not enough info for Hoffmann TJ 2018"
+[1] "  9410. Wang W 2018"
+[1] "    Not enough info for Wang W 2018"
+[1] "Appended studies to output file: 9401,9402,9403,9405,9407 of 10212"
+[1] "Time elapsed: 1.13401 hours"
+[1] "  9411. Amare AT 2018"
+[1] "    Not enough info for Amare AT 2018"
+[1] "  9412. Venkateswaran S 2018"
+[1] "  9413. Lee J 2018"
+[1] "    Not enough info for Lee J 2018"
+[1] "  9414. Fejzo MS 2018"
+[1] "  9415. Sasayama D 2018"
+[1] "  9416. Nicolas A 2018"
+[1] "    Not enough info for Nicolas A 2018"
+[1] "  9417. Lee HS 2018"
+[1] "    Not enough info for Lee HS 2018"
+[1] "  9418. Nakahara S 2018"
+[1] "    Not enough info for Nakahara S 2018"
+[1] "  9419. Endo C 2018"
+[1] "  9420. Schumacher FR 2018"
+[1] "Appended studies to output file: 9412,9414,9415,9419,9420 of 10212"
+[1] "Time elapsed: 1.150633 hours"
+[1] "  9421. Choquet H 2018"
+[1] "  9422. Doherty A 2018"
+[1] "    Not enough info for Doherty A 2018"
+[1] "  9423. Shrine N 2018"
+[1] "  9424. Siewert KM 2018"
+[1] "    Not enough info for Siewert KM 2018"
+[1] "  9425. Gao XR 2018"
+[1] "    Not enough info for Gao XR 2018"
+[1] "  9426. Kawabata Y 2018"
+[1] "  9427. Lu Y 2018"
+[1] "  9428. Aterido A 2018"
+[1] "    Not enough info for Aterido A 2018"
+[1] "  9429. Crowley JJ 2018"
+[1] "    Not enough info for Crowley JJ 2018"
+[1] "  9430. Hoffmann TJ 2016"
+[1] "    Not enough info for Hoffmann TJ 2016"
+[1] "Appended studies to output file: 9421,9423,9426,9427 of 10212"
+[1] "Time elapsed: 1.185867 hours"
+[1] "  9431. Hoffmann TJ 2016"
+[1] "    Not enough info for Hoffmann TJ 2016"
+[1] "  9432. Hoffmann TJ 2016"
+[1] "    Not enough info for Hoffmann TJ 2016"
+[1] "  9433. Morris JA 2019"
+[1] "    Not enough info for Morris JA 2019"
+[1] "  9434. Aragam KG 2018"
+[1] "    Not enough info for Aragam KG 2018"
+[1] "  9435. van der Merwe C 2018"
+[1] "    Not enough info for van der Merwe C 2018"
+[1] "  9436. Lees JA 2019"
+[1] "    Not enough info for Lees JA 2019"
+[1] "  9437. Wessel J 2015"
+[1] "    Not enough info for Wessel J 2015"
+[1] "  9438. Levin AM 2018"
+[1] "    Not enough info for Levin AM 2018"
+[1] "  9439. Levin AM 2018"
+[1] "    Not enough info for Levin AM 2018"
+[1] "  9440. de Vries PS 2019"
+[1] "    Not enough info for de Vries PS 2019"
+[1] "Time elapsed: 1.216821 hours"
+[1] "  9441. de Vries PS 2019"
+[1] "    Not enough info for de Vries PS 2019"
+[1] "  9442. de Vries PS 2019"
+[1] "    Not enough info for de Vries PS 2019"
+[1] "  9443. de Vries PS 2019"
+[1] "    Not enough info for de Vries PS 2019"
+[1] "  9444. de Vries PS 2019"
+[1] "    Not enough info for de Vries PS 2019"
+[1] "  9445. Guan M 2019"
+[1] "  9446. Pividori M 2019"
+[1] "  9447. Pividori M 2019"
+[1] "    Not enough info for Pividori M 2019"
+[1] "  9448. Pividori M 2019"
+[1] "    Not enough info for Pividori M 2019"
+[1] "  9449. Rayner C 2019"
+[1] "    Not enough info for Rayner C 2019"
+[1] "  9450. Tang Y 2019"
+[1] "Appended studies to output file: 9445,9446,9450 of 10212"
+[1] "Time elapsed: 1.23741 hours"
+[1] "  9451. Green HD 2019"
+[1] "    Not enough info for Green HD 2019"
+[1] "  9452. Wyles CC 2019"
+[1] "  9453. Meier SM 2019"
+[1] "    Not enough info for Meier SM 2019"
+[1] "  9454. Meier SM 2019"
+[1] "    Not enough info for Meier SM 2019"
+[1] "  9455. Meier SM 2019"
+[1] "    Not enough info for Meier SM 2019"
+[1] "  9456. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "  9457. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "  9458. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "  9459. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "  9460. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "Appended studies to output file: 9452 of 10212"
+[1] "Time elapsed: 1.24063 hours"
+[1] "  9461. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "  9462. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "  9463. Lai D 2019"
+[1] "    Not enough info for Lai D 2019"
+[1] "  9464. Rayner C 2019"
+[1] "    Not enough info for Rayner C 2019"
+[1] "  9465. Rayner C 2019"
+[1] "    Not enough info for Rayner C 2019"
+[1] "  9466. Rayner C 2019"
+[1] "    Not enough info for Rayner C 2019"
+[1] "  9467. Claes P 2018"
+[1] "    Not enough info for Claes P 2018"
+[1] "  9468. Wheeler E 2017"
+[1] "    Not enough info for Wheeler E 2017"
+[1] "  9469. Wheeler E 2017"
+[1] "    Not enough info for Wheeler E 2017"
+#These errors were checked manually by Matthew- one of the studies had enough data.
+[1] "  9470. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9471. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9472. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9473. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9474. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9475. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9476. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9477. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9478. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9479. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9480. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9481. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9482. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9483. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9484. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9485. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9486. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9487. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9488. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9489. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9490. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9491. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9492. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9493. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9494. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9495. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9496. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9497. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9498. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9499. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9500. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9501. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9502. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9503. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9504. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9505. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9506. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9507. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9508. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9509. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9510. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9511. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9512. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9513. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9514. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9515. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9516. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9517. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9518. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9519. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9520. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9521. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9522. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9523. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9524. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9525. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9526. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9527. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9528. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9529. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9530. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9531. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9532. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9533. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9534. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9535. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9536. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9537. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9538. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9539. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9540. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9541. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9542. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9543. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9544. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9545. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9546. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9547. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9548. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9549. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9550. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9551. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9552. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9553. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9554. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9555. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9556. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9557. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9558. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9559. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9560. Liu Z 2019"
+[1] "    Not enough info for Liu Z 2019"
+[1] "Time elapsed: 1.248239 hours"
+[1] "  9561. Vergara C 2018"
+[1] "    Not enough info for Vergara C 2018"
+[1] "  9562. Vergara C 2018"
+[1] "    Not enough info for Vergara C 2018"
+[1] "  9563. Vergara C 2018"
+[1] "    Not enough info for Vergara C 2018"
+[1] "  9564. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9565. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9566. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9567. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9568. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9569. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9570. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9571. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9572. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9573. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9574. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9575. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9576. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9577. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9578. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9579. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9580. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9581. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9582. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9583. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9584. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9585. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9586. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9587. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9588. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9589. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9590. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9591. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9592. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9593. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9594. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9595. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9596. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9597. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9598. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9599. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9600. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9601. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9602. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9603. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9604. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9605. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9606. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9607. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9608. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9609. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9610. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9611. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9612. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9613. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9614. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9615. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9616. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9617. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9618. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9619. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9620. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9621. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9622. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9623. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9624. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9625. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9626. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9627. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9628. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9629. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9630. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9631. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9632. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9633. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9634. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9635. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9636. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9637. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9638. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9639. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9640. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9641. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9642. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9643. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9644. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9645. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9646. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9647. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9648. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9649. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9650. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9651. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9652. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9653. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9654. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9655. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9656. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9657. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9658. van Duijvenboden S 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9659. van Duijvenboden S 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9660. Liu Z 2019"
+[1] "    Not enough info for Liu Z 2019"
+[1] "Time elapsed: 1.249527 hours"
+[1] "  9661. de Denus S 2020"
+[1] "    Not enough info for de Denus S 2020"
+[1] "  9662. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9663. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9664. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9665. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9666. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9667. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9668. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9669. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9670. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9671. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9672. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9673. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9674. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9675. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9676. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9677. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9678. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9679. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9680. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9681. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9682. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9683. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9684. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9685. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9686. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9687. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9688. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9689. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9690. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9691. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9692. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9693. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9694. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9695. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9696. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9697. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9698. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9699. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9700. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9701. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9702. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9703. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9704. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9705. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9706. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9707. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9708. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9709. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9710. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9711. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9712. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9713. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9714. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9715. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9716. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9717. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9718. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9719. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9720. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9721. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9722. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9723. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9724. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9725. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9726. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9727. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9728. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9729. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9730. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9731. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9732. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9733. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9734. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9735. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9736. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9737. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9738. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9739. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9740. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9741. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9742. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9743. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9744. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9745. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9746. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9747. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9748. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9749. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9750. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9751. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9752. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9753. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9754. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9755. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9756. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9757. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9758. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9759. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9760. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9761. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9762. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9763. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9764. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9765. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9766. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9767. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9768. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9769. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9770. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9771. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9772. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9773. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9774. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9775. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9776. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9777. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9778. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9779. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9780. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9781. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9782. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9783. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9784. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9785. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9786. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9787. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9788. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9789. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9790. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9791. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9792. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9793. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9794. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9795. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9796. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9797. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9798. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9799. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9800. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9801. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9802. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9803. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9804. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9805. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9806. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9807. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9808. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9809. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9810. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9811. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9812. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9813. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9814. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9815. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9816. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9817. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9818. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9819. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9820. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9821. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9822. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9823. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9824. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9825. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9826. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9827. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9828. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9829. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9830. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9831. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9832. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9833. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9834. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9835. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9836. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9837. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9838. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9839. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9840. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9841. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9842. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9843. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9844. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9845. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9846. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9847. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9848. Jones E 2020"
+[1] "  9849. Lahrouchi N 2020"
+[1] "  9850. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9851. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9852. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9853. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9854. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9855. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9856. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9857. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9858. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9859. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9860. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9861. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9862. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9863. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9864. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9865. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9866. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9867. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9868. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9869. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9870. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9871. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9872. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9873. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9874. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9875. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9876. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9877. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9878. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9879. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9880. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9881. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9882. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9883. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9884. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9885. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9886. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9887. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9888. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9889. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9890. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9891. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9892. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9893. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9894. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9895. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9896. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9897. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9898. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9899. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9900. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9901. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9902. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9903. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9904. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9905. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9906. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9907. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9908. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9909. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9910. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9911. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9912. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9913. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9914. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9915. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9916. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9917. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9918. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9919. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9920. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9921. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9922. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9923. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9924. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9925. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9926. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9927. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9928. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9929. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9930. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9931. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9932. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9933. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9934. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9935. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9936. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9937. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9938. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9939. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9940. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9941. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9942. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9943. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9944. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9945. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9946. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9947. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9948. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9949. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9950. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9951. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9952. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9953. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9954. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9955. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9956. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9957. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9958. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9959. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9960. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9961. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9962. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9963. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9964. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9965. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9966. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9967. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9968. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9969. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9970. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9971. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9972. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9973. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9974. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9975. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9976. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9977. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9978. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9979. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9980. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9981. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9982. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9983. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9984. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9985. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9986. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9987. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9988. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9989. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9990. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9991. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9992. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9993. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9994. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9995. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9996. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9997. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9998. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  9999. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10000. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10001. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10002. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10003. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10004. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10005. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10006. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10007. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10008. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10009. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10010. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10011. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10012. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10013. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10014. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10015. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10016. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10017. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10018. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10019. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10020. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10021. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10022. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10023. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10024. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10025. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10026. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10027. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10028. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10029. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10030. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10031. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10032. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10033. Choi SH 2018"
+[1] "    Not enough info for Choi SH 2018"
+[1] "  10034. Jones E 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10035. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10036. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10037. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10038. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10039. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10040. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10041. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10042. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10043. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10044. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10045. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10046. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10047. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10048. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10049. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10050. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10051. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10052. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10053. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10054. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10055. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10056. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10057. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10058. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10059. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10060. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10061. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10062. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10063. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10064. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10065. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10066. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10067. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10068. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10069. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10070. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10071. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10072. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10073. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10074. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10075. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10076. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10077. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10078. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10079. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10080. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10081. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10082. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10083. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10084. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10085. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10086. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10087. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10088. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10089. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10090. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10091. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10092. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10093. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10094. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10095. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10096. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10097. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10098. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10099. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10100. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10101. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10102. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10103. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10104. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10105. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10106. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10107. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10108. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10109. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10110. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10111. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10112. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10113. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10114. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10115. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10116. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10117. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10118. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10119. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10120. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10121. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10122. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10123. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10124. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10125. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10126. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10127. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10128. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10129. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10130. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10131. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10132. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10133. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10134. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10135. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10136. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10137. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10138. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10139. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10140. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10141. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10142. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10143. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10144. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10145. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10146. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10147. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10148. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10149. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10150. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10151. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10152. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10153. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10154. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10155. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10156. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10157. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10158. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10159. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10160. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10161. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10162. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10163. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10164. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10165. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10166. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10167. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10168. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10169. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10170. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10171. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10172. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10173. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10174. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10175. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10176. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10177. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10178. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10179. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10180. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10181. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10182. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10183. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10184. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10185. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10186. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10187. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10188. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10189. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10190. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10191. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10192. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10193. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10194. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10195. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10196. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10197. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10198. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10199. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10200. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10201. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10202. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10203. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10204. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10205. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10206. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10207. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10208. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10209. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10210. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10211. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true 
+[1] "  10212. Orr<U+00F9> V 2020"
+ERROR: Elements 1 of is_study_id(study_id) are not true
+#These errors were checked manually by Matthew- one of the studies had enough data.
+[1] "Appended studies to output file: 9848,9849 of 10212"
+There were 50 or more warnings (use warnings() to see the first 50)
+[1] "Traits with no valid snps: 453"
+  [1] "GCST005926" "GCST006872" "GCST006873" "GCST006874" "GCST006875"
+  [6] "GCST006876" "GCST006877" "GCST006878" "GCST006880" "GCST006881"
+ [11] "GCST006882" "GCST006883" "GCST006884" "GCST006885" "GCST006886"
+ [16] "GCST006887" "GCST006888" "GCST006889" "GCST006890" "GCST006891"
+ [21] "GCST006892" "GCST006870" "GCST006893" "GCST006894" "GCST006895"
+ [26] "GCST006898" "GCST007160" "GCST006897" "GCST007550" "GCST008280"
+ [31] "GCST008282" "GCST008078" "GCST007916" "GCST008567" "GCST008566"
+ [36] "GCST008565" "GCST008564" "GCST008563" "GCST007918" "GCST007917"
+ [41] "GCST007919" "GCST008370" "GCST008373" "GCST008372" "GCST008211"
+ [46] "GCST008387" "GCST008552" "GCST009476" "GCST008174" "GCST008444"
+ [51] "GCST008398" "GCST008445" "GCST008399" "GCST008172" "GCST008758"
+ [56] "GCST008077" "GCST008076" "GCST008362" "GCST008110" "GCST008111"
+ [61] "GCST008499" "GCST008500" "GCST008501" "GCST008899" "GCST009282"
+ [66] "GCST008906" "GCST008972" "GCST008956" "GCST008958" "GCST008888"
+ [71] "GCST008889" "GCST008900" "GCST008903" "GCST008902" "GCST008892"
+ [76] "GCST008893" "GCST008898" "GCST009288" "GCST009290" "GCST009291"
+ [81] "GCST009293" "GCST009294" "GCST009295" "GCST009296" "GCST009297"
+ [86] "GCST009298" "GCST005808" "GCST006494" "GCST006057" "GCST006826"
+ [91] "GCST008369" "GCST005671" "GCST005669" "GCST005796" "GCST005827"
+ [96] "GCST006058" "GCST006059" "GCST006060" "GCST006909" "GCST006910"
+[101] "GCST007923" "GCST007924" "GCST007925" "GCST007926" "GCST007928"
+[106] "GCST007927" "GCST007929" "GCST007930" "GCST007931" "GCST007932"
+[111] "GCST007933" "GCST007934" "GCST007935" "GCST007936" "GCST007937"
+[116] "GCST007938" "GCST007939" "GCST007940" "GCST007941" "GCST007942"
+[121] "GCST007943" "GCST007944" "GCST008170" "GCST009085" "GCST008914"
+[126] "GCST008284" "GCST008382" "GCST008336" "GCST008337" "GCST008167"
+[131] "GCST008166" "GCST008168" "GCST008462" "GCST008636" "GCST008637"
+[136] "GCST008638" "GCST008639" "GCST008640" "GCST008538" "GCST008540"
+[141] "GCST008543" "GCST008544" "GCST008542" "GCST008541" "GCST008539"
+[146] "GCST008536" "GCST008535" "GCST008532" "GCST008594" "GCST009155"
+[151] "GCST009132" "GCST008715" "GCST008463" "GCST008861" "GCST008508"
+[156] "GCST008602" "GCST008509" "GCST008510" "GCST008717" "GCST008648"
+[161] "GCST007295" "GCST007294" "GCST007456" "GCST007451" "GCST007470"
+[166] "GCST007538" "GCST007389" "GCST007284" "GCST007286" "GCST007283"
+[171] "GCST007281" "GCST007285" "GCST007656" "GCST007615" "GCST007691"
+[176] "GCST007757" "GCST007733" "GCST007758" "GCST007759" "GCST007760"
+[181] "GCST007761" "GCST007762" "GCST007763" "GCST007764" "GCST007765"
+[186] "GCST007766" "GCST007767" "GCST007817" "GCST007823" "GCST007822"
+[191] "GCST007821" "GCST007820" "GCST008128" "GCST007819" "GCST008124"
+[196] "GCST008126" "GCST008127" "GCST008125" "GCST007768" "GCST007769"
+[201] "GCST007770" "GCST007771" "GCST007772" "GCST007773" "GCST007802"
+[206] "GCST007803" "GCST007804" "GCST007805" "GCST007806" "GCST007807"
+[211] "GCST007808" "GCST008245" "GCST007848" "GCST007849" "GCST007898"
+[216] "GCST007858" "GCST007860" "GCST007865" "GCST007864" "GCST007863"
+[221] "GCST007877" "GCST007878" "GCST007879" "GCST007999" "GCST007997"
+[226] "GCST008356" "GCST009086" "GCST009087" "GCST006135" "GCST006136"
+[231] "GCST006410" "GCST005826" "GCST005755" "GCST006291" "GCST006655"
+[236] "GCST006808" "GCST006269" "GCST006280" "GCST006049" "GCST006068"
+[241] "GCST006056" "GCST006803" "GCST007276" "GCST007699" "GCST007209"
+[246] "GCST007436" "GCST007636" "GCST007435" "GCST007237" "GCST006858"
+[251] "GCST007331" "GCST008261" "GCST008266" "GCST008267" "GCST007815"
+[256] "GCST007846" "GCST008438" "GCST008260" "GCST008307" "GCST007881"
+[261] "GCST008281" "GCST008339" "GCST008316" "GCST008321" "GCST007838"
+[266] "GCST007837" "GCST007977" "GCST007979" "GCST007978" "GCST007980"
+[271] "GCST007981" "GCST008313" "GCST007836" "GCST008575" "GCST008576"
+[276] "GCST008403" "GCST008422" "GCST008296" "GCST008277" "GCST008424"
+[281] "GCST008513" "GCST008171" "GCST008113" "GCST008112" "GCST008396"
+[286] "GCST008121" "GCST008556" "GCST009321" "GCST009322" "GCST009323"
+[291] "GCST010318" "GCST010317" "GCST010316" "GCST010315" "GCST010314"
+[296] "GCST010313" "GCST010312" "GCST009873" "GCST006630" "GCST006629"
+[301] "GCST006628" "GCST006627" "GCST006626" "GCST008418" "GCST008420"
+[306] "GCST008421" "GCST008425" "GCST008426" "GCST008419" "GCST009299"
+[311] "GCST009300" "GCST008971" "GCST008973" "GCST008970" "GCST009337"
+[316] "GCST009600" "GCST010167" "GCST009738" "GCST009739" "GCST009736"
+[321] "GCST009701" "GCST009892" "GCST010283" "GCST010307" "GCST010418"
+[326] "GCST009927" "GCST009926" "GCST009928" "GCST009925" "GCST010170"
+[331] "GCST010169" "GCST010168" "GCST010047" "GCST010046" "GCST010045"
+[336] "GCST010343" "GCST010536" "GCST010485" "GCST010546" "GCST010500"
+[341] "GCST010078" "GCST010092" "GCST010538" "GCST010537" "GCST010541"
+[346] "GCST010540" "GCST010539" "GCST006814" "GCST007414" "GCST007668"
+[351] "GCST007335" "GCST007222" "GCST007408" "GCST007409" "GCST007410"
+[356] "GCST007411" "GCST007412" "GCST007413" "GCST007381" "GCST007377"
+[361] "GCST007380" "GCST007379" "GCST007378" "GCST008653" "GCST008654"
+[366] "GCST008655" "GCST008656" "GCST008657" "GCST008649" "GCST008650"
+[371] "GCST008651" "GCST009558" "GCST009529" "GCST009684" "GCST009678"
+[376] "GCST009683" "GCST009679" "GCST009702" "GCST009459" "GCST009780"
+[381] "GCST009779" "GCST009799" "GCST009457" "GCST009435" "GCST009894"
+[386] "GCST009812" "GCST009733" "GCST010123" "GCST010338" "GCST009889"
+[391] "GCST009826" "GCST009825" "GCST009824" "GCST009823" "GCST009836"
+[396] "GCST010246" "GCST010087" "GCST007142" "GCST007143" "GCST005557"
+[401] "GCST005834" "GCST005794" "GCST005647" "GCST006132" "GCST006934"
+[406] "GCST006912" "GCST007544" "GCST006976" "GCST007043" "GCST007233"
+[411] "GCST007098" "GCST007097" "GCST007095" "GCST006980" "GCST007714"
+[416] "GCST007776" "GCST009089" "GCST007899" "GCST008229" "GCST008228"
+[421] "GCST008075" "GCST008074" "GCST008073" "GCST008072" "GCST008071"
+[426] "GCST007994" "GCST007996" "GCST008358" "GCST009081" "GCST008562"
+[431] "GCST008561" "GCST008560" "GCST008283" "GCST008285" "GCST008286"
+[436] "GCST008287" "GCST008288" "GCST008289" "GCST008290" "GCST008291"
+[441] "GCST008359" "GCST008360" "GCST008361" "GCST007989" "GCST007952"
+[446] "GCST007953" "GCST010677" "GCST010684" "GCST010685" "GCST010686"
+[451] "GCST010678" "GCST010663" "GCST010636"
+[1] "Data download and unpack complete! took: 1.251653 hours"
