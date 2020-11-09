@@ -71,26 +71,9 @@ function getEthnicities() {
     })
 }
 
-function getStudies() {
-    //get the users selected traits, ethnicities, and studty types as arrays of values
-    var traitNodes = document.querySelectorAll('#traitSelect :checked');
-    var selectedTraits = [...traitNodes].map(option => option.value);
-    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked');
-    var selectedEthnicities = [...ethnicityNodes].map(option => option.value);
-    var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
-    var selectedTypes = [...typeNodes].map(option => option.value);
-
-    if (selectedTraits.length == 0) {
-        console.log("NO TRAIT SELECTED")
-        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
-        return;
-    }
-
-    //make sure the select is reset/empty so that the multiselect command will function properly
-    $('#studySelect').replaceWith("<select id='studySelect' multiple></select>");
+function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
     var studySelector = document.getElementById("studySelect");
 
-    //call the API and populate the study dropdown/multiselect with the results
     $.ajax({
         type: "POST",
         url: "/get_studies",
@@ -118,13 +101,41 @@ function getStudies() {
                     studySelector.appendChild(opt);
                 }
             }
-
             document.multiselect('#studySelect');
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
         }
     })
+}
+
+function getStudies() {
+    //get the users selected traits, ethnicities, and studty types as arrays of values
+    var traitNodes = document.querySelectorAll('#traitSelect :checked');
+    var selectedTraits = [...traitNodes].map(option => option.value);
+    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked');
+    var selectedEthnicities = [...ethnicityNodes].map(option => option.value);
+    var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
+    var selectedTypes = [...typeNodes].map(option => option.value);
+
+    if (selectedTraits.length == 0) {
+        console.log("NO TRAIT SELECTED")
+        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
+        return;
+    }
+
+    //make sure the select is reset/empty so that the multiselect command will function properly
+    $('#studySelect').replaceWith("<select id='studySelect' multiple></select>")    
+
+    //call the API and populate the study dropdown/multiselect with the results
+    h = 0
+    for (i = 500; i < selectedTraits.length; i += 500){
+        callGetStudiesAPI(selectedTraits.slice(h, i), selectedTypes, selectedEthnicities)
+        h = i
+    }
+    if (h < selectedTraits.length) {
+        callGetStudiesAPI(selectedTraits.slice(h, selectedTraits.length), selectedTypes, selectedEthnicities)
+    }
 }
 
 //called in calculatePolyScore below, 
