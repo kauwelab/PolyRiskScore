@@ -7,8 +7,19 @@ const Ukbbdata = function (mUkbbdata) {
     this.median = mUkbbdata.median,
     this.min = mUkbbdata.min,
     this.max = mUkbbdata.max,
-    this.range = mUkbbdata.range
-    // the rest of the columns should be labled p1-p100
+    this.rng = mUkbbdata.rng
+    // the rest of the columns should be labled p0-p100
+}
+
+Ukbbdata.getDiseases = () => {
+    sql.query("SELECT DISTINCT disease FROM ukbiobank_stats;", (err, res) => {
+        if (err) {
+            console.log("UKBB TABLE error: ", err);
+            result(err, null)
+            return;
+        }
+        result(null, res)
+    })
 }
 
 Ukbbdata.getSummaryResults = (studyIDs, result) => {
@@ -18,7 +29,7 @@ Ukbbdata.getSummaryResults = (studyIDs, result) => {
     }
     sqlQuestionMarks += "?"
 
-    sqlStatement = `SELECT disease, studyID, mean, median, min, max, range FROM ukbiobank_stats WHERE studyID in (${sqlQuestionMarks})`
+    sqlStatement = `SELECT disease, studyID, mean, median, min, max, rng FROM ukbiobank_stats WHERE studyID in (${sqlQuestionMarks})`
     sql.query(sqlStatement, studyIDs, (err, res) => {
         if (err) {
             console.log("error: ", err);

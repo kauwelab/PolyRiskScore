@@ -48,6 +48,8 @@ module.exports = app => {
 
     app.get("/download_cli", cli.download);
 
+    app.get("/ukbb_get_diseases", ukbbdata.getDiseases);
+
     // gets summary data (mean, median, range, ect.) from database using studyID(s)
     app.get("/ukbb_summary_results", ukbbdata.getSummaryResults);
 
