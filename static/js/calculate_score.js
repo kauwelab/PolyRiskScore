@@ -667,6 +667,32 @@ function clickFileUpload() {
 
 }
 
+const merge = (...arguments) => {
+    // create a new object
+    let target = {};
+
+    // deep merge the object into the target object
+    const merger = (obj) => {
+        for (let prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+                    // if the property is a nested object
+                    target[prop] = merge(target[prop], obj[prop]);
+                } else {
+                    // for regular property
+                    target[prop] = obj[prop];
+                }
+            }
+        }
+    };
+    // iterate through all objects and 
+    // deep merge them with target
+    for (let i = 0; i < arguments.length; i++) {
+        merger(arguments[i]);
+    }
+    return target;
+};
+
 //when the user updates the pvalue scalar or magnitude, update the display and reset the output
 function changePValScalar() {
     $("#pvalScalar").html($("#pValScalarIn").val());
