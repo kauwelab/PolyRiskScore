@@ -154,8 +154,6 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
         }
         console.log(`traits queried, ${res.length} result(s)`);
 
-        console.log(sqlQueryString)
-
         sql.query(sqlQueryString, sqlQueryParams, (err, data) => {
             if (err) {
                 console.log("error: ", err);
