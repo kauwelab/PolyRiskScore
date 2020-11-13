@@ -126,14 +126,7 @@ function getStudies() {
     $('#studySelect').replaceWith("<select id='studySelect' multiple></select>")    
 
     //call the API and populate the study dropdown/multiselect with the results
-    h = 0
-    for (i = 500; i < selectedTraits.length; i += 500){
-        callGetStudiesAPI(selectedTraits.slice(h, i), selectedTypes, selectedEthnicities)
-        h = i
-    }
-    if (h < selectedTraits.length) {
-        callGetStudiesAPI(selectedTraits.slice(h, selectedTraits.length), selectedTypes, selectedEthnicities)
-    }
+    callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities)
 }
 
 //called in calculatePolyScore below, 
