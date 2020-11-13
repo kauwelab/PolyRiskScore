@@ -87,8 +87,6 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
                 alert(`No results were found using the specified filters. Try using different filters.`)
             }
 
-            //TODO!!! make sure we won't have repeats of studies!! (put all the traits for the study?)
-            // (not SUPER urgent)
             for (i = 0; i < traits.length; i++) {
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
