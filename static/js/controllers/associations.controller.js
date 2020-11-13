@@ -211,11 +211,11 @@ function compareDuplicateAssociations(associ1, associ2, defaultPop, defaultSex) 
 }
 
 const popMapping = {
-    "AFR": [ ],
-    "AMR": [ ],
-    "EAS": [ ],
-    "EUR": [ ],
-    "SAS": [ ]
+    "AFR": [ "AFR", "AMR", "EUR", "SAS", "EAS" ],
+    "AMR": [ "AMR", "EUR", "SAS", "EAS", "AFR" ],
+    "EAS": [ "EAS", "SAS", "AMR", "EUR", "AFR" ],
+    "EUR": [ "EUR", "AMR", "SAS", "EAS", "AFR" ],
+    "SAS": [ "SAS", "EAS", "AMR", "EUR", "AFR" ]
 }
 
 function getPopScore(pop, defaultPop) {
