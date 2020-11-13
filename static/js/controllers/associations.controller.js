@@ -6,6 +6,13 @@ exports.getFromTables = (req, res) => {
     var studyIDs = req.body.studyIDs
     var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
+    var defaultPop = req.body.population;
+    var defaultSex = req.body.sex;
+
+    // if not given a sex, default to female
+    if (defaultSex == undefined){ //check this
+        defaultSex = "f"
+    }
 
     Association.getFromTables(studyIDs, pValue, refGen, async (err, data) => {
         if (err) {
@@ -18,7 +25,7 @@ exports.getFromTables = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            returnData = await separateStudies(associations, traits, refGen)
+            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex)
             res.send(returnData);
         }
     });
@@ -27,6 +34,14 @@ exports.getFromTables = (req, res) => {
 exports.getAll = (req, res) => {
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
+    var defaultPop = req.body.population;
+    var defaultSex = req.body.sex;
+
+    // if not given a sex, default to female
+    if (defaultSex == undefined){ //check this
+        defaultSex = "f"
+    }
+
     Association.getAll(pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
@@ -37,7 +52,7 @@ exports.getAll = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             associations = data[0]
             traits = data[1]
-            returnData = await separateStudies(associations, traits, refGen)
+            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex)
             
             res.send(returnData);
         }
@@ -166,4 +181,71 @@ async function separateStudies(associations, traitData, refGen) {
     }
 
     return studiesAndAssociations
+}
+
+// true is keep, false is replace
+function compareDuplicateAssociations(associ1, associ2, defaultPop, defaultSex) {
+    associ1Score = getPopScore(associ1.population, defaultPop) + getSexScore(associ1.sex, defaultSex)
+    associ2Score = getPopScore(associ2.population, defaultPop) + getSexScore(associ2.sex, defaultSex)
+
+    // if associ2 has a better score, replace associ1
+    if (associ1Score < associ2Score){
+        return false
+    }
+    // if associ1 has a better score, keep associ1
+    else if (associ1Score > associ2Score){
+        return true
+    }
+    // if the two have equal scores
+    else {
+        // compare their pValues. keep the one with the most significant (lowest) pValue
+        switch(associ1.pValue <= associ2.pvalue){
+            // keep associ1
+            case true:
+                return true;
+            // replace associ1 with associ2
+            default:
+                return false;
+        }
+    }
+}
+
+const popMapping = {
+    "AFR": [ ],
+    "AMR": [ ],
+    "EAS": [ ],
+    "EUR": [ ],
+    "SAS": [ ]
+}
+
+function getPopScore(pop, defaultPop) {
+    popArray = popMapping[defaultPop]
+
+    switch(pop) {
+        case "": 
+            return 60;
+        case popArray[0]:
+            return 50;
+        case popArray[1]:
+            return 40;
+        case popArray[2]:
+            return 30;
+        case popArray[3]:
+            return 20;
+        case popArray[4]:
+            return 10;
+        default:
+            return 0;
+    }
+}
+
+function getSexScore(sex, defaultSex) {
+    switch(sex){
+        case "": 
+            return 3;
+        case defaultSex:
+            return 2;
+        default:
+            return 1;
+    }
 }
