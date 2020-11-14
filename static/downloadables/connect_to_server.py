@@ -28,7 +28,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
             allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
             allAssociations = getAllAssociations(pValue, refGen)
             f = open(allAssociationsPath, 'w')
-            f.write(allAssociations)
+            f.write(json.dumps(allAssociations))
             f.close()
             # add a key or something to a key file??
         else:
@@ -40,7 +40,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         specificAssociationsPath = os.path.join(workingFilesPath, fileName)
         specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
         f = open(specificAssociationsPath, 'w')
-        f.write(specificAssociations)
+        f.write(json.dumps(specificAssociations))
         f.close()
     
     # if we should download a new clumps file
@@ -50,7 +50,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         # get clumps using the refGen and superpopulation
         clumpsData = getClumps(refGen, superPop)
         f = open(clumpsPath, 'w')
-        f.write(clumpsData)
+        f.write(json.dumps(clumpsData))
         f.close()
     
     # WE WON"T NEED IT LIKE THIS ANYMORE
@@ -72,9 +72,12 @@ def checkForWorkingFiles(refGen, superPop):
     
     else:
         # get date the database was last updated
-        lastDatabaseUpdate = getUrlWithParams("https://prs.byu.edu/last_database_update", params={})
+        response = requests.get(url="https://prs.byu.edu/last_database_update")
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+        lastDatabaseUpdate = response.text
         lastDatabaseUpdate = lastDatabaseUpdate.split("-")
-        lastDBUpdateDate = datetime.date(lastDatabaseUpdate[0], lastDatabaseUpdate[1], lastDatabaseUpdate[2])
+        lastDBUpdateDate = datetime.date(int(lastDatabaseUpdate[0]), int(lastDatabaseUpdate[1]), int(lastDatabaseUpdate[2]))
 
         # path to a file containing all the associations from the database
         allAssociationsFile = os.path.join(workingFilesPath, "allAssociations.txt")
