@@ -42,6 +42,7 @@ version="1.2.0"
 #       -k studyType
 #       -i studyIDs
 #       -e ethnicity
+#       -v (verbose output file)
 #       -s stepNumber
 #
 # ########################################################################
@@ -81,6 +82,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
+    echo -e "   ${MYSTERYCOLOR}-v${NC} (indicates a more detailed result file)"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
 }
@@ -128,7 +130,7 @@ learnAboutParameters () {
 
     while [[ "$cont" != "0" ]]
     do 
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
         echo    "|                                             |"
         echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                            |"
         echo -e "| ${LIGHTPURPLE}1${NC} - -f VCF File or rsIDs:genotypes file     |"
@@ -142,9 +144,10 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
         echo -e "| ${LIGHTPURPLE}8${NC} - -i studyIDs                             |"
         echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - -s stepNumber                         |"
+	echo -e "| ${LIGHTPURPLE}10${NC} - -v (verbose result file)               |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - -s stepNumber                          |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}11${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}12${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -215,10 +218,18 @@ learnAboutParameters () {
                 echo "by the authors. " # should we maybe show ethnicities when they search studies?
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
+            10 ) echo -e "${MYSTERYCOLOR} -v: ${NC}"
+                echo "For a more detailed result file, include the '-v' parameter."
+                echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
+		echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
+		echo "effect on the PRS for each corresponding sample and study."
+		echo "If this parameter is not included, the default result file will include the study ID"
+		echo "and the corresponding polygenic risk scores for each sample." 
+                echo "" ;;
+            11 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
                 echo "" ;;
-            11 ) cont=0 ;;
+            12 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -287,8 +298,9 @@ calculatePRS () {
     studyTypesForCalc=()
     studyIDsForCalc=()
     ethnicityForCalc=()
+    isCondensedFormat="True"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:s:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:v:s:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -362,6 +374,7 @@ calculatePRS () {
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity=$(echo $OPTARG | sed -r "s/(\S*)(\s)(\S*)/\1_\3/g")
                 ethnicityForCalc+=("$ethnicity");;
+            v)  isCondensedFormat="False";;
             s)  if ! [ -z "$step" ]; then
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -435,9 +448,10 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         #outputType="csv" #this is the default
-        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=fileHash $8=requiredParamsHash
+        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash
 
-        $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$fileHash" "$requiredParamsHash"
+        $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"
+
 
         echo "Caculated score"
         if [[ $fileHash != $requiredParamsHash ]]; then
