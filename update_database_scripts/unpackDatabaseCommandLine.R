@@ -1,38 +1,58 @@
 #!/usr/bin/env Rscript
 
-# This script downloads data from the GWAS catalog using the gwasrapidd library and puts it into association tables by trait. It can be run multiple
-# times concurrently on different portions of the dataset to speed up the download rate. The GWAS database dataset can be split into roughly even 
-# sections that each instance of this script will handle independently. The handling of multiple instances of the script is done by the master_script.sh,
+# This script downloads data from the GWAS catalog using the gwasrapidd library and puts it into a single association table, organized by study ID. The script
+# can be run multiple times concurrently on different portions of the dataset to speed up the download rate. The GWAS database dataset can be split into roughly
+# even sections that each instance of this script will handle independently. The handling of multiple instances of the script is done by the master_script.sh,
 # but it can also be run manually. If you want the whole GWAS catalog downloaded in 8 instances manually, set numGroups to 8 and run the script 8 times, 
 # incrementing groupNum between each instance starting at 1 and going to 8 (see commandline arguments below).
 #
-# How to run: Rscript "associationTableFolderPath" "chainFileFolderPath" "groupNum" "numGroups"
-# where: "associationTableFolderPath" is the path to the association CSV tables folder where tables will be written (default: "../tables/association_tables/").
+# How to run: Rscript unpackDatabaseCommandLine.R "associationTableFolderPath" "rawGWASTSVFolderPath" "chainFileFolderPath" "groupNum" "numGroups"
+# where: "associationTableFolderPath" is the path to the association TSV table folder where table will be written (default: "../tables/").
+#        "rawGWASTSVFolderPath" is the path to the folder where the TSVs rawGWASStudyData.tsv and rawGWASPublications.tsv are located (default: "./").
 #        "chainFileFolderPath" is the path to the folder where chain files will be stored (default: 1).
 #        "groupNum" is the integer group number or index between 1 and numGroups inclusive. 
 #        "numGroups" is the integer number of times the database will be split. This particular instance will run on the "groupNum" section (default: 1).
 #
-#TODO remove snps that have "(conditioned on rsid)" in their pvalue_description
-#TODO argument: optional list of traits to update
-#TODO argument: optional list of studies to update
+# The format of the association table is as follows:
+# snp hg38  hg19  hg18  hg17  gene  raf riskAllele  pValue  pValueAnnotation  oddsRatio lowerCI upperCI citation  studyID
+# where: "snp" is the rs id for the given SNP
+#        "hg38" is hg38 mapped location
+#        "hg19" is hg19 mapped location
+#        "hg18" is hg18 mapped location
+#        "hg17" is hg17 mapped location
+#        "gene" is a is a pipe (|) separated list of gene:distanceToGene strings (ex: C1orf140:107304|AL360013.2:64825)
+#        "raf" is the risk allele frequency
+#        "riskAllele" is the risk allele
+#        "pValue" is the p-value
+#        "pValueAnnotation" is the description associated with the given p-value (TODO-temporary!!!)
+#        "oddsRatio" is the odds ratio associated with the given p-value
+#        "lowerCI" is the lower confidence interval of the odds ratio
+#        "upperCI" is the upper confidence interval of the odds ratio
+#        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
+#        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
 
 # get args from the commandline- these are evaluated after imports section below
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
-  args[1] <- "../tables/association_tables/"
-  args[2] <- "."
-  args[3] <- 1
+  args[1] <- "../tables/"
+  args[2] <- "./"
+  args[3] <- "./"
   args[4] <- 1
+  args[5] <- 1
 } else if (length(args)==1) {
-  # default chain file path
-  args[2] <- "."
-  args[3] <- 1
+  args[2] <- "./"
+  args[3] <- "./"
   args[4] <- 1
+  args[5] <- 1
 } else if (length(args)==2) {
-  args[3] <- 1
+  args[3] <- "."
   args[4] <- 1
+  args[5] <- 1
 } else if (length(args)==3) {
   args[4] <- 1
+  args[5] <- 1
+}else if (length(args)==4) {
+  args[5] <- 1
 }
 
 print("Initializing script!")
@@ -79,9 +99,15 @@ suppressMessages(library(purrr))
 if (is_ebi_reachable()) {
   # evaulate command line arguments if supplied
   outPath <- args[1]
-  chainFilePath <- args[2]
+  rawGWASTSVFolderPath <- args[2]
+  chainFilePath <- args[3]
+  groupNum <- as.numeric(args[4])
+  numGroups <- as.numeric(args[5])
   dir.create(file.path(outPath), showWarnings = FALSE)
-  
+  # remove the old associations_table.tsv and create a new blank one with column names "columnNames" and no data yet
+  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "citation", "studyID")
+  writeLines(paste(columnNames, collapse = "\t"), file.path(outPath, "associations_table.tsv"))
+
   # the minimum number of SNPs a study must have to be valid and outputted
   minNumStudyAssociations <- 1
   
@@ -93,7 +119,7 @@ if (is_ebi_reachable()) {
   ch19To18 = import.chain(path19To18)
   ch19To17 = import.chain(path19to17)
   
-  ## functions-----------------------------------------------------------------------------------------
+## functions-----------------------------------------------------------------------------------------
   
   # prints string by default unless isDev = FALSE: used for debugging
   DevPrint <- function(string, isDev = TRUE) {
@@ -151,19 +177,19 @@ if (is_ebi_reachable()) {
     return(secondHgTibble[[1]])
   }
 
-  # splits numTraits into minimaly sized groups, then returns the start and stop indicies for the given group number. When groups aren't even, the 
-  # remainder is split between the last groups. The first group starts at 1 and the last group stops at numTraits. 
-  # eg: if there are 3000 traits and 2 groups, then the groupings are as follows:
-  # group 1: (1, 1500), group 2: (1501, 3000)
-  getStartAndEndIndecies <- function(numTraits, groupNum, numGroups) {
-    # if there are more groups than traits, this function doesn't work
-    if (numTraits < numGroups) {
+  # splits numStudies into minimaly sized groups, then returns the start and stop indicies for the given group number. When groups aren't even, the 
+  # remainder is split between the last groups. The first group starts at 1 and the last group stops at numStudies. 
+  # eg: if there are 9000 studies and 2 groups, then the groupings are as follows:
+  # group 1: (1, 4500), group 2: (4501, 9000)
+  getStartAndEndIndecies <- function(numStudies, groupNum, numGroups) {
+    # if there are more groups than studies, this function doesn't work
+    if (numStudies < numGroups) {
       return("Error")
     }
     else { 
       # split up the remainder between the last groups
-      zp = numGroups - (numTraits %% numGroups)
-      increment = floor(numTraits / numGroups) 
+      zp = numGroups - (numStudies %% numGroups)
+      increment = floor(numStudies / numGroups) 
       if(groupNum > zp) {
         startIndex <- (increment * (groupNum - 1)) + ((groupNum - 1) - zp) + 1
         stopIndex <- (increment * groupNum) + (groupNum - zp)
@@ -176,139 +202,158 @@ if (is_ebi_reachable()) {
     }
   }
   
-  ##------------------------------------------------------------------------------------------------------------------------
+  # formats the associationsTable for output by removing unneeded rows, renaming the remaining rows, and adding hg columns
+  formatAssociationsTable <- function(associationsTable) {
+    if (nrow(associationsTable) > 0) {
+      # renames columns to names the database will understand
+      associationsTable <- ungroup(associationsTable) %>%
+        dplyr::rename(snp = variant_id,raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number)
+      # arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
+      associationsTable <- select(associationsTable, c(snp, hg38, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
+        arrange(citation, studyID, snp)
+      
+      # gets hg19, hg18, hg17 for the traits
+      associationsTable <- add_column(associationsTable, hg19 = hgToHg(associationsTable["hg38"], "hg19"), .after = "hg38")
+      associationsTable <- add_column(associationsTable, hg18 = hgToHg(associationsTable["hg19"], "hg18"), .after = "hg19")
+      associationsTable <- add_column(associationsTable, hg17 = hgToHg(associationsTable["hg19"], "hg17"), .after = "hg18")
+      # removes the NAs from the data
+      associationsTable <- as.data.frame(associationsTable) %>% replace(., is.na(.), "")
+      return(associationsTable)
+    }
+  }
   
-  # download trait data
-  print("Downloading trait data!")
-  traits <- get_traits()@traits
-  print("Trait data downloaded!")
+  # appends the contents of the associationsTable to the associations table found in the outPath folder
+  appendToAssociationsTable <- function(associationsTable) {
+    # writes out the data into a TSV at outPath (from argv)
+    write_tsv(associationsTable, file.path(outPath, "associations_table.tsv"), append = TRUE)
+  }
+  
+#------------------------------------------------------------------------------------------------------------------------
+  
+  # get study data from TSVs
+  print("Reading study data from TSVs!")
+  # get study data for all the studies
+  studiesTibble <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASStudyData.tsv"), col_types = cols())
+  # get publication data for all the studies
+  publications <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASPublications.tsv"), col_types = cols())
+  print("Study data read!")
 
-  # get the start and stop indecies of the trait data given groupNum and numGroups
-  startAndStopIndecies <- getStartAndEndIndecies(nrow(traits), as.numeric(args[3]), as.numeric(args[4]))
+  # get the start and stop indecies of the study data given groupNum and numGroups
+  startAndStopIndecies <- getStartAndEndIndecies(nrow(studiesTibble), groupNum, numGroups)
   startIndex <- startAndStopIndecies[1]
   stopIndex <- startAndStopIndecies[2]
   
-  # initialize invalidTraits and invalidStudies arrays
-  invalidTraits <- c()
+  # initialize invalidStudies array
   invalidStudies <- c()
+  #initiaize the new assocations table
+  associationsTable <- tibble()
+  
+  # holds the indices (i) that have been appended to the associationsTable
+  studyIndeciesAppended <- c()
   
   DevPrint(paste0("Startup took ", format(Sys.time() - start_time)))
-  DevPrint(paste0("Getting data from traits ", startIndex, " to ", stopIndex))
-  # for each trait
+  DevPrint(paste0("Getting data from studies ", startIndex, " to ", stopIndex))
+  # for each study
   for (i in startIndex:stopIndex) {
     tryCatch({
-      # starts a timer to time how long it takes to output this trait's results
-      trait_time <- Sys.time()
+      # gets the study ID
+      studyID <- pull(studiesTibble[i, "study_id"])
       
-      # gets the trait data, including all studies associated
-      trait <- pull(traits[i, "trait"])
-      trait <- str_replace_all(trait, "'", "'") #TODO make more robust: L�fgren's syndrome has a strange comma in it that we switch to the normal comma
-      efo_id <- pull(traits[i, "efo_id"])
-      efo_studies <- get_studies(efo_id = efo_id)
-      efo_studies_tibble <- efo_studies@studies
+      # get citation data (author + year published)
+      citation <- paste(str_replace(pull(publications[i, "author_fullname"]), "�", "o"), str_sub(pull(publications[i, "publication_date"]), 1, 4)) #TODO make more robust removing strange o from L�fgren's syndrome
+      # get pubmed ID for the study
+      pubmedID <- pull(publications[i, "pubmed_id"])
       
-      DevPrint(paste0(i, " of ", stopIndex, ": ", trait, "-", efo_id, " with ", nrow(efo_studies_tibble), " studies:"))
+      # if the study ID is invalid, skip it
+      if (studyID %in% invalidStudies) {
+        DevPrint(paste0("    skipping study bc not enough snps: ", citation, "-", studyID))
+      } else {
+        DevPrint(paste0("  ", i, ". ", citation))
       
-      # if the study is empty, skip it
-      if (nrow(efo_studies_tibble) <= 0) {
-        DevPrint(paste0("  skipped- no studies for this trait!"))
-        invalidTraits <- c(invalidTraits, trait)
-        next
-      }
-
-      # get publication data for a trait
-      efo_publications <- efo_studies@publications
-      
-      # initializes trait table for CSV data
-      trait_table <- tibble()
-      
-      # for each study, get all its data
-      for (j in 1:nrow(efo_studies_tibble)) {
-        tryCatch({
-          # get citation data (author + year published)
-          citation <- paste(str_replace(pull(efo_publications[j, "author_fullname"]), "�", "o"), str_sub(pull(efo_publications[j, "publication_date"]), 1, 4)) #TODO make more robust removing strange o from L�fgren's syndrome
-          
-          DevPrint(paste0("  ", j, ". ", citation))
-
-          # get the study ID and pubmed IDs for the study
-          study_id <- pull(efo_studies_tibble[j, "study_id"])
-          pubmed_id <- pull(efo_publications[j, "pubmed_id"])
-
-          # if the study ID is invalid, skip it
-          if (study_id %in% invalidStudies) {
-            DevPrint(paste0("    skipping study bc not enough snps: ", citation, "-",study_id))
-            next
-          }
-
-          # get other data
-          variants <- get_variants(study_id = study_id)
-          variants_tibble <- variants@variants
-          genomic_contexts <- variants@genomic_contexts
-          associations <- get_associations(study_id = study_id)
-          associations_tibble <- associations@associations
-          # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
-          risk_alleles <- associations@risk_alleles %>%
-            group_by(association_id) %>% 
-            filter(dplyr::n()==1)
-          
-          # merge data together
-          master_variants <- full_join(genomic_contexts, variants_tibble, by = "variant_id") %>%
-            dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
-            unite("gene", gene_name, distance, sep = ":") %>%
-            mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
-            group_by(variant_id) %>% 
-            summarise_all(list(~toString(unique(na.omit(.))))) %>%
-            mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
+        # gets the association data associated with the study ID
+        associations <- get_associations(study_id = studyID)
+        associationsTibble <- associations@associations
+        # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
+        riskAlleles <- associations@risk_alleles %>%
+          group_by(association_id) %>% 
+          filter(dplyr::n()==1)
+        
+        # gets the variants data associated with the study ID
+        variants <- get_variants(study_id = studyID)
+        # contains last update date for each variant ID
+        variantsTibble <- variants@variants
+        # contains gene names, position, and distances from nearest genes for each variant ID
+        genomicContexts <- variants@genomic_contexts
+        
+        # gets the traits data associated with the study ID
+        traitsTibble <- get_traits(study_id = studyID)@traits
+        
+        # merge data together
+        master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
+          dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
+          unite("gene", gene_name, distance, sep = ":") %>%
+          mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
+          group_by(variant_id) %>% 
+          summarise_all(list(~toString(unique(na.omit(.))))) %>%
+          mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
+        # set the values of all empty cells to NA
+        if (nrow(master_variants) > 0) {
           master_variants[master_variants == ""] <- NA
-          master_associations <- left_join(risk_alleles, associations_tibble, by = "association_id")
-          study_table <- left_join(master_associations, master_variants, by = "variant_id") %>%
-            unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
-            mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
-            tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
-            add_column(citation = citation) %>%
-            add_column(studyID = study_id, .after = "citation")%
-          # remove rows missing risk alleles or odds ratios, or which have X as their chromosome
-          study_table <- filter(study_table, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X"))
-          
-          # if there are not enough snps left in the study table, add it to a list of ignored studies
-          if (nrow(study_table) < minNumStudyAssociations) {
-            invalidStudies <- c(invalidStudies, study_id)
+        }
+        master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
+        studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
+          unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
+          mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
+          tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
+          add_column(citation = citation) %>%
+          add_column(studyID = studyID, .after = "citation") %>% 
+          mutate(pvalue_description = tolower(pvalue_description))
+        # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
+        studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("conditioned on",pvalue_description))
+        
+        # if there are not enough snps left in the study table, add it to a list of ignored studies
+        if (nrow(studyData) < minNumStudyAssociations) {
+          invalidStudies <- c(invalidStudies, studyID)
+          DevPrint(paste0("    Not enough info for ", citation))
+        } else { # otherwise add the rows to the association table
+          associationsTable <- bind_rows(studyData, associationsTable)
+          studyIndeciesAppended <- c(studyIndeciesAppended, i)
+        }
+        # for every 10 studies, append to the associations_table.tsv
+        if (i %% 10 == 0) {
+          # if there are studies in the associations table, print them out and reset the tibble
+          if (nrow(associationsTable) > 0) {
+  	        associationsTable <- formatAssociationsTable(associationsTable)
+  	        appendToAssociationsTable(associationsTable)
+  	        # reset the associationsTable and keep going
+            associationsTable <- tibble()
+  	        indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+            DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
+            studyIndeciesAppended <- c()
           }
-          # otherwise add the rows to the trait table
-          else {
-            trait_table <- bind_rows(study_table, trait_table)
-          }
-        }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+          DevPrint(paste0("Time elapsed: ", format(Sys.time() - start_time)))
+        }
       }
-      
-      if (nrow(trait_table) > 0) {
-        # renames columns to names the database will understand
-        trait_table <- ungroup(trait_table) %>%
-          dplyr::rename(snp = variant_id,raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, oddsRatio = or_per_copy_number)
-        # arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
-        trait_table <- select(trait_table, c(snp, hg38, gene, raf, riskAllele, pValue, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
-          arrange(citation, studyID, snp) %>%
-          add_column(id = rownames(trait_table), .before = "snp")
+    }, error=function(e){
+      cat("ERROR:",conditionMessage(e), "\n")
+      if (conditionMessage(e) == "cannot open the connection") {
+        stop("The table was likely opened during the download process and can't be used by the program. Please close the table and try again.")
       }
-      if (nrow(trait_table) > 0) {
-        # gets hg19, hg18, hg17 for the traits
-        trait_table <- add_column(trait_table, hg19 = hgToHg(trait_table["hg38"], "hg19"), .after = "hg38")
-        trait_table <- add_column(trait_table, hg18 = hgToHg(trait_table["hg19"], "hg18"), .after = "hg19")
-        trait_table <- add_column(trait_table, hg17 = hgToHg(trait_table["hg19"], "hg17"), .after = "hg18")
-        # writes out the data into CSVs at the outPath specified
-        write.csv(trait_table, file.path(outPath, paste0(str_replace(trait, "/", "-"), ".csv")), row.names=FALSE, fileEncoding = "UTF-8") #"NK/T cell lymphoma" requires that we replace "/" with "-"
-      }
-      else {
-        DevPrint(paste0("No valid SNPs for '", trait, "'!"))
-        invalidTraits <- c(invalidTraits, trait)
-      }
-      print(paste0(trait, " complete! ", "took: ", format(Sys.time() - trait_time)))
-      print(paste0("Time elapsed: ", format(Sys.time() - start_time)))
-    }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+    })
   }
-  DevPrint(paste("Traits with no valid snps: ", invalidTraits))
-
+  
+  # if there are any studies left in the associationsTable, append them to the output file
+  if (nrow(associationsTable) > 0) {
+    associationsTable <- formatAssociationsTable(associationsTable)
+    appendToAssociationsTable(associationsTable)
+    indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+    DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
+  }
 } else {
   is_ebi_reachable(chatty = TRUE)
   stop("The EBI API is unreachable. Check internet connection and try again.", call.=FALSE)
 }
+
+DevPrint(paste("Traits with no valid snps:", length(invalidStudies)))
+DevPrint(invalidStudies)
+print(paste0("Data download and unpack complete! ", "took: ", format(Sys.time() - start_time)))

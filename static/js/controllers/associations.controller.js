@@ -136,6 +136,7 @@ exports.joinTest = (req, res) => {
     })
 }
 
+// gets the last time the associations tsv was updated. Used for the cli to check if the user needs to re-download association data
 exports.getLastAssociationsUpdate = (req, res) => {
     associationsPath = path.join(__dirname, '../../..', "tables/associations_table.tsv")
     statsObj = fs.statSync(associationsPath)
