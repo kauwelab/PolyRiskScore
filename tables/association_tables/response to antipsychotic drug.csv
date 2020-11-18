@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs12476047","2:163461366","2:164317876","2:164026122","2:164143383","RNU6-627P:172270|LOC105373728:4552|LOC107985829:3911|FIGN:141245|FIGN:132030",NA,"C",3e-06,3.21,"1.97","5.25","Alkelai A 2009","GCST000462"

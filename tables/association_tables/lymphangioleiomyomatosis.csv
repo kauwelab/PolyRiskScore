@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs2006950","15:95636161","15:96179390","15:93980394","15:93980394","LOC105370995:44075|RNU2-3P:109643|LINC00924:128296|AC015574.1:2155",0.762,"G",3e-08,2.4044242,NA,NA,"Kim W 2019","GCST008311"

@@ -1,2 +1,0 @@
-"id","snp","hg38","hg19","hg18","hg17","gene","raf","riskAllele","pValue","oddsRatio","lowerCI","upperCI","citation","studyID"
-"1","rs7193144","16:53776774","16:53810686","16:52368187","16:52368187","FTO-IT1:262619|RPGRIP1L:72836|FTO:0|AC007496.2:204455",0.858,"T",1e-07,1.37,"1.22","1.54","Cha S 2015","GCST002854"

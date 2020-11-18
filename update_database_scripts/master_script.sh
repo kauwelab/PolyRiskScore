@@ -2,11 +2,10 @@
 
 # This script calls the other scripts in the folder to:
 #   1. download data from the GWAS catalog, 
-#   2. put the data in association tables,
+#   2. put the data in an association table,
 #   3. create a study table,
-#   4. find new and updated studies and traits, 
-#   5. and upload these studies and traits to the PRSKB database. 
-# It usually takes 6ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
+#   4. and upload the new study and association tables to the PRSKB database. 
+# It usually takes 4ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
 #
@@ -23,117 +22,95 @@ if [ $# -lt 2 ]; then
     echo "  [password]"
     echo "  [number of nodes to download data (default: 1)]"
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
-    echo "  [optional: path to association csvs folder (default: \"../tables/association_tables/\")]"
-    echo "  [optional: path to study table folder (not same as association csvs folder) (default: \"./\")]"
+    echo "  [optional: path to association tsv file folder (default: \"../tables/\")]"
+    echo "  [optional: path to study table tsv folder (default: \"../tables/\")]"
+    echo "  [optional: path to sample vcf  folder (default: \"../static/\")]"
     read -p "Press [Enter] key to quit..."
-# check if $2 is a number
+# check if $2, or numNodes, is a number
 elif ! [[ "$2" =~ ^[0-9]+$ ]]; then
     echo "$2 is the number of nodes you specified to download data, but it is not an integer."
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
-# check that if $3 is populated, it is a directory that exists
+# check that if $3, the consoleOutputFolder, is populated, it is a directory that exists
 elif [ ! -z $3 ] && [ ! -d $3 ]; then
     echo "Directory" $3 "does not exist."
     read -p "Press [Enter] key to quit..."
-# check that if $4 is populated, it is a directory that exists
+# check that if $4, the associationTableFolderPath,  is populated, it is a directory that exists
 elif [ ! -z $4 ] && [ ! -d $4 ]; then
     echo "Directory" $4 "does not exist."
     read -p "Press [Enter] key to quit..."
-# check that if $5 is populated, it is a directory that exists
+# check that if $5, the studyTableFolderPath, is populated, it is a directory that exists
 elif [ ! -z $5 ] && [ ! -d $5 ]; then
     echo "Directory " + $5 + " does not exist."
+    read -p "Press [Enter] key to quit..."
+# check that if $6, the sampleVCFFolderPath, is populated, it is a directory that exists
+elif [ ! -z $6 ] && [ ! -d $6 ]; then
+    echo "Directory " + $6 + " does not exist."
     read -p "Press [Enter] key to quit..."
 else
     password=$1
     numGroups=$2
     # if $3, $4, or $5 aren't populated, set them to default values
     consoleOutputFolder=${3:-"./console_files/"}
-    associationTablesFolderPath=${4:-"../tables/association_tables/"} 
+    associationTableFolderPath=${4:-"../tables/"} 
     studyTableFolderPath=${5:-"../tables/"}
+    sampleVCFFolderPath=${6:-"../static/"}
 
 #===============Creating Output Paths========================================================
-    # if the default path doesn't exist, create it
+    # if the default console output folder path doesn't exist, create it
     if [ ! -d $consoleOutputFolder ]; then
         mkdir $consoleOutputFolder
         echo "Default console output folder created at" $consoleOutputFolder
     fi
 
-    # if the default path doesn't exist, create it
-    if [ ! -d $associationTablesFolderPath ]; then
-        mkdir $associationTablesFolderPath
-        echo "Default associations table folder created at" $associationTablesFolderPath
+    # if the default association table folder path doesn't exist, create it
+    if [ ! -d $associationTableFolderPath ]; then
+        mkdir $associationTableFolderPath
+        echo "Default associations table folder created at" $associationTableFolderPath
+    fi
+
+    # if the default study table folder path doesn't exist, create it
+    if [ ! -d $studyTableFolderPath ]; then
+        mkdir $studyTableFolderPath
+        echo "Default associations table folder created at" $studyTableFolderPath
     fi
 
 #===============GWAS Database Unpacker======================================================
+    # download a portion of the study data from the GWAS catalog and put it into tsv files
+    # this makes it so each instance of the "unpackDatabaseCommandLine.R" doesn't need to download its own data
+    studyAndPubTSVFolderPath="."
+    Rscript downloadStudiesToFile.R $studyAndPubTSVFolderPath
+
+    chainFileFolderPath="."
     echo "Running GWAS database unpacker. This will take many hours depending on the number of nodes you specified to download data."
     for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
-        Rscript unpackDatabaseCommandLine.R $associationTablesFolderPath "." $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
+        Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
     done
     wait
-    echo -e "Finished unpacking the GWAS database. The associations tables can be found at" $associationTablesFolderPath "\n"
+    echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
 
 #===============Study Table Code============================================================
     echo "Creating the study table. This can take an hour or more to complete."
-    Rscript createStudyTable.R $outputFilesPath
+    Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
     wait
     echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
-
-#===============Get Updated Studies and Traits===============
-    # get updated studies and traits
-    echo "Getting the updated studies and traits lists."
-    output=`python3 getUpdatedStudiesAndTraitsLists.py "$password" "$studyTableFolderPath"`
-    # 1 if there was an error executing getUpdatedStudiesAndTraitsLists.py, 0 if there was no error
-    updatedListsReturnCode=$?
-    # read the output into an array of lines
-    readarray -t arrayOutput <<<"$output"
-
-    # if the getUpdatedStudiesAndTraitsLists exited with errors, print the errors and abort
-    if ! [[ $updatedListsReturnCode == 0 ]]; then
-        echo "The updated studies and traits could not be determined. Aborting."
-        END=${#arrayOutput[@]}
-        for ((i=0;i<=END;i++)); do
-            echo ${arrayOutput[$i]}
-        done
-        read -p "Press [Enter] key to finish..."
-        exit 1
-    fi
-
-    # print all but the last 3 lines, two of which are the updated studies and trait lists and the last is an empty line (not sure why)
-    END=${#arrayOutput[@]}-3
-    for ((i=0;i<=END;i++)); do
-        echo ${arrayOutput[$i]}
-    done
-
-    # capture the study and trait lists as strings and remove \r and \n
-    updatedStudies=$(echo ${arrayOutput[$i]} | sed -e 's/\r\n//g')
-    updatedTraits=$(echo ${arrayOutput[$i+1]} | sed -e 's/\r\n//g')
-
-    # send the updatedStudies to a txt file
-    echo $updatedStudies > updatedStudies.txt
-    # send the updatedTraits to a txt file
-    echo $updatedTraits > updatedTraits.txt
-    echo "Printed out updated studies to updatedStudies.txt and updated traits to updatedTraits.txt for LD clumping script."
-
-    # add a space between sections in the output
-    echo ""
+    # delete the raw study data files after the study table has been created
+    rm "./rawGWASStudyData.tsv"
+    rm "./rawGWASPublications.tsv"
+    rm "./rawGWASAncestries.tsv"
 
 #===============Upload Tables to PRSKB Database========================================================
     # if updatedStudies is empty or none, dont' upload, otherwise upload new tables
-    if [ -z "$updatedStudies" ] || [ "$updatedStudies" == "none" ]; then
-        echo -e "No GWAS catalog tables have been updated, so no tables were updated or uploaded to the PRSKB database.\n"
-    else
-        echo "Uploading tables to the PRSKB database."
-        python3 uploadTablesToDatabase.py "$password" $associationTablesFolderPath $studyTableFolderPath "false" "$updatedTraits"
-        wait
-        echo -e "Finished uploading tables to the PRSKB database.\n"
-    fi
+    echo "Uploading tables to the PRSKB database."
+    python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
+    wait
+    echo -e "Finished uploading tables to the PRSKB database.\n"
 
 #===============Create Sample VCF=====================================================================
     echo "Creating sample vcf"
-    python3 createSampleVCF.py
+    python3 createSampleVCF.py "sample" $sampleVCFFolderPath
     wait 
     echo "Finished creating sample vcf"
-    # need to move the vcf to the correct location...
 
     read -p "Press [Enter] key to finish..."
 fi
