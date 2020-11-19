@@ -3,7 +3,7 @@ const path = require("path")
 const fs = require("fs")
 
 exports.getFromTables = (req, res) => {
-    var studyIDs = req.body.studyIDs
+    var studyIDObjs = req.body.studyIDObjs
     var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
     var defaultPop = req.body.population;
@@ -15,7 +15,7 @@ exports.getFromTables = (req, res) => {
         defaultSex = "f"
     }
 
-    Association.getFromTables(studyIDs, pValue, refGen, async (err, data) => {
+    Association.getFromTables(studyIDObjs, pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
