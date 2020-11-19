@@ -19,6 +19,8 @@ module.exports = app => {
     // Retrieves study general data for specified studies
     app.post("/get_studies", studies.getFiltered);
 
+    app.get("/get_studies_by_id", studies.getByID);
+
     //searches for study titles or citations containing the given search string
     app.get("/find_studies/:searchStr", studies.findStudies);
 
