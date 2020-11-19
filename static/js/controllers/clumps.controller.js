@@ -21,7 +21,7 @@ exports.getClumpingByPos = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
     positions = req.query.positions
-    Clump.getClumps(superPopulation, refGenome, positions, (err, data) => {
+    Clump.getClumpsByPos(superPopulation, refGenome, positions, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving clumping data"
@@ -38,7 +38,7 @@ exports.getClumpingBySnp = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
     snps = req.query.snps
-    Clump.getClumps(superPopulation, refGenome, snps, (err, data) => {
+    Clump.getClumpsBySnp(superPopulation, refGenome, snps, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving clumping data"
