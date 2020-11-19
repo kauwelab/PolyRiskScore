@@ -26,7 +26,6 @@ module.exports = app => {
     app.post("/get_associations", associations.getFromTables);
 
     // Returns all associations for all traits and diseases, given the correct query params
-    // organized {trait: {studies: [associations]}}
     app.get("/all_associations", associations.getAll);
 
     app.get("/all_snps", associations.getAllSnps);

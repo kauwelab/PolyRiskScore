@@ -6,6 +6,13 @@ exports.getFromTables = (req, res) => {
     var studyIDs = req.body.studyIDs
     var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
+    var defaultPop = req.body.population;
+    var defaultSex = req.body.sex;
+
+    // if not given a sex, default to female
+    if (defaultSex == undefined){ //check this
+        defaultSex = "f"
+    }
 
     Association.getFromTables(studyIDs, pValue, refGen, async (err, data) => {
         if (err) {
@@ -18,7 +25,8 @@ exports.getFromTables = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            returnData = await separateStudies(associations, traits, refGen)
+            // returnData is a list [studyIDsToMetaData, AssociationsByPos]
+            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex)
             res.send(returnData);
         }
     });
@@ -27,6 +35,14 @@ exports.getFromTables = (req, res) => {
 exports.getAll = (req, res) => {
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
+    var defaultPop = req.body.population;
+    var defaultSex = req.body.sex;
+
+    // if not given a sex, default to female
+    if (defaultSex == undefined){ //check this
+        defaultSex = "f"
+    }
+
     Association.getAll(pValue, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
@@ -37,7 +53,8 @@ exports.getAll = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             associations = data[0]
             traits = data[1]
-            returnData = await separateStudies(associations, traits, refGen)
+            // returnData is a list [studyIDsToMetaData, AssociationsByPos]
+            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex)
             
             res.send(returnData);
         }
@@ -144,42 +161,135 @@ exports.getLastAssociationsUpdate = (req, res) => {
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
 }
 
-async function separateStudies(associations, traitData, refGen) {
-    var studyToTraits = {}
+async function separateStudies(associations, traitData, refGen, population, sex, isPosBased) {
+
+    ident = (isPosBased) ? refGen : 'snp'
+
+    var studyIDsToMetaData = {}
     for (i=0; i < traitData.length; i++) {
         var studyObj = traitData[i]
-        if (studyObj.studyID in studyToTraits) {
-            studyToTraits[studyObj.studyID].traits.add(studyObj.trait)
-            studyToTraits[studyObj.studyID].reportedTraits.add(studyObj.reportedTrait)
+        if (studyObj.studyID in studyIDsToMetaData) {
+            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait}
         }
         else {
-            studyToTraits[studyObj.studyID] = {traits: new Set([studyObj.trait]), reportedTraits: new Set([studyObj.reportedTrait])}
+            studyIDsToMetaData[studyObj.studyID] = {}
+            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait}
         }
     }
 
-    var studiesAndAssociations = {}
+    var AssociationsByPos = {}
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
-        var row = {
-            pos: association[refGen],
-            snp: association.snp,
-            riskAllele: association.riskAllele,
-            pValue: association.pValue,
-            oddsRatio: association.oddsRatio
-        }
-
-        if (association.studyID in studiesAndAssociations) {
-            studiesAndAssociations[association.studyID].associations.push(row)
-        }
-        else {
-            studiesAndAssociations[association.studyID] = {
-                citation: association.citation, 
-                traits: Array.from(studyToTraits[association.studyID].traits), 
-                reportedTraits: Array.from(studyToTraits[association.studyID].reportedTraits),
-                associations: [row]
+        // if the pos/snp already exists in our map
+        if (association[ident] in AssociationsByPos){
+            // if the trait already exists for the pos/snp
+            if (association.trait in AssociationsByPos[ident].traits){
+                // if the studyID already exists for the pos/snp - trait, check if we should replace the current allele/oddsRatio/pValue
+                if (association.studyID in AssociationsByPos[ident].traits[association.trait]){
+                    var replace = compareDuplicateAssociations(AssociationsByPos[ident].traits[association.trait][association.studyID], association)
+                    if (replace) {
+                        AssociationsByPos[ident].traits[association.trait][association.studyID] = createStudyIDObj(association)
+                    }
+                }
+                else {
+                    // add the studyID and data
+                    AssociationsByPos[ident].traits[association.trait][association.studyID] = createStudyIDObj(association)
+                }
             }
+            else {
+                // add the trait and studyID data
+                AssociationsByPos[ident].traits[association.trait] = {}
+                AssociationsByPos[ident].traits[association.trait][association.studyID] = createStudyIDObj(association)
+            }
+        }
+        // else add the pos->trait->studyID 
+        else {
+            AssociationsByPos[association[ident]] = {
+                snp: association.snp,
+                pos: association[refGen],
+                traits: {}
+            }
+            AssociationsByPos[association[ident]].traits[association.trait] = {}
+            AssociationsByPos[association[ident]].traits[association.trait][association.studyID] = createStudyIDObj(association)
         }
     }
 
-    return studiesAndAssociations
+    return [studyIDsToMetaData, AssociationsByPos]
+}
+
+function createStudyIDObj(association){
+    return {
+        riskAllele: association.riskAllele,
+        pValue: association.pValue,
+        oddsRatio: association.oddsRatio,
+        sex: association.sex,
+        pop: association.population
+    }
+}
+
+// true is replace, false is keep
+function compareDuplicateAssociations(oldAssoci, newAssoci, defaultPop, defaultSex) {
+    oldAssociScore = getPopScore(oldAssoci.population, defaultPop) + getSexScore(oldAssoci.sex, defaultSex)
+    newAssociScore = getPopScore(newAssoci.population, defaultPop) + getSexScore(newAssoci.sex, defaultSex)
+
+    // if associ2 has a better score, replace associ1
+    if (oldAssociScore < newAssociScore){
+        return true
+    }
+    // if associ1 has a better score, keep associ1
+    else if (oldAssociScore > newAssociScore){
+        return false
+    }
+    // if the two have equal scores
+    else {
+        // compare their pValues. keep the one with the most significant (lowest) pValue
+        switch(oldAssoci.pValue <= newAssoci.pvalue){
+            // keep associ1
+            case true:
+                return false;
+            // replace associ1 with associ2
+            default:
+                return true;
+        }
+    }
+}
+
+const popMapping = {
+    "AFR": [ "AFR", "SAS", "EAS", "AMR", "EUR" ],
+    "AMR": [ "AMR", "EUR", "SAS", "EAS", "AFR" ],
+    "EAS": [ "EAS", "SAS", "EUR", "AMR", "AFR" ],
+    "EUR": [ "EUR", "AMR", "SAS", "EAS", "AFR" ],
+    "SAS": [ "SAS", "EAS", "EUR", "AMR", "AFR" ]
+}
+
+function getPopScore(pop, defaultPop) {
+    popArray = popMapping[defaultPop]
+
+    switch(pop) {
+        case "": 
+            return 60;
+        case popArray[0]:
+            return 50;
+        case popArray[1]:
+            return 40;
+        case popArray[2]:
+            return 30;
+        case popArray[3]:
+            return 20;
+        case popArray[4]:
+            return 10;
+        default:
+            return 0;
+    }
+}
+
+function getSexScore(sex, defaultSex) {
+    switch(sex){
+        case "": 
+            return 3;
+        case defaultSex:
+            return 2;
+        default:
+            return 1;
+    }
 }
