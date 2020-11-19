@@ -186,7 +186,7 @@ async function separateStudies(associations, traitData, refGen, population, sex,
             if (association.trait in AssociationsByPos[ident].traits){
                 // if the studyID already exists for the pos/snp - trait, check if we should replace the current allele/oddsRatio/pValue
                 if (association.studyID in AssociationsByPos[ident].traits[association.trait]){
-                    var replace = compareDuplicateAssociations(AssociationsByPos[ident].traits[association.trait][association.studyID], association)
+                    var replace = compareDuplicateAssociations(AssociationsByPos[ident].traits[association.trait][association.studyID], association, population, sex)
                     if (replace) {
                         AssociationsByPos[ident].traits[association.trait][association.studyID] = createStudyIDObj(association)
                     }
