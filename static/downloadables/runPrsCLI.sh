@@ -420,7 +420,9 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash')"
+        # get the file extension to pass to the script
+        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext($filename); print(f_ext)"
+        $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension')"
 
         echo "Got SNPs and disease information from PRSKB"
         echo "Got Clumping information from PRSKB"

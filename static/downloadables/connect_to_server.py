@@ -8,7 +8,7 @@ import time
 import datetime
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash):
+def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension):
     # Format variables used for getting associations
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
@@ -16,6 +16,8 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
+    isPosBased = True if extension.lower() == (".vcf") else False
+    keyType = "pos" if isPosBased else "snp"
     
     # TODO still need to test this - can't be done until the new server is live with the new api code
     dnldNewAllAssociFile, dnldNewRefGenSuperPopClumpsFile = checkForWorkingFiles(refGen, superPop)
@@ -26,7 +28,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         # if we need to download a new all associations file, write to file
         if (dnldNewAllAssociFile):
             allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
-            allAssociations = getAllAssociations(pValue, refGen)
+            allAssociations = getAllAssociations(pValue, refGen, isPosBased)
             f = open(allAssociationsPath, 'w')
             f.write(json.dumps(allAssociations))
             f.close()
@@ -38,26 +40,23 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         specificAssociationsPath = os.path.join(workingFilesPath, fileName)
-        specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity)
+        specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isPosBased)
         f = open(specificAssociationsPath, 'w')
         f.write(json.dumps(specificAssociations))
         f.close()
     
     # if we should download a new clumps file
     if (dnldNewRefGenSuperPopClumpsFile):
-        fileName = "{p}_clumps_{r}.txt".format(p = superPop, r = refGen)
+        fileName = "{p}_clumps_{r}_{k}.txt".format(p = superPop, r = refGen, k = keyType)
         clumpsPath = os.path.join(workingFilesPath, fileName)
         # get clumps using the refGen and superpopulation
-        clumpsData = getClumps(refGen, superPop)
+        clumpsData = getClumps(refGen, superPop, isPosBased)
         f = open(clumpsPath, 'w')
         f.write(json.dumps(clumpsData))
         f.close()
-    
-    # WE WON"T NEED IT LIKE THIS ANYMORE
-    print('%'.join(toReturn))
 
 
-def checkForWorkingFiles(refGen, superPop):
+def checkForWorkingFiles(refGen, superPop, keyType):
     # assume we will need to download new files
     dnldNewAllAssociFile = True
     dnldNewRefGenSuperPopClumpsFile = True
@@ -88,10 +87,10 @@ def checkForWorkingFiles(refGen, superPop):
             fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
             # if the file is newer than the database update, we don't need to download a new file
             if (lastDBUpdateDate < fileModDate):
-                dnldNewAllAssociFile = False                
+                dnldNewAllAssociFile = False   
 
         # path to a clumps file using the refGen and superPop
-        refGenSuperPopClumpsFile = os.path.join(workingFilesPath, "{superPop}_clumps_{refGen}.txt".format(superPop = superPop, refGen = refGen))
+        refGenSuperPopClumpsFile = os.path.join(workingFilesPath, "{superPop}_clumps_{refGen}_{keyType}.txt".format(superPop = superPop, refGen = refGen, clumpsKeyType = clumpsKeyType))
         
         # if the path exists, check if we don't need to download a new one 
         if os.path.exists(refGenSuperPopClumpsFile):
@@ -105,10 +104,11 @@ def checkForWorkingFiles(refGen, superPop):
 
 
 # gets all associations from the Server
-def getAllAssociations(pValue, refGen): 
+def getAllAssociations(pValue, refGen, isPosBased): 
     params = {
         "pValue": pValue,
-        "refGen": refGen
+        "refGen": refGen,
+        "isPosBased": isPosBased
     }
     associations = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
     # Organized with studyIDs as the Keys
@@ -116,7 +116,7 @@ def getAllAssociations(pValue, refGen):
 
 
 # gets associations using the given filters
-def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity):
+def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isPosBased):
 
     # get the studies matching the parameters
     body = {
@@ -141,7 +141,8 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
     body = {
         "pValue": pValue,
         "refGen": refGen,
-        "studyIDs": list(finalStudySet)
+        "studyIDObjs": list(finalStudySet),
+        "isPosBased": isPosBased
     }
 
     associations = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
