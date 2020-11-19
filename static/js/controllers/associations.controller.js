@@ -8,6 +8,7 @@ exports.getFromTables = (req, res) => {
     var refGen = req.body.refGen;
     var defaultPop = req.body.population;
     var defaultSex = req.body.sex;
+    var isPosBased = req.body.isPosBased;
 
     // if not given a sex, default to female
     if (defaultSex == undefined){ //check this
@@ -26,7 +27,7 @@ exports.getFromTables = (req, res) => {
             traits = data[1]
 
             // returnData is a list [studyIDsToMetaData, AssociationsByPos]
-            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex)
+            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex, isPosBased)
             res.send(returnData);
         }
     });
@@ -37,6 +38,7 @@ exports.getAll = (req, res) => {
     var refGen = req.query.refGen;
     var defaultPop = req.body.population;
     var defaultSex = req.body.sex;
+    var isPosBased = req.body.isPosBased;
 
     // if not given a sex, default to female
     if (defaultSex == undefined){ //check this
@@ -54,7 +56,7 @@ exports.getAll = (req, res) => {
             associations = data[0]
             traits = data[1]
             // returnData is a list [studyIDsToMetaData, AssociationsByPos]
-            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex)
+            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex, isPosBased)
             
             res.send(returnData);
         }
@@ -170,7 +172,7 @@ async function separateStudies(associations, traitData, refGen, population, sex,
             if (association.trait in AssociationsByPos[ident].traits){
                 // if the studyID already exists for the pos/snp - trait, check if we should replace the current allele/oddsRatio/pValue
                 if (association.studyID in AssociationsByPos[ident].traits[association.trait]){
-                    var replace = compareDuplicateAssociations(AssociationsByPos[ident].traits[association.trait][association.studyID], association)
+                    var replace = compareDuplicateAssociations(AssociationsByPos[ident].traits[association.trait][association.studyID], association, population, sex)
                     if (replace) {
                         AssociationsByPos[ident].traits[association.trait][association.studyID] = createStudyIDObj(association)
                     }
