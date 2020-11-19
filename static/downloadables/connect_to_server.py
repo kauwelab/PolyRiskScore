@@ -117,6 +117,7 @@ def getAllAssociations(pValue, refGen, isPosBased):
 
 # gets associations using the given filters
 def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isPosBased):
+    finalStudySet = set()
 
     # get the studies matching the parameters
     body = {
@@ -126,16 +127,25 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
     }
     traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
 
+    if (studyIDs is not None):
+        params = {
+            "studyIDs": studyIDs
+        }
+        studyIDData = {**getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)}
+        # add the specified studyIDs to the set of studyIDObjs
+        for studyObj in studyIDData:
+            finalStudySet.add({
+                "trait": studyObj[trait],
+                "studyID": studyObj[studyID]
+            })
+
     # select the studyIDs of the studies
-    finalStudySet = set()
     for trait in traitData:
         for study in traitData[trait]:
-            finalStudySet.add(study["studyID"])
-
-    # add the specified studyIDs to the set of studyIDs
-    if studyIDs is not None:
-        studyIDs = set(studyIDs)
-        finalStudySet = finalStudySet.union(studyIDs)
+            finalStudySet.add({
+                "trait": trait,
+                "studyID": study[studyID]
+            })
 
     # get the associations based on the studyIDs
     body = {
@@ -167,10 +177,11 @@ def getUrlWithParams(url, params):
 
 
 # get clumps using the refGen and superPop
-def getClumps(refGen, superPop):
+def getClumps(refGen, superPop, isPosBased):
     params = {
         "refGen": refGen,
-        "superPop": superPop
+        "superPop": superPop,
+        "isPosBased": isPosBased
     }
 
     clumps = getUrlWithParams("https://prs.byu.edu/ld_clumping", params)
