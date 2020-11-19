@@ -8,6 +8,7 @@ exports.getFromTables = (req, res) => {
     var refGen = req.body.refGen;
     var defaultPop = req.body.population;
     var defaultSex = req.body.sex;
+    var isPosBased = req.body.isPosBased;
 
     // if not given a sex, default to female
     if (defaultSex == undefined){ //check this
@@ -26,7 +27,7 @@ exports.getFromTables = (req, res) => {
             traits = data[1]
 
             // returnData is a list [studyIDsToMetaData, AssociationsByPos]
-            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex)
+            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex, isPosBased)
             res.send(returnData);
         }
     });
@@ -37,6 +38,7 @@ exports.getAll = (req, res) => {
     var refGen = req.query.refGen;
     var defaultPop = req.body.population;
     var defaultSex = req.body.sex;
+    var isPosBased = req.body.isPosBased;
 
     // if not given a sex, default to female
     if (defaultSex == undefined){ //check this
@@ -54,7 +56,7 @@ exports.getAll = (req, res) => {
             associations = data[0]
             traits = data[1]
             // returnData is a list [studyIDsToMetaData, AssociationsByPos]
-            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex)
+            returnData = await separateStudies(associations, traits, refGen, defaultPop, defaultSex, isPosBased)
             
             res.send(returnData);
         }
