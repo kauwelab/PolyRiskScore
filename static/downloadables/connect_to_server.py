@@ -45,20 +45,20 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         specificAssociationsPath = os.path.join(workingFilesPath, fileName)
         specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isPosBased)
-        snpsFromAssociations = list(specificAssociations.keys())
+        
         f = open(specificAssociationsPath, 'w')
         f.write(json.dumps(specificAssociations))
         f.close()
+        snpsFromAssociations = list(specificAssociations.keys())
     
-    # if we should download a new clumps file
-    if (dnldNewRefGenSuperPopClumpsFile):
-        fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = ahash)
-        clumpsPath = os.path.join(workingFilesPath, fileName)
-        # get clumps using the refGen and superpopulation
-        clumpsData = getClumps(refGen, superPop, snpsFromAssociation, isPosBased)
-        f = open(clumpsPath, 'w')
-        f.write(json.dumps(clumpsData))
-        f.close()
+    #download clumps
+    fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
+    clumpsPath = os.path.join(workingFilesPath, fileName)
+    # get clumps using the refGen and superpopulation
+    clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isPosBased)
+    f = open(clumpsPath, 'w')
+    f.write(json.dumps(clumpsData))
+    f.close()
 
 
 def checkForAllAssociFile():
@@ -104,8 +104,8 @@ def getAllAssociations(pValue, refGen, isPosBased):
         "isPosBased": isPosBased
     }
     associations = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
-    # Organized with studyIDs as the Keys
-    return [json.dumps(associations)]
+    # Organized with pos/snp as the Keys
+    return associations
 
 
 # gets associations using the given filters
@@ -139,12 +139,11 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
     }
 
     associations = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
-    return [json.dumps(associations)]
+    return associations
 
 
 # for POST urls
 def postUrlWithBody(url, body):
-    #TODO still need to test this
     response = requests.post(url=url, data=body)
     response.close()
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
@@ -161,16 +160,16 @@ def getUrlWithParams(url, params):
 
 # get clumps using the refGen and superPop
 def getClumps(refGen, superPop, snpsFromAssociations, isPosBased):
-    params = {
+    body = {
         "refGen": refGen,
         "superPop": superPop,
     }
 
     if isPosBased:
-        params['positions'] = snpsFromAssociations
-        clumps = getUrlWithParams("https://prs.byu.edu/ld_clumping_by_pos", params)
+        body['positions'] = snpsFromAssociations
+        clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body)
     else:
-        params['snps'] = snpsFromAssociations
-        clumps = getUrlWithParams("https://prs.byu.edu/ld_clumping_by_snp", params)
+        body['snps'] = snpsFromAssociations
+        clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
 
-    return json.dumps(clumps)
+    return clumps
