@@ -4,6 +4,8 @@ const formatter = require("../formatHelper")
 exports.getClumping = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
+    isPosBased = req.query.isPosBased
+
     Clump.getClumps(superPopulation, refGenome, (err, data) => {
         if (err) {
             res.status(500).send({
@@ -12,7 +14,7 @@ exports.getClumping = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(formatClumpingReturn(data));
+            res.send(formatClumpingReturn(data, isPosBased));
         }
     });
 };
@@ -21,6 +23,8 @@ exports.getClumpingByPos = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
     positions = req.query.positions
+    isPosBased = req.query.isPosBased
+
     Clump.getClumpsByPos(superPopulation, refGenome, positions, (err, data) => {
         if (err) {
             res.status(500).send({
@@ -29,7 +33,7 @@ exports.getClumpingByPos = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(formatClumpingReturn(data));
+            res.send(formatClumpingReturn(data, isPosBased));
         }
     });
 };
@@ -38,6 +42,8 @@ exports.getClumpingBySnp = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
     snps = req.query.snps
+    isPosBased = req.query.isPosBased
+
     Clump.getClumpsBySnp(superPopulation, refGenome, snps, (err, data) => {
         if (err) {
             res.status(500).send({
@@ -46,22 +52,38 @@ exports.getClumpingBySnp = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(formatClumpingReturn(data));
+            res.send(formatClumpingReturn(data, isPosBased));
         }
     });
 };
 
-function formatClumpingReturn(clumps) {
+function formatClumpingReturn(clumps,  isPosBased) {
+
+    ident = (isPosBased.toLowerCase() == 'true') ? 'position' : 'snp'
+
     clumpsFormatted = {}
-    clumpsFormatted["clumps"] = []
     for (i=0; i < clumps.length; i++) {
         if (Array.isArray(clumps[i])) {
             for (j=0; j < clumps[i].length; j++) {
-                clumpsFormatted["clumps"].push(clumps[i][j])
+                clump = clumps[i][j]
+                if (!(clump[ident] in clumpsFormatted)) {
+                    clumpsFormatted[clump[ident]] = {
+                        clumpNum: clump.clumpNum,
+                        snp: clump.snp,
+                        pos: clump.position
+                    }
+                }
             }
         }
         else {
-            clumpsFormatted["clumps"].push(clumps[i])
+            clump = clumps[i]
+            if (!(clump[ident] in clumpsFormatted)) {
+                clumpsFormatted[clump[ident]] = {
+                    clumpNum: clump.clumpNum,
+                    snp: clump.snp,
+                    pos: clump.position
+                }
+            }
         }
     }
     return clumpsFormatted
