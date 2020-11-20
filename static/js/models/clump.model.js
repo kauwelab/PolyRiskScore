@@ -104,7 +104,6 @@ Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
                 result(null, err);
                 return;
             }
-
             console.log(`Clumps queried by snp for ${superpopclump}, ex: ${snp[0]} - ${res.length} chromosome result(s)`);
             result(null, res);
         });
