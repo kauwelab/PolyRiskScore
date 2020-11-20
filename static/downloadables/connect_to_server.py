@@ -164,7 +164,6 @@ def getClumps(refGen, superPop, snpsFromAssociations, isPosBased):
     params = {
         "refGen": refGen,
         "superPop": superPop,
-        "isPosBased": isPosBased
     }
 
     if isPosBased:
