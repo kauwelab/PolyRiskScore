@@ -166,8 +166,18 @@ def getClumps(refGen, superPop, snpsFromAssociations, isPosBased):
     }
 
     if isPosBased:
-        body['positions'] = snpsFromAssociations
-        clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body)
+        chromToPosMap = {}
+        clumps = {}
+        for pos in snpsFromAssociations:
+            chrom,posit = pos.split(":")
+            if (chrom not in chromToPosMap.keys()):
+                chromToPosMap[chrom] = [pos]
+            else:
+                chromToPosMap[chrom].append(pos)
+
+        for chrom in chromToPosMap:
+            body['positions'] = chromToPosMap[chrom]
+            clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
     else:
         body['snps'] = snpsFromAssociations
         clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
