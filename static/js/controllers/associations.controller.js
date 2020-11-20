@@ -155,6 +155,9 @@ async function separateStudies(associations, traitData, refGen) {
         if (association.studyID in studiesAndAssociations) {
             studiesAndAssociations[association.studyID].associations.push(row)
         }
+        else if (!(association.studyID in studyToTraits)){
+            console.log(`Study table is missing ${association.studyID}`)
+        } 
         else {
             studiesAndAssociations[association.studyID] = {
                 citation: association.citation, 
