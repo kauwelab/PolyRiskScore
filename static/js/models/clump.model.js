@@ -85,6 +85,11 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
 
 Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
     try {
+
+        if (!Array.isArray(snps)){
+            snps = [snps]
+        }
+
         sqlQuestionMarks = ""
         for (i=0; i < snps.length - 1; i++) {
             sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
@@ -94,11 +99,13 @@ Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
         refGen = validator.validateRefgen(refGenome)
 
         sqlString = ""
+        snpsParams = []
         for (i=1; i < 23; i++) {
             sqlString = sqlString.concat(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGen}_chr${i}_clumps WHERE snp IN (${sqlQuestionMarks}); `)
+            snpsParams = snpsParams.concat(snps)
         }
 
-        sql.query(sqlString, snps, (err, res) => {
+        sql.query(sqlString, snpsParams, (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(null, err);
