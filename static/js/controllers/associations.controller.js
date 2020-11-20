@@ -149,16 +149,12 @@ exports.getLastAssociationsUpdate = (req, res) => {
 
 async function separateStudies(associations, traitData, refGen, population, sex, isPosBased) {
 
-    ident = (isPosBased) ? refGen : 'snp'
+    ident = (isPosBased.toLowerCase() == 'true') ? refGen : 'snp'
 
     var studyIDsToMetaData = {}
     for (i=0; i < traitData.length; i++) {
         var studyObj = traitData[i]
-        if (studyObj.studyID in studyIDsToMetaData) {
-            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait}
-        }
-        else {
-            studyIDsToMetaData[studyObj.studyID] = {}
+        if (!(studyObj.studyID in studyIDsToMetaData)) {
             studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait}
         }
     }
