@@ -23,7 +23,6 @@ exports.getClumpingByPos = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
     positions = req.query.positions
-    isPosBased = req.query.isPosBased
 
     Clump.getClumpsByPos(superPopulation, refGenome, positions, (err, data) => {
         if (err) {
@@ -33,7 +32,7 @@ exports.getClumpingByPos = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(formatClumpingReturn(data, isPosBased));
+            res.send(formatClumpingReturn(data, true));
         }
     });
 };
@@ -42,7 +41,6 @@ exports.getClumpingBySnp = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
     snps = req.query.snps
-    isPosBased = req.query.isPosBased
 
     Clump.getClumpsBySnp(superPopulation, refGenome, snps, (err, data) => {
         if (err) {
@@ -52,7 +50,7 @@ exports.getClumpingBySnp = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(formatClumpingReturn(data, isPosBased));
+            res.send(formatClumpingReturn(data, false));
         }
     });
 };
