@@ -20,9 +20,9 @@ exports.getClumping = (req, res) => {
 };
 
 exports.getClumpingByPos = (req, res) => {
-    refGenome = req.query.refGen
-    superPopulation = formatter.formatForClumpsTable(req.query.superPop)
-    positions = req.query.positions
+    refGenome = req.body.refGen
+    superPopulation = formatter.formatForClumpsTable(req.body.superPop)
+    positions = req.body.positions
 
     Clump.getClumpsByPos(superPopulation, refGenome, positions, (err, data) => {
         if (err) {
@@ -38,9 +38,9 @@ exports.getClumpingByPos = (req, res) => {
 };
 
 exports.getClumpingBySnp = (req, res) => {
-    refGenome = req.query.refGen
-    superPopulation = formatter.formatForClumpsTable(req.query.superPop)
-    snps = req.query.snps
+    refGenome = req.body.refGen
+    superPopulation = formatter.formatForClumpsTable(req.body.superPop)
+    snps = req.body.snps
 
     Clump.getClumpsBySnp(superPopulation, refGenome, snps, (err, data) => {
         if (err) {
