@@ -4,7 +4,7 @@ const formatter = require("../formatHelper")
 exports.getClumping = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
-    isPosBased = req.query.isPosBased
+    isPosBased = (req.query.isPosBased.toLowerCase() == 'true') ? true : false
 
     Clump.getClumps(superPopulation, refGenome, (err, data) => {
         if (err) {
@@ -57,7 +57,7 @@ exports.getClumpingBySnp = (req, res) => {
 
 function formatClumpingReturn(clumps,  isPosBased) {
 
-    ident = (isPosBased.toLowerCase() == 'true') ? 'position' : 'snp'
+    ident = (isPosBased) ? 'position' : 'snp'
 
     clumpsFormatted = {}
     for (i=0; i < clumps.length; i++) {
