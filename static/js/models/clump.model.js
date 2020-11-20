@@ -41,24 +41,24 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
         refGen = validator.validateRefgen(refGenome)
         positions.sort()
         chromosomesToSearch = {}
-        const regexExpr = /([1-9][0-9]?)/
 
-        for (const position in positions) {
-            match = position.match(regexExpr)
+        for (i=0; i < positions.length; i++) {
+	    position = positions[i]
+            chrom = position.split(":")
 
-            if (!(match[0] in Object.keys(chromosomesToSearch))) {
-                chromosomesToSearch[match[0]] = new Set()
+            if (!(chrom[0] in Object.keys(chromosomesToSearch))) {
+                chromosomesToSearch[chrom[0]] = new Set()
             }
-            chromosomesToSearch[match[0]].add(position)
+            chromosomesToSearch[chrom[0]].add(position)
         }
 
         sqlString = ""
         sqlParams = []
 
-        for (const i in Object.keys(chromosomesToSearch)) {
+        for (let i in chromosomesToSearch) {
             sqlQuestionMarks = ""
 
-            for (j=0; j < chromosomesToSearch[i].length - 1; j++) {
+            for (j=0; j < chromosomesToSearch[i].size - 1; j++) {
                 sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
             }
             sqlQuestionMarks = sqlQuestionMarks.concat("?")
@@ -97,14 +97,13 @@ Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
         for (i=1; i < 23; i++) {
             sqlString = sqlString.concat(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGen}_chr${i}_clumps WHERE snp IN (${sqlQuestionMarks}); `)
         }
-    
+
         sql.query(sqlString, snps, (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(null, err);
                 return;
             }
-    
             console.log(`Clumps queried by snp for ${superpopclump}, ex: ${snp[0]} - ${res.length} chromosome result(s)`);
             result(null, res);
         });

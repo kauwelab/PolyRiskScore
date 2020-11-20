@@ -52,15 +52,17 @@ exports.getClumpingBySnp = (req, res) => {
 };
 
 function formatClumpingReturn(clumps) {
-    clumpsFormatted = []
+    clumpsFormatted = {}
+    clumpsFormatted["clumps"] = []
     for (i=0; i < clumps.length; i++) {
         if (Array.isArray(clumps[i])) {
-            for (j=0; j < clumps[i]; j++) {
-                clumpsFormatted.push(clumps[i][j])
+            for (j=0; j < clumps[i].length; j++) {
+                clumpsFormatted["clumps"].push(clumps[i][j])
             }
         }
         else {
-            clumpsFormatted.push(clumps[i])
+            clumpsFormatted["clumps"].push(clumps[i])
         }
     }
+    return clumpsFormatted
 }
