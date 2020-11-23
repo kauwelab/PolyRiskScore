@@ -22,8 +22,10 @@ const Association = function (massociation) {
 Association.getFromTables = (studyIDs, pValue, refGen, result) => {
     try {
         sqlQuestionMarks = ""
-        for (j = 0; j < studyIDs.length - 1; j++) {
-            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+        if (Array.isArray(studyIDs)) {
+            for (j = 0; j < studyIDs.length - 1; j++) {
+                sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+            }
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
