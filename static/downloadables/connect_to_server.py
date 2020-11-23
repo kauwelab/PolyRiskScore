@@ -169,7 +169,7 @@ def getClumps(refGen, superPop, snpsFromAssociations, isPosBased):
         chromToPosMap = {}
         clumps = {}
         for pos in snpsFromAssociations:
-            if (len(pos.split(":") > 1):
+            if (len(pos.split(":")) > 1):
                 chrom,posit = pos.split(":")
                 if (chrom not in chromToPosMap.keys()):
                     chromToPosMap[chrom] = [pos]
