@@ -428,10 +428,13 @@ calculatePRS () {
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
         extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
-        $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension')"
-
-        echo "Got SNPs and disease information from PRSKB"
-        echo "Got Clumping information from PRSKB"
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension')"; then
+            echo "Got SNPs and disease information from PRSKB"
+            echo "Got Clumping information from PRSKB"
+        else
+            echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
+            exit;
+        fi
     fi
 
 
@@ -445,18 +448,20 @@ calculatePRS () {
         #outputType="csv" #this is the default
         #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=fileHash $8=requiredParamsHash
 
-        $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$fileHash" "$requiredParamsHash"
-
-        echo "Caculated score"
-        if [[ $fileHash != $requiredParamsHash ]]; then
-            rm ".workingFiles/associations_${fileHash}.txt"
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$fileHash" "$requiredParamsHash"; then
+            echo "Caculated score"
+            if [[ $fileHash != $requiredParamsHash ]]; then
+                rm ".workingFiles/associations_${fileHash}.txt"
+            fi
+            rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+            rm -r __pycache__
+            echo "Cleaned up intermediate files"
+            echo "Results saved to $output"
+            echo ""
+        else
+            echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
         fi
-        rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-        # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
-        rm -r __pycache__
-        echo "Cleaned up intermediate files"
-        echo "Results saved to $output"
-        echo ""
         exit;
     fi
 }

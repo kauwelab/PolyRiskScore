@@ -25,8 +25,8 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
+        allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
         if (dnldNewAllAssociFile):
-            allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
             allAssociations = getAllAssociations(pValue, refGen, isPosBased)
             # grab all the snps or positions to use for getting the clumps
             snpsFromAssociations = list(allAssociations.keys())
@@ -169,11 +169,12 @@ def getClumps(refGen, superPop, snpsFromAssociations, isPosBased):
         chromToPosMap = {}
         clumps = {}
         for pos in snpsFromAssociations:
-            chrom,posit = pos.split(":")
-            if (chrom not in chromToPosMap.keys()):
-                chromToPosMap[chrom] = [pos]
-            else:
-                chromToPosMap[chrom].append(pos)
+            if (len(pos.split(":")) > 1):
+                chrom,posit = pos.split(":")
+                if (chrom not in chromToPosMap.keys()):
+                    chromToPosMap[chrom] = [pos]
+                else:
+                    chromToPosMap[chrom].append(pos)
 
         for chrom in chromToPosMap:
             body['positions'] = chromToPosMap[chrom]
