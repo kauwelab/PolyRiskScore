@@ -75,8 +75,10 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
     // potentially change the output format??
     //if traits is null, assume they want all 
     if (traits) {
-        for (i = 0; i < traits.length - 1; i++) {
-            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+        if (Array.isArray(traits)) {
+            for (i = 0; i < traits.length - 1; i++) {
+                sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+            }
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
         
