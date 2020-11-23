@@ -15,7 +15,7 @@ if (sys.argv[7] == sys.argv[8]):
 else:
     associationsPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = sys.argv[7]))
 
-clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = sys.argv[5], r = sys.argv[4]))
+clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = sys.argv[5], r = sys.argv[4], ahash = sys.argv[7]))
 
 
 with open(associationsPath, 'r') as tableObjFile:
