@@ -272,7 +272,7 @@ runPRS () {
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
-    args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\")(\S*)(\s)(\S*)(\")/\2_\4/g")
+    args=$(echo "$args" | perl -pe "s/(\")(\S*)(\s)(\S*)(\")/\2_\4/g")
     echo $args
 
     calculatePRS $args
@@ -287,6 +287,11 @@ calculatePRS () {
     studyTypesForCalc=()
     studyIDsForCalc=()
     ethnicityForCalc=()
+
+    single="'"
+    escaped="\'"
+    space=" "
+    underscore="_"
 
     while getopts 'f:o:c:r:p:t:k:i:e:s:' c "$@"
     do 
@@ -350,7 +355,9 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
-            t)  trait=$(echo $OPTARG | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\S*)(\s)(\S*)/\1_\3/g")
+
+	    t)  trait="${OPTARG//$single/$escaped}"
+		trait="${trait//$space/$underscore}"
                 echo $trait
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
             k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
@@ -360,7 +367,7 @@ calculatePRS () {
                 fi
                 studyTypesForCalc+=("$OPTARG");;
             i)  studyIDsForCalc+=("$OPTARG");;
-            e)  ethnicity=$(echo $OPTARG | sed -r "s/(\S*)(\s)(\S*)/\1_\3/g")
+            e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
             s)  if ! [ -z "$step" ]; then
                     echo "Too many steps requested at once."
