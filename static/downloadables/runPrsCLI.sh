@@ -444,6 +444,7 @@ calculatePRS () {
         if [[ $fileHash != $requiredParamsHash ]]; then
             rm ".workingFiles/associations_${fileHash}.txt"
         fi
+        rm ".workingFiles/${superPop}_clumps_${refGen}_${fileHash}.txt"
         # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
         rm -r __pycache__
         echo "Cleaned up intermediate files"
