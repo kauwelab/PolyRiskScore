@@ -38,6 +38,9 @@ Clump.getClumps = (superpopclump, refGenome, result) => {
 
 Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
     try {
+	if (!(Array.isArray(positions))) {
+	    positions = [positions]
+	}
         refGen = validator.validateRefgen(refGenome)
         positions.sort()
         chromosomesToSearch = {}
@@ -46,10 +49,13 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
 	    position = positions[i]
             chrom = position.split(":")
 
-            if (!(chrom[0] in Object.keys(chromosomesToSearch))) {
-                chromosomesToSearch[chrom[0]] = new Set()
+            if (Object.keys(chromosomesToSearch).includes(chrom[0])) {
+                chromosomesToSearch[chrom[0]].push(position)
             }
-            chromosomesToSearch[chrom[0]].add(position)
+	    else {
+		chromosomesToSearch[chrom[0]] = []
+                chromosomesToSearch[chrom[0]].push(position)
+	    }
         }
 
         sqlString = ""

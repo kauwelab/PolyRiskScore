@@ -42,9 +42,9 @@ module.exports = app => {
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 
-    app.get("/ld_clumping_by_pos", clumps.getClumpingByPos);
+    app.post("/ld_clumping_by_pos", clumps.getClumpingByPos);
 
-    app.get("/ld_clumping_by_snp", clumps.getClumpingBySnp);
+    app.post("/ld_clumping_by_snp", clumps.getClumpingBySnp);
 
     app.get("/cli_version", cli.version);
 
