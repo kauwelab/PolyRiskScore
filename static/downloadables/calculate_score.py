@@ -32,16 +32,32 @@ def calculateScore(inputFile, pValue, outputType, tableObjList, clumpsObjList, r
 def getSNPsFromTableObj(tableObjList, refGen, isRSids):
     identToStudies = defaultdict(dict)
 
-    for studyID in tableObjList:
-        for association in tableObjList[studyID]["associations"]:
+    outFile = open("qqq.txt", "w")
+    outFile.write(str(tableObjList))
+    outFile2 = open('rrr.txt', 'w')
+    for pos in tableObjList:
+        outFile2.write(str(pos))
+        outFile2.write('\n\n\n')
+        outFile2.write(str(tableObjList[pos]))
+        snp = tableObjList[pos]['snp']
+        outFile2.write('\nsnp: ')
+        outFile2.write(str(snp))
+        studies = tableObjList[pos]["studies"]
+        outFile2.write('\n\n\n')
+        outFile2.write(str(studies))
+        snp_info = tableObjList[pos]
+        for studyID in snp_info['studies']:
+            study_info = snp_info['studies'][studyID]
+            outFile2.write('\n\n\n')
+            outFile2.write(str(studyID))
             if isRSids:
-                snp = association['snp']
                 importantValues = {
-                    "pValue": association['pValue'],
-                    "riskAllele": association['riskAllele'],
-                    "oddsRatio": association['oddsRatio'],
-                    "snp": snp
+                    "pValue": study_info['pValue'],
+                    "riskAllele": study_info['riskAllele'],
+                    "oddsRatio": study_info['oddsRatio'],
                 }
+                outFile2.write('\n\n\n')
+                outFile2.write(str(importantValues))
 
                 # TODO REDO THIS CODE
                 if (snp in identToStudies.keys()):
@@ -50,15 +66,17 @@ def getSNPsFromTableObj(tableObjList, refGen, isRSids):
                 else:
                     identToStudies[snp][studyID] = importantValues
                     
-            elif not isRSids and association['pos'] != 'NA':
-                pos = association['pos']
+            elif not isRSids and pos != 'NA':
                 importantValues = {
-                    "pValue": association['pValue'],
-                    "riskAllele": association['riskAllele'],
-                    "oddsRatio": association['oddsRatio'],
-                    "snp": association['snp'],
-                    "pos": association['pos']
+                    "pValue": studyID['pValue'],
+                    "riskAllele": studyID['riskAllele'],
+                    "oddsRatio": studyID['oddsRatio'],
+                    "snp": snp,
+                    "pos": studyID['pos']
                 }
+
+                outFile2.write('\n\n\n')
+                outFile2.write(str(importantValues))
 
                 if (pos in identToStudies.keys()):
                     # potentially need to keep an eye on this - could a study have multiple p-values/ OR for same location?
