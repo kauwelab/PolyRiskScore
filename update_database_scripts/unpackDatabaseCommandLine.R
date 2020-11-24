@@ -20,6 +20,7 @@
 #        "hg19" is hg19 mapped location
 #        "hg18" is hg18 mapped location
 #        "hg17" is hg17 mapped location
+#        "trait is the name of the trait associated to the snp
 #        "gene" is a is a pipe (|) separated list of gene:distanceToGene strings (ex: C1orf140:107304|AL360013.2:64825)
 #        "raf" is the risk allele frequency
 #        "riskAllele" is the risk allele
@@ -28,6 +29,8 @@
 #        "oddsRatio" is the odds ratio associated with the given p-value
 #        "lowerCI" is the lower confidence interval of the odds ratio
 #        "upperCI" is the upper confidence interval of the odds ratio
+#        "population" #TODO add
+#        "sex" is the sex associated with the snp p-value #TODO add
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
 
@@ -105,7 +108,7 @@ if (is_ebi_reachable()) {
   numGroups <- as.numeric(args[5])
   dir.create(file.path(outPath), showWarnings = FALSE)
   # remove the old associations_table.tsv and create a new blank one with column names "columnNames" and no data yet
-  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "citation", "studyID")
+  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "trait", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "population", "sex", "citation", "studyID")
   writeLines(paste(columnNames, collapse = "\t"), file.path(outPath, "associations_table.tsv"))
 
   # the minimum number of SNPs a study must have to be valid and outputted
@@ -207,9 +210,9 @@ if (is_ebi_reachable()) {
     if (nrow(associationsTable) > 0) {
       # renames columns to names the database will understand
       associationsTable <- ungroup(associationsTable) %>%
-        dplyr::rename(snp = variant_id,raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number)
+        dplyr::rename(snp = variant_id, raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number)
       # arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
-      associationsTable <- select(associationsTable, c(snp, hg38, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
+      associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
         arrange(citation, studyID, snp)
       
       # gets hg19, hg18, hg17 for the traits
@@ -260,7 +263,7 @@ if (is_ebi_reachable()) {
       studyID <- pull(studiesTibble[i, "study_id"])
       
       # get citation data (author + year published)
-      citation <- paste(str_replace(pull(publications[i, "author_fullname"]), "�", "o"), str_sub(pull(publications[i, "publication_date"]), 1, 4)) #TODO make more robust removing strange o from L�fgren's syndrome
+      citation <- paste(pull(publications[i, "author_fullname"]), str_sub(pull(publications[i, "publication_date"]), 1, 4))
       # get pubmed ID for the study
       pubmedID <- pull(publications[i, "pubmed_id"])
       
@@ -273,6 +276,19 @@ if (is_ebi_reachable()) {
         # gets the association data associated with the study ID
         associations <- get_associations(study_id = studyID)
         associationsTibble <- associations@associations
+        # get a list of the assoication ids
+        association_ids <- associationsTibble[["association_id"]]
+        names(association_ids) <- association_ids
+        
+        # get traits for each of the assoication ids
+        traits <- association_ids %>%
+          purrr::map(~ get_traits(association_id = .x)@traits) %>%
+          dplyr::bind_rows(.id = 'association_id')
+        
+        # merge the traits with the assoications- note: some associations have multiple traits, so the traits
+        # table length is >= the length of assicationsTibble
+        associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
+        
         # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
         riskAlleles <- associations@risk_alleles %>%
           group_by(association_id) %>% 
@@ -284,9 +300,6 @@ if (is_ebi_reachable()) {
         variantsTibble <- variants@variants
         # contains gene names, position, and distances from nearest genes for each variant ID
         genomicContexts <- variants@genomic_contexts
-        
-        # gets the traits data associated with the study ID
-        traitsTibble <- get_traits(study_id = studyID)@traits
         
         # merge data together
         master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
@@ -309,7 +322,7 @@ if (is_ebi_reachable()) {
           add_column(studyID = studyID, .after = "citation") %>% 
           mutate(pvalue_description = tolower(pvalue_description))
         # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
-        studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("conditioned on",pvalue_description))
+        studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("conditional on", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
         
         # if there are not enough snps left in the study table, add it to a list of ignored studies
         if (nrow(studyData) < minNumStudyAssociations) {
