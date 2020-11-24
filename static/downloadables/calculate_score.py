@@ -17,6 +17,8 @@ def calculateScore(inputFile, pValue, outputType, tableObjList, clumpsObjList, r
     isRSids = True if inputFile.lower().endswith(".txt") else False
 
     identToStudies = getSNPsFromTableObj(tableObjList, refGen, isRSids)
+    outFile = open('indent.txt', 'w')
+    outFile.write(str(identToStudies))
 
     if isRSids:
         txtObj, totalVariants = parse_txt(inputFile, clumpsObjList, identToStudies)
@@ -68,11 +70,11 @@ def getSNPsFromTableObj(tableObjList, refGen, isRSids):
                     
             elif not isRSids and pos != 'NA':
                 importantValues = {
-                    "pValue": studyID['pValue'],
-                    "riskAllele": studyID['riskAllele'],
-                    "oddsRatio": studyID['oddsRatio'],
+                    "pValue": study_info['pValue'],
+                    "riskAllele": study_info['riskAllele'],
+                    "oddsRatio": study_info['oddsRatio'],
                     "snp": snp,
-                    "pos": studyID['pos']
+                    "pos": pos,
                 }
 
                 outFile2.write('\n\n\n')
@@ -280,12 +282,15 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
 
     # Create a list to keep track of which study/samples have viable snps and which ones don't 
     counter_set = set()
+    neutral_snps = {}
+    rsid_pos_map = {}
 
     # Iterate through each line in the vcf file
     for record in vcf_reader:
         chromPos = str(record.CHROM) + ":" + str(record.POS)
         ALT = record.ALT[0]
-        REF = record.REF[0] #TODO: check if this is right or if it should just be .REF
+        REF = record.REF #TODO: check if this is right or if it should just be .REF
+        rsid = record.ID
         
         # if the position is found in our database 
         if chromPos in identToStudies:
@@ -295,9 +300,12 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
                 # Loop through each sample of the vcf file
                 for call in record.samples:  
                     gt = call.gt_bases    
+                    name = call.sample
                     genotype = record.genotype(name)['GT']
+                    neutral_snps_set = {}
                     # Create a tuple with the study and sample name
                     study_sample = (study, call.sample)
+                    counter_set.add(study_sample)
                     # Check to see if the snp position from this line in the vcf exists in the clump table for this study
                     
                     if chromPos in clumpMap:
@@ -328,6 +336,10 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
                                     index_snp_map[study_sample][clumpNum] = chromPos
                                     del sample_map[study_sample][index_snp]
                                     sample_map[study_sample][chromPos] = alleles
+                                    if rsid is not None and rsid != "":
+                                        neutral_snps_set.add(rsid_pos_map[index_snp])
+                                    else:
+                                        neutral_snps_set.add(index_snp)
                                 elif pValue > index_pvalue and alleles != "":
                                     if chromPos in sample_map[study_sample]:
                                         if sample_map[study_sample][chromPos] == "":
@@ -423,10 +435,12 @@ def vcfcalculations(tableObjList, vcfObj, totalVariants, pValue, refGen, outputT
         "pValueCutoff": pValue,
         "totalVariants": totalVariants
     })
+    outFile = open('ttt.txt', 'w')
+    outFile.write(str(vcfObj))
     # For every sample in the vcf nested dictionary
-    for disease_study_samp in vcfObj:
-        disease, studyID, samp = disease_study_samp
-        diseases = []  
+    for study_samp in vcfObj:
+        studyID, samp = study_samp
+#        diseases = []  
         studies = []
         diseaseResults = {}
         oddRatios = []
@@ -435,24 +449,35 @@ def vcfcalculations(tableObjList, vcfObj, totalVariants, pValue, refGen, outputT
         studyResults = {}
         
         # Loop through each snp associated with this disease/study/sample
-        for chromPos in vcfObj[disease_study_samp]:
+        for chromPos in vcfObj[study_samp]:
              # Also iterate through each of the alleles for the snp
-            for allele in vcfObj[disease_study_samp][chromPos]:
+            for allele in vcfObj[study_samp][chromPos]:
                 allele = str(allele)
                 # Then compare to the gwa study
-                for row in tableObjList[disease][studyID]['associations']:
-                    if row['pos'] != 'NA':
-                        databaseChromPos = row['pos']
-                    else:
-                        databaseChromPos = "NA"
-                    if allele != "": #TODO check this 
+                if chromPos in tableObjList:
+                    if studyID in tableObjList[chromPos]['studies'][studyID]:
+                        oddsRatio = tableObjList[chromPos]['studies'][studyID]['oddsRatio']
+                        riskAllele = tableObjList[chromPos]['studies'][studyID]['riskAllele']
+                        if allele != "":
+                            if allele == riskAllele:
+                                oddRatios.append(oddsRatio)
+                                chromPosList.append(chromPos)
+                                if snp is not None and snp != "":
+                                    rsids.append(snp)
+                            
+                #for row in tableObjList[disease][studyID]['associations']:
+                #    if row['pos'] != 'NA':
+                #        databaseChromPos = row['pos']
+                #    else:
+                #        databaseChromPos = "NA"
+                #    if allele != "": #TODO check this 
                         # Compare the individual's snp and allele to the study row's snp and risk allele
                         # If they match, use that snp's odds ratio to the calculation
-                        if chromPos == databaseChromPos and allele == row['riskAllele']:
-                            oddRatios.append(row['oddsRatio'])
-                            chromPosList.append(row['pos'])
-                            if row['snp'] is not None:
-                                rsids.append(row['snp'])
+                #        if chromPos == databaseChromPos and allele == row['riskAllele']:
+                #            oddRatios.append(row['oddsRatio'])
+                #            chromPosList.append(row['pos'])
+                #            if row['snp'] is not None:
+                #                rsids.append(row['snp'])
                     # else:
                     #     if chromPos == hg38_pos:
                     #         oddRatios.append(row['oddsRatio'])
@@ -502,12 +527,14 @@ def createClumpsDict(clumpsObj, isRSids):
 
     # Loop through each snpObj in the clump object and grab the position and clump number
     # For population clumping
-    for snpObj in clumpsObj:
+    outFile = open('sss.txt', 'w')
+    outFile.write(str(clumpsObj))
+    for snp in clumpsObj:
         if (isRSids):
-            ident = snpObj['snp']
+            ident = clumpsObj[snp]['snp']
         else:
-            ident = snpObj['pos']
-        clumpNum = snpObj['clumpNumber']
+            ident = clumpsObj[snp]['pos']
+        clumpNum = clumpsObj[snp]['clumpNum']
         clumpMap[ident] = clumpNum
 
     return clumpMap
