@@ -29,10 +29,27 @@
 #        "oddsRatio" is the odds ratio associated with the given p-value
 #        "lowerCI" is the lower confidence interval of the odds ratio
 #        "upperCI" is the upper confidence interval of the odds ratio
-#        "population" #TODO add
-#        "sex" is the sex associated with the snp p-value #TODO add
+#        "population" is the population associated with the snp p-value #TODO add
+#        "sex" is the sex associated with the snp p-value
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
+
+# population mappings
+# africanAmericanAfroCaribbean <- c()
+# africanUnspecified <- c()
+# asianUnspecified <- c()
+# eastAsian <- c()
+# european <- c()
+# greaterMiddleEastern <- c()
+# hispanicLatinAmericam <- c()
+# nativeAmerican <- c()
+# oceanian <- c()
+# southAsian <- c()
+# southEastAsian <- c()
+# subSaharanAfrican <- c()
+
+# african <- c(africanAmericanAfroCaribbean, africanUnspecified, subSaharanAfrican)
+# american <- c()
 
 # get args from the commandline- these are evaluated after imports section below
 args = commandArgs(trailingOnly=TRUE)
@@ -108,7 +125,7 @@ if (is_ebi_reachable()) {
   numGroups <- as.numeric(args[5])
   dir.create(file.path(outPath), showWarnings = FALSE)
   # remove the old associations_table.tsv and create a new blank one with column names "columnNames" and no data yet
-  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "trait", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "population", "sex", "citation", "studyID")
+  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "trait", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "sex", "citation", "studyID")
   writeLines(paste(columnNames, collapse = "\t"), file.path(outPath, "associations_table.tsv"))
 
   # the minimum number of SNPs a study must have to be valid and outputted
@@ -212,7 +229,7 @@ if (is_ebi_reachable()) {
       associationsTable <- ungroup(associationsTable) %>%
         dplyr::rename(snp = variant_id, raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number)
       # arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
-      associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
+      associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, sex, citation, studyID)) %>%
         arrange(citation, studyID, snp)
       
       # gets hg19, hg18, hg17 for the traits
@@ -230,6 +247,45 @@ if (is_ebi_reachable()) {
     # writes out the data into a TSV at outPath (from argv)
     write_tsv(associationsTable, file.path(outPath, "associations_table.tsv"), append = TRUE)
   }
+  
+  # returns a vector of NA, male, or female given a vector of p-value descriptions
+  getSexFromDescription <- function(pValueDescription) {
+    femaleIndicator = "female"
+    maleIndicator = "male"
+    pop <- c()
+    for (desc in pValueDescription) {
+      desc = tolower(desc)
+      if (is.na(desc)) {
+        pop <- c(pop, NA)
+      }
+      else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
+          pop <- c(pop, femaleIndicator)
+      }
+      else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
+        pop <- c(pop, maleIndicator)
+      }
+    }
+    return(pop)
+  }
+  
+  #TODO
+    # returns a vector of populations given a vector of p-value descriptions
+  # getPopFromDescription <- function(pValueDescription) {
+  #   pop <- c()
+  #   for (desc in pValueDescription) {
+  #     desc = tolower(desc)
+  #     if (is.na(desc)) {
+  #       pop <- c(pop, NA)
+  #     }
+  #     else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
+  #       pop <- c(pop, femaleIndicator)
+  #     }
+  #     else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
+  #       pop <- c(pop, maleIndicator)
+  #     }
+  #   }
+  #   return(pop)
+  # }
   
 #------------------------------------------------------------------------------------------------------------------------
   
@@ -267,7 +323,7 @@ if (is_ebi_reachable()) {
       # get pubmed ID for the study
       pubmedID <- pull(publications[i, "pubmed_id"])
       
-      # if the study ID is invalid, skip it
+      # if the study ID is invalid, skip it (currently does nothing since all studies are only visited once)
       if (studyID %in% invalidStudies) {
         DevPrint(paste0("    skipping study bc not enough snps: ", citation, "-", studyID))
       } else {
@@ -319,7 +375,10 @@ if (is_ebi_reachable()) {
           mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
           tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
           add_column(citation = citation) %>%
-          add_column(studyID = studyID, .after = "citation") %>% 
+          add_column(studyID = studyID, .after = "citation") %>%
+          #TODO
+          # add_column(population = getPopFromDescription(master_associations[["pvalue_description"]])) %>%
+          add_column(sex = getSexFromDescription(master_associations[["pvalue_description"]])) %>%
           mutate(pvalue_description = tolower(pvalue_description))
         # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
         studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("conditional on", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
