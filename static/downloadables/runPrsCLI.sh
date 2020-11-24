@@ -298,7 +298,12 @@ calculatePRS () {
     studyTypesForCalc=()
     studyIDsForCalc=()
     ethnicityForCalc=()
-    isCondensedFormat="True"
+    isCondensedFormat=1
+
+    single="'"
+    escaped="\'"
+    underscore="_"
+    space=" "
 
     while getopts 'f:o:c:r:p:t:k:i:e:v:s:' c "$@"
     do 
@@ -376,7 +381,10 @@ calculatePRS () {
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
-            v)  isCondensedFormat="False";;
+	    v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+		if [ $verbose == "true" ]; then
+		    isCondensedFormat=0
+	    	fi;;
             s)  if ! [ -z "$step" ]; then
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -458,13 +466,12 @@ calculatePRS () {
 
         $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"
 
-<<<<<<< HEAD
-        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$fileHash" "$requiredParamsHash"; then
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"; then
             echo "Caculated score"
             if [[ $fileHash != $requiredParamsHash ]]; then
                 rm ".workingFiles/associations_${fileHash}.txt"
             fi
-            rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+           # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
             rm -r __pycache__
             echo "Cleaned up intermediate files"
@@ -472,7 +479,6 @@ calculatePRS () {
             echo ""
         else
             echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
-=======
 
         fi
         exit;
