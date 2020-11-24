@@ -64,7 +64,7 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
         for (let i in chromosomesToSearch) {
             sqlQuestionMarks = ""
 
-            for (j=0; j < chromosomesToSearch[i].size - 1; j++) {
+            for (j=0; j < chromosomesToSearch[i].length - 1; j++) {
                 sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
             }
             sqlQuestionMarks = sqlQuestionMarks.concat("?")
@@ -72,6 +72,10 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
             sqlString = sqlString.concat(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGen}_chr${i}_clumps WHERE position IN (${sqlQuestionMarks}); `)
             sqlParams = sqlParams.concat(Array.from(chromosomesToSearch[i]))
         }
+
+	console.log(chromosomesToSearch)
+	console.log(sqlString)
+	console.log(sqlParams)
 
         sql.query(sqlString, sqlParams, (err, res) => {
             if (err) {
