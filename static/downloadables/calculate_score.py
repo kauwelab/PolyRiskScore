@@ -325,11 +325,6 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
                                         neutral_snps_set.add(rsid_pos_map[index_snp])
                                     else:
                                         neutral_snps_set.add(index_snp)
-                                else:
-                                    if rsid is not None and rsid != "":
-                                        neutral_snps_set.add(rsid)
-                                    else:
-                                        neutral_snps_set.add(chromPos)
                                 #TODO: Do we even want to look at snps that don't have corresponding alleles?
                                 # I changed it so that we skip over snps that have "" as their alleles.
                                 elif pValue > index_pvalue and alleles != "":
@@ -343,6 +338,18 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
                                             neutral_snps_set.add(rsid_pos_map[index_snp])
                                         else:
                                             neutral_snps_set.add(index_snp)
+
+                                    else:
+                                        if rsid is not None and rsid != "":
+                                            neutral_snps_set.add(rsid)
+                                        else:
+                                            neutral_snps_set.add(chromPos)
+                                else:
+                                    if rsid is not None and rsid != "":
+                                        neutral_snps_set.add(rsid)
+                                    else:
+                                        neutral_snps_set.add(chromPos)
+
                             else:
                                 # Since the clump number for this snp position and study/name
                                 # doesn't already exist, add it to the index map and the sample map
