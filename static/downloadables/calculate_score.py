@@ -325,15 +325,24 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
                                         neutral_snps_set.add(rsid_pos_map[index_snp])
                                     else:
                                         neutral_snps_set.add(index_snp)
+                                else:
+                                    if rsid is not None and rsid != "":
+                                        neutral_snps_set.add(rsid)
+                                    else:
+                                        neutral_snps_set.add(chromPos)
                                 #TODO: Do we even want to look at snps that don't have corresponding alleles?
                                 # I changed it so that we skip over snps that have "" as their alleles.
-                                #elif pValue > index_pvalue and alleles != "":
-                                #    if chromPos in sample_map[study_sample]:
-                                #        if sample_map[study_sample][chromPos] == "":
-                                #            del index_snp_map[study_sample][clumpNum]
-                                #            index_snp_map[study_sample][clumpNum] = chromPos
-                                #            del sample_map[study_sample][index_snp]
-                                #            sample_map[study_sample][chromPos] = alleles
+                                elif pValue > index_pvalue and alleles != "":
+                                    if sample_map[study_sample][index_snp] == "":
+                                        del index_snp_map[study_sample][clumpNum]
+                                        index_snp_map[study_sample][clumpNum] = chromPos
+                                        del sample_map[study_sample][index_snp]
+                                        sample_map[study_sample][chromPos] = alleles
+
+                                        if rsid_pos_map[index_snp] is not None:
+                                            neutral_snps_set.add(rsid_pos_map[index_snp])
+                                        else:
+                                            neutral_snps_set.add(index_snp)
                             else:
                                 # Since the clump number for this snp position and study/name
                                 # doesn't already exist, add it to the index map and the sample map
@@ -365,46 +374,56 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
 def txtcalculations(tableObjList, txtObj,isCondensed, neutral_snps):
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
-    for disease_study in txtObj:
-        disease, studyID = disease_study
+    for studyID in txtObj:
         oddsRatios = []
-        citation = tableObjList[studyID]['citation']
-        reportedTraits = str(tableObjList[studyID]['reportedTraits'])
-        traits = str(tableObjList[studyID]['traits'])
         neutral_snps_set = neutral_snps[studyID]
+        protectiveAlleles = set()
+        riskAlleles = set()
 
         
         # Loop through each snp associated with this disease/study
-        for snp in txtObj[disease_study]:
+        for snp in txtObj[study]:
             # Also iterate through each of the alleles
-            for allele in txtObj[disease_study][snp]:
+            for allele in txtObj[study][snp]:
                 # Then compare to the gwa study
                 if allele != "":
-                    for row in tableObjList[studyID]['associations']:
-                        rowSnp = row['snp']
-                        # Compare the individual's snp and allele to the study row's snp and risk allele
-                        if snp == rowSnp and allele == row['riskAllele']:
-                            rsids.append(row['snp'])
-                            oddsRatio = row['oddsRatio']
-                            oddsRatios.append(oddsRatio)
-                            if oddsRatio < 1:
-                                protectiveAlleles.append(snp)
-                            elif oddsRatio > 1:
-                                riskAlleles.append(snp)
-                            else:
+                    if snp in tableObjList:
+                        if studyID in tableObjList[snp]:
+                            # Compare the individual's snp and allele to the study row's snp and risk allele
+                            citation = tableObjList[snp]['studies'][studyID]['citation']
+                            reportedTrait = tableObjList[snp]['studies'][studyID]['reportedTrait']
+                            traits = tableObjList[snp]['studies'][studyID]['traits']
+                            riskAllele = tableObjList[snp]['studies'][studyID]['riskAllele']
+                            oddsRatio = tableObjList[snp]['studies'][studyID]['riskAllele']
+
+                            if allele == riskAllele:
+                                oddsRatios.append(oddsRatio)
+                                if oddsRatio < 1:
+                                    protectiveAlleles.add(snp)
+                                elif oddsRatio > 1:
+                                    riskAlleles.add(snp)
+                                else:
+                                    neutral_snps_set.add(snp)
+                            elif allele != row['riskAllele']:
                                 neutral_snps_set.add(snp)
-                        elif snp == rowSnp and allele != row['riskAllele']:
-                            neutral_snps_set.add(snp)
+
         if not isCondensedFormat:
             OR = str(getCombinedORFromArray(oddsRatios))
             header = ['Study ID', 'Citation', 'Reported Trait(s)', 'Trait(s)', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
-            newLine = [studyID, citation, reportedTraits, trait(s), OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
+            if len(protectiveAlleles) == 0:
+                protectiveAlleles = "{}"
+            elif len(riskAlleles) == 0:
+                riskAlleles = "{}"
+            elif len(neutral_snps_set) == 0:
+                neutral_snps_set = "{}"
+            newLine = [studyID, citation, reportedTrait, traits, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
             formatFullCSV(isFirst, newLine, header)
             isFirst = False
+
         if isCondensedFormat:
             OR = str(getCombinedORFromArray(oddsRatios))
             header = ['Study ID', 'Citation', 'Reported Trait(s)', 'Trait(s)', 'Polygenic Risk Score']
-            newLine = [studyID, citation, reportedTraits, traits, OR]
+            newLine = [studyID, citation, reportedTrait, traits, OR]
             formatFullCSV(isFirst, newLine, header)
             isFirst = False
 
