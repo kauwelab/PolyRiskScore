@@ -9,10 +9,12 @@ To update the PRSKB database automatically with the latest studies from the NHGR
     a. If tmux is not available, install it with the following command: "sudo apt-get install tmux"
     b. You can leave or come back to a tmux window at any time with "tmux detach" and "tmux a -t session_name" respectively. 
 4. Run the following command, replacing "password" with the password for the PRSKB MySQL password: sudo ./master_script.sh "password" 8 &> output.txt &
-    a. See the master_script file for additional information on its parameters.
-    b. This command will run in the background and write its terminal output to "output.txt" Remember, while in a tmux window, run "tmux detach" and the 
+    a. After running the command, make sure the script has started working by opening the output.txt file and confirming there are no errors.
+        aa. If you get the error: "./master_script.sh: Permission denied" then do "chmod 777 master_script"
+    b. See the master_script file for additional information on its parameters.
+    c. This command will run in the background and write its terminal output to "output.txt" Remember, while in a tmux window, run "tmux detach" and the 
        command will continue to run in the detached tmux window.
-    c. The "8" in the command is the number of times the GWAS catalog will be split to download different parts of the database concurrently. 
+    d. The "8" in the command is the number of times the GWAS catalog will be split to download different parts of the database concurrently. 
        Increase this number to speed up the download, but don't increase the number too much since the website computer only has 2 cores.
 5. This command will take at least 4 hours to run. It is done when the last line of "output.txt" says "Press [Enter] key to finish..." At this point, 
    all of the new data is already uploaded to the database and and you just need to upload the new TSVs to Github.
