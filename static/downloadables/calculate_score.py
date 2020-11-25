@@ -324,7 +324,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
         # and create blank entries for the sample map for those that didn't
         # TODO: might need a better way to handle this
         for name in vcf_reader.samples:
-            for study in identToStudies[chromPos].keys():
+            for study in tableObjDict[chromPos]['studies'].keys():
                 study_sample = (study, name)
                 if study_sample not in counter_set:
                     sample_map[study_sample][""] = ""

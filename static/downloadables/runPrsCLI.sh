@@ -368,8 +368,8 @@ calculatePRS () {
                     exit 1
                 fi;;
 
-	    t)  trait="${OPTARG//$single/$escaped}"
-		trait="${trait//$space/$underscore}"
+            t)  trait="${OPTARG//$single/$escaped}"
+                trait="${trait//$space/$underscore}"
                 echo $trait
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
             k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
@@ -381,10 +381,10 @@ calculatePRS () {
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
-	    v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-		if [ $verbose == "true" ]; then
-		    isCondensedFormat=0
-	    	fi;;
+            v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $verbose == "true" ]; then
+                    isCondensedFormat=0
+                fi;;
             s)  if ! [ -z "$step" ]; then
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
