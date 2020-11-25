@@ -264,6 +264,9 @@ if (is_ebi_reachable()) {
       else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
         pop <- c(pop, maleIndicator)
       }
+      else {
+        pop <- c(pop, NA)
+      }
     }
     return(pop)
   }
@@ -332,74 +335,81 @@ if (is_ebi_reachable()) {
         # gets the association data associated with the study ID
         associations <- get_associations(study_id = studyID)
         associationsTibble <- associations@associations
-        # get a list of the assoication ids
-        association_ids <- associationsTibble[["association_id"]]
-        names(association_ids) <- association_ids
         
-        # get traits for each of the assoication ids
-        traits <- association_ids %>%
-          purrr::map(~ get_traits(association_id = .x)@traits) %>%
-          dplyr::bind_rows(.id = 'association_id')
-        
-        # merge the traits with the assoications- note: some associations have multiple traits, so the traits
-        # table length is >= the length of assicationsTibble
-        associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
-        
-        # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
-        riskAlleles <- associations@risk_alleles %>%
-          group_by(association_id) %>% 
-          filter(dplyr::n()==1)
-        
-        # gets the variants data associated with the study ID
-        variants <- get_variants(study_id = studyID)
-        # contains last update date for each variant ID
-        variantsTibble <- variants@variants
-        # contains gene names, position, and distances from nearest genes for each variant ID
-        genomicContexts <- variants@genomic_contexts
-        
-        # merge data together
-        master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
-          dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
-          unite("gene", gene_name, distance, sep = ":") %>%
-          mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
-          group_by(variant_id) %>% 
-          summarise_all(list(~toString(unique(na.omit(.))))) %>%
-          mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
-        # set the values of all empty cells to NA
-        if (nrow(master_variants) > 0) {
-          master_variants[master_variants == ""] <- NA
-        }
-        master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
-        studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
-          unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
-          mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
-          tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
-          add_column(citation = citation) %>%
-          add_column(studyID = studyID, .after = "citation") %>%
-          #TODO
-          # add_column(population = getPopFromDescription(master_associations[["pvalue_description"]])) %>%
-          add_column(sex = getSexFromDescription(master_associations[["pvalue_description"]])) %>%
-          mutate(pvalue_description = tolower(pvalue_description))
-        # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
-        studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("conditional on", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
-        
-        # if there are not enough snps left in the study table, add it to a list of ignored studies
-        if (nrow(studyData) < minNumStudyAssociations) {
+        # if there aren't enough associations, put not enough info for study
+        if (nrow(associationsTibble) < minNumStudyAssociations) {
           invalidStudies <- c(invalidStudies, studyID)
           DevPrint(paste0("    Not enough info for ", citation))
-        } else { # otherwise add the rows to the association table
-          associationsTable <- bind_rows(studyData, associationsTable)
-          studyIndeciesAppended <- c(studyIndeciesAppended, i)
+        } else {
+          # get a list of the assoication ids
+          association_ids <- associationsTibble[["association_id"]]
+          names(association_ids) <- association_ids
+          
+          # get traits for each of the assoication ids
+          traits <- association_ids %>%
+            purrr::map(~ get_traits(association_id = .x)@traits) %>%
+            dplyr::bind_rows(.id = 'association_id')
+          
+          # merge the traits with the assoications- note: some associations have multiple traits, so the traits
+          # table length is >= the length of assicationsTibble
+          associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
+          
+          # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
+          riskAlleles <- associations@risk_alleles %>%
+            group_by(association_id) %>% 
+            filter(dplyr::n()==1)
+          
+          # gets the variants data associated with the study ID
+          variants <- get_variants(study_id = studyID)
+          # contains last update date for each variant ID
+          variantsTibble <- variants@variants
+          # contains gene names, position, and distances from nearest genes for each variant ID
+          genomicContexts <- variants@genomic_contexts
+          
+          # merge data together
+          master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
+            dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
+            unite("gene", gene_name, distance, sep = ":") %>%
+            mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
+            group_by(variant_id) %>% 
+            summarise_all(list(~toString(unique(na.omit(.))))) %>%
+            mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
+          # set the values of all empty cells to NA
+          if (nrow(master_variants) > 0) {
+            master_variants[master_variants == ""] <- NA
+          }
+          master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
+          studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
+            unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
+            mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
+            tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
+            add_column(citation = citation) %>%
+            add_column(studyID = studyID, .after = "citation") %>%
+            #TODO
+            # add_column(population = getPopFromDescription(master_associations[["pvalue_description"]])) %>%
+            add_column(sex = getSexFromDescription(master_associations[["pvalue_description"]])) %>%
+            mutate(pvalue_description = tolower(pvalue_description))
+          # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
+          studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("conditional on", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
+          
+          # if there are not enough snps left in the study table, add it to a list of ignored studies
+          if (nrow(studyData) < minNumStudyAssociations) {
+            invalidStudies <- c(invalidStudies, studyID)
+            DevPrint(paste0("    Not enough info for ", citation))
+          } else { # otherwise add the rows to the association table
+            associationsTable <- bind_rows(studyData, associationsTable)
+            studyIndeciesAppended <- c(studyIndeciesAppended, i)
+          }
         }
         # for every 10 studies, append to the associations_table.tsv
         if (i %% 10 == 0) {
           # if there are studies in the associations table, print them out and reset the tibble
           if (nrow(associationsTable) > 0) {
-  	        associationsTable <- formatAssociationsTable(associationsTable)
-  	        appendToAssociationsTable(associationsTable)
-  	        # reset the associationsTable and keep going
+            associationsTable <- formatAssociationsTable(associationsTable)
+            appendToAssociationsTable(associationsTable)
+            # reset the associationsTable and keep going
             associationsTable <- tibble()
-  	        indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+            indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
             DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
             studyIndeciesAppended <- c()
           }
