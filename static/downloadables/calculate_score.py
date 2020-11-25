@@ -11,67 +11,23 @@ import csv
 import pandas
  
 
-def calculateScore(inputFile, pValue, outputType, tableObjList, clumpsObjList, refGen, isCondensedFormat, outputFile):
-    tableObjList = json.loads(tableObjList)
-    clumpsObjList = json.loads(clumpsObjList)
+def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile):
+    tableObjDict = json.loads(tableObjDict)
+    clumpsObjDict = json.loads(clumpsObjDict)
 
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if inputFile.lower().endswith(".txt") else False
 
-    identToStudies = getSNPsFromTableObj(tableObjList, refGen, isRSids)
-
     if isRSids:
-        txtObj, totalVariants, neutral_snps = parse_txt(inputFile, clumpsObjList, identToStudies)
-        results = txtcalculations(tableObjList, txtObj, isCondensedFormat, neutral_snps, outputFile)#TODO this fuction still needs to be formatted for the new stuff
+        txtObj, totalVariants, neutral_snps = parse_txt(inputFile, clumpsObjDict, tableObjDict)
+        results = txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile)#TODO this fuction still needs to be formatted for the new stuff
     else:
-        vcfObj, totalVariants, neutral_snps = parse_vcf(inputFile, clumpsObjList, identToStudies)
-        results = vcfcalculations(tableObjList, vcfObj,isCondensedFormat, neutral_snps, outputFile) #TODO this fuction still needs to be formatted for the new stuff
+        vcfObj, totalVariants, neutral_snps = parse_vcf(inputFile, clumpsObjDict, tableObjDict)
+        results = vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile) #TODO this fuction still needs to be formatted for the new stuff
     return(results)
 
 
-def getSNPsFromTableObj(tableObjList, refGen, isRSids):
-    identToStudies = defaultdict(dict)
-
-    for pos in tableObjList:
-        snp = tableObjList[pos]['snp']
-        studies = tableObjList[pos]["studies"]
-        snp_info = tableObjList[pos]
-        for studyID in snp_info['studies']:
-            study_info = snp_info['studies'][studyID]
-            if isRSids:
-                importantValues = {
-                    "pValue": study_info['pValue'],
-                    "riskAllele": study_info['riskAllele'],
-                    "oddsRatio": study_info['oddsRatio'],
-                }
-
-                # TODO REDO THIS CODE
-                if (snp in identToStudies.keys()):
-                    # potentially need to keep an eye on this - could a study have multiple p-values/ OR for same location?
-                    identToStudies[snp][studyID] = importantValues
-                else:
-                    identToStudies[snp][studyID] = importantValues
-                    
-            elif not isRSids and pos != 'NA':
-                importantValues = {
-                    "pValue": study_info['pValue'],
-                    "riskAllele": study_info['riskAllele'],
-                    "oddsRatio": study_info['oddsRatio'],
-                    "snp": snp,
-                    "pos": pos,
-                }
-
-
-                if (pos in identToStudies.keys()):
-                    # potentially need to keep an eye on this - could a study have multiple p-values/ OR for same location?
-                    identToStudies[pos][studyID] = importantValues
-                else:
-                    identToStudies[pos][studyID] = importantValues
-
-    return identToStudies
-
-
-def parse_txt(txtFile, clumpsObjList, identToStudies):
+def parse_txt(txtFile, clumpsObjDict, tableObjDict):
     totalLines = 0
     
     Lines = openFile.readlines()
@@ -80,9 +36,6 @@ def parse_txt(txtFile, clumpsObjList, identToStudies):
     sample_map = defaultdict(dict)
     # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
     index_snp_map = defaultdict(dict)
-
-    # Access the snp clumps 
-    clumpMap = createClumpsDict(clumpsObjList, True)
 
     # Create a set to keep track of which disease/study/samples have viable snps and which ones don't 
     counter_set = set()
@@ -97,17 +50,17 @@ def parse_txt(txtFile, clumpsObjList, identToStudies):
         alleles = alleles.split(',')
         
         if alleles != []: #TODO: check if this should be an empty list or an empty string
-            if snp in identToStudies:
-                for studyID in identToStudies[snp].keys():
+            if snp in tableObjDict:
+                for studyID in tableObjDict[snp]['studies'].keys():
                     if studyID in neutral_snps:
                         neutral_snps_set = neutral_snps[studyID]
                     else:
                         neutral_snps_set = set()
                     # Check to see if the snp position from this line in the file exists in the clump table
-                    if snp in clumpMap:
+                    if snp in clumpsObjDict:
                         # Grab the clump number associated with this snp 
-                        clumpNum = clumpMap[snp]
-                        pValue = identToStudies[snp][studyID]['pValue']
+                        clumpNum = clumpsObjDict[snp]['clumpNum']
+                        pValue = tableObjDict[snp]['studies'][studyID]['pValue']
                         # Add the studyID to the counter list because we now know at least there is
                         # at least one viable snp for this study
                         counter_set.add(studyID)
@@ -119,7 +72,7 @@ def parse_txt(txtFile, clumpsObjList, identToStudies):
                             # and switch out the data accordingly
                             if clumpNum in index_snp_map[studyID]:
                                 index_snp = index_snp_map[studyID][clumpNum]
-                                index_pvalue = identToStudies[index_snp][studyID]["pValue"]
+                                index_pvalue = tableObjDict[index_snp]['studies'][studyID]['pValue']
                                 if pValue < index_pvalue:
                                     del index_snp_map[studyID][clumpNum]
                                     index_snp_map[studyID][clumpNum] = snp
@@ -148,10 +101,8 @@ def parse_txt(txtFile, clumpsObjList, identToStudies):
                 if studyID not in counter_set:
                     sample_map[studyID][""] = ""
 
-    
     final_map = dict(sample_map)
     return final_map, totalLines, neutral_snps
-
 
 
 def openFileForParsing(inputFile):
@@ -255,7 +206,7 @@ def formatAndReturnGenotype(genotype, gt, REF, ALT):
     return alleles
 
 
-def parse_vcf(inputFile, clumpsObjList, identToStudies):
+def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     totalLines = 0 
 
     vcf_reader = openFileForParsing(inputFile)
@@ -264,9 +215,6 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
     sample_map = defaultdict(dict)
     # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
     index_snp_map = defaultdict(dict)
-
-    # format LD clumps, (isRSids is False)
-    clumpMap = createClumpsDict(clumpsObjList, False)
 
     # Create a list to keep track of which study/samples have viable snps and which ones don't 
     counter_set = set()
@@ -281,9 +229,9 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
         REF = record.REF #TODO: check if this is right or if it should just be .REF
         rsid = record.ID
         # if the position is found in our database 
-        if chromPos in identToStudies:
+        if chromPos in tableObjDict:
             # Loop through each study containing the position
-            for study in identToStudies[chromPos].keys():
+            for study in tableObjDict[chromPos]['studies'].keys():
 
                 # Loop through each sample of the vcf file
                 for call in record.samples:  
@@ -296,12 +244,12 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
                     study_sample = (study, name)
                     counter_set.add(study_sample)
                     # Check to see if the snp position from this line in the vcf exists in the clump table for this study
-                    if chromPos in clumpMap:
+                    if chromPos in clumpsObjDict:
                         # Grab the clump number associated with this study and snp position
-                        clumpNum = clumpMap[chromPos] 
+                        clumpNum = clumpsObjDict[chromPos]['clumpNum'] 
 
                         # grab pValue from PRSBK database data
-                        pValue = identToStudies[chromPos][study]['pValue']
+                        pValue = tableObjDict[chromPos]['studies'][study]['pValue']
                         # Add the study/sample tuple to the counter list because we now know at least there is
                         # at least one viable snp for this combination 
                         totalLines += 1
@@ -314,7 +262,7 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
                                 # if the current snp position has no alleles, do not add it to the maps
                                 # if the existing index snp has no alleles, put in the current snp even if the pvalue is higher
                                 index_snp = index_snp_map[study_sample][clumpNum]
-                                index_pvalue = identToStudies[index_snp][study]['pValue'] 
+                                index_pvalue = tableObjDict[index_snp]['studies'][study]['pValue'] 
                                 if pValue < index_pvalue:
                                     del index_snp_map[study_sample][clumpNum]
                                     index_snp_map[study_sample][clumpNum] = chromPos
@@ -384,7 +332,7 @@ def parse_vcf(inputFile, clumpsObjList, identToStudies):
     return final_map, totalLines, neutral_snps
 
 
-def txtcalculations(tableObjList, txtObj,isCondensed, neutral_snps):
+def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     for studyID in txtObj:
@@ -400,14 +348,14 @@ def txtcalculations(tableObjList, txtObj,isCondensed, neutral_snps):
             for allele in txtObj[study][snp]:
                 # Then compare to the gwa study
                 if allele != "":
-                    if snp in tableObjList:
-                        if studyID in tableObjList[snp]:
+                    if snp in tableObjDict:
+                        if studyID in tableObjDict[snp]:
                             # Compare the individual's snp and allele to the study row's snp and risk allele
-                            citation = tableObjList[snp]['studies'][studyID]['citation']
-                            reportedTrait = tableObjList[snp]['studies'][studyID]['reportedTrait']
-                            traits = tableObjList[snp]['studies'][studyID]['traits']
-                            riskAllele = tableObjList[snp]['studies'][studyID]['riskAllele']
-                            oddsRatio = tableObjList[snp]['studies'][studyID]['riskAllele']
+                            citation = tableObjDict[snp]['studies'][studyID]['citation']
+                            reportedTrait = tableObjDict[snp]['studies'][studyID]['reportedTrait']
+                            traits = tableObjDict[snp]['studies'][studyID]['traits']
+                            riskAllele = tableObjDict[snp]['studies'][studyID]['riskAllele']
+                            oddsRatio = tableObjDict[snp]['studies'][studyID]['riskAllele']
 
                             if allele == riskAllele:
                                 oddsRatios.append(oddsRatio)
@@ -440,7 +388,7 @@ def txtcalculations(tableObjList, txtObj,isCondensed, neutral_snps):
             formatFullCSV(isFirst, newLine, header)
             isFirst = False
 
-def vcfcalculations(tableObjList, vcfObj, isCondensedFormat, neutral_snps, outputFile):
+def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile):
     condensed_output_map = {}
     # For every sample in the vcf nested dictionary
     isFirst = True
@@ -461,14 +409,14 @@ def vcfcalculations(tableObjList, vcfObj, isCondensedFormat, neutral_snps, outpu
             for allele in vcfObj[study_samp][chromPos]:
                 allele = str(allele)
                 # Then compare to the gwa study
-            if chromPos in tableObjList:
-                if studyID in tableObjList[chromPos]['studies']:
-                    citation = tableObjList[chromPos]['studies'][studyID]['citation']
-                    reportedTraits = str(tableObjList[chromPos]['studies'][studyID]['reportedTrait'])
-                    traits = str(tableObjList[chromPos]['studies'][studyID]['traits'])
-                    oddsRatio = tableObjList[chromPos]['studies'][studyID]['oddsRatio']
-                    riskAllele = tableObjList[chromPos]['studies'][studyID]['riskAllele']
-                    rsid = tableObjList[chromPos]['snp']
+            if chromPos in tableObjDict:
+                if studyID in tableObjDict[chromPos]['studies']:
+                    citation = tableObjDict[chromPos]['studies'][studyID]['citation']
+                    reportedTraits = str(tableObjDict[chromPos]['studies'][studyID]['reportedTrait'])
+                    traits = str(tableObjDict[chromPos]['studies'][studyID]['traits'])
+                    oddsRatio = tableObjDict[chromPos]['studies'][studyID]['oddsRatio']
+                    riskAllele = tableObjDict[chromPos]['studies'][studyID]['riskAllele']
+                    rsid = tableObjDict[chromPos]['snp']
                     if studyID not in condensed_output_map and isCondensedFormat:
                         condensedLine = [studyID, reportedTraits, traits, citation]
                         condensed_output_map[studyID] = condensedLine
@@ -501,7 +449,7 @@ def vcfcalculations(tableObjList, vcfObj, isCondensedFormat, neutral_snps, outpu
                                         neutral_snps_set.add(chromPos)
             else:
                 neutral_snps_set.add(chromPos)
-                #for row in tableObjList[disease][studyID]['associations']:
+                #for row in tableObjDict[disease][studyID]['associations']:
                 #    if row['pos'] != 'NA':
                 #        databaseChromPos = row['pos']
                 #    else:
@@ -540,7 +488,8 @@ def vcfcalculations(tableObjList, vcfObj, isCondensedFormat, neutral_snps, outpu
             
     if isCondensedFormat:
         formatCondensedCSV(condensed_output_map, outputFile, samples)
-            
+    return
+
 
 def getCombinedORFromArray(oddsRatios):
     combinedOR = 0
@@ -552,22 +501,6 @@ def getCombinedORFromArray(oddsRatios):
     if not oddsRatios:
         combinedOR = "THE SAMPLE DOES NOT HAVE ANY VARIANTS FROM THIS STUDY"
     return(str(combinedOR))
-
-def createClumpsDict(clumpsObj, isRSids):
-    # Access the snp clumps
-    clumpMap = defaultdict(dict)
-
-    # Loop through each snpObj in the clump object and grab the position and clump number
-    # For population clumping
-    for snp in clumpsObj:
-        if (isRSids):
-            ident = clumpsObj[snp]['snp']
-        else:
-            ident = clumpsObj[snp]['pos']
-        clumpNum = clumpsObj[snp]['clumpNum']
-        clumpMap[ident] = clumpNum
-
-    return clumpMap
 
 
 def formatCondensedCSV(output_map, outputFile, samples):
@@ -589,8 +522,9 @@ def formatCondensedCSV(output_map, outputFile, samples):
 #    header = ["study ID", "Reported Trait(s)", "Trait(s)", "Citation"]
     with open(outputFile, 'w', newline='') as f:
         f.write(finalOutput)
+    return
 
-    
+
 def formatFullCSV(isFirst, newLine, header, outputFile):
     if isFirst:
         with open(outputFile, 'w', newline='') as f:
@@ -601,3 +535,4 @@ def formatFullCSV(isFirst, newLine, header, outputFile):
         with open(outputFile, 'a', newline='') as f:
             output = csv.writer(f, delimiter='\t')
             output.writerow(newLine)
+    return
