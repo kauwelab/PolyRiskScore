@@ -123,6 +123,22 @@ exports.snpsByEthnicity = (req, res) => {
     })
 }
 
+exports.joinTest = (req, res) => {
+    Association.joinTest((err,data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving join"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            console.log(data)
+            res.send(data);
+        }
+    })
+}
+
 // gets the last time the associations tsv was updated. Used for the cli to check if the user needs to re-download association data
 exports.getLastAssociationsUpdate = (req, res) => {
     associationsPath = path.join(__dirname, '../../..', "tables/associations_table.tsv")
