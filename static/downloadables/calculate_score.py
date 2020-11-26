@@ -22,8 +22,8 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
         txtObj, totalVariants, neutral_snps = parse_txt(inputFile, clumpsObjDict, tableObjDict)
         results = txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile)#TODO this fuction still needs to be formatted for the new stuff
     else:
-        vcfObj, totalVariants, neutral_snps = parse_vcf(inputFile, clumpsObjDict, tableObjDict)
-        results = vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile) #TODO this fuction still needs to be formatted for the new stuff
+        vcfObj, totalVariants, neutral_snps, study_dict = parse_vcf(inputFile, clumpsObjDict, tableObjDict)
+        results = vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, study_dict) #TODO this fuction still needs to be formatted for the new stuff
     return(results)
 
 
@@ -206,8 +206,16 @@ def formatAndReturnGenotype(genotype, gt, REF, ALT):
     return alleles
 
 
+def getStudies(tableObjDict):
+    study_dict = {}
+    for key in tableObjDict.keys():
+        for study in tableObjDict[key]['studies'].keys():
+            study_dict[study] = key
+    return(study_dict)
+            
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     totalLines = 0 
+    study_dict = getStudies(tableObjDict)
 
     vcf_reader = openFileForParsing(inputFile)
     
@@ -321,15 +329,15 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
         # Check to see which study/sample combos didn't have any viable snps
         # and create blank entries for the sample map for those that didn't
         # TODO: might need a better way to handle this
-        for name in vcf_reader.samples:
-            for study in tableObjDict[chromPos]['studies'].keys():
-                study_sample = (study, name)
-                if study_sample not in counter_set:
-                    sample_map[study_sample][""] = ""
+    for name in vcf_reader.samples:
+        for study in study_dict:
+            study_sample = (study, name)
+            if study_sample not in counter_set:
+                sample_map[study_sample][""] = ""
                     
     
     final_map = dict(sample_map)
-    return final_map, totalLines, neutral_snps
+    return final_map, totalLines, neutral_snps, study_dict
 
 
 def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
@@ -388,16 +396,17 @@ def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
             formatFullCSV(isFirst, newLine, header)
             isFirst = False
 
-def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile):
+def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, study_dict):
     condensed_output_map = {}
     # For every sample in the vcf nested dictionary
     isFirst = True
-    samples = []
+    samples = {}
     for study_samp in vcfObj:
         studyID, samp = study_samp
-        samples.append(samp)
+        samples[samp]=None
         oddsRatios = []
-        neutral_snps_set = neutral_snps[study_samp]
+        if study_samp in neutral_snps:
+            neutral_snps_set = neutral_snps[study_samp]
         protectiveAlleles = set()
         riskAlleles = set()
 
@@ -482,10 +491,20 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
             isFirst = False
 
         if isCondensedFormat:
-            newLine = condensed_output_map[studyID]
-            newLine.append(str(getCombinedORFromArray(oddsRatios)))
-            condensed_output_map[studyID] = newLine
+            if studyID in condensed_output_map:
+                newLine = condensed_output_map[studyID]
+                newLine.append(str(getCombinedORFromArray(oddsRatios)))
+                condensed_output_map[studyID] = newLine
+            else:
+                key = study_dict[studyID]
+                citation = tableObjDict[key]['studies'][studyID]['citation']
+                reportedTraits = tableObjDict[key]['studies'][studyID]['reportedTrait']
+                traits = tableObjDict[key]['studies'][studyID]['traits']
+                newLine = [studyID, str(reportedTraits), str(traits), citation, 'THE SAMPLE DOES NOT HAVE ANY VARIANTS FROM THIS STUDY']
+                condensed_output_map[studyID] = newLine
+
             
+
     if isCondensedFormat:
         formatCondensedCSV(condensed_output_map, outputFile, samples)
     return
@@ -505,7 +524,7 @@ def getCombinedORFromArray(oddsRatios):
 
 def formatCondensedCSV(output_map, outputFile, samples):
     header = "study ID\tReportedTrait(s)\tTrait(s)\tCitation"
-    samps = '\t'.join(samples)
+    samps = '\t'.join(samples.keys())
     header = header + '\t' + str(samps)
     content = ""
     isFirst = True
