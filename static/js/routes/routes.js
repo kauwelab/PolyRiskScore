@@ -31,6 +31,8 @@ module.exports = app => {
 
     app.get("/all_snps", associations.getAllSnps);
 
+    app.get("/all_snps_to_studyIDs", associations.getAllSnpsToStudyIDs);
+
     app.get("/single_snp_from_each_study", associations.getSingleSnpFromEachStudy)
 
     app.get("/search_for_missing_snps", associations.searchMissingRsIDs)

@@ -70,6 +70,29 @@ exports.getAllSnps = (req, res) => {
     })
 }
 
+exports.getAllSnpsToStudyIDs = (req, res) => {
+    var refGen = req.query.refGen;
+    Association.getAllSnpsToStudyIDs(refGen, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            studyIDsToSnps = {}
+
+            for (i=0; i<data.length; i++) {
+                if (!(Object.keys(studyIDsToSnps).includes(data[i].studyID))) {
+                    studyIDsToSnps[data[i].studyID] = []
+                }
+                studyIDsToSnps[data[i].studyID].push(data[i].snp)
+            }
+            res.send(studyIDsToSnps);
+        }
+    })
+}
+
 exports.getSingleSnpFromEachStudy = (req, res) => {
     var refGen = req.query.refGen;
     Association.getSingleSnpFromEachStudy(refGen, (err,data) => {
