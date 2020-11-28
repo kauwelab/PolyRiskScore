@@ -120,6 +120,30 @@ Association.getAllSnps = (refGen, result) => {
     }
 }
 
+Association.getAllSnpsToStudyIDs = (refGen, result) => {
+    try {
+        if (typeof(refGen) == "undefined") {
+            refGen = "hg38"
+        }
+        else {
+            // returns the refgen if valid, else throws an error
+            refGen = validator.validateRefgen(refGen)
+        }
+
+        sql.query(`SELECT snp, ${refGen} as pos, studyID FROM associations_table;`, (err, data) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            result(null, data)
+        })
+    } catch (e) {
+        console.log("Error: ", e)
+        result(e, null)
+    }
+ }
+
 Association.getSingleSnpFromEachStudy = (refGen, result) => {
     try {
         if (typeof(refGen) == "undefined") {
