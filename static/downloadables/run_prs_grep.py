@@ -1,17 +1,31 @@
 import calculate_score  as cs
 import time
 import sys
+import os
+import os.path
 
 #start = time.time()
-# $1=intermediateFile $2=diseaseArray $3=pValue $4=outputType $5="${tableObj}" $6=${clumpsObj} $7=refGen $8=outputFile $9=Superpop
-tableObjList = ""
-with open(sys.argv[5], 'r') as tableObjFile:
+# $1=inputFile $2=pValue $3=outputType $4=refGen $5=superPop $6=outputFile $7=isCondensedFormat $8=fileHash $9=requiredParamsHash
+
+basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
+
+if sys.argv[7] == '0':
+    isCondensedFormat = False
+else:
+    isCondensedFormat = True
+# get the paths for the associationsFile and clumpsFile
+if (sys.argv[8] == sys.argv[9]):
+    associationsPath = os.path.join(basePath, "allAssociations.txt")
+else:
+    associationsPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = sys.argv[8]))
+
+clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = sys.argv[5], r = sys.argv[4], ahash = sys.argv[8]))
+
+
+with open(associationsPath, 'r') as tableObjFile:
     tableObjList = tableObjFile.read()
-with open(sys.argv[6], 'r') as clumpsObjFile:
+with open(clumpsPath, 'r') as clumpsObjFile:
     clumpsObjList = clumpsObjFile.read()
-results = cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], tableObjList, clumpsObjList, sys.argv[7], sys.argv[9])
+cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, sys.argv[6])
 #end = time.time()
 #print(end - start)
-f = open(sys.argv[8], 'w')
-f.write(results)
-f.close()

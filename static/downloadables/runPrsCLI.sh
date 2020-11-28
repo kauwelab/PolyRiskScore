@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.1.0"
+version="1.2.0"
 #
 # 
 # 
@@ -22,14 +22,32 @@ version="1.1.0"
 #       --s studyIDs ex. ["GCST000727", "GCST009496"]
 #       --e ethnicity ex. ["European", "East Asian"]
 # 
-# * 9/18/2020 - v1.1.0  - Option for two steps and no grepping
+# * 9/18/2020 - v1.1.0  - Option for two steps
 #
 #   OPTIONAL PARAMETERS (added):
 #       --step stepNumber ex. (1 or 2)
-#       --ng noGrep
+#
+# * 10/8/2020 - v1.2.0 (should technically be 2.0.0)
+# 
+#   Now using getopts. Parameters updated
+#   REQUIRED PARAMS:
+#       -f input file path (VCF or TXT with rsIDs)
+#       -o output file path (CSV or TXT)
+#       -c p-value cutoff
+#       -r refGen (hg17, hg18, hg19, hg38)
+#       -p super population (AFR, AMR, EAS, EUR, SAS)
+#
+#   OPTIONAL PARAMS:
+#       -t traitList
+#       -k studyType
+#       -i studyIDs
+#       -e ethnicity
+#       -v (verbose output file)
+#       -s stepNumber
 #
 # ########################################################################
 
+# colors for text printing
 RED='\033[0;31m'
 LIGHTRED='\033[1;31m'
 LIGHTBLUE='\033[1;34m'
@@ -38,7 +56,9 @@ YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 MYSTERYCOLOR='\033[1;49;36m'
 NC='\033[0m' # No Color
+HORIZONTALLINE="============================================================================="
 
+# introduces the PRSKB menu
 prskbMenu () {
     echo -e "\n$HORIZONTALLINE"
     echo -e "                   ${LIGHTBLUE}PRSKB Command Line Menu/Instructions${NC}"
@@ -51,21 +71,23 @@ prskbMenu () {
     echo "then pressing [Enter]."
 }
 
+# the usage statement of the tool
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}[VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}[output file path (csv, json, or txt format)] ${LIGHTPURPLE}[p-value cutoff (ex: 0.05)] ${YELLOW}[refGen {hg17, hg18, hg19, hg38}]${NC} ${GREEN}[subject ethnicity {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (csv, json, or txt format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
-    echo -e "   ${MYSTERYCOLOR}--t${NC} traitList ex. acne insomnia \"Alzheimer's disease\""
-    echo -e "   ${MYSTERYCOLOR}--k${NC} studyType ex. HI LC O (High Impact, Large Cohort, Other studies)"
-    echo -e "   ${MYSTERYCOLOR}--s${NC} studyIDs ex. GCST000727 GCST009496"
-    echo -e "   ${MYSTERYCOLOR}--e${NC} ethnicity ex. European \"East Asian\"" 
+    echo -e "   ${MYSTERYCOLOR}-t${NC} traitList ex. -t acne -t insomnia -t \"Alzheimer's disease\""
+    echo -e "   ${MYSTERYCOLOR}-k${NC} studyType ex. -k HI -k LC -k O (High Impact, Large Cohort, Other studies)"
+    echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
+    echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}--step${NC} stepNumber ex. 1 2"
-    echo -e "   ${MYSTERYCOLOR}--ng${NC} noGrep "    
+    echo -e "   ${MYSTERYCOLOR}-v${NC} (indicates a more detailed result file)"
+    echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
 }
 
+# the options menu - prints the menu, waits for user input, and then directs them where they want to go
 chooseOption () {
     while true
     do
@@ -94,6 +116,9 @@ chooseOption () {
     done
 }
 
+# teaches the user about the tools parameters
+# pulls up a new Params menu, which will take the input and tell the user about the parameters they want to know about
+# loops until the user wants to go back to the main menu
 learnAboutParameters () {
     cont=1
     echo ""
@@ -105,22 +130,22 @@ learnAboutParameters () {
 
     while [[ "$cont" != "0" ]]
     do 
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
         echo    "|                                             |"
         echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                            |"
-        echo -e "| ${LIGHTPURPLE}1${NC} - VCF File or rsIDs:genotypes file        |"
-        echo -e "| ${LIGHTPURPLE}2${NC} - Output file                             |"
-        echo -e "| ${LIGHTPURPLE}3${NC} - P-value Cutoff                          |"
-        echo -e "| ${LIGHTPURPLE}4${NC} - RefGen                                  |"
-        echo -e "| ${LIGHTPURPLE}5${NC} - Subject Ethnicity                       |"
+        echo -e "| ${LIGHTPURPLE}1${NC} - -f VCF File or rsIDs:genotypes file     |"
+        echo -e "| ${LIGHTPURPLE}2${NC} - -o Output file                          |"
+        echo -e "| ${LIGHTPURPLE}3${NC} - -c P-value Cutoff                       |"
+        echo -e "| ${LIGHTPURPLE}4${NC} - -r RefGen                               |"
+        echo -e "| ${LIGHTPURPLE}5${NC} - -p Subject Super Population             |"
         echo    "|                                             |"
         echo -e "|${LIGHTPURPLE}OPTIONAL PARAMS: ${NC}                            |"
-        echo -e "| ${LIGHTPURPLE}6${NC} - --t traitList                           |"
-        echo -e "| ${LIGHTPURPLE}7${NC} - --k studyType                           |"
-        echo -e "| ${LIGHTPURPLE}8${NC} - --s studyIDs                            |"
-        echo -e "| ${LIGHTPURPLE}9${NC} - --e ethnicity                           |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - --step stepNumber                      |"
-        echo -e "| ${LIGHTPURPLE}11${NC} - --ng noGrep                            |"
+        echo -e "| ${LIGHTPURPLE}6${NC} - -t traitList                            |"
+        echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
+        echo -e "| ${LIGHTPURPLE}8${NC} - -i studyIDs                             |"
+        echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
+	echo -e "| ${LIGHTPURPLE}10${NC} - -v (verbose result file)               |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - -s stepNumber                          |"
         echo -e "|                                             |"
         echo -e "| ${LIGHTPURPLE}12${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
@@ -129,28 +154,28 @@ learnAboutParameters () {
         echo ""
 
         case $option in 
-            1 ) echo -e "${MYSTERYCOLOR} VCF File path or rsIDs:genotypes file path: ${NC}" 
+            1 ) echo -e "${MYSTERYCOLOR}-f VCF File path or rsIDs:genotypes file path: ${NC}" 
                 echo "The path to the VCF file that contains the samples for which you would like " 
                 echo "the polygenic risk scores calculated. Alternativly, the path to a TXT file that"
                 echo "contains rsIDs in the format of 1 rsID per line, with the genotypes following"
                 echo "on the same line. (ex. rs6656401:AA or rs6656401:A) In this format, we will"
                 echo "assume that any missing alleles are the risk allele."
                 echo "" ;;
-            2 ) echo -e "${MYSTERYCOLOR} Output File path: ${NC}" 
+            2 ) echo -e "${MYSTERYCOLOR}-o Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
                 echo -e "permitted extensions are ${GREEN}.csv${NC}, ${GREEN}.json${NC}, or ${GREEN}.txt${NC} and will dictate the" 
                 echo "format of the outputted results."
                 echo "" ;;
-            3 ) echo -e "${MYSTERYCOLOR} P-value Cutoff: ${NC}"
+            3 ) echo -e "${MYSTERYCOLOR}-c P-value Cutoff: ${NC}"
                 echo "This parameter dictates which SNPs will be used in the PRS calculation. "
                 echo "Those SNPs with p-values less than or equal to the given cutoff will be " 
                 echo "included. "  
                 echo "" ;;
-            4 ) echo -e "${MYSTERYCOLOR} RefGen (Reference Genome): ${NC}"
+            4 ) echo -e "${MYSTERYCOLOR}-r RefGen (Reference Genome): ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
 		        echo "in the input VCF file."
                 echo "" ;;
-            5 ) echo -e "${MYSTERYCOLOR} Subject Ethnicity: ${NC}"
+            5 ) echo -e "${MYSTERYCOLOR}-p Subject Super Population: ${NC}"
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
                 echo "SNPs for PRS calculation. We use the five super populations from the " 
                 echo "1000 Genomes as the available options. Below are the acceptable codes. " # this will need some re-work on the language
@@ -161,13 +186,13 @@ learnAboutParameters () {
                 echo -e "   ${GREEN}EUR${NC} - European population " 
                 echo -e "   ${GREEN}SAS${NC} - South Asian population " 
                 echo "" ;;
-            6 ) echo -e "${MYSTERYCOLOR} --t traitsList: ${NC}"
+            6 ) echo -e "${MYSTERYCOLOR} -t traitsList: ${NC}"
                 echo "This parameter allows you to pick specifically which traits "
                 echo "you would like to use to calculate PRS scores. You can see available "
                 echo "traits by choosing the search option in the Options Menu " 
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            7 ) echo -e "${MYSTERYCOLOR} --k studyType: ${NC}"
+            7 ) echo -e "${MYSTERYCOLOR} -k studyType: ${NC}"
                 echo "This parameter allows you to pick what kind of studies you "
                 echo -e "wish to run the PRS calculator on. The options are ${GREEN}HI${NC} (High Impact), " 
                 echo -e "${GREEN}LC${NC} (Largest Cohort), and${GREEN} O${NC} (Other). You can include any combination "
@@ -181,22 +206,27 @@ learnAboutParameters () {
                 echo "   Largest Cohort. " 
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            8 ) echo -e "${MYSTERYCOLOR} --s studyIDs: ${NC}"
+            8 ) echo -e "${MYSTERYCOLOR} -i studyIDs: ${NC}"
                 echo "This parameter allows you to pick specifically which studies "
                 echo "you would like to use to calculate PRS scores. You can see available "
                 echo "studies by choosing the search option in the Options Menu. Enter the "
                 echo "GWAS Catalog Study ID of the studies you wish to use. " 
                 echo "" ;;
-            9 ) echo -e "${MYSTERYCOLOR} --e ethnicity: ${NC}"
+            9 ) echo -e "${MYSTERYCOLOR} -e ethnicity: ${NC}"
                 echo "This parameter allows you to filter studies to use by the ethnicity "
                 echo "of the subjects used in the study. These correspond to those listed " 
                 echo "by the authors. " # should we maybe show ethnicities when they search studies?
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} --step stepNumber: ${NC}"
-                echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
+            10 ) echo -e "${MYSTERYCOLOR} -v: ${NC}"
+                echo "For a more detailed result file, include the '-v' parameter."
+                echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
+		echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
+		echo "effect on the PRS for each corresponding sample and study."
+		echo "If this parameter is not included, the default result file will include the study ID"
+		echo "and the corresponding polygenic risk scores for each sample." 
                 echo "" ;;
-            11 ) echo -e "${MYSTERYCOLOR} --ng noGrep: ${NC}"
+            11 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
                 echo "" ;;
             12 ) cont=0 ;;
@@ -213,6 +243,8 @@ learnAboutParameters () {
     done
 }
 
+# User has the option to search studies or traits
+# calls the appropriate api endpoint for the query and formats the results for the user to view
 searchTraitsAndStudies () {
     echo -e " ${LIGHTBLUE}SEARCH STUDIES AND TRAITS:${NC}"
     echo -e " Which would you like to search, studies or traits? ${GREEN}(s/t)${NC}"
@@ -226,9 +258,9 @@ searchTraitsAndStudies () {
                 if [[ "$searchTerm" = *"'"* ]]; then
                     searchTerm=${searchTerm//${sub}/${backslash}${sub}}
                 fi
-                echo ""
-                echo -e "${LIGHTPURPLE}First Author and Year | Trait | GWAS Catalog Study ID | Title${NC}"
-		        curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .trait + " | " + .studyID + " | " + .title + "\n"';;
+                echo "" # might need to do something to combine results with the same studyID?
+                echo -e "${LIGHTPURPLE}First Author and Year | GWAS Catalog Study ID | Reported Trait | Trait | Title${NC}"
+		        curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .title + "\n"';;
         [tT]* ) read -p "Enter the search term you wish to use: " searchTerm 
                 if [[ "$searchTerm" = *"'"* ]]; then
                     echo "in if"
@@ -241,6 +273,8 @@ searchTraitsAndStudies () {
     esac
 }
 
+# will allow the user to run the PRSKB calculator from the menu
+# takes in the required params, then passes to calculatePRS
 runPRS () {
     echo -e "${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
     echo "The calculator will run and then the program will exit. Enter the parameters "
@@ -249,211 +283,204 @@ runPRS () {
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
-    #args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\"\S*)(\s)(\S*\")/\1_\3/g")
-    apostrophe="'"
-    backslash='\'
-    argc=$#
-    args=${args//${apostrophe}/${backslash}${apostrophe}}
-    args=$(echo "$args" | sed ':a;s/^\(\([^"]*"[^"]*"[^"]*\)*[^"]*"[^"]*\) /\1_/;ta')
-    args=( $(xargs -n1 -0 <<<"$args") )
+    args=$(echo "$args" | perl -pe "s/(\")(\S*)(\s)(\S*)(\")/\2_\4/g")
+    echo $args
 
-    echo "${args[@]}" 
-    if [ ${#args[@]} -lt 5 ]; then
-        echo -e "${LIGHTRED}Too few arguments! Quitting...${NC}"
-        exit
-    elif [ ! -f "${args[0]}" ]; then
-        echo -e "The file${LIGHTRED} ${args[0]} ${NC}does not exist."
-        echo "Check the path and try again."
-        read -p "Press [Enter] key to quit..."
-    elif ! [[ "${args[1]}" =~ .csv$|.json$|.txt$ ]]; then
-        echo -e "${LIGHTRED}${args[1]} ${NC} is not in the right format."
-        echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
-        read -p "Press [Enter] key to quit..."
-    elif ! [[ "${args[2]}" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-        echo -e "${LIGHTRED}${args[2]} ${NC} is your p-value, but it is not a number."
-        echo "Check the value and try again."
-        read -p "Press [Enter] key to quit..."
-    elif ! [[ "${args[3]}" =~ ^hg17$|^hg19$|^hg18$|^hg38$ ]]; then
-        echo -e "${LIGHTRED}${args[3]} ${NC}should be hg17, hg18, hg19, or hg38"
-        echo "Check the value and try again."
-        read -p "Press [Enter] key to quit..."
-    #AFR, AMR, EAS, EUR, SAS (add code to make case insensitive)
-    elif ! [[ "${args[4]}" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
-        echo -e "${LIGHTRED}${args[4]} ${NC} should be AFR, AMR, EAS, EUR, or SAS."
-        echo "Check the value and try again."
-        read -p "Press [Enter] key to quit..."
-    else
-        calculatePRS ${args[@]}
-    fi
+    calculatePRS $args
     exit;
 }
 
+# parses the arguments for calculation
+# then calls the scripts required for calculations
 calculatePRS () {
-  
-    args=("${@:6}")
-
-    trait=0
-    studyType=0
-    studyID=0
-    ethnicity=0
-    stepNumberBool=0
-    stepNumber=0
-    noGrep=0
-
+    # parse arguments 
     traitsForCalc=()
     studyTypesForCalc=()
     studyIDsForCalc=()
     ethnicityForCalc=()
+    isCondensedFormat=1
 
+    single="'"
+    escaped="\'"
+    underscore="_"
+    space=" "
 
-    if [ ${#args[@]} -gt 0 ]; then
-        for arg in "${args[@]}";
-        do
-            if [ "$arg" = "--t" ]; then
-		        echo "in --t"
-                trait=1
-                studyType=0
-                studyID=0
-                ethnicity=0
-                stepNumberBool=0
-            elif [ "$arg" = "--k" ]; then
-                trait=0
-                studyType=1
-                studyID=0
-                ethnicity=0
-                stepNumberBool=0
-            elif [ "$arg" = "--s" ]; then
-                trait=0
-                studyType=0
-                studyID=1
-                ethnicity=0
-                stepNumberBool=0
-            elif [ "$arg" = "--e" ]; then
-                trait=0
-                studyType=0
-                studyID=0
-                ethnicity=1
-                stepNumberBool=0
-            elif [ "$arg" = "--step" ]; then
-                trait=0
-                studyType=0
-                studyID=0
-                ethnicity=0
-                stepNumberBool=1
-            elif [ "$arg" = "--ng" ]; then
-                trait=0
-                studyType=0
-                studyID=0
-                ethnicity=0
-                stepNumberBool=0
-                noGrep=1
-            elif [ $trait -eq 1 ] ; then
-                traitsForCalc+=("$arg")
-            elif [ $studyType -eq 1 ] ; then
-                if [ $arg != "HI" ] && [ "$arg" != "LC" ] && [ $arg != "O" ]
-                then
+    while getopts 'f:o:c:r:p:t:k:i:e:v:s:' c "$@"
+    do 
+        case $c in 
+            f)  if ! [ -z "$filename" ]; then
+                    echo "Too many filenames given at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                filename=$OPTARG
+                if [ ! -f "$filename" ]; then
+                    echo -e "The file${LIGHTRED} $filename ${NC}does not exist."
+                    echo "Check the path and try again."
+                    exit 1
+                elif ! [[ "$filename" =~ .vcf$|.VCF$|.txt$|.TXT$ ]]; then
+                    echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
+                    echo -e "Please use a vcf or txt file."
+                    exit 1
+                fi;;
+            o)  if ! [ -z "$output" ]; then
+                    echo "Too many output files given."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                output=$OPTARG
+                if ! [[ "$output" =~ .csv$|.json$|.txt$ ]]; then
+                    echo -e "${LIGHTRED}$output ${NC} is not in the right format."
+                    echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
+                    exit 1
+                fi;;
+            c)  if ! [ -z "$cutoff" ]; then
+                    echo "Too many p-value cutoffs given"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                cutoff=$OPTARG
+                if ! [[ "$cutoff" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
+                    echo -e "${LIGHTRED}$cutoff ${NC} is your p-value, but it is not a number."
+                    echo "Check the value and try again."
+                    exit 1
+                fi;;
+            r)  if ! [ -z "$refgen" ]; then
+                    echo "Too many reference genomes given."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                refgen=$OPTARG
+                if ! [[ "$refgen" =~ ^hg17$|^hg18$|^hg19$|^hg38$ ]]; then
+                    echo -e "${LIGHTRED}$refgen ${NC}should be hg17, hg18, hg19, or hg38"
+                    echo "Check the value and try again."
+                    exit 1
+                fi;;
+            p)  if ! [ -z "$superPop" ]; then
+                    echo "Too many super populations given."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                superPop=$OPTARG
+                if ! [[ "$superPop" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
+                    echo -e "${LIGHTRED}$superPop ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+                    echo "Check the value and try again."
+                    exit 1
+                fi;;
+
+            t)  trait="${OPTARG//$single/$escaped}"
+                trait="${trait//$space/$underscore}"
+                echo $trait
+                traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
+            k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
                     echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
                     exit 1
-                fi	
-                studyTypesForCalc+=("$arg")
-            elif [ $studyID -eq 1 ] ; then
-                studyIDsForCalc+=("$arg")
-            elif [ $ethnicity -eq 1 ] ; then
-                ethnicityForCalc+=("$arg")
-            elif [ $stepNumberBool -eq 1 ]; then
-                stepNumber=("$arg")
-            fi
-        done
+                fi
+                studyTypesForCalc+=("$OPTARG");;
+            i)  studyIDsForCalc+=("$OPTARG");;
+            e)  ethnicity="${OPTARG//$space/$underscore}"
+                ethnicityForCalc+=("$ethnicity");;
+            v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $verbose == "true" ]; then
+                    isCondensedFormat=0
+                fi;;
+            s)  if ! [ -z "$step" ]; then
+                    echo "Too many steps requested at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                step=$OPTARG
+                if [[ $step -gt 2 ]] || [[ $step -lt 0 ]]; then 
+                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number"
+                    echo "Valid step numbers are 1 and 2"
+                    exit 1
+                fi;;
+            [?])    usage
+                    exit 1;;
+        esac
+    done
+
+    # if missing a required parameter, show menu/usage option
+    if [ -z "$filename" ] || [ -z "$output" ] || [ -z "$cutoff" ] || [ -z "$refgen" ] || [ -z "$superPop" ]; then
+        askToStartMenu
     fi
 
+    # if no step specified, set step to 0 and do both steps
+    if [ -z "$step" ]; then
+        step=0
+    fi
+
+    # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
     pyVer=""
     ver=$(python --version)
     read -a strarr <<< "$ver"
+
+    # python version is 3.something, then use python as the call
     if [[ "${strarr[1]}" =~ ^3 ]]; then
         pyVer="python"
     else
         pyVer="python3"
     fi
 
-    # Calls a python function to get a list of SNPs from our database
-    # res is a string composed of two strings separated by a '%'
-    # The string is split into a list containing both strings
-    
+    # preps variables for passing to python script
     export traits=${traitsForCalc[@]}
     export studyTypes=${studyTypesForCalc[@]}
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
     res=""
-    intermediate=""
-    inputType=""
-    if [[ "$1" =~ .TXT$|.txt$ ]]; then 
-        inputType="rsID"
-        intermediate="intermediate.txt"
-    else
-        inputType="vcf"
-        intermediate="intermediate.vcf"
-    fi
 
-    if [[ $noGrep -eq 1 ]] && [[ $stepNumber -eq 2 ]]; then
-        intermediate="$1"
-    fi
+    # Creates a hash to put on the associations file if needed or to call the correct associations file
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}" | cut -f 1 -d ' ')
+    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
 
-    if [[ $stepNumber -eq 0 ]] || [[ $stepNumber -eq 1 ]]; then
+    if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
         checkForNewVersion
-        echo "Running PRSKB on $1"
+        echo "Running PRSKB on $filename"
 
-        res=$($pyVer -c "import parser_grep as pg; pg.grepRes('$3','$4','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$inputType', '$5')")
-
-        declare -a resArr
-        IFS='%' # percent (%) is set as delimiter
-        read -ra ADDR <<< "$res" # res is read into an array as tokens separated by IFS
-        for i in "${ADDR[@]}"; do # access each element of array
-            resArr+=( "$i" )
-        done
-        IFS=' ' # reset to default value after usage
-        echo ${resArr[1]} > tableObj.txt
-        echo "Got SNPs and disease information from PRSKB"
-
-        echo ${resArr[2]} > clumpsObj.txt
-        echo "Got Clumping information from PRSKB"
-
-        if [[ $noGrep -eq 0 ]]; then
-            # Filters the input VCF to only include the lines that correspond to the SNPs in our GWAS database
-            grep -w ${resArr[0]} "$1" > $intermediate
-            # prints out the tableObj string to a file so python can read it in
-            # (passing the string as a parameter doesn't work because it is too large)
-            echo "Filtered the input VCF file to include only the variants present in the PRSKB"
+        # Calls a python function to get a list of SNPs and clumps from our Database
+        # saves them to files
+        # associations --> either allAssociations.txt OR associations_{fileHash}.txt
+        # clumps --> {superPop}_clumps_{refGen}.txt
+        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension')"; then
+            echo "Got SNPs and disease information from PRSKB"
+            echo "Got Clumping information from PRSKB"
+        else
+            echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
+            exit;
         fi
     fi
 
 
-    if [[ $stepNumber -eq 0 ]] || [[ $stepNumber -eq 2 ]]; then
+    if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
         IFS='.'
-        read -a fileName <<< "$2"
-        outputType=${fileName[1]}
+        read -a outFile <<< "$output"
+        outputType=${outFile[1]}
         IFS=' '
 
-        echo "Calculating prs on $1"
+        echo "Calculating prs on $filename"
         #outputType="csv" #this is the default
-        #$1=intermediateFile $2=diseaseArray $3=pValue $4=csv $5="${tableObj}" $6=refGen $7=outputFile
-        if [[ "$pyVer" == "python" ]]; then 
-            python run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt clumpsObj.txt "$4" "$2" "$5"
-        else
-            python3 run_prs_grep.py "$intermediate" "$diseaseArray" "$3" "$outputType" tableObj.txt clumpsObj.txt "$4" "$2" "$5"
-        fi
+        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash
 
-        echo "Caculated score"
-        if [[ $noGrep -eq 0 ]]; then
-            rm $intermediate
+        $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"
+
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"; then
+            echo "Caculated score"
+            if [[ $fileHash != $requiredParamsHash ]]; then
+                rm ".workingFiles/associations_${fileHash}.txt"
+            fi
+           # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+            rm -r __pycache__
+            echo "Cleaned up intermediate files"
+            echo "Results saved to $output"
+            echo ""
+        else
+            echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
+
         fi
-        rm tableObj.txt
-        rm clumpsObj.txt
-        rm -r __pycache__
-        echo "Cleaned up intermediate files"
-        echo "Results saved to $2"
-        echo ""
         exit;
     fi
 }
@@ -480,15 +507,8 @@ checkForNewVersion () {
 
 }
 
-# BEGINNING OF 'MAIN' FUNCTIONALITY
-HORIZONTALLINE="============================================================================="
-
-if [[ "$1" =~ "--version" ]]; then 
-    echo -e "Running version ${version}"
-    checkForNewVersion
-
-elif [ $# -lt 5 ]; then
-    echo -e "${LIGHTRED}Too few arguments! ${NC}"
+askToStartMenu() {
+    echo -e "${LIGHTRED}Missing required arguments! ${NC}"
     echo -e "Show usage (u) or start menu (m)? "
     read -p "(u/m)? " decision
     echo ""
@@ -501,31 +521,15 @@ elif [ $# -lt 5 ]; then
         * ) echo -e "Invalid option. ${LIGHTRED}Quitting...${NC}"
             exit;;
     esac
-elif [ ! -f "$1" ]; then
-    echo -e "The file${LIGHTRED} $1 ${NC}does not exist."
-    echo "Check the path and try again."
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$1" =~ .vcf$|.VCF$|.txt$|.TXT$ ]]; then
-    echo -e "The file${LIGHTRED} $1 ${NC}is in the wrong format."
-    echo -e "Please use a vcf or txt file."
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$2" =~ .csv$|.json$|.txt$ ]]; then
-    echo -e "${LIGHTRED}$2 ${NC} is not in the right format."
-    echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$3" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-    echo -e "${LIGHTRED}$3 ${NC} is your p-value, but it is not a number."
-    echo "Check the value and try again."
-    read -p "Press [Enter] key to quit..."
-elif ! [[ "$4" =~ ^hg17$|^hg18$|^hg19$|^hg38$ ]]; then
-    echo -e "${LIGHTRED}$4 ${NC}should be hg17, hg18, hg19, or hg38"
-    echo "Check the value and try again."
-    read -p "Press [Enter] key to quit..."
-#AFR, AMR, EAS, EUR, SAS (add code to make case insensitive)
-elif ! [[ "$5" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
-    echo -e "${LIGHTRED}$5 ${NC} should be AFR, AMR, EAS, EUR, or SAS."
-    echo "Check the value and try again."
-    read -p "Press [Enter] key to quit..."
-else
-    calculatePRS "${@}"
+}
+
+# BEGINNING OF 'MAIN' FUNCTIONALITY
+
+# check to see if they want the version
+if [[ "$1" =~ "--version" ]] || [[ "$1" =~ "-v" ]]; then 
+    echo -e "Running version ${version}"
+    checkForNewVersion
 fi
+
+# pass arguments to calculatePRS
+calculatePRS "$@" 
