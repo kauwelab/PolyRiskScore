@@ -88,6 +88,8 @@ else
     done
     wait
     echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
+    python sortAssociationsTable.py $associationTableFolderPath
+    wait
 
 #===============Study Table Code============================================================
     echo "Creating the study table. This can take an hour or more to complete."

@@ -121,7 +121,7 @@ def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     path = path.replace("\\", "/")
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
-        '`CHARACTER SET latin1 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY "\n" IGNORE 1 LINES;'
+        '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY "\r\n" IGNORE 1 LINES;'
     cursor.execute(sql, multi=True)
     print(dbTableName + " data added")
     cursor.close()
