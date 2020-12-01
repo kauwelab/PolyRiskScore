@@ -55,7 +55,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
         except ValueError:
             raise SystemExit("ERROR: Some lines in the input file are not formatted correctly. Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)")
             
-        if alleles != []: #TODO: check if this should be an empty list or an empty string
+        if alleles != []:
             if snp in tableObjDict:
                 for studyID in tableObjDict[snp]['studies'].keys():
                     if studyID in neutral_snps:
@@ -100,10 +100,11 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
                     # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it to the neutral snps set
                     else:
                         sample_map[studyID][snp] = alleles
+                        counter_set.add(studyID)
 
                     neutral_snps[studyID] = neutral_snps_set
+
                 #TODO check this
-                # TODO I don't think this works...this will only look at the very last studyID
                 if studyID not in counter_set:
                     sample_map[studyID][""] = ""
 
@@ -367,13 +368,13 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
                 # Then compare to the gwa study
                 if allele != "":
                     if snp in tableObjDict:
-                        if studyID in tableObjDict[snp]:
+                        if studyID in tableObjDict[snp]['studies']:
                             # Compare the individual's snp and allele to the study row's snp and risk allele
                             citation = tableObjDict[snp]['studies'][studyID]['citation']
                             reportedTrait = tableObjDict[snp]['studies'][studyID]['reportedTrait']
                             traits = tableObjDict[snp]['studies'][studyID]['traits']
                             riskAllele = tableObjDict[snp]['studies'][studyID]['riskAllele']
-                            oddsRatio = tableObjDict[snp]['studies'][studyID]['riskAllele']
+                            oddsRatio = tableObjDict[snp]['studies'][studyID]['oddsRatio']
 
                             if allele == riskAllele:
                                 oddsRatios.append(oddsRatio)
@@ -383,7 +384,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
                                     riskAlleles.add(snp)
                                 else:
                                     neutral_snps_set.add(snp)
-                            elif allele != row['riskAllele']:
+                            elif allele != riskAllele:
                                 neutral_snps_set.add(snp)
 
         if not isCondensedFormat:
@@ -396,14 +397,14 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
             elif str(neutral_snps_set) == "set()":
                 neutral_snps_set = "None"
             newLine = [studyID, citation, reportedTrait, traits, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
-            formatFullCSV(isFirst, newLine, header)
+            formatFullCSV(isFirst, newLine, header, outputFile)
             isFirst = False
 
         if isCondensedFormat:
             OR = str(getCombinedORFromArray(oddsRatios))
             header = ['Study ID', 'Citation', 'Reported Trait(s)', 'Trait(s)', 'Polygenic Risk Score']
             newLine = [studyID, citation, reportedTrait, traits, OR]
-            formatFullCSV(isFirst, newLine, header)
+            formatFullCSV(isFirst, newLine, header, outputFile)
             isFirst = False
 
 
