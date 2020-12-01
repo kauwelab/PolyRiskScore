@@ -97,7 +97,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
                             # Since the study wasn't already used in the index map, add it to both the index and sample map
                             index_snp_map[studyID][clumpNum] = snp
                             sample_map[studyID][snp] = alleles
-                    # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it to the neutral snps set
+                    # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it
                     else:
                         sample_map[studyID][snp] = alleles
                         counter_set.add(studyID)
