@@ -419,6 +419,8 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
         oddsRatios = []
         if study_samp in neutral_snps:
             neutral_snps_set = neutral_snps[study_samp]
+        else:
+            neutral_snps_set = set()
         protectiveAlleles = set()
         riskAlleles = set()
 
