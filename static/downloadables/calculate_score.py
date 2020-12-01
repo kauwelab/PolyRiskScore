@@ -29,7 +29,8 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
 
 def parse_txt(txtFile, clumpsObjDict, tableObjDict):
     totalLines = 0
-    
+    openFile = open(txtFile, 'r')
+
     Lines = openFile.readlines()
 
     # Create a default dictionary (nested dictionary)
@@ -44,11 +45,16 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
     neutral_snps = {}
 
     # Iterate through each record in the file and save the SNP rs ID
+    
     for line in Lines:
-        line = line.strip() #line should be in format of rsID:Genotype,Genotype
-        snp, alleles = line.split(':')
-        alleles = alleles.split(',')
-        
+        try: 
+            line = line.strip() #line should be in format of rsID:Genotype,Genotype
+            snp, alleles = line.split(':')
+            allele1, allele2 = alleles.split(',')
+            alleles = [allele1, allele2]
+        except ValueError:
+            raise SystemExit("ERROR: Some lines in the input file are not formatted correctly. Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)")
+            
         if alleles != []: #TODO: check if this should be an empty list or an empty string
             if snp in tableObjDict:
                 for studyID in tableObjDict[snp]['studies'].keys():
@@ -101,6 +107,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
                 if studyID not in counter_set:
                     sample_map[studyID][""] = ""
 
+    openFile.close()
     final_map = dict(sample_map)
     return final_map, totalLines, neutral_snps
 
@@ -212,7 +219,8 @@ def getStudies(tableObjDict):
         for study in tableObjDict[key]['studies'].keys():
             study_dict[study] = key
     return(study_dict)
-            
+
+
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     totalLines = 0 
     study_dict = getStudies(tableObjDict)
@@ -230,64 +238,49 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     rsid_pos_map = {}
 
     # Iterate through each line in the vcf file
-    for record in vcf_reader:
-        chromPos = str(record.CHROM) + ":" + str(record.POS)
+    try:
+        for record in vcf_reader:
+            chromPos = str(record.CHROM) + ":" + str(record.POS)
 
-        ALT = record.ALT
-        REF = record.REF #TODO: check if this is right or if it should just be .REF
-        rsid = record.ID
-        # if the position is found in our database 
-        if chromPos in tableObjDict:
-            # Loop through each study containing the position
-            for study in tableObjDict[chromPos]['studies'].keys():
+            ALT = record.ALT
+            REF = record.REF #TODO: check if this is right or if it should just be .REF
+            rsid = record.ID
+            # if the position is found in our database 
+            if chromPos in tableObjDict:
+                # Loop through each study containing the position
+                for study in tableObjDict[chromPos]['studies'].keys():
 
-                # Loop through each sample of the vcf file
-                for call in record.samples:  
-                    gt = call.gt_bases    
-                    name = call.sample
-                    genotype = record.genotype(name)['GT']
-                    alleles = formatAndReturnGenotype(genotype, gt, REF, ALT)
-                    neutral_snps_set = set()
-                    # Create a tuple with the study and sample name
-                    study_sample = (study, name)
-                    counter_set.add(study_sample)
-                    # Check to see if the snp position from this line in the vcf exists in the clump table for this study
-                    if chromPos in clumpsObjDict:
-                        # Grab the clump number associated with this study and snp position
-                        clumpNum = clumpsObjDict[chromPos]['clumpNum'] 
+                    # Loop through each sample of the vcf file
+                    for call in record.samples:  
+                        gt = call.gt_bases    
+                        name = call.sample
+                        genotype = record.genotype(name)['GT']
+                        alleles = formatAndReturnGenotype(genotype, gt, REF, ALT)
+                        neutral_snps_set = set()
+                        # Create a tuple with the study and sample name
+                        study_sample = (study, name)
+                        counter_set.add(study_sample)
+                        # Check to see if the snp position from this line in the vcf exists in the clump table for this study
+                        if chromPos in clumpsObjDict:
+                            # Grab the clump number associated with this study and snp position
+                            clumpNum = clumpsObjDict[chromPos]['clumpNum'] 
 
-                        # grab pValue from PRSBK database data
-                        pValue = tableObjDict[chromPos]['studies'][study]['pValue']
-                        # Add the study/sample tuple to the counter list because we now know at least there is
-                        # at least one viable snp for this combination 
-                        totalLines += 1
-                        
-                        if study_sample in index_snp_map:
-                            # if the clump number for this snp position and study/name is alraedy in the index map, move forward
-                            if clumpNum in index_snp_map[study_sample]:
-                                # Check whether the existing index snp or current snp have a lower pvalue for this study
-                                # and switch out the data accordingly
-                                # if the current snp position has no alleles, do not add it to the maps
-                                # if the existing index snp has no alleles, put in the current snp even if the pvalue is higher
-                                index_snp = index_snp_map[study_sample][clumpNum]
-                                index_pvalue = tableObjDict[index_snp]['studies'][study]['pValue'] 
-                                if pValue < index_pvalue:
-                                    del index_snp_map[study_sample][clumpNum]
-                                    index_snp_map[study_sample][clumpNum] = chromPos
-                                    del sample_map[study_sample][index_snp]
-                                    sample_map[study_sample][chromPos] = alleles
-
-                                    if index_snp in rsid_pos_map:
-                                        if rsid_pos_map[index_snp] is not None:
-                                            neutral_snps_set.add(rsid_pos_map[index_snp])
-                                        else:
-                                            neutral_snps_set.add(index_snp)
-                                    else:
-                                        neutral_snps_set.add(index_snp)
-                                #TODO: Do we even want to look at snps that don't have corresponding alleles?
-                                # I changed it so that we skip over snps that have "" as their alleles.
-                                elif pValue > index_pvalue and alleles != "":
-                                    if sample_map[study_sample][index_snp] == "":
+                            # grab pValue from PRSBK database data
+                            pValue = tableObjDict[chromPos]['studies'][study]['pValue']
+                            # Add the study/sample tuple to the counter list because we now know at least there is
+                            # at least one viable snp for this combination 
+                            totalLines += 1
+                            
+                            if study_sample in index_snp_map:
+                                # if the clump number for this snp position and study/name is alraedy in the index map, move forward
+                                if clumpNum in index_snp_map[study_sample]:
+                                    # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                    # and switch out the data accordingly
+                                    # if the current snp position has no alleles, do not add it to the maps
+                                    # if the existing index snp has no alleles, put in the current snp even if the pvalue is higher
+                                    index_snp = index_snp_map[study_sample][clumpNum]
+                                    index_pvalue = tableObjDict[index_snp]['studies'][study]['pValue'] 
+                                    if pValue < index_pvalue:
                                         del index_snp_map[study_sample][clumpNum]
                                         index_snp_map[study_sample][clumpNum] = chromPos
                                         del sample_map[study_sample][index_snp]
@@ -300,47 +293,64 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
                                                 neutral_snps_set.add(index_snp)
                                         else:
                                             neutral_snps_set.add(index_snp)
+                                    #TODO: Do we even want to look at snps that don't have corresponding alleles?
+                                    # I changed it so that we skip over snps that have "" as their alleles.
+                                    elif pValue > index_pvalue and alleles != "":
+                                        if sample_map[study_sample][index_snp] == "":
+                                            del index_snp_map[study_sample][clumpNum]
+                                            index_snp_map[study_sample][clumpNum] = chromPos
+                                            del sample_map[study_sample][index_snp]
+                                            sample_map[study_sample][chromPos] = alleles
 
+                                            if index_snp in rsid_pos_map:
+                                                if rsid_pos_map[index_snp] is not None:
+                                                    neutral_snps_set.add(rsid_pos_map[index_snp])
+                                                else:
+                                                    neutral_snps_set.add(index_snp)
+                                            else:
+                                                neutral_snps_set.add(index_snp)
+
+                                        else:
+                                            if rsid is not None and rsid != "":
+                                                neutral_snps_set.add(rsid)
+                                            else:
+                                                neutral_snps_set.add(chromPos)
                                     else:
                                         if rsid is not None and rsid != "":
                                             neutral_snps_set.add(rsid)
                                         else:
                                             neutral_snps_set.add(chromPos)
-                                else:
-                                    if rsid is not None and rsid != "":
-                                        neutral_snps_set.add(rsid)
-                                    else:
-                                        neutral_snps_set.add(chromPos)
 
+                                else:
+                                    # Since the clump number for this snp position and study/name
+                                    # doesn't already exist, add it to the index map and the sample map
+                                    index_snp_map[study_sample][clumpNum] = chromPos
+                                    sample_map[study_sample][chromPos] = alleles
+                                    rsid_pos_map[chromPos] = rsid
                             else:
-                                # Since the clump number for this snp position and study/name
-                                # doesn't already exist, add it to the index map and the sample map
+                                # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
                                 index_snp_map[study_sample][clumpNum] = chromPos
                                 sample_map[study_sample][chromPos] = alleles
                                 rsid_pos_map[chromPos] = rsid
                         else:
-                            # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
-                            index_snp_map[study_sample][clumpNum] = chromPos
                             sample_map[study_sample][chromPos] = alleles
-                            rsid_pos_map[chromPos] = rsid
-                    else:
-                        sample_map[study_sample][chromPos] = alleles
-                    neutral_snps[study_sample] = neutral_snps_set
-        # Check to see which study/sample combos didn't have any viable snps
-        # and create blank entries for the sample map for those that didn't
-        # TODO: might need a better way to handle this
-    for name in vcf_reader.samples:
-        for study in study_dict:
-            study_sample = (study, name)
-            if study_sample not in counter_set:
-                sample_map[study_sample][""] = ""
-                    
+                        neutral_snps[study_sample] = neutral_snps_set
+            # Check to see which study/sample combos didn't have any viable snps
+            # and create blank entries for the sample map for those that didn't
+            # TODO: might need a better way to handle this
+        for name in vcf_reader.samples:
+            for study in study_dict:
+                study_sample = (study, name)
+                if study_sample not in counter_set:
+                    sample_map[study_sample][""] = ""
+    except AttributeError:
+        raise SystemExit("ERROR: Some lines in the VCF are not formatted correctly. Make sure each line includes the GT format.")
     
     final_map = dict(sample_map)
     return final_map, totalLines, neutral_snps, study_dict
 
 
-def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
+def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile):
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     for studyID in txtObj:
@@ -351,9 +361,9 @@ def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
 
         
         # Loop through each snp associated with this disease/study
-        for snp in txtObj[study]:
+        for snp in txtObj[studyID]:
             # Also iterate through each of the alleles
-            for allele in txtObj[study][snp]:
+            for allele in txtObj[studyID][snp]:
                 # Then compare to the gwa study
                 if allele != "":
                     if snp in tableObjDict:
@@ -395,6 +405,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
             newLine = [studyID, citation, reportedTrait, traits, OR]
             formatFullCSV(isFirst, newLine, header)
             isFirst = False
+
 
 def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, study_dict):
     condensed_output_map = {}
@@ -500,7 +511,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 citation = tableObjDict[key]['studies'][studyID]['citation']
                 reportedTraits = tableObjDict[key]['studies'][studyID]['reportedTrait']
                 traits = tableObjDict[key]['studies'][studyID]['traits']
-                newLine = [studyID, str(reportedTraits), str(traits), citation, 'THE SAMPLE DOES NOT HAVE ANY VARIANTS FROM THIS STUDY']
+                newLine = [studyID, str(reportedTraits), str(traits), citation, 'NF']
                 condensed_output_map[studyID] = newLine
 
             
@@ -518,7 +529,7 @@ def getCombinedORFromArray(oddsRatios):
     combinedOR = math.exp(combinedOR)
     combinedOR = round(combinedOR, 3)
     if not oddsRatios:
-        combinedOR = "THE SAMPLE DOES NOT HAVE ANY VARIANTS FROM THIS STUDY"
+        combinedOR = "NF"
     return(str(combinedOR))
 
 

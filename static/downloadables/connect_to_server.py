@@ -165,22 +165,25 @@ def getClumps(refGen, superPop, snpsFromAssociations, isPosBased):
         "superPop": superPop,
     }
 
-    if isPosBased:
-        chromToPosMap = {}
-        clumps = {}
-        for pos in snpsFromAssociations:
-            if (len(pos.split(":")) > 1):
-                chrom,posit = pos.split(":")
-                if (chrom not in chromToPosMap.keys()):
-                    chromToPosMap[chrom] = [pos]
-                else:
-                    chromToPosMap[chrom].append(pos)
+    try:
+        if isPosBased:
+            chromToPosMap = {}
+            clumps = {}
+            for pos in snpsFromAssociations:
+                if (len(pos.split(":")) > 1):
+                    chrom,posit = pos.split(":")
+                    if (chrom not in chromToPosMap.keys()):
+                        chromToPosMap[chrom] = [pos]
+                    else:
+                        chromToPosMap[chrom].append(pos)
 
-        for chrom in chromToPosMap:
-            body['positions'] = chromToPosMap[chrom]
-            clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
-    else:
-        body['snps'] = snpsFromAssociations
-        clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
+            for chrom in chromToPosMap:
+                body['positions'] = chromToPosMap[chrom]
+                clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
+        else:
+            body['snps'] = snpsFromAssociations
+            clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
 
     return clumps
