@@ -111,19 +111,21 @@ def getAllAssociations(pValue, refGen, isPosBased):
 # gets associations using the given filters
 def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isPosBased):
 
-    # get the studies matching the parameters
-    body = {
-        "traits": traits, 
-        "studyTypes": studyTypes,
-        "ethnicities": ethnicity,
-    }
-    traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
-
-    # select the studyIDs of the studies
     finalStudySet = set()
-    for trait in traitData:
-        for study in traitData[trait]:
-            finalStudySet.add(study["studyID"])
+    
+    # get the studies matching the parameters
+    if (studyIDs is None and (traits is not None or studyTypes is not None or ethnicity is not None)):
+        body = {
+            "traits": traits, 
+            "studyTypes": studyTypes,
+            "ethnicities": ethnicity,
+        }
+        traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
+
+        # select the studyIDs of the studies
+        for trait in traitData:
+            for study in traitData[trait]:
+                finalStudySet.add(study["studyID"])
 
     # add the specified studyIDs to the set of studyIDs
     if studyIDs is not None:
