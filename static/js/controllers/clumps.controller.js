@@ -4,7 +4,6 @@ const formatter = require("../formatHelper")
 exports.getClumping = (req, res) => {
     refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
-    isPosBased = (req.query.isPosBased.toLowerCase() == 'true') ? true : false
 
     Clump.getClumps(superPopulation, refGenome, (err, data) => {
         if (err) {
@@ -14,7 +13,7 @@ exports.getClumping = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(formatClumpingReturn(data, isPosBased));
+            res.send(formatClumpingReturn(data));
         }
     });
 };
@@ -32,7 +31,7 @@ exports.getClumpingByPos = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(formatClumpingReturn(data, true));
+            res.send(formatClumpingReturn(data));
         }
     });
 };
@@ -50,24 +49,21 @@ exports.getClumpingBySnp = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(formatClumpingReturn(data, false));
+            res.send(formatClumpingReturn(data));
         }
     });
 };
 
-function formatClumpingReturn(clumps,  isPosBased) {
-
-    ident = (isPosBased) ? 'position' : 'snp'
+function formatClumpingReturn(clumps) {
 
     clumpsFormatted = {}
     for (i=0; i < clumps.length; i++) {
         if (Array.isArray(clumps[i])) {
             for (j=0; j < clumps[i].length; j++) {
                 clump = clumps[i][j]
-                if (!(clump[ident] in clumpsFormatted)) {
-                    clumpsFormatted[clump[ident]] = {
+                if (!(clump['snp'] in clumpsFormatted)) {
+                    clumpsFormatted[clump['snp']] = {
                         clumpNum: clump.clumpNum,
-                        snp: clump.snp,
                         pos: clump.position
                     }
                 }
@@ -75,10 +71,9 @@ function formatClumpingReturn(clumps,  isPosBased) {
         }
         else {
             clump = clumps[i]
-            if (!(clump[ident] in clumpsFormatted)) {
-                clumpsFormatted[clump[ident]] = {
+            if (!(clump['snp'] in clumpsFormatted)) {
+                clumpsFormatted[clump['snp']] = {
                     clumpNum: clump.clumpNum,
-                    snp: clump.snp,
                     pos: clump.position
                 }
             }
