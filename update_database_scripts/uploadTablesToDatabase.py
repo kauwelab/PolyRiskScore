@@ -128,7 +128,6 @@ def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     path = os.path.join(tablesFolderPath, tableName + ".tsv")
     path = path.replace("\\", "/")
     lineEnding = repr(getFileLineEnding(path))
-    print("line end", lineEnding)
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
         '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding + ' IGNORE 1 LINES;'
