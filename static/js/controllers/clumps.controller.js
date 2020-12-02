@@ -63,7 +63,7 @@ function formatClumpingReturn(clumps) {
                 clump = clumps[i][j]
                 if (!(clump['snp'] in clumpsFormatted)) {
                     clumpsFormatted[clump['snp']] = {
-                        clumpNum: clump.clumpNum,
+                        clumpNum: clump.clumpNumber,
                         pos: clump.position
                     }
                 }
@@ -73,7 +73,7 @@ function formatClumpingReturn(clumps) {
             clump = clumps[i]
             if (!(clump['snp'] in clumpsFormatted)) {
                 clumpsFormatted[clump['snp']] = {
-                    clumpNum: clump.clumpNum,
+                    clumpNum: clump.clumpNumber,
                     pos: clump.position
                 }
             }
