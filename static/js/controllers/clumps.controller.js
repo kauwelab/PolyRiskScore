@@ -2,9 +2,11 @@ const Clump = require("../models/clump.model.js");
 const formatter = require("../formatHelper")
 
 exports.getClumping = (req, res) => {
-    studyIDs = req.query.studyIDs
+    refGenome = req.query.refGen
     superPopulation = formatter.formatForClumpsTable(req.query.superPop)
-    Clump.getClumps(studyIDs, superPopulation, (err, data) => {
+    isPosBased = (req.query.isPosBased.toLowerCase() == 'true') ? true : false
+
+    Clump.getClumps(superPopulation, refGenome, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving clumping data"
@@ -12,19 +14,75 @@ exports.getClumping = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-
-            clumpsList = {}
-
-            for (i=0; i<data.length; i++) {
-                if (data[i].studyID in clumpsList) {
-                    clumpsList[data[i].studyID].push(data[i])
-                }
-                else {
-                    clumpsList[data[i].studyID] = [data[i]]
-                }
-            }
-
-            res.send(clumpsList);
+            res.send(formatClumpingReturn(data, isPosBased));
         }
     });
 };
+
+exports.getClumpingByPos = (req, res) => {
+    refGenome = req.body.refGen
+    superPopulation = formatter.formatForClumpsTable(req.body.superPop)
+    positions = req.body.positions
+
+    Clump.getClumpsByPos(superPopulation, refGenome, positions, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving clumping data"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(formatClumpingReturn(data, true));
+        }
+    });
+};
+
+exports.getClumpingBySnp = (req, res) => {
+    refGenome = req.body.refGen
+    superPopulation = formatter.formatForClumpsTable(req.body.superPop)
+    snps = req.body.snps
+
+    Clump.getClumpsBySnp(superPopulation, refGenome, snps, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving clumping data"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(formatClumpingReturn(data, false));
+        }
+    });
+};
+
+function formatClumpingReturn(clumps,  isPosBased) {
+
+    ident = (isPosBased) ? 'position' : 'snp'
+
+    clumpsFormatted = {}
+    for (i=0; i < clumps.length; i++) {
+        if (Array.isArray(clumps[i])) {
+            for (j=0; j < clumps[i].length; j++) {
+                clump = clumps[i][j]
+                if (!(clump[ident] in clumpsFormatted)) {
+                    clumpsFormatted[clump[ident]] = {
+                        clumpNum: clump.clumpNum,
+                        snp: clump.snp,
+                        pos: clump.position
+                    }
+                }
+            }
+        }
+        else {
+            clump = clumps[i]
+            if (!(clump[ident] in clumpsFormatted)) {
+                clumpsFormatted[clump[ident]] = {
+                    clumpNum: clump.clumpNum,
+                    snp: clump.snp,
+                    pos: clump.position
+                }
+            }
+        }
+    }
+    return clumpsFormatted
+}
