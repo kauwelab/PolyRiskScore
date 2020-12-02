@@ -6,7 +6,7 @@ exports.getFromTables = (req, res) => {
     var studyIDs = req.body.studyIDs
     var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
-    var isPosBased = req.body.isPosBased;
+    var isVCF = req.body.isVCF;
 
     Association.getFromTables(studyIDs, pValue, refGen, async (err, data) => {
         if (err) {
@@ -19,7 +19,7 @@ exports.getFromTables = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            returnData = await separateStudies(associations, traits, refGen, isPosBased)
+            returnData = await separateStudies(associations, traits, refGen, isVCF)
             res.send(returnData);
         }
     });
@@ -28,7 +28,7 @@ exports.getFromTables = (req, res) => {
 exports.getAll = (req, res) => {
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
-    var isPosBased = req.query.isPosBased;
+    var isVCF = req.query.isVCF;
 
     Association.getAll(pValue, refGen, async (err, data) => {
         if (err) {
@@ -40,7 +40,7 @@ exports.getAll = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             associations = data[0]
             traits = data[1]
-            returnData = await separateStudies(associations, traits, refGen, isPosBased)
+            returnData = await separateStudies(associations, traits, refGen, isVCF)
             
             res.send(returnData);
         }
@@ -170,8 +170,8 @@ exports.getLastAssociationsUpdate = (req, res) => {
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
 }
 
-async function separateStudies(associations, traitData, refGen, isPosBased) {
-    ident = (isPosBased.toLowerCase() == 'true') ? refGen : 'snp'
+async function separateStudies(associations, traitData, refGen, isVCF) {
+    addPosKeys = (isVCF.toLowerCase() == 'true')
 
     var studyIDsToMetaData = {}
     for (i=0; i < traitData.length; i++) {
@@ -184,32 +184,35 @@ async function separateStudies(associations, traitData, refGen, isPosBased) {
         }
     }
 
-    var AssociationsByPos = {}
+    var AssociationBySnp = {}
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
 
         // if the pos/snp already exists in our map
-        if (association[ident] in AssociationsByPos) {
+        if (association['snp'] in AssociationBySnp) {
             // if the studyID does not already exists for the pos/snp
             // (TODO--CHANGE THIS: for now, if there is a duplicate, I will just simply ignore it)
-            if (!(association.studyID in AssociationsByPos[association[ident]].studies) && association.studyID in studyIDsToMetaData) {
-                AssociationsByPos[association[ident]].studies[association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+            if (!(association.studyID in AssociationBySnp[association['snp']].studies) && association.studyID in studyIDsToMetaData) {
+                AssociationBySnp[association['snp']].studies[association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
             }
         }
         else if (association.studyID in studyIDsToMetaData) {
-            AssociationsByPos[association[ident]] = {
-                snp: association.snp,
+            AssociationBySnp[association['snp']] = {
                 pos: association[refGen],
                 studies: {}
             }
-            AssociationsByPos[association[ident]].studies[association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+            AssociationBySnp[association['snp']].studies[association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+            //adds the position as a key to an rsID, if needed
+            if (addPosKeys){
+                AssociationBySnp[association[refGen]] = association['snp']
+            }
         }
         else {
             console.log("Not in studyIDsToMetaData", association.studyID)
         }
     }
 
-    return AssociationsByPos
+    return AssociationBySnp
 }
 
 function createStudyIDObj(association, studyData) {
