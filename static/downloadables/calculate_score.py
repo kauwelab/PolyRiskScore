@@ -405,8 +405,8 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
     isFirst = True
     samples = {}
     for study_samp in vcfObj:
-        # If it so happens that there are no snps from this study in this sample, the variant positions for the study_samp in the vcf object are empty strings. this will help us create the condensed format output.
-        isEmptyChromPos = True
+        # If it so happens that there are no snps from this study in this sample, the variant positions for the study_samp in the vcf object are empty strings. this will help us create the output because we need to know if there is a snp to use as the key in the table object or not
+        isNoSnps = True
         studyID, samp = study_samp
         samples[samp]=None
         oddsRatios = []
@@ -421,7 +421,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
         for chromPos in vcfObj[study_samp]:
             
             if chromPos in tableObjDict:
-                isEmptyChromPos = False
+                isNoSnps = False
                 if studyID in tableObjDict[chromPos]['studies']:
                     citation = tableObjDict[chromPos]['studies'][studyID]['citation']
                     reportedTraits = str(tableObjDict[chromPos]['studies'][studyID]['reportedTrait'])
@@ -490,7 +490,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
             if len(neutral_snps_set) == 0:
                 neutral_snps_set = "None"
 
-            if isEmptyChromPos:
+            if isNoSnps:
                 newLine = [samp, studyID, tableObjDict[key]['studies'][studyID]['citation'], tableObjDict[key]['studies'][studyID]['reportedTrait'], tableObjDict[key]['studies'][studyID]['traits'], OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
             else:
                 newLine = [samp, studyID, citation, reportedTraits, traits, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
