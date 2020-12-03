@@ -12,9 +12,7 @@ import pandas
  
 
 def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile):
-    outFile = open('aaa', 'w')
     tableObjDict = json.loads(tableObjDict)
-    outFile.write(str(tableObjDict))
     clumpsObjDict = json.loads(clumpsObjDict)
 
     # tells us if we were passed rsIDs or a vcf
@@ -407,6 +405,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
     isFirst = True
     samples = {}
     for study_samp in vcfObj:
+        # If it so happens that there are no snps from this study in this sample, the variant positions for the study_samp in the vcf object are empty strings. this will help us create the condensed format output.
         isEmptyChromPos = True
         studyID, samp = study_samp
         samples[samp]=None
