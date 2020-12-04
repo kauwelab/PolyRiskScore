@@ -16,7 +16,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
-    isPosBased = True if extension.lower() == ".vcf" else False
+    isVCF = True if extension.lower() == ".vcf" else False
     
     # TODO still need to test this - can't be done until the new server is live with the new api code
     dnldNewAllAssociFile = checkForAllAssociFile()
@@ -27,7 +27,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         # if we need to download a new all associations file, write to file
         allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
         if (dnldNewAllAssociFile):
-            allAssociations = getAllAssociations(pValue, refGen, isPosBased)
+            allAssociations = getAllAssociations(pValue, refGen, isVCF)
             # grab all the snps or positions to use for getting the clumps
             snpsFromAssociations = list(allAssociations.keys())
             f = open(allAssociationsPath, 'w')
@@ -44,7 +44,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         specificAssociationsPath = os.path.join(workingFilesPath, fileName)
-        specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isPosBased)
+        specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF)
         
         f = open(specificAssociationsPath, 'w')
         f.write(json.dumps(specificAssociations))
@@ -55,7 +55,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
     clumpsPath = os.path.join(workingFilesPath, fileName)
     # get clumps using the refGen and superpopulation
-    clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isPosBased)
+    clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isVCF)
     f = open(clumpsPath, 'w')
     f.write(json.dumps(clumpsData))
     f.close()
@@ -97,11 +97,11 @@ def checkForAllAssociFile():
 
 
 # gets all associations from the Server
-def getAllAssociations(pValue, refGen, isPosBased): 
+def getAllAssociations(pValue, refGen, isVCF): 
     params = {
         "pValue": pValue,
         "refGen": refGen,
-        "isPosBased": isPosBased
+        "isVCF": isVCF
     }
     associations = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
     # Organized with pos/snp as the Keys
@@ -109,7 +109,7 @@ def getAllAssociations(pValue, refGen, isPosBased):
 
 
 # gets associations using the given filters
-def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isPosBased):
+def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF):
 
     # get the studies matching the parameters
     body = {
@@ -135,7 +135,7 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
         "pValue": pValue,
         "refGen": refGen,
         "studyIDs": list(finalStudySet),
-        "isPosBased": isPosBased
+        "isVCF": isVCF
     }
 
     associations = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
@@ -159,13 +159,13 @@ def getUrlWithParams(url, params):
 
 
 # get clumps using the refGen and superPop
-def getClumps(refGen, superPop, snpsFromAssociations, isPosBased):
+def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
     body = {
         "refGen": refGen,
         "superPop": superPop,
     }
 
-    if isPosBased:
+    if isVCF:
         chromToPosMap = {}
         clumps = {}
         for pos in snpsFromAssociations:
