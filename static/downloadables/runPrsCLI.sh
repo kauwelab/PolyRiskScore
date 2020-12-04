@@ -464,8 +464,6 @@ calculatePRS () {
         #outputType="csv" #this is the default
         #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash
 
-        $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"
-
         if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"; then
             echo "Caculated score"
             if [[ $fileHash != $requiredParamsHash ]]; then

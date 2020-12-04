@@ -29,6 +29,7 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
 
 def parse_txt(txtFile, clumpsObjDict, tableObjDict):
     totalLines = 0
+    openFile = open(txtFile, 'r')
     
     Lines = openFile.readlines()
 
@@ -45,11 +46,15 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
 
     # Iterate through each record in the file and save the SNP rs ID
     for line in Lines:
-        line = line.strip() #line should be in format of rsID:Genotype,Genotype
-        snp, alleles = line.split(':')
-        alleles = alleles.split(',')
+        try:
+            line = line.strip() #line should be in format of rsID:Genotype,Genotype
+            snp, alleles = line.split(':')
+            allele1, allele2 = alleles.split(',')
+            alleles = [allele1, allele2]
+        except ValueError:
+            raise SystemExit("ERROR: Some lines in the input file are not formatted correctly. Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)")
         
-        if alleles != []: #TODO: check if this should be an empty list or an empty string
+        if alleles != []: 
             if snp in tableObjDict:
                 for studyID in tableObjDict[snp]['studies'].keys():
                     if studyID in neutral_snps:
@@ -91,16 +96,16 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
                             # Since the study wasn't already used in the index map, add it to both the index and sample map
                             index_snp_map[studyID][clumpNum] = snp
                             sample_map[studyID][snp] = alleles
-                    # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it to the neutral snps set
+                    # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it
                     else:
                         sample_map[studyID][snp] = alleles
+                        counter_set.add(studyID)
 
                     neutral_snps[studyID] = neutral_snps_set
                 #TODO check this
-                # TODO I don't think this works...this will only look at the very last studyID
                 if studyID not in counter_set:
                     sample_map[studyID][""] = ""
-
+    openFile.close()
     final_map = dict(sample_map)
     return final_map, totalLines, neutral_snps
 
@@ -199,7 +204,6 @@ def formatAndReturnGenotype(genotype, gt, REF, ALT):
                     alleles.append(ALT[gt_num])
                 alleles.append("")
             
-
     else:
         alleles = ""
 
@@ -327,10 +331,12 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     return final_map, totalLines, neutral_snps, study_dict
 
 
-def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
+def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile):
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     for studyID in txtObj:
+        # If it so happens that there are no snps from this study in this sample, the variant positions for the study_samp in the vcf object are empty strings. this will help us create the output because we need to know if there is a snp to use as the key in the table object or not
+        isNoSnps = True
         oddsRatios = []
         neutral_snps_set = neutral_snps[studyID]
         protectiveAlleles = set()
@@ -338,19 +344,19 @@ def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
 
         
         # Loop through each snp associated with this disease/study
-        for snp in txtObj[study]:
+        for snp in txtObj[studyID]:
             # Also iterate through each of the alleles
-            for allele in txtObj[study][snp]:
+            for allele in txtObj[studyID][snp]:
                 # Then compare to the gwa study
                 if allele != "":
                     if snp in tableObjDict:
-                        if studyID in tableObjDict[snp]:
+                        if studyID in tableObjDict[snp]['studies']:
                             # Compare the individual's snp and allele to the study row's snp and risk allele
                             citation = tableObjDict[snp]['studies'][studyID]['citation']
                             reportedTrait = tableObjDict[snp]['studies'][studyID]['reportedTrait']
                             traits = tableObjDict[snp]['studies'][studyID]['traits']
                             riskAllele = tableObjDict[snp]['studies'][studyID]['riskAllele']
-                            oddsRatio = tableObjDict[snp]['studies'][studyID]['riskAllele']
+                            oddsRatio = tableObjDict[snp]['studies'][studyID]['oddsRatio']
 
                             if allele == riskAllele:
                                 oddsRatios.append(oddsRatio)
@@ -360,7 +366,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
                                     riskAlleles.add(snp)
                                 else:
                                     neutral_snps_set.add(snp)
-                            elif allele != row['riskAllele']:
+                            elif allele != riskAllele:
                                 neutral_snps_set.add(snp)
 
         if not isCondensedFormat:
@@ -372,16 +378,25 @@ def txtcalculations(tableObjDict, txtObj, isCondensed, neutral_snps):
                 riskAlleles = "None"
             elif str(neutral_snps_set) == "set()":
                 neutral_snps_set = "None"
-            newLine = [studyID, citation, reportedTrait, traits, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
-            formatFullCSV(isFirst, newLine, header)
+
+            if isNoSnps:
+                newLine = [studyID, tableObjDict[snp]['studies'][studyID]['citation'], tableObjDict[snp]['studies'][studyID]['reportedTrait'], tableObjDict[snp]['studies'][studyID]['traits'], OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
+            else:
+                newLine = [studyID, citation, reportedTraits, traits, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
+
+            formatFullCSV(isFirst, newLine, header, outputFile)
             isFirst = False
 
         if isCondensedFormat:
             OR = str(getCombinedORFromArray(oddsRatios))
             header = ['Study ID', 'Citation', 'Reported Trait(s)', 'Trait(s)', 'Polygenic Risk Score']
-            newLine = [studyID, citation, reportedTrait, traits, OR]
-            formatFullCSV(isFirst, newLine, header)
+            if isNoSnps:
+                newLine = [studyID, tableObjDict[snp]['studies'][studyID]['citation'], tableObjDict[snp]['studies'][studyID]['reportedTrait'], tableObjDict[snp]['studies'][studyID]['traits'], OR]
+            else:
+                newLine = [studyID, citation, reportedTrait, traits, OR]
+            formatFullCSV(isFirst, newLine, header, outputFile)
             isFirst = False
+
 
 def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, study_dict):
 
