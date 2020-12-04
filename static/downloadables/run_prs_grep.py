@@ -21,11 +21,13 @@ else:
 
 clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = sys.argv[5], r = sys.argv[4], ahash = sys.argv[8]))
 
-
-with open(associationsPath, 'r') as tableObjFile:
-    tableObjList = tableObjFile.read()
-with open(clumpsPath, 'r') as clumpsObjFile:
-    clumpsObjList = clumpsObjFile.read()
-cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, sys.argv[6])
+try:
+    with open(associationsPath, 'r') as tableObjFile:
+        tableObjList = tableObjFile.read()
+    with open(clumpsPath, 'r') as clumpsObjFile:
+        clumpsObjList = clumpsObjFile.read()
+    cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, sys.argv[6])
+except FileNotFoundError: 
+    raise SystemExit("ERROR: One or both of the required working files could not be found.")
 #end = time.time()
 #print(end - start)

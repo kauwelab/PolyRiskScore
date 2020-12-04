@@ -111,19 +111,20 @@ def getAllAssociations(pValue, refGen, isVCF):
 # gets associations using the given filters
 def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF):
 
-    # get the studies matching the parameters
-    body = {
-        "traits": traits, 
-        "studyTypes": studyTypes,
-        "ethnicities": ethnicity,
-    }
-    traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
-
-    # select the studyIDs of the studies
     finalStudySet = set()
-    for trait in traitData:
-        for study in traitData[trait]:
-            finalStudySet.add(study["studyID"])
+    if (studyIDs is None and (traits is not None or studyTypes is not None or ethnicity is not None)):
+        # get the studies matching the parameters
+        body = {
+            "traits": traits, 
+            "studyTypes": studyTypes,
+            "ethnicities": ethnicity,
+        }
+        traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
+
+        # select the studyIDs of the studies
+        for trait in traitData:
+            for study in traitData[trait]:
+                finalStudySet.add(study["studyID"])
 
     # add the specified studyIDs to the set of studyIDs
     if studyIDs is not None:
@@ -165,22 +166,25 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
         "superPop": superPop,
     }
 
-    if isVCF:
-        chromToPosMap = {}
-        clumps = {}
-        for pos in snpsFromAssociations:
-            if (len(pos.split(":")) > 1):
-                chrom,posit = pos.split(":")
-                if (chrom not in chromToPosMap.keys()):
-                    chromToPosMap[chrom] = [pos]
-                else:
-                    chromToPosMap[chrom].append(pos)
+    try:
+        if isVCF:
+            chromToPosMap = {}
+            clumps = {}
+            for pos in snpsFromAssociations:
+                if (len(pos.split(":")) > 1):
+                    chrom,posit = pos.split(":")
+                    if (chrom not in chromToPosMap.keys()):
+                        chromToPosMap[chrom] = [pos]
+                    else:
+                        chromToPosMap[chrom].append(pos)
 
-        for chrom in chromToPosMap:
-            body['positions'] = chromToPosMap[chrom]
-            clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
-    else:
-        body['snps'] = snpsFromAssociations
-        clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
+            for chrom in chromToPosMap:
+                body['positions'] = chromToPosMap[chrom]
+                clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
+        else:
+            body['snps'] = snpsFromAssociations
+            clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
 
     return clumps
