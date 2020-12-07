@@ -487,7 +487,7 @@ checkForNewVersion () {
     newestVersion=$(curl -s "https://prs.byu.edu/cli_version") # checks the version on the
     
     # asks user if they want to download the newest version
-    if [[ "$newestVersion" =~ ^[0-9]*(\.[0-9]+)?(\.[0-9]+)?$ ]] && [ "$newestVersion" != "$version" ]; then
+    if [ "$newestVersion" != "" ] && [[ "$newestVersion" =~ ^[0-9]*(\.[0-9]+)?(\.[0-9]+)?$ ]] && [ "$newestVersion" != "$version" ]; then
         echo "There is a newer version available. Download new version? (y/n)"
         read -p "(y/n)? " decision
 
