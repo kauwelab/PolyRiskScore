@@ -205,9 +205,11 @@ def handleStrandFlippingAndSave(associations, filePath):
 
     # print("Performing strand flipping where needed. Please be patient as we download the needed data")
 
+    # preventing print statements from being outputted to terminal
     f = io.StringIO()
     with contextlib.redirect_stdout(f):
         rsIDs = (x for x in associations.keys() if "rs" in x)
+        # returns info about the rsIDs passed
         mv = myvariant.MyVariantInfo()
         queryResultsObj = mv.querymany(rsIDs, scopes='dbsnp.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
     output = f.getvalue()
@@ -219,6 +221,7 @@ def handleStrandFlippingAndSave(associations, filePath):
     for obj in queryResultsObj['out']:
         rsID = obj['query']
         if (rsID not in rsIDToAlleles and 'dbsnp' in obj):
+            # creating a set of possible alleles for the snp to check our riskAlleles against
             alleles = set()
             if ('alleles' in obj['dbsnp']):
                 for alleleObj in obj['dbsnp']['alleles']:
@@ -233,7 +236,7 @@ def handleStrandFlippingAndSave(associations, filePath):
             if (rsID in associations):
                 for studyID in associations[rsID]['studies']:
                     riskAllele = associations[rsID]['studies'][studyID]['riskAllele']
-                    # if the current risk allele seems like it isn't correct and the length of the risk allele is only one base
+                    # if the current risk allele seems like it isn't correct and the length of the risk allele is only one base, try its complement
                     if riskAllele not in alleles and len(riskAllele) == 1:
                         complement = getComplement(riskAllele)
                         if complement in alleles:
@@ -247,6 +250,8 @@ def handleStrandFlippingAndSave(associations, filePath):
 
             #loop through the ones we couldn't find
             #see if we can get them from a dbsnp.dbsnp_merges.rsid
+
+    # write the associations to a file
     f = open(filePath, 'w')
     f.write(json.dumps(associations))
     f.close()
