@@ -6,6 +6,7 @@ import os
 import os.path
 import time
 import datetime
+from multiprocessing import Process
 
 # get the associations and clumps from the Server
 def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension):
@@ -24,34 +25,32 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     dnldNewAllAssociFile = checkForAllAssociFile()
     
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
+    associationsPath = ""
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
-        allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
+        associationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
         if (dnldNewAllAssociFile):
-            allAssociations = getAllAssociations(pValue, refGen, isVCF)
-            handleStrandFlipping(allAssociations)
-            # grab all the snps or positions to use for getting the clumps
-            snpsFromAssociations = list(allAssociations.keys())
-            f = open(allAssociationsPath, 'w')
-            f.write(json.dumps(allAssociations))
-            f.close()
+            associations = getAllAssociations(pValue, refGen, isVCF)
+            strandFlip = True
         else:
-            f = open(allAssociationsPath, 'r')
-            loadedAssociations = json.loads(f.read())
+            f = open(associationsPath, 'r')
+            associations = json.loads(f.read())
             f.close()
-            snpsFromAssociations = list(loadedAssociations.keys())
-            toReturn = ["fileExists"]
+            strandFlip = False
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
-        specificAssociationsPath = os.path.join(workingFilesPath, fileName)
-        specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF)
-        handleStrandFlipping(specificAssociations)
-        f = open(specificAssociationsPath, 'w')
-        f.write(json.dumps(specificAssociations))
-        f.close()
-        snpsFromAssociations = list(specificAssociations.keys())
+        associationsPath = os.path.join(workingFilesPath, fileName)
+        associations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF)
+        strandFlip = True
+
+    # grab all the snps or positions to use for getting the clumps
+    snpsFromAssociations = list(associations.keys())
+    # flip strands as needed
+    if (strandFlip):
+        p = Process(target=handleStrandFlippingAndSave, args=(associations, associationsPath))
+        p.start()
 
     #download clumps
     fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
@@ -61,6 +60,10 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     f = open(clumpsPath, 'w')
     f.write(json.dumps(clumpsData))
     f.close()
+
+    if (strandFlip):
+        print("finishing strand flipping")
+        p.join()
 
 
 def checkForAllAssociFile():
@@ -196,11 +199,11 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
     return clumps
 
 
-def handleStrandFlipping(associations):
+def handleStrandFlippingAndSave(associations, filePath):
     import myvariant
     import contextlib, io
 
-    print("Performing strand flipping where needed. Please be patient as we download the needed data")
+    # print("Performing strand flipping where needed. Please be patient as we download the needed data")
 
     f = io.StringIO()
     with contextlib.redirect_stdout(f):
@@ -209,7 +212,7 @@ def handleStrandFlipping(associations):
         queryResultsObj = mv.querymany(rsIDs, scopes='dbsnp.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
     output = f.getvalue()
 
-    print("Data downloaded")
+    # print("Data downloaded")
 
     rsIDToAlleles = []
 
@@ -244,7 +247,10 @@ def handleStrandFlipping(associations):
 
             #loop through the ones we couldn't find
             #see if we can get them from a dbsnp.dbsnp_merges.rsid
-    return associations
+    f = open(filePath, 'w')
+    f.write(json.dumps(associations))
+    f.close()
+    return 
 
 
 def getComplement(allele):
