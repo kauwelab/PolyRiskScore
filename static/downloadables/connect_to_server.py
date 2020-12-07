@@ -9,6 +9,8 @@ import datetime
 
 # get the associations and clumps from the Server
 def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension):
+    checkInternetConnection()
+
     # Format variables used for getting associations
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
@@ -28,13 +30,13 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         allAssociationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
         if (dnldNewAllAssociFile):
             allAssociations = getAllAssociations(pValue, refGen, isVCF)
+            handleStrandFlipping(allAssociations)
             # grab all the snps or positions to use for getting the clumps
             snpsFromAssociations = list(allAssociations.keys())
             f = open(allAssociationsPath, 'w')
             f.write(json.dumps(allAssociations))
             f.close()
         else:
-            #TODO check this
             f = open(allAssociationsPath, 'r')
             loadedAssociations = json.loads(f.read())
             f.close()
@@ -45,12 +47,12 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         specificAssociationsPath = os.path.join(workingFilesPath, fileName)
         specificAssociations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF)
-        
+        handleStrandFlipping(specificAssociations)
         f = open(specificAssociationsPath, 'w')
         f.write(json.dumps(specificAssociations))
         f.close()
         snpsFromAssociations = list(specificAssociations.keys())
-    
+
     #download clumps
     fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
     clumpsPath = os.path.join(workingFilesPath, fileName)
@@ -165,6 +167,7 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
         "refGen": refGen,
         "superPop": superPop,
     }
+    print("Retrieving clumping information")
 
     try:
         if isVCF:
@@ -178,9 +181,12 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
                     else:
                         chromToPosMap[chrom].append(pos)
 
+            print("Clumps downloaded by chromosome:")
             for chrom in chromToPosMap:
+                print("{0}...".format(chrom), end="", flush=True)
                 body['positions'] = chromToPosMap[chrom]
                 clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
+            print('\n')
         else:
             body['snps'] = snpsFromAssociations
             clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
@@ -188,3 +194,73 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
 
     return clumps
+
+
+def handleStrandFlipping(associations):
+    import myvariant
+    import contextlib, io
+
+    print("Performing strand flipping where needed. Please be patient as we download the needed data")
+
+    f = io.StringIO()
+    with contextlib.redirect_stdout(f):
+        rsIDs = (x for x in associations.keys() if "rs" in x)
+        mv = myvariant.MyVariantInfo()
+        queryResultsObj = mv.querymany(rsIDs, scopes='dbsnp.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
+    output = f.getvalue()
+
+    print("Data downloaded")
+
+    rsIDToAlleles = []
+
+    for obj in queryResultsObj['out']:
+        rsID = obj['query']
+        if (rsID not in rsIDToAlleles and 'dbsnp' in obj):
+            alleles = set()
+            if ('alleles' in obj['dbsnp']):
+                for alleleObj in obj['dbsnp']['alleles']:
+                    alleles.add(alleleObj['allele'])
+            if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
+                alleles.add(obj['dbsnp']['ref'])
+            if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
+                alleles.add(obj['dbsnp']['alt'])
+            if (len(alleles) == 0):
+                print(obj, "STILL NO ALLELES")
+            
+            if (rsID in associations):
+                for studyID in associations[rsID]['studies']:
+                    riskAllele = associations[rsID]['studies'][studyID]['riskAllele']
+                    # if the current risk allele seems like it isn't correct and the length of the risk allele is only one base
+                    if riskAllele not in alleles and len(riskAllele) == 1:
+                        complement = getComplement(riskAllele)
+                        if complement in alleles:
+                            associations[rsID]['studies'][studyID]['riskAllele'] = complement
+
+            rsIDToAlleles.append(rsID)
+
+            #TODO: what to do if we have merged rsIDs? 
+            # we could add the rsID of what the old one merged into
+            # queryResultsObj = mv.querymany(queryResultsObj['missing'], scopes='dbsnp.dbsnp_merges.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
+
+            #loop through the ones we couldn't find
+            #see if we can get them from a dbsnp.dbsnp_merges.rsid
+    return associations
+
+
+def getComplement(allele):
+    complements = {
+        'G': 'C',
+        'C': 'G',
+        'A': 'T',
+        'T': 'A'
+    }
+    return(complements[allele])
+
+
+def checkInternetConnection():
+    import socket
+    IPaddress=socket.gethostbyname(socket.gethostname())
+    if IPaddress=="127.0.0.1":
+        raise SystemExit("ERROR: No internet - Check your connection")
+    else:
+        return
