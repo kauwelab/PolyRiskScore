@@ -35,8 +35,8 @@ exports.getFromTables = (req, res) => {
 exports.getAll = (req, res) => {
     var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
-    var defaultSex = req.body.sex;
-    var isVCF = req.body.isVCF;
+    var defaultSex = req.query.sex;
+    var isVCF = req.query.isVCF;
 
     // if not given a sex, default to female
     if (defaultSex == undefined){ //check this
@@ -154,7 +154,6 @@ exports.snpsByEthnicity = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             // formating returned data
-            console.log(data)
             res.send(data);
         }
     })
@@ -170,7 +169,6 @@ exports.joinTest = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             // formating returned data
-            console.log(data)
             res.send(data);
         }
     })
@@ -196,7 +194,13 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
         }
     }
 
-    var AssociationBySnp = {}
+    var AssociationsBySnp = {}
+
+    //checks to see if the first item is the array is an array, if so, it merges nested arrays into a single array
+    if (Array.isArray(associations[0])) {
+        var associations = [].concat.apply([], associations);
+    }
+
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
         // if the pos/snp already exists in our map
@@ -208,6 +212,13 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
                     var replace = compareDuplicateAssociations(AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID], association, sex)
                     if (replace) {
                         AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+                        //Add an indication of which traits/studies have duplicated snps
+                        if (!('traitsWithDuplicateSnps' in studyIDsToMetaData[association.studyID])) {
+                            studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'] = [association.trait]
+                        }
+                        else if (!(studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].includes(association.trait))) {
+                            studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].push(association.trait)
+                        }
                     }
                 }
                 else {
@@ -239,7 +250,12 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
         }
     }
 
-    return AssociationsBySnp
+    returnObject = {
+        studyIDsToMetaData: studyIDsToMetaData,
+        associations: AssociationsBySnp
+    }
+
+    return returnObject
 }
 
 function createStudyIDObj(association){
@@ -279,7 +295,7 @@ function compareDuplicateAssociations(oldAssoci, newAssoci, defaultSex) {
 }
 
 function getSexScore(sex, defaultSex) {
-    switch(sex){
+    switch(sex[0]){
         case "": 
             return 3;
         case defaultSex:
