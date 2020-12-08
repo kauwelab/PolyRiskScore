@@ -63,13 +63,14 @@ if (is_ebi_reachable()) {
     print("Raw GWAS study data already downloaded. Skipping...")
   } else {
     print("Downloading study data!")
+    studies_time <- Sys.time()
     studies <- get_studies(interactive = FALSE)
     studiesTibble <- studies@studies
     # get publication data for all the studies
     publications <- studies@publications
     # get publication data for all the studies
     ancestries <- studies@ancestral_groups
-    print("Study data downloaded!")
+    print(paste0("Study data downloaded! took: ", format(Sys.time() - studies_time)))
     
     print("Writing GWAS data.")
     write_tsv(studiesTibble, rawGWASStudyDataPath)

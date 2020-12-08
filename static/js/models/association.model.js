@@ -22,8 +22,10 @@ const Association = function (massociation) {
 Association.getFromTables = (studyIDs, pValue, refGen, result) => {
     try {
         sqlQuestionMarks = ""
-        for (j = 0; j < studyIDs.length - 1; j++) {
-            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+        if (Array.isArray(studyIDs)) {
+            for (j = 0; j < studyIDs.length - 1; j++) {
+                sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+            }
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
@@ -117,6 +119,30 @@ Association.getAllSnps = (refGen, result) => {
         result(e, null)
     }
 }
+
+Association.getAllSnpsToStudyIDs = (refGen, result) => {
+    try {
+        if (typeof(refGen) == "undefined") {
+            refGen = "hg38"
+        }
+        else {
+            // returns the refgen if valid, else throws an error
+            refGen = validator.validateRefgen(refGen)
+        }
+
+        sql.query(`SELECT snp, ${refGen} as pos, studyID FROM associations_table;`, (err, data) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            result(null, data)
+        })
+    } catch (e) {
+        console.log("Error: ", e)
+        result(e, null)
+    }
+ }
 
 Association.getSingleSnpFromEachStudy = (refGen, result) => {
     try {
@@ -265,5 +291,20 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         result(e, null)
     }
 }
+
+Association.joinTest = (result) => {
+    queryString = "SELECT * FROM study_table JOIN Associations ON study_table.studyID = Associations.studyID;"
+
+    //TODO remove
+    console.log(queryString)
+    sql.query(queryString, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        result(null, res);
+    });
+};
 
 module.exports = Association;
