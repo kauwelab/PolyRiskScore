@@ -5,3 +5,6 @@ node_modules
 .DS_Store
 static/.DS_Store
 core
+/update_database_scripts/rawGWASAncestries.tsv
+/update_database_scripts/rawGWASPublications.tsv
+/update_database_scripts/rawGWASStudyData.tsv

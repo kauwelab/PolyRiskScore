@@ -38,6 +38,9 @@ Clump.getClumps = (superpopclump, refGenome, result) => {
 
 Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
     try {
+	if (!(Array.isArray(positions))) {
+	    positions = [positions]
+	}
         refGen = validator.validateRefgen(refGenome)
         positions.sort()
         chromosomesToSearch = {}
@@ -46,10 +49,13 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
 	    position = positions[i]
             chrom = position.split(":")
 
-            if (!(chrom[0] in Object.keys(chromosomesToSearch))) {
-                chromosomesToSearch[chrom[0]] = new Set()
+            if (Object.keys(chromosomesToSearch).includes(chrom[0])) {
+                chromosomesToSearch[chrom[0]].push(position)
             }
-            chromosomesToSearch[chrom[0]].add(position)
+	    else {
+		chromosomesToSearch[chrom[0]] = []
+                chromosomesToSearch[chrom[0]].push(position)
+	    }
         }
 
         sqlString = ""
@@ -58,7 +64,7 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
         for (let i in chromosomesToSearch) {
             sqlQuestionMarks = ""
 
-            for (j=0; j < chromosomesToSearch[i].size - 1; j++) {
+            for (j=0; j < chromosomesToSearch[i].length - 1; j++) {
                 sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
             }
             sqlQuestionMarks = sqlQuestionMarks.concat("?")
@@ -66,6 +72,10 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
             sqlString = sqlString.concat(`SELECT snp, position, ${superpopclump} AS clumpNumber FROM ${refGen}_chr${i}_clumps WHERE position IN (${sqlQuestionMarks}); `)
             sqlParams = sqlParams.concat(Array.from(chromosomesToSearch[i]))
         }
+
+	console.log(chromosomesToSearch)
+	console.log(sqlString)
+	console.log(sqlParams)
 
         sql.query(sqlString, sqlParams, (err, res) => {
             if (err) {
