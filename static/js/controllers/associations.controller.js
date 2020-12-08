@@ -25,7 +25,6 @@ exports.getFromTables = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            // returnData is a list [studyIDsToMetaData, AssociationsBySnp]
             returnData = await separateStudies(associations, traits, refGen, defaultSex, isVCF)
             res.send(returnData);
         }
@@ -53,7 +52,7 @@ exports.getAll = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             associations = data[0]
             traits = data[1]
-            // returnData is a list [studyIDsToMetaData, AssociationsBySnp]
+
             returnData = await separateStudies(associations, traits, refGen, defaultSex, isVCF)
             
             res.send(returnData);
