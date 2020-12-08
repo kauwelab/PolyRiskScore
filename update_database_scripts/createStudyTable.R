@@ -179,13 +179,14 @@ if (is_ebi_reachable()) {
         studyID <- studyIDRow[["studyID"]]
         rawStudyData <- filter(studiesTibble, study_id == studyID)
         
-        traitName <- get_traits(study_id = studyID)@traits[["trait"]]
-        reportedTrait <- rawStudyData[["reported_trait"]]
+        # get trait and reported trait in title case (tolower, then title case)
+        traitName <- str_to_title(tolower(get_traits(study_id = studyID)@traits[["trait"]]))
+        reportedTrait <- str_to_title(tolower(rawStudyData[["reported_trait"]]))
+        
         
         publication <- filter(publications, study_id == studyID)
 
-        citation <- paste(str_replace(publication[["author_fullname"]], "ö", "o"), substr(publication[["publication_date"]], 1, 4)) # TODO make more robust removing strange o from Löfgren's syndrome
-        
+        citation <- paste(publication[["author_fullname"]], substr(publication[["publication_date"]], 1, 4))
         # get an Altmetric score for each pubMedID and association pubMedID to score in dictionary-like form
         pubMedID <- publication[["pubmed_id"]]
         altmetricScore <- getAltmetricScore(pubMedID)
