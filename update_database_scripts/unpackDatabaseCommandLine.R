@@ -20,6 +20,7 @@
 #        "hg19" is hg19 mapped location
 #        "hg18" is hg18 mapped location
 #        "hg17" is hg17 mapped location
+#        "trait is the name of the trait associated to the snp
 #        "gene" is a is a pipe (|) separated list of gene:distanceToGene strings (ex: C1orf140:107304|AL360013.2:64825)
 #        "raf" is the risk allele frequency
 #        "riskAllele" is the risk allele
@@ -28,8 +29,27 @@
 #        "oddsRatio" is the odds ratio associated with the given p-value
 #        "lowerCI" is the lower confidence interval of the odds ratio
 #        "upperCI" is the upper confidence interval of the odds ratio
+#        "population" is the population associated with the snp p-value #TODO add
+#        "sex" is the sex associated with the snp p-value
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
+
+# population mappings
+# africanAmericanAfroCaribbean <- c()
+# africanUnspecified <- c()
+# asianUnspecified <- c()
+# eastAsian <- c()
+# european <- c()
+# greaterMiddleEastern <- c()
+# hispanicLatinAmericam <- c()
+# nativeAmerican <- c()
+# oceanian <- c()
+# southAsian <- c()
+# southEastAsian <- c()
+# subSaharanAfrican <- c()
+
+# african <- c(africanAmericanAfroCaribbean, africanUnspecified, subSaharanAfrican)
+# american <- c()
 
 # get args from the commandline- these are evaluated after imports section below
 args = commandArgs(trailingOnly=TRUE)
@@ -105,7 +125,7 @@ if (is_ebi_reachable()) {
   numGroups <- as.numeric(args[5])
   dir.create(file.path(outPath), showWarnings = FALSE)
   # remove the old associations_table.tsv and create a new blank one with column names "columnNames" and no data yet
-  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "citation", "studyID")
+  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "trait", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "sex", "citation", "studyID")
   writeLines(paste(columnNames, collapse = "\t"), file.path(outPath, "associations_table.tsv"))
 
   # the minimum number of SNPs a study must have to be valid and outputted
@@ -207,9 +227,9 @@ if (is_ebi_reachable()) {
     if (nrow(associationsTable) > 0) {
       # renames columns to names the database will understand
       associationsTable <- ungroup(associationsTable) %>%
-        dplyr::rename(snp = variant_id,raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number)
+        dplyr::rename(snp = variant_id, raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number)
       # arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
-      associationsTable <- select(associationsTable, c(snp, hg38, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, citation, studyID)) %>%
+      associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, sex, citation, studyID)) %>%
         arrange(citation, studyID, snp)
       
       # gets hg19, hg18, hg17 for the traits
@@ -227,6 +247,48 @@ if (is_ebi_reachable()) {
     # writes out the data into a TSV at outPath (from argv)
     write_tsv(associationsTable, file.path(outPath, "associations_table.tsv"), append = TRUE)
   }
+  
+  # returns a vector of NA, male, or female given a vector of p-value descriptions
+  getSexFromDescription <- function(pValueDescription) {
+    femaleIndicator = "female"
+    maleIndicator = "male"
+    pop <- c()
+    for (desc in pValueDescription) {
+      desc = tolower(desc)
+      if (is.na(desc)) {
+        pop <- c(pop, NA)
+      }
+      else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
+          pop <- c(pop, femaleIndicator)
+      }
+      else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
+        pop <- c(pop, maleIndicator)
+      }
+      else {
+        pop <- c(pop, NA)
+      }
+    }
+    return(pop)
+  }
+  
+  #TODO
+    # returns a vector of populations given a vector of p-value descriptions
+  # getPopFromDescription <- function(pValueDescription) {
+  #   pop <- c()
+  #   for (desc in pValueDescription) {
+  #     desc = tolower(desc)
+  #     if (is.na(desc)) {
+  #       pop <- c(pop, NA)
+  #     }
+  #     else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
+  #       pop <- c(pop, femaleIndicator)
+  #     }
+  #     else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
+  #       pop <- c(pop, maleIndicator)
+  #     }
+  #   }
+  #   return(pop)
+  # }
   
 #------------------------------------------------------------------------------------------------------------------------
   
@@ -260,11 +322,11 @@ if (is_ebi_reachable()) {
       studyID <- pull(studiesTibble[i, "study_id"])
       
       # get citation data (author + year published)
-      citation <- paste(str_replace(pull(publications[i, "author_fullname"]), "�", "o"), str_sub(pull(publications[i, "publication_date"]), 1, 4)) #TODO make more robust removing strange o from L�fgren's syndrome
+      citation <- paste(pull(publications[i, "author_fullname"]), str_sub(pull(publications[i, "publication_date"]), 1, 4))
       # get pubmed ID for the study
       pubmedID <- pull(publications[i, "pubmed_id"])
       
-      # if the study ID is invalid, skip it
+      # if the study ID is invalid, skip it (currently does nothing since all studies are only visited once)
       if (studyID %in% invalidStudies) {
         DevPrint(paste0("    skipping study bc not enough snps: ", citation, "-", studyID))
       } else {
@@ -273,61 +335,81 @@ if (is_ebi_reachable()) {
         # gets the association data associated with the study ID
         associations <- get_associations(study_id = studyID)
         associationsTibble <- associations@associations
-        # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
-        riskAlleles <- associations@risk_alleles %>%
-          group_by(association_id) %>% 
-          filter(dplyr::n()==1)
         
-        # gets the variants data associated with the study ID
-        variants <- get_variants(study_id = studyID)
-        # contains last update date for each variant ID
-        variantsTibble <- variants@variants
-        # contains gene names, position, and distances from nearest genes for each variant ID
-        genomicContexts <- variants@genomic_contexts
-        
-        # gets the traits data associated with the study ID
-        traitsTibble <- get_traits(study_id = studyID)@traits
-        
-        # merge data together
-        master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
-          dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
-          unite("gene", gene_name, distance, sep = ":") %>%
-          mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
-          group_by(variant_id) %>% 
-          summarise_all(list(~toString(unique(na.omit(.))))) %>%
-          mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
-        # set the values of all empty cells to NA
-        if (nrow(master_variants) > 0) {
-          master_variants[master_variants == ""] <- NA
-        }
-        master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
-        studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
-          unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
-          mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
-          tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
-          add_column(citation = citation) %>%
-          add_column(studyID = studyID, .after = "citation") %>% 
-          mutate(pvalue_description = tolower(pvalue_description))
-        # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
-        studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("conditioned on",pvalue_description))
-        
-        # if there are not enough snps left in the study table, add it to a list of ignored studies
-        if (nrow(studyData) < minNumStudyAssociations) {
+        # if there aren't enough associations, put not enough info for study
+        if (nrow(associationsTibble) < minNumStudyAssociations) {
           invalidStudies <- c(invalidStudies, studyID)
           DevPrint(paste0("    Not enough info for ", citation))
-        } else { # otherwise add the rows to the association table
-          associationsTable <- bind_rows(studyData, associationsTable)
-          studyIndeciesAppended <- c(studyIndeciesAppended, i)
+        } else {
+          # get a list of the assoication ids
+          association_ids <- associationsTibble[["association_id"]]
+          names(association_ids) <- association_ids
+          
+          # get traits for each of the assoication ids
+          traits <- association_ids %>%
+            purrr::map(~ get_traits(association_id = .x)@traits) %>%
+            dplyr::bind_rows(.id = 'association_id')
+          
+          # merge the traits with the assoications- note: some associations have multiple traits, so the traits
+          # table length is >= the length of assicationsTibble
+          associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
+          
+          # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
+          riskAlleles <- associations@risk_alleles %>%
+            group_by(association_id) %>% 
+            filter(dplyr::n()==1)
+          
+          # gets the variants data associated with the study ID
+          variants <- get_variants(study_id = studyID)
+          # contains last update date for each variant ID
+          variantsTibble <- variants@variants
+          # contains gene names, position, and distances from nearest genes for each variant ID
+          genomicContexts <- variants@genomic_contexts
+          
+          # merge data together
+          master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
+            dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
+            unite("gene", gene_name, distance, sep = ":") %>%
+            mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
+            group_by(variant_id) %>% 
+            summarise_all(list(~toString(unique(na.omit(.))))) %>%
+            mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
+          # set the values of all empty cells to NA
+          if (nrow(master_variants) > 0) {
+            master_variants[master_variants == ""] <- NA
+          }
+          master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
+          studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
+            unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
+            mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
+            tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
+            add_column(citation = citation) %>%
+            add_column(studyID = studyID, .after = "citation") %>%
+            #TODO
+            # add_column(population = getPopFromDescription(master_associations[["pvalue_description"]])) %>%
+            add_column(sex = getSexFromDescription(master_associations[["pvalue_description"]])) %>%
+            mutate(pvalue_description = tolower(pvalue_description))
+          # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
+          studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
+          
+          # if there are not enough snps left in the study table, add it to a list of ignored studies
+          if (nrow(studyData) < minNumStudyAssociations) {
+            invalidStudies <- c(invalidStudies, studyID)
+            DevPrint(paste0("    Not enough info for ", citation))
+          } else { # otherwise add the rows to the association table
+            associationsTable <- bind_rows(studyData, associationsTable)
+            studyIndeciesAppended <- c(studyIndeciesAppended, i)
+          }
         }
         # for every 10 studies, append to the associations_table.tsv
         if (i %% 10 == 0) {
           # if there are studies in the associations table, print them out and reset the tibble
           if (nrow(associationsTable) > 0) {
-  	        associationsTable <- formatAssociationsTable(associationsTable)
-  	        appendToAssociationsTable(associationsTable)
-  	        # reset the associationsTable and keep going
+            associationsTable <- formatAssociationsTable(associationsTable)
+            appendToAssociationsTable(associationsTable)
+            # reset the associationsTable and keep going
             associationsTable <- tibble()
-  	        indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+            indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
             DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
             studyIndeciesAppended <- c()
           }
