@@ -252,7 +252,7 @@ function createStudyIDObj(association){
 }
 
 // true is replace, false is keep
-function compareDuplicateAssociations(oldAssoci, newAssoci, defaultPop, defaultSex) {
+function compareDuplicateAssociations(oldAssoci, newAssoci, defaultSex) {
     oldAssociScore = getSexScore(oldAssoci.sex, defaultSex)
     newAssociScore = getSexScore(newAssoci.sex, defaultSex)
 
