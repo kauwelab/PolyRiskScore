@@ -116,7 +116,7 @@ def getAllAssociations(pValue, refGen, isVCF):
 
 # gets associations using the given filters
 def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF):
-    finalStudySet = set()
+    finalStudyList = []
 
     if (studyIDs is None and (traits is not None or studyTypes is not None or ethnicity is not None)):
         # get the studies matching the parameters
@@ -130,10 +130,14 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
         # select the studyIDs of the studies
         for trait in traitData:
             for study in traitData[trait]:
-                finalStudySet.add({
-                    "trait": trait,
-                    "studyID": study[studyID]
-                })
+                # if the studyID is in the studyIDs list, don't add it in here
+                if (studyIDs is not None and study['studyID'] in studyIDs):
+                    continue
+                else:
+                    finalStudyList.append({
+                        "trait": trait,
+                        "studyID": study['studyID']
+                    })
 
     # get the data for the specified studyIDs
     if (studyIDs is not None):
@@ -143,16 +147,16 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
         studyIDData = {**getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)}
         # add the specified studyIDs to the set of studyIDObjs
         for studyObj in studyIDData:
-            finalStudySet.add({
-                "trait": studyObj[trait],
-                "studyID": studyObj[studyID]
+            finalStudyList.append({
+                "trait": studyObj['trait'],
+                "studyID": studyObj['studyID']
             })
 
     # get the associations based on the studyIDs
     body = {
         "pValue": pValue,
         "refGen": refGen,
-        "studyIDObjs": list(finalStudySet),
+        "studyIDObjs": finalStudyList,
         "isVCF": isVCF
     }
 
