@@ -41,8 +41,6 @@ Association.getFromTables = (studyIDObjs, pValue, refGen, result) => {
 
         questionMarks = questionMarks.join(", ")
 
-        // queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM associations_table WHERE pValue <= ? AND studyID IN (${sqlQuestionMarks}) ORDER BY studyID; `
-
         sql.query(queryString, queryParams, (err, res) => {
             if (err) {
                 console.log("error: ", err);
