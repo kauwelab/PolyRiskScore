@@ -9,8 +9,8 @@ exports.getFromTables = (req, res) => {
     var defaultSex = req.body.sex;
     var isVCF = req.body.isVCF;
 
-    // if not given a sex, default to female
-    if (defaultSex == undefined){ //check this
+    // if not given a defaultSex, default to female
+    if (defaultSex == undefined){
         defaultSex = "f"
     }
 
@@ -37,8 +37,8 @@ exports.getAll = (req, res) => {
     var defaultSex = req.query.sex;
     var isVCF = req.query.isVCF;
 
-    // if not given a sex, default to female
-    if (defaultSex == undefined){ //check this
+    // if not given a defaultSex, default to female
+    if (defaultSex == undefined){
         defaultSex = "f"
     }
 
@@ -183,8 +183,10 @@ exports.getLastAssociationsUpdate = (req, res) => {
 
 async function separateStudies(associations, traitData, refGen, sex, isVCF) {
 
+    // if isVCF, we want to add postions as keys to rsIDs
     addPosKeys = (isVCF.toLowerCase() == 'true')
 
+    // store the citation and reported trait for each study
     var studyIDsToMetaData = {}
     for (i=0; i < traitData.length; i++) {
         var studyObj = traitData[i]
@@ -195,11 +197,12 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
 
     var AssociationsBySnp = {}
 
-    //checks to see if the first item is the array is an array, if so, it merges nested arrays into a single array
+    //checks to see if the first item in the array is an array, if so, it merges nested arrays into a single array
     if (Array.isArray(associations[0])) {
         var associations = [].concat.apply([], associations);
     }
 
+    // format the associations with rsIDs (and positions) as keys
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
         // if the pos/snp already exists in our map
@@ -266,7 +269,7 @@ function createStudyIDObj(association){
     }
 }
 
-// true is replace, false is keep
+// if returns true: replace oldAssoci with newAssoci, if returns false: keep the oldAssoci
 function compareDuplicateAssociations(oldAssoci, newAssoci, defaultSex) {
     oldAssociScore = getSexScore(oldAssoci.sex, defaultSex)
     newAssociScore = getSexScore(newAssoci.sex, defaultSex)
@@ -293,11 +296,14 @@ function compareDuplicateAssociations(oldAssoci, newAssoci, defaultSex) {
     }
 }
 
+// creates a way to compare associations by sex
+// if the association doesn't have anything in the sex column, we want to prefer that association so we give it a higher score
+// if the association sex matches the defaultSex, we prefer that over not matching but we prefer that less than the association being 'sex free'
 function getSexScore(sex, defaultSex) {
     switch(sex[0]){
         case "": 
             return 3;
-        case defaultSex:
+        case defaultSex[0]:
             return 2;
         default:
             return 1;
