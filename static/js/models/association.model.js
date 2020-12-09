@@ -29,11 +29,17 @@ Association.getFromTables = (studyIDObjs, pValue, refGen, result) => {
         studyIDs = []
         questionMarks = []
 
+	if (!Array.isArray(studyIDObjs)) {
+	    studyIDObjs = [studyIDObjs]
+	}
         // returns the refgen if valid, else throws an error
         refGen = validator.validateRefgen(refGen)
 
         studyIDObjs.forEach(studyObj => {
-            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE pValue <= ? AND studyID = ? AND trait = ?; `)
+            if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
+		studyObj = JSON.parse(studyObj)
+	    }
+	    queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE pValue <= ? AND studyID = ? AND trait = ?; `)
             queryParams = queryParams.concat([pValue, studyObj.studyID, studyObj.trait])
             studyIDs.push(studyObj.studyID)
             questionMarks.push("?")
