@@ -382,6 +382,7 @@ if (is_ebi_reachable()) {
           studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
             unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
             mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
+            mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
             tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
             add_column(citation = citation) %>%
             add_column(studyID = studyID, .after = "citation") %>%
