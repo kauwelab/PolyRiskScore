@@ -9,7 +9,7 @@ import datetime
 from multiprocessing import Process
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension):
+def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
     checkInternetConnection()
 
     # Format variables used for getting associations
@@ -31,7 +31,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         # if we need to download a new all associations file, write to file
         associationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
         if (dnldNewAllAssociFile):
-            associationsReturnObj = getAllAssociations(pValue, refGen, isVCF)
+            associationsReturnObj = getAllAssociations(pValue, refGen, defaultSex, isVCF)
             strandFlip = True
         else:
             f = open(associationsPath, 'r')
@@ -42,7 +42,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF)
+        associationsReturnObj = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
         strandFlip = True
 
     # grab all the snps or positions to use for getting the clumps
@@ -104,10 +104,11 @@ def checkForAllAssociFile():
 
 
 # gets associationReturnObj from the Server for all associations
-def getAllAssociations(pValue, refGen, isVCF): 
+def getAllAssociations(pValue, refGen, defaultSex, isVCF): 
     params = {
         "pValue": pValue,
         "refGen": refGen,
+        "sex": defaultSex,
         "isVCF": isVCF
     }
     associationsReturnObj = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
@@ -116,7 +117,7 @@ def getAllAssociations(pValue, refGen, isVCF):
 
 
 # gets associationReturnObj using the given filters
-def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF):
+def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF):
     finalStudyList = []
 
     if (traits is not None or studyTypes is not None or ethnicity is not None):
@@ -158,8 +159,8 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
         "pValue": pValue,
         "refGen": refGen,
         "studyIDObjs": finalStudyList,
-        "isVCF": isVCF,
-        "sex": "f" #TODO make sex an option that can be given
+        "sex": defaultSex,
+        "isVCF": isVCF
     }
 
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
