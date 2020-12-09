@@ -15,26 +15,31 @@ const Association = function (massociation) {
     this.oddsRatio = massociation.oddsRatio;
     this.lowerCI = massociation.lowerCI;
     this.upperCI = massociation.upperCI;
+    this.pValueAnnotation = massociation.pValueAnnotation;
+    this.sex = massociation.sex;
     this.citation = massociation.citation;
     this.studyID = massociation.studyID;
 };
 
-Association.getFromTables = (studyIDs, pValue, refGen, result) => {
+Association.getFromTables = (studyIDObjs, pValue, refGen, result) => {
+    // [{trait: "", studyID: ""}, {trait: "", studyID: ""}]
     try {
-        sqlQuestionMarks = ""
-        if (Array.isArray(studyIDs)) {
-            for (j = 0; j < studyIDs.length - 1; j++) {
-                sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
-            }
-        }
-        sqlQuestionMarks = sqlQuestionMarks.concat("?")
+        queryString = ""
+        queryParams = []
+        studyIDs = []
+        questionMarks = []
 
         // returns the refgen if valid, else throws an error
         refGen = validator.validateRefgen(refGen)
 
-        queryParams = [pValue].concat(studyIDs)
+        studyIDObjs.forEach(studyObj => {
+            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE pValue <= ? AND studyID = ? AND trait = ?; `)
+            queryParams = queryParams.concat([pValue, studyObj.studyID, studyObj.trait])
+            studyIDs.push(studyObj.studyID)
+            questionMarks.push("?")
+        })
 
-        queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM associations_table WHERE pValue <= ? AND studyID IN (${sqlQuestionMarks}) ORDER BY studyID; `
+        questionMarks = questionMarks.join(", ")
 
         sql.query(queryString, queryParams, (err, res) => {
             if (err) {
@@ -42,9 +47,9 @@ Association.getFromTables = (studyIDs, pValue, refGen, result) => {
                 result(err, null);
                 return;
             }
-            console.log(`Got ${res.length} associations from table`)
-            console.log("Getting the traits associated with the studies")
-            sql.query(`SELECT studyID, trait, reportedTrait FROM study_table WHERE studyID IN (${sqlQuestionMarks}) ORDER BY studyID; `, studyIDs, (err2, traitData) => {
+            console.log(`Got ${res.length} studies with associations from table`)
+            console.log("Getting the metaData associated with the studies")
+            sql.query(`SELECT studyID, reportedTrait, citation, trait FROM study_table WHERE studyID IN (${questionMarks}) ORDER BY studyID; `, studyIDs, (err2, traitData) => {
                 if (err2) {
                     console.log("error: ", err2);
                     result(err2, null);
@@ -66,7 +71,7 @@ Association.getAll = (pValue, refGen, result) => {
         // returns the refgen if valid, else throws an error
         refGen = validator.validateRefgen(refGen)
 
-        queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, citation, studyID FROM associations_table WHERE pValue <= ? ; `
+        queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE pValue <= ? ; `
         console.log(queryString)
 
         sql.query(queryString, [pValue], (err, res) => {
@@ -78,7 +83,7 @@ Association.getAll = (pValue, refGen, result) => {
 
             console.log("associations (first): ", res[0]);
 
-            sql.query("SELECT studyID, trait, reportedTrait FROM study_table", (err2, traits) => {
+            sql.query("SELECT studyID, reportedTrait, citation, trait FROM study_table", (err2, traits) => {
                 if (err2) {
                     console.log("error: ", err2);
                     result(err2, null);
