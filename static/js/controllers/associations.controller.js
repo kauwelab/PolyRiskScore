@@ -214,13 +214,13 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
                     var replace = compareDuplicateAssociations(AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID], association, sex)
                     if (replace) {
                         AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
-                        //Add an indication of which traits/studies have duplicated snps
-                        if (!('traitsWithDuplicateSnps' in studyIDsToMetaData[association.studyID])) {
-                            studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'] = [association.trait]
-                        }
-                        else if (!(studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].includes(association.trait))) {
-                            studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].push(association.trait)
-                        }
+                    }
+		    //Add an indication of which traits/studies have duplicated snps
+                    if (!('traitsWithDuplicateSnps' in studyIDsToMetaData[association.studyID])) {
+                        studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'] = [association.trait]
+                    }
+                    else if (!(studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].includes(association.trait))) {
+                        studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].push(association.trait)
                     }
                 }
                 else {
