@@ -423,6 +423,10 @@ calculatePRS () {
     if [ -z "$step" ]; then
         step=0
     fi
+    # if no sex is specified, set to female
+    if [ -z "$defaultSex" ]; then
+        defaultSex="female"
+    fi
 
     # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
     pyVer=""
@@ -475,9 +479,9 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         #outputType="csv" #this is the default
-        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash
+        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
 
-        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"; then
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex"; then
             echo "Caculated score"
             if [[ $fileHash != $requiredParamsHash ]]; then
                 rm ".workingFiles/associations_${fileHash}.txt"
