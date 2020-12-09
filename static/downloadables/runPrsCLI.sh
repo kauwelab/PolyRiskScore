@@ -42,6 +42,7 @@ version="1.2.0"
 #       -k studyType
 #       -i studyIDs
 #       -e ethnicity
+#       -v (verbose output file)
 #       -s stepNumber
 #
 # ########################################################################
@@ -81,6 +82,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
+    echo -e "   ${MYSTERYCOLOR}-v${NC} (indicates a more detailed result file)"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
 }
@@ -128,7 +130,7 @@ learnAboutParameters () {
 
     while [[ "$cont" != "0" ]]
     do 
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
         echo    "|                                             |"
         echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                            |"
         echo -e "| ${LIGHTPURPLE}1${NC} - -f VCF File or rsIDs:genotypes file     |"
@@ -142,9 +144,10 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
         echo -e "| ${LIGHTPURPLE}8${NC} - -i studyIDs                             |"
         echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - -s stepNumber                         |"
+	echo -e "| ${LIGHTPURPLE}10${NC} - -v (verbose result file)               |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - -s stepNumber                          |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}11${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}12${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -215,10 +218,18 @@ learnAboutParameters () {
                 echo "by the authors. " # should we maybe show ethnicities when they search studies?
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
+            10 ) echo -e "${MYSTERYCOLOR} -v: ${NC}"
+                echo "For a more detailed result file, include the '-v' parameter."
+                echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
+		echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
+		echo "effect on the PRS for each corresponding sample and study."
+		echo "If this parameter is not included, the default result file will include the study ID"
+		echo "and the corresponding polygenic risk scores for each sample." 
+                echo "" ;;
+            11 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
                 echo "" ;;
-            11 ) cont=0 ;;
+            12 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -272,7 +283,7 @@ runPRS () {
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
-    args=$(echo "$args" | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\")(\S*)(\s)(\S*)(\")/\2_\4/g")
+    args=$(echo "$args" | perl -pe "s/(\")(\S*)(\s)(\S*)(\")/\2_\4/g")
     echo $args
 
     calculatePRS $args
@@ -287,8 +298,14 @@ calculatePRS () {
     studyTypesForCalc=()
     studyIDsForCalc=()
     ethnicityForCalc=()
+    isCondensedFormat=1
 
-    while getopts 'f:o:c:r:p:t:k:i:e:s:' c "$@"
+    single="'"
+    escaped="\'"
+    underscore="_"
+    space=" "
+
+    while getopts 'f:o:c:r:p:t:k:i:e:v:s:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -350,7 +367,9 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
-            t)  trait=$(echo $OPTARG | sed -r "s#([a-zA-Z])(')([a-zA-z])#\1\\\\\2\3#g" | sed -r "s/(\S*)(\s)(\S*)/\1_\3/g")
+
+            t)  trait="${OPTARG//$single/$escaped}"
+                trait="${trait//$space/$underscore}"
                 echo $trait
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
             k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
@@ -360,8 +379,12 @@ calculatePRS () {
                 fi
                 studyTypesForCalc+=("$OPTARG");;
             i)  studyIDsForCalc+=("$OPTARG");;
-            e)  ethnicity=$(echo $OPTARG | sed -r "s/(\S*)(\s)(\S*)/\1_\3/g")
+            e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
+            v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $verbose == "true" ]; then
+                    isCondensedFormat=0
+                fi;;
             s)  if ! [ -z "$step" ]; then
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -420,12 +443,14 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        # get the file extension to pass to the script
-        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext($filename); print(f_ext)"
-        $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension')"
-
-        echo "Got SNPs and disease information from PRSKB"
-        echo "Got Clumping information from PRSKB"
+        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension')"; then
+            echo "Got SNPs and disease information from PRSKB"
+            echo "Got Clumping information from PRSKB"
+        else
+            echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
+            exit;
+        fi
     fi
 
 
@@ -437,19 +462,23 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         #outputType="csv" #this is the default
-        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=fileHash $8=requiredParamsHash
+        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash
 
-        $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$fileHash" "$requiredParamsHash"
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"; then
+            echo "Caculated score"
+            if [[ $fileHash != $requiredParamsHash ]]; then
+                rm ".workingFiles/associations_${fileHash}.txt"
+            fi
+           # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+            rm -r __pycache__
+            echo "Cleaned up intermediate files"
+            echo "Results saved to $output"
+            echo ""
+        else
+            echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
 
-        echo "Caculated score"
-        if [[ $fileHash != $requiredParamsHash ]]; then
-            rm ".workingFiles/associations_${fileHash}.txt"
         fi
-        # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
-        rm -r __pycache__
-        echo "Cleaned up intermediate files"
-        echo "Results saved to $output"
-        echo ""
         exit;
     fi
 }
@@ -458,7 +487,7 @@ checkForNewVersion () {
     newestVersion=$(curl -s "https://prs.byu.edu/cli_version") # checks the version on the
     
     # asks user if they want to download the newest version
-    if [[ "$newestVersion" =~ ^[0-9]*(\.[0-9]+)?(\.[0-9]+)?$ ]] && [ "$newestVersion" != "$version" ]; then
+    if [ "$newestVersion" != "" ] && [[ "$newestVersion" =~ ^[0-9]*(\.[0-9]+)?(\.[0-9]+)?$ ]] && [ "$newestVersion" != "$version" ]; then
         echo "There is a newer version available. Download new version? (y/n)"
         read -p "(y/n)? " decision
 

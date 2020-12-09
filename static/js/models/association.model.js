@@ -16,7 +16,6 @@ const Association = function (massociation) {
     this.lowerCI = massociation.lowerCI;
     this.upperCI = massociation.upperCI;
     this.pValueAnnotation = massociation.pValueAnnotation;
-    this.population = massociation.population;
     this.sex = massociation.sex;
     this.citation = massociation.citation;
     this.studyID = massociation.studyID;
@@ -34,7 +33,7 @@ Association.getFromTables = (studyIDObjs, pValue, refGen, result) => {
         refGen = validator.validateRefgen(refGen)
 
         studyIDObjs.forEach(studyObj => {
-            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, population, sex, studyID, trait FROM associations_table WHERE pValue <= ? AND studyID = ? AND trait = ?; `)
+            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE pValue <= ? AND studyID = ? AND trait = ?; `)
             queryParams = queryParams.concat([pValue, studyObj.studyID, studyObj.trait])
             studyIDs.push(studyObj.studyID)
             questionMarks.push("?")
@@ -74,7 +73,7 @@ Association.getAll = (pValue, refGen, result) => {
         // returns the refgen if valid, else throws an error
         refGen = validator.validateRefgen(refGen)
 
-        queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, population, sex, studyID, trait FROM associations_table WHERE pValue <= ? ; `
+        queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE pValue <= ? ; `
         console.log(queryString)
 
         sql.query(queryString, [pValue], (err, res) => {
@@ -127,6 +126,30 @@ Association.getAllSnps = (refGen, result) => {
         result(e, null)
     }
 }
+
+Association.getAllSnpsToStudyIDs = (refGen, result) => {
+    try {
+        if (typeof(refGen) == "undefined") {
+            refGen = "hg38"
+        }
+        else {
+            // returns the refgen if valid, else throws an error
+            refGen = validator.validateRefgen(refGen)
+        }
+
+        sql.query(`SELECT snp, ${refGen} as pos, studyID FROM associations_table;`, (err, data) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            result(null, data)
+        })
+    } catch (e) {
+        console.log("Error: ", e)
+        result(e, null)
+    }
+ }
 
 Association.getSingleSnpFromEachStudy = (refGen, result) => {
     try {
