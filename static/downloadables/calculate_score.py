@@ -16,7 +16,6 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     tableObjDict = json.loads(tableObjDict)
     clumpsObjDict = json.loads(clumpsObjDict)
 
-    output.write(str(tableObjDict))
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if inputFile.lower().endswith(".txt") else False
 
@@ -407,20 +406,13 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
 
 
 def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile):
-
-    output = open('aaa', 'w')
     condensed_output_map = {}
-    output.write(str(vcfObj))
     # For every sample in the vcf nested dictionary
     isFirst = True
     samples = {}
     for (trait, studyID, samp) in vcfObj:
         # If it so happens that there are no snps from this study and trait in this sample, we will just grab ... TODO This part needs to be updated 
         if studyID in tableObjDict['studyIDsToMetaData'].keys():
-            output.write(str(studyID))
-            output.write('\n')
-            output.write(str(tableObjDict['studyIDsToMetaData'][studyID]))
-            output.write('\n')
             isNoSnps = True
             samples[samp]=None #TODO I don't know where the rest of the code for this went, but it looks like it is important
             oddsRatios = []
