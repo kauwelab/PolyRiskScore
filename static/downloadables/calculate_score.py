@@ -211,11 +211,13 @@ def formatAndReturnGenotype(genotype, gt, REF, ALT):
 
 
 def getStudies(tableObjDict):
+    output = open('aaa', 'w')
     study_dict = {}
-    for key in tableObjDict.keys():
+    for key in tableObjDict['associations'].keys():
         if ("rs" in key):
-            for study in tableObjDict[key]['studies'].keys():
+            for study in tableObjDict['associations'][key]['traits'][['studies'].keys():
                 study_dict[study] = key
+    output.write(str(study_dict))
     return(study_dict)
 
 

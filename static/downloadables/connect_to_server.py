@@ -46,7 +46,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         strandFlip = True
 
     # grab all the snps or positions to use for getting the clumps
-    snpsFromAssociations = list(associations.keys())
+    snpsFromAssociations = list(associations['associations'].keys())
     # flip strands as needed
     if (strandFlip):
         p = Process(target=handleStrandFlippingAndSave, args=(associations, associationsPath))
