@@ -164,7 +164,7 @@ if (is_ebi_reachable()) {
     DevPrint("Creating Study Table")
     
     # read in the associations table, and the raw studies, publications, and ancestries tables
-    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character()))
+    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character(), sex = col_character()))
     studiesTibble <- read_tsv(rawStudyTablePath, col_types = cols())
     publications <- read_tsv(publicationsPath, col_types = cols())
     ancestries <- read_tsv(ancestriesPath, col_types = cols())
@@ -182,7 +182,6 @@ if (is_ebi_reachable()) {
         # get trait and reported trait in title case (tolower, then title case)
         traitName <- str_to_title(tolower(get_traits(study_id = studyID)@traits[["trait"]]))
         reportedTrait <- str_to_title(tolower(rawStudyData[["reported_trait"]]))
-        
         
         publication <- filter(publications, study_id == studyID)
 
