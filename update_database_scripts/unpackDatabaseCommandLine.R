@@ -250,11 +250,11 @@ if (is_ebi_reachable()) {
   
   # returns a vector of NA, male, or female given a vector of p-value descriptions
   getSexFromDescription <- function(pValueDescription) {
-    femaleIndicator = "female"
-    maleIndicator = "male"
+    femaleIndicator <- "female"
+    maleIndicator <- "male"
     pop <- c()
     for (desc in pValueDescription) {
-      desc = tolower(desc)
+      desc <- tolower(desc)
       if (is.na(desc)) {
         pop <- c(pop, NA)
       }
@@ -345,11 +345,12 @@ if (is_ebi_reachable()) {
           association_ids <- associationsTibble[["association_id"]]
           names(association_ids) <- association_ids
           
-          # get traits for each of the assoication ids
+          # get traits for each of the assoication ids in title case form (tolower, then title case)
           traits <- association_ids %>%
             purrr::map(~ get_traits(association_id = .x)@traits) %>%
-            dplyr::bind_rows(.id = 'association_id')
-          
+            dplyr::bind_rows(.id = 'association_id') %>%
+            mutate(trait=str_to_title(tolower(trait)))
+
           # merge the traits with the assoications- note: some associations have multiple traits, so the traits
           # table length is >= the length of assicationsTibble
           associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
