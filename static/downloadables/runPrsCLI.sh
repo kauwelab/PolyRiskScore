@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.2.0"
+version="1.2.0" #TODO change to 1.3.0
 #
 # 
 # 
@@ -45,6 +45,11 @@ version="1.2.0"
 #       -v (verbose output file)
 #       -s stepNumber
 #
+# * 12/9/2020 - v1.3.0
+#
+#   Added optional param:
+#       -g biological sex prefered for snp selection
+#
 # ########################################################################
 
 # colors for text printing
@@ -82,7 +87,8 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}-v${NC} (indicates a more detailed result file)"
+    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v verbose (indicates a more detailed result file)"
+    echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
 }
@@ -144,10 +150,11 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
         echo -e "| ${LIGHTPURPLE}8${NC} - -i studyIDs                             |"
         echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
-	echo -e "| ${LIGHTPURPLE}10${NC} - -v (verbose result file)               |"
-        echo -e "| ${LIGHTPURPLE}11${NC} - -s stepNumber                          |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - -v (verbose result file)               |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
+        echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}12${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}13${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -221,15 +228,20 @@ learnAboutParameters () {
             10 ) echo -e "${MYSTERYCOLOR} -v: ${NC}"
                 echo "For a more detailed result file, include the '-v' parameter."
                 echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
-		echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
-		echo "effect on the PRS for each corresponding sample and study."
-		echo "If this parameter is not included, the default result file will include the study ID"
-		echo "and the corresponding polygenic risk scores for each sample." 
+                echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
+                echo "effect on the PRS for each corresponding sample and study."
+                echo "If this parameter is not included, the default result file will include the study ID"
+                echo "and the corresponding polygenic risk scores for each sample." 
                 echo "" ;;
-            11 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
+            11 ) echo -e "${MYSTERYCOLOR} -g defaultSex: ${NC}"
+                echo "Some studies have duplicates of the same snp that differ by which biological sex the"
+                echo "p-value is associated with. You can indicate which sex you would like snps to select"
+                echo "when both options (M/F) are present. The system default is Female"
+                echo "" ;;
+            12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
                 echo "" ;;
-            12 ) cont=0 ;;
+            13 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -305,7 +317,7 @@ calculatePRS () {
     underscore="_"
     space=" "
 
-    while getopts 'f:o:c:r:p:t:k:i:e:v:s:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:v:s:g:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -385,6 +397,7 @@ calculatePRS () {
                 if [ $verbose == "true" ]; then
                     isCondensedFormat=0
                 fi;;
+            g)  defaultSex="$OPTARG";;
             s)  if ! [ -z "$step" ]; then
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -409,6 +422,10 @@ calculatePRS () {
     # if no step specified, set step to 0 and do both steps
     if [ -z "$step" ]; then
         step=0
+    fi
+    # if no sex is specified, set to female
+    if [ -z "$defaultSex" ]; then
+        defaultSex="female"
     fi
 
     # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
@@ -444,7 +461,7 @@ calculatePRS () {
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
         extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
-        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension')"; then
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
@@ -462,9 +479,9 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         #outputType="csv" #this is the default
-        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash
+        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
 
-        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash"; then
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex"; then
             echo "Caculated score"
             if [[ $fileHash != $requiredParamsHash ]]; then
                 rm ".workingFiles/associations_${fileHash}.txt"
