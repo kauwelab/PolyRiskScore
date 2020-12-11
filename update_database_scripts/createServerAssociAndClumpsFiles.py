@@ -46,6 +46,7 @@ def getClumps(refGen, pop, rsIDs, password):
 
     connection = getConnection(config)
 
+    print("Getting clumps for ", refGen, pop)
     clumpsUnformatted = []
     for i in range(1, 23):
         if (checkTableExists(connection.cursor(), "{refGen}_chr{i}_clumps".format(refGen=refGen, i=i))):
@@ -82,10 +83,9 @@ def createAssociationsAndClumpsFiles(parmas):
     generalFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../static/downloadables/associationsAndClumpsFiles")
 
     for sex in ['male', 'female']:
-        print(refGen, sex)
         associationsObj = callAllAssociationsEndpoint(refGen, sex)
         associationsFilePath = os.path.join(generalFilePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex))
-        print("Writing Files", (refGen, sex))
+        print("Writing Association File:", (refGen, sex))
         rsIDKeys.update(associationsObj['associations'].keys())
         f = open(associationsFilePath, 'w')
         f.write(json.dumps(associationsObj))
@@ -98,6 +98,7 @@ def createAssociationsAndClumpsFiles(parmas):
         clumpsFilePath = os.path.join(generalFilePath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
         clumpsObjUnformatted = getClumps(refGen, pop, list(rsIDKeys), password)
         clumpsObj = formatClumps(clumpsObjUnformatted)
+        print("Writing clumps File:", (refGen, pop))
         f = open(clumpsFilePath, 'w')
         f.write(json.dumps(clumpsObj))
         f.close()
