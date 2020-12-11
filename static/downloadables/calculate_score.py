@@ -20,11 +20,11 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     isRSids = True if inputFile.lower().endswith(".txt") else False
 
     if isRSids:
-        txtObj, totalVariants, neutral_snps = parse_txt(inputFile, clumpsObjDict, tableObjDict)
-        results = txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile) #TODO this fuction still needs to be formatted for the new stuff
+        txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict)
+        results = txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps) #TODO this fuction still needs to be formatted for the new stuff
     else:
-        vcfObj, totalVariants, neutral_snps, samp_num = parse_vcf(inputFile, clumpsObjDict, tableObjDict)
-        results = vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num) #TODO this fuction still needs to be formatted for the new stuff
+        vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict)
+        results = vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps) #TODO this fuction still needs to be formatted for the new stuff
     return(results)
 
 
@@ -106,14 +106,23 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
 
                         neutral_snps[trait_study] = neutral_snps_set
 
-    for study in tableObjDict['studyIDsToMetaData']:
-        for trait in tableObjDict['studyIDsToMetaData'][study]['traits']:
-            if (trait, study) not in counter_set:
-                sample_map[(trait, study)][""] = ""
+    studySnps = {}
+    for key in tableObjDict['associations'].keys():
+        if ("rs" in key):
+            for trait in tableObjDict['associations'][key]['traits'].keys():
+                for study in tableObjDict['associations'][key]['traits'][trait].keys():
+                    if study in studySnps:
+                        snpSet = studySnps[study]
+                    else:
+                        snpSet = set()
+                    snpSet.add(key)
+                    studySnps[study]=snpSet
+                    if (trait,study,name) not in counter_set:
+                        sample_map[(trait,study,name)][""] = ""
 
     openFile.close()
     final_map = dict(sample_map)
-    return final_map, totalLines, neutral_snps
+    return final_map, totalLines, neutral_snps, studySnps
 
 
 def openFileForParsing(inputFile):
@@ -215,18 +224,6 @@ def formatAndReturnGenotype(genotype, gt, REF, ALT):
 
     return alleles
 
-
-def getStudies(tableObjDict):
-    study_dict = {}
-    for key in tableObjDict['associations'].keys():
-        if ("rs" in key):
-            for trait in tableObjDict['associations'][key]['traits'].keys():
-                for study in tableObjDict['associations'][key]['traits'][trait].keys():
-                    trait_study = (trait, study)
-                    study_dict[trait_study] = key
-    return(study_dict)
-
-
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     totalLines = 0 
 
@@ -327,10 +324,17 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
         # and create blank entries for the sample map for those that didn't
         # TODO: might need a better way to handle this
         for name in vcf_reader.samples:
+            studySnps = {}
             for key in tableObjDict['associations'].keys():
                 if ("rs" in key):
                     for trait in tableObjDict['associations'][key]['traits'].keys():
                         for study in tableObjDict['associations'][key]['traits'][trait].keys():
+                            if study in studySnps:
+                                snpSet = studySnps[study]
+                            else:
+                                snpSet = set()
+                            snpSet.add(key)
+                            studySnps[study]=snpSet
                             if (trait,study,name) not in counter_set:
                                 sample_map[(trait,study,name)][""] = ""
     except ValueError:
@@ -339,10 +343,10 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
 
     sample_num = len(sample_set)
     final_map = dict(sample_map)
-    return final_map, totalLines, neutral_snps, sample_num
+    return final_map, totalLines, neutral_snps, sample_num, studySnps
 
 
-def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile):
+def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps):
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     for (trait, studyID) in txtObj:
@@ -352,6 +356,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
         neutral_snps_set = neutral_snps[studyID]
         protectiveAlleles = set()
         riskAlleles = set()
+        sampSnps = set()
 
         
         # Loop through each snp associated with this disease/study
@@ -369,6 +374,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
                             oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
 
                             if allele == riskAllele:
+                                sampSnps.add(snp)
                                 oddsRatios.append(oddsRatio)
                                 if oddsRatio < 1:
                                     protectiveAlleles.add(snp)
@@ -381,6 +387,8 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
 
         if not isCondensedFormat:
             OR = str(getCombinedORFromArray(oddsRatios))
+            if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
+                OR = OR + '*'
             header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
             if str(protectiveAlleles) == "set()":
                 protectiveAlleles = "None"
@@ -399,6 +407,8 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
 
         if isCondensedFormat:
             OR = str(getCombinedORFromArray(oddsRatios))
+            if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
+                OR = OR + '*'
             header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
             if isNoSnps:
                 newLine = [studyID, tableObjDict['studyIDsToMetaData'][studyID]['citation'], tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait'], trait, OR]
@@ -408,7 +418,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
             isFirst = False
 
 
-def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num):
+def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps):
     condensed_output_map = {}
     count_map = {}
     samp_set = {}
@@ -425,6 +435,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 neutral_snps_set = set()
             protectiveAlleles = set()
             riskAlleles = set()
+            sampSnps = set()
 
             # Loop through each snp associated with this disease/study/sample
             for rsID in vcfObj[(trait, studyID, samp)]:
@@ -445,6 +456,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                                 allele = str(allele)
                                 if allele != "":
                                     if allele == riskAllele:
+                                        sampSnps.add(rsID)
                                         oddsRatios.append(oddsRatio)
                                         if oddsRatio < 1:
                                             protectiveAlleles.add(rsID)
@@ -467,6 +479,8 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                     riskAlleles = "None"
                 if len(neutral_snps_set) == 0:
                     neutral_snps_set = "None"
+                if studySnps != sampSnps:
+                    OR = OR + '*'
 
                 if isNoSnps:
                     newLine = [samp, studyID, tableObjDict['studyIDsToMetaData'][studyID]['citation'], tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait'], trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
@@ -477,9 +491,13 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 isFirst = False
 
             if isCondensedFormat:
+                if studySnps[studyID] != sampSnps and len(sampSnps) != 0: 
+                    OR = str(getCombinedORFromArray(oddsRatios)) + "*"
+                else:
+                    OR = str(getCombinedORFromArray(oddsRatios))
                 if (studyID, trait) in condensed_output_map:
                     newLine = condensed_output_map[(studyID, trait)]
-                    newLine.append(str(getCombinedORFromArray(oddsRatios)))
+                    newLine.append(OR)
                     samp_set[samp] = None
                 elif studyID in tableObjDict['studyIDsToMetaData']:
                     citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
