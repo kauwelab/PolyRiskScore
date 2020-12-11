@@ -215,17 +215,6 @@ def formatAndReturnGenotype(genotype, gt, REF, ALT):
     return alleles
 
 
-def getStudies(tableObjDict):
-    study_dict = {}
-    for key in tableObjDict['associations'].keys():
-        if ("rs" in key):
-            for trait in tableObjDict['associations'][key]['traits'].keys():
-                for study in tableObjDict['associations'][key]['traits'][trait].keys():
-                    trait_study = (trait, study)
-                    study_dict[trait_study] = key
-    return(study_dict)
-
-
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     totalLines = 0 
 
