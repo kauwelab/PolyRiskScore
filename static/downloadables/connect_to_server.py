@@ -9,7 +9,7 @@ import datetime
 from multiprocessing import Process
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension):
+def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
     checkInternetConnection()
 
     # Format variables used for getting associations
@@ -29,27 +29,28 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
-        associationsPath = os.path.join(workingFilesPath, "allAssociations.txt")
+        associationsPath = os.path.join(workingFilesPath, "allAssociations_{sex}.txt".format(sex=defaultSex))
         if (dnldNewAllAssociFile):
-            associations = getAllAssociations(pValue, refGen, isVCF)
+            associationsReturnObj = getAllAssociations(pValue, refGen, defaultSex, isVCF)
             strandFlip = True
         else:
             f = open(associationsPath, 'r')
-            associations = json.loads(f.read())
+            associationsReturnObj = json.loads(f.read())
             f.close()
             strandFlip = False
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
-        associations = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF)
+        associationsReturnObj = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
         strandFlip = True
 
     # grab all the snps or positions to use for getting the clumps
-    snpsFromAssociations = list(associations.keys())
+    snpsFromAssociations = list(associationsReturnObj['associations'].keys())
     # flip strands as needed
     if (strandFlip):
-        p = Process(target=handleStrandFlippingAndSave, args=(associations, associationsPath))
+        print("Starting strand flipping on additional process")
+        p = Process(target=handleStrandFlippingAndSave, args=(associationsReturnObj, associationsPath))
         p.start()
 
     #download clumps
@@ -64,6 +65,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     if (strandFlip):
         print("finishing strand flipping")
         p.join()
+    return
 
 
 def checkForAllAssociFile():
@@ -101,23 +103,24 @@ def checkForAllAssociFile():
         return dnldNewAllAssociFile
 
 
-# gets all associations from the Server
-def getAllAssociations(pValue, refGen, isVCF): 
+# gets associationReturnObj from the Server for all associations
+def getAllAssociations(pValue, refGen, defaultSex, isVCF): 
     params = {
         "pValue": pValue,
         "refGen": refGen,
+        "sex": defaultSex,
         "isVCF": isVCF
     }
-    associations = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
+    associationsReturnObj = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
     # Organized with pos/snp as the Keys
-    return associations
+    return associationsReturnObj
 
 
-# gets associations using the given filters
-def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, isVCF):
+# gets associationReturnObj using the given filters
+def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF):
+    finalStudyList = []
 
-    finalStudySet = set()
-    if (studyIDs is None and (traits is not None or studyTypes is not None or ethnicity is not None)):
+    if (traits is not None or studyTypes is not None or ethnicity is not None):
         # get the studies matching the parameters
         body = {
             "traits": traits, 
@@ -129,23 +132,39 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
         # select the studyIDs of the studies
         for trait in traitData:
             for study in traitData[trait]:
-                finalStudySet.add(study["studyID"])
+                # if the studyID is in the studyIDs list, don't add it in here
+                if (studyIDs is not None and study['studyID'] in studyIDs):
+                    continue
+                else:
+                    finalStudyList.append(json.dumps({
+                        "trait": trait,
+                        "studyID": study['studyID']
+                    }))
 
-    # add the specified studyIDs to the set of studyIDs
-    if studyIDs is not None:
-        studyIDs = set(studyIDs)
-        finalStudySet = finalStudySet.union(studyIDs)
+    # get the data for the specified studyIDs
+    if (studyIDs is not None):
+        params = {
+            "studyIDs": studyIDs
+        }
+        studyIDData = {**getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)}
+        # add the specified studyIDs to the set of studyIDObjs
+        for studyObj in studyIDData:
+            finalStudyList.append(json.dumps({
+                "trait": studyObj['trait'],
+                "studyID": studyObj['studyID']
+            }))
 
     # get the associations based on the studyIDs
     body = {
         "pValue": pValue,
         "refGen": refGen,
-        "studyIDs": list(finalStudySet),
+        "studyIDObjs": finalStudyList,
+        "sex": defaultSex,
         "isVCF": isVCF
     }
 
-    associations = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
-    return associations
+    associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
+    return associationsReturnObj
 
 
 # for POST urls
@@ -199,7 +218,7 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
     return clumps
 
 
-def handleStrandFlippingAndSave(associations, filePath):
+def handleStrandFlippingAndSave(associationReturnObj, filePath):
     import myvariant
     import contextlib, io
 
@@ -208,7 +227,7 @@ def handleStrandFlippingAndSave(associations, filePath):
     # preventing print statements from being outputted to terminal
     f = io.StringIO()
     with contextlib.redirect_stdout(f):
-        rsIDs = (x for x in associations.keys() if "rs" in x)
+        rsIDs = (x for x in associationReturnObj['associations'].keys() if "rs" in x)
         # returns info about the rsIDs passed
         mv = myvariant.MyVariantInfo()
         queryResultsObj = mv.querymany(rsIDs, scopes='dbsnp.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
@@ -233,14 +252,15 @@ def handleStrandFlippingAndSave(associations, filePath):
             if (len(alleles) == 0):
                 print(obj, "STILL NO ALLELES")
             
-            if (rsID in associations):
-                for studyID in associations[rsID]['studies']:
-                    riskAllele = associations[rsID]['studies'][studyID]['riskAllele']
-                    # if the current risk allele seems like it isn't correct and the length of the risk allele is only one base, try its complement
-                    if riskAllele not in alleles and len(riskAllele) == 1:
-                        complement = getComplement(riskAllele)
-                        if complement in alleles:
-                            associations[rsID]['studies'][studyID]['riskAllele'] = complement
+            if (rsID in associationReturnObj['associations']):
+                for trait in associationReturnObj['associations'][rsID]['traits']:
+                    for studyID in associationReturnObj['associations'][rsID]['traits'][trait]:
+                        riskAllele = associationReturnObj['associations'][rsID]['traits'][trait][studyID]['riskAllele']
+                        # if the current risk allele seems like it isn't correct and the length of the risk allele is only one base, try its complement
+                        if riskAllele not in alleles and len(riskAllele) == 1:
+                            complement = getComplement(riskAllele)
+                            if complement in alleles:
+                                associationReturnObj['associations'][rsID]['traits'][trait][studyID]['riskAllele'] = complement
 
             rsIDToAlleles.append(rsID)
 
@@ -253,7 +273,7 @@ def handleStrandFlippingAndSave(associations, filePath):
 
     # write the associations to a file
     f = open(filePath, 'w')
-    f.write(json.dumps(associations))
+    f.write(json.dumps(associationReturnObj))
     f.close()
     return 
 
