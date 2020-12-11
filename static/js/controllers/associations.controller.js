@@ -1,6 +1,7 @@
 const Association = require("../models/association.model.js");
 const path = require("path")
-const fs = require("fs")
+const fs = require("fs");
+const { download } = require("./cli.controller.js");
 
 exports.getFromTables = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
@@ -179,6 +180,23 @@ exports.getLastAssociationsUpdate = (req, res) => {
     statsObj = fs.statSync(associationsPath)
     updateTime = statsObj.mtime
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
+}
+
+exports.getAssociationsDownloadFile = (req, res) => {
+    sex = req.query.defaultSex
+    refGen = req.query.refGen
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `allAssociations_${refGen}_${sex}.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            next(err); 
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
 }
 
 async function separateStudies(associations, traitData, refGen, sex, isVCF) {

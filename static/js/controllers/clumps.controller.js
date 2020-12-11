@@ -54,6 +54,24 @@ exports.getClumpingBySnp = (req, res) => {
     });
 };
 
+exports.getClumpsDownloadFile = (req, res) => {
+    refGen = req.query.refGen
+    pop = req.query.superPop
+
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `${pop}_clumps_${refGen}.txt.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            next(err); 
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
+}
+
 function formatClumpingReturn(clumps) {
 
     clumpsFormatted = {}
