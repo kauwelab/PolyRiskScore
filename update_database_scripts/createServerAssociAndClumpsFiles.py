@@ -94,7 +94,7 @@ def createAssociationsAndClumpsFiles(parmas):
     rsIDKeys = ("\"{0}\"".format(x) for x in rsIDKeys if "rs" in x)
     rsIDKeys = ', '.join(rsIDKeys)
 
-    for pop in ["AFR", "AMR", "EUR", "SAS", "EAS"]:
+    for pop in ["AFR", "AMR", "EAS", "EUR", "SAS"]:
         clumpsFilePath = os.path.join(generalFilePath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
         clumpsObjUnformatted = getClumps(refGen, pop, list(rsIDKeys), password)
         clumpsObj = formatClumps(clumpsObjUnformatted)
