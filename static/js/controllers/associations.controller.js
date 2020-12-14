@@ -1,7 +1,6 @@
 const Association = require("../models/association.model.js");
 const path = require("path")
 const fs = require("fs");
-const { download } = require("./cli.controller.js");
 
 exports.getFromTables = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
