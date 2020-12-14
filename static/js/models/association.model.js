@@ -89,7 +89,7 @@ Association.getAll = (pValue, refGen, result) => {
 
             console.log("associations (first): ", res[0]);
 
-            sql.query("SELECT studyID, reportedTrait, citation, trait FROM study_table", (err2, traits) => {
+            sql.query("SELECT studyID, reportedTrait, citation, trait, ethnicity FROM study_table", (err2, traits) => {
                 if (err2) {
                     console.log("error: ", err2);
                     result(err2, null);
