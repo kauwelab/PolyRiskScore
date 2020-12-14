@@ -191,7 +191,10 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
     for (i=0; i < traitData.length; i++) {
         var studyObj = traitData[i]
         if (!(studyObj.studyID in studyIDsToMetaData)) {
-            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait}
+            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, traits: [studyObj.trait]}
+        }
+        else {
+            studyIDsToMetaData[studyObj.studyID]['traits'].push(studyObj.trait)
         }
     }
 

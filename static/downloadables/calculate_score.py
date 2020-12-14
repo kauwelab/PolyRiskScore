@@ -12,7 +12,6 @@ import pandas
  
 
 def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile):
-    output = open('aaa', 'w')
     tableObjDict = json.loads(tableObjDict)
     clumpsObjDict = json.loads(clumpsObjDict)
 
@@ -224,6 +223,7 @@ def formatAndReturnGenotype(genotype, gt, REF, ALT):
 
     return alleles
 
+
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     totalLines = 0 
 
@@ -350,14 +350,14 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     for (trait, studyID) in txtObj:
-        # If it so happens that there are no snps from this study in this sample, the variant positions for the study_samp in the vcf object are empty strings. this will help us create the output because we need to know if there is a snp to use as the key in the table object or not
-        isNoSnps = True
         oddsRatios = []
         neutral_snps_set = neutral_snps[studyID]
         protectiveAlleles = set()
         riskAlleles = set()
         sampSnps = set()
 
+        citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
+        reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
         
         # Loop through each snp associated with this disease/study
         for snp in txtObj[(trait, studyID)]:
@@ -368,8 +368,6 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
                     if snp in tableObjDict['associations']:
                         if trait in tableObjDict['associations'][snp]['traits'] and studyID in tableObjDict['associations'][snp]['traits'][trait]:
                             # Compare the individual's snp and allele to the study row's snp and risk allele
-                            citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
-                            reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
                             riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                             oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
 
@@ -397,11 +395,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
             elif str(neutral_snps_set) == "set()":
                 neutral_snps_set = "None"
 
-            if isNoSnps:
-                newLine = [studyID, tableObjDict['studyIDsToMetaData'][studyID]['citation'], tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait'], trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
-            else:
-                newLine = [studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
-
+            newLine = [studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
             formatCSV(isFirst, newLine, header, outputFile)
             isFirst = False
 
@@ -410,10 +404,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
             if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
                 OR = OR + '*'
             header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
-            if isNoSnps:
-                newLine = [studyID, tableObjDict['studyIDsToMetaData'][studyID]['citation'], tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait'], trait, OR]
-            else:
-                newLine = [studyID, citation, reportedTrait, trait, OR]
+            newLine = [studyID, citation, reportedTrait, trait, OR]
             formatCSV(isFirst, newLine, header, outputFile)
             isFirst = False
 
@@ -425,9 +416,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
     # For every sample in the vcf nested dictionary
     isFirst = True
     for (trait, studyID, samp) in vcfObj:
-        # If it so happens that there are no snps from this study and trait in this sample, we will just grab ... TODO This part needs to be updated 
         if studyID in tableObjDict['studyIDsToMetaData'].keys():
-            isNoSnps = True
             oddsRatios = []
             if (trait, studyID, samp) in neutral_snps:
                 neutral_snps_set = neutral_snps[(trait, studyID, samp)]
@@ -436,14 +425,13 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
             protectiveAlleles = set()
             riskAlleles = set()
             sampSnps = set()
+            citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
+            reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
 
             # Loop through each snp associated with this disease/study/sample
             for rsID in vcfObj[(trait, studyID, samp)]:
                 if rsID in tableObjDict['associations'] and rsID != '': #(second half is because the tableObjDict has a key that is "" - not sure why, will have to look into it - but just skip it for now)
-                    isNoSnps = False
                     if trait in tableObjDict['associations'][rsID]['traits'] and studyID in tableObjDict['associations'][rsID]['traits'][trait]:
-                        citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
-                        reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
                         riskAllele = tableObjDict['associations'][rsID]['traits'][trait][studyID]['riskAllele']
                         oddsRatio = tableObjDict['associations'][rsID]['traits'][trait][studyID]['oddsRatio']
 
@@ -466,8 +454,6 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                                             neutral_snps_set.add(rsID)
                                     else:
                                         neutral_snps_set.add(rsID)
-                    else: 
-                        print("WE ARE MISSING A STUDYID IN THE STUDYIDSTOMETADATA", studyID, trait)
                 elif rsID != "":
                     neutral_snps_set.add(rsID)
 
@@ -482,10 +468,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 if studySnps != sampSnps:
                     OR = OR + '*'
 
-                if isNoSnps:
-                    newLine = [samp, studyID, tableObjDict['studyIDsToMetaData'][studyID]['citation'], tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait'], trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
-                else:
-                    newLine = [samp, studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
+                newLine = [samp, studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
                 header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratios', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
                 formatCSV(isFirst, newLine, header, outputFile)
                 isFirst = False
@@ -526,10 +509,9 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 else:
                     condensed_output_map[(studyID, trait)] = newLine
                     count_map[(studyID, trait)] = samp_count
+        else: 
+            print("WE ARE MISSING A STUDYID IN THE STUDYIDSTOMETADATA", studyID, trait)
 
-    # TODO: We may not need this anymore...
-    #if isCondensedFormat:
-        #formatCondensedCSV(condensed_output_map, outputFile, samples)
     return
 
 
@@ -543,28 +525,6 @@ def getCombinedORFromArray(oddsRatios):
     if not oddsRatios:
         combinedOR = "NF"
     return(str(combinedOR))
-
-
-#def formatCondensedCSV(output_map, outputFile, samples):
-#    header = "study ID\tReportedTrait\tTrait\tCitation"
-#    samps = '\t'.join(samples.keys())
-#    header = header + '\t' + str(samps)
-#    content = ""
-#    isFirst = True
-#    for studyID in output_map:
-#        newLine = output_map[studyID]
-#        stringNewLine = '\t'.join(newLine)
-#        if isFirst:
-#            content += stringNewLine
-#            isFirst = False
-#        else:
-#            content = content + '\n' + stringNewLine
-#    finalOutput = header + '\n' + content
-#
-##    header = ["study ID", "Reported Trait", "Trait", "Citation"]
-#    with open(outputFile, 'w', newline='', encoding="utf-8") as f:
-#        f.write(finalOutput)
-#    return
 
 
 def formatCSV(isFirst, newLine, header, outputFile):
