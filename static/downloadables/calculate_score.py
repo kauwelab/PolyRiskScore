@@ -418,6 +418,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
 
 
 def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps):
+    output = open('aaa', 'w')
     condensed_output_map = {}
     count_map = {}
     samp_set = {}
@@ -448,14 +449,18 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                         oddsRatio = tableObjDict['associations'][rsID]['traits'][trait][studyID]['oddsRatio']
 
                         if (studyID, trait) not in condensed_output_map and isCondensedFormat:
-                            condensedLine = [studyID, reportedTrait, trait, citation]
+                            if mark is True:
+                                printStudyID = studyID + '†'
+                            else:
+                                printStudyID = studyID
+                            condensedLine = [printStudyID, reportedTrait, trait, citation]
                             condensed_output_map[(studyID, trait)] = condensedLine
                         alleles = vcfObj[(trait, studyID, samp)][rsID]
                         if alleles != "" and alleles is not None:
                             for allele in alleles:
                                 allele = str(allele)
                                 if allele != "":
-                                    if allele == riskAllele:
+                                    if allele == riskAllele and oddsRatio != 0:
                                         sampSnps.add(rsID)
                                         oddsRatios.append(oddsRatio)
                                         if oddsRatio < 1:
@@ -464,7 +469,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                                             riskAlleles.add(rsID)
                                         else:
                                             neutral_snps_set.add(rsID)
-                                    else:
+                                    elif oddsRatio != 0:
                                         neutral_snps_set.add(rsID)
                 elif rsID != "":
                     neutral_snps_set.add(rsID)
@@ -488,6 +493,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 isFirst = False
 
             if isCondensedFormat:
+                # Add needed markings to score and study
                 if studySnps[studyID] != sampSnps and len(sampSnps) != 0: 
                     OR = str(getCombinedORFromArray(oddsRatios)) + "*"
                 else:
@@ -496,6 +502,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                     printStudyID = studyID + '†'
                 else:
                     printStudyID = studyID
+
                 if (studyID, trait) in condensed_output_map:
                     newLine = condensed_output_map[(studyID, trait)]
                     newLine.append(OR)
@@ -519,7 +526,8 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                         for samp in samp_set.keys():
                             header.append(samp)
                     del condensed_output_map[(studyID, trait)]
-                    del count_map[(studyID, trait)]
+                    if (studyID, trait) in count_map:
+                        del count_map[(studyID, trait)]
                     formatCSV(isFirst, newLine, header, outputFile)
                     isFirst = False
                 else:
