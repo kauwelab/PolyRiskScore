@@ -42,12 +42,16 @@ module.exports = app => {
 
     app.get("/last_database_update", associations.getLastAssociationsUpdate)
 
+    app.get("/get_associations_download_file", associations.getAssociationsDownloadFile)
+
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 
     app.post("/ld_clumping_by_pos", clumps.getClumpingByPos);
 
     app.post("/ld_clumping_by_snp", clumps.getClumpingBySnp);
+
+    app.get("/get_clumps_download_file", clumps.getClumpsDownloadFile)
 
     app.get("/cli_version", cli.version);
 

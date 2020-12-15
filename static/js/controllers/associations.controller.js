@@ -1,6 +1,6 @@
 const Association = require("../models/association.model.js");
 const path = require("path")
-const fs = require("fs")
+const fs = require("fs");
 
 exports.getFromTables = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
@@ -181,6 +181,23 @@ exports.getLastAssociationsUpdate = (req, res) => {
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
 }
 
+exports.getAssociationsDownloadFile = (req, res) => {
+    sex = req.query.defaultSex
+    refGen = req.query.refGen
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `allAssociations_${refGen}_${sex}.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            next(err); 
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
+}
+
 async function separateStudies(associations, traitData, refGen, sex, isVCF) {
 
     // if isVCF, we want to add postions as keys to rsIDs
@@ -191,10 +208,13 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
     for (i=0; i < traitData.length; i++) {
         var studyObj = traitData[i]
         if (!(studyObj.studyID in studyIDsToMetaData)) {
-            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, traits: [studyObj.trait]}
+            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, traits: [studyObj.trait], ethnicity: [studyObj.ethnicity]}
         }
         else {
             studyIDsToMetaData[studyObj.studyID]['traits'].push(studyObj.trait)
+            if (!(studyObj.ethnicity in studyIDsToMetaData[studyObj.studyID]['ethnicity'])) {
+                studyIDsToMetaData[studyObj.studyID]['ethnicity'].push(studyObj.ethnicity)
+            }
         }
     }
 
