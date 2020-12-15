@@ -55,7 +55,7 @@ Association.getFromTables = (studyIDObjs, pValue, refGen, result) => {
             }
             console.log(`Got ${res.length} studies with associations from table`)
             console.log("Getting the metaData associated with the studies")
-            sql.query(`SELECT studyID, reportedTrait, citation, trait FROM study_table WHERE studyID IN (${questionMarks}) ORDER BY studyID; `, studyIDs, (err2, traitData) => {
+            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity FROM study_table WHERE studyID IN (${questionMarks}) ORDER BY studyID; `, studyIDs, (err2, traitData) => {
                 if (err2) {
                     console.log("error: ", err2);
                     result(err2, null);

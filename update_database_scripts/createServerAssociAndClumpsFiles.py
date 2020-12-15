@@ -81,9 +81,9 @@ def formatClumps(clumpsUnformatted):
     return clumps
 
 
-def createAssociationsAndClumpsFiles(parmas): 
-    refGen = parmas[0]
-    password = parmas[1]
+def createAssociationsAndClumpsFiles(params): 
+    refGen = params[0]
+    password = params[1]
 
     rsIDKeys = set()
     # general file path for writing the files to
