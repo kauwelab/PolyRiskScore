@@ -263,11 +263,14 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
                                 name = call.sample
                                 genotype = record.genotype(name)['GT']
                                 alleles = formatAndReturnGenotype(genotype, gt, REF, ALT)
-                                neutral_snps_set = set()
                                 # Create a tuple with the study and sample name
                                 trait_study_sample = (trait, study, name)
                                 sample_set.add(name) 
                                 counter_set.add(trait_study_sample)
+                                if trait_study_sample in neutral_snps:
+                                    neutral_snps_set = neutral_snps[trait_study_sample]
+                                else:
+                                    neutral_snps_set = set()
                                 # Check to see if the snp position from this line in the vcf exists in the clump table for this study
                                 if rsID in clumpsObjDict:
                                     # Grab the clump number associated with this study and snp position
@@ -275,6 +278,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
 
                                     # grab pValue from PRSBK database data
                                     pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
+                                    riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study]['riskAllele']
                                     # Add the study/sample tuple to the counter list because we now know at least there is
                                     # at least one viable snp for this combination 
                                     totalLines += 1
@@ -288,7 +292,8 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
                                             # if the existing index snp has no alleles, put in the current snp even if the pvalue is higher
                                             index_snp = index_snp_map[trait_study_sample][clumpNum]
                                             index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue'] 
-                                            if pValue < index_pvalue:
+
+                                            if pValue < index_pvalue and riskAllele in alleles:
                                                 del index_snp_map[trait_study_sample][clumpNum]
                                                 index_snp_map[trait_study_sample][clumpNum] = rsID
                                                 del sample_map[trait_study_sample][index_snp]
@@ -297,7 +302,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
                                                     
                                             #TODO: Do we even want to look at snps that don't have corresponding alleles?
                                             # I changed it so that we skip over snps that have "" as their alleles.
-                                            elif pValue > index_pvalue and alleles != "":
+                                            elif pValue > index_pvalue and riskAllele in alleles:
                                                 if sample_map[trait_study_sample][index_snp] == "":
                                                     del index_snp_map[trait_study_sample][clumpNum]
                                                     index_snp_map[trait_study_sample][clumpNum] = rsID
