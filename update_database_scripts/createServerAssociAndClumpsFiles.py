@@ -15,7 +15,7 @@ from uploadTablesToDatabase import checkTableExists, getConnection
 # gets the associationsObj from the all_associations endpoint
 def callAllAssociationsEndpoint(refGen, sex):
     params = {
-        'pValue': 0,
+        'pValue': 1,
         'refGen': refGen,
         'sex': sex,
         'isVCF': True
@@ -106,7 +106,7 @@ def createAssociationsAndClumpsFiles(params):
     # for each superPop in the 1000 genomes, create clumps files for the superPop/refGen combo
     for pop in ["AFR", "AMR", "EAS", "EUR", "SAS"]:
         clumpsFilePath = os.path.join(generalFilePath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
-        clumpsObjUnformatted = getClumps(refGen, pop, list(rsIDKeys), password)
+        clumpsObjUnformatted = getClumps(refGen, pop, rsIDKeys, password)
         clumpsObj = formatClumps(clumpsObjUnformatted)
         print("Writing clumps File:", (refGen, pop))
         f = open(clumpsFilePath, 'w')
