@@ -355,6 +355,12 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
         protectiveAlleles = set()
         riskAlleles = set()
         sampSnps = set()
+        citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
+        reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
+        if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys():
+            mark = True
+        else:
+            mark = False
 
         citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
         reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
@@ -388,6 +394,8 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
             if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
                 OR = OR + '*'
             header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
+            if mark is True:
+                studyID = studyID + '†'
             if str(protectiveAlleles) == "set()":
                 protectiveAlleles = "None"
             elif str(riskAlleles) == "set()":
@@ -403,6 +411,8 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
             OR = str(getCombinedORFromArray(oddsRatios))
             if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
                 OR = OR + '*'
+            if mark is True:
+                studyID = studyID + '†'
             header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
             newLine = [studyID, citation, reportedTrait, trait, OR]
             formatCSV(isFirst, newLine, header, outputFile)
@@ -427,6 +437,10 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
             sampSnps = set()
             citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
             reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
+            if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys():
+                mark = True
+            else:
+                mark = False
 
             # Loop through each snp associated with this disease/study/sample
             for rsID in vcfObj[(trait, studyID, samp)]:
@@ -436,14 +450,18 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                         oddsRatio = tableObjDict['associations'][rsID]['traits'][trait][studyID]['oddsRatio']
 
                         if (studyID, trait) not in condensed_output_map and isCondensedFormat:
-                            condensedLine = [studyID, reportedTrait, trait, citation]
+                            if mark is True:
+                                printStudyID = studyID + '†'
+                            else:
+                                printStudyID = studyID
+                            condensedLine = [printStudyID, reportedTrait, trait, citation]
                             condensed_output_map[(studyID, trait)] = condensedLine
                         alleles = vcfObj[(trait, studyID, samp)][rsID]
                         if alleles != "" and alleles is not None:
                             for allele in alleles:
                                 allele = str(allele)
                                 if allele != "":
-                                    if allele == riskAllele:
+                                    if allele == riskAllele and oddsRatio != 0:
                                         sampSnps.add(rsID)
                                         oddsRatios.append(oddsRatio)
                                         if oddsRatio < 1:
@@ -452,7 +470,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                                             riskAlleles.add(rsID)
                                         else:
                                             neutral_snps_set.add(rsID)
-                                    else:
+                                    elif oddsRatio != 0:
                                         neutral_snps_set.add(rsID)
                 elif rsID != "":
                     neutral_snps_set.add(rsID)
@@ -465,8 +483,10 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                     riskAlleles = "None"
                 if len(neutral_snps_set) == 0:
                     neutral_snps_set = "None"
-                if studySnps != sampSnps:
+                if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
                     OR = OR + '*'
+                if mark == True:
+                    studyID = studyID + '†'
 
                 newLine = [samp, studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
                 header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratios', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
@@ -474,18 +494,22 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 isFirst = False
 
             if isCondensedFormat:
+                # Add needed markings to score and study
                 if studySnps[studyID] != sampSnps and len(sampSnps) != 0: 
                     OR = str(getCombinedORFromArray(oddsRatios)) + "*"
                 else:
                     OR = str(getCombinedORFromArray(oddsRatios))
+                if mark is True:
+                    printStudyID = studyID + '†'
+                else:
+                    printStudyID = studyID
+
                 if (studyID, trait) in condensed_output_map:
                     newLine = condensed_output_map[(studyID, trait)]
                     newLine.append(OR)
                     samp_set[samp] = None
                 elif studyID in tableObjDict['studyIDsToMetaData']:
-                    citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
-                    reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
-                    newLine = [studyID, reportedTrait, trait, citation, 'NF']
+                    newLine = [printStudyID, reportedTrait, trait, citation, 'NF']
                     condensed_output_map[(studyID, trait)] = newLine
                     samp_set[samp] = None
                 else:
@@ -503,7 +527,8 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                         for samp in samp_set.keys():
                             header.append(samp)
                     del condensed_output_map[(studyID, trait)]
-                    del count_map[(studyID, trait)]
+                    if (studyID, trait) in count_map:
+                        del count_map[(studyID, trait)]
                     formatCSV(isFirst, newLine, header, outputFile)
                     isFirst = False
                 else:
