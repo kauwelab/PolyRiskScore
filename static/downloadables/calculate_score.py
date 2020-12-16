@@ -418,7 +418,6 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
 
 
 def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps):
-    output = open('aaa', 'w')
     condensed_output_map = {}
     count_map = {}
     samp_set = {}
