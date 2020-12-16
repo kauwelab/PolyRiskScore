@@ -529,12 +529,12 @@ def getCombinedORFromArray(oddsRatios):
 
 def formatCSV(isFirst, newLine, header, outputFile):
     if isFirst:
-        with open(outputFile, 'w', newline='') as f:
+        with open(outputFile, 'w', newline='', encoding="utf-8") as f:
             output = csv.writer(f, delimiter='\t')
             output.writerow(header)
             output.writerow(newLine)
     else:
-        with open(outputFile, 'a', newline='') as f:
+        with open(outputFile, 'a', newline='', encoding="utf-8") as f:
             output = csv.writer(f, delimiter='\t')
             output.writerow(newLine)
     return

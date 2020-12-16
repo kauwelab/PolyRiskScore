@@ -68,12 +68,12 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         # get clumps using the refGen and superpopulation
         clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isVCF)
 
-    f = open(clumpsPath, 'w')
+    f = open(clumpsPath, 'w', encoding="utf-8")
     f.write(json.dumps(clumpsData))
     f.close()
 
     if strandFlip:
-        print("finishing strand flipping")
+        # print("finishing strand flipping")
         p.join()
     return
 
@@ -117,7 +117,7 @@ def checkForAllAssociFile(refGen, defaultSex):
 def getAllAssociations(refGen, defaultSex): 
     params = {
         "refGen": refGen,
-        "sex": defaultSex,
+        "defaultSex": defaultSex[0],
     }
     associationsReturnObj = getUrlWithParams("https://prs.byu.edu/get_associations_download_file", params = params)
     # Organized with pos/snp as the Keys
@@ -290,7 +290,7 @@ def handleStrandFlippingAndSave(associationReturnObj, filePath):
             #see if we can get them from a dbsnp.dbsnp_merges.rsid
 
     # write the associations to a file
-    f = open(filePath, 'w')
+    f = open(filePath, 'w', encoding="utf-8")
     f.write(json.dumps(associationReturnObj))
     f.close()
     return 

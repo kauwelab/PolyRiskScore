@@ -449,8 +449,8 @@ calculatePRS () {
     res=""
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
-    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}" | cut -f 1 -d ' ')
-    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
+    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
 
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
         checkForNewVersion
