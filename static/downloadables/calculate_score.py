@@ -150,81 +150,112 @@ def openFileForParsing(inputFile):
     return vcf_reader
 
 
-def formatAndReturnGenotype(genotype, gt, REF, ALT):
-    if genotype != "./." and genotype != ".|." and genotype !="..":
-        count = 0
-        alleles = []
-        if "|" in genotype:
-            gt_nums = genotype.split('|')
-            if gt_nums[0] == ".":
-                count = 1
-            elif gt_nums[1] == ".":
-                count = 2
-            if count == 0:
-                alleles = gt.split('|')
-            elif count == 1:
-                alleles.append("")
-                if gt_nums[1] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[1]) - 1
-                    alleles.append(ALT[gt_num])
-            elif count == 2:
-                if gt_nums[0] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[0]) - 1
-                    alleles.append(ALT[gt_num])
-                alleles.append("")
-                
-        elif "/" in genotype:
-            gt_nums = genotype.split('/')
-            if gt_nums[0] == ".":
-                count = 1
-            elif gt_nums[1] == ".":
-                count = 2
-            if count == 0:
-                alleles = gt.split('/')
-            elif count == 1:
-                alleles.append("")
-                if gt_nums[1] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[1]) - 1
-                    alleles.append(ALT[gt_num])
-            elif count == 2:
-                if gt_nums[0] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[0]) - 1
-                    alleles.append(ALT[gt_num])
-                alleles.append("")
+def formatAndReturnGenotype(genotype, REF, ALT):
+    try:
+        if genotype != "./." and genotype != ".|." and genotype !=".." and genotype != '.':
+            count = 0
+            alleles = []
+            if "|" in genotype:
+                gt_nums = genotype.split('|')
+                if gt_nums[0] == ".":
+                    count = 1
+                elif gt_nums[1] == ".":
+                    count = 2
+                if count == 0:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 1:
+                    alleles.append("")
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 2:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    alleles.append("")
+                    
+            elif "/" in genotype:
+                gt_nums = genotype.split('/')
+                if gt_nums[0] == ".":
+                    count = 1
+                elif gt_nums[1] == ".":
+                    count = 2
+                if count == 0:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 1:
+                    alleles.append("")
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 2:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    alleles.append("")
 
+            else:
+                gt_nums = list(genotype)
+                if gt_nums[0] == ".":
+                    count = 1
+                elif gt_nums[1] == ".":
+                    count = 2
+                if count == 0:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 1:
+                    alleles.append("")
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 2:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    alleles.append("")
+                
         else:
-            gt_nums = list(genotype)
-            if gt_nums[0] == ".":
-                count = 1
-            elif gt_nums[1] == ".":
-                count = 2
-            if count == 0:
-                alleles = list(gt)
-            elif count == 1:
-                alleles.append("")
-                if gt_nums[1] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[1]) - 1
-                    alleles.append(ALT[gt_num])
-            elif count == 2:
-                if gt_nums[0] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[0]) - 1
-                    alleles.append(ALT[gt_num])
-                alleles.append("")
-            
-    else:
-        alleles = ""
+            alleles = ""
+
+    except ValueError:
+        raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     return alleles
 
@@ -264,10 +295,9 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
 
                             # Loop through each sample of the vcf file
                             for call in record.samples:  
-                                gt = call.gt_bases    
                                 name = call.sample
                                 genotype = record.genotype(name)['GT']
-                                alleles = formatAndReturnGenotype(genotype, gt, REF, ALT)
+                                alleles = formatAndReturnGenotype(genotype, REF, ALT)
                                 # Create a tuple with the study and sample name
                                 trait_study_sample = (trait, study, name)
                                 sample_set.add(name) 
