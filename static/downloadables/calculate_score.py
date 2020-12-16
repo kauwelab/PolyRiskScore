@@ -223,6 +223,7 @@ def formatAndReturnGenotype(genotype, gt, REF, ALT):
 
     return alleles
 
+
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     totalLines = 0 
 
@@ -361,6 +362,8 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
         else:
             mark = False
 
+        citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
+        reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
         
         # Loop through each snp associated with this disease/study
         for snp in txtObj[(trait, studyID)]:
@@ -401,7 +404,6 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
                 neutral_snps_set = "None"
 
             newLine = [studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
-
             formatCSV(isFirst, newLine, header, outputFile)
             isFirst = False
 
