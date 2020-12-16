@@ -11,15 +11,25 @@ import csv
 import pandas
  
 
-def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile):
+def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile, traits, studyTypes, studyIDs, ethnicities):
     tableObjDict = json.loads(tableObjDict)
     clumpsObjDict = json.loads(clumpsObjDict)
+
+    # Format variables used for filtering
+    traits = traits.split(" ") if traits != "" else None
+    if traits is not None:
+        traits = [sub.replace('_', ' ') for sub in traits]
+    studyTypes = studyTypes.split(" ") if studyTypes != "" else None
+    studyIDs = studyIDs.split(" ") if studyIDs != "" else None
+    ethnicities = ethnicities.split(" ") if ethnicities != "" else None
+
+    print("this line should have the things", traits, studyTypes, studyIDs, ethnicities)
 
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if inputFile.lower().endswith(".txt") else False
 
     if isRSids:
-        txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict)
+        txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities)
         results = txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps) #TODO this fuction still needs to be formatted for the new stuff
     else:
         vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict)
@@ -27,7 +37,7 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     return(results)
 
 
-def parse_txt(txtFile, clumpsObjDict, tableObjDict):
+def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities):
     totalLines = 0
     openFile = open(txtFile, 'r')
     
