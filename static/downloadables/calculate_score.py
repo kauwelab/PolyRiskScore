@@ -59,7 +59,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
                 for trait in tableObjDict['associations'][snp]['traits'].keys():
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
                         trait_study = (trait, studyID)
-                        if studyID in neutral_snps:
+                        if trait_study in neutral_snps:
                             neutral_snps_set = neutral_snps[trait_study]
                         else:
                             neutral_snps_set = set()
@@ -68,37 +68,42 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
                             # Grab the clump number associated with this snp 
                             clumpNum = clumpsObjDict[snp]['clumpNum']
                             pValue = tableObjDict['associations'][snp]['traits'][trait][studyID]['pValue']
+                            riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                             # Add the studyID to the counter list because we now know at least there is
                             # at least one viable snp for this study
-                            counter_set.add(trait_study)
                             totalLines += 1
 
                             # Check if the studyID has been used in the index snp map yet
-                            if trait_study in index_snp_map:
-                                # Check whether the existing index snp or current snp have a lower pvalue for this study
-                                # and switch out the data accordingly
-                                if clumpNum in index_snp_map[trait_study]:
-                                    index_snp = index_snp_map[trait_study][clumpNum]
-                                    index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][studyID]['pValue']
-                                    if pValue < index_pvalue:
-                                        del index_snp_map[trait_study][clumpNum]
-                                        index_snp_map[trait_study][clumpNum] = snp
-                                        del sample_map[trait_study][index_snp]
-                                        sample_map[trait_study][snp] = alleles
-                                        # The snps that aren't index snps will be considered neutral snps
-                                        neutral_snps_set.add(index_snp)
+                            if riskAllele in alleles:
+                                counter_set.add(trait_study)
+                            
+                                if trait_study in index_snp_map:
+                                    # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                    # and switch out the data accordingly
+                                    if clumpNum in index_snp_map[trait_study]:
+                                        index_snp = index_snp_map[trait_study][clumpNum]
+                                        index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][studyID]['pValue']
+                                        if pValue < index_pvalue:
+                                            del index_snp_map[trait_study][clumpNum]
+                                            index_snp_map[trait_study][clumpNum] = snp
+                                            del sample_map[trait_study][index_snp]
+                                            sample_map[trait_study][snp] = alleles
+                                            # The snps that aren't index snps will be considered neutral snps
+                                            neutral_snps_set.add(index_snp)
+                                        else:
+                                            neutral_snps_set.add(snp)
                                     else:
-                                        neutral_snps_set.add(snp)
+                                        # Since the clump number for this snp position and studyID
+                                        # doesn't already exist, add it to the index map and the sample map
+                                        index_snp_map[trait_study][clumpNum] = snp
+                                        sample_map[trait_study][snp] = alleles
                                 else:
-                                    # Since the clump number for this snp position and studyID
-                                    # doesn't already exist, add it to the index map and the sample map
+                                    # Since the trait_study wasn't already used in the index map, add it to both the index and sample map
                                     index_snp_map[trait_study][clumpNum] = snp
                                     sample_map[trait_study][snp] = alleles
-                            else:
-                                # Since the trait_study wasn't already used in the index map, add it to both the index and sample map
-                                index_snp_map[trait_study][clumpNum] = snp
-                                sample_map[trait_study][snp] = alleles
                         # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it
+                            else:
+                                neutral_snps_set.add(snp)
                         else:
                             sample_map[trait_study][snp] = alleles
                             counter_set.add(trait_study)
@@ -470,7 +475,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                     riskAlleles = "None"
                 if len(neutral_snps_set) == 0:
                     neutral_snps_set = "None"
-                if studySnps != sampSnps:
+                if studySnps != sampSnps and OR != 'NF':
                     OR = OR + '*'
 
                 newLine = [samp, studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
