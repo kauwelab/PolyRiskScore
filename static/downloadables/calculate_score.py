@@ -278,7 +278,6 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     try:
         # Iterate through each line in the vcf file
         for record in vcf_reader:
-            count += 1
             string_format = str(record.FORMAT)
             if 'GT' in string_format: #TODO might not need this line anymore
                 rsID = record.ID
