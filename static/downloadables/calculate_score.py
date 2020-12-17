@@ -59,7 +59,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
                 for trait in tableObjDict['associations'][snp]['traits'].keys():
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
                         trait_study = (trait, studyID)
-                        if studyID in neutral_snps:
+                        if trait_study in neutral_snps:
                             neutral_snps_set = neutral_snps[trait_study]
                         else:
                             neutral_snps_set = set()
@@ -68,37 +68,42 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
                             # Grab the clump number associated with this snp 
                             clumpNum = clumpsObjDict[snp]['clumpNum']
                             pValue = tableObjDict['associations'][snp]['traits'][trait][studyID]['pValue']
+                            riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                             # Add the studyID to the counter list because we now know at least there is
                             # at least one viable snp for this study
-                            counter_set.add(trait_study)
                             totalLines += 1
 
                             # Check if the studyID has been used in the index snp map yet
-                            if trait_study in index_snp_map:
-                                # Check whether the existing index snp or current snp have a lower pvalue for this study
-                                # and switch out the data accordingly
-                                if clumpNum in index_snp_map[trait_study]:
-                                    index_snp = index_snp_map[trait_study][clumpNum]
-                                    index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][studyID]['pValue']
-                                    if pValue < index_pvalue:
-                                        del index_snp_map[trait_study][clumpNum]
-                                        index_snp_map[trait_study][clumpNum] = snp
-                                        del sample_map[trait_study][index_snp]
-                                        sample_map[trait_study][snp] = alleles
-                                        # The snps that aren't index snps will be considered neutral snps
-                                        neutral_snps_set.add(index_snp)
+                            if riskAllele in alleles:
+                                counter_set.add(trait_study)
+                            
+                                if trait_study in index_snp_map:
+                                    # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                    # and switch out the data accordingly
+                                    if clumpNum in index_snp_map[trait_study]:
+                                        index_snp = index_snp_map[trait_study][clumpNum]
+                                        index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][studyID]['pValue']
+                                        if pValue < index_pvalue:
+                                            del index_snp_map[trait_study][clumpNum]
+                                            index_snp_map[trait_study][clumpNum] = snp
+                                            del sample_map[trait_study][index_snp]
+                                            sample_map[trait_study][snp] = alleles
+                                            # The snps that aren't index snps will be considered neutral snps
+                                            neutral_snps_set.add(index_snp)
+                                        else:
+                                            neutral_snps_set.add(snp)
                                     else:
-                                        neutral_snps_set.add(snp)
+                                        # Since the clump number for this snp position and studyID
+                                        # doesn't already exist, add it to the index map and the sample map
+                                        index_snp_map[trait_study][clumpNum] = snp
+                                        sample_map[trait_study][snp] = alleles
                                 else:
-                                    # Since the clump number for this snp position and studyID
-                                    # doesn't already exist, add it to the index map and the sample map
+                                    # Since the trait_study wasn't already used in the index map, add it to both the index and sample map
                                     index_snp_map[trait_study][clumpNum] = snp
                                     sample_map[trait_study][snp] = alleles
-                            else:
-                                # Since the trait_study wasn't already used in the index map, add it to both the index and sample map
-                                index_snp_map[trait_study][clumpNum] = snp
-                                sample_map[trait_study][snp] = alleles
                         # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it
+                            else:
+                                neutral_snps_set.add(snp)
                         else:
                             sample_map[trait_study][snp] = alleles
                             counter_set.add(trait_study)
@@ -145,81 +150,112 @@ def openFileForParsing(inputFile):
     return vcf_reader
 
 
-def formatAndReturnGenotype(genotype, gt, REF, ALT):
-    if genotype != "./." and genotype != ".|." and genotype !="..":
-        count = 0
-        alleles = []
-        if "|" in genotype:
-            gt_nums = genotype.split('|')
-            if gt_nums[0] == ".":
-                count = 1
-            elif gt_nums[1] == ".":
-                count = 2
-            if count == 0:
-                alleles = gt.split('|')
-            elif count == 1:
-                alleles.append("")
-                if gt_nums[1] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[1]) - 1
-                    alleles.append(ALT[gt_num])
-            elif count == 2:
-                if gt_nums[0] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[0]) - 1
-                    alleles.append(ALT[gt_num])
-                alleles.append("")
-                
-        elif "/" in genotype:
-            gt_nums = genotype.split('/')
-            if gt_nums[0] == ".":
-                count = 1
-            elif gt_nums[1] == ".":
-                count = 2
-            if count == 0:
-                alleles = gt.split('/')
-            elif count == 1:
-                alleles.append("")
-                if gt_nums[1] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[1]) - 1
-                    alleles.append(ALT[gt_num])
-            elif count == 2:
-                if gt_nums[0] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[0]) - 1
-                    alleles.append(ALT[gt_num])
-                alleles.append("")
+def formatAndReturnGenotype(genotype, REF, ALT):
+    try:
+        if genotype != "./." and genotype != ".|." and genotype !=".." and genotype != '.':
+            count = 0
+            alleles = []
+            if "|" in genotype:
+                gt_nums = genotype.split('|')
+                if gt_nums[0] == ".":
+                    count = 1
+                elif gt_nums[1] == ".":
+                    count = 2
+                if count == 0:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 1:
+                    alleles.append("")
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 2:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    alleles.append("")
+                    
+            elif "/" in genotype:
+                gt_nums = genotype.split('/')
+                if gt_nums[0] == ".":
+                    count = 1
+                elif gt_nums[1] == ".":
+                    count = 2
+                if count == 0:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 1:
+                    alleles.append("")
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 2:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    alleles.append("")
 
+            else:
+                gt_nums = list(genotype)
+                if gt_nums[0] == ".":
+                    count = 1
+                elif gt_nums[1] == ".":
+                    count = 2
+                if count == 0:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 1:
+                    alleles.append("")
+                    if gt_nums[1] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[1]) - 1
+                        alleles.append(ALT[gt_num])
+                elif count == 2:
+                    if gt_nums[0] == '0':
+                        alleles.append(REF)
+                    else:
+                        gt_num = int(gt_nums[0]) - 1
+                        alleles.append(ALT[gt_num])
+                    alleles.append("")
+                
         else:
-            gt_nums = list(genotype)
-            if gt_nums[0] == ".":
-                count = 1
-            elif gt_nums[1] == ".":
-                count = 2
-            if count == 0:
-                alleles = list(gt)
-            elif count == 1:
-                alleles.append("")
-                if gt_nums[1] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[1]) - 1
-                    alleles.append(ALT[gt_num])
-            elif count == 2:
-                if gt_nums[0] == '0':
-                    alleles.append(REF)
-                else:
-                    gt_num = int(gt_nums[0]) - 1
-                    alleles.append(ALT[gt_num])
-                alleles.append("")
-            
-    else:
-        alleles = ""
+            alleles = ""
+
+    except ValueError:
+        raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     return alleles
 
@@ -259,15 +295,17 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
 
                             # Loop through each sample of the vcf file
                             for call in record.samples:  
-                                gt = call.gt_bases    
                                 name = call.sample
                                 genotype = record.genotype(name)['GT']
-                                alleles = formatAndReturnGenotype(genotype, gt, REF, ALT)
-                                neutral_snps_set = set()
+                                alleles = formatAndReturnGenotype(genotype, REF, ALT)
                                 # Create a tuple with the study and sample name
                                 trait_study_sample = (trait, study, name)
                                 sample_set.add(name) 
                                 counter_set.add(trait_study_sample)
+                                if trait_study_sample in neutral_snps:
+                                    neutral_snps_set = neutral_snps[trait_study_sample]
+                                else:
+                                    neutral_snps_set = set()
                                 # Check to see if the snp position from this line in the vcf exists in the clump table for this study
                                 if rsID in clumpsObjDict:
                                     # Grab the clump number associated with this study and snp position
@@ -275,6 +313,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
 
                                     # grab pValue from PRSBK database data
                                     pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
+                                    riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study]['riskAllele']
                                     # Add the study/sample tuple to the counter list because we now know at least there is
                                     # at least one viable snp for this combination 
                                     totalLines += 1
@@ -288,7 +327,8 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
                                             # if the existing index snp has no alleles, put in the current snp even if the pvalue is higher
                                             index_snp = index_snp_map[trait_study_sample][clumpNum]
                                             index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue'] 
-                                            if pValue < index_pvalue:
+
+                                            if pValue < index_pvalue and riskAllele in alleles:
                                                 del index_snp_map[trait_study_sample][clumpNum]
                                                 index_snp_map[trait_study_sample][clumpNum] = rsID
                                                 del sample_map[trait_study_sample][index_snp]
@@ -297,7 +337,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
                                                     
                                             #TODO: Do we even want to look at snps that don't have corresponding alleles?
                                             # I changed it so that we skip over snps that have "" as their alleles.
-                                            elif pValue > index_pvalue and alleles != "":
+                                            elif pValue > index_pvalue and riskAllele in alleles:
                                                 if sample_map[trait_study_sample][index_snp] == "":
                                                     del index_snp_map[trait_study_sample][clumpNum]
                                                     index_snp_map[trait_study_sample][clumpNum] = rsID
@@ -483,7 +523,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                     riskAlleles = "None"
                 if len(neutral_snps_set) == 0:
                     neutral_snps_set = "None"
-                if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
+                if studySnps != sampSnps and OR != 'NF':
                     OR = OR + '*'
                 if mark == True:
                     studyID = studyID + '†'
