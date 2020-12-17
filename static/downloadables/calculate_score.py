@@ -262,7 +262,6 @@ def formatAndReturnGenotype(genotype, REF, ALT):
 
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     totalLines = 0 
-    count = 0
 
     vcf_reader = openFileForParsing(inputFile)
     
@@ -275,7 +274,6 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
     counter_set = set()
     neutral_snps = {}
     sample_set = set()
-    output = open('aaa', 'w')
 
     try:
         # Iterate through each line in the vcf file
@@ -285,8 +283,6 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
             if 'GT' in string_format: #TODO might not need this line anymore
                 rsID = record.ID
                 chromPos = str(record.CHROM) + ":" + str(record.POS)
-                output.write(chromPos)
-                output.write('\n')
                 if (rsID is None and chromPos in tableObjDict['associations']):
                     rsID = tableObjDict['associations'][chromPos]
                 ALT = record.ALT
