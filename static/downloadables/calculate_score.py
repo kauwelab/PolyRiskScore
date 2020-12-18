@@ -17,11 +17,15 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     traits = traits.lower()
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
-        traits = [sub.replace('_', ' ') for sub in traits]
+        traits = [sub.replace('_', ' ').replace("\\'", "\'") for sub in traits]
+    studyTypes = studyTypes.upper()
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.upper()
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
-    ethnicities = ethnicities.split(" ") if ethnicities != "" else None # TODO will need to check this, what happens when they say east asian?
+    ethnicities = ethnicities.lower()
+    ethnicities = ethnicities.split(" ") if ethnicities != "" else None
+    if ethnicities is not None:
+        ethnicities = [sub.replace("_", " ") for sub in ethnicities]
 
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if inputFile.lower().endswith(".txt") else False
