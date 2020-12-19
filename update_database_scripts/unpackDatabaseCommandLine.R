@@ -228,7 +228,7 @@ if (is_ebi_reachable()) {
       # renames columns to names the database will understand
       associationsTable <- ungroup(associationsTable) %>%
         dplyr::rename(snp = variant_id, raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number)
-      # arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
+      # selects specific columns to keep. also arranges the assocition table by citation, then studyID, then snp
       associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, sex, citation, studyID)) %>%
         arrange(citation, studyID, snp)
       
@@ -392,7 +392,7 @@ if (is_ebi_reachable()) {
             add_column(sex = getSexFromDescription(master_associations[["pvalue_description"]])) %>%
             mutate(pvalue_description = tolower(pvalue_description))
           # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
-          studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
+          studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
           # if there are not enough snps left in the study table, add it to a list of ignored studies
           if (nrow(studyData) < minNumStudyAssociations) {
             invalidStudies <- c(invalidStudies, studyID)
