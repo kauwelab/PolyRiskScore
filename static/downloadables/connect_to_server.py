@@ -31,7 +31,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         # if we need to download a new all associations file, write to file
         associationsPath = os.path.join(workingFilesPath, "allAssociations_{sex}.txt".format(sex=defaultSex))
         if (dnldNewAllAssociFile):
-            associationsReturnObj = getAllAssociations(pValue, refGen, defaultSex, isVCF)
+            associationsReturnObj = getAllAssociations(refGen, defaultSex, isVCF)
             strandFlip = True
         else:
             f = open(associationsPath, 'r')
@@ -42,7 +42,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
+        associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
         strandFlip = True
 
     # grab all the snps or positions to use for getting the clumps
@@ -104,9 +104,8 @@ def checkForAllAssociFile():
 
 
 # gets associationReturnObj from the Server for all associations
-def getAllAssociations(pValue, refGen, defaultSex, isVCF): 
+def getAllAssociations(refGen, defaultSex, isVCF): 
     params = {
-        "pValue": pValue,
         "refGen": refGen,
         "sex": defaultSex,
         "isVCF": isVCF
@@ -117,7 +116,7 @@ def getAllAssociations(pValue, refGen, defaultSex, isVCF):
 
 
 # gets associationReturnObj using the given filters
-def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF):
+def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF):
     finalStudyList = []
 
     if (traits is not None or studyTypes is not None or ethnicity is not None):
@@ -156,7 +155,6 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
 
     # get the associations based on the studyIDs
     body = {
-        "pValue": pValue,
         "refGen": refGen,
         "studyIDObjs": finalStudyList,
         "sex": defaultSex,

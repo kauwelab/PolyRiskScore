@@ -21,7 +21,7 @@ const Association = function (massociation) {
     this.studyID = massociation.studyID;
 };
 
-Association.getFromTables = (studyIDObjs, pValue, refGen, result) => {
+Association.getFromTables = (studyIDObjs, refGen, result) => {
     // [{trait: "", studyID: ""}, {trait: "", studyID: ""}]
     try {
         queryString = ""
@@ -39,8 +39,8 @@ Association.getFromTables = (studyIDObjs, pValue, refGen, result) => {
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
 		studyObj = JSON.parse(studyObj)
 	    }
-	    queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE pValue <= ? AND studyID = ? AND trait = ?; `)
-            queryParams = queryParams.concat([pValue, studyObj.studyID, studyObj.trait])
+	    queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table studyID = ? AND trait = ?; `)
+            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait])
             studyIDs.push(studyObj.studyID)
             questionMarks.push("?")
         })
@@ -71,16 +71,16 @@ Association.getFromTables = (studyIDObjs, pValue, refGen, result) => {
     
 };
 
-Association.getAll = (pValue, refGen, result) => {
+Association.getAll = (refGen, result) => {
     try {
-        console.log(refGen, pValue)
+        console.log(refGen)
         // returns the refgen if valid, else throws an error
         refGen = validator.validateRefgen(refGen)
 
-        queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE pValue <= ? ; `
+        queryString = `SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table; `
         console.log(queryString)
 
-        sql.query(queryString, [pValue], (err, res) => {
+        sql.query(queryString, (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
