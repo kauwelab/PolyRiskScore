@@ -1,5 +1,6 @@
 const Clump = require("../models/clump.model.js");
 const formatter = require("../formatHelper")
+const path = require("path")
 
 exports.getClumping = (req, res) => {
     refGenome = req.query.refGen
@@ -62,10 +63,13 @@ exports.getClumpsDownloadFile = (req, res) => {
     var options = { 
         root: downloadPath
     };
-    var fileName = `${pop}_clumps_${refGen}.txt.txt`; 
+    var fileName = `${pop}_clumps_${refGen}.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
-            next(err); 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
         } else { 
             console.log('Sent:', fileName); 
         } 
