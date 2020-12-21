@@ -124,8 +124,8 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, p_cutOff):
                             snpSet = set()
                         snpSet.add(key)
                         studySnps[study]=snpSet
-                        if (trait,study,name) not in counter_set:
-                            sample_map[(trait,study,name)][""] = ""
+                    if (trait,study,name) not in counter_set:
+                        sample_map[(trait,study,name)][""] = ""
 
     openFile.close()
     final_map = dict(sample_map)
@@ -384,8 +384,8 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, p_cutOff):
                                     snpSet = set()
                                 snpSet.add(key)
                                 studySnps[study]=snpSet
-                                if (trait,study,name) not in counter_set:
-                                    sample_map[(trait,study,name)][""] = ""
+                            if (trait,study,name) not in counter_set:
+                                sample_map[(trait,study,name)][""] = ""
     except ValueError:
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
