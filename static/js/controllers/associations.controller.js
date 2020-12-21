@@ -4,7 +4,6 @@ const fs = require("fs")
 
 exports.getFromTables = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
-    var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
     var defaultSex = req.body.sex;
     var isVCF = req.body.isVCF;
@@ -14,7 +13,7 @@ exports.getFromTables = (req, res) => {
         defaultSex = "f"
     }
 
-    Association.getFromTables(studyIDObjs, pValue, refGen, async (err, data) => {
+    Association.getFromTables(studyIDObjs, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
@@ -32,7 +31,6 @@ exports.getFromTables = (req, res) => {
 };
 
 exports.getAll = (req, res) => {
-    var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
     var defaultSex = req.query.sex;
     var isVCF = req.query.isVCF;
@@ -42,7 +40,7 @@ exports.getAll = (req, res) => {
         defaultSex = "f"
     }
 
-    Association.getAll(pValue, refGen, async (err, data) => {
+    Association.getAll(refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations; ${err}`
