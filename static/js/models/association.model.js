@@ -89,10 +89,11 @@ Association.getAll = (pValue, refGen, result) => {
 
             console.log("associations (first): ", res[0]);
 
-            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, IF((SELECT altmetricScore FROM studyMaxes WHERE trait = study_table.trait)=altmetricScore, 'HI', '') as hi, "+
-             "IF((SELECT cohort FROM studyMaxes WHERE trait = study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, "+
-             "IF((SELECT altmetricScore FROM studyMaxes WHERE trait = study_table.reportedTrait)=altmetricScore, 'HI', '') as rthi, "+
-             "IF((SELECT cohort FROM studyMaxes WHERE trait = study_table.reportedTrait)=initialSampleSize+replicationSampleSize, 'LC', '') as rtlc "+
+            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, "+
+             "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) LIKE altmetricScore, 'HI', '') as hi, "+
+             "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, "+
+             "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) LIKE altmetricScore, 'HI', '') as rthi, "+
+             "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.reportedTrait)=initialSampleSize+replicationSampleSize, 'LC', '') as rtlc "+
              "FROM study_table;"
             sql.query(qStr, (err2, traits) => {
                 if (err2) {
