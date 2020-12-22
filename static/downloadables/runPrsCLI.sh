@@ -42,7 +42,7 @@ version="1.2.0" #TODO change to 1.3.0
 #       -k studyType
 #       -i studyIDs
 #       -e ethnicity
-#       -v (verbose output file)
+#       -v True/False verbose output file
 #       -s stepNumber
 #
 # * 12/9/2020 - v1.3.0
@@ -87,7 +87,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v verbose (indicates a more detailed result file)"
+    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed result file)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
@@ -150,7 +150,7 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
         echo -e "| ${LIGHTPURPLE}8${NC} - -i studyIDs                             |"
         echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - -v (verbose result file)               |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - -v True/False verbose result file               |"
         echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
         echo -e "|                                             |"
@@ -226,7 +226,7 @@ learnAboutParameters () {
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             10 ) echo -e "${MYSTERYCOLOR} -v: ${NC}"
-                echo "For a more detailed result file, include the '-v' parameter."
+                echo "For a more detailed result file, include the '-v True' parameter."
                 echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
                 echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
                 echo "effect on the PRS for each corresponding sample and study."
