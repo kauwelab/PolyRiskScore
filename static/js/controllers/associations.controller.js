@@ -217,6 +217,9 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
         if (studyObj.lc != "") {
             traitStudyTypes.push(studyObj.lc)
         }
+        if (traitStudyTypes.length == 0) {
+            traitStudyTypes.push("O")
+        }
         ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
         if (!(studyObj.studyID in studyIDsToMetaData)) {
             studyTypes = []
@@ -225,6 +228,9 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
             }
             if (studyObj.rtlc != "") {
                 studyTypes.push(studyObj.rtlc)
+            }
+            if (studyTypes.length == 0) {
+                studyTypes.push("O")
             }
             studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, studyTypes: studyTypes, traits: {}, ethnicity: ethnicities != "" ? ethnicities : []}
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
