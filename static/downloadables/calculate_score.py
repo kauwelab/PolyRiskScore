@@ -19,15 +19,15 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     isRSids = True if inputFile.lower().endswith(".txt") else False
 
     if isRSids:
-        txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict)
+        txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict, pValue)
         results = txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps) #TODO this fuction still needs to be formatted for the new stuff
     else:
-        vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict)
+        vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict, pValue)
         results = vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps) #TODO this fuction still needs to be formatted for the new stuff
     return(results)
 
 
-def parse_txt(txtFile, clumpsObjDict, tableObjDict):
+def parse_txt(txtFile, clumpsObjDict, tableObjDict, p_cutOff):
     totalLines = 0
     openFile = open(txtFile, 'r')
     
@@ -58,69 +58,72 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict):
             if snp in tableObjDict['associations']:
                 for trait in tableObjDict['associations'][snp]['traits'].keys():
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
-                        trait_study = (trait, studyID)
-                        if trait_study in neutral_snps:
-                            neutral_snps_set = neutral_snps[trait_study]
-                        else:
-                            neutral_snps_set = set()
-                        # Check to see if the snp position from this line in the file exists in the clump table
-                        if snp in clumpsObjDict:
-                            # Grab the clump number associated with this snp 
-                            clumpNum = clumpsObjDict[snp]['clumpNum']
-                            pValue = tableObjDict['associations'][snp]['traits'][trait][studyID]['pValue']
-                            riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
-                            # Add the studyID to the counter list because we now know at least there is
-                            # at least one viable snp for this study
-                            totalLines += 1
+                        pValue = tableObjDict['associations'][snp]['traits'][trait][studyID]['pValue']
+                        riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
+                        if pValue <= float(p_cutOff):
+                            trait_study = (trait, studyID)
+                            if trait_study in neutral_snps:
+                                neutral_snps_set = neutral_snps[trait_study]
+                            else:
+                                neutral_snps_set = set()
+                            # Check to see if the snp position from this line in the file exists in the clump table
+                            if snp in clumpsObjDict:
+                                # Grab the clump number associated with this snp 
+                                clumpNum = clumpsObjDict[snp]['clumpNum']
+                                # Add the studyID to the counter list because we now know at least there is
+                                # at least one viable snp for this study
+                                totalLines += 1
 
-                            # Check if the studyID has been used in the index snp map yet
-                            if riskAllele in alleles:
-                                counter_set.add(trait_study)
-                            
-                                if trait_study in index_snp_map:
-                                    # Check whether the existing index snp or current snp have a lower pvalue for this study
-                                    # and switch out the data accordingly
-                                    if clumpNum in index_snp_map[trait_study]:
-                                        index_snp = index_snp_map[trait_study][clumpNum]
-                                        index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][studyID]['pValue']
-                                        if pValue < index_pvalue:
-                                            del index_snp_map[trait_study][clumpNum]
-                                            index_snp_map[trait_study][clumpNum] = snp
-                                            del sample_map[trait_study][index_snp]
-                                            sample_map[trait_study][snp] = alleles
-                                            # The snps that aren't index snps will be considered neutral snps
-                                            neutral_snps_set.add(index_snp)
+                                # Check if the studyID has been used in the index snp map yet
+                                if riskAllele in alleles:
+                                    counter_set.add(trait_study)
+                                
+                                    if trait_study in index_snp_map:
+                                        # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                        # and switch out the data accordingly
+                                        if clumpNum in index_snp_map[trait_study]:
+                                            index_snp = index_snp_map[trait_study][clumpNum]
+                                            index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][studyID]['pValue']
+                                            if pValue < index_pvalue:
+                                                del index_snp_map[trait_study][clumpNum]
+                                                index_snp_map[trait_study][clumpNum] = snp
+                                                del sample_map[trait_study][index_snp]
+                                                sample_map[trait_study][snp] = alleles
+                                                # The snps that aren't index snps will be considered neutral snps
+                                                neutral_snps_set.add(index_snp)
+                                            else:
+                                                neutral_snps_set.add(snp)
                                         else:
-                                            neutral_snps_set.add(snp)
+                                            # Since the clump number for this snp position and studyID
+                                            # doesn't already exist, add it to the index map and the sample map
+                                            index_snp_map[trait_study][clumpNum] = snp
+                                            sample_map[trait_study][snp] = alleles
                                     else:
-                                        # Since the clump number for this snp position and studyID
-                                        # doesn't already exist, add it to the index map and the sample map
+                                        # Since the trait_study wasn't already used in the index map, add it to both the index and sample map
                                         index_snp_map[trait_study][clumpNum] = snp
                                         sample_map[trait_study][snp] = alleles
+                            # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it
                                 else:
-                                    # Since the trait_study wasn't already used in the index map, add it to both the index and sample map
-                                    index_snp_map[trait_study][clumpNum] = snp
-                                    sample_map[trait_study][snp] = alleles
-                        # The snp wasn't in the clump map (meaning it wasn't i 1000 Genomes), so add it
+                                    neutral_snps_set.add(snp)
                             else:
-                                neutral_snps_set.add(snp)
-                        else:
-                            sample_map[trait_study][snp] = alleles
-                            counter_set.add(trait_study)
+                                sample_map[trait_study][snp] = alleles
+                                counter_set.add(trait_study)
 
-                        neutral_snps[trait_study] = neutral_snps_set
+                            neutral_snps[trait_study] = neutral_snps_set
 
     studySnps = {}
     for key in tableObjDict['associations'].keys():
         if ("rs" in key):
             for trait in tableObjDict['associations'][key]['traits'].keys():
                 for study in tableObjDict['associations'][key]['traits'][trait].keys():
-                    if study in studySnps:
-                        snpSet = studySnps[study]
-                    else:
-                        snpSet = set()
-                    snpSet.add(key)
-                    studySnps[study]=snpSet
+                    pValue = tableObjDict['associations'][snp]['traits'][trait][studyID]['pValue']
+                    if pValue <= float(p_cutOff):
+                        if study in studySnps:
+                            snpSet = studySnps[study]
+                        else:
+                            snpSet = set()
+                        snpSet.add(key)
+                        studySnps[study]=snpSet
                     if (trait,study,name) not in counter_set:
                         sample_map[(trait,study,name)][""] = ""
 
@@ -260,7 +263,7 @@ def formatAndReturnGenotype(genotype, REF, ALT):
     return alleles
 
 
-def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
+def parse_vcf(inputFile, clumpsObjDict, tableObjDict, p_cutOff):
     totalLines = 0 
 
     vcf_reader = openFileForParsing(inputFile)
@@ -307,59 +310,63 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
                                 else:
                                     neutral_snps_set = set()
                                 # Check to see if the snp position from this line in the vcf exists in the clump table for this study
-                                if rsID in clumpsObjDict:
-                                    # Grab the clump number associated with this study and snp position
-                                    clumpNum = clumpsObjDict[rsID]['clumpNum'] 
+                                # grab pValue and riskAllele
+                                pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
+                                riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study]['riskAllele']
 
-                                    # grab pValue from PRSBK database data
-                                    pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
-                                    riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study]['riskAllele']
-                                    # Add the study/sample tuple to the counter list because we now know at least there is
-                                    # at least one viable snp for this combination 
-                                    totalLines += 1
-                                    
-                                    if trait_study_sample in index_snp_map:
-                                        # if the clump number for this snp position and study/name is alraedy in the index map, move forward
-                                        if clumpNum in index_snp_map[trait_study_sample]:
-                                            # Check whether the existing index snp or current snp have a lower pvalue for this study
-                                            # and switch out the data accordingly
-                                            # if the current snp position has no alleles, do not add it to the maps
-                                            # if the existing index snp has no alleles, put in the current snp even if the pvalue is higher
-                                            index_snp = index_snp_map[trait_study_sample][clumpNum]
-                                            index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue'] 
+                                # compare the pvalue to the pvalue cutoff
+                                
+                                if pValue <= float(p_cutOff):
+                                    if rsID in clumpsObjDict:
+                                        # Grab the clump number associated with this study and snp position
+                                        clumpNum = clumpsObjDict[rsID]['clumpNum'] 
 
-                                            if pValue < index_pvalue and riskAllele in alleles:
-                                                del index_snp_map[trait_study_sample][clumpNum]
-                                                index_snp_map[trait_study_sample][clumpNum] = rsID
-                                                del sample_map[trait_study_sample][index_snp]
-                                                sample_map[trait_study_sample][rsID] = alleles
-                                                neutral_snps_set.add(index_snp)
-                                                    
-                                            #TODO: Do we even want to look at snps that don't have corresponding alleles?
-                                            # I changed it so that we skip over snps that have "" as their alleles.
-                                            elif pValue > index_pvalue and riskAllele in alleles:
-                                                if sample_map[trait_study_sample][index_snp] == "":
+                                        # Add the study/sample tuple to the counter list because we now know at least there is
+                                        # at least one viable snp for this combination 
+                                        totalLines += 1
+                                        
+                                        if trait_study_sample in index_snp_map:
+                                            # if the clump number for this snp position and study/name is alraedy in the index map, move forward
+                                            if clumpNum in index_snp_map[trait_study_sample]:
+                                                # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                                # and switch out the data accordingly
+                                                # if the current snp position has no alleles, do not add it to the maps
+                                                # if the existing index snp has no alleles, put in the current snp even if the pvalue is higher
+                                                index_snp = index_snp_map[trait_study_sample][clumpNum]
+                                                index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue'] 
+
+                                                if pValue < index_pvalue and riskAllele in alleles:
                                                     del index_snp_map[trait_study_sample][clumpNum]
                                                     index_snp_map[trait_study_sample][clumpNum] = rsID
                                                     del sample_map[trait_study_sample][index_snp]
                                                     sample_map[trait_study_sample][rsID] = alleles
                                                     neutral_snps_set.add(index_snp)
+                                                        
+                                                #TODO: Do we even want to look at snps that don't have corresponding alleles?
+                                                # I changed it so that we skip over snps that have "" as their alleles.
+                                                elif pValue > index_pvalue and riskAllele in alleles:
+                                                    if sample_map[trait_study_sample][index_snp] == "":
+                                                        del index_snp_map[trait_study_sample][clumpNum]
+                                                        index_snp_map[trait_study_sample][clumpNum] = rsID
+                                                        del sample_map[trait_study_sample][index_snp]
+                                                        sample_map[trait_study_sample][rsID] = alleles
+                                                        neutral_snps_set.add(index_snp)
+                                                    else:
+                                                        neutral_snps_set.add(rsID)
                                                 else:
                                                     neutral_snps_set.add(rsID)
                                             else:
-                                                neutral_snps_set.add(rsID)
+                                                # Since the clump number for this snp position and study/name
+                                                # doesn't already exist, add it to the index map and the sample map
+                                                index_snp_map[trait_study_sample][clumpNum] = rsID
+                                                sample_map[trait_study_sample][rsID] = alleles
                                         else:
-                                            # Since the clump number for this snp position and study/name
-                                            # doesn't already exist, add it to the index map and the sample map
+                                            # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
                                             index_snp_map[trait_study_sample][clumpNum] = rsID
                                             sample_map[trait_study_sample][rsID] = alleles
                                     else:
-                                        # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
-                                        index_snp_map[trait_study_sample][clumpNum] = rsID
                                         sample_map[trait_study_sample][rsID] = alleles
-                                else:
-                                    sample_map[trait_study_sample][rsID] = alleles
-                                neutral_snps[trait_study_sample] = neutral_snps_set
+                                    neutral_snps[trait_study_sample] = neutral_snps_set
         # Check to see which study/sample combos didn't have any viable snps
         # and create blank entries for the sample map for those that didn't
         # TODO: might need a better way to handle this
@@ -369,12 +376,14 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict):
                 if ("rs" in key):
                     for trait in tableObjDict['associations'][key]['traits'].keys():
                         for study in tableObjDict['associations'][key]['traits'][trait].keys():
-                            if study in studySnps:
-                                snpSet = studySnps[study]
-                            else:
-                                snpSet = set()
-                            snpSet.add(key)
-                            studySnps[study]=snpSet
+                            pValue = tableObjDict['associations'][key]['traits'][trait][study]['pValue']
+                            if pValue <= float(p_cutOff):
+                                if study in studySnps:
+                                    snpSet = studySnps[study]
+                                else:
+                                    snpSet = set()
+                                snpSet.add(key)
+                                studySnps[study]=snpSet
                             if (trait,study,name) not in counter_set:
                                 sample_map[(trait,study,name)][""] = ""
     except ValueError:
