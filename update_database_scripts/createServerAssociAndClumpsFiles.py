@@ -92,7 +92,7 @@ def createAssociationsAndClumpsFiles(params):
     # creating an AllAssociations file for both sexes for the refGen
     for sex in ['male', 'female']:
         associationsObj = callAllAssociationsEndpoint(refGen, sex)
-        associationsFilePath = os.path.join(generalFilePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex))
+        associationsFilePath = os.path.join(generalFilePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0]))
         print("Writing Association File:", (refGen, sex))
         rsIDKeys.update(associationsObj['associations'].keys())
         f = open(associationsFilePath, 'w')

@@ -191,7 +191,10 @@ exports.getAssociationsDownloadFile = (req, res) => {
     var fileName = `allAssociations_${refGen}_${sex}.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
-            next(err); 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
         } else { 
             console.log('Sent:', fileName); 
         } 
