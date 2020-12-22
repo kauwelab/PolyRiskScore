@@ -197,7 +197,7 @@ Study.getByID = (studyIDs, result) => {
 Study.findStudy = (searchStr, result) => {
     // search by citation, title, or pubMedID
     searchString = `%${searchStr}%`
-    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? ;`, [searchString, searchString, searchString],  (err, res) => {
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? OR studyID LIKE ? OR trait LIKE ? OR reportedTrait LIKE ? ;`, [searchString, searchString, searchString, searchString, searchString, searchString],  (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
