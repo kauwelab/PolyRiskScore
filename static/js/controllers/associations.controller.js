@@ -208,14 +208,34 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
     var studyIDsToMetaData = {}
     for (i=0; i < traitData.length; i++) {
         var studyObj = traitData[i]
+        traitStudyTypes = []
+        if (studyObj.hi != "") {
+            traitStudyTypes.push(studyObj.hi)
+        }
+        if (studyObj.lc != "") {
+            traitStudyTypes.push(studyObj.lc)
+        }
+        if (traitStudyTypes.length == 0) {
+            traitStudyTypes.push("O")
+        }
+        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
         if (!(studyObj.studyID in studyIDsToMetaData)) {
-            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, traits: [studyObj.trait], ethnicity: [studyObj.ethnicity]}
+            studyTypes = []
+            if (studyObj.rthi != ""){
+                studyTypes.push(studyObj.rthi)
+            }
+            if (studyObj.rtlc != "") {
+                studyTypes.push(studyObj.rtlc)
+            }
+            if (studyTypes.length == 0) {
+                studyTypes.push("O")
+            }
+            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, studyTypes: studyTypes, traits: {}, ethnicity: ethnicities != "" ? ethnicities : []}
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
         }
         else {
-            studyIDsToMetaData[studyObj.studyID]['traits'].push(studyObj.trait)
-            if (!(studyObj.ethnicity in studyIDsToMetaData[studyObj.studyID]['ethnicity'])) {
-                studyIDsToMetaData[studyObj.studyID]['ethnicity'].push(studyObj.ethnicity)
-            }
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
+            studyIDsToMetaData[studyObj.studyID]['ethnicity'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['ethnicity'], ...ethnicities]))
         }
     }
 
