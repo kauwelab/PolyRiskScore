@@ -287,7 +287,7 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
             AssociationsBySnp[association.snp]['traits'][association.trait] = {}
             AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
             //adds the position as a key to an rsID, if needed
-            if (addPosKeys){
+            if (addPosKeys && association[refGen] != ""){
                 AssociationsBySnp[association[refGen]] = association.snp
             }
         }
