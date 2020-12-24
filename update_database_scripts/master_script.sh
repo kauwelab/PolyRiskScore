@@ -4,7 +4,8 @@
 #   1. download data from the GWAS catalog, 
 #   2. put the data in an association table,
 #   3. create a study table,
-#   4. and upload the new study and association tables to the PRSKB database. 
+#   4. upload the new study and association tables to the PRSKB database, 
+#   5. and create association and clumps download files. 
 # It usually takes 4ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
@@ -88,6 +89,8 @@ else
     done
     wait
     echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
+    python sortAssociationsTable.py $associationTableFolderPath
+    wait
 
 #===============Study Table Code============================================================
     echo "Creating the study table. This can take an hour or more to complete."
@@ -111,6 +114,12 @@ else
     python3 createSampleVCF.py "sample" $sampleVCFFolderPath
     wait 
     echo "Finished creating sample vcf"
+
+#============Create Association and Clumps download files ============================================
+    echo "Creating Association and Clumps download files"
+    python3 createServerAssociAndClumpsFiles.py $password
+    wait
+    echo "Finished creating server download association and clumps files"
 
     read -p "Press [Enter] key to finish..."
 fi
