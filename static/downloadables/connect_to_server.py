@@ -1,3 +1,4 @@
+import sys
 import json
 import math
 import ast
@@ -9,7 +10,7 @@ import datetime
 from multiprocessing import Process
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
+def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
     checkInternetConnection()
 
     # Format variables used for getting associations
@@ -44,27 +45,38 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         associationsPath = os.path.join(workingFilesPath, fileName)
         associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
         strandFlip = True
-
-    # grab all the snps or positions to use for getting the clumps
-    snpsFromAssociations = list(associationsReturnObj['associations'].keys())
+    if associationsReturnObj is None:
+        snpsFromAssociations = []
+        associationsReturnObj = {
+                'associations':{}
+        }
+        f = open(associationsPath, 'w')
+        f.write(json.dumps(associationsReturnObj))
+        f.close()
+        clumpsData = {}
+    else:
+        # grab all the snps or positions to use for getting the clumps
+        snpsFromAssociations = list(associationsReturnObj['associations'].keys())
     # flip strands as needed
-    if (strandFlip):
-        print("Starting strand flipping on additional process")
-        p = Process(target=handleStrandFlippingAndSave, args=(associationsReturnObj, associationsPath))
-        p.start()
+        if (strandFlip):
+            print("Starting strand flipping on additional process")
+            p = Process(target=handleStrandFlippingAndSave, args=(associationsReturnObj, associationsPath))
+            p.start()
+            clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isVCF)
+            print("finishing strand flipping")
+            p.join()
 
     #download clumps
     fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
     clumpsPath = os.path.join(workingFilesPath, fileName)
     # get clumps using the refGen and superpopulation
-    clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isVCF)
     f = open(clumpsPath, 'w')
     f.write(json.dumps(clumpsData))
     f.close()
 
-    if (strandFlip):
-        print("finishing strand flipping")
-        p.join()
+    #if (strandFlip):
+    #    print("finishing strand flipping")
+    #    p.join()
     return
 
 
@@ -161,7 +173,12 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
         "isVCF": isVCF
     }
 
-    associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
+    if finalStudyList == []:
+        print("\nFYI: THE SPECIFIED FILTERS DO NOT MATCH ANY STUDIES OR TRAITS IN OUR DATABASE. THE RESULT FILE WILL BE EMPTY.\n")
+        return
+    else:
+        associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
+     
     return associationsReturnObj
 
 
