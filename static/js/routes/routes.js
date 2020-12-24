@@ -20,6 +20,8 @@ module.exports = app => {
     // Retrieves study general data for specified studies
     app.post("/get_studies", studies.getFiltered);
 
+    app.get("/get_studies_by_id", studies.getByID);
+
     //searches for study titles or citations containing the given search string
     app.get("/find_studies/:searchStr", studies.findStudies);
 
@@ -27,7 +29,6 @@ module.exports = app => {
     app.post("/get_associations", associations.getFromTables);
 
     // Returns all associations for all traits and diseases, given the correct query params
-    // organized {trait: {studies: [associations]}}
     app.get("/all_associations", associations.getAll);
 
     app.get("/all_snps", associations.getAllSnps);
@@ -42,12 +43,16 @@ module.exports = app => {
 
     app.get("/last_database_update", associations.getLastAssociationsUpdate)
 
+    app.get("/get_associations_download_file", associations.getAssociationsDownloadFile)
+
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 
     app.post("/ld_clumping_by_pos", clumps.getClumpingByPos);
 
     app.post("/ld_clumping_by_snp", clumps.getClumpingBySnp);
+
+    app.get("/get_clumps_download_file", clumps.getClumpsDownloadFile)
 
     app.get("/cli_version", cli.version);
 
