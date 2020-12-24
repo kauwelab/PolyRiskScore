@@ -1,14 +1,19 @@
 const Association = require("../models/association.model.js");
 const path = require("path")
-const fs = require("fs")
+const fs = require("fs");
 
 exports.getFromTables = (req, res) => {
-    var studyIDs = req.body.studyIDs
-    var pValue = parseFloat(req.body.pValue);
+    var studyIDObjs = req.body.studyIDObjs
     var refGen = req.body.refGen;
-    var isPosBased = req.body.isPosBased;
+    var defaultSex = req.body.sex;
+    var isVCF = req.body.isVCF;
 
-    Association.getFromTables(studyIDs, pValue, refGen, async (err, data) => {
+    // if not given a defaultSex, default to female
+    if (defaultSex == undefined){
+        defaultSex = "f"
+    }
+
+    Association.getFromTables(studyIDObjs, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
@@ -19,18 +24,23 @@ exports.getFromTables = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            returnData = await separateStudies(associations, traits, refGen, isPosBased)
+            returnData = await separateStudies(associations, traits, refGen, defaultSex, isVCF)
             res.send(returnData);
         }
     });
 };
 
 exports.getAll = (req, res) => {
-    var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
-    var isPosBased = req.query.isPosBased;
+    var defaultSex = req.query.sex;
+    var isVCF = req.query.isVCF;
 
-    Association.getAll(pValue, refGen, async (err, data) => {
+    // if not given a defaultSex, default to female
+    if (defaultSex == undefined){
+        defaultSex = "f"
+    }
+
+    Association.getAll(refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations; ${err}`
@@ -40,7 +50,8 @@ exports.getAll = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             associations = data[0]
             traits = data[1]
-            returnData = await separateStudies(associations, traits, refGen, isPosBased)
+
+            returnData = await separateStudies(associations, traits, refGen, defaultSex, isVCF)
             
             res.send(returnData);
         }
@@ -66,6 +77,29 @@ exports.getAllSnps = (req, res) => {
 
             console.log(`Total snps: ${testArray.size}`)
             res.send(Array.from(testArray));
+        }
+    })
+}
+
+exports.getAllSnpsToStudyIDs = (req, res) => {
+    var refGen = req.query.refGen;
+    Association.getAllSnpsToStudyIDs(refGen, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving snps"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            studyIDsToSnps = {}
+
+            for (i=0; i<data.length; i++) {
+                if (!(Object.keys(studyIDsToSnps).includes(data[i].studyID))) {
+                    studyIDsToSnps[data[i].studyID] = []
+                }
+                studyIDsToSnps[data[i].studyID].push(data[i].snp)
+            }
+            res.send(studyIDsToSnps);
         }
     })
 }
@@ -117,7 +151,21 @@ exports.snpsByEthnicity = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             // formating returned data
-            console.log(data)
+            res.send(data);
+        }
+    })
+}
+
+exports.joinTest = (req, res) => {
+    Association.joinTest((err,data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving join"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
             res.send(data);
         }
     })
@@ -131,55 +179,177 @@ exports.getLastAssociationsUpdate = (req, res) => {
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
 }
 
-async function separateStudies(associations, traitData, refGen, isPosBased) {
-    ident = (isPosBased.toLowerCase() == 'true') ? refGen : 'snp'
+exports.getAssociationsDownloadFile = (req, res) => {
+    sex = req.query.defaultSex
+    refGen = req.query.refGen
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `allAssociations_${refGen}_${sex}.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
+}
 
+async function separateStudies(associations, traitData, refGen, sex, isVCF) {
+
+    // if isVCF, we want to add postions as keys to rsIDs
+    addPosKeys = (isVCF.toLowerCase() == 'true')
+
+    // store the citation and reported trait for each study
     var studyIDsToMetaData = {}
     for (i=0; i < traitData.length; i++) {
         var studyObj = traitData[i]
+        traitStudyTypes = []
+        if (studyObj.hi != "") {
+            traitStudyTypes.push(studyObj.hi)
+        }
+        if (studyObj.lc != "") {
+            traitStudyTypes.push(studyObj.lc)
+        }
+        if (traitStudyTypes.length == 0) {
+            traitStudyTypes.push("O")
+        }
+        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
         if (!(studyObj.studyID in studyIDsToMetaData)) {
-            studyIDsToMetaData[studyObj.studyID] = { reportedTrait: studyObj.reportedTrait, traits: [studyObj.trait] }
+            studyTypes = []
+            if (studyObj.rthi != ""){
+                studyTypes.push(studyObj.rthi)
+            }
+            if (studyObj.rtlc != "") {
+                studyTypes.push(studyObj.rtlc)
+            }
+            if (studyTypes.length == 0) {
+                studyTypes.push("O")
+            }
+            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, studyTypes: studyTypes, traits: {}, ethnicity: ethnicities != "" ? ethnicities : []}
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
         }
         else {
-            studyIDsToMetaData[studyObj.studyID].traits.push(studyObj.trait)
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
+            studyIDsToMetaData[studyObj.studyID]['ethnicity'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['ethnicity'], ...ethnicities]))
         }
     }
 
-    var AssociationsByPos = {}
+    var AssociationsBySnp = {}
+
+    //checks to see if the first item in the array is an array, if so, it merges nested arrays into a single array
+    if (Array.isArray(associations[0])) {
+        var associations = [].concat.apply([], associations);
+    }
+
+    // format the associations with rsIDs (and positions) as keys
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
-
         // if the pos/snp already exists in our map
-        if (association[ident] in AssociationsByPos) {
-            // if the studyID does not already exists for the pos/snp
-            // (TODO--CHANGE THIS: for now, if there is a duplicate, I will just simply ignore it)
-            if (!(association.studyID in AssociationsByPos[association[ident]].studies) && association.studyID in studyIDsToMetaData) {
-                AssociationsByPos[association[ident]].studies[association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+        if (association.snp in AssociationsBySnp){
+            // if the trait already exists for the pos/snp
+            if (association.trait in AssociationsBySnp[association.snp]['traits']){
+                // if the studyID already exists for the pos/snp - trait, check if we should replace the current allele/oddsRatio/pValue
+                if (association.studyID in AssociationsBySnp[association.snp]['traits'][association.trait]){
+                    var replace = compareDuplicateAssociations(AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID], association, sex)
+                    if (replace) {
+                        AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+                    }
+		    //Add an indication of which traits/studies have duplicated snps
+                    if (!('traitsWithDuplicateSnps' in studyIDsToMetaData[association.studyID])) {
+                        studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'] = [association.trait]
+                    }
+                    else if (!(studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].includes(association.trait))) {
+                        studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].push(association.trait)
+                    }
+                }
+                else {
+                    // add the studyID and data
+                    AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+                }
+            }
+            else {
+                // add the trait and studyID data
+                AssociationsBySnp[association.snp]['traits'][association.trait] = {}
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
             }
         }
-        else if (association.studyID in studyIDsToMetaData) {
-            AssociationsByPos[association[ident]] = {
-                snp: association.snp,
+        // else add the pos->trait->studyID 
+        else if (association.studyID in studyIDsToMetaData){
+            AssociationsBySnp[association.snp] = {
                 pos: association[refGen],
-                studies: {}
+                traits: {}
             }
-            AssociationsByPos[association[ident]].studies[association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+            AssociationsBySnp[association.snp]['traits'][association.trait] = {}
+            AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+            //adds the position as a key to an rsID, if needed
+            if (addPosKeys && association[refGen] != ""){
+                AssociationsBySnp[association[refGen]] = association.snp
+            }
         }
         else {
             console.log("Not in studyIDsToMetaData", association.studyID)
         }
     }
 
-    return AssociationsByPos
+    returnObject = {
+        studyIDsToMetaData: studyIDsToMetaData,
+        associations: AssociationsBySnp
+    }
+
+    return returnObject
 }
 
-function createStudyIDObj(association, studyData) {
+function createStudyIDObj(association){
     return {
-        citation: association.citation,
-        reportedTrait: studyData.reportedTrait,
-        traits: studyData.traits,
         riskAllele: association.riskAllele,
         pValue: association.pValue,
         oddsRatio: association.oddsRatio,
+        sex: association.sex,
+    }
+}
+
+// if returns true: replace oldAssoci with newAssoci, if returns false: keep the oldAssoci
+function compareDuplicateAssociations(oldAssoci, newAssoci, defaultSex) {
+    oldAssociScore = getSexScore(oldAssoci.sex, defaultSex)
+    newAssociScore = getSexScore(newAssoci.sex, defaultSex)
+
+    // if associ2 has a better score, replace associ1
+    if (oldAssociScore < newAssociScore){
+        return true
+    }
+    // if associ1 has a better score, keep associ1
+    else if (oldAssociScore > newAssociScore){
+        return false
+    }
+    // if the two have equal scores
+    else {
+        // compare their pValues. keep the one with the most significant (lowest) pValue
+        switch(oldAssoci.pValue <= newAssoci.pvalue){
+            // keep associ1
+            case true:
+                return false;
+            // replace associ1 with associ2
+            default:
+                return true;
+        }
+    }
+}
+
+// creates a way to compare associations by sex
+// if the association doesn't have anything in the sex column, we want to prefer that association so we give it a higher score
+// if the association sex matches the defaultSex, we prefer that over not matching but we prefer that less than the association being 'sex free'
+function getSexScore(sex, defaultSex) {
+    switch(sex[0]){
+        case "": 
+            return 3;
+        case defaultSex[0]:
+            return 2;
+        default:
+            return 1;
     }
 }

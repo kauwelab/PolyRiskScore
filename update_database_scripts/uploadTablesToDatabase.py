@@ -68,7 +68,7 @@ def createTable(cursor, dbTableName):
     if dbTableName == "study_table":
         tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore float, ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )';"
     else:
-        tableColumns = "( snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, citation varchar(50), studyID varchar(20) )';"
+        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20) )';"
     sql = "set names utf8mb4; SET @query = 'CREATE TABLE `" + dbTableName + "` " + \
         tableColumns + "PREPARE stmt FROM @query;" + \
         "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
@@ -102,13 +102,21 @@ def addStudyMaxesView(config):
     cursor.execute(sql)
     cursor.close()
 
+def getFileLineEnding(filePath):
+    ending = "\n"
+    with open(filePath) as readFile:
+        readFile.readline() # header
+        line = readFile.readline()
+        if line[-2] == '\r':
+            ending = "\r\n"
+    return ending
 # the same as the addDataToTable function except if there is an exception, it waits and then attepts to excecute addDataToTable again (this catches the 
 # occational hitch where the table isn't created before the program tries to add data to it)
 def addDataToTableCatch(config, tablesFolderPath, tableName, dbTableName):
     try:
         addDataToTable(config, tablesFolderPath, tableName, dbTableName)
     except:
-        # wait 100 milliseconds, then try runnin addDataToTable again
+        # wait 100 milliseconds, then try running addDataToTable again
         print(dbTableName + ": failed to add data. Trying again in 100 milliseconds.")
         sleep(0.1)
         addDataToTable(config, tablesFolderPath, tableName, dbTableName)
@@ -119,9 +127,10 @@ def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     cursor = connection.cursor()
     path = os.path.join(tablesFolderPath, tableName + ".tsv")
     path = path.replace("\\", "/")
+    lineEnding = repr(getFileLineEnding(path))
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
-        '`CHARACTER SET latin1 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY "\n" IGNORE 1 LINES;'
+        '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding + ' IGNORE 1 LINES;'
     cursor.execute(sql, multi=True)
     print(dbTableName + " data added")
     cursor.close()

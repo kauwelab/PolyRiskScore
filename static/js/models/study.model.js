@@ -75,8 +75,10 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
     // potentially change the output format??
     //if traits is null, assume they want all 
     if (traits) {
-        for (i = 0; i < traits.length - 1; i++) {
-            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+        if (Array.isArray(traits)) {
+            for (i = 0; i < traits.length - 1; i++) {
+                sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+            }
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
         
@@ -165,6 +167,30 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
         });
     });
 };
+
+Study.getByID = (studyIDs, result) => {
+    sqlQMarks = ''
+    if (Array.isArray(studyIDs)){
+        for (i = 0; i < studyIDs.length - 1; i++) {
+            sqlQMarks = sqlQMarks.concat("?, ")
+        }
+    }
+    else {
+        studyIDs = [studyIDs]
+    }
+    sqlQMarks = sqlQMarks.concat("?")
+
+    sql.query(`SELECT * FROM study_table WHERE studyID IN (${sqlQMarks}) ;`, studyIDs,  (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        console.log(`find studies queried with '${searchStr}', ${result.length} result(s)`);
+        result(null, res);
+    });
+}
 
 Study.findStudy = (searchStr, result) => {
     // search by citation, title, or pubMedID
