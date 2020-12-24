@@ -135,6 +135,20 @@ exports.getFiltered = (req, res) => {
     });
 };
 
+exports.getByID = (req, res) => {
+    Study.getByID(req.params.studyIDs, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving studies"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(data);
+        }
+    });
+}
+
 exports.findStudies = (req, res) => {
     Study.findStudy(req.params.searchStr, (err, data) => {
         if (err) {
