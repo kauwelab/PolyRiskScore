@@ -174,7 +174,7 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
     }
 
     if finalStudyList == []:
-        print("\nFYI: THE SPECIFIED FILTERS DO NOT MATCH ANY STUDIES OR TRAITS IN OUR DATABASE. THE RESULT FILE WILL BE EMPTY.\n")
+        print("\n!!!!FYI: THE SPECIFIED FILTERS DO NOT MATCH ANY STUDIES OR TRAITS IN OUR DATABASE. THE RESULT FILE WILL BE EMPTY.!!!!\n")
         return
     else:
         associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
@@ -207,26 +207,25 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
     print("Retrieving clumping information")
 
     try:
-        if isVCF:
-            chromToPosMap = {}
-            clumps = {}
-            for pos in snpsFromAssociations:
-                if (len(pos.split(":")) > 1):
-                    chrom,posit = pos.split(":")
-                    if (chrom not in chromToPosMap.keys()):
-                        chromToPosMap[chrom] = [pos]
-                    else:
-                        chromToPosMap[chrom].append(pos)
+        chromToPosMap = {}
+        clumps = {}
+        for pos in snpsFromAssociations:
+            if (len(pos.split(":")) > 1):
+                chrom,posit = pos.split(":")
+                if (chrom not in chromToPosMap.keys()):
+                    chromToPosMap[chrom] = [pos]
+                else:
+                    chromToPosMap[chrom].append(pos)
 
-            print("Clumps downloaded by chromosome:")
-            for chrom in chromToPosMap:
-                print("{0}...".format(chrom), end="", flush=True)
-                body['positions'] = chromToPosMap[chrom]
-                clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
-            print('\n')
-        else:
-            body['snps'] = snpsFromAssociations
-            clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
+        print("Clumps downloaded by chromosome:")
+        for chrom in chromToPosMap:
+            print("{0}...".format(chrom), end="", flush=True)
+            body['positions'] = chromToPosMap[chrom]
+            clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
+        print('\n')
+        #else:
+        #    body['snps'] = snpsFromAssociations
+        #    clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
     except AssertionError:
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
 
