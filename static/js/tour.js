@@ -11,6 +11,7 @@ var templateWithoutNext = `<div class='popover tour'>
 </div> 
 </div>`
 var refGenTourIndex = 3
+var superPopTourIndex = 4
 
 function startTour() {
     // Instance the tour
@@ -58,7 +59,15 @@ function startTour() {
                 title: "Select ethnicity of individual(s) in your VCF file.",
                 content: "This will be used to perform LD clumping on your data (see the learn more \
                 page). If you are unsure about the ethnicity of the individual(s) in your file, \
-                leave this field blank. For now, just press the next button."
+                choose the one you believe to be the most accurate.",
+                template: templateWithoutNext
+            },
+            {
+                element: "#sex",
+                title: "Select the sex of the individuals in your VCF file.",
+                content: "This will be used to select odds ratios and p-values to use when there \
+                are multiple odds ratios available for the same snp due to them being associated \
+                with biological sex. Our system will default to female if no sex is selected. "
             },
             {
                 element: "#traitSelectContainer",
@@ -144,6 +153,9 @@ function moveToNextTourIndex(stepName) {
     if (typeof tour !== "undefined") {
         //check if the tour is at the refGen selection point to prevent advances at the wrong times 
         if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
+            tour.next()
+        }
+        if ((stepName == 'superPop' && tour.getCurrentStep() == superPopTourIndex)) {
             tour.next()
         }
     }

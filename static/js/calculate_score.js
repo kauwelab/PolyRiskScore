@@ -149,15 +149,14 @@ function getSelectStudyAssociationsByID(studyList, pValue, refGen) {
 
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
 var calculatePolyScore = async () => {
-    document.getElementById('resultsDisplay').style.display = 'block';
-    updateResultBoxAndStoredValue("Calculating. Please wait...")
-
     // get the values from the user's inputs/selections
     var vcfFile = document.getElementById("files").files[0];
     var refGenElement = document.getElementById("refGenome");
     var refGen = refGenElement.options[refGenElement.selectedIndex].value
     var ethElement = document.getElementById("LD-ethnicitySelect");
-    var ethnicity = ethElement.options[ethElement.selectedIndex].value
+    var superPop = ethElement.options[ethElement.selectedIndex].value
+    var sexElement = document.getElementById("sex");
+    var sex = sexElement.options[sexElement.selectedIndex].value
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
     var traits = [...traitNodes].map(option => option.value);
     var studyNodes = document.querySelectorAll('#studySelect :checked');
@@ -167,14 +166,25 @@ var calculatePolyScore = async () => {
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
 
     //if the user doesn't specify a trait, study, or reference genome, prompt them to do so
+    if (refGen == "default" || superPop == "default") {
+        updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
+        document.getElementById('resultsDisplay').style.display = 'block';
+        return;
+    }
     if (studies.length === 0) {
         updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
+        document.getElementById('resultsDisplay').style.display = 'block';
         return;
     }
-    if (refGen == "default") {
-        updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
-        return;
+    if (sex == "default") {
+        sex = "f"
+        if (!confirm("The default sex is female. Since no sex was selected, we will use the default sex. Continue?")) {
+            return
+        }
     }
+
+    document.getElementById('resultsDisplay').style.display = 'block';
+    updateResultBoxAndStoredValue("Calculating. Please wait...")
 
     //convert the studies into a list of studyIDs
     var studyList = [];
