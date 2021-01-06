@@ -166,7 +166,7 @@ var calculatePolyScore = async () => {
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
 
     //if the user doesn't specify a trait, study, or reference genome, prompt them to do so
-    if (refGen == "default" || superPop == "default") {
+    if (refGen == "default") {
         updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
