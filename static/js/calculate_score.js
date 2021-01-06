@@ -171,6 +171,11 @@ var calculatePolyScore = async () => {
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
     }
+    if (superPop == "default") {
+        updateResultBoxAndStoredValue('Please select the super population corresponding to your file (step 2).');
+        document.getElementById('resultsDisplay').style.display = 'block';
+        return;
+    }
     if (studies.length === 0) {
         updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
         document.getElementById('resultsDisplay').style.display = 'block';
