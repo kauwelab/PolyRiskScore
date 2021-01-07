@@ -29,23 +29,24 @@ Association.getFromTables = (studyIDObjs, refGen, result) => {
         studyIDs = []
         questionMarks = []
 
-	if (!Array.isArray(studyIDObjs)) {
-	    studyIDObjs = [studyIDObjs]
-	}
+        if (!Array.isArray(studyIDObjs)) {
+            studyIDObjs = [studyIDObjs]
+        }
         // returns the refgen if valid, else throws an error
         refGen = validator.validateRefgen(refGen)
 
         studyIDObjs.forEach(studyObj => {
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
-		studyObj = JSON.parse(studyObj)
-	    }
-	    queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ?; `)
+                studyObj = JSON.parse(studyObj)
+            }
+            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, oddsRatio, sex, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ?; `)
             queryParams = queryParams.concat([studyObj.studyID, studyObj.trait])
             studyIDs.push(studyObj.studyID)
             questionMarks.push("?")
         })
 
         questionMarks = questionMarks.join(", ")
+        console.log('about to query table')
 
         sql.query(queryString, queryParams, (err, res) => {
             if (err) {
@@ -54,8 +55,7 @@ Association.getFromTables = (studyIDObjs, refGen, result) => {
                 return;
             }
             console.log(`Got ${res.length} studies with associations from table`)
-            console.log("Getting the metaData associated with the studies")
-            sqlQ = 
+            console.log("Getting the metaData associated with the studies") 
             sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) LIKE altmetricScore, 'HI', '') as hi, `+
              `IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, `+

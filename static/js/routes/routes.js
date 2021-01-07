@@ -44,6 +44,8 @@ module.exports = app => {
 
     app.get("/get_associations_download_file", associations.getAssociationsDownloadFile)
 
+    app.post("/strand_flipping_results", associations.strandFlipping)
+
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 
