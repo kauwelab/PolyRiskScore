@@ -97,9 +97,9 @@ else
     wait
     echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
     # delete the raw study data files after the study table has been created
-    # rm "./rawGWASStudyData.tsv"
-    # rm "./rawGWASPublications.tsv"
-    # rm "./rawGWASAncestries.tsv"
+    rm "./rawGWASStudyData.tsv"
+    rm "./rawGWASPublications.tsv"
+    rm "./rawGWASAncestries.tsv"
 
 #===============Upload Tables to PRSKB Database========================================================
     # if updatedStudies is empty or none, dont' upload, otherwise upload new tables

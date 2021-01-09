@@ -25,31 +25,31 @@
 #        "raf" is the risk allele frequency
 #        "riskAllele" is the risk allele
 #        "pValue" is the p-value
-#        "pValueAnnotation" is the description associated with the given p-value (TODO-temporary!!!)
+#        "pValueAnnotation" is the description associated with the given p-value
 #        "oddsRatio" is the odds ratio associated with the given p-value
 #        "lowerCI" is the lower confidence interval of the odds ratio
 #        "upperCI" is the upper confidence interval of the odds ratio
-#        "population" is the population associated with the snp p-value #TODO add
 #        "sex" is the sex associated with the snp p-value
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
 
-# population mappings
-# africanAmericanAfroCaribbean <- c()
-# africanUnspecified <- c()
-# asianUnspecified <- c()
-# eastAsian <- c()
-# european <- c()
-# greaterMiddleEastern <- c()
-# hispanicLatinAmericam <- c()
-# nativeAmerican <- c()
-# oceanian <- c()
-# southAsian <- c()
-# southEastAsian <- c()
-# subSaharanAfrican <- c()
-
-# african <- c(africanAmericanAfroCaribbean, africanUnspecified, subSaharanAfrican)
-# american <- c()
+# TODO add population column
+  # "population" is the population associated with the snp p-value 
+  # possible population mappings
+  # africanAmericanAfroCaribbean <- c()
+  # africanUnspecified <- c()
+  # asianUnspecified <- c()
+  # eastAsian <- c()
+  # european <- c()
+  # greaterMiddleEastern <- c()
+  # hispanicLatinAmericam <- c()
+  # nativeAmerican <- c()
+  # oceanian <- c()
+  # southAsian <- c()
+  # southEastAsian <- c()
+  # subSaharanAfrican <- c()
+  # african <- c(africanAmericanAfroCaribbean, africanUnspecified, subSaharanAfrican)
+  # american <- c()
 
 # get args from the commandline- these are evaluated after imports section below
 args = commandArgs(trailingOnly=TRUE)
@@ -249,46 +249,27 @@ if (is_ebi_reachable()) {
   }
   
   # returns a vector of NA, male, or female given a vector of p-value descriptions
-  getSexFromDescription <- function(pValueDescription) {
+  getSexesFromDescriptions <- function(pValueDescription) {
     femaleIndicator <- "female"
     maleIndicator <- "male"
-    pop <- c()
+    sexes <- c()
     for (desc in pValueDescription) {
       desc <- tolower(desc)
       if (is.na(desc)) {
-        pop <- c(pop, NA)
+        sexes <- c(sexes, NA)
       }
       else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
-          pop <- c(pop, femaleIndicator)
+          sexes <- c(sexes, femaleIndicator)
       }
       else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
-        pop <- c(pop, maleIndicator)
+        sexes <- c(sexes, maleIndicator)
       }
       else {
-        pop <- c(pop, NA)
+        sexes <- c(sexes, NA)
       }
     }
-    return(pop)
+    return(sexes)
   }
-  
-  #TODO
-    # returns a vector of populations given a vector of p-value descriptions
-  # getPopFromDescription <- function(pValueDescription) {
-  #   pop <- c()
-  #   for (desc in pValueDescription) {
-  #     desc = tolower(desc)
-  #     if (is.na(desc)) {
-  #       pop <- c(pop, NA)
-  #     }
-  #     else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
-  #       pop <- c(pop, femaleIndicator)
-  #     }
-  #     else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
-  #       pop <- c(pop, maleIndicator)
-  #     }
-  #   }
-  #   return(pop)
-  # }
   
 #------------------------------------------------------------------------------------------------------------------------
   
@@ -327,7 +308,7 @@ if (is_ebi_reachable()) {
       pubmedID <- pull(publications[i, "pubmed_id"])
       
       # if the study ID is invalid, skip it (currently does nothing since all studies are only visited once)
-      if (FALSE) { #(studyID %in% invalidStudies) {
+      if (studyID %in% invalidStudies) {
         DevPrint(paste0("    skipping study bc not enough snps: ", citation, "-", studyID))
       } else {
         DevPrint(paste0("  ", i, ". ", citation))
@@ -387,9 +368,7 @@ if (is_ebi_reachable()) {
             tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
             add_column(citation = citation) %>%
             add_column(studyID = studyID, .after = "citation") %>%
-            #TODO
-            # add_column(population = getPopFromDescription(master_associations[["pvalue_description"]])) %>%
-            add_column(sex = getSexFromDescription(master_associations[["pvalue_description"]])) %>%
+            add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
             mutate(pvalue_description = tolower(pvalue_description))
           # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
           studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))

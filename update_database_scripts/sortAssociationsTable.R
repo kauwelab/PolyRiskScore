@@ -1,4 +1,4 @@
-# This script orders a preexisting associations_table so that studyIDs are ordered and then SNPs. After ordering, adds an id 
+# This script orders a preexisting associations_table by trait, then citation, then snp. After ordering, adds an id 
 # column starting at 1 and incrementing by 1 for every new row.
 
 # How to run: Rscript orderAssociations.R "associationTableFolderPath"
