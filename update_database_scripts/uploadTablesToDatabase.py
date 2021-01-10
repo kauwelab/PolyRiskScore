@@ -68,25 +68,16 @@ def createTable(cursor, dbTableName):
     if dbTableName == "study_table":
         tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore float, ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )';"
     else:
-        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, citation varchar(50), studyID varchar(20) )';"
-    
+        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20) )';"
     sql = "set names utf8mb4; SET @query = 'CREATE TABLE `" + dbTableName + "` " + \
         tableColumns + "PREPARE stmt FROM @query;" + \
         "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
 
-    #TODO
-    # sql = "CREATE TABLE " + dbTableName + ";"
-    # sql = "SELECT 1/0;"
-    
-    print(sql)
     try:
-        print("tsets")
         cursor.execute(sql, multi=True)
     except mysql.connector.Error as err:
         print("Something went wrong: {}".format(err))
-
     cursor.close()
-
 
 # removes the table in fileNames if it exists and creates a new table
 def createFreshTable(config, tableName, dbTableName):
