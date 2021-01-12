@@ -66,17 +66,12 @@ def deleteTable(cursor, dbTableName):
 def createTable(cursor, dbTableName):
     tableColumns = ""
     if dbTableName == "study_table":
-        tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore float, ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )';"
+        tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore float, ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )"
     else:
-        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20) )';"
-    sql = "set names utf8mb4; SET @query = 'CREATE TABLE `" + dbTableName + "` " + \
-        tableColumns + "PREPARE stmt FROM @query;" + \
-        "EXECUTE stmt;" + "DEALLOCATE PREPARE stmt;"
+        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20) )"
+    sql = "CREATE TABLE `" + dbTableName + "` " + tableColumns + ";"
 
-    try:
-        cursor.execute(sql, multi=True)
-    except mysql.connector.Error as err:
-        print("Something went wrong: {}".format(err))
+    cursor.execute(sql)
     cursor.close()
 
 # removes the table in fileNames if it exists and creates a new table
@@ -107,6 +102,8 @@ def addStudyMaxesView(config):
     cursor.execute(sql)
     cursor.close()
 
+# gets the line ending pattern ("\n" or "\r\n") from the file at the given filePath; the line ending is then used outside of this function to upload the
+# file to the mysql database with the correct line ending
 def getFileLineEnding(filePath):
     ending = "\n"
     with open(filePath) as readFile:
@@ -115,6 +112,7 @@ def getFileLineEnding(filePath):
         if line[-2] == '\r':
             ending = "\r\n"
     return ending
+
 # the same as the addDataToTable function except if there is an exception, it waits and then attepts to excecute addDataToTable again (this catches the 
 # occational hitch where the table isn't created before the program tries to add data to it)
 def addDataToTableCatch(config, tablesFolderPath, tableName, dbTableName):
@@ -136,7 +134,7 @@ def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
         '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding + ' IGNORE 1 LINES;'
-    cursor.execute(sql, multi=True)
+    cursor.execute(sql)
     print(dbTableName + " data added")
     cursor.close()
     connection.close()
@@ -203,31 +201,13 @@ def main():
     enableLocalLoad(connection.cursor())
     connection.close()
 
-    #TODO
-    connection = mysql.connector.connect(
-        host="localhost",
-        user="polyscore",
-        password=password,
-        database="polyscore"
-    )
-    # connection = getConnection(config)
-    mycursor = connection.cursor()
-
-    # mycursor.execute("CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))")
-    #TODO this statement works once, but then not again until I cause an error, fix the error, and run this code again
-    mycursor.execute("set names utf8mb4; SET @query = 'CREATE TABLE `associations_table` ( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, citation varchar(50), studyID varchar(20) )';PREPARE stmt FROM @query;EXECUTE stmt;DEALLOCATE PREPARE stmt;", multi=True)
-    mycursor.execute("SHOW TABLES")
-
-    for x in mycursor:
-        print(x)
-
     # add the associations_table to the database
-    # createFreshTable(config, "associations_table", "associations_table")
-    # addDataToTableCatch( config, associationTableFolderPath, "associations_table", "associations_table")
+    createFreshTable(config, "associations_table", "associations_table")
+    addDataToTableCatch( config, associationTableFolderPath, "associations_table", "associations_table")
 
     # add the study_table to the database
-    # createFreshTable(config, "study_table", "study_table")
-    # addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
+    createFreshTable(config, "study_table", "study_table")
+    addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
 
     print("Done!")
 
