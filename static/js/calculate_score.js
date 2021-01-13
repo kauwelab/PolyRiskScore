@@ -543,38 +543,6 @@ function getSnpFromLine(line) {
     return match != null ? match[0] : null
 }
 
-function formatText(jsonObject, isCondensed) {
-    var returnText = "P Value Cutoff: " + jsonObject.pValueCutoff +
-        " \nTotal Variants in File: " + jsonObject.totalVariants + " " +
-        "\nStudy Results: "
-
-    // iterate through the studyIDs and print them out
-    //iterate through the list of people and print them each out seperately.
-    for (studyID in jsonObject['studyResults']) {
-        returnText += 
-            `\n  Study ID: ${studyID}` +
-            `\n    Reported Trait: ${jsonObject['studyResults'][studyID].reportedTrait}` +
-            `\n    Citation: ${jsonObject['studyResults'][studyID].citation}` +
-            `\n    Traits: `
-        for (trait in jsonObject['studyResults'][studyID]['traits']) {
-            returnText += 
-                    `\n      ${trait}:` 
-            for (sample in jsonObject['studyResults'][studyID]['traits'][trait]) {
-                returnText += 
-                    `\n        ${sample}:` +
-                    `\n          Odds Ratio: ${jsonObject['studyResults'][studyID]['traits'][trait][sample]['oddsRatio']}`
-                if (!isCondensed) {
-                    returnText += 
-                        `\n          Protective Variants: ${jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants'].join("|")}` +
-                        `\n          Risk Variants: ${jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants'].join("|")}` +
-                        `\n          Variants with Unknown Effect: ${jsonObject['studyResults'][studyID]['traits'][trait][sample]['neutralVariants'].join("|")}`
-                }
-            }
-        }
-    }
-    return returnText;
-}
-
 function formatCSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
     //TODO: account for if the samples are not in the same order everytime
@@ -666,9 +634,7 @@ function getResultOutput(jsonObject) {
         var fileFormatEle = document.getElementById('fileFormat');
         var isCondensed = fileFormatEle.options[fileFormatEle.selectedIndex].value == 'condensed' ? true : false
 
-        if (format === "text")
-            outputVal += formatText(jsonObject, isCondensed);
-        else if (format === "csv")
+        if (format === "csv")
             outputVal += formatCSV(jsonObject, isCondensed);
         else if (format === "json")
             outputVal += JSON.stringify(jsonObject);

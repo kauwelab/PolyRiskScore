@@ -67,7 +67,8 @@ function startTour() {
                 title: "Select the sex of the individuals in your VCF file.",
                 content: "This will be used to select odds ratios and p-values to use when there \
                 are multiple odds ratios available for the same snp due to them being associated \
-                with biological sex. Our system will default to female if no sex is selected. "
+                with biological sex. This is not a common occurence. Our system will default to \
+                female if no sex is selected. "
             },
             {
                 element: "#traitSelectContainer",
