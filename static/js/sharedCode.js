@@ -8,104 +8,147 @@
      * @param {*} pValue 
      * @return a string in JSON format of each idividual, their scores, and other information about their scores.
      */
-    exports.calculateScore = function (assocationData, greppedSamples, pValue, associMap, totalInputVariants) {
-        var resultJsons = [];
+    exports.calculateScore = function (associationData, clumpsData, greppedSamples, pValue, totalInputVariants) {
+        var resultObj = {};
+        var indexSnpObj = {};
+        var resultJsons = {};
+
         if (greppedSamples == undefined) {
             throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
         }
         else {
-            //push information about the calculation to the result
-            resultJsons.push({ pValueCutoff: pValue, totalVariants: totalInputVariants })//Array.from(greppedSamples.entries())[0][1].length })
+            //add information to results
+            resultJsons = { 
+                pValueCutoff: pValue, 
+                totalVariants: totalInputVariants,
+                studyResults: {}
+            }
             //if the input data has at least one individual
             if (greppedSamples.size > 0) {
                 //for each individual, get a map containing all studies to the oddsRatios, snps and pos associated to each study and individual
                 //then convert this map into the right format for results
                 //for each individual and their snp info in the vcf object
                 for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
-                    //key value pairs- study:{oddsRatios, snps, pos}
-                    var studyObjs = new Map();
+                    // //key value pairs- study:{oddsRatios, snps, pos}
+                    // var studyObjs = new Map();
+                    
+                    for (studyID in associationData['studyIDsToMetaData']) {
+                        for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
+                            console.log(trait)
+                            if (!(studyID in resultObj)) {
+                                resultObj[studyID] = {}
+                            }
+                            if (!(trait in resultObj[studyID])) {
+                                resultObj[studyID][trait] = {}
+                            }
+                            if (!(individualName in resultObj[studyID][trait])) {
+                                resultObj[studyID][trait][individualName] = {
+                                    snps: {},
+                                    neutralSnps: []
+                                }
+                            }
+                            if (!((trait, studyID, individualName) in indexSnpObj)) {
+                                indexSnpObj[(trait, studyID, individualName)] = {}
+                            }
+                        }
+                    }
+
                     //for each snp of the individual in the vcf
                     individualSNPObjs.forEach(function (individualSNPObj) {
                         //using the individualSNPObj.pos as key, gets all corresponding databasePosObjs from the database through
                         //usefulPos. Each databasePosObj contains: snp, pos, oddsRatio, allele, study, traits, reportedTraits, and studyID
                         //databasePosObjs will normally only be size 1, but when mutiple studies have the same allele, it will be longer
-                        var databasePosObjs = Array.from(associMap.get(individualSNPObj.pos))
-                        databasePosObjs.forEach(function (databasePosObj) {
-                            var oddsRatioTempList = [];
-                            var snpTempList = [];
-                            var posTempList = [];
-                            //for each allele of the vcf snp obj
-                            individualSNPObj.alleleArray.forEach(function (allele) {
-                                //if the vcf allele matches the database allele 
-                                if ((allele !== null && databasePosObj.allele === allele)) {
-                                    oddsRatioTempList.push(databasePosObj.oddsRatio)
-                                    snpTempList.push(databasePosObj.snp)
-                                    posTempList.push(databasePosObj.pos)
-                                }
-                            });
-                            //if there is new data to be added (one or both of the sample alleles matched the risk allele),
-                            //add the new data to the studyObjs
-                            if (oddsRatioTempList.length > 0) {
-                                //if the study has already been initialized and added to studyObjs add the new data to the existing studyObj
-                                if (studyObjs.has(databasePosObj.studyID)) {
-                                    var studyObj = studyObjs.get(databasePosObj.studyID);
-                                    studyObj.oddsRatios = studyObj.oddsRatios.concat(oddsRatioTempList);
-                                    studyObj.snps = studyObj.snps.concat(snpTempList);
-                                    studyObj.pos = studyObj.pos.concat(posTempList);
-                                    studyObjs.set(databasePosObj.studyID, studyObj)
-                                }
-                                //otherwise create a new study entry in studyObjs with the new data
-                                else {
-                                    var studyObj = {
-                                        oddsRatios: oddsRatioTempList,
-                                        snps: snpTempList,
-                                        pos: posTempList
+
+                        console.log(individualSNPObj)
+                        key = individualSNPObj.snp
+                        alleles = individualSNPObj.alleleArray
+
+                        if (!key.includes("rs")) {
+                            if (individualSNPObj.pos in associationData['associations']){
+                                key = associationData['associations'][individualSNPObj.pos]
+                            }
+                        }
+
+                        if (key in associationData['associations'] && alleles != []) {
+                            for (trait in associationData['associations'][key]['traits']) {
+                                for (studyID in associationData['associations'][key]['traits'][trait]) {
+                                    traitStudySamp = (trait, studyID, individualName)
+                                    associationObj = associationData['associations'][key]['traits'][trait][studyID]
+
+                                    if (associationObj.pValue <= pValue) {
+                                        numAllelesMatch = 0
+                                        console.log(alleles, associationObj.riskAllele)
+                                        for (i=0; i < alleles.length; i++) {
+                                            allele = alleles[i]
+                                            if (allele == associationObj.riskAllele){
+                                                numAllelesMatch++;
+                                            }
+                                            else {
+                                                resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                            }
+                                        }
+                                        if (numAllelesMatch > 0) {
+                                            if (clumpsData !== undefined && key in clumpsData) {
+                                                clumpNum = clumpsData[key]
+                                                if (clumpNum in indexSnpObj[traitStudySamp]) {
+                                                    indexClumpSnp = indexSnpObj[traitStudySamp][clumpNum]
+                                                    indexPvalue = associationData['associations'][key]['traits'][trait][studyID]['pValue']
+                                                    if (associationObj.pValue < indexPvalue) {
+                                                        delete resultObj[studyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                        resultObj[studyID][trait][individualName]['neutralSnps'].push(indexClumpSnp)
+                                                        resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                                        indexSnpObj[traitStudySamp][clumpNum] = key
+                                                    }
+                                                    else {
+                                                        // add the current snp to neutral snps
+                                                        resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                                    }
+                                                }
+                                                else {
+                                                    // add the clumpNum/key to the indexSnpObj
+                                                    indexSnpObj[traitStudySamp][clumpNum] = key
+                                                    resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                                }
+                                            } else {
+                                                // just add the snp to calculations
+                                                resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                            }
+                                            // if only one of the alleles is a risk allele, add it to the neutralSnps
+                                            if (numAllelesMatch == 1) {
+                                                resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                            }
+                                        }
                                     }
-                                    studyObjs.set(databasePosObj.studyID, studyObj)
                                 }
                             }
-                        });
-                    });
+                        }
+                    })
+                }
 
-                    //takes the studyObj results and organizes them to return according to the order
-                    //studies in associationData
-                    var studyResults = [];
-                    //for each database study
-                    Object.keys(assocationData).forEach(function (studyID) {
-                        var studyEntry = assocationData[studyID]
-                        var citation = studyEntry["citation"];
-                        var traits = studyEntry["traits"];
-                        var reportedTraits = studyEntry["reportedTraits"];
-                            
-                        //if the study has results, push the study results to the study results for the trait
-                        if (studyObjs.has(studyID)) {
-                            studyResults.push({
-                                studyID: studyID,
-                                citation: citation,
-                                traits: traits,
-                                reportedTraits: reportedTraits,
-                                oddsRatio: getCombinedORFromArray(studyObjs.get(studyID).oddsRatios),
-                                numSNPsIncluded: studyObjs.get(studyID).snps.length,
-                                chromPositionsIncluded: studyObjs.get(studyID).pos,
-                                snpsIncluded: studyObjs.get(studyID).snps
-                            });
+                for (studyID in resultObj) {
+                    console.log(studyID)
+                    console.log(associationData['studyIDsToMetaData'])
+                    tmpStudyObj = {
+                        citation: associationData['studyIDsToMetaData'][studyID]['citation'],
+                        reportedTrait: associationData['studyIDsToMetaData'][studyID]['reportedTrait'],
+                        traits: {}
+                    }
+                    for (trait in resultObj[studyID]) {
+                        tmpTraitObj = {}
+                        for (sample in resultObj[studyID][trait]) {
+                            console.log(resultObj[studyID][trait][sample])
+                            scoreAndSnps = calculateCombinedORandFormatSnps(resultObj[studyID][trait][sample], trait, studyID, associationData)
+                            tmpSampleObj = {
+                                oddsRatio: scoreAndSnps[0],
+                                protectiveVariants: scoreAndSnps[2],
+                                riskVariants: scoreAndSnps[1],
+                                neutralVariants: scoreAndSnps[3]
+                            }
+                            tmpTraitObj[this.trim(sample)] = tmpSampleObj
                         }
-                        //otherwise create empty results
-                        else {
-                            studyResults.push({
-                                studyID: studyID,
-                                citation: citation,
-                                traits: traits,
-                                reportedTraits: reportedTraits,
-                                oddsRatio: "No variants matched", //TODO make this prettier like the CLI
-                                numSNPsIncluded: 0,
-                                chromPositionsIncluded: [],
-                                snpsIncluded: []
-                            });
-                        }
-                    });
-                    //create a new JSON object containing the individual name followed by their trait results list
-                    resultJsons.push({ individualName: this.trim(individualName), studyResults: studyResults })
+                        tmpStudyObj['traits'][trait] = tmpTraitObj
+                    }
+                    resultJsons['studyResults'][studyID] = tmpStudyObj
                 }
             }
             //if the input data doesn't have an individual in it (we can assume this is a text input query with no matching SNPs)
@@ -118,14 +161,36 @@
         }
     };
 
-    function getCombinedORFromArray(ORs) {
-        //calculate the combined odds ratio from the odds ratio array (ORs)
+    function calculateCombinedORandFormatSnps(sampleObj, trait, studyID, associationData) {
         var combinedOR = 0;
-        ORs.forEach(function (element) {
-            combinedOR += Math.log(element);
-        });
-        combinedOR = Math.exp(combinedOR);
-        return combinedOR;
+        var protective = new Set()
+        var risk = new Set()
+        var neutral = new Set(sampleObj.neutralSnps)
+
+        //calculate the odds ratio and determine which alleles are protective, risk, and neutral
+        for (snp in sampleObj['snps']) {
+            snpDosage = sampleObj['snps'][snp]
+            snpOR = associationData['associations'][snp]['traits'][trait][studyID]['oddsRatio']
+            combinedOR += (Math.log(snpOR) * snpDosage)
+            if (snpOR > 1) {
+                risk.add(snp)
+            }
+            else if (snpOR < 1) {
+                protective.add(snp)
+            }
+            else {
+                neutral.add(snp)
+            }
+        }
+
+        if (combinedOR === 0) {
+            combinedOR = "NF"
+        }
+        else {
+            combinedOR = Math.exp(combinedOR);
+        }
+
+        return [combinedOR, Array.from(risk), Array.from(protective), Array.from(neutral)]
     }
 
     /**
@@ -179,61 +244,5 @@
         });
         return vcfObj;
     };
-
-    /**
-     * Gets a map where the keys are pos or snpIDs and the values are sets of objects correspoinding to a single association
-     * {snp, pos, oddsRatio, allele, study, trait}. Whethere the keys are pos or snpIDs depends on the "isPosBased boolean." 
-     * If isPosBased is true, the keys are pos, otherwise they are snp ids. isPosBased is true for file calculations and false
-     * for text calculations.
-     */
-    exports.getAssociationMap = function (associationData, isPosBased) {
-
-        var usefulIdentifiers = new Map()
-
-        var studyIDs = Object.keys(associationData)
-        //for each database study
-        for (let i = 0; i < studyIDs.length; ++i) {
-            var studyID = studyIDs[i];
-            var studyIDObj = associationData[studyID];
-            var citation = studyIDObj["citation"]
-            var associations = studyIDObj["associations"]
-            var traits = studyIDObj["traits"]
-            var reportedTraits = studyIDObj["reportedTraits"]
-            //for each row of the study in the database study
-            for (let k = 0; k < associations.length; ++k) {
-                //create a key value pair with the key being the position or snpID
-                //and the value being a set of identifier objects corresponding to
-                //row values within the database
-                var identifier = "";
-                var pos = associations[k].pos;
-                var snp = associations[k].snp;
-                if (isPosBased) {
-                    identifier = pos;
-                }
-                else {
-                    identifier = snp;
-                }
-                var indentifierObj = {
-                    snp: snp,
-                    pos: pos,
-                    oddsRatio: associations[k].oddsRatio,
-                    allele: associations[k].riskAllele,
-                    study: citation,
-                    traits: traits,
-                    reportedTraits: reportedTraits,
-                    studyID: studyID
-                }
-                //if the pos or id is already in the map, add the new indentifierObj to the set at that key
-                if (usefulIdentifiers.has(identifier)) {
-                    usefulIdentifiers.set(identifier, usefulIdentifiers.get(identifier).add(indentifierObj));
-                }
-                //otherwise create a new key value pair
-                else {
-                    usefulIdentifiers.set(identifier, new Set([indentifierObj]));
-                }
-            }
-        }
-        return usefulIdentifiers;
-    }
 
 })(typeof exports === 'undefined' ? this['sharedCode'] = {} : exports);

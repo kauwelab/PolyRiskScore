@@ -14,6 +14,12 @@ function updateResultBoxAndStoredValue(str) {
     resultJSON = str
 }
 
+function addToResultBox(str) {
+    newText = document.getElementById('response').innerHTML.concat('\n', str);
+    $('#response').html(newText);
+    resultJSON = newText
+}
+
 function getTraits() {
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#traitSelect').replaceWith("<select id='traitSelect' multiple></select>");
@@ -131,11 +137,82 @@ function getStudies() {
 
 //called in calculatePolyScore below, 
 //queries the server for associations with the given studyIDs, pValue, and reference genome
-function getSelectStudyAssociationsByID(studyList, pValue, refGen) {
+function getSelectStudyAssociations(studyList, refGen, sex) {
+
     return Promise.resolve($.ajax({
         type: "POST",
         url: "/get_associations",
-        data: { studyIDs: studyList, pValue: pValue, refGen: refGen },
+        data: { studyIDObjs: studyList, refGen: refGen, isVCF: true, sex: sex },
+        success: async function (data) {
+            return data;
+        },
+        error: function (XMLHttpRequest) {
+            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(errMsg)
+            alert(errMsg);
+        }
+    }));
+}
+
+function getStrandFlippingInfo(associationData) {
+
+    rsIDs = Object.keys(associationData['associations'])
+    return Promise.resolve($.ajax({
+        type: "POST",
+        url: "/strand_flipping_results",
+        data: { snps: rsIDs },
+        success: async function (data) {
+            return data;
+        },
+        error: function (XMLHttpRequest) {
+            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(errMsg)
+            alert(errMsg);
+        }
+    }));
+}
+
+function performStrandFlipping(associationsData, flippingData) {
+    complementMap = {
+        "G": "C",
+        "C": "G",
+        "A": "T",
+        "T": "A"
+    }
+    // console.log(data)
+    for (rsID in flippingData) {
+        if (rsID in associationData['associations']) {
+            for (trait in associationData['associations'][rsID]['traits']) {
+                for (studyID in associationData['associations'][rsID]['traits'][trait]) {
+                    if (!flippingData[rsID].includes(associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele'])){
+                        complement = complementMap[associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele']]
+                        if (flippingData[rsID].includes(complement)) {
+                            associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele'] = complement
+                            associationData['associations'][rsID]['traits'][trait][studyID]['wasFlipped'] = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return associationsData
+}
+
+//called in calculatePolyscore below
+//gets the clumping information using the positions from the associations object
+function getClumpsFromPositions(associationsObj, refGen, superPop) {
+    positions = []
+
+    for (key in associationsObj) {
+        if (key.includes(":")) {
+            positions.push(key)
+        }
+    }
+
+    return Promise.resolve($.ajax({
+        type: "POST",
+        url: "/ld_clumping_by_pos",
+        data: { superPop: superPop, refGen: refGen, positions: positions },
         success: async function (data) {
             return data;
         },
@@ -191,14 +268,23 @@ var calculatePolyScore = async () => {
     document.getElementById('resultsDisplay').style.display = 'block';
     updateResultBoxAndStoredValue("Calculating. Please wait...")
 
-    //convert the studies into a list of studyIDs
+    //convert the studies into a list of studyIDs/traits
     var studyList = [];
     for (i = 0; i < studies.length; i++) {
-        studyList.push(studies[i][0]);
+        studyList.push({
+            trait: studies[i][1],
+            studyID: studies[i][0]
+        });
     }
 
     //send a get request to the server with the specified traits and studies
-    associationData = await getSelectStudyAssociationsByID(studyList, pValue, refGen);
+    associationData = await getSelectStudyAssociations(studyList, refGen, sex);
+
+    // get info for strand flipping and check associations for if they need to be flipped
+    flippingData = await getStrandFlippingInfo(associationData)
+    associationData = performStrandFlipping(associationData, flippingData)
+
+    clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
@@ -211,7 +297,8 @@ var calculatePolyScore = async () => {
             return;
         }
 
-        var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
+        var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|]+/);
+        console.log(arrayOfInputtedSnps)
         var snpObjs = new Map();
         for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
             var snpObj;
@@ -229,7 +316,7 @@ var calculatePolyScore = async () => {
             }
             else if (snpArray.length == 2) {
                 //get the alleles in list form
-                var alleleArray = snpArray[1].split("");
+                var alleleArray = snpArray[1].split(",");
                 //if more than 2 alleles, return error
                 if (alleleArray.length > 2) {
                     
@@ -250,7 +337,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        ClientCalculateScore(snpObjs, associationData, pValue, false);
+        ClientCalculateScore(snpObjs, associationData, clumpsData, pValue, false);
     }
     else {
         //if text input is empty, return error
@@ -265,7 +352,7 @@ var calculatePolyScore = async () => {
                 updateResultBoxAndStoredValue("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
                 return;
             }
-            ClientCalculateScore(vcfFile, associationData, pValue, true);
+            ClientCalculateScore(vcfFile, associationData, clumpsData, pValue, true);
         }
     }
 }
@@ -273,7 +360,7 @@ var calculatePolyScore = async () => {
 /**
  * Resets resultJSON
  */
-function resetOutput() {
+function resetOutput() { //todo maybe should add this to when the traits/studies/ect are changed?
     resultJSON = "";
 }
 
@@ -286,9 +373,9 @@ function resetOutput() {
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => {
+var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue, isVCF) => {
     //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
-    var associMap = sharedCode.getAssociationMap(associationData, isVCF);
+    var associMap = associationData['associations']
 
     //remove SNPs that aren't relevant from the snpsInput object
     var greppedSNPs;
@@ -312,7 +399,7 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
         var greppedSNPsList = [];
         totalInputVariants = snpsInput.size;
         for (const key of snpsInput.keys()) {
-            if (associMap.has(key)) {
+            if (key in associMap) {
                 greppedSNPsList.push(snpsInput.get(key));
             }
         }
@@ -321,7 +408,10 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
     }
 
     try {
-        var result = sharedCode.calculateScore(associationData, greppedSNPs, pValue, associMap, totalInputVariants);
+        console.log(greppedSNPs)
+        var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
+        //todo maybe have a try catch here for parsing the results
+        result = JSON.parse(result)
         //shortens the result for website desplay
         outputVal = getSimpleOutput(result)
         $('#response').html(outputVal);
@@ -338,7 +428,7 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
     }
 }
 
-function getErrorMessage(err) {
+function getErrorMessage(err) { //TODO we are going to want to NOT give this information to the user in the final product. What we can and should do is create an endpoint to send errors to that can be saved for us to look over later
     var response = 'There was an error computing the risk score:'
     if (err != undefined) {
         response += '\n' + err;
@@ -352,12 +442,14 @@ function getErrorMessage(err) {
 /**
  * Returns a simplified output using the given json. The json is truncated and converted to the correct format.
  * Then, if a truncation occured, "Results preview:" is appended to the beginning and "..." is appended to the end.
- * @param {*} resultJsonStr
+ * @param {*} resultJsn
  */
-function getSimpleOutput(resultJsonStr) {
-    var simpleJsonStr = simplifyResultJson(resultJsonStr);
-    var simpleOutput = getResultOutput(simpleJsonStr)
-    if (simpleJsonStr != resultJsonStr) {
+function getSimpleOutput(resultJsn) {
+    var fullResultNum = Object.keys(resultJsn['studyResults']).length
+    var simpleJson = simplifyResultJson(resultJsn);
+    var simpleResultNum = Object.keys(simpleJson['studyResults']).length
+    var simpleOutput = getResultOutput(simpleJson)
+    if (fullResultNum != simpleResultNum) {
         simpleOutput = "Results preview:\n" + simpleOutput + "\n...";
     }
     return simpleOutput;
@@ -365,22 +457,30 @@ function getSimpleOutput(resultJsonStr) {
 
 /**
  * Truncates the result to include the results for the first two individuals, including calculation info ("resultJsonObj[0]").
- * @param {*} resultJsonStr the large resultJson to be truncated
+ * @param {*} resultJsonObj the large resultJson to be truncated
  */
-function simplifyResultJson(resultJsonStr) {
-    //TODO avoid having to parse again! -is there anyway to keep this in obj form instead of passing a string?
-    var resultJsonObj = JSON.parse(resultJsonStr);
+function simplifyResultJson(resultJsonObj) {
     //if the resultJson is already truncated, return it
-    if (resultJsonObj.length <= 3) {
-        return resultJsonStr;
+    if (resultJsonObj['studyResults'].length <= 2) {
+        return resultJsonObj;
     }
-    //create a new array, add the first three objects from the resultJson, and return its string version
+    //create a new obj, add the first 2 studyIDs to the studyResults
     else {
-        var simpleResultObj = [];
-        for (var i = 0; i < 3; ++i) {
-            simpleResultObj.push(resultJsonObj[i]);
+        var simpleResultObj = {
+            "pValueCutoff": resultJsonObj['pValueCutoff'],
+            "totalVariants": resultJsonObj['totalVariants'],
+            "studyResults": {}
+        };
+
+        i=0
+        for (studyID in resultJsonObj['studyResults']) {
+            i++
+            simpleResultObj['studyResults'][studyID] = resultJsonObj['studyResults'][studyID];
+            if (i >= 2) {
+                break
+            }
         }
-        return JSON.stringify(simpleResultObj);
+        return simpleResultObj;
     }
 }
 
@@ -415,7 +515,7 @@ function getNumDatalines(fileLines) {
  */
 async function getGreppedFileLines(fileLines, associMap) {
     return jQuery.grep(fileLines, function (line) {
-        return line[0] === '#' || associMap.has(getPosFromLine(line));
+        return line[0] === '#' || getSnpFromLine(line) in associMap || getPosFromLine(line) in associMap;
     });
 }
 
@@ -428,65 +528,119 @@ function getPosFromLine(line) {
     return line.substr(0, secondTab).replace('\t', ':');
 }
 
-function formatText(jsonObject) {
-    var returnText = "P Value Cutoff: " + jsonObject[0].pValueCutoff +
-        " \nTotal Variants in File: " + jsonObject[0].totalVariants + " ";
+/**
+ * Gets the snp from the line
+ * @param {} line 
+ */
+function getSnpFromLine(line) {
+    const regex = /rs[0-9]+/;
+    match = line.match(regex)
+    return match != null ? match[0] : null
+}
 
+function formatText(jsonObject, isCondensed) {
+    var returnText = "P Value Cutoff: " + jsonObject.pValueCutoff +
+        " \nTotal Variants in File: " + jsonObject.totalVariants + " " +
+        "\nStudy Results: "
+
+    // iterate through the studyIDs and print them out
     //iterate through the list of people and print them each out seperately.
-    for (var i = 0; i < jsonObject.length; ++i) {
-        if (i == 0 || !jsonObject[i]) {
-            continue;
+    for (studyID in jsonObject['studyResults']) {
+        returnText += 
+            `\n  Study ID: ${studyID}` +
+            `\n    Reported Trait: ${jsonObject['studyResults'][studyID].reportedTrait}` +
+            `\n    Citation: ${jsonObject['studyResults'][studyID].citation}` +
+            `\n    Traits: `
+        for (trait in jsonObject['studyResults'][studyID]['traits']) {
+            returnText += 
+                    `\n      ${trait}:` 
+            for (sample in jsonObject['studyResults'][studyID]['traits'][trait]) {
+                returnText += 
+                    `\n        ${sample}:` +
+                    `\n          Odds Ratio: ${jsonObject['studyResults'][studyID]['traits'][trait][sample]['oddsRatio']}`
+                if (!isCondensed) {
+                    returnText += 
+                        `\n          Protective Variants: ${jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants'].join("|")}` +
+                        `\n          Risk Variants: ${jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants'].join("|")}` +
+                        `\n          Variants with Unknown Effect: ${jsonObject['studyResults'][studyID]['traits'][trait][sample]['neutralVariants'].join("|")}`
+                }
+            }
         }
-        returnText += "\nIndividual Name: " + jsonObject[i].individualName;
-        jsonObject[i].studyResults.forEach(function (studyResult) {
-                returnText +=
-                    " \n  Study ID: " + studyResult.studyID +
-                    " \n    Reported Traits: " + studyResult.reportedTraits.join(";") +
-                    " \n    Traits: " + studyResult.traits.join(";") +
-                    " \n    Citation: " + studyResult.citation +
-                    " \n    Odds Ratio: " + studyResult.oddsRatio +
-                    " \n    Percentile: " + studyResult.percentile +
-                    " \n    # SNPs in OR: " + studyResult.numSNPsIncluded +
-                    " \n    Chrom Positions in OR: " + studyResult.chromPositionsIncluded +
-                    " \n    SNPs in OR: " + studyResult.snpsIncluded;
-        });
     }
     return returnText;
 }
 
-function formatCSV(jsonObject) {
+function formatCSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
-    var returnText = "Individual Name, Study ID, Reported Traits, Traits, Citation, Odds Ratio, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
+    //TODO: account for if the samples are not in the same order everytime
+    sampleKeys = []
 
-    for (var i = 0; i < jsonObject.length; ++i) {
-        if (i == 0) {
-            continue;
-        }
-        jsonObject[i].studyResults.forEach(function (studyResult) {
-            returnText +=
-                "\n" + jsonObject[i].individualName +
-                "," + studyResult.studyID +
-                "," + studyResult.reportedTraits.join(";") +
-                "," + studyResult.traits.join(";") +
-                "," + studyResult.citation +
-                "," + studyResult.oddsRatio +
-                "," + studyResult.numSNPsIncluded +
-                "," + studyResult.chromPositionsIncluded.join(";") +
-                "," + studyResult.snpsIncluded.join(";");
-        });
+    if (isCondensed) {
+        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
     }
-    // var pattern = new RegExp("2016");
-    // returnText.replace(pattern, "HELLO");
-    return returnText;
+    else {
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
+    }
+
+    resultsString = ''
+
+    studyIDKeys = Object.keys(jsonObject['studyResults'])
+
+    first = true
+    for (var i = 0; i < studyIDKeys.length; i++) {
+        studyID = studyIDKeys[i]
+        traitKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'])
+        for (var j = 0; j < traitKeys.length; j++) {
+            trait = traitKeys[j]
+            lineInfo = [studyID, jsonObject['studyResults'][studyID]['reportedTrait'], trait, jsonObject['studyResults'][studyID]['citation']]
+
+            if (first) {
+                first = false
+                sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
+                if (isCondensed) {
+                    resultsString = headerInit.toString().concat(sampleKeys.toString())
+                }
+                else {
+                    resultsString = headerInit.toString()
+                }
+            }
+
+            for (var k = 0; k < sampleKeys.length; k++) {
+                sample = sampleKeys[k]
+                oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][sample]['oddsRatio']
+                if (isCondensed) {
+                    lineInfo.push(oddsRatio)
+                }
+                else {
+                    protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants']
+                    riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants']
+                    neutralSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['neutralVariants']
+                    lineResult = `${sample},${lineInfo.toString()},${oddsRatio},${protectiveSnps.join("|")},${riskSnps.join("|")},${neutralSnps.join("|")}`
+                    resultsString = resultsString.concat("\n", lineResult)
+                }
+            }
+            if (isCondensed) {
+                resultsString = resultsString.concat("\n", lineInfo.toString())
+            }
+        }
+    }
+
+    // console.log(resultsString)
+    return resultsString;
 }
 
 function changeFormat() {
-    // if (!sessionStorage.getItem("riskResults")) {
-    //     return
-    // }
+    var formatDropdown = document.getElementById("fileType");
+    var format = formatDropdown.options[formatDropdown.selectedIndex].value;
 
-    // var data = sessionStorage.getItem("riskResults");
-    // setResultOutput(data);
+    if (format == 'json') {
+        $('#fileFormat option[value=full]').prop('selected', true);
+        document.getElementById("fileFormat").disabled = true;
+    }
+    else {
+        document.getElementById("fileFormat").disabled = false;
+    }
+
     if (!resultJSON) {
         return;
     }
@@ -494,29 +648,25 @@ function changeFormat() {
     $('#response').html(outputVal);
 }
 
-function getResultOutput(data) {
-    if (data == undefined || data == "") {
+function getResultOutput(jsonObject) {
+    if (jsonObject == undefined || jsonObject == "") {
         return "";
     }
     else {
-        var jsonObject = ""
-        //if the data string isn't in JSON format, just return the string, otherwise format the data accordingly
-        try {
-            jsonObject = JSON.parse(data);
-        } catch (e) {
-            return data;
-        }
         
         var outputVal = "";
         var formatDropdown = document.getElementById("fileType");
         var format = formatDropdown.options[formatDropdown.selectedIndex].value;
 
+        var fileFormatEle = document.getElementById('fileFormat');
+        var isCondensed = fileFormatEle.options[fileFormatEle.selectedIndex].value == 'condensed' ? true : false
+
         if (format === "text")
-            outputVal += formatText(jsonObject);
+            outputVal += formatText(jsonObject, isCondensed);
         else if (format === "csv")
-            outputVal += formatCSV(jsonObject);
+            outputVal += formatCSV(jsonObject, isCondensed);
         else if (format === "json")
-            outputVal += data;
+            outputVal += JSON.stringify(jsonObject);
         else
             outputVal += "Please select a valid format."
         return outputVal;
@@ -524,6 +674,7 @@ function getResultOutput(data) {
 }
 
 function downloadResults() {
+    //TODO: update
     document.getElementById("download-bar").style.visibility = "visible";
     //var resultText = document.getElementById("response").value;
     var resultText = getResultOutput(resultJSON);
@@ -680,32 +831,6 @@ function clickFileUpload() {
     }
 
 }
-
-const merge = (...arguments) => {
-    // create a new object
-    let target = {};
-
-    // deep merge the object into the target object
-    const merger = (obj) => {
-        for (let prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
-                if (Object.prototype.toString.call(obj[prop]) === '[object Object]') {
-                    // if the property is a nested object
-                    target[prop] = merge(target[prop], obj[prop]);
-                } else {
-                    // for regular property
-                    target[prop] = obj[prop];
-                }
-            }
-        }
-    };
-    // iterate through all objects and 
-    // deep merge them with target
-    for (let i = 0; i < arguments.length; i++) {
-        merger(arguments[i]);
-    }
-    return target;
-};
 
 //when the user updates the pvalue scalar or magnitude, update the display and reset the output
 function changePValScalar() {
