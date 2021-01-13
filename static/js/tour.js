@@ -104,8 +104,16 @@ function startTour() {
             },
             {
                 element: "#fileType",
-                title: "Select output format",
+                title: "Select output format (pt 1)",
                 content: "Choose between CSV, JSON, or Text output format."
+            },
+            {
+                element: "#fileFormat",
+                title: "Select output format (pt 2)",
+                content: "Choose either a condensed results version or a full results version. The condensed version displays \
+                the polygenic risk scores for each sample for each trait/study combination. The full version additionally gives \
+                information for each sample on which snps contribute to the trait, which are protective against the trait, and \
+                which are neutral or have unknown contributions."
             },
             {
                 element: "#feedbackSubmit",
