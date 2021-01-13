@@ -369,6 +369,7 @@ function resetOutput() { //todo maybe should add this to when the traits/studies
  * Calculates scores client side for the file input from the user
  * @param {*} snpsInput- the file or text input by the user (specifiying snps of interest)
  * @param {*} associationData- the associations from get_associations (specifying traits and studies for calculations)
+ * @param {*} clumpsData - the clumping data needed to 
  * @param {*} pValue- the pvalue cutoff for scores
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
@@ -410,8 +411,12 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     try {
         console.log(greppedSNPs)
         var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
-        //todo maybe have a try catch here for parsing the results
-        result = JSON.parse(result)
+        try {
+            result = JSON.parse(result)
+        } catch (e) {
+            //todo create an endpoint that we can send errors to and give a better error response for the user
+            console.log("There was an error in calculating the results. Please try again.")
+        }
         //shortens the result for website desplay
         outputVal = getSimpleOutput(result)
         $('#response').html(outputVal);

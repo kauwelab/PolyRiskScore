@@ -34,7 +34,6 @@
                     
                     for (studyID in associationData['studyIDsToMetaData']) {
                         for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
-                            console.log(trait)
                             if (!(studyID in resultObj)) {
                                 resultObj[studyID] = {}
                             }
@@ -58,8 +57,6 @@
                         //using the individualSNPObj.pos as key, gets all corresponding databasePosObjs from the database through
                         //usefulPos. Each databasePosObj contains: snp, pos, oddsRatio, allele, study, traits, reportedTraits, and studyID
                         //databasePosObjs will normally only be size 1, but when mutiple studies have the same allele, it will be longer
-
-                        console.log(individualSNPObj)
                         key = individualSNPObj.snp
                         alleles = individualSNPObj.alleleArray
 
@@ -77,7 +74,6 @@
 
                                     if (associationObj.pValue <= pValue) {
                                         numAllelesMatch = 0
-                                        console.log(alleles, associationObj.riskAllele)
                                         for (i=0; i < alleles.length; i++) {
                                             allele = alleles[i]
                                             if (allele == associationObj.riskAllele){
@@ -126,8 +122,6 @@
                 }
 
                 for (studyID in resultObj) {
-                    console.log(studyID)
-                    console.log(associationData['studyIDsToMetaData'])
                     tmpStudyObj = {
                         citation: associationData['studyIDsToMetaData'][studyID]['citation'],
                         reportedTrait: associationData['studyIDsToMetaData'][studyID]['reportedTrait'],
@@ -136,7 +130,6 @@
                     for (trait in resultObj[studyID]) {
                         tmpTraitObj = {}
                         for (sample in resultObj[studyID][trait]) {
-                            console.log(resultObj[studyID][trait][sample])
                             scoreAndSnps = calculateCombinedORandFormatSnps(resultObj[studyID][trait][sample], trait, studyID, associationData)
                             tmpSampleObj = {
                                 oddsRatio: scoreAndSnps[0],
