@@ -97,14 +97,31 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
                     var study = studyLists[trait][j];
-                    var opt = document.createElement('option');
-                    var displayString = study.citation + ' | ' + trait + ' | ' + study.studyID;
-                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(displayString)));
-                    opt.value = study.studyID;
-                    opt.setAttribute('data-trait', trait);
-                    studySelector.appendChild(opt);
+                    createOpt = true
+                    var hasOption = $(`#studySelect option[value='${study.studyID}']`);
+                    if (hasOption.length > 0) {
+                        for (k=0; k < hasOption.length; k++) {
+                            data_trait = hasOption[k].getAttribute('data-trait')
+                            if (data_trait == trait) {
+                                createOpt = false
+                            }
+                        }
+                    }
+                    if (createOpt) {
+                        var opt = document.createElement('option');
+                        var displayString = formatHelper.formatForWebsite(trait + ' | ' + study.citation + ' | ' + study.studyID);
+                        opt.appendChild(document.createTextNode(displayString));
+                        opt.value = study.studyID;
+                        opt.setAttribute('data-trait', trait);
+                        studySelector.appendChild(opt);
+                    }
                 }
             }
+
+            // order the studies (trait -> citation -> studyID)
+            $("#studySelect").html($("#studySelect option").sort(function (a, b) {
+                return a.text == b.text ? 0 : a.text < b.text ? -1 : 1
+            }))
             document.multiselect('#studySelect');
         },
         error: function (XMLHttpRequest) {
