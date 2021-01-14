@@ -83,7 +83,7 @@ function startTour() {
                 element: "#applyFilters",
                 title: "Select additional study filters",
                 content: "Studies about the traits you selected can be further filtered by choosing \
-                study type or study ethnicity. \"High impact\" is mesured by Altmetric score while \
+                study type or study ethnicity. \"High impact\" is measured by Altmetric score while \
                 \"large cohort\" is measured \ by the size of a study's initial sample size plus its \
                 replication sample size. Once you have \ finished selecting your filters, press the \
                 \"Apply filters\" button to update the studies list.",
