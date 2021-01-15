@@ -1,6 +1,7 @@
 const Association = require("../models/association.model.js");
 const path = require("path")
 const fs = require("fs");
+var Request = require('request');
 
 exports.getFromTables = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
@@ -197,6 +198,73 @@ exports.getAssociationsDownloadFile = (req, res) => {
             console.log('Sent:', fileName); 
         } 
     }); 
+}
+
+exports.strandFlipping = (req, res) => {
+    rsIDs = req.body.snps.filter(function (snp) {
+        return snp.includes("rs")
+    })
+
+    callMyVariantAPI(rsIDs, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Could not perform strand flipping"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            res.send(data);
+        }
+    })
+}
+
+function callMyVariantAPI(snps, result) {
+    try {
+        Request.post({
+            "headers": { 'content-type': 'application/json' },
+            "url": 'http://myvariant.info/v1/query',
+            "body": JSON.stringify({
+                "q": snps.toString(),
+                "scopes": 'dbsnp.rsid',
+                "fields": 'dbsnp.alleles.allele,dbsnp.dbsnp_merges,dbsnp.gene.strand,dbsnp.alt,dbsnp.ref'
+            })
+        }, (error, response, body) => {
+            if (error) {
+                console.log(error)
+                result(error, null);
+                return
+            }
+
+            body = JSON.parse(body);
+            returnObj = {};
+
+            for (i = 0; i < body.length; i++) {
+                obj = body[i];
+                if (!(obj.query in returnObj) && 'dbsnp' in obj) {
+                    alleles = new Set();
+                    if ('alleles' in obj.dbsnp) {
+                        for (j = 0; j < obj.dbsnp.alleles.length; j++) {
+                            alleles.add(obj.dbsnp.alleles[j].allele);
+                        }
+                    }
+                    if ('ref' in obj.dbsnp && obj.dbsnp.ref != "") {
+                        alleles.add(obj.dbsnp.ref);
+                    }
+                    if ('alt' in obj.dbsnp && obj.dbsnp.alt != "") {
+                        alleles.add(obj.dbsnp.alt);
+                    }
+                    returnObj[obj.query] = Array.from(alleles);
+                }
+            }
+            result(null, returnObj)
+        })
+
+    } catch (e) {
+        console.log("Error: ", e)
+        result(e, null)
+    }
+    
 }
 
 async function separateStudies(associations, traitData, refGen, sex, isVCF) {
