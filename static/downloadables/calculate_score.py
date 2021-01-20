@@ -14,10 +14,10 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     clumpsObjDict = json.loads(clumpsObjDict)
 
     # Format variables used for filtering
-    traits = traits.lower()
+    traits = traits.lower().title()
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
-        traits = [sub.replace('_', ' ').replace("\\'", "\'") for sub in traits]
+        traits = [sub.replace('_', ' ').replace("\\'", "") for sub in traits]
     studyTypes = studyTypes.upper()
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.upper()
@@ -32,11 +32,11 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
 
     if isRSids:
         txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities)
-        results = txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps) #TODO this fuction still needs to be formatted for the new stuff
+        txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps)
     else:
         vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities)
-        results = vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps) #TODO this fuction still needs to be formatted for the new stuff
-    return(results)
+        vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps)
+    return
 
 
 def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities):
@@ -69,26 +69,25 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
             raise SystemExit("ERROR: Some lines in the input file are not formatted correctly. Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)")
         
         if alleles != []: 
+            # if the position is found in our database 
             if snp in tableObjDict['associations']:
+                # Loop through each trait for the position
                 for trait in tableObjDict['associations'][snp]['traits'].keys():
+                    # initializing variables
                     useTrait = False
                     useStudy = False
-                    if isAllFiltersNone:
+                    # if there are traits to filter by and the trait for this snp is in the list, use this trait 
+                    if traits is not None and trait.lower().title() in traits:
                         useTrait = True
-                        useStudy = True
-                    if traits is not None and trait.lower() in traits:
-                        useTrait = True
+                    # Loop through each study containing the position
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
-                        if studyIDs is not None and (studyID in studyIDs or (studyID in tableObjDict['studyIDsToMetaData'].keys() and tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait'].lower() in traits)):
-                            useStudy = True
-                        # if studyTypes is not None and 
-                        # if ethnicities is not None and 
-                        if useTrait or useStudy:
+                        # if we aren't going to use all the associations, decide if this is one that we will use
+                        if not isAllFiltersNone:
+                            studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                            useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait)
+                        if isAllFiltersNone or useStudy:
                             trait_study = (trait, studyID)
-                            if trait_study in neutral_snps:
-                                neutral_snps_set = neutral_snps[trait_study]
-                            else:
-                                neutral_snps_set = set()
+                            neutral_snps_set = neutral_snps[trait_study] if trait_study in neutral_snps else set()
                             # Check to see if the snp position from this line in the file exists in the clump table
                             if snp in clumpsObjDict:
                                 # Grab the clump number associated with this snp 
@@ -138,12 +137,16 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
     for key in tableObjDict['associations'].keys():
         if ("rs" in key):
             for trait in tableObjDict['associations'][key]['traits'].keys():
+                # initializing variables
+                useTrait = False
+                useStudy = False
+                if traits is not None and trait.lower().title() in traits:
+                    useTrait = True
                 for study in tableObjDict['associations'][key]['traits'][trait].keys():
-                    traitMatch = traits is not None and (trait.lower() in traits or (study in tableObjDict['studyIDsToMetaData'].keys() and tableObjDict['studyIDsToMetaData'][study]['reportedTrait'].lower() in traits))
-                    studyMatch = studyIDs is not None and study in studyIDs
-                    # ethnicityMatch = 
-                    # studyTypeMatch = 
-                    if isAllFiltersNone or traitMatch or studyMatch: # will need to add on for studyTypes and ethnicities
+                    if not isAllFiltersNone:
+                        studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                        useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait)
+                    if isAllFiltersNone or useStudy: # will need to add on for studyTypes and ethnicities
                         if study in studySnps:
                             snpSet = studySnps[study]
                         else:
@@ -158,6 +161,39 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
     openFile.close()
     final_map = dict(sample_map)
     return final_map, totalLines, neutral_snps, studySnps
+
+
+# determines if we should use this association based on the filters given
+def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait):
+    useStudyID = False
+    useReportedTrait = False
+    useEthnicity = False
+    useStudyType = False
+
+    # if the studyID matches one that was selected, use it
+    if studyIDs is not None and studyID in studyIDs:
+        useStudyID = True
+
+    if studyIDs is not None and traits is None and ethnicities is None and studyTypes is None:
+        return useStudyID
+
+    # set use trait to True if we aren't specificallly filtering by it
+    if traits is None:
+        useTrait = True
+    # if the reportedTrait for the study is in the traits list for filtering, useReportedTrait is true
+    if traits is None or (traits is not None and studyMetaData is not None and studyMetaData['reportedTrait'] in traits):
+        useReportedTrait = True
+    if studyMetaData is not None and studyMetaData['ethnicity'] is not None: #TODO should probably come up with a better way to handle a situation like this, we need to decide what we will do when the study doens't have an ethnicity attached to it (maybe give it 'other' on the server?)
+        ethnicitiesLower = set([x.lower() for x in studyMetaData['ethnicity']])
+        # if the ethnicities have overlap, set useEthnicity to true
+        if (useTrait or useReportedTrait) and ethnicities is None or (ethnicities is not None and (len(set(ethnicities).intersection(ethnicitiesLower)) > 0)):
+            useEthnicity = True
+    # if we have studyTypes that match the filter, set useStudyType to true
+    if (((useTrait and studyTypes is None) or (useTrait and studyTypes is not None and len(set(studyTypes).intersection(set(studyMetaData['traits'][trait]))) > 0)) or 
+            ((useReportedTrait and studyTypes is None) or (useReportedTrait and studyTypes is not None and len(set(studyTypes).intersection(set(studyMetaData['studyTypes']))) > 0))):
+        useStudyType = True
+    # we either want to use this study because of the studyID or because filtering trait, ethnicity, and studyTypes give us this study
+    return useStudyID or (useEthnicity and useStudyType)
 
 
 def openFileForParsing(inputFile):
@@ -273,7 +309,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
     # Create a list to keep track of which study/samples have viable snps and which ones don't 
     counter_set = set()
     neutral_snps = {}
-    sample_set = set()
+    sample_num = len(vcf_reader.samples)
 
     isAllFiltersNone = (traits is None and studyIDs is None and studyTypes is None and ethnicities is None)
 
@@ -292,31 +328,28 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                 if rsID in tableObjDict['associations']:
                     # Loop through each trait for the position
                     for trait in tableObjDict['associations'][rsID]['traits'].keys():
+                        # initializing variables
                         useTrait = False
                         useStudy = False
-                        if isAllFiltersNone:
-                            useTrait = True
-                            useStudy = True
-                        if traits is not None and trait.lower() in traits:
+                        # if there are traits to filter by and the trait for this snp is in the list, use this trait 
+                        if traits is not None and trait.lower().title() in traits:
                             useTrait = True
                         # Loop through each study containing the position
                         for study in tableObjDict['associations'][rsID]['traits'][trait].keys():
-                            if studyIDs is not None and (study in studyIDs or (study in tableObjDict['studyIDsToMetaData'].keys() and tableObjDict['studyIDsToMetaData'][study]['reportedTrait'].lower() in traits)):
-                                useStudy = True
-                            # if studyTypes is not None and
-                            # if ethnicities is not None and
-                            if useTrait or useStudy:
+                            # if we aren't going to use all the associations, decide if this is one that we will use
+                            if not isAllFiltersNone:
+                                studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                                useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, study, trait, studyMetaData, useTrait)
+                            if isAllFiltersNone or useStudy:
                                 # Loop through each sample of the vcf file
-                                for call in record.samples:  
-                                    gt = call.gt_bases    
+                                for call in record.samples:
+                                    gt = call.gt_bases
                                     name = call.sample
                                     genotype = record.genotype(name)['GT']
                                     alleles = formatAndReturnGenotype(genotype, gt, REF, ALT)
-                                    neutral_snps_set = set()
                                     # Create a tuple with the study and sample name
                                     trait_study_sample = (trait, study, name)
-                                    sample_set.add(name) 
-                                    counter_set.add(trait_study_sample)
+                                    neutral_snps_set = neutral_snps[trait_study_sample] if trait_study_sample in neutral_snps else set()
                                     # Check to see if the snp position from this line in the vcf exists in the clump table for this study
                                     if rsID in clumpsObjDict:
                                         # Grab the clump number associated with this study and snp position
@@ -326,6 +359,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                                         pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
                                         # Add the study/sample tuple to the counter list because we now know at least there is
                                         # at least one viable snp for this combination 
+                                        counter_set.add(trait_study_sample) #TODO: should this be here or outside of if statement?
                                         totalLines += 1
                                         
                                         if trait_study_sample in index_snp_map:
@@ -372,6 +406,8 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                             else:
                                 # don't worry about the study
                                 continue
+                            
+                            neutral_snps[trait_study_sample] = neutral_snps_set
         # Check to see which study/sample combos didn't have any viable snps
         # and create blank entries for the sample map for those that didn't
         # TODO: might need a better way to handle this
@@ -380,12 +416,16 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
             for key in tableObjDict['associations'].keys():
                 if ("rs" in key):
                     for trait in tableObjDict['associations'][key]['traits'].keys():
+                        # initializing variables
+                        useTrait = False
+                        useStudy = False
+                        if traits is not None and trait.lower().title() in traits:
+                            useTrait = True
                         for study in tableObjDict['associations'][key]['traits'][trait].keys():
-                            traitMatch = traits is not None and (trait.lower() in traits or (study in tableObjDict['studyIDsToMetaData'].keys() and tableObjDict['studyIDsToMetaData'][study]['reportedTrait'].lower() in traits))
-                            studyMatch = studyIDs is not None and study in studyIDs
-                            # ethnicityMatch = 
-                            # studyTypeMatch = 
-                            if isAllFiltersNone or traitMatch or studyMatch: # will need to add on for studyTypes and ethnicities
+                            if not isAllFiltersNone:
+                                studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                                addStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, study, trait, studyMetaData, useTrait)
+                            if isAllFiltersNone or addStudy:
                                 if study in studySnps:
                                     snpSet = studySnps[study]
                                 else:
@@ -399,7 +439,6 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
     except ValueError:
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
-    sample_num = len(sample_set)
     final_map = dict(sample_map)
     return final_map, totalLines, neutral_snps, sample_num, studySnps
 
@@ -502,7 +541,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
 
             # Loop through each snp associated with this disease/study/sample
             for rsID in vcfObj[(trait, studyID, samp)]:
-                if rsID in tableObjDict['associations'] and rsID != '': #(second half is because the tableObjDict has a key that is "" - not sure why, will have to look into it - but just skip it for now)
+                if rsID in tableObjDict['associations']:
                     if trait in tableObjDict['associations'][rsID]['traits'] and studyID in tableObjDict['associations'][rsID]['traits'][trait]:
                         riskAllele = tableObjDict['associations'][rsID]['traits'][trait][studyID]['riskAllele']
                         oddsRatio = tableObjDict['associations'][rsID]['traits'][trait][studyID]['oddsRatio']
@@ -530,7 +569,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                                             neutral_snps_set.add(rsID)
                                     elif oddsRatio != 0:
                                         neutral_snps_set.add(rsID)
-                elif rsID != "":
+                else:
                     neutral_snps_set.add(rsID)
 
             if not isCondensedFormat:
