@@ -416,9 +416,6 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                                                         del sample_map[trait_study_sample][index_snp]
                                                         sample_map[trait_study_sample][rsID] = alleles
                                                         neutral_snps_set.add(index_snp)
-                                                            
-                                                    #TODO: Do we even want to look at snps that don't have corresponding alleles?
-                                                    # I changed it so that we skip over snps that have "" as their alleles.
                                                     elif pValue > index_pvalue and riskAllele in alleles:
                                                         if sample_map[trait_study_sample][index_snp] == "":
                                                             del index_snp_map[trait_study_sample][clumpNum]
