@@ -7,7 +7,6 @@ import os.path
 #start = time.time()
 # $1=inputFile $2=pValue $3=outputType $4=refGen $5=superPop $6=outputFile $7=isCondensedFormat $8=fileHash $9=requiredParamsHash, $10=defaultSex, 
 # $11=traits, $12=studyTypes, $13=studyIDs, $14=ethnicities
-#TODO: will need to have stuff for filtering
 
 basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
 
