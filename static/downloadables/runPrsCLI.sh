@@ -382,7 +382,6 @@ calculatePRS () {
 
             t)  trait="${OPTARG//$single/$escaped}"
                 trait="${trait//$space/$underscore}"
-                echo $trait
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
             k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
@@ -483,8 +482,10 @@ calculatePRS () {
 
         if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
             echo "Caculated score"
-            if [[ $fileHash != $requiredParamsHash ]]; then
-                rm ".workingFiles/associations_${fileHash}.txt"
+            FILE=".workingFiles/associations_${fileHash}.txt"
+            if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+                rm $FILE
+                rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             fi
            # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool

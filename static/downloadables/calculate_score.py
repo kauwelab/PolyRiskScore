@@ -31,10 +31,10 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     isRSids = True if inputFile.lower().endswith(".txt") else False
 
     if isRSids:
-        txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities)
+        txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
         txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps)
     else:
-        vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities)
+        vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
         vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps)
     return
 
@@ -161,6 +161,8 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                             if (trait, study) not in neutral_snps:
                                 neutral_snps[(trait, study)] = set()
                         if (trait,study) not in counter_set:
+                            sample_map[(trait,study)][""] = ""
+
 
     final_map = dict(sample_map)
     return final_map, totalLines, neutral_snps, studySnps
@@ -379,7 +381,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                                 for call in record.samples:
                                     name = call.sample
                                     genotype = record.genotype(name)['GT']
-                                    alleles = formatAndReturnGenotype(genotype, gt, REF, ALT)
+                                    alleles = formatAndReturnGenotype(genotype, REF, ALT)
                                     # Create a tuple with the study and sample name
                                     trait_study_sample = (trait, study, name)
                                     neutral_snps_set = neutral_snps[trait_study_sample] if trait_study_sample in neutral_snps else set()
