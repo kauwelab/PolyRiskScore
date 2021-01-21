@@ -34,12 +34,15 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
             strandFlip = True
             downloadClumpsFile = True
         else:
-            if os.path.exists(os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))):
-                # check the date on the file/ server file? 
-                return
-            else:
-                downloadClumpsFile = True
-                strandFlip = False
+            # TODO: on a later branch, create an endpoint to check the date of the clumps file with the date of the clumps files on the database
+            downloadClumpsFile = True
+            strandFlip = False
+            # if os.path.exists(os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))):
+            #     # check the date on the file/ server file? 
+            #     return
+            # else:
+            #     downloadClumpsFile = True
+            #     strandFlip = False
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
@@ -72,7 +75,6 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     f.close()
 
     if strandFlip:
-        # print("finishing strand flipping")
         p.join()
     return
 
