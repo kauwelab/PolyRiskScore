@@ -20,8 +20,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
     isVCF = True if extension.lower() == ".vcf" else False
-    
-    # TODO still need to test this - can't be done until the new server is live with the new api code
+
     dnldNewAllAssociFile = checkForAllAssociFile(refGen, defaultSex)
     
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
@@ -29,7 +28,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
-        associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0])) #TODO: make sure all the references to this file have the right path
+        associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
         if (dnldNewAllAssociFile):
             associationsReturnObj = getAllAssociations(refGen, defaultSex)
             strandFlip = True
@@ -87,7 +86,7 @@ def checkForAllAssociFile(refGen, defaultSex):
 
     # if the directory doesn't exist, make it, and we will need to download the files
     if not os.path.exists(workingFilesPath):
-        os.mkdir(workingFilesPath) # need a better name for this?
+        os.mkdir(workingFilesPath)
         return dnldNewAllAssociFile
     
     else:
