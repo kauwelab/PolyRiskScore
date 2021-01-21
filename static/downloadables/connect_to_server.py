@@ -20,55 +20,66 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
     isVCF = True if extension.lower() == ".vcf" else False
-    
-    # TODO still need to test this - can't be done until the new server is live with the new api code
-    dnldNewAllAssociFile = checkForAllAssociFile()
+
+    dnldNewAllAssociFile = checkForAllAssociFile(refGen, defaultSex)
     
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     associationsPath = ""
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
-        associationsPath = os.path.join(workingFilesPath, "allAssociations_{sex}.txt".format(sex=defaultSex))
+        associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
         if (dnldNewAllAssociFile):
-            associationsReturnObj = getAllAssociations(refGen, defaultSex, isVCF)
+            associationsReturnObj = getAllAssociations(refGen, defaultSex)
             strandFlip = True
+            downloadClumpsFile = True
         else:
-            f = open(associationsPath, 'r')
-            associationsReturnObj = json.loads(f.read())
-            f.close()
+            # TODO: on a later branch, create an endpoint to check the date of the clumps file with the date of the clumps files on the database
+            downloadClumpsFile = True
             strandFlip = False
+            # if os.path.exists(os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))):
+            #     # check the date on the file/ server file? 
+            #     return
+            # else:
+            #     downloadClumpsFile = True
+            #     strandFlip = False
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
         associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
         strandFlip = True
+        downloadClumpsFile = False
 
-    # grab all the snps or positions to use for getting the clumps
-    snpsFromAssociations = list(associationsReturnObj['associations'].keys())
     # flip strands as needed
-    if (strandFlip):
+    if strandFlip:
         print("Starting strand flipping on additional process")
         p = Process(target=handleStrandFlippingAndSave, args=(associationsReturnObj, associationsPath))
         p.start()
 
-    #download clumps
-    fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
-    clumpsPath = os.path.join(workingFilesPath, fileName)
-    # get clumps using the refGen and superpopulation
-    clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isVCF)
-    f = open(clumpsPath, 'w')
+    if downloadClumpsFile:
+        clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
+        clumpsData = getAllClumps(refGen, superPop)
+    else:
+        # grab all the snps or positions to use for getting the clumps
+        snpsFromAssociations = list(associationsReturnObj['associations'].keys())
+        
+        #download clumps from database
+        fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
+        clumpsPath = os.path.join(workingFilesPath, fileName)
+        # get clumps using the refGen and superpopulation
+        clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isVCF)
+
+    f = open(clumpsPath, 'w', encoding="utf-8")
     f.write(json.dumps(clumpsData))
     f.close()
 
-    if (strandFlip):
-        print("finishing strand flipping")
+    if strandFlip:
         p.join()
     return
 
 
-def checkForAllAssociFile():
+def checkForAllAssociFile(refGen, defaultSex):
     # assume we will need to download new files
     dnldNewAllAssociFile = True
     # check to see if the workingFiles directory is there, if not make the directory
@@ -77,7 +88,7 @@ def checkForAllAssociFile():
 
     # if the directory doesn't exist, make it, and we will need to download the files
     if not os.path.exists(workingFilesPath):
-        os.mkdir(workingFilesPath) # need a better name for this?
+        os.mkdir(workingFilesPath)
         return dnldNewAllAssociFile
     
     else:
@@ -90,7 +101,7 @@ def checkForAllAssociFile():
         lastDBUpdateDate = datetime.date(int(lastDatabaseUpdate[0]), int(lastDatabaseUpdate[1]), int(lastDatabaseUpdate[2]))
 
         # path to a file containing all the associations from the database
-        allAssociationsFile = os.path.join(workingFilesPath, "allAssociations.txt")
+        allAssociationsFile = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
 
         # if the path exists, check if we don't need to download a new one
         if os.path.exists(allAssociationsFile):
@@ -103,16 +114,25 @@ def checkForAllAssociFile():
         return dnldNewAllAssociFile
 
 
-# gets associationReturnObj from the Server for all associations
-def getAllAssociations(refGen, defaultSex, isVCF): 
+# gets associations obj download from the Server
+def getAllAssociations(refGen, defaultSex): 
     params = {
         "refGen": refGen,
-        "sex": defaultSex,
-        "isVCF": isVCF
+        "defaultSex": defaultSex[0],
     }
-    associationsReturnObj = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
+    associationsReturnObj = getUrlWithParams("https://prs.byu.edu/get_associations_download_file", params = params)
     # Organized with pos/snp as the Keys
     return associationsReturnObj
+
+
+# gets the clumps file download from the server
+def getAllClumps(refGen, superPop):
+    params = {
+        'refGen': refGen,
+        'superPop': superPop
+    }
+    clumpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_clumps_download_file", params=params)
+    return clumpsReturnObj
 
 
 # gets associationReturnObj using the given filters
@@ -270,7 +290,7 @@ def handleStrandFlippingAndSave(associationReturnObj, filePath):
             #see if we can get them from a dbsnp.dbsnp_merges.rsid
 
     # write the associations to a file
-    f = open(filePath, 'w')
+    f = open(filePath, 'w', encoding="utf-8")
     f.write(json.dumps(associationReturnObj))
     f.close()
     return 

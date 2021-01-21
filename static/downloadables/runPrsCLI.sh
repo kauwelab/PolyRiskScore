@@ -382,7 +382,6 @@ calculatePRS () {
 
             t)  trait="${OPTARG//$single/$escaped}"
                 trait="${trait//$space/$underscore}"
-                echo $trait
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
             k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
@@ -449,8 +448,8 @@ calculatePRS () {
     res=""
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
-    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}" | cut -f 1 -d ' ')
-    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
+    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
 
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
         checkForNewVersion
@@ -481,10 +480,12 @@ calculatePRS () {
         #outputType="csv" #this is the default
         #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
 
-        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex"; then
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
             echo "Caculated score"
-            if [[ $fileHash != $requiredParamsHash ]]; then
-                rm ".workingFiles/associations_${fileHash}.txt"
+            FILE=".workingFiles/associations_${fileHash}.txt"
+            if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+                rm $FILE
+                rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             fi
            # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
