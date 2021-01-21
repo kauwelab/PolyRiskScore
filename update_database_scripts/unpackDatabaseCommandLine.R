@@ -20,36 +20,36 @@
 #        "hg19" is hg19 mapped location
 #        "hg18" is hg18 mapped location
 #        "hg17" is hg17 mapped location
-#        "trait is the name of the trait associated to the snp
+#        "trait is the name of the trait associated with the snp
 #        "gene" is a is a pipe (|) separated list of gene:distanceToGene strings (ex: C1orf140:107304|AL360013.2:64825)
 #        "raf" is the risk allele frequency
 #        "riskAllele" is the risk allele
 #        "pValue" is the p-value
-#        "pValueAnnotation" is the description associated with the given p-value (TODO-temporary!!!)
+#        "pValueAnnotation" is the description associated with the given p-value
 #        "oddsRatio" is the odds ratio associated with the given p-value
 #        "lowerCI" is the lower confidence interval of the odds ratio
 #        "upperCI" is the upper confidence interval of the odds ratio
-#        "population" is the population associated with the snp p-value #TODO add
 #        "sex" is the sex associated with the snp p-value
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
 
-# population mappings
-# africanAmericanAfroCaribbean <- c()
-# africanUnspecified <- c()
-# asianUnspecified <- c()
-# eastAsian <- c()
-# european <- c()
-# greaterMiddleEastern <- c()
-# hispanicLatinAmericam <- c()
-# nativeAmerican <- c()
-# oceanian <- c()
-# southAsian <- c()
-# southEastAsian <- c()
-# subSaharanAfrican <- c()
-
-# african <- c(africanAmericanAfroCaribbean, africanUnspecified, subSaharanAfrican)
-# american <- c()
+# TODO add population column
+  # "population" is the population associated with the snp p-value 
+  # possible population mappings
+  # africanAmericanAfroCaribbean <- c()
+  # africanUnspecified <- c()
+  # asianUnspecified <- c()
+  # eastAsian <- c()
+  # european <- c()
+  # greaterMiddleEastern <- c()
+  # hispanicLatinAmericam <- c()
+  # nativeAmerican <- c()
+  # oceanian <- c()
+  # southAsian <- c()
+  # southEastAsian <- c()
+  # subSaharanAfrican <- c()
+  # african <- c(africanAmericanAfroCaribbean, africanUnspecified, subSaharanAfrican)
+  # american <- c()
 
 # get args from the commandline- these are evaluated after imports section below
 args = commandArgs(trailingOnly=TRUE)
@@ -228,7 +228,7 @@ if (is_ebi_reachable()) {
       # renames columns to names the database will understand
       associationsTable <- ungroup(associationsTable) %>%
         dplyr::rename(snp = variant_id, raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number)
-      # arranges the trait table by author, then studyID, then snpid. also adds a unique identifier column
+      # selects specific columns to keep. also arranges the assocition table by citation, then studyID, then snp
       associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, sex, citation, studyID)) %>%
         arrange(citation, studyID, snp)
       
@@ -249,46 +249,27 @@ if (is_ebi_reachable()) {
   }
   
   # returns a vector of NA, male, or female given a vector of p-value descriptions
-  getSexFromDescription <- function(pValueDescription) {
-    femaleIndicator = "female"
-    maleIndicator = "male"
-    pop <- c()
+  getSexesFromDescriptions <- function(pValueDescription) {
+    femaleIndicator <- "female"
+    maleIndicator <- "male"
+    sexes <- c()
     for (desc in pValueDescription) {
-      desc = tolower(desc)
+      desc <- tolower(desc)
       if (is.na(desc)) {
-        pop <- c(pop, NA)
+        sexes <- c(sexes, NA)
       }
       else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
-          pop <- c(pop, femaleIndicator)
+          sexes <- c(sexes, femaleIndicator)
       }
       else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
-        pop <- c(pop, maleIndicator)
+        sexes <- c(sexes, maleIndicator)
       }
       else {
-        pop <- c(pop, NA)
+        sexes <- c(sexes, NA)
       }
     }
-    return(pop)
+    return(sexes)
   }
-  
-  #TODO
-    # returns a vector of populations given a vector of p-value descriptions
-  # getPopFromDescription <- function(pValueDescription) {
-  #   pop <- c()
-  #   for (desc in pValueDescription) {
-  #     desc = tolower(desc)
-  #     if (is.na(desc)) {
-  #       pop <- c(pop, NA)
-  #     }
-  #     else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
-  #       pop <- c(pop, femaleIndicator)
-  #     }
-  #     else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
-  #       pop <- c(pop, maleIndicator)
-  #     }
-  #   }
-  #   return(pop)
-  # }
   
 #------------------------------------------------------------------------------------------------------------------------
   
@@ -322,7 +303,7 @@ if (is_ebi_reachable()) {
       studyID <- pull(studiesTibble[i, "study_id"])
       
       # get citation data (author + year published)
-      citation <- paste(pull(publications[i, "author_fullname"]), str_sub(pull(publications[i, "publication_date"]), 1, 4))
+      citation <- paste(pull(publications[i, "author_fullname"]), str_sub(pull(publications[i, "publication_date"]), -4))
       # get pubmed ID for the study
       pubmedID <- pull(publications[i, "pubmed_id"])
       
@@ -345,11 +326,12 @@ if (is_ebi_reachable()) {
           association_ids <- associationsTibble[["association_id"]]
           names(association_ids) <- association_ids
           
-          # get traits for each of the assoication ids
+          # get traits for each of the assoication ids in title case form (tolower, then title case)
           traits <- association_ids %>%
             purrr::map(~ get_traits(association_id = .x)@traits) %>%
-            dplyr::bind_rows(.id = 'association_id')
-          
+            dplyr::bind_rows(.id = 'association_id') %>%
+            mutate(trait=str_to_title(tolower(trait)))
+
           # merge the traits with the assoications- note: some associations have multiple traits, so the traits
           # table length is >= the length of assicationsTibble
           associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
@@ -382,16 +364,14 @@ if (is_ebi_reachable()) {
           studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
             unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
             mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
+            mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
             tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
             add_column(citation = citation) %>%
             add_column(studyID = studyID, .after = "citation") %>%
-            #TODO
-            # add_column(population = getPopFromDescription(master_associations[["pvalue_description"]])) %>%
-            add_column(sex = getSexFromDescription(master_associations[["pvalue_description"]])) %>%
+            add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
             mutate(pvalue_description = tolower(pvalue_description))
           # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
-          studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
-          
+          studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
           # if there are not enough snps left in the study table, add it to a list of ignored studies
           if (nrow(studyData) < minNumStudyAssociations) {
             invalidStudies <- c(invalidStudies, studyID)

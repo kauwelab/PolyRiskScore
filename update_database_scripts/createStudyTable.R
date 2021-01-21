@@ -164,14 +164,21 @@ if (is_ebi_reachable()) {
     DevPrint("Creating Study Table")
     
     # read in the associations table, and the raw studies, publications, and ancestries tables
-    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character()))
+    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character(), sex = col_character()))
     studiesTibble <- read_tsv(rawStudyTablePath, col_types = cols())
     publications <- read_tsv(publicationsPath, col_types = cols())
     ancestries <- read_tsv(ancestriesPath, col_types = cols())
 
     print("Study data read!")
     
-    studyIDRows <- select(arrange(distinct(associationsTibble, studyID, .keep_all = TRUE), studyID), studyID, citation)
+    # gets distint studyIDs from associationsTibble, keeping the citation as well as a bar ("|") deliminated list of traits for that studyID
+    # studyIDRows is looped through to get study data for each study found in the associationsTibble, which is formated and written to file
+    # keeping traits keeps only valid traits from a study (ex: if a study reports 10 traits, but only 2 have valid snps, the study_table will 
+    # only have 2 traits).
+    studyIDRows <- group_by(associationsTibble, studyID) %>%
+      mutate(trait = paste0(unique(trait[!is.na(trait)]), collapse = "|"))
+    studyIDRows <- select(arrange(distinct(studyIDRows, studyID, .keep_all = TRUE), studyID), studyID, citation, trait)
+    
     for (i in 1:nrow(studyIDRows)) {
       tryCatch({
         studyIDRow <- studyIDRows[i,]
@@ -180,13 +187,15 @@ if (is_ebi_reachable()) {
         rawStudyData <- filter(studiesTibble, study_id == studyID)
         
         # get trait and reported trait in title case (tolower, then title case)
-        traitName <- str_to_title(tolower(get_traits(study_id = studyID)@traits[["trait"]]))
+        # trait is obtained from the associations table, but reportedTrait is obtained from the GWAS catalog
+        traitName <- str_to_title(tolower(unlist(strsplit(studyIDRow[["trait"]], split="\\|"))))
         reportedTrait <- str_to_title(tolower(rawStudyData[["reported_trait"]]))
         
-        
         publication <- filter(publications, study_id == studyID)
-
-        citation <- paste(publication[["author_fullname"]], substr(publication[["publication_date"]], 1, 4))
+        
+        #get citaiton from the associations table
+        citation <- studyIDRow[["citation"]]
+        
         # get an Altmetric score for each pubMedID and association pubMedID to score in dictionary-like form
         pubMedID <- publication[["pubmed_id"]]
         altmetricScore <- getAltmetricScore(pubMedID)
@@ -202,12 +211,20 @@ if (is_ebi_reachable()) {
           ungroup() %>%
           select(-study_id)
         ethnicity <- ethnicity[["ethnicity"]]
+        if (is_empty(ethnicity)) {
+          ethnicity <- NA
+        }
 
         # get the last time the study was updated
         lastUpdated <- as.character(getLastUpdated(studyID))
         
         initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
         replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])
+        
+        # TODO the title for study ID "GCST004165" has a ligated character in it (https://github.com/EBISPOT/gwas-user-requests/issues/7)
+        # R doesn't seem to be able to remove it, so we'll have to wait for the GWAS catalog people to do it.
+        #trait <- str_replace_all(publication[["title"]], "???", "fi") 
+        title <- publication[["title"]]
 
         # populate the studyTable with data from the study
         studyTable <- add_row(studyTable, 
@@ -220,7 +237,7 @@ if (is_ebi_reachable()) {
                               ethnicity = ethnicity,
                               initialSampleSize = initialSampleSize,
                               replicationSampleSize = replicationSampleSize,
-                              title = publication[["title"]], 
+                              title = title, 
                               lastUpdated = lastUpdated)
         
         # -------------------------------------------------------------------------------------------
@@ -233,7 +250,7 @@ if (is_ebi_reachable()) {
         }
       }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
     }
-    studyTable <- arrange(studyTable, trait, studyID)
+    studyTable <- arrange(studyTable, trait, citation)
     # write out the trait and study tables
     write_tsv(studyTable, studyTablePath)
   }

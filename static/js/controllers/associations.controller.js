@@ -1,10 +1,10 @@
 const Association = require("../models/association.model.js");
 const path = require("path")
 const fs = require("fs");
+var Request = require('request');
 
 exports.getFromTables = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
-    var pValue = parseFloat(req.body.pValue);
     var refGen = req.body.refGen;
     var defaultSex = req.body.sex;
     var isVCF = req.body.isVCF;
@@ -14,7 +14,7 @@ exports.getFromTables = (req, res) => {
         defaultSex = "f"
     }
 
-    Association.getFromTables(studyIDObjs, pValue, refGen, async (err, data) => {
+    Association.getFromTables(studyIDObjs, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
@@ -32,7 +32,6 @@ exports.getFromTables = (req, res) => {
 };
 
 exports.getAll = (req, res) => {
-    var pValue = parseFloat(req.query.pValue);
     var refGen = req.query.refGen;
     var defaultSex = req.query.sex;
     var isVCF = req.query.isVCF;
@@ -42,7 +41,7 @@ exports.getAll = (req, res) => {
         defaultSex = "f"
     }
 
-    Association.getAll(pValue, refGen, async (err, data) => {
+    Association.getAll(refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations; ${err}`
@@ -191,11 +190,81 @@ exports.getAssociationsDownloadFile = (req, res) => {
     var fileName = `allAssociations_${refGen}_${sex}.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
-            next(err); 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
         } else { 
             console.log('Sent:', fileName); 
         } 
     }); 
+}
+
+exports.strandFlipping = (req, res) => {
+    rsIDs = req.body.snps.filter(function (snp) {
+        return snp.includes("rs")
+    })
+
+    callMyVariantAPI(rsIDs, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Could not perform strand flipping"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            // formating returned data
+            res.send(data);
+        }
+    })
+}
+
+function callMyVariantAPI(snps, result) {
+    try {
+        Request.post({
+            "headers": { 'content-type': 'application/json' },
+            "url": 'http://myvariant.info/v1/query',
+            "body": JSON.stringify({
+                "q": snps.toString(),
+                "scopes": 'dbsnp.rsid',
+                "fields": 'dbsnp.alleles.allele,dbsnp.dbsnp_merges,dbsnp.gene.strand,dbsnp.alt,dbsnp.ref'
+            })
+        }, (error, response, body) => {
+            if (error) {
+                console.log(error)
+                result(error, null);
+                return
+            }
+
+            body = JSON.parse(body);
+            returnObj = {};
+
+            for (i = 0; i < body.length; i++) {
+                obj = body[i];
+                if (!(obj.query in returnObj) && 'dbsnp' in obj) {
+                    alleles = new Set();
+                    if ('alleles' in obj.dbsnp) {
+                        for (j = 0; j < obj.dbsnp.alleles.length; j++) {
+                            alleles.add(obj.dbsnp.alleles[j].allele);
+                        }
+                    }
+                    if ('ref' in obj.dbsnp && obj.dbsnp.ref != "") {
+                        alleles.add(obj.dbsnp.ref);
+                    }
+                    if ('alt' in obj.dbsnp && obj.dbsnp.alt != "") {
+                        alleles.add(obj.dbsnp.alt);
+                    }
+                    returnObj[obj.query] = Array.from(alleles);
+                }
+            }
+            result(null, returnObj)
+        })
+
+    } catch (e) {
+        console.log("Error: ", e)
+        result(e, null)
+    }
+    
 }
 
 async function separateStudies(associations, traitData, refGen, sex, isVCF) {
@@ -207,14 +276,34 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
     var studyIDsToMetaData = {}
     for (i=0; i < traitData.length; i++) {
         var studyObj = traitData[i]
+        traitStudyTypes = []
+        if (studyObj.hi != "") {
+            traitStudyTypes.push(studyObj.hi)
+        }
+        if (studyObj.lc != "") {
+            traitStudyTypes.push(studyObj.lc)
+        }
+        if (traitStudyTypes.length == 0) {
+            traitStudyTypes.push("O")
+        }
+        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
         if (!(studyObj.studyID in studyIDsToMetaData)) {
-            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, traits: [studyObj.trait], ethnicity: [studyObj.ethnicity]}
+            studyTypes = []
+            if (studyObj.rthi != ""){
+                studyTypes.push(studyObj.rthi)
+            }
+            if (studyObj.rtlc != "") {
+                studyTypes.push(studyObj.rtlc)
+            }
+            if (studyTypes.length == 0) {
+                studyTypes.push("O")
+            }
+            studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, studyTypes: studyTypes, traits: {}, ethnicity: ethnicities != "" ? ethnicities : []}
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
         }
         else {
-            studyIDsToMetaData[studyObj.studyID]['traits'].push(studyObj.trait)
-            if (!(studyObj.ethnicity in studyIDsToMetaData[studyObj.studyID]['ethnicity'])) {
-                studyIDsToMetaData[studyObj.studyID]['ethnicity'].push(studyObj.ethnicity)
-            }
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
+            studyIDsToMetaData[studyObj.studyID]['ethnicity'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['ethnicity'], ...ethnicities]))
         }
     }
 
@@ -266,7 +355,7 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
             AssociationsBySnp[association.snp]['traits'][association.trait] = {}
             AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
             //adds the position as a key to an rsID, if needed
-            if (addPosKeys){
+            if (addPosKeys && association[refGen] != ""){
                 AssociationsBySnp[association[refGen]] = association.snp
             }
         }

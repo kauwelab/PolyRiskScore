@@ -45,7 +45,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj = getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
+        associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
         strandFlip = True
         downloadClumpsFile = False
 
@@ -135,7 +135,7 @@ def getAllClumps(refGen, superPop):
 
 
 # gets associationReturnObj using the given filters
-def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF):
+def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF):
     finalStudyList = []
 
     if (traits is not None or studyTypes is not None or ethnicity is not None):
@@ -174,7 +174,6 @@ def getSpecificAssociations(pValue, refGen, traits, studyTypes, studyIDs, ethnic
 
     # get the associations based on the studyIDs
     body = {
-        "pValue": pValue,
         "refGen": refGen,
         "studyIDObjs": finalStudyList,
         "sex": defaultSex,
