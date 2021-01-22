@@ -11,7 +11,7 @@ import csv
 import pandas
  
 
-def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile):
+def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile, isJson):
     tableObjDict = json.loads(tableObjDict)
     clumpsObjDict = json.loads(clumpsObjDict)
 
@@ -20,10 +20,10 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
 
     if isRSids:
         txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict, pValue)
-        results = txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps) #TODO this fuction still needs to be formatted for the new stuff
+        results = txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps, outputFile, studySnps) #TODO this fuction still needs to be formatted for the new stuff
     else:
         vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict, pValue)
-        results = vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps) #TODO this fuction still needs to be formatted for the new stuff
+        results = vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps) #TODO this fuction still needs to be formatted for the new stuff
     return(results)
 
 
@@ -468,10 +468,14 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
             isFirst = False
 
 
-def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps):
+def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps):
+    study_results={}
     condensed_output_map = {}
+    sample_results_map = {}
+    study_results_map = {}
     count_map = {}
     samp_set = {}
+    samp_list = []
     # For every sample in the vcf nested dictionary
     isFirst = True
     for (trait, studyID, samp) in vcfObj:
@@ -505,6 +509,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                                 printStudyID = studyID
                             condensedLine = [printStudyID, reportedTrait, trait, citation]
                             condensed_output_map[(studyID, trait)] = condensedLine
+
                         alleles = vcfObj[(trait, studyID, samp)][rsID]
                         if alleles != "" and alleles is not None:
                             for allele in alleles:
@@ -524,7 +529,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 elif rsID != "":
                     neutral_snps_set.add(rsID)
 
-            if not isCondensedFormat:
+            if not isCondensedFormat and not isJson:
                 OR = str(getCombinedORFromArray(oddsRatios))
                 if len(protectiveAlleles) == 0:
                     protectiveAlleles = "None"
@@ -542,7 +547,74 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
                 formatCSV(isFirst, newLine, header, outputFile)
                 isFirst = False
 
-            if isCondensedFormat:
+            elif isJson:
+                # Add needed markings to score and study
+                if len(protectiveAlleles) == 0:
+                    protectiveAlleles = "None"
+                if len(riskAlleles) == 0:
+                    riskAlleles = "None"
+                if len(neutral_snps_set) == 0:
+                    neutral_snps_set = "None"
+                if studySnps[studyID] != sampSnps and len(sampSnps) != 0: 
+                    OR = str(getCombinedORFromArray(oddsRatios)) + "*"
+                else:
+                    OR = str(getCombinedORFromArray(oddsRatios))
+                if mark is True:
+                    printStudyID = studyID + '†'
+                else:
+                    printStudyID = studyID
+
+                if (studyID, trait) in count_map:
+                    samp_count = count_map[(studyID, trait)]
+                    samp_list = sample_results_map[(studyID,trait)]
+                    study_results = study_results_map[(studyID, trait)]
+                    samp_count += 1
+                else:
+                    samp_count = 1
+                    samp_list = []
+                    study_results = {}
+                 
+                sample_results = {}
+                if samp_count == 1:
+                    study_results.update({
+                        'studyID': printStudyID,
+                        'citation': citation,
+                        'reportedTrait': reportedTrait,
+                        'trait': trait
+                    })
+                if OR == 'NF':
+                    sample_results.update({
+                        'sample':samp,
+                        'polygenicRiskScore':'NF',
+                        'protectiveAlleles':'None',
+                        'riskAlleles':'None',
+                        'neutralAlleles':'None'
+                    })
+                else:
+                    sample_results.update({
+                        'sample':samp,
+                        'polygenicRiskScore':OR,
+                        'protectiveAlleles':str(protectiveAlleles),
+                        'riskAlleles':str(riskAlleles),
+                        'neutralAlleles':str(neutral_snps_set)
+                    })
+                samp_list.append(sample_results)
+
+                if samp_count == samp_num:
+                    study_results.update({'samples':samp_list})
+                    formatJson(isFirst, study_results, outputFile)
+                    isFirst = False
+                    del study_results_map[(studyID, trait)]
+                    del sample_results_map[(studyID, trait)]
+                    if (studyID, trait) in count_map:
+                        del count_map[(studyID, trait)]
+                else:
+                    count_map[(studyID, trait)] = samp_count
+                    sample_results_map[(studyID, trait)] = samp_list
+                    study_results_map[(studyID, trait)] = study_results
+                
+                
+            elif isCondensedFormat:
                 # Add needed markings to score and study
                 if studySnps[studyID] != sampSnps and len(sampSnps) != 0: 
                     OR = str(getCombinedORFromArray(oddsRatios)) + "*"
@@ -612,3 +684,16 @@ def formatCSV(isFirst, newLine, header, outputFile):
             output = csv.writer(f, delimiter='\t')
             output.writerow(newLine)
     return
+
+def formatJson(isFirst, studyInfo, outputFile):
+    json_output =[]
+    json_output.append(studyInfo)
+    if isFirst:
+        with open(outputFile, 'w', newline='') as f:
+            json.dump(json_output, f, indent=4)
+    else:
+        with open(outputFile, 'r+', newline='') as f:
+            f.seek(0,2)
+            position = f.tell() -1
+            f.seek(position)
+            f.write( ",{}]".format(json.dumps(studyInfo, indent=4)))

@@ -9,10 +9,15 @@ import os.path
 
 basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
 
-if sys.argv[7] == '0':
+if sys.argv[3] == 'json':
+    isJson = True
     isCondensedFormat = False
 else:
-    isCondensedFormat = True
+    isJson = False
+    if sys.argv[7] == '0':
+        isCondensedFormat = False
+    else:
+        isCondensedFormat = True
 # get the paths for the associationsFile and clumpsFile
 if (sys.argv[8] == sys.argv[9]):
     associationsPath = os.path.join(basePath, "allAssociations_{sex}.txt".format(sex=sys.argv[10]))
@@ -26,7 +31,7 @@ try:
         tableObjList = tableObjFile.read()
     with open(clumpsPath, 'r') as clumpsObjFile:
         clumpsObjList = clumpsObjFile.read()
-    cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, sys.argv[6])
+    cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, sys.argv[6], isJson)
 except FileNotFoundError: 
     raise SystemExit("ERROR: One or both of the required working files could not be found.")
 #end = time.time()
