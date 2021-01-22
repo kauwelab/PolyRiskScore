@@ -14,10 +14,7 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     clumpsObjDict = json.loads(clumpsObjDict)
 
     # Format variables used for filtering
-    traits = traits.lower().title()
-    traits = traits.split(" ") if traits != "" else None
-    if traits is not None:
-        traits = [sub.replace('_', ' ').replace("\\'", "") for sub in traits]
+    traits = formatTraits(traits)
     studyTypes = studyTypes.upper()
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.upper()
@@ -37,6 +34,18 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
         vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
         vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps)
     return
+
+
+def formatTraits(traits):
+    traits = traits.lower()
+    traits = traits.split(" ") if traits != "" else None
+    if traits is not None:
+        for i in range(len(traits)):
+            trait = traits[i].replace('_', ' ').replace("\\'", "\'").split(" ")
+            for j in range(len(trait)):
+                trait[j] = trait[j].capitalize()
+            traits[i] = " ".join(trait)
+    return traits
 
 
 def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, p_cutOff):
