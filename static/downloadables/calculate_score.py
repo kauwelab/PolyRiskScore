@@ -86,7 +86,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                     useTrait = False
                     useStudy = False
                     # if there are traits to filter by and the trait for this snp is in the list, use this trait 
-                    if traits is not None and trait.lower().title() in traits:
+                    if traits is not None and trait in traits:
                         useTrait = True
                     # Loop through each study containing the position
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
@@ -152,7 +152,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                 # initializing variables
                 useTrait = False
                 useStudy = False
-                if traits is not None and trait.lower().title() in traits:
+                if traits is not None and trait in traits:
                     useTrait = True
                 for study in tableObjDict['associations'][key]['traits'][trait].keys():
                     if not isAllFiltersNone:
@@ -377,7 +377,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                         useTrait = False
                         useStudy = False
                         # if there are traits to filter by and the trait for this snp is in the list, use this trait 
-                        if traits is not None and trait.lower().title() in traits:
+                        if traits is not None and trait in traits:
                             useTrait = True
                         # Loop through each study containing the position
                         for study in tableObjDict['associations'][rsID]['traits'][trait].keys():
@@ -459,7 +459,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                         # initializing variables
                         useTrait = False
                         useStudy = False
-                        if traits is not None and trait.lower().title() in traits:
+                        if traits is not None and trait in traits:
                             useTrait = True
                         for study in tableObjDict['associations'][key]['traits'][trait].keys():
                             if not isAllFiltersNone:
@@ -482,6 +482,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     final_map = dict(sample_map)
+    # raise SystemExit("BYE BYE")
     return final_map, totalLines, neutral_snps, sample_num, studySnps
 
 
