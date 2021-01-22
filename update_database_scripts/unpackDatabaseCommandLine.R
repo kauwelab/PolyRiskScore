@@ -51,6 +51,9 @@
   # african <- c(africanAmericanAfroCaribbean, africanUnspecified, subSaharanAfrican)
   # american <- c()
 
+# causes warning messages to print as soon as they occur
+options(warn=1)
+
 # get args from the commandline- these are evaluated after imports section below
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
@@ -303,7 +306,7 @@ if (is_ebi_reachable()) {
       studyID <- pull(studiesTibble[i, "study_id"])
       
       # get citation data (author + year published)
-      citation <- paste(pull(publications[i, "author_fullname"]), str_sub(pull(publications[i, "publication_date"]), -4))
+      citation <- paste(pull(publications[i, "author_fullname"]), str_sub(pull(publications[i, "publication_date"]), 0, 4))
       # get pubmed ID for the study
       pubmedID <- pull(publications[i, "pubmed_id"])
       
