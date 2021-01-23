@@ -57,9 +57,9 @@ Association.getFromTables = (studyIDObjs, refGen, result) => {
             console.log(`Got ${res.length} studies with associations from table`)
             console.log("Getting the metaData associated with the studies") 
             sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, `+
-             `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) LIKE altmetricScore, 'HI', '') as hi, `+
+             `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, `+
              `IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, `+
-             `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) LIKE altmetricScore, 'HI', '') as rthi, `+
+             `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, `+
              `IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.reportedTrait)=initialSampleSize+replicationSampleSize, 'LC', '') as rtlc `+
              `FROM study_table WHERE studyID IN (${questionMarks}) ORDER BY studyID; `, studyIDs, (err2, traitData) => {
                 if (err2) {
@@ -96,9 +96,9 @@ Association.getAll = (refGen, result) => {
             console.log("associations (first): ", res[0]);
 
             qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, "+
-             "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) LIKE altmetricScore, 'HI', '') as hi, "+
+             "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, "+
              "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, "+
-             "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) LIKE altmetricScore, 'HI', '') as rthi, "+
+             "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, "+
              "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.reportedTrait)=initialSampleSize+replicationSampleSize, 'LC', '') as rtlc "+
              "FROM study_table;"
             sql.query(qStr, (err2, traits) => {
