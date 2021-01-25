@@ -165,12 +165,12 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
         params = {
             "studyIDs": studyIDs
         }
-        studyIDData = {**getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)}
-        # add the specified studyIDs to the set of studyIDObjs
-        for studyObj in studyIDData:
+        studyIDDataList = getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)
+        for i in range(len(studyIDDataList)):
+            # add the specified studyIDs to the set of studyIDObjs
             finalStudyList.append(json.dumps({
-                "trait": studyObj['trait'],
-                "studyID": studyObj['studyID']
+                "trait": studyIDDataList[i]['trait'],
+                "studyID": studyIDDataList[i]['studyID']
             }))
 
     # get the associations based on the studyIDs
