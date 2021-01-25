@@ -51,7 +51,7 @@ exports.getEthnicities = (req, res) => {
 }
 
 exports.findTraits = (req, res) => {
-    Study.findTrait(req.params.searchStr, (err, data) => {
+    Study.findTrait(req.query.searchStr, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -136,7 +136,7 @@ exports.getFiltered = (req, res) => {
 };
 
 exports.getByID = (req, res) => {
-    Study.getByID(req.params.studyIDs, (err, data) => {
+    Study.getByID(req.query.studyIDs, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"
@@ -150,7 +150,7 @@ exports.getByID = (req, res) => {
 }
 
 exports.findStudies = (req, res) => {
-    Study.findStudy(req.params.searchStr, (err, data) => {
+    Study.findStudy(req.query.searchStr, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"
