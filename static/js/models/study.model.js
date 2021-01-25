@@ -187,7 +187,7 @@ Study.getByID = (studyIDs, result) => {
             return;
         }
 
-        console.log(`find studies queried with '${searchStr}', ${result.length} result(s)`);
+        console.log(`find studies queried by ID, ${res.length} result(s)`);
         result(null, res);
     });
 }
@@ -202,7 +202,7 @@ Study.findStudy = (searchStr, result) => {
             return;
         }
 
-        console.log(`find studies queried with '${searchStr}', ${result.length} result(s)`);
+        console.log(`find studies queried with '${searchStr}', ${res.length} result(s)`);
         result(null, res);
     });
 };
