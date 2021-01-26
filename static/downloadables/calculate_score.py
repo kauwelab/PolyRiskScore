@@ -7,6 +7,9 @@ from collections import defaultdict
 import json
 import math
 import csv
+import io
+import os
+import zip_handler
  
 
 def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile, traits, studyTypes, studyIDs, ethnicities):
@@ -28,7 +31,8 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
         ethnicities = [sub.replace("_", " ") for sub in ethnicities]
 
     # tells us if we were passed rsIDs or a vcf
-    isRSids = True if inputFile.lower().endswith(".txt") else False
+    extension = zip_handler.getZippedFileExtension(inputFile)
+    isRSids = True if extension.lower().endswith(".txt") else False
 
     if isRSids:
         txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
@@ -41,7 +45,7 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
 
 def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, p_cutOff):
     totalLines = 0
-    openFile = open(txtFile, 'r')
+    openFile = openFileForParsing(txtFile, True)
     
     Lines = openFile.readlines()
 
@@ -83,7 +87,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
                         # if we aren't going to use all the associations, decide if this is one that we will use
                         if not isAllFiltersNone:
-                            studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                            studyMetaData = tableObjDict['studyIDsToMetaData'][studyID] if studyID in tableObjDict['studyIDsToMetaData'].keys() else None
                             useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait)
                         if isAllFiltersNone or useStudy:
                             pValue = tableObjDict['associations'][snp]['traits'][trait][studyID]['pValue']
@@ -200,26 +204,41 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, tra
     # we either want to use this study because of the studyID or because filtering trait, ethnicity, and studyTypes give us this study
     return useStudyID or (useEthnicity and useStudyType)
 
-
-def openFileForParsing(inputFile):
-    # Check if the file is zipped
-    if inputFile.endswith(".zip"):
-        # If the file is zipped, extract it
-        with zipfile.ZipFile(inputFile, "r") as zipObj:
-            zipObj.extractall("./")
-        # Access the new name of the file (without .zip)
-        temps = inputFile.split('.zip')
-        norm_file = temps[0]
-        # Use the vcf reader to open the newly unzipped file
-        vcf_reader = vcf.Reader(open(norm_file, "r"))
-    # Check if file is gzipped and open it with vcf reader
-    elif inputFile.endswith(".gz") or inputFile.endswith(".gzip") or inputFile.endswith(".tgz"):
-        vcf_reader = vcf.Reader(filename=inputFile)
-    # If the file is normal, open it with the vcf reader
+# returns an open file (for txt files) or a vcf.Reader (for vcf files)
+# if the file is zipped (zip, tar, tgz, gz, etc), reads the file without unzipping it
+def openFileForParsing(inputFile, isTxtExtension):
+    # default open for regular vcf and txt files (overwritten if the file is zipped)
+    new_file = open(inputFile, 'r')
+    # if the file is zipped
+    if zipfile.is_zipfile(inputFile):
+        # open the file
+        archive = zipfile.ZipFile(inputFile)
+        validArchive = []
+        # get the vcf or txt file in the zip
+        for filename in archive.namelist():
+            if filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt":
+                validArchive.append(filename)
+        # decode the file from the zip file
+        new_file = archive.read(validArchive[0]).decode().split("\n")
+    # if the file is tar zipped
+    elif tarfile.is_tarfile(inputFile):
+        # open the file
+        archive = tarfile.open(inputFile)
+        # get the vcf or txt file in the tar
+        for tarInfo in archive:
+            if tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt":
+                # wrap the ExFileObject in an io.TextIOWrapper and read
+                new_file = io.TextIOWrapper(archive.extractfile(tarInfo)).read().split("\n")
+    # if file is gzipped
+    elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
+        new_file = gzip.open(inputFile, 'rt').read().split("\n")
+    
+    # return the new file either as is (txt) or as a vcf.Reader (vcf)
+    if isTxtExtension:
+        return new_file
     else:
-        vcf_reader = vcf.Reader(open(inputFile, "r"))
-
-    return vcf_reader
+        # open the newly unzipped file using the vcf reader
+        return vcf.Reader(new_file)
 
 
 def formatAndReturnGenotype(genotype, REF, ALT):
@@ -335,7 +354,7 @@ def formatAndReturnGenotype(genotype, REF, ALT):
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, p_cutOff):
     totalLines = 0 
 
-    vcf_reader = openFileForParsing(inputFile)
+    vcf_reader = openFileForParsing(inputFile, False)
     
     # Create a default dictionary (nested dictionary)
     sample_map = defaultdict(dict)
@@ -683,6 +702,9 @@ def getCombinedORFromArray(oddsRatios):
 
 
 def formatCSV(isFirst, newLine, header, outputFile):
+    # if the folder of the output file doesn't exist, create it
+    os.makedirs(os.path.dirname(outputFile), exist_ok=True)
+
     if isFirst:
         with open(outputFile, 'w', newline='', encoding="utf-8") as f:
             output = csv.writer(f, delimiter='\t')

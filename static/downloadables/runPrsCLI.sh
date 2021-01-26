@@ -316,8 +316,10 @@ calculatePRS () {
     escaped="\'"
     underscore="_"
     space=" "
+    quote='"'
+    empty=""
 
-        # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
+    # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
     pyVer=""
     ver=$(python --version)
     read -a strarr <<< "$ver"
@@ -342,18 +344,22 @@ calculatePRS () {
                     echo -e "The file${LIGHTRED} $filename ${NC}does not exist."
                     echo "Check the path and try again."
                     exit 1
-                elif [[ "${filename,,}" =~ .zip$|.tgz$|.tar$|.gz$ ]]; then
-                    isValidZip=`$pyVer -c "import zip_handler as zhandler; zhandler.isValidZippedFile('$filename')"`
-                    echo $isValidZip
-                    # if $pyVer -c "import zip_handler as zhandler; zhandler.isValidZippedFile('$filename')"; then
-                    #     echo "valid zip file"
-                    # else
-                    #     echo "invalid zip file"
-                    # fi
                 elif ! [[ "${filename,,}" =~ .vcf$|.txt$ ]]; then
-                    echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
-                    echo -e "Please use a vcf or txt file."
-                    exit 1
+                    # check if the file is a valid zipped file (check getZippedFileExtension for more details)
+                    zipExtension=`$pyVer -c "import zip_handler; zip_handler.getZippedFileExtension('$filename')"`
+                    if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
+                        echo "zipped file validated"
+                    # if "False", the file is not a zipped file
+                    elif [ "$zipExtension" = "False" ]; then
+                        echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
+                        echo -e "Please use a vcf or txt file."
+                        exit 1
+                    # if something else, the file is a zipped file, but there are too many/few vcf/txt files in it
+                    else
+                        # print the error associated with the zipped file and exit
+                        echo $zipExtension
+                        exit 1
+                    fi
                 fi;;
             o)  if ! [ -z "$output" ]; then
                     echo "Too many output files given."
@@ -400,8 +406,9 @@ calculatePRS () {
                     exit 1
                 fi;;
 
-            t)  trait="${OPTARG//$single/$escaped}"
-                trait="${trait//$space/$underscore}"
+            t)  trait="${OPTARG//$single/$escaped}" # replace single quotes with escaped single quotes
+                trait="${trait//$space/$underscore}"    # replace spaces with underscores
+                trait="${trait//$quote/$empty}" # replace double quotes with nothing
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
             k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
@@ -438,77 +445,87 @@ calculatePRS () {
         askToStartMenu
     fi
 
-    # # if no step specified, set step to 0 and do both steps
-    # if [ -z "$step" ]; then
-    #     step=0
-    # fi
-    # # if no sex is specified, set to female
-    # if [ -z "$defaultSex" ]; then
-    #     defaultSex="female"
-    # fi
+    # if no step specified, set step to 0 and do both steps
+    if [ -z "$step" ]; then
+        step=0
+    fi
+    # if no sex is specified, set to female
+    if [ -z "$defaultSex" ]; then
+        defaultSex="female"
+    fi
+
+    # preps variables for passing to python script
+    export traits=${traitsForCalc[@]}
+    export studyTypes=${studyTypesForCalc[@]}
+    export studyIDs=${studyIDsForCalc[@]}
+    export ethnicities=${ethnicityForCalc[@]}
+
+    res=""
+
+    # Creates a hash to put on the associations file if needed or to call the correct associations file
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
+    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
+
+    if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
+        checkForNewVersion
+        echo "Running PRSKB on $filename"
+
+        # if zipExtension hasn't been instanciated yet, initialize it
+        if [ -z "$zipExtension" ]; then
+            zipExtension="NULL"
+        fi
+        # if the zip extension is valid, set extension to the zip extension, 
+        # otherwise use Pyhton os.path.splitext to get the extension
+        if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
+            extension="$zipExtension"
+        else
+            extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
+        fi
+
+        # Calls a python function to get a list of SNPs and clumps from our Database
+        # saves them to files
+        # associations --> either allAssociations.txt OR associations_{fileHash}.txt
+        # clumps --> {superPop}_clumps_{refGen}.txt
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
+            echo "Got SNPs and disease information from PRSKB"
+            echo "Got Clumping information from PRSKB"
+        else
+            echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
+            exit;
+        fi
+    fi
 
 
+    if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
+        IFS='.'
+        read -a outFile <<< "$output"
+        outputType=${outFile[1]}
+        IFS=' '
 
-    # # preps variables for passing to python script
-    # export traits=${traitsForCalc[@]}
-    # export studyTypes=${studyTypesForCalc[@]}
-    # export studyIDs=${studyIDsForCalc[@]}
-    # export ethnicities=${ethnicityForCalc[@]}
+        echo "Calculating prs on $filename"
+        #outputType="csv" #this is the default
+        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
 
-    # res=""
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
+            echo "Calculated score"
+            FILE=".workingFiles/associations_${fileHash}.txt"
+            if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+                rm $FILE
+                rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            fi
+            #TODO should this be removed?
+            # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+            rm -r __pycache__
+            echo "Cleaned up intermediate files"
+            echo "Results saved to $output"
+            echo ""
+        else
+            echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
 
-    # # Creates a hash to put on the associations file if needed or to call the correct associations file
-    # fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
-    # requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
-
-    # if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
-    #     checkForNewVersion
-    #     echo "Running PRSKB on $filename"
-
-    #     # Calls a python function to get a list of SNPs and clumps from our Database
-    #     # saves them to files
-    #     # associations --> either allAssociations.txt OR associations_{fileHash}.txt
-    #     # clumps --> {superPop}_clumps_{refGen}.txt
-    #     extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
-    #     if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
-    #         echo "Got SNPs and disease information from PRSKB"
-    #         echo "Got Clumping information from PRSKB"
-    #     else
-    #         echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
-    #         exit;
-    #     fi
-    # fi
-
-
-    # if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
-    #     IFS='.'
-    #     read -a outFile <<< "$output"
-    #     outputType=${outFile[1]}
-    #     IFS=' '
-
-    #     echo "Calculating prs on $filename"
-    #     #outputType="csv" #this is the default
-    #     #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
-
-    #     if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
-    #         echo "Caculated score"
-    #         FILE=".workingFiles/associations_${fileHash}.txt"
-    #         if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-    #             rm $FILE
-    #             rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-    #         fi
-    #        # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-    #         # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
-    #         rm -r __pycache__
-    #         echo "Cleaned up intermediate files"
-    #         echo "Results saved to $output"
-    #         echo ""
-    #     else
-    #         echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
-
-    #     fi
+        fi
         exit;
-    # fi
+    fi
 }
 
 checkForNewVersion () {

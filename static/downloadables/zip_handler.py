@@ -1,34 +1,70 @@
-#TODO remove sys
-import sys
+import os
 import zipfile
 import tarfile
 
-def isValidZippedFile(filePath):
+# checks if the file is a vaild zipped file and returns the extension of the file inside the zipped file
+# a zipped file is valid if it is a zip, tar, or gz file with only 1 vcf/txt file inside
+# returns and prints: ".vcf" or "txt" if the zipped file is valid and contains one of those files
+                    # "False" if the file is not a zipped file
+                    # error message if the file is a zipped file, but is not vaild
+def getZippedFileExtension(filePath):
+    # if the file is a zip file
     if zipfile.is_zipfile(filePath):
-        print("is zip")
+        # open the file
         archive = zipfile.ZipFile(filePath, "r")
+        # get the number of vcf/txt files inside the file
         validArchive = []
         for filename in archive.namelist():
-            if filename[-4:] == ".vcf" or filename[-4:] == ".txt":
+            if filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt":
                 validArchive.append(filename)
+        # if the number of vcf/txt files is one, this file is valid and the extension is printed and returned
         if len(validArchive) == 1:
-            print(True)
-            return True
-            # raise ValueError("There must be 1 vcf/txt file in the zipped file. Please check your input file and try again.")
+            new_file = validArchive[0]
+            _, extension = os.path.splitext(new_file)
+            extension = extension.lower()
+            print(extension)
+            return extension
+        # else print and return an error message
+        else:
+            msg = "There must be 1 vcf/txt file in the zip file. Please check the input file and try again."
+            print(msg)
+            return msg
+    # if the file is a tar-like file (tar, tgz, tar.gz, etc.)
     elif tarfile.is_tarfile(filePath):
-        #TODO
-        print("is tar")
-        archive = tarfile.TarFile(filePath, "r")
+        # open the file
+        archive = tarfile.open(filePath)
+        # get the number of vcf/txt files inside the file
         validArchive = []
         for tarInfo in archive.getmembers():
-            print(tarInfo.name)
-            # if tarInfo.name[-4:] == ".vcf" or tarInfo.name[-4:] == ".txt":
-            #     validArchive.append(tarInfo.name)
+            if tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt":
+                validArchive.append(tarInfo.name)
+        # if the number of vcf/txt files is one, this file is valid and the extension is printed and returned
         if len(validArchive) == 1:
-            print(True)
-            return True
-    print(False)
-    return False
-
-filePath = sys.argv[1]
-print(isValidZippedFile(filePath))
+            new_file = validArchive[0]
+            _, extension = os.path.splitext(new_file)
+            extension = extension.lower()
+            print(extension)
+            return extension
+        # else print and return an error message
+        else:
+            msg = "There must be 1 vcf/txt file in the tar file. Please check the input file and try again."
+            print(msg)
+            return msg
+    # if the file is a gz file (checked last to not trigger for tar.gz)
+    elif filePath.lower().endswith(".gz"):
+        # if the gz file is a vcf/txt file, print and return the extension
+        if filePath.lower().endswith(".txt.gz") or filePath.lower().endswith(".vcf.gz"):
+            new_file = filePath[:-3]
+            _, extension = os.path.splitext(new_file)
+            extension = extension.lower()
+            print(extension)
+            return extension
+        # else print and return an error message
+        else:
+            msg = "The gzipped file is not a txt or vcf file. Please check the input file and try again"
+            print(msg)
+            return msg
+    # if the file is not a zip, tar, or gz, print and return "False"
+    else:
+        print("False")
+        return "False"
