@@ -9,7 +9,7 @@ import datetime
 from multiprocessing import Process
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
+def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
     checkInternetConnection()
 
     # Format variables used for getting associations
