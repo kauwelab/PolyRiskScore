@@ -516,74 +516,75 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
         else:
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
         formatCSV(isFirst, message, header, outputFile)
-    for (trait, studyID) in txtObj:
-        oddsRatios = []
-        neutral_snps_set = neutral_snps[(trait, studyID)]
-        protectiveAlleles = set()
-        riskAlleles = set()
-        sampSnps = set()
-        citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
-        reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
-        if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys():
-            mark = True
-        else:
-            mark = False
+    else:
+        for (trait, studyID) in txtObj:
+            oddsRatios = []
+            neutral_snps_set = neutral_snps[(trait, studyID)]
+            protectiveAlleles = set()
+            riskAlleles = set()
+            sampSnps = set()
+            citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
+            reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
+            if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys():
+                mark = True
+            else:
+                mark = False
 
-        citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
-        reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
-        
-        # Loop through each snp associated with this disease/study
-        for snp in txtObj[(trait, studyID)]:
-            # Also iterate through each of the alleles
-            for allele in txtObj[(trait, studyID)][snp]:
-                # Then compare to the gwa study
-                if allele != "":
-                    if snp in tableObjDict['associations']:
-                        if trait in tableObjDict['associations'][snp]['traits'] and studyID in tableObjDict['associations'][snp]['traits'][trait]:
-                            # Compare the individual's snp and allele to the study row's snp and risk allele
-                            riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
-                            oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
+            citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
+            reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
+            
+            # Loop through each snp associated with this disease/study
+            for snp in txtObj[(trait, studyID)]:
+                # Also iterate through each of the alleles
+                for allele in txtObj[(trait, studyID)][snp]:
+                    # Then compare to the gwa study
+                    if allele != "":
+                        if snp in tableObjDict['associations']:
+                            if trait in tableObjDict['associations'][snp]['traits'] and studyID in tableObjDict['associations'][snp]['traits'][trait]:
+                                # Compare the individual's snp and allele to the study row's snp and risk allele
+                                riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
+                                oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
 
-                            if allele == riskAllele:
-                                sampSnps.add(snp)
-                                oddsRatios.append(oddsRatio)
-                                if oddsRatio < 1:
-                                    protectiveAlleles.add(snp)
-                                elif oddsRatio > 1:
-                                    riskAlleles.add(snp)
-                                else:
+                                if allele == riskAllele:
+                                    sampSnps.add(snp)
+                                    oddsRatios.append(oddsRatio)
+                                    if oddsRatio < 1:
+                                        protectiveAlleles.add(snp)
+                                    elif oddsRatio > 1:
+                                        riskAlleles.add(snp)
+                                    else:
+                                        neutral_snps_set.add(snp)
+                                elif allele != riskAllele:
                                     neutral_snps_set.add(snp)
-                            elif allele != riskAllele:
-                                neutral_snps_set.add(snp)
 
-        if not isCondensedFormat:
-            OR = str(getCombinedORFromArray(oddsRatios))
-            if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
-                OR = OR + '*'
-            header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
-            if mark is True:
-                studyID = studyID + '†'
-            if str(protectiveAlleles) == "set()":
-                protectiveAlleles = "None"
-            elif str(riskAlleles) == "set()":
-                riskAlleles = "None"
-            elif str(neutral_snps_set) == "set()":
-                neutral_snps_set = "None"
+            if not isCondensedFormat:
+                OR = str(getCombinedORFromArray(oddsRatios))
+                if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
+                    OR = OR + '*'
+                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
+                if mark is True:
+                    studyID = studyID + '†'
+                if str(protectiveAlleles) == "set()":
+                    protectiveAlleles = "None"
+                elif str(riskAlleles) == "set()":
+                    riskAlleles = "None"
+                elif str(neutral_snps_set) == "set()":
+                    neutral_snps_set = "None"
 
-            newLine = [studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
-            formatCSV(isFirst, newLine, header, outputFile)
-            isFirst = False
+                newLine = [studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
+                formatCSV(isFirst, newLine, header, outputFile)
+                isFirst = False
 
-        if isCondensedFormat:
-            OR = str(getCombinedORFromArray(oddsRatios))
-            if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
-                OR = OR + '*'
-            if mark is True:
-                studyID = studyID + '†'
-            header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
-            newLine = [studyID, citation, reportedTrait, trait, OR]
-            formatCSV(isFirst, newLine, header, outputFile)
-            isFirst = False
+            if isCondensedFormat:
+                OR = str(getCombinedORFromArray(oddsRatios))
+                if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
+                    OR = OR + '*'
+                if mark is True:
+                    studyID = studyID + '†'
+                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
+                newLine = [studyID, citation, reportedTrait, trait, OR]
+                formatCSV(isFirst, newLine, header, outputFile)
+                isFirst = False
 
 
 def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps, isNoStudies):
