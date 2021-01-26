@@ -9,7 +9,7 @@ import math
 import csv
  
 
-def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile, traits, studyTypes, studyIDs, ethnicities):
+def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, isJson, outputFile, traits, studyTypes, studyIDs, ethnicities):
     tableObjDict = json.loads(tableObjDict)
     clumpsObjDict = json.loads(clumpsObjDict)
 
@@ -29,10 +29,10 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
 
     if isRSids:
         txtObj, totalVariants, neutral_snps, studySnps, isNoStudies = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
-        txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outputFile, studySnps, isNoStudies)
+        txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps, outputFile, studySnps, isNoStudies)
     else:
         vcfObj, totalVariants, neutral_snps, samp_num, studySnps, isNoStudies = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
-        vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps, isNoStudies)
+        vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps, isNoStudies)
     return
 
 
