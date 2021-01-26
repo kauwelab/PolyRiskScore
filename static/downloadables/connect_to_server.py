@@ -19,7 +19,6 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
-    isVCF = True if extension.lower() == ".vcf" else False
 
     dnldNewAllAssociFile = checkForAllAssociFile(refGen, defaultSex)
     
@@ -47,7 +46,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
+        associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex)
         strandFlip = True
         downloadClumpsFile = False
 
@@ -68,7 +67,7 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
         fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
         clumpsPath = os.path.join(workingFilesPath, fileName)
         # get clumps using the refGen and superpopulation
-        clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isVCF)
+        clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
 
     f = open(clumpsPath, 'w', encoding="utf-8")
     f.write(json.dumps(clumpsData))
@@ -136,7 +135,7 @@ def getAllClumps(refGen, superPop):
 
 
 # gets associationReturnObj using the given filters
-def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF):
+def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex):
     finalStudyList = []
 
     if (traits is not None or studyTypes is not None or ethnicity is not None):
@@ -178,7 +177,6 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
         "refGen": refGen,
         "studyIDObjs": finalStudyList,
         "sex": defaultSex,
-        "isVCF": isVCF
     }
 
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
@@ -202,7 +200,7 @@ def getUrlWithParams(url, params):
 
 
 # get clumps using the refGen and superPop
-def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
+def getClumps(refGen, superPop, snpsFromAssociations):
     body = {
         "refGen": refGen,
         "superPop": superPop,
@@ -210,26 +208,22 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
     print("Retrieving clumping information")
 
     try:
-        if isVCF:
-            chromToPosMap = {}
-            clumps = {}
-            for pos in snpsFromAssociations:
-                if (len(pos.split(":")) > 1):
-                    chrom,posit = pos.split(":")
-                    if (chrom not in chromToPosMap.keys()):
-                        chromToPosMap[chrom] = [pos]
-                    else:
-                        chromToPosMap[chrom].append(pos)
+        chromToPosMap = {}
+        clumps = {}
+        for pos in snpsFromAssociations:
+            if (len(pos.split(":")) > 1):
+                chrom,posit = pos.split(":")
+                if (chrom not in chromToPosMap.keys()):
+                    chromToPosMap[chrom] = [pos]
+                else:
+                    chromToPosMap[chrom].append(pos)
 
-            print("Clumps downloaded by chromosome:")
-            for chrom in chromToPosMap:
-                print("{0}...".format(chrom), end="", flush=True)
-                body['positions'] = chromToPosMap[chrom]
-                clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
-            print('\n')
-        else:
-            body['snps'] = snpsFromAssociations
-            clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
+        print("Clumps downloaded by chromosome:")
+        for chrom in chromToPosMap:
+            print("{0}...".format(chrom), end="", flush=True)
+            body['positions'] = chromToPosMap[chrom]
+            clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
+        print('\n')
     except AssertionError:
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
 
