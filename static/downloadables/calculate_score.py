@@ -517,7 +517,6 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
         formatCSV(isFirst, message, header, outputFile)
     else:
-
         for (trait, studyID) in txtObj:
             oddsRatios = []
             neutral_snps_set = neutral_snps[(trait, studyID)]
@@ -558,7 +557,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
                                 elif allele != riskAllele:
                                     neutral_snps_set.add(snp)
 
-            if not isCondensedFormat:
+            if not isCondensedFormat and not isJson:
                 OR = str(getCombinedORFromArray(oddsRatios))
                 if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
                     OR = OR + '*'
@@ -575,6 +574,52 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
                 newLine = [studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
                 formatCSV(isFirst, newLine, header, outputFile)
                 isFirst = False
+
+            elif isJson:
+                
+                # Add needed markings to scores/studies
+
+                OR = str(getCombinedORFromArray(oddsRatios))
+                if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
+                    OR = OR + '*'
+
+                if mark is True:
+                    printStudyID = studyID + '†'
+                else:
+                    printStudyID = studyID
+
+                if str(protectiveAlleles) == "set()":
+                    protectiveAlleles = "None"
+                elif str(riskAlleles) == "set()":
+                    riskAlleles = "None"
+                elif str(neutral_snps_set) == "set()":
+                    neutral_snps_set = "None"
+
+                study_results = {}
+                study_results.update({
+                    'studyID':printStudyID,
+                    'citation':citation,
+                    'reportedTrait':reportedTrait,
+                    'trait':trait,
+                    'polygenicRiskScore': OR
+                })
+                if OR == 'NF':
+                    study_results.update({
+                        'protectiveAlleles':'None',
+                        'riskAlleles':'None',
+                        'unknownAlleles':'None'
+                    })
+                else:
+                    study_results.update({
+                        'protectiveAlleles':str(protectiveAlleles),
+                        'riskAlleles': str(riskAlleles),
+                        'unknownAlleles':str(neutral_snps_set)
+                    })
+                formatJson(isFirst, study_results, outputFile)
+                isFirst = False
+                del study_results
+
+
 
             if isCondensedFormat:
                 OR = str(getCombinedORFromArray(oddsRatios))
