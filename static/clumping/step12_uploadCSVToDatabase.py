@@ -48,8 +48,8 @@ def main():
     table_name = str(sys.argv[2])
     filePath = str(sys.argv[3])
 
-    # Create table with input parameter as table name
-    sql ="CREATE TABLE {}_clumps(snp VARCHAR(900), position VARCHAR(900), african_clump INT, american_clump INT, eastAsian_clump INT, european_clump INT, southAsian_clump INT)".format(table_name)
+    # Create table with input parameter as table name and create a position index for the table
+    sql ="CREATE TABLE {}_clumps(snp VARCHAR(900), position VARCHAR(50), african_clump INT, american_clump INT, eastAsian_clump INT, european_clump INT, southAsian_clump INT, INDEX {}_pos (position))".format(table_name, table_name)
     mycursor.execute(sql)
     print("created table")
 
