@@ -414,8 +414,14 @@ calculatePRS () {
                     exit 1
                 fi
                 step=$OPTARG
-                if [[ $step -gt 2 ]] || [[ $step -lt 0 ]]; then 
-                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number"
+                if [[ $1 =~ "^[0-9]+$" ]]; then 
+                    if [[ $step -gt 2 ]] || [[ $step -lt 0 ]]; then 
+                        echo -e "${LIGHTRED}$step ${NC} is not a valid step number"
+                        echo "Valid step numbers are 1 and 2"
+                        exit 1
+                    fi
+                else 
+                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number input"
                     echo "Valid step numbers are 1 and 2"
                     exit 1
                 fi;;
