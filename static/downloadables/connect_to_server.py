@@ -181,6 +181,9 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
         "isVCF": isVCF
     }
 
+    if finalStudyList == []:
+        raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
+
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
     return associationsReturnObj
 
@@ -190,6 +193,8 @@ def postUrlWithBody(url, body):
     response = requests.post(url=url, data=body)
     response.close()
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    if response.status_code == 204:
+        return {}
     return response.json() 
 
 

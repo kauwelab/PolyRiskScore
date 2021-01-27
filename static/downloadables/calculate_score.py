@@ -507,13 +507,13 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     if isNoStudies:
-        print('\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!\n\n')
         message = []
         if isCondensedFormat:
             header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score']
         else:
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
         formatCSV(isFirst, message, header, outputFile)
+        raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
         for (trait, studyID) in txtObj:
             oddsRatios = []
@@ -587,7 +587,6 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps, outpu
 
 def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps, isNoStudies):
     if isNoStudies:
-        print('\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!\n\n')
         message=[]
         if isCondensedFormat:
             header = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
@@ -596,6 +595,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outpu
         else:
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
         formatCSV(True, message, header, outputFile)
+        raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
         condensed_output_map = {}
         count_map = {}
