@@ -393,8 +393,14 @@ calculatePRS () {
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
             v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $verbose == "true" ]; then
-                    isCondensedFormat=0
+                if [ $verbose == "true" ] || [ $verbose == "false" ]; then
+                    if [ $verbose == "true" ]; then
+                        isCondensedFormat=0
+                    fi
+                else
+                    echo "Invalid argument for -v. Use either true or false"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
                 fi;;
             g)  defaultSex="$OPTARG";;
             s)  if ! [ -z "$step" ]; then
