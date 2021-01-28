@@ -107,6 +107,12 @@ exports.getFiltered = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
+            if (data == null) {
+                res.status(204).send({
+                    message: "No matching traits/studies were found"
+                });
+            }
+
             traitsList = {}
             
             for (i=0; i<data.length; i++) {
