@@ -180,7 +180,8 @@ if (is_ebi_reachable()) {
       print(paste("ERROR! First hg is", firstHgName, "and second hg is", secondHgStr))
     }
     results <- liftOver(grs, hgChain)
-    secondHgTibble <- as_tibble(results) %>%
+      # the as_tibble function puts out a warning message that isn't important, so suppressWarnings is used
+    secondHgTibble <- suppressWarnings(as_tibble(results)) %>%
       unite(!!(secondHgStr), seqnames:start, sep = ":")
     secondHgTibble <- mutate(secondHgTibble, !!(secondHgStr) := str_extract(secondHgTibble[[3]], "\\d+:\\d+")) %>%
       select(!!(secondHgStr))
@@ -240,7 +241,8 @@ if (is_ebi_reachable()) {
       associationsTable <- add_column(associationsTable, hg18 = hgToHg(associationsTable["hg19"], "hg18"), .after = "hg19")
       associationsTable <- add_column(associationsTable, hg17 = hgToHg(associationsTable["hg19"], "hg17"), .after = "hg18")
       # removes the NAs from the data
-      associationsTable <- as.data.frame(associationsTable) %>% replace(., is.na(.), "")
+      # the as.data.frame function puts out a warning message that isn't important, so suppressWarnings is used
+      associationsTable <- suppressWarnings(as.data.frame(associationsTable)) %>% replace(., is.na(.), "")
       return(associationsTable)
     }
   }
@@ -262,7 +264,7 @@ if (is_ebi_reachable()) {
         sexes <- c(sexes, NA)
       }
       else if (str_detect(desc, "female") || str_detect(desc, "woman") || str_detect(desc, "women")) {
-          sexes <- c(sexes, femaleIndicator)
+        sexes <- c(sexes, femaleIndicator)
       }
       else if (str_detect(desc, "male") || str_detect(desc, "man") || str_detect(desc, "men")) {
         sexes <- c(sexes, maleIndicator)
@@ -315,7 +317,7 @@ if (is_ebi_reachable()) {
         DevPrint(paste0("    skipping study bc not enough snps: ", citation, "-", studyID))
       } else {
         DevPrint(paste0("  ", i, ". ", citation))
-      
+
         # gets the association data associated with the study ID
         associations <- get_associations(study_id = studyID)
         associationsTibble <- associations@associations
@@ -364,24 +366,31 @@ if (is_ebi_reachable()) {
             master_variants[master_variants == ""] <- NA
           }
           master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
-          studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
-            unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
-            mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
-            mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
-            tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
-            add_column(citation = citation) %>%
-            add_column(studyID = studyID, .after = "citation") %>%
-            add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
-            mutate(pvalue_description = tolower(pvalue_description))
-          # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
-          studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
-          # if there are not enough snps left in the study table, add it to a list of ignored studies
-          if (nrow(studyData) < minNumStudyAssociations) {
+          
+          # if master_variants or master_associations are empty, this study does not have enough info
+          if (nrow(master_variants) <= 0 || nrow(master_associations) <= 0) {
             invalidStudies <- c(invalidStudies, studyID)
             DevPrint(paste0("    Not enough info for ", citation))
-          } else { # otherwise add the rows to the association table
-            associationsTable <- bind_rows(studyData, associationsTable)
-            studyIndeciesAppended <- c(studyIndeciesAppended, i)
+          } else {
+            studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
+              unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
+              mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
+              mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
+              tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
+              add_column(citation = citation) %>%
+              add_column(studyID = studyID, .after = "citation") %>%
+              add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
+              mutate(pvalue_description = tolower(pvalue_description))
+            # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
+            studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
+            # if there are not enough snps left in the study table, add it to a list of ignored studies
+            if (nrow(studyData) < minNumStudyAssociations) {
+              invalidStudies <- c(invalidStudies, studyID)
+              DevPrint(paste0("    Not enough info for ", citation))
+            } else { # otherwise add the rows to the association table
+              associationsTable <- bind_rows(studyData, associationsTable)
+              studyIndeciesAppended <- c(studyIndeciesAppended, i)
+            }
           }
         }
         # for every 10 studies, append to the associations_table.tsv
