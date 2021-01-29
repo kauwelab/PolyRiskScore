@@ -460,11 +460,11 @@ calculatePRS () {
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
         extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
-        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
-            echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
+            echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
             exit;
         fi
     fi
