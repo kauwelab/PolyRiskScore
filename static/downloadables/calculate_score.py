@@ -17,10 +17,7 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     clumpsObjDict = json.loads(clumpsObjDict)
 
     # Format variables used for filtering
-    traits = traits.lower().title()
-    traits = traits.split(" ") if traits != "" else None
-    if traits is not None:
-        traits = [sub.replace('_', ' ').replace("\\'", "") for sub in traits]
+    traits = formatTraits(traits)
     studyTypes = studyTypes.upper()
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.upper()
@@ -41,6 +38,18 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
         vcfObj, totalVariants, neutral_snps, samp_num, studySnps = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
         vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps)
     return
+
+
+def formatTraits(traits):
+    traits = traits.lower()
+    traits = traits.split(" ") if traits != "" else None
+    if traits is not None:
+        for i in range(len(traits)):
+            trait = traits[i].replace('_', ' ').replace("\\'", "\'").split(" ")
+            for j in range(len(trait)):
+                trait[j] = trait[j].capitalize()
+            traits[i] = " ".join(trait)
+    return traits
 
 
 def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, p_cutOff):
@@ -81,7 +90,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                     useTrait = False
                     useStudy = False
                     # if there are traits to filter by and the trait for this snp is in the list, use this trait 
-                    if traits is not None and trait.lower().title() in traits:
+                    if traits is not None and trait in traits:
                         useTrait = True
                     # Loop through each study containing the position
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
@@ -147,7 +156,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                 # initializing variables
                 useTrait = False
                 useStudy = False
-                if traits is not None and trait.lower().title() in traits:
+                if traits is not None and trait in traits:
                     useTrait = True
                 for study in tableObjDict['associations'][key]['traits'][trait].keys():
                     if not isAllFiltersNone:
@@ -387,7 +396,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                         useTrait = False
                         useStudy = False
                         # if there are traits to filter by and the trait for this snp is in the list, use this trait 
-                        if traits is not None and trait.lower().title() in traits:
+                        if traits is not None and trait in traits:
                             useTrait = True
                         # Loop through each study containing the position
                         for study in tableObjDict['associations'][rsID]['traits'][trait].keys():
@@ -469,7 +478,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                         # initializing variables
                         useTrait = False
                         useStudy = False
-                        if traits is not None and trait.lower().title() in traits:
+                        if traits is not None and trait in traits:
                             useTrait = True
                         for study in tableObjDict['associations'][key]['traits'][trait].keys():
                             if not isAllFiltersNone:
@@ -492,6 +501,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     final_map = dict(sample_map)
+    # raise SystemExit("BYE BYE")
     return final_map, totalLines, neutral_snps, sample_num, studySnps
 
 
