@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.2.0" #TODO change to 1.3.0
+version="1.2.0" #TODO change to 1.4.0
 #
 # 
 # 
@@ -49,6 +49,11 @@ version="1.2.0" #TODO change to 1.3.0
 #
 #   Added optional param:
 #       -g biological sex prefered for snp selection
+#
+# * TODO - v1.4.0
+#   
+#   Added the ability to calculate scores using vcf/txt
+#   files zipped in zip, tar-like, and gz-like formats
 #
 # ########################################################################
 
@@ -346,7 +351,7 @@ calculatePRS () {
                     exit 1
                 elif ! [[ "${filename,,}" =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
-                    zipExtension=`$pyVer -c "import zip_handler; zip_handler.getZippedFileExtension('$filename')"`
+                    zipExtension=`$pyVer -c "import calculate_score; calculate_score.getZippedFileExtension('$filename', True)"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
                         echo "zipped file validated"
                     # if "False", the file is not a zipped file
