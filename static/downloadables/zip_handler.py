@@ -7,7 +7,7 @@ import tarfile
 # returns and prints: ".vcf" or "txt" if the zipped file is valid and contains one of those files
                     # "False" if the file is not a zipped file
                     # error message if the file is a zipped file, but is not vaild
-def getZippedFileExtension(filePath):
+def getZippedFileExtension(filePath, shouldPrint):
     # if the file is a zip file
     if zipfile.is_zipfile(filePath):
         # open the file
@@ -22,12 +22,12 @@ def getZippedFileExtension(filePath):
             new_file = validArchive[0]
             _, extension = os.path.splitext(new_file)
             extension = extension.lower()
-            print(extension)
+            printIfShould(shouldPrint, extension)
             return extension
         # else print and return an error message
         else:
             msg = "There must be 1 vcf/txt file in the zip file. Please check the input file and try again."
-            print(msg)
+            printIfShould(shouldPrint, msg)
             return msg
     # if the file is a tar-like file (tar, tgz, tar.gz, etc.)
     elif tarfile.is_tarfile(filePath):
@@ -43,12 +43,12 @@ def getZippedFileExtension(filePath):
             new_file = validArchive[0]
             _, extension = os.path.splitext(new_file)
             extension = extension.lower()
-            print(extension)
+            printIfShould(shouldPrint, extension)
             return extension
         # else print and return an error message
         else:
             msg = "There must be 1 vcf/txt file in the tar file. Please check the input file and try again."
-            print(msg)
+            printIfShould(shouldPrint, msg)
             return msg
     # if the file is a gz file (checked last to not trigger for tar.gz)
     elif filePath.lower().endswith(".gz"):
@@ -57,14 +57,19 @@ def getZippedFileExtension(filePath):
             new_file = filePath[:-3]
             _, extension = os.path.splitext(new_file)
             extension = extension.lower()
-            print(extension)
+            printIfShould(shouldPrint, extension)
             return extension
         # else print and return an error message
         else:
             msg = "The gzipped file is not a txt or vcf file. Please check the input file and try again"
-            print(msg)
+            printIfShould(shouldPrint, msg)
             return msg
     # if the file is not a zip, tar, or gz, print and return "False"
     else:
-        print("False")
+        printIfShould(shouldPrint, "False")
         return "False"
+
+# prints msg if should is True
+def printIfShould(should, msg):
+    if should:
+        print(msg)
