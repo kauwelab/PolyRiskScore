@@ -28,8 +28,8 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
         ethnicities = [sub.replace("_", " ") for sub in ethnicities]
 
     # tells us if we were passed rsIDs or a vcf
-    extension = zip_handler.getZippedFileExtension(inputFile)
-    isRSids = True if extension.lower().endswith(".txt") else False
+    extension = zip_handler.getZippedFileExtension(inputFile, False)
+    isRSids = True if extension.lower().endswith(".txt") or inputFile.lower().endswith(".txt") else False
 
     if isRSids:
         txtObj, totalVariants, neutral_snps, studySnps = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
@@ -54,9 +54,8 @@ def formatTraits(traits):
 
 def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, p_cutOff):
     totalLines = 0
-    openFile = openFileForParsing(txtFile, True)
     
-    Lines = openFile.readlines()
+    Lines = openFileForParsing(txtFile, True)
 
     # Create a default dictionary (nested dictionary)
     sample_map = defaultdict(dict)
@@ -74,10 +73,11 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
     # Iterate through each record in the file and save the SNP rs ID
     for line in Lines:
         try:
-            line = line.strip() #line should be in format of rsID:Genotype,Genotype
-            snp, alleles = line.split(':')
-            allele1, allele2 = alleles.split(',')
-            alleles = [allele1, allele2]
+            if line != "":
+                line = line.strip() #line should be in format of rsID:Genotype,Genotype
+                snp, alleles = line.split(':')
+                allele1, allele2 = alleles.split(',')
+                alleles = [allele1, allele2]
         except ValueError:
             raise SystemExit("ERROR: Some lines in the input file are not formatted correctly. Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)")
         
@@ -215,9 +215,8 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, tra
 
 # returns an open file (for txt files) or a vcf.Reader (for vcf files)
 # if the file is zipped (zip, tar, tgz, gz, etc), reads the file without unzipping it
+# assumes the file is already validated
 def openFileForParsing(inputFile, isTxtExtension):
-    # default open for regular vcf and txt files (overwritten if the file is zipped)
-    new_file = open(inputFile, 'r')
     # if the file is zipped
     if zipfile.is_zipfile(inputFile):
         # open the file
@@ -228,7 +227,7 @@ def openFileForParsing(inputFile, isTxtExtension):
             if filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt":
                 validArchive.append(filename)
         # decode the file from the zip file
-        new_file = archive.read(validArchive[0]).decode().split("\n")
+        new_file = archive.read(validArchive[0]).decode().replace("\r", "").split("\n")
     # if the file is tar zipped
     elif tarfile.is_tarfile(inputFile):
         # open the file
@@ -237,10 +236,13 @@ def openFileForParsing(inputFile, isTxtExtension):
         for tarInfo in archive:
             if tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt":
                 # wrap the ExFileObject in an io.TextIOWrapper and read
-                new_file = io.TextIOWrapper(archive.extractfile(tarInfo)).read().split("\n")
+                new_file = io.TextIOWrapper(archive.extractfile(tarInfo)).read().replace("\r", "").split("\n")
     # if file is gzipped
     elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
-        new_file = gzip.open(inputFile, 'rt').read().split("\n")
+        new_file = gzip.open(inputFile, 'rt').read().replace("\r", "").split("\n")
+    else:
+        # default open for regular vcf and txt files
+        new_file = open(inputFile, 'r').read().replace("\r", "").split("\n")
     
     # return the new file either as is (txt) or as a vcf.Reader (vcf)
     if isTxtExtension:
