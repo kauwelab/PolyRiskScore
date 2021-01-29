@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.2.0" #TODO change to 1.4.0
+version="1.4.0"
 #
 # 
 # 
@@ -50,7 +50,7 @@ version="1.2.0" #TODO change to 1.4.0
 #   Added optional param:
 #       -g biological sex prefered for snp selection
 #
-# * TODO - v1.4.0
+# * 1/29/21 - v1.4.0
 #   
 #   Added the ability to calculate scores using vcf/txt
 #   files zipped in zip, tar-like, and gz-like formats
