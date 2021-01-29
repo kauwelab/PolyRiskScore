@@ -96,6 +96,9 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             result(err, null);
             return;
         }
+        if (res.length == 0) {
+            result(null, null);
+        }
         var sqlQueryString = "";
         sqlQueryParams  = []
         for (i = 0; i < res.length; i++) {
