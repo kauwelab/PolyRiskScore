@@ -495,7 +495,7 @@ calculatePRS () {
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
-            echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
+            echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
             exit;
         fi
     fi
