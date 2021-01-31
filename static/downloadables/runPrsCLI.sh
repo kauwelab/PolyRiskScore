@@ -475,7 +475,7 @@ calculatePRS () {
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
-        # if zipExtension hasn't been instanciated yet, initialize it
+        # if zipExtension hasn't been instantiated yet, initialize it
         if [ -z "$zipExtension" ]; then
             zipExtension="NULL"
         fi
@@ -518,9 +518,7 @@ calculatePRS () {
                 rm $FILE
                 rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             fi
-            #TODO should this be removed?
-            # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-            # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+            # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
             rm -r __pycache__
             echo "Cleaned up intermediate files"
             echo "Results saved to $output"
