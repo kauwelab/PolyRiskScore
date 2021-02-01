@@ -8,3 +8,4 @@ core
 /update_database_scripts/rawGWASAncestries.tsv
 /update_database_scripts/rawGWASPublications.tsv
 /update_database_scripts/rawGWASStudyData.tsv
+.vscode/settings.json
