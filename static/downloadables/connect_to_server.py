@@ -165,6 +165,9 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
             "studyIDs": studyIDs
         }
         studyIDDataList = getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)
+        if studyIDDataList == []:
+            print('\n\nWARNING, NO STUDIES MATCHED THE GIVEN STUDY ID(S): {}. \nTHIS MAY CAUSE THE PROGRAM TO QUIT IF THERE WERE NO OTHER FILTERS.\n'.format(studyIDs))
+
         for i in range(len(studyIDDataList)):
             # add the specified studyIDs to the set of studyIDObjs
             finalStudyList.append(json.dumps({
