@@ -109,10 +109,12 @@ else
     wait
     echo -e "Finished uploading tables to the PRSKB database.\n"
 
-#===============Create Sample VCF=====================================================================
+#===============Create Sample VCF/TXT=====================================================================
     echo "Creating sample vcf"
     python3 createSampleVCF.py "sample" $sampleVCFFolderPath
     wait 
+    python3 create_rsID_file_from_vcf.py "sample" $sampleVCFFolderPath
+    wait
     echo "Finished creating sample vcf"
 
 #============Create Association and Clumps download files ============================================
