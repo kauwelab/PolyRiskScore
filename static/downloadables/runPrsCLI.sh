@@ -150,7 +150,7 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
         echo -e "| ${LIGHTPURPLE}8${NC} - -i studyIDs                             |"
         echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - -v True/False verbose result file               |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - -v verbose result file                 |"
         echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
         echo -e "|                                             |"
@@ -225,7 +225,7 @@ learnAboutParameters () {
                 echo "by the authors. " # should we maybe show ethnicities when they search studies?
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} -v: ${NC}"
+            10 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
                 echo "For a more detailed result file, include the '-v True' parameter."
                 echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
                 echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
@@ -239,7 +239,9 @@ learnAboutParameters () {
                 echo "when both options (M/F) are present. The system default is Female"
                 echo "" ;;
             12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
-                echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
+                echo "This parameter allows you to split up the running of the tool into two steps."
+                echo "The advantage of this is that the first step, which requires internet, can be"
+                echo "run separately from step 2, which does not require an internet connection."
                 echo "" ;;
             13 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
