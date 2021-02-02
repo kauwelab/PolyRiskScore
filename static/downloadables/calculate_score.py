@@ -7,7 +7,8 @@ from collections import defaultdict
 import json
 import math
 import csv
- 
+import io
+import os
 
 def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, refGen, isCondensedFormat, outputFile, traits, studyTypes, studyIDs, ethnicities):
     tableObjDict = json.loads(tableObjDict)
@@ -25,7 +26,8 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
         ethnicities = [sub.replace("_", " ") for sub in ethnicities]
 
     # tells us if we were passed rsIDs or a vcf
-    isRSids = True if inputFile.lower().endswith(".txt") else False
+    extension = getZippedFileExtension(inputFile, False)
+    isRSids = True if extension.lower().endswith(".txt") or inputFile.lower().endswith(".txt") else False
 
     if isRSids:
         txtObj, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
@@ -49,9 +51,9 @@ def formatTraits(traits):
 
 
 def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, p_cutOff):
-    openFile = open(txtFile, 'r')
+    totalLines = 0
     
-    Lines = openFile.readlines()
+    Lines = openFileForParsing(txtFile, True)
 
     # Create a default dictionary (nested dictionary)
     sample_map = defaultdict(dict)
@@ -73,10 +75,11 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
     # Iterate through each record in the file and save the SNP rs ID
     for line in Lines:
         try:
-            line = line.strip() #line should be in format of rsID:Genotype,Genotype
-            snp, alleles = line.split(':')
-            allele1, allele2 = alleles.split(',')
-            alleles = [allele1, allele2]
+            if line != "":
+                line = line.strip() #line should be in format of rsID:Genotype,Genotype
+                snp, alleles = line.split(':')
+                allele1, allele2 = alleles.split(',')
+                alleles = [allele1, allele2]
         except ValueError:
             raise SystemExit("ERROR: Some lines in the input file are not formatted correctly. Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)")
         
@@ -95,7 +98,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
                         # if we aren't going to use all the associations, decide if this is one that we will use
                         if not isAllFiltersNone:
-                            studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                            studyMetaData = tableObjDict['studyIDsToMetaData'][studyID] if studyID in tableObjDict['studyIDsToMetaData'].keys() else None
                             useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait)
                         if isAllFiltersNone or useStudy:
                             isNoStudies = False
@@ -219,26 +222,43 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, tra
     # we either want to use this study because of the studyID or because filtering trait, ethnicity, and studyTypes give us this study
     return useStudyID or (useEthnicity and useStudyType)
 
-
-def openFileForParsing(inputFile):
-    # Check if the file is zipped
-    if inputFile.endswith(".zip"):
-        # If the file is zipped, extract it
-        with zipfile.ZipFile(inputFile, "r") as zipObj:
-            zipObj.extractall("./")
-        # Access the new name of the file (without .zip)
-        temps = inputFile.split('.zip')
-        norm_file = temps[0]
-        # Use the vcf reader to open the newly unzipped file
-        vcf_reader = vcf.Reader(open(norm_file, "r"))
-    # Check if file is gzipped and open it with vcf reader
-    elif inputFile.endswith(".gz") or inputFile.endswith(".gzip") or inputFile.endswith(".tgz"):
-        vcf_reader = vcf.Reader(filename=inputFile)
-    # If the file is normal, open it with the vcf reader
+# returns an open file (for txt files) or a vcf.Reader (for vcf files)
+# if the file is zipped (zip, tar, tgz, gz, etc), reads the file without unzipping it
+# assumes the file is already validated
+def openFileForParsing(inputFile, isTxtExtension):
+    # if the file is zipped
+    if zipfile.is_zipfile(inputFile):
+        # open the file
+        archive = zipfile.ZipFile(inputFile)
+        validArchive = []
+        # get the vcf or txt file in the zip
+        for filename in archive.namelist():
+            if filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt":
+                validArchive.append(filename)
+        # decode the file from the zip file
+        new_file = archive.read(validArchive[0]).decode().replace("\r", "").split("\n")
+    # if the file is tar zipped
+    elif tarfile.is_tarfile(inputFile):
+        # open the file
+        archive = tarfile.open(inputFile)
+        # get the vcf or txt file in the tar
+        for tarInfo in archive:
+            if tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt":
+                # wrap the ExFileObject in an io.TextIOWrapper and read
+                new_file = io.TextIOWrapper(archive.extractfile(tarInfo)).read().replace("\r", "").split("\n")
+    # if file is gzipped
+    elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
+        new_file = gzip.open(inputFile, 'rt').read().replace("\r", "").split("\n")
     else:
-        vcf_reader = vcf.Reader(open(inputFile, "r"))
-
-    return vcf_reader
+        # default open for regular vcf and txt files
+        new_file = open(inputFile, 'r').read().replace("\r", "").split("\n")
+    
+    # return the new file either as is (txt) or as a vcf.Reader (vcf)
+    if isTxtExtension:
+        return new_file
+    else:
+        # open the newly unzipped file using the vcf reader
+        return vcf.Reader(new_file)
 
 
 def formatAndReturnGenotype(genotype, REF, ALT):
@@ -354,7 +374,7 @@ def formatAndReturnGenotype(genotype, REF, ALT):
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, p_cutOff):
     totalLines = 0 
 
-    vcf_reader = openFileForParsing(inputFile)
+    vcf_reader = openFileForParsing(inputFile, False)
     
     # Create a default dictionary (nested dictionary)
     sample_map = defaultdict(dict)
@@ -715,6 +735,9 @@ def getPRSFromArray(oddsRatios):
 
 
 def formatCSV(isFirst, newLine, header, outputFile):
+    # if the folder of the output file doesn't exist, create it
+    os.makedirs(os.path.dirname(outputFile), exist_ok=True)
+
     if isFirst:
         with open(outputFile, 'w', newline='', encoding="utf-8") as f:
             output = csv.writer(f, delimiter='\t')
@@ -725,3 +748,75 @@ def formatCSV(isFirst, newLine, header, outputFile):
             output = csv.writer(f, delimiter='\t')
             output.writerow(newLine)
     return
+
+# checks if the file is a vaild zipped file and returns the extension of the file inside the zipped file
+# a zipped file is valid if it is a zip, tar, or gz file with only 1 vcf/txt file inside
+# returns and prints: ".vcf" or "txt" if the zipped file is valid and contains one of those files
+                    # "False" if the file is not a zipped file
+                    # error message if the file is a zipped file, but is not vaild
+def getZippedFileExtension(filePath, shouldPrint):
+    # if the file is a zip file
+    if zipfile.is_zipfile(filePath):
+        # open the file
+        archive = zipfile.ZipFile(filePath, "r")
+        # get the number of vcf/txt files inside the file
+        validArchive = []
+        for filename in archive.namelist():
+            if filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt":
+                validArchive.append(filename)
+        # if the number of vcf/txt files is one, this file is valid and the extension is printed and returned
+        if len(validArchive) == 1:
+            new_file = validArchive[0]
+            _, extension = os.path.splitext(new_file)
+            extension = extension.lower()
+            printIfShould(shouldPrint, extension)
+            return extension
+        # else print and return an error message
+        else:
+            msg = "There must be 1 vcf/txt file in the zip file. Please check the input file and try again."
+            printIfShould(shouldPrint, msg)
+            return msg
+    # if the file is a tar-like file (tar, tgz, tar.gz, etc.)
+    elif tarfile.is_tarfile(filePath):
+        # open the file
+        archive = tarfile.open(filePath)
+        # get the number of vcf/txt files inside the file
+        validArchive = []
+        for tarInfo in archive.getmembers():
+            if tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt":
+                validArchive.append(tarInfo.name)
+        # if the number of vcf/txt files is one, this file is valid and the extension is printed and returned
+        if len(validArchive) == 1:
+            new_file = validArchive[0]
+            _, extension = os.path.splitext(new_file)
+            extension = extension.lower()
+            printIfShould(shouldPrint, extension)
+            return extension
+        # else print and return an error message
+        else:
+            msg = "There must be 1 vcf/txt file in the tar file. Please check the input file and try again."
+            printIfShould(shouldPrint, msg)
+            return msg
+    # if the file is a gz file (checked last to not trigger for tar.gz)
+    elif filePath.lower().endswith(".gz"):
+        # if the gz file is a vcf/txt file, print and return the extension
+        if filePath.lower().endswith(".txt.gz") or filePath.lower().endswith(".vcf.gz"):
+            new_file = filePath[:-3]
+            _, extension = os.path.splitext(new_file)
+            extension = extension.lower()
+            printIfShould(shouldPrint, extension)
+            return extension
+        # else print and return an error message
+        else:
+            msg = "The gzipped file is not a txt or vcf file. Please check the input file and try again"
+            printIfShould(shouldPrint, msg)
+            return msg
+    # if the file is not a zip, tar, or gz, print and return "False"
+    else:
+        printIfShould(shouldPrint, "False")
+        return "False"
+
+# prints msg if should is True
+def printIfShould(should, msg):
+    if should:
+        print(msg)
