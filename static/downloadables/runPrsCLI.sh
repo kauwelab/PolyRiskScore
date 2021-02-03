@@ -102,9 +102,10 @@ chooseOption () {
         echo -e "| ${LIGHTBLUE}Options Menu${NC}                                |"
         echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                  |"
         echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or disease  |"
-        echo -e "| ${LIGHTBLUE}3${NC} - View usage                              |"
-        echo -e "| ${LIGHTBLUE}4${NC} - Run the PRSKB calculator                |"
-        echo -e "| ${LIGHTBLUE}5${NC} - Quit                                    |"
+        echo -e "| ${LIGHTBLUE}3${NC} - View available ethnicities for filter   |"
+        echo -e "| ${LIGHTBLUE}4${NC} - View usage                              |"
+        echo -e "| ${LIGHTBLUE}5${NC} - Run the PRSKB calculator                |"
+        echo -e "| ${LIGHTBLUE}6${NC} - Quit                                    |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -113,9 +114,10 @@ chooseOption () {
         case $option in 
             1 ) learnAboutParameters ;;
             2 ) searchTraitsAndStudies ;;
-            3 ) usage ;;
-            4 ) runPRS ;;
-            5 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
+            3 ) printEthnicities ;;
+            4 ) usage ;;
+            5 ) runPRS ;;
+            6 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
                 exit;;
             * ) echo "INVALID OPTION";;
         esac
@@ -286,6 +288,12 @@ searchTraitsAndStudies () {
                 echo -e "${NC}";;
         * ) echo -e "Invalid option." ;;
     esac
+}
+
+printEthnicities () {
+    echo -e " ${LIGHTPURPLE}PRINTING AVAILABLE ETHNICITES TO FILTER BY:${NC}"
+    curl -s https://prs.byu.edu/ethnicities | jq -r '.[]'
+    echo -e ""
 }
 
 # will allow the user to run the PRSKB calculator from the menu
