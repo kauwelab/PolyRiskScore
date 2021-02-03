@@ -309,9 +309,9 @@ def getComplement(allele):
 
 
 def checkInternetConnection():
-    import socket
-    IPaddress=socket.gethostbyname(socket.gethostname())
-    if IPaddress=="127.0.0.1":
-        raise SystemExit("ERROR: No internet - Check your connection")
-    else:
+    try:
+        import socket
+        socket.create_connection(("1.1.1.1", 53))
         return
+    except OSError:
+        raise SystemExit("ERROR: No internet - Check your connection")
