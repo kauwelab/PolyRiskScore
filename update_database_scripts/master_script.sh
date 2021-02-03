@@ -81,33 +81,33 @@ else
 #===============GWAS Database Unpacker======================================================
     # download a portion of the study data from the GWAS catalog and put it into tsv files
     # this makes it so each instance of the "unpackDatabaseCommandLine.R" doesn't need to download its own data
-    #Rscript downloadStudiesToFile.R $studyAndPubTSVFolderPath
+    Rscript downloadStudiesToFile.R $studyAndPubTSVFolderPath
 
-    #echo "Running GWAS database unpacker. This will take many hours depending on the number of nodes you specified to download data."
-    #for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
-    #    Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
-    #done
-    #wait
-    #echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
-    #Rscript sortAssociationsTable.R $associationTableFolderPath
-    #wait
+    echo "Running GWAS database unpacker. This will take many hours depending on the number of nodes you specified to download data."
+    for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
+        Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
+    done
+    wait
+    echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
+    Rscript sortAssociationsTable.R $associationTableFolderPath
+    wait
 
 #===============Study Table Code============================================================
-    #echo "Creating the study table. This can take an hour or more to complete."
-    #Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
-    #wait
-    #echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
+    echo "Creating the study table. This can take an hour or more to complete."
+    Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
+    wait
+    echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
     # delete the raw study data files after the study table has been created
-    #rm "./rawGWASStudyData.tsv"
-    #rm "./rawGWASPublications.tsv"
-    #rm "./rawGWASAncestries.tsv"
+    rm "./rawGWASStudyData.tsv"
+    rm "./rawGWASPublications.tsv"
+    rm "./rawGWASAncestries.tsv"
 
 #===============Upload Tables to PRSKB Database========================================================
     # if updatedStudies is empty or none, dont' upload, otherwise upload new tables
-    #echo "Uploading tables to the PRSKB database."
-    #python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
-    #wait
-    #echo -e "Finished uploading tables to the PRSKB database.\n"
+    echo "Uploading tables to the PRSKB database."
+    python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
+    wait
+    echo -e "Finished uploading tables to the PRSKB database.\n"
 
 #===============Create Sample VCF/TXT=====================================================================
     echo "Creating sample vcf"
@@ -118,10 +118,10 @@ else
     echo "Finished creating sample vcf"
 
 #============Create Association and Clumps download files ============================================
-    #echo "Creating Association and Clumps download files"
-    #python3 createServerAssociAndClumpsFiles.py $password
-    #wait
-    #echo "Finished creating server download association and clumps files"
+    echo "Creating Association and Clumps download files"
+    python3 createServerAssociAndClumpsFiles.py $password
+    wait
+    echo "Finished creating server download association and clumps files"
 
     read -p "Press [Enter] key to finish..."
 fi
