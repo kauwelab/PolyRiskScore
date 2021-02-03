@@ -322,10 +322,10 @@ if (is_ebi_reachable()) {
         associations <- get_associations(study_id = studyID)
         associationsTibble <- associations@associations
         
-        # if there aren't enough associations, put not enough info for study
+        # if there aren't enough associations, write out not enough info and go to the next study
         if (nrow(associationsTibble) < minNumStudyAssociations) {
           invalidStudies <- c(invalidStudies, studyID)
-          DevPrint(paste0("    Not enough info for ", citation))
+          DevPrint(paste0("    Not enough association info for ", citation))
         } else {
           # get a list of the assoication ids
           association_ids <- associationsTibble[["association_id"]]
@@ -346,50 +346,62 @@ if (is_ebi_reachable()) {
             group_by(association_id) %>% 
             filter(dplyr::n()==1)
           
-          # gets the variants data associated with the study ID
-          variants <- get_variants(study_id = studyID)
-          # contains last update date for each variant ID
-          variantsTibble <- variants@variants
-          # contains gene names, position, and distances from nearest genes for each variant ID
-          genomicContexts <- variants@genomic_contexts
-          
-          # merge data together
-          master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
-            dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
-            unite("gene", gene_name, distance, sep = ":") %>%
-            mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
-            group_by(variant_id) %>% 
-            summarise_all(list(~toString(unique(na.omit(.))))) %>%
-            mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
-          # set the values of all empty cells to NA
-          if (nrow(master_variants) > 0) {
-            master_variants[master_variants == ""] <- NA
-          }
-          master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
-          
-          # if master_variants or master_associations are empty, this study does not have enough info
-          if (nrow(master_variants) <= 0 || nrow(master_associations) <= 0) {
+          # if not enough risk allele entries, write out not enough info and go to the next study
+          if (nrow(riskAlleles) < minNumStudyAssociations) {
             invalidStudies <- c(invalidStudies, studyID)
-            DevPrint(paste0("    Not enough info for ", citation))
+            DevPrint(paste0("    Not enough risk allele info for ", citation))
           } else {
-            studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
-              unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
-              mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
-              mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
-              tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
-              add_column(citation = citation) %>%
-              add_column(studyID = studyID, .after = "citation") %>%
-              add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
-              mutate(pvalue_description = tolower(pvalue_description))
-            # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
-            studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
-            # if there are not enough snps left in the study table, add it to a list of ignored studies
-            if (nrow(studyData) < minNumStudyAssociations) {
+            # gets the variants data associated with the study ID
+            variants <- get_variants(study_id = studyID)
+            # contains last update date for each variant ID
+            variantsTibble <- variants@variants
+            # contains gene names, position, and distances from nearest genes for each variant ID
+            genomicContexts <- variants@genomic_contexts
+            
+            # if not enough genomic context entries, write out not enough info and go to the next study
+            if (nrow(genomicContexts) < minNumStudyAssociations) {
               invalidStudies <- c(invalidStudies, studyID)
-              DevPrint(paste0("    Not enough info for ", citation))
-            } else { # otherwise add the rows to the association table
-              associationsTable <- bind_rows(studyData, associationsTable)
-              studyIndeciesAppended <- c(studyIndeciesAppended, i)
+              DevPrint(paste0("    Not enough genomic context info for ", citation))
+            } else {
+              # merge data together
+              master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
+                dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
+                unite("gene", gene_name, distance, sep = ":") %>%
+                mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
+                group_by(variant_id) %>%
+                summarise_all(list(~toString(unique(na.omit(.))))) %>%
+                mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
+              # set the values of all empty cells to NA
+              if (nrow(master_variants) > 0) {
+                master_variants[master_variants == ""] <- NA
+              }
+              master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
+              
+              # if master_variants or master_associations are empty, this study does not have enough info
+              if (nrow(master_variants) <= 0 || nrow(master_associations) <= 0) {
+                invalidStudies <- c(invalidStudies, studyID)
+                DevPrint(paste0("    Not enough risk allele or association info for ", citation))
+              } else {
+                studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
+                  unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
+                  mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
+                  mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
+                  tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
+                  add_column(citation = citation) %>%
+                  add_column(studyID = studyID, .after = "citation") %>%
+                  add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
+                  mutate(pvalue_description = tolower(pvalue_description))
+                # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
+                studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
+                # if there are not enough snps left in the study table, add it to a list of ignored studies
+                if (nrow(studyData) < minNumStudyAssociations) {
+                  invalidStudies <- c(invalidStudies, studyID)
+                  DevPrint(paste0("    Not enough studyData info for ", citation))
+                } else { # otherwise add the rows to the association table
+                  associationsTable <- bind_rows(studyData, associationsTable)
+                  studyIndeciesAppended <- c(studyIndeciesAppended, i)
+                }
+              }
             }
           }
         }
