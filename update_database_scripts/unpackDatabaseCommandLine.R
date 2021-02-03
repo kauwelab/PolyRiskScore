@@ -405,7 +405,7 @@ if (is_ebi_reachable()) {
                   add_column(studyID = studyID, .after = "citation") %>%
                   add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
                   mutate(pvalue_description = tolower(pvalue_description))
-                # remove rows missing risk alleles or odds ratios, or which have X as their chromosome, or SNPs conditioned on other SNPs
+                # remove rows missing risk alleles or odds ratios, or which have X or Y as their chromosome, or SNPs conditioned on other SNPs
                 studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > -1)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
                 # if there are not enough snps left in the study table, add it to a list of ignored studies
                 if (nrow(studyData) < minNumStudyAssociations) {
