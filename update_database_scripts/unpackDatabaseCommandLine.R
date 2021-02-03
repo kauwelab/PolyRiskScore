@@ -135,12 +135,26 @@ if (is_ebi_reachable()) {
   minNumStudyAssociations <- 1
   
   # the paths to the chain files used for reference genome location conversions
+  # doing "showConnections" and "closeAllConnections" after each of the following lines seems
+  # to remove the 3 "Warning: closing unused connection" warnings that used to appear
   path38To19 = file.path(chainFilePath, "hg38ToHg19.over.chain")
+  showConnections(all=TRUE)
+  closeAllConnections()
   path19To18 = file.path(chainFilePath, "hg19ToHg18.over.chain")
+  showConnections(all=TRUE)
+  closeAllConnections()
   path19to17 = file.path(chainFilePath, "hg19ToHg17.over.chain")
+  showConnections(all=TRUE)
+  closeAllConnections()
   ch38To19 = import.chain(path38To19)
+  showConnections(all=TRUE)
+  closeAllConnections()
   ch19To18 = import.chain(path19To18)
+  showConnections(all=TRUE)
+  closeAllConnections()
   ch19To17 = import.chain(path19to17)
+  showConnections(all=TRUE)
+  closeAllConnections()
   
 ## functions-----------------------------------------------------------------------------------------
   
