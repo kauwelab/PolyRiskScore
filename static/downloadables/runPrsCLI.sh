@@ -224,7 +224,7 @@ learnAboutParameters () {
             9 ) echo -e "${MYSTERYCOLOR} -e ethnicity: ${NC}"
                 echo "This parameter allows you to filter studies to use by the ethnicity "
                 echo "of the subjects used in the study. These correspond to those listed " 
-                echo "by the authors. " # should we maybe show ethnicities when they search studies?
+                echo "by the authors. A list can be printed from the corresponding menu option."
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             10 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
@@ -394,21 +394,20 @@ calculatePRS () {
             t)  trait="${OPTARG//$single/$escaped}"
                 trait="${trait//$space/$underscore}"
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
-            k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
+            k)  studyType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $studyType != "hi" ] && [ $studyType != "lc" ] && [ $studyType != "o" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
                     echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
                     exit 1
                 fi
-                studyTypesForCalc+=("$OPTARG");;
+                studyTypesForCalc+=("$studyType");;
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
             v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $verbose == "true" ] || [ $verbose == "false" ]; then
-                    if [ $verbose == "true" ]; then
-                        isCondensedFormat=0
-                    fi
-                else
+                if [ $verbose == "true" ]; then
+                    isCondensedFormat=0
+                elif [ $verbose != "false" ]; then
                     echo "Invalid argument for -v. Use either true or false"
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
@@ -419,19 +418,14 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
-            s)  if ! [ -z "$step" ]; then
+            s)  if ! [ -z "$step" ]; then # should we maybe show ethnicities when they search studies?
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
                 step=$OPTARG
-                if [[ $step =~ ^[0-9]+$ ]]; then 
-                    if [[ $step -gt 2 ]] || [[ $step -lt 0 ]]; then 
-                        echo -e "${LIGHTRED}$step${NC} is not a valid step number"
-                        echo "Valid step numbers are 1 and 2"
-                        exit 1
-                    fi
-                else 
+                # if is not a number, or if it is a number less than 1 or greater than 2
+                if (! [[ $step =~ ^[0-9]+$ ]]) || ([[ $step =~ ^[0-9]+$ ]] && ([[ $step -gt 2 ]] || [[ $step -lt 1 ]])); then 
                     echo -e "${LIGHTRED}$step ${NC} is not a valid step number input"
                     echo "Valid step numbers are 1 and 2"
                     exit 1
