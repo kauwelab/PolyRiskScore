@@ -311,6 +311,7 @@ def getComplement(allele):
 def checkInternetConnection():
     try:
         import socket
+        # using an arbitrary connection to check if we can make one
         socket.create_connection(("1.1.1.1", 53))
         return
     except OSError:
