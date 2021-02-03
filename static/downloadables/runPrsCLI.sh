@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.2.0" #TODO change to 1.3.0
+version="1.4.0"
 #
 # 
 # 
@@ -49,6 +49,11 @@ version="1.2.0" #TODO change to 1.3.0
 #
 #   Added optional param:
 #       -g biological sex prefered for snp selection
+#
+# * 1/29/21 - v1.4.0
+#   
+#   Added the ability to calculate scores using vcf/txt
+#   files zipped in zip, tar-like, and gz-like formats
 #
 # ########################################################################
 
@@ -316,6 +321,20 @@ calculatePRS () {
     escaped="\'"
     underscore="_"
     space=" "
+    quote='"'
+    empty=""
+
+    # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
+    pyVer=""
+    ver=$(python --version)
+    read -a strarr <<< "$ver"
+
+    # python version is 3.something, then use python as the call
+    if [[ "${strarr[1]}" =~ ^3 ]]; then
+        pyVer="python"
+    else
+        pyVer="python3"
+    fi
 
     while getopts 'f:o:c:r:p:t:k:i:e:v:s:g:' c "$@"
     do 
@@ -330,10 +349,22 @@ calculatePRS () {
                     echo -e "The file${LIGHTRED} $filename ${NC}does not exist."
                     echo "Check the path and try again."
                     exit 1
-                elif ! [[ "$filename" =~ .vcf$|.VCF$|.txt$|.TXT$ ]]; then
-                    echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
-                    echo -e "Please use a vcf or txt file."
-                    exit 1
+                elif ! [[ "${filename,,}" =~ .vcf$|.txt$ ]]; then
+                    # check if the file is a valid zipped file (check getZippedFileExtension for more details)
+                    zipExtension=`$pyVer -c "import calculate_score; calculate_score.getZippedFileExtension('$filename', True)"`
+                    if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
+                        echo "zipped file validated"
+                    # if "False", the file is not a zipped file
+                    elif [ "$zipExtension" = "False" ]; then
+                        echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
+                        echo -e "Please use a vcf or txt file."
+                        exit 1
+                    # if something else, the file is a zipped file, but there are too many/few vcf/txt files in it
+                    else
+                        # print the error associated with the zipped file and exit
+                        echo $zipExtension
+                        exit 1
+                    fi
                 fi;;
             o)  if ! [ -z "$output" ]; then
                     echo "Too many output files given."
@@ -380,8 +411,9 @@ calculatePRS () {
                     exit 1
                 fi;;
 
-            t)  trait="${OPTARG//$single/$escaped}"
-                trait="${trait//$space/$underscore}"
+            t)  trait="${OPTARG//$single/$escaped}" # replace single quotes with escaped single quotes
+                trait="${trait//$space/$underscore}"    # replace spaces with underscores
+                trait="${trait//$quote/$empty}" # replace double quotes with nothing
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
             k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
@@ -427,18 +459,6 @@ calculatePRS () {
         defaultSex="female"
     fi
 
-    # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
-    pyVer=""
-    ver=$(python --version)
-    read -a strarr <<< "$ver"
-
-    # python version is 3.something, then use python as the call
-    if [[ "${strarr[1]}" =~ ^3 ]]; then
-        pyVer="python"
-    else
-        pyVer="python3"
-    fi
-
     # preps variables for passing to python script
     export traits=${traitsForCalc[@]}
     export studyTypes=${studyTypesForCalc[@]}
@@ -455,16 +475,27 @@ calculatePRS () {
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
+        # if zipExtension hasn't been instantiated yet, initialize it
+        if [ -z "$zipExtension" ]; then
+            zipExtension="NULL"
+        fi
+        # if the zip extension is valid, set extension to the zip extension, 
+        # otherwise use Pyhton os.path.splitext to get the extension
+        if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
+            extension="$zipExtension"
+        else
+            extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
+        fi
+
         # Calls a python function to get a list of SNPs and clumps from our Database
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
         if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
-            echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
+            echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
             exit;
         fi
     fi
@@ -481,14 +512,13 @@ calculatePRS () {
         #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
 
         if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
-            echo "Caculated score"
+            echo "Calculated score"
             FILE=".workingFiles/associations_${fileHash}.txt"
             if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
                 rm $FILE
                 rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             fi
-           # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-            # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+            # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
             rm -r __pycache__
             echo "Cleaned up intermediate files"
             echo "Results saved to $output"
