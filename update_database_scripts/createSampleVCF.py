@@ -1,3 +1,7 @@
+import sys
+print (sys.version)
+
+
 import requests
 import myvariant
 import sys
