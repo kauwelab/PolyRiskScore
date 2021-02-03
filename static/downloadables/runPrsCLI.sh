@@ -239,6 +239,7 @@ learnAboutParameters () {
                 echo "when both options (M/F) are present. The system default is Female"
                 echo "" ;;
             12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
+                echo "Either a 1 or a 2."
                 echo "This parameter allows you to split up the running of the tool into two steps."
                 echo "The advantage of this is that the first step, which requires internet, can be"
                 echo "run separately from step 2, which does not require an internet connection."
