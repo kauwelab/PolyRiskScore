@@ -513,7 +513,7 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
