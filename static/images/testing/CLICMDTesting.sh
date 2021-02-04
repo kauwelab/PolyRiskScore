@@ -138,5 +138,34 @@ for i in "sample.vcf" "sample.txt"; do
 
     # TODO test 46 (test 43 without internet)
 
+
+    
+    
+
+    # test 114 (bad -f)
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test114.csv" -c $pvalue -r $refGen -p $pop -f "../savcf"
+
+    # TODO test 115 (test 114 without internet)
+
+    # test 116 (bad -o)
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test116.csv" -c $pvalue -r $refGen -p $pop -r "output.hem"
+
+    # TODO test 117 (test 116 without internet)
+
+    # test 118 (bad -r)
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test118.csv" -c $pvalue -r $refGen -p $pop -r "hg1997"
+
+    # TODO test 119 (test 118 without internet)
+
+    # test 120 (bad -c)
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test120.csv" -c $pvalue -r $refGen -p $pop -c "lala"
+
+    # TODO test 121 (test 120 without internet)
+
+    # test 122 (bad -p)
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test122.csv" -c $pvalue -r $refGen -p $pop -p "FIF"
+
+    # TODO test 123 (test 122 without internet)
+
 done
 
