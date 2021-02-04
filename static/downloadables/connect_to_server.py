@@ -107,7 +107,7 @@ def checkForAllAssociFile(refGen, defaultSex):
             fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
             fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
             # if the file is newer than the database update, we don't need to download a new file
-            if (lastDBUpdateDate < fileModDate):
+            if (lastDBUpdateDate <= fileModDate):
                 dnldNewAllAssociFile = False
         
         return dnldNewAllAssociFile
