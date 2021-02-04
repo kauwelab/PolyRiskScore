@@ -28,6 +28,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
         associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
+        print(dnldNewAllAssociFile)
         if (dnldNewAllAssociFile):
             associationsReturnObj = getAllAssociations(refGen, defaultSex)
             strandFlip = True
@@ -107,7 +108,7 @@ def checkForAllAssociFile(refGen, defaultSex):
             fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
             fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
             # if the file is newer than the database update, we don't need to download a new file
-            if (lastDBUpdateDate < fileModDate):
+            if (lastDBUpdateDate <= fileModDate):
                 dnldNewAllAssociFile = False
         
         return dnldNewAllAssociFile
