@@ -28,7 +28,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
         associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
-        print(dnldNewAllAssociFile)
         if (dnldNewAllAssociFile):
             associationsReturnObj = getAllAssociations(refGen, defaultSex)
             strandFlip = True
