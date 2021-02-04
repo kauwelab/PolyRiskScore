@@ -736,7 +736,8 @@ def getPRSFromArray(oddsRatios):
 
 def formatCSV(isFirst, newLine, header, outputFile):
     # if the folder of the output file doesn't exist, create it
-    os.makedirs(os.path.dirname(outputFile), exist_ok=True)
+    if "/" in outputFile:
+        os.makedirs(os.path.dirname(outputFile), exist_ok=True)
 
     if isFirst:
         with open(outputFile, 'w', newline='', encoding="utf-8") as f:
