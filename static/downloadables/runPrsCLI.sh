@@ -445,7 +445,7 @@ calculatePRS () {
                     exit 1
                 fi;;
             g)  defaultSex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $defaultSex != 'f' ] || [ $defaultSex != 'm' ] || [ $defaultSex != 'female' ] || [ $defaultSex != 'male' ] ; then
+                if [ $defaultSex != 'f' ] && [ $defaultSex != 'm' ] && [ $defaultSex != 'female' ] && [ $defaultSex != 'male' ] ; then
                     echo "Invalid argument for -g. Use f, m, female, or male."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
