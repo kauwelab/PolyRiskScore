@@ -264,7 +264,7 @@ if (is_ebi_reachable()) {
   # appends the contents of the associationsTable to the associations table found in the outPath folder
   appendToAssociationsTable <- function(associationsTable) {
     # writes out the data into a TSV at outPath (from argv)
-    write_tsv(associationsTable, file.path(outPath, "associations_table.tsv"), append = TRUE)
+    write.table(associationsTable, file=file.path(outPath, "associations_table.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE)
   }
   
   # returns a vector of NA, male, or female given a vector of p-value descriptions
