@@ -19,7 +19,7 @@ validEthnicities=($(curl -s https://prs.byu.edu/ethnicities | tr -d '[]' | tr -s
 validTraits=$(curl -s https://prs.byu.edu/get_traits | tr -d '[]' | tr -s ' ' '_')
 validTraits=(${validTraits//${sub}/${repl}})
 validStudyTypes=("HI" "LC" "O")
-validStudyIDs=($(curl -s https://prs.byu.edu/get_all_studies | jq -r 'sort_by(.studyID) | .[] | .studyID'))
+validStudyIDs=($(curl -s https://prs.byu.edu/get_all_studies | jq -r 'sort_by(.studyID) | .[] | .studyID')) #TODO jq command can struggle on wiindows
 
 getRandomElement () {
     array=($@)
@@ -478,264 +478,264 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     #####################TESTING BAD PARAMETERS#####################
 
     # test 67 (bad -t)
-    echo -e "Test 67-- -f $i -o $outputFolder/test67${fileType}.csv -c $pvalue -r $refGen -p $pop -t 'pink'" >> $outputDetails
+    echo -e "Test 67-- -f $i -o $outputFolder/test67${fileType}.csv -c $pvalue -r $refGen -p $pop -t 'pink'"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test67${fileType}.csv" -c $pvalue -r $refGen -p $pop -t 'pink'
 
     # test 68 (test 67 without internet)
-    # echo -e "Test 68-- -f $i -o $outputFolder/test68${fileType}.csv -c $pvalue -r $refGen -p $pop -t 'pink'" >> $outputDetails
+    # echo -e "Test 68-- -f $i -o $outputFolder/test68${fileType}.csv -c $pvalue -r $refGen -p $pop -t 'pink'"
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test68${fileType}.csv" -c $pvalue -r $refGen -p $pop -t 'pink'
 
     # test 69 (bad -k)
-    echo -e "Test 69-- -f $i -o $outputFolder/test69${fileType}.csv -c $pvalue -r $refGen -p $pop -k 'HE'" >> $outputDetails
+    echo -e "Test 69-- -f $i -o $outputFolder/test69${fileType}.csv -c $pvalue -r $refGen -p $pop -k 'HE'"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test69${fileType}.csv" -c $pvalue -r $refGen -p $pop -k 'HE'
 
     # test 70 (test 69 without internet)
-    # echo -e "Test 70-- -f $i -o $outputFolder/test70${fileType}.csv -c $pvalue -r $refGen -p $pop -k 'HE'" >> $outputDetails
+    # echo -e "Test 70-- -f $i -o $outputFolder/test70${fileType}.csv -c $pvalue -r $refGen -p $pop -k 'HE'"
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test70${fileType}.csv" -c $pvalue -r $refGen -p $pop -k 'HE'
 
     # test 71 (bad -i)
-    echo -e "Test 71-- -f $i -o $outputFolder/test71${fileType}.csv -c $pvalue -r $refGen -p $pop -i "GCST"" >> $outputDetails
+    echo -e "Test 71-- -f $i -o $outputFolder/test71${fileType}.csv -c $pvalue -r $refGen -p $pop -i "GCST""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test71${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "GCST"
 
     # test 72 (test 71 without internet)
-    # echo -e "Test 72-- -f $i -o $outputFolder/test72${fileType}.csv -c $pvalue -r $refGen -p $pop -i "GCST"" >> $outputDetails
+    # echo -e "Test 72-- -f $i -o $outputFolder/test72${fileType}.csv -c $pvalue -r $refGen -p $pop -i "GCST""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test72${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "GCST"
 
     # test 73 (bad -e)
-    echo -e "Test 73-- -f $i -o $outputFolder/test73${fileType}.csv -c $pvalue -r $refGen -p $pop -e "Not ethnicity"" >> $outputDetails
+    echo -e "Test 73-- -f $i -o $outputFolder/test73${fileType}.csv -c $pvalue -r $refGen -p $pop -e "Not ethnicity""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test73${fileType}.csv" -c $pvalue -r $refGen -p $pop -e "Not ethnicity"
 
     # test 74 (test 73 without internet)
-    # echo -e "Test 74-- -f $i -o $outputFolder/test74${fileType}.csv -c $pvalue -r $refGen -p $pop -e "Not ethnicity"" >> $outputDetails
+    # echo -e "Test 74-- -f $i -o $outputFolder/test74${fileType}.csv -c $pvalue -r $refGen -p $pop -e "Not ethnicity""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test74${fileType}.csv" -c $pvalue -r $refGen -p $pop -e "Not ethnicity"
 
     # test 75 (bad -v)
-    echo -e "Test 75-- -f $i -o $outputFolder/test75${fileType}.csv -c $pvalue -r $refGen -p $pop -v "yeet"" >> $outputDetails
+    echo -e "Test 75-- -f $i -o $outputFolder/test75${fileType}.csv -c $pvalue -r $refGen -p $pop -v "yeet""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test75${fileType}.csv" -c $pvalue -r $refGen -p $pop -v "yeet"
 
     # test 76 (test 75 without internet)
-    # echo -e "Test 76-- -f $i -o $outputFolder/test76${fileType}.csv -c $pvalue -r $refGen -p $pop -v "yeet"" >> $outputDetails
+    # echo -e "Test 76-- -f $i -o $outputFolder/test76${fileType}.csv -c $pvalue -r $refGen -p $pop -v "yeet""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test76${fileType}.csv" -c $pvalue -r $refGen -p $pop -v "yeet"
 
     # test 77 (bad -g)
-    echo -e "Test 77-- -f $i -o $outputFolder/test77${fileType}.csv -c $pvalue -r $refGen -p $pop -g "he"" >> $outputDetails
+    echo -e "Test 77-- -f $i -o $outputFolder/test77${fileType}.csv -c $pvalue -r $refGen -p $pop -g "he""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test77${fileType}.csv" -c $pvalue -r $refGen -p $pop -g "he"
 
     # test 78 (test 77 without internet)
-    # echo -e "Test 78-- -f $i -o $outputFolder/test78${fileType}.csv -c $pvalue -r $refGen -p $pop -g "he"" >> $outputDetails
+    # echo -e "Test 78-- -f $i -o $outputFolder/test78${fileType}.csv -c $pvalue -r $refGen -p $pop -g "he""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test78${fileType}.csv" -c $pvalue -r $refGen -p $pop -g "he"
 
     # test 79 (bad -s)
-    echo -e "Test 79-- -f $i -o $outputFolder/test79${fileType}.csv -c $pvalue -r $refGen -p $pop -s "he"" >> $outputDetails
+    echo -e "Test 79-- -f $i -o $outputFolder/test79${fileType}.csv -c $pvalue -r $refGen -p $pop -s "he""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test79${fileType}.csv" -c $pvalue -r $refGen -p $pop -s "he"
 
     # test 80 (test 79 without internet)
-    # echo -e "Test 80-- -f $i -o $outputFolder/test80${fileType}.csv -c $pvalue -r $refGen -p $pop -s "he"" >> $outputDetails
+    # echo -e "Test 80-- -f $i -o $outputFolder/test80${fileType}.csv -c $pvalue -r $refGen -p $pop -s "he""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test80${fileType}.csv" -c $pvalue -r $refGen -p $pop -s "he"
 
     # test 81 (bad -t and -k)
-    echo -e "Test 81-- -f $i -o $outputFolder/test81${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -k "HW"" >> $outputDetails
+    echo -e "Test 81-- -f $i -o $outputFolder/test81${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -k "HW""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test81${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW"
 
     # test 82 (test 81 with -s)
-    echo -e "Test 82a-- -f $i -o $outputFolder/test82a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "2"" >> $outputDetails
+    echo -e "Test 82a-- -f $i -o $outputFolder/test82a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test82a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "2"
-    echo -e "Test 82b-- -f $i -o $outputFolder/test82b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "1"" >> $outputDetails
+    echo -e "Test 82b-- -f $i -o $outputFolder/test82b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test82b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test82b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "2"
 
     # test 83 (test 81 without internet)
-    # echo -e "Test 83-- -f $i -o $outputFolder/test83${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -k "HW"" >> $outputDetails
+    # echo -e "Test 83-- -f $i -o $outputFolder/test83${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -k "HW""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test83${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW"
 
     # test 84 (bad -t and -i)
-    echo -e "Test 84-- -f $i -o $outputFolder/test84${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST"" >> $outputDetails
+    echo -e "Test 84-- -f $i -o $outputFolder/test84${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test84${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST"
 
     # test 85 (test 84 with -s)
-    echo -e "Test 85a-- -f $i -o $outputFolder/test85a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "2"" >> $outputDetails
+    echo -e "Test 85a-- -f $i -o $outputFolder/test85a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test85a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "2"
-    echo -e "Test 85b-- -f $i -o $outputFolder/test85b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "1"" >> $outputDetails
+    echo -e "Test 85b-- -f $i -o $outputFolder/test85b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test85b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test85b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "2"
 
     # test 86 (test 84 without internet)
-    # echo -e "Test 86-- -f $i -o $outputFolder/test86${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST"" >> $outputDetails
+    # echo -e "Test 86-- -f $i -o $outputFolder/test86${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test86${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST"
 
     # test 87 (bad -t and -e)
-    echo -e "Test 87-- -f $i -o $outputFolder/test87${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -e "europ"" >> $outputDetails
+    echo -e "Test 87-- -f $i -o $outputFolder/test87${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -e "europ""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test87${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ"
 
     # test 88 (test 87 with -s)
-    echo -e "Test 88a-- -f $i -o $outputFolder/test88a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "2"" >> $outputDetails
+    echo -e "Test 88a-- -f $i -o $outputFolder/test88a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test88a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "2"
-    echo -e "Test 88b-- -f $i -o $outputFolder/test88b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "1"" >> $outputDetails
+    echo -e "Test 88b-- -f $i -o $outputFolder/test88b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test88b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test88b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "2"
 
     # test 89 (test 87 without internet)
-    # echo -e "Test 89-- -f $i -o $outputFolder/test89${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -e "europ"" >> $outputDetails
+    # echo -e "Test 89-- -f $i -o $outputFolder/test89${fileType}.csv -c $pvalue -r $refGen -p $pop -t "pink" -e "europ""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test89${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ"
 
     # test 90 (bad -k and -i)
-    echo -e "Test 90-- -f $i -o $outputFolder/test90${fileType}.csv -c $pvalue -r $refGen -p $pop -k "Hi" -i "GCST"" >> $outputDetails
+    echo -e "Test 90-- -f $i -o $outputFolder/test90${fileType}.csv -c $pvalue -r $refGen -p $pop -k "Hi" -i "GCST""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test90${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "Hi" -i "GCST"
 
     # test 91 (test 90 with -s)
-    echo -e "Test 91a-- -f $i -o $outputFolder/test91a${fileType}.csv -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "2"" >> $outputDetails
+    echo -e "Test 91a-- -f $i -o $outputFolder/test91a${fileType}.csv -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test91a${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "2"
-    echo -e "Test 91b-- -f $i -o $outputFolder/test91b${fileType}.csv -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "1"" >> $outputDetails
+    echo -e "Test 91b-- -f $i -o $outputFolder/test91b${fileType}.csv -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test91b${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test91b${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "2"
 
     # test 92 (test 90 without internet)
-    # echo -e "Test 92-- -f $i -o $outputFolder/test92${fileType}.csv -c $pvalue -r $refGen -p $pop -k "Hi" -i "GCST"" >> $outputDetails
+    # echo -e "Test 92-- -f $i -o $outputFolder/test92${fileType}.csv -c $pvalue -r $refGen -p $pop -k "Hi" -i "GCST""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test92${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "Hi" -i "GCST"
 
     # test 93 (bad -k and -e)
-    echo -e "Test 93-- -f $i -o $outputFolder/test93${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus"" >> $outputDetails
+    echo -e "Test 93-- -f $i -o $outputFolder/test93${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test93${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus"
 
     # test 94 (test 93 with -s)
-    echo -e "Test 94a-- -f $i -o $outputFolder/test94a${fileType}.csv -c $pvalue -r $refGen -p $pop "HI" -e "bogus" -s "2"" >> $outputDetails
+    echo -e "Test 94a-- -f $i -o $outputFolder/test94a${fileType}.csv -c $pvalue -r $refGen -p $pop "HI" -e "bogus" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test94a${fileType}.csv" -c $pvalue -r $refGen -p $pop "HI" -e "bogus" -s "2"
-    echo -e "Test 94b-- -f $i -o $outputFolder/test94b${fileType}.csv -c $pvalue -r $refGen -p $pop "HI" -e "bogus" -s "1"" >> $outputDetails
+    echo -e "Test 94b-- -f $i -o $outputFolder/test94b${fileType}.csv -c $pvalue -r $refGen -p $pop "HI" -e "bogus" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test94b${fileType}.csv" -c $pvalue -r $refGen -p $pop "HI" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test94b${fileType}.csv" -c $pvalue -r $refGen -p $pop "HI" -e "bogus" -s "2"
 
     # test 95 (test 93 without internet)
-    # echo -e "Test 95-- -f $i -o $outputFolder/test95${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus"" >> $outputDetails
+    # echo -e "Test 95-- -f $i -o $outputFolder/test95${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test95${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus"
 
     # test 96 (bad -i and -e)
-    echo -e "Test 96-- -f $i -o $outputFolder/test96${fileType}.csv -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus"" >> $outputDetails
+    echo -e "Test 96-- -f $i -o $outputFolder/test96${fileType}.csv -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test96${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus"
 
     # test 97 (test 96 with -s)
-    echo -e "Test 97a-- -f $i -o $outputFolder/test97a${fileType}.csv -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "2"" >> $outputDetails
+    echo -e "Test 97a-- -f $i -o $outputFolder/test97a${fileType}.csv -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test97a${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "2"
-    echo -e "Test 97b-- -f $i -o $outputFolder/test97b${fileType}.csv -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "1"" >> $outputDetails
+    echo -e "Test 97b-- -f $i -o $outputFolder/test97b${fileType}.csv -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test97b${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test97b${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "2"
 
     # test 98 (test 96 without internet)
-    # echo -e "Test 98-- -f $i -o $outputFolder/test98${fileType}.csv -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus"" >> $outputDetails
+    # echo -e "Test 98-- -f $i -o $outputFolder/test98${fileType}.csv -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test98${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus"
 
     # test 99 (bad -t, -k, and -i)
-    echo -e "Test 99-- -f $i -o $outputFolder/test99${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst"" >> $outputDetails
+    echo -e "Test 99-- -f $i -o $outputFolder/test99${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test99${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst"
 
     # test 100 (test 99 with -s)
-    echo -e "Test 100a-- -f $i -o $outputFolder/test100a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "2"" >> $outputDetails
+    echo -e "Test 100a-- -f $i -o $outputFolder/test100a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test100a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "2"
-    echo -e "Test 100b-- -f $i -o $outputFolder/test100b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "1"" >> $outputDetails
+    echo -e "Test 100b-- -f $i -o $outputFolder/test100b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test100b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test100b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "2"
 
     # test 101 (test 99 without internet)
-    # echo -e "Test 101-- -f $i -o $outputFolder/test101${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst"" >> $outputDetails
+    # echo -e "Test 101-- -f $i -o $outputFolder/test101${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test101${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst"
 
     # test 102 (bad -t, -k, and -e)
-    echo -e "Test 102-- -f $i -o $outputFolder/test102${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus"" >> $outputDetails
+    echo -e "Test 102-- -f $i -o $outputFolder/test102${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test102${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus"
 
     # test 103 (test 102 with -s)
-    echo -e "Test 103a-- -f $i -o $outputFolder/test103a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "2"" >> $outputDetails
+    echo -e "Test 103a-- -f $i -o $outputFolder/test103a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test103a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "2"
-    echo -e "Test 103b-- -f $i -o $outputFolder/test103b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "1"" >> $outputDetails
+    echo -e "Test 103b-- -f $i -o $outputFolder/test103b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test103b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test103b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "2"
 
     # test 104 (test 102 without internet)
-    # echo -e "Test 104-- -f $i -o $outputFolder/test104${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus"" >> $outputDetails
+    # echo -e "Test 104-- -f $i -o $outputFolder/test104${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test104${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus"
 
     # test 105 (bad -t, -i, and -e)
-    echo -e "Test 105-- -f $i -o $outputFolder/test105${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus"" >> $outputDetails
+    echo -e "Test 105-- -f $i -o $outputFolder/test105${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test105${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus"
 
     # test 106 (test 105 with -s)
-    echo -e "Test 106a-- -f $i -o $outputFolder/test106a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "2"" >> $outputDetails
+    echo -e "Test 106a-- -f $i -o $outputFolder/test106a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test106a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "2"
-    echo -e "Test 106b-- -f $i -o $outputFolder/test106b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "1"" >> $outputDetails
+    echo -e "Test 106b-- -f $i -o $outputFolder/test106b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test106b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test106b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "2"
 
     # test 107 (test 105 without internet)
-    # echo -e "Test 107-- -f $i -o $outputFolder/test107${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus"" >> $outputDetails
+    # echo -e "Test 107-- -f $i -o $outputFolder/test107${fileType}.csv -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test107${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus"
 
     # test 108 (bad -k, -i, and -e)
-    echo -e "Test 108-- -f $i -o $outputFolder/test108${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus"" >> $outputDetails
+    echo -e "Test 108-- -f $i -o $outputFolder/test108${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test108${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus"
 
     # test 109 (test 108 with -s)
-    echo -e "Test 109a-- -f $i -o $outputFolder/test109a${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "2"" >> $outputDetails
+    echo -e "Test 109a-- -f $i -o $outputFolder/test109a${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test109a${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "2"
-    echo -e "Test 109b-- -f $i -o $outputFolder/test109b${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "1"" >> $outputDetails
+    echo -e "Test 109b-- -f $i -o $outputFolder/test109b${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test109b${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test109b${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "2"
 
     # test 110 (test 108 without internet)
-    # echo -e "Test 110-- -f $i -o $outputFolder/test110${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus"" >> $outputDetails
+    # echo -e "Test 110-- -f $i -o $outputFolder/test110${fileType}.csv -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test110${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus"
 
     # test 111 (bad -t, -k, -i, and -e)
-    echo -e "Test 111-- -f $i -o $outputFolder/test111${fileType}.csv -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus"" >> $outputDetails
+    echo -e "Test 111-- -f $i -o $outputFolder/test111${fileType}.csv -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test111${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus"
 
     # test 112 (test 111 with -s)
-    echo -e "Test 112a-- -f $i -o $outputFolder/test112a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "2"" >> $outputDetails
+    echo -e "Test 112a-- -f $i -o $outputFolder/test112a${fileType}.csv -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "2""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test112a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "2"
-    echo -e "Test 112b-- -f $i -o $outputFolder/test112b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "1"" >> $outputDetails
+    echo -e "Test 112b-- -f $i -o $outputFolder/test112b${fileType}.csv -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "1""
     ./runPrsCLI.sh -f $i -o "$outputFolder/test112b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test112b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "2"
 
     # test 113 (test 111 without internet)
-    # echo -e "Test 113-- -f $i -o $outputFolder/test113${fileType}.csv -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus"" >> $outputDetails
+    # echo -e "Test 113-- -f $i -o $outputFolder/test113${fileType}.csv -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus""
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test113${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus"
 
     # test 114 (bad -f)
-    echo -e "Test 114-- -f ../savcf -o $outputFolder/test114${fileType}.csv -c $pvalue -r $refGen -p $pop" >> $outputDetails
+    echo -e "Test 114-- -f ../savcf -o $outputFolder/test114${fileType}.csv -c $pvalue -r $refGen -p $pop"
     ./runPrsCLI.sh -f "../savcf" -o "$outputFolder/test114${fileType}.csv" -c $pvalue -r $refGen -p $pop
 
     # test 115 (test 114 without internet)
-    # echo -e "Test 115-- -f ../savcf -o $outputFolder/test115${fileType}.csv -c $pvalue -r $refGen -p $pop" >> $outputDetails
+    # echo -e "Test 115-- -f ../savcf -o $outputFolder/test115${fileType}.csv -c $pvalue -r $refGen -p $pop"
     # ./runPrsCLI.sh -f "../savcf" -o "$outputFolder/test115${fileType}.csv" -c $pvalue -r $refGen -p $pop 
 
     # test 116 (bad -o)
-    echo -e "Test 116-- -f $i -o output.hem -c $pvalue -r $refGen -p $pop" >> $outputDetails
+    echo -e "Test 116-- -f $i -o output.hem -c $pvalue -r $refGen -p $pop"
     ./runPrsCLI.sh -f $i -o "output.hem" -c $pvalue -r $refGen -p $pop 
 
     # test 117 (test 116 without internet)
-    # echo -e "Test 117-- -f $i -o output.hem -c $pvalue -r $refGen -p $pop" >> $outputDetails
+    # echo -e "Test 117-- -f $i -o output.hem -c $pvalue -r $refGen -p $pop"
     # ./runPrsCLI.sh -f $i -o "output.hem" -c $pvalue -r $refGen -p $pop 
 
     # test 118 (bad -r)
-    echo -e "Test 118-- -f $i -o $outputFolder/test118${fileType}.csv -c $pvalue -r hg1997 -p $pop" >> $outputDetails
+    echo -e "Test 118-- -f $i -o $outputFolder/test118${fileType}.csv -c $pvalue -r hg1997 -p $pop"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test118${fileType}.csv" -c $pvalue -r "hg1997" -p $pop
 
     # test 119 (test 118 without internet)
-    # echo -e "Test 119-- -f $i -o $outputFolder/test119${fileType}.csv -c $pvalue -r hg1997 -p $pop" >> $outputDetails
+    # echo -e "Test 119-- -f $i -o $outputFolder/test119${fileType}.csv -c $pvalue -r hg1997 -p $pop"
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test119${fileType}.csv" -c $pvalue -r "hg1997" -p $pop
 
     # test 120 (bad -c)
-    echo -e "Test 120-- -f $i -o $outputFolder/test120${fileType}.csv -c lala -r $refGen -p $pop" >> $outputDetails
+    echo -e "Test 120-- -f $i -o $outputFolder/test120${fileType}.csv -c lala -r $refGen -p $pop"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test120${fileType}.csv" -c "lala" -r $refGen -p $pop
 
     # test 121 (test 120 without internet)
-    # echo -e "Test 121-- -f $i -o $outputFolder/test121${fileType}.csv -c lala -r $refGen -p $pop" >> $outputDetails
+    # echo -e "Test 121-- -f $i -o $outputFolder/test121${fileType}.csv -c lala -r $refGen -p $pop"
     # ./runPrsCLI.sh -f $i -o "$soutputFolder/test121${fileType}.csv" -c "lala" -r $refGen -p $pop
 
     # test 122 (bad -p)
-    echo -e "Test 122-- -f $i -o $outputFolder/test122${fileType}.csv -c $pvalue -r $refGen -p FIF" >> $outputDetails
+    echo -e "Test 122-- -f $i -o $outputFolder/test122${fileType}.csv -c $pvalue -r $refGen -p FIF"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test122${fileType}.csv" -c $pvalue -r $refGen -p "FIF"
 
     # test 123 (test 122 without internet)
-    # echo -e "Test 123-- -f $i -o $outputFolder/test123${fileType}.csv -c $pvalue -r $refGen -p FIF" >> $outputDetails
+    # echo -e "Test 123-- -f $i -o $outputFolder/test123${fileType}.csv -c $pvalue -r $refGen -p FIF"
     # ./runPrsCLI.sh -f $i -o "$outputFolder/test123${fileType}.csv" -c $pvalue -r $refGen -p "FIF"
 done
 
