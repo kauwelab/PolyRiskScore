@@ -167,7 +167,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                 for study in tableObjDict['associations'][key]['traits'][trait].keys():
                     if not isAllFiltersNone:
                         studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
-                        useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait)
+                        useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, study, trait, studyMetaData, useTrait)
                     if isAllFiltersNone or useStudy:
                         pValue = tableObjDict['associations'][key]['traits'][trait][study]['pValue']
                         if pValue <= float(p_cutOff):
