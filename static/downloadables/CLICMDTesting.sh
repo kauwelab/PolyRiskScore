@@ -52,7 +52,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     ./runPrsCLI.sh -f $i -o "$outputFolder/test1b.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "Male" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test1b.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "Male" -s "2"
 
-    TODO test 2 (test 1 but without internet)
+    # TODO test 2 (test 1 but without internet)
 
 
     # test 3 (-t)
