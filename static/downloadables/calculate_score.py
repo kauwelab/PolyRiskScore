@@ -169,7 +169,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                         studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
                         useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait)
                     if isAllFiltersNone or useStudy:
-                        pValue = tableObjDict['associations'][snp]['traits'][trait][studyID]['pValue']
+                        pValue = tableObjDict['associations'][key]['traits'][trait][study]['pValue']
                         if pValue <= float(p_cutOff):
                             # Create a map between each study and the corresponding snps
                             if study in studySnps:
@@ -553,6 +553,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
             unmatchedAlleleVariants = neutral_snps_map[(trait, studyID)]
             clumpedVariants= clumped_snps_map[(trait, studyID)]
             protectiveVariants = set()
+            riskVariants = set()
             # Certain studies have duplicate snps with varying p-value annotations. We make mark of that in the output
             if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys():
                 mark = True
