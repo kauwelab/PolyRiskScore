@@ -158,6 +158,71 @@ for i in "../sample.vcf" "../sample.txt"; do
 
     # TODO test 46 (test 43 without internet)
 
+    # test 47 (-t, -k, -i)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test47.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "O" -i "GCST000001"
+
+    # test 48 (-t x2, -k x2, -i x2)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test48.csv" -c $pvalue -r $refGen -p $pop -t "acne" -t "insomnia" -k "HI" -k "LC" -i "GCST000001" -e "GCST000010"
+
+    # test 49 (-t, -k, -i, -s)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test49.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "2"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test49.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test49v2.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "2"
+
+    # TODO test 50 (test 47 without internet)
+
+    # test 51 (-t, -k, -e)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test51.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -k "O" -e "European"
+
+    # test 52 (-t x2, -k x2, -e x2)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test52.csv" -c $pvalue -r $refGen -p $pop -t "acne" -t "insomnia" -k "LC" -k "HI" -e "east asian" -e "south asian"
+
+    # test 57 (-t, -k, -e, -s)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test53.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "2"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test53.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test53v2.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "2"
+
+    # TODO test 54 (test 51 without internet)
+
+    # test 55 (-t, -i, -e)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test55.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "south asian"
+
+    # test 56 (-t x2, -i x2, -e x2)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test56.csv" -c $pvalue -r $refGen -p $pop -t "acne" -t "insomnia" -i "GCST000001" -i "GCST000010" -e "south asian" -e "east asian"
+
+    # test 57 (-t, -i, -e, -s)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test57.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "European" -s "2"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test57.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "European" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test57v2.csv" -c $pvalue -r $refGen -p $pop -t "HI" -i "GCST000001" -e "European" -s "2"
+
+    # TODO test 58 (test 55 without internet)
+
+    # test 59 (-k, -i, -e)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test59.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "european"
+
+    # test 60 (-k x2, -i x2, -e x2)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test60.csv" -c $pvalue -r $refGen -p $pop -k "HI" -k "LC" -i "GCST000001" -i "GCST000010" -e "south asian" -e "east asian"
+
+    # test 61 (-k, -i, -e, -s)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test61.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "2"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test61.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test61v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "2"
+
+    # TODO test 62 (test 59 without internet)
+
+    # test 63 (-t, -k, -i, -e)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test63.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "HI" -i "GCST000010" -e "east asian"
+
+    # test 64 (-t x2, -k x2, -i x2, -e x2)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test64.csv" -c $pvalue -r $refGen -p $pop -t "acne" -t "alzheimer's disease" -k "HI" -k "LC" -i "GCST000001" -i "GCST000010" -e "European" -e "east asian"
+
+    # test 65 (-t, -k, -i, -e, -s)
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test65.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "2"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test65.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test65v2.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "2"
+
+    # TODO test 66 (test 63 without internet)
+
     #####################TESTING BAD PARAMETERS#####################
 
     # test 67 (bad -t)
