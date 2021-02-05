@@ -35,28 +35,36 @@ echo "Preparation finished."
 #TODO should we test multiple populations or refgens?
 
 for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the output files txt or vcf depending
+    if [ $i == "../sample.vcf" ]; then
+        fileType="_vcf"
+    else
+        fileType="_txt"
+    fi
 
     # test 0 (test the basic required parameters. If this fails, we're in trouble!)
-    echo -e "Test 0-- -f $i -o $outputFolder/test0.csv -c $pvalue -r $refGen -p $pop" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test0.csv" -c $pvalue -r $refGen -p $pop
+    echo -e "Test 0-- -f $i -o $outputFolder/test0${fileType}.csv -c $pvalue -r $refGen -p $pop" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test0${fileType}.csv" -c $pvalue -r $refGen -p $pop
 
     # test 1 (-t -k -i -e -v -g -s)
-    echo -e "Test 1a-- -f $i -o $outputFolder/test1a.csv -c $pvalue -r $refGen -p $pop -t acne -k HI -i GCST007234 -e european -v true -g f -s 2" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test1a.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "HI" -i "GCST007234" -e "european" -v 'true' -g "f" -s "2"
+    echo -e "Test 1a-- -f $i -o $outputFolder/test1a${fileType}.csv -c $pvalue -r $refGen -p $pop -t acne -k HI -i GCST007234 -e european -v true -g f -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test1a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "HI" -i "GCST007234" -e "european" -v 'true' -g "f" -s "2"
 
     trait=$(getRandomElement ${validTraits[@]})
     studyType=$(getRandomElement ${validStudyTypes[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
     
-    echo -e "Test 1b-- -f $i -o $outputFolder/test1b.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID -e european -v true -g Male -s 1&2" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test1b.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "Male" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test1b.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "Male" -s "2"
+    echo -e "Test 1b-- -f $i -o $outputFolder/test1b${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID -e european -v true -g Male -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test1b${$fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "Male" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test1b${$fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "Male" -s "2"
 
     # TODO test 2 (test 1 but without internet)
 
 
     # test 3 (-t)
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test3.csv" -c $pvalue -r $refGen -p $pop -t "Asthma"
+    trait=$(getRandomElement ${validTraits[@]})
+
+    echo -e "Test 3-- -f $i -o $outputFolder/test3.csv -c $pvalue -r $refGen -p $pop -t $trait"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test3.csv" -c $pvalue -r $refGen -p $pop -t "$trait"
 
     # test 4 (-t again)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test4.csv" -c $pvalue -r $refGen -p $pop -t "Alzheimer's Disease"
