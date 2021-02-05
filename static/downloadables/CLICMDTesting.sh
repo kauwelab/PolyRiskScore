@@ -54,8 +54,8 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     ./runPrsCLI.sh -f $i -o "$outputFolder/test1a${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "f" -s "2"
 
     echo -e "Test 1b-- -f $i -o $outputFolder/test1b${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID -e european -v true -g f -s 1&2" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test1b${$fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "f" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test1b${$fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "f" -s "2"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test1b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "f" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test1b${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "european" -v 'true' -g "f" -s "2"
 
     # TODO test 2 (test 1 but without internet)
 
@@ -63,13 +63,13 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     # test 3 (-t)
     trait=$(getRandomElement ${validTraits[@]})
 
-    echo -e "Test 3-- -f $i -o $outputFolder/test3${$fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test3${$fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait"
+    echo -e "Test 3-- -f $i -o $outputFolder/test3${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test3${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait"
 
     # test 4 (-t again)
     trait=$(getRandomElement ${validTraits[@]})
 
-    echo -e "Test 4-- -f $i -o $outputFolder/test4${$fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait" >> $outputDetails
+    echo -e "Test 4-- -f $i -o $outputFolder/test4${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait" >> $outputDetails
     ./runPrsCLI.sh -f $i -o "$outputFolder/test4${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait"
 
     # test 5 (2 traits using -t)
