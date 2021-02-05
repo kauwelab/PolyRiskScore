@@ -384,7 +384,7 @@ calculatePRS () {
                 fi
                 output=$OPTARG
                 if ! [[ "$output" =~ .csv$|.json$|.txt$ ]]; then
-                    echo -e "${LIGHTRED}$output ${NC} is not in the right format."
+                    echo -e "${LIGHTRED}$output ${NC}is not in the right format."
                     echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
                     exit 1
                 fi;;
@@ -395,7 +395,7 @@ calculatePRS () {
                 fi
                 cutoff=$OPTARG
                 if ! [[ "$cutoff" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-                    echo -e "${LIGHTRED}$cutoff ${NC} is your p-value, but it is not a number."
+                    echo -e "${LIGHTRED}$cutoff ${NC}is your p-value, but it is not a number."
                     echo "Check the value and try again."
                     exit 1
                 fi;;
@@ -417,7 +417,7 @@ calculatePRS () {
                 fi
                 superPop=$OPTARG
                 if ! [[ "$superPop" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
-                    echo -e "${LIGHTRED}$superPop ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+                    echo -e "${LIGHTRED}$superPop ${NC}should be AFR, AMR, EAS, EUR, or SAS."
                     echo "Check the value and try again."
                     exit 1
                 fi;;
@@ -458,7 +458,7 @@ calculatePRS () {
                 step=$OPTARG
                 # if is not a number, or if it is a number less than 1 or greater than 2
                 if (! [[ $step =~ ^[0-9]+$ ]]) || ([[ $step =~ ^[0-9]+$ ]] && ([[ $step -gt 2 ]] || [[ $step -lt 1 ]])); then 
-                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number input"
+                    echo -e "${LIGHTRED}$step ${NC}is not a valid step number input"
                     echo "Valid step numbers are 1 and 2"
                     exit 1
                 fi;;
