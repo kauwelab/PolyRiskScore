@@ -105,7 +105,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 21 (-s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test21.csv" -c $pvalue -r $refGen -p $pop -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test21.csv" -c $pvalue -r $refGen -p $pop -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test21v2.csv" -c $pvalue -r $refGen -p $pop -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test21v2.csv" -c $pvalue -r $refGen -p $pop -s "2"
 
     # TODO test 22 (test 21 without internet)
@@ -118,7 +118,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 25 (-t, -k, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test25.csv" -c $pvalue -r $refGen -p $pop -t "Acne" -k "HI" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test25.csv" -c $pvalue -r $refGen -p $pop -t "Acne" -k "HI" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test25v2.csv" -c $pvalue -r $refGen -p $pop -t "Acne" -k "HI" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test25v2.csv" -c $pvalue -r $refGen -p $pop -t "Acne" -k "HI" -s "2"
 
     # TODO test 26 (test 23 without internet)
@@ -131,7 +131,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 29 (-t, -i, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test29.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -i "GCST000001" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test29.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -i "GCST000001" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test29v2.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -i "GCST000001" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test29v2.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -i "GCST000001" -s "2"
 
     # TODO test 30 (test 27 without internet)
@@ -144,7 +144,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 33 (-k, -e, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test33.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -e "East Asian" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test33.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -e "East Asian" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test33v2.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -e "East Asian" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test33v2.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -e "East Asian" -s "2"
 
     # TODO test 34 (test 31 without internet)
@@ -157,7 +157,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 37 (-k, -i, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test37.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test37.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test37v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test37v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -s "2"
 
     # TODO test 38 (test 35 without internet)
@@ -170,7 +170,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 41 (-k, -e, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test41.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "South Asian" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test41.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "South Asian" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test41v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "South Asian" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test41v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "South Asian" -s "2"
 
     # TODO test 42 (test 39 without internet)
@@ -183,7 +183,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 45 (-i, -e, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test45.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -e "South Asian" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test45.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -e "South Asian" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test45v2.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -e "South Asian" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test45v2.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -e "South Asian" -s "2"
 
     # TODO test 46 (test 43 without internet)
@@ -196,7 +196,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 49 (-t, -k, -i, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test49.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test49.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test49v2.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test49v2.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "2"
 
     # TODO test 50 (test 47 without internet)
@@ -209,7 +209,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 57 (-t, -k, -e, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test53.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test53.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test53v2.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test53v2.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "2"
 
     # TODO test 54 (test 51 without internet)
@@ -222,7 +222,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 57 (-t, -i, -e, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test57.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "European" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test57.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "European" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test57v2.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "European" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test57v2.csv" -c $pvalue -r $refGen -p $pop -t "HI" -i "GCST000001" -e "European" -s "2"
 
     # TODO test 58 (test 55 without internet)
@@ -235,7 +235,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 61 (-k, -i, -e, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test61.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test61.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test61v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test61v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "2"
 
     # TODO test 62 (test 59 without internet)
@@ -248,7 +248,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 65 (-t, -k, -i, -e, -s)
     ./runPrsCLI.sh -f $i -o "$outputFolder/test65.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "2"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test65.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test65v2.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test65v2.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "2"
 
     # TODO test 66 (test 63 without internet)
@@ -295,7 +295,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 82 (test 81 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test82.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test82.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test82v2.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test82v2.csv" -c $pvalue -r $refGen -p $pop -t "pink" -k "HW" -s "2"
     
     # TODO test 83 (test 81 without internet)
@@ -305,7 +305,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 85 (test 84 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test85.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test85.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test85v2.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test85v2.csv" -c $pvalue -r $refGen -p $pop -t "pink" -i "GCST" -s "2"
     
     # TODO test 86 (test 84 without internet)
@@ -315,7 +315,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 88 (test 87 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test88.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test88.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test88v2.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test88v2.csv" -c $pvalue -r $refGen -p $pop -t "pink" -e "europ" -s "2"
     
     # TODO test 89 (test 87 without internet)
@@ -325,7 +325,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 91 (test 90 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test91.csv" -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test91.csv" -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test91v2.csv" -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test91v2.csv" -c $pvalue -r $refGen -p $pop -k "Ho" -i "gcst" -s "2"
     
     # TODO test 92 (test 90 without internet)
@@ -335,7 +335,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 94 (test 93 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test94.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test94.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test94v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test94v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "bogus" -s "2"
     
     # TODO test 95 (test 93 without internet)
@@ -345,7 +345,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 97 (test 96 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test97.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test97.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test97v2.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test97v2.csv" -c $pvalue -r $refGen -p $pop -i "gcst" -e "bogus" -s "2"
     
     # TODO test 98 (test 96 without internet)
@@ -355,7 +355,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 100 (test 99 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test100.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test100.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test100v2.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test100v2.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -i "gcst" -s "2"
     
     # TODO test 101 (test 99 without internet)
@@ -365,7 +365,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 103 (test 102 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test103.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test103.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test103v2.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test103v2.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -k "HI" -e "bogus" -s "2"
     
     # TODO test 104 (test 102 without internet)
@@ -375,7 +375,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 106 (test 105 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test106.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test106.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test106v2.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test106v2.csv" -c $pvalue -r $refGen -p $pop -t "flubber" -i "gcst" -e "bogus" -s "2"
 
     # TODO test 107 (test 105 without internet)
@@ -385,7 +385,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 109 (test 108 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test109.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test109.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test109v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test109v2.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus" -s "2"
     
     # TODO test 110 (test 108 without internet)
@@ -395,7 +395,7 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
 
     # test 112 (test 111 with -s)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test112.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "2"
-    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test112.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "1"
+    ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test112v2.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "1"
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test112v2.csv" -c $pvalue -r $refGen -p $pop -t "yeet" -k "HI" -i "gcst" -e "bogus" -s "2"
     
     # TODO test 113 (test 111 without internet)
