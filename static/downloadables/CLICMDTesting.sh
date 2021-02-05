@@ -159,7 +159,6 @@ for i in "../sample.vcf" "../sample.txt"; do
     # TODO test 46 (test 43 without internet)
 
 
-
     # test 108 (bad -k, -i, and -e)
     ./runPrsCLI.sh -f $inputFilePath -o "$outputFolder/test108.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "gcst" -e "bogus"
 
