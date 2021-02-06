@@ -424,6 +424,7 @@ calculatePRS () {
                 if ! [[ "$superPop" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
                     echo -e "${LIGHTRED}$superPop ${NC}should be AFR, AMR, EAS, EUR, or SAS."
                     echo "Check the value and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
 
