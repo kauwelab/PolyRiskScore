@@ -183,112 +183,118 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     # TODO test 26 (test 23 without internet)
 
 
-
-    # MADDY CONTINUING HERE
-
-
-
     # test 27 (-t, -i)
     trait=$(getRandomElement ${validTraits[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test27${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Alzheimer's disease" -i "GCST000010"
+
+    echo -e "Test 27-- -f $i -o $outputFolder/test27${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -i $studyID" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test27${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -i "$studyID"
 
     # test 28 (-t x2, -i x2)
-    trait=$(getRandomElement ${validTraits[@]})
-    trait=$(getRandomElement ${validTraits[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
+    trait1=$(getRandomElement ${validTraits[@]})
+    trait2=$(getRandomElement ${validTraits[@]})
+    studyID1=$(getRandomElement ${validStudyIDs[@]})
+    studyID2=$(getRandomElement ${validStudyIDs[@]})
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test28${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "alzheimer's disease" -t "acne" -i "GCST000010" -i "GCST000001"
+    echo -e "Test 28-- -f $i -o $outputFolder/test28${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait1 -t $trait2 -i $studyID1 -i $studyID2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test28${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait1" -t "$trait2" -i "$studyID1" -i "$studyID2"
 
     # test 29 (-t, -i, -s)
     trait=$(getRandomElement ${validTraits[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test29${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -i "GCST000001" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test29v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -i "GCST000001" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test29v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -i "GCST000001" -s "2"
+    echo -e "Test 29a-- -f $i -o $outputFolder/test29${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -i $studyID -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test29${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -i "$studyID" -s "2"
+
+    echo -e "Test 29b-- -f $i -o $outputFolder/test29v2${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -i $studyID -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test29v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -i "$studyID" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test29v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -i "$studyID" -s "2"
 
     # TODO test 30 (test 27 without internet)
 
     # test 31 (-k, -e)
     studyType=$(getRandomElement ${validStudyTypes[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test31${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -e "East Asian"
+
+    echo -e "Test 31-- -f $i -o $outputFolder/test31${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -e $ethnicity" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test31${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -e "$ethnicity"
 
     # test 32 (-k x2, -e x2)
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test32${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -t "Alzheimer's disease" -i "East asian" -i "european"
+    studyType1=$(getRandomElement ${validStudyTypes[@]})
+    studyType2=$(getRandomElement ${validStudyTypes[@]})
+    ethnicity1=$(getRandomElement ${validEthnicities[@]})
+    ethnicity2=$(getRandomElement ${validEthnicities[@]})
+
+    echo -e "Test 32-- -f $i -o $outputFolder/test32${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType1 -k $studyType2 -e $ethnicity1 -e $ethnicity2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test32${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType1" -k "$studyType2" -e "$ethnicity1" -e "$ethnicity2"
 
     # test 33 (-k, -e, -s)
     studyType=$(getRandomElement ${validStudyTypes[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test33${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -e "East Asian" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test33v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -e "East Asian" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test33v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -e "East Asian" -s "2"
+    echo -e "Test 33a-- -f $i -o $outputFolder/test33${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -e $ethnicity -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test33${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -e "$ethnicity" -s "2"
+
+    echo -e "Test 33b-- -f $i -o $outputFolder/test33v2${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -e $ethnicity -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test33v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -e "$ethnicity" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test33v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -e "$ethnicity" -s "2"
 
     # TODO test 34 (test 31 without internet)
 
     # test 35 (-k, -i)
     studyType=$(getRandomElement ${validStudyTypes[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test35${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001"
+
+    echo -e "Test 35-- -f $i -o $outputFolder/test35${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -i $studyID" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test35${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -i "$studyID"
 
     # test 36 (-k x2, -i x2)
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test36${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -k "LC" -i "GCST000001" -i "GCST000010"
+    studyType1=$(getRandomElement ${validStudyTypes[@]})
+    studyType2=$(getRandomElement ${validStudyTypes[@]})
+    studyID1=$(getRandomElement ${validStudyIDs[@]})
+    studyID2=$(getRandomElement ${validStudyIDs[@]})
+
+    echo -e "Test 36-- -f $i -o $outputFolder/test36${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType1 -k $studyType2 -i $studyID1 -i $studyID2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test36${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType1" -k "$studyType2" -i "$studyID1" -i "$studyID2"
 
     # test 37 (-k, -i, -s)
     studyType=$(getRandomElement ${validStudyTypes[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test37${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test37v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test37v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -s "2"
+    echo -e "Test 37a-- -f $i -o $outputFolder/test37${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -i $studyID -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test37${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -i "$studyID" -s "2"
+
+    echo -e "Test 37b-- -f $i -o $outputFolder/test37v2${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -i $studyID -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test37v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -i "$studyID" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test37v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -i "$studyID" -s "2"
 
     # TODO test 38 (test 35 without internet)
 
     # test 39 (-k, -e)
     studyType=$(getRandomElement ${validStudyTypes[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test39${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "African"
+
+    echo -e "Test 39-- -f $i -o $outputFolder/test39${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -e $ethnicity" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test39${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -e "$ethnicity"
 
     # test 40 (-k x2, -e x2)
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test40${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -k "LC" -e "African" -e "East Asian"
+    studyType1=$(getRandomElement ${validStudyTypes[@]})
+    studyType2=$(getRandomElement ${validStudyTypes[@]})
+    ethnicity1=$(getRandomElement ${validEthnicities[@]})
+    ethnicity2=$(getRandomElement ${validEthnicities[@]})
+
+    echo -e "Test 40-- -f $i -o $outputFolder/test40${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType1 -k $studyType2 -e $ethnicity1 -e $ethnicity2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test40${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType1" -k "$studyType2" -e "$ethnicity1" -e "$ethnicity2"
 
     # test 41 (-k, -e, -s)
     studyType=$(getRandomElement ${validStudyTypes[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test41${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "South Asian" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test41v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "South Asian" -s "1"
+    echo -e "Test 41a-- -f $i -o $outputFolder/test41${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -e $ethnicity -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test41${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -e "$ethnicity" -s "2"
+
+    echo -e "Test 41b-- -f $i -o $outputFolder/test41v2${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -e $ethnicity -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test41v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -e "$ethnicity" -s "1"
     ./runPrsCLI.sh -f $i -o "$outputFolder/test41v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -e "South Asian" -s "2"
 
     # TODO test 42 (test 39 without internet)
@@ -296,26 +302,29 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     # test 43 (-i, -e)
     studyID=$(getRandomElement ${validStudyIDs[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test43${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -e "East Asian"
+
+    echo -e "Test 43-- -f $i -o $outputFolder/test43${fileType}.csv -c $pvalue -r $refGen -p $pop -i $studyID -e $ethnicity" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test43${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "$studyID" -e "$ethnicity"
 
     # test 44 (-i x2, -e x2)
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test44${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -i "GCST000010" -e "east asian" -e "european"
+    studyID1=$(getRandomElement ${validStudyIDs[@]})
+    studyID2=$(getRandomElement ${validStudyIDs[@]})
+    ethnicity1=$(getRandomElement ${validEthnicities[@]})
+    ethnicity2=$(getRandomElement ${validEthnicities[@]})
+
+    echo -e "Test 44-- -f $i -o $outputFolder/test44${fileType}.csv -c $pvalue -r $refGen -p $pop -i $studyID1 -i $studyID2 -e $ethnicity1 -e $ethnicity2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test44${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "$studyID1" -i "$studyID2" -e "$ethnicity1" -e "$ethnicity2"
 
     # test 45 (-i, -e, -s)
     studyID=$(getRandomElement ${validStudyIDs[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test45${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -e "South Asian" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test45v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -e "South Asian" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test45v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "GCST000001" -e "South Asian" -s "2"
+    echo -e "Test 45a-- -f $i -o $outputFolder/test45${fileType}.csv -c $pvalue -r $refGen -p $pop -i $studyID -e $ethnicity -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test45${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "$studyID" -e "$ethnicity" -s "2"
+
+    echo -e "Test 45b-- -f $i -o $outputFolder/test45v2${fileType}.csv -c $pvalue -r $refGen -p $pop -i $studyID -e $ethnicity -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test45v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "$studyID" -e "$ethnicity" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test45v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -i "$studyID" -e "$ethnicity" -s "2"
 
     # TODO test 46 (test 43 without internet)
 
@@ -324,29 +333,31 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     studyType=$(getRandomElement ${validStudyTypes[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test47${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "O" -i "GCST000001"
+    echo -e "Test 47-- -f $i -o $outputFolder/test47${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test47${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID"
 
     # test 48 (-t x2, -k x2, -i x2)
-    trait=$(getRandomElement ${validTraits[@]})
-    trait=$(getRandomElement ${validTraits[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test48${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -t "insomnia" -k "HI" -k "LC" -i "GCST000001" -e "GCST000010"
+    trait1=$(getRandomElement ${validTraits[@]})
+    trait2=$(getRandomElement ${validTraits[@]})
+    studyType1=$(getRandomElement ${validStudyTypes[@]})
+    studyType2=$(getRandomElement ${validStudyTypes[@]})
+    studyID1=$(getRandomElement ${validStudyIDs[@]})
+    studyID2=$(getRandomElement ${validStudyIDs[@]})
+
+    echo -e "Test 48-- -f $i -o $outputFolder/test48${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait1 -t $trait2 -k $studyType1 -k $studyType2 -i $studyID1 -e $studyID2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test48${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait1" -t "$trait2" -k "$studyType1" -k "$studyType2" -i "$studyID1" -e "$studyID2"
 
     # test 49 (-t, -k, -i, -s)
     trait=$(getRandomElement ${validTraits[@]})
     studyType=$(getRandomElement ${validStudyTypes[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test49${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test49v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test49v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "insomnia" -k "HI" -i "GCST000001" -s "2"
+    echo -e "Test 49a-- -f $i -o $outputFolder/test49${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test49${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -s "2"
+
+    echo -e "Test 49b-- -f $i -o $outputFolder/test49v2${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test49v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test49v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -s "2"
 
     # TODO test 50 (test 47 without internet)
 
@@ -354,28 +365,32 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     trait=$(getRandomElement ${validTraits[@]})
     studyType=$(getRandomElement ${validStudyTypes[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test51${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Asthma" -k "O" -e "European"
+
+    echo -e "Test 51-- -f $i -o $outputFolder/test51${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -e $ethnicity" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test51${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -e "$ethnicity"
 
     # test 52 (-t x2, -k x2, -e x2)
+    trait1=$(getRandomElement ${validTraits[@]})
+    trait2=$(getRandomElement ${validTraits[@]})
+    studyType1=$(getRandomElement ${validStudyTypes[@]})
+    studyType2=$(getRandomElement ${validStudyTypes[@]})
+    ethnicity1=$(getRandomElement ${validEthnicities[@]})
+    ethnicity2=$(getRandomElement ${validEthnicities[@]})
+
+    echo -e "Test 52-- -f $i -o $outputFolder/test52${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait1 -t $trait2 -k $studyType1 -k $studyType2 -e $ethnicity1 -e $ethnicity2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test52${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait1" -t "$trait2" -k "$studyType1" -k "$studyType2" -e "$ethnicity1" -e "$ethnicity2"
+
+    # test 53 (-t, -k, -e, -s)
     trait=$(getRandomElement ${validTraits[@]})
-    trait=$(getRandomElement ${validTraits[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
     studyType=$(getRandomElement ${validStudyTypes[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test52${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -t "insomnia" -k "LC" -k "HI" -e "east asian" -e "south asian"
 
-    # test 57 (-t, -k, -e, -s)
-    trait=$(getRandomElement ${validTraits[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test53${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "2"
+    echo -e "Test 53a-- -f $i -o $outputFolder/test53${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -e $ethnicity -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test53${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -e "$ethnicity" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test53v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test53v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "LC" -e "European" -s "2"
+    echo -e "Test 53b-- -f $i -o $outputFolder/test53v2${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -e $ethnicity -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test53v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -e "$ethnicity" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test53v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -e "$ethnicity" -s "2"
 
     # TODO test 54 (test 51 without internet)
 
@@ -383,29 +398,32 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     trait=$(getRandomElement ${validTraits[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test55${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "south asian"
+
+    echo -e "Test 55-- -f $i -o $outputFolder/test55${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -i $studyID -e $ethnicity" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test55${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -i "$studyID" -e "$ethnicity"
 
     # test 56 (-t x2, -i x2, -e x2)
-    trait=$(getRandomElement ${validTraits[@]})
-    trait=$(getRandomElement ${validTraits[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test56${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -t "insomnia" -i "GCST000001" -i "GCST000010" -e "south asian" -e "east asian"
+    trait1=$(getRandomElement ${validTraits[@]})
+    trait2=$(getRandomElement ${validTraits[@]})
+    studyID1=$(getRandomElement ${validStudyIDs[@]})
+    studyID2=$(getRandomElement ${validStudyIDs[@]})
+    ethnicity1=$(getRandomElement ${validEthnicities[@]})
+    ethnicity2=$(getRandomElement ${validEthnicities[@]})
+
+    echo -e "Test 56-- -f $i -o $outputFolder/test56${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait1 -t $trait2 -i $studyID1 -i $studyID2 -e $ethnicity1 -e $ethnicity2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test56${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait1" -t "$trait2" -i "$studyID1" -i "$studyID2" -e "$ethnicity1" -e "$ethnicity2"
 
     # test 57 (-t, -i, -e, -s)
     trait=$(getRandomElement ${validTraits[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test57${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "European" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test57v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -i "GCST000001" -e "European" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test57v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "HI" -i "GCST000001" -e "European" -s "2"
+    echo -e "Test 57a-- -f $i -o $outputFolder/test57${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -i $studyID -e $ethnicity -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test57${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -i "$studyID" -e "$ethnicity" -s "2"
+
+    echo -e "Test 57b-- -f $i -o $outputFolder/test57v2${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -i $studyID -e $ethnicity -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test57v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -i "$studyID" -e "$ethnicity" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test57v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -i "$studyID" -e "$ethnicity" -s "2"
 
     # TODO test 58 (test 55 without internet)
 
@@ -413,29 +431,32 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     studyType=$(getRandomElement ${validStudyTypes[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test59${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "european"
+
+    echo -e "Test 59-- -f $i -o $outputFolder/test59${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -i $studyID -e $ethnicity" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test59${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -i "$studyID" -e "$ethnicity"
 
     # test 60 (-k x2, -i x2, -e x2)
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test60${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -k "LC" -i "GCST000001" -i "GCST000010" -e "south asian" -e "east asian"
+    studyType1=$(getRandomElement ${validStudyTypes[@]})
+    studyType2=$(getRandomElement ${validStudyTypes[@]})
+    studyID1=$(getRandomElement ${validStudyIDs[@]})
+    studyID2=$(getRandomElement ${validStudyIDs[@]})
+    ethnicity1=$(getRandomElement ${validEthnicities[@]})
+    ethnicity2=$(getRandomElement ${validEthnicities[@]})
+
+    echo -e "Test 60-- -f $i -o $outputFolder/test60${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType1 -k $studyType2 -i $studyID1 -i $studyID2 -e $ethnicity1 -e $ethnicity2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test60${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType1" -k "$studyType2" -i "$studyID1" -i "$studyID2" -e "$ethnicity1" -e "$ethnicity2"
 
     # test 61 (-k, -i, -e, -s)
     studyType=$(getRandomElement ${validStudyTypes[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test61${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test61v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test61v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "HI" -i "GCST000001" -e "South Asian" -s "2"
+    echo -e "Test 61a-- -f $i -o $outputFolder/test61${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -i $studyID -e $ethnicity -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test61${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -i "$studyID" -e "$ethnicity" -s "2"
+
+    echo -e "Test 61b-- -f $i -o $outputFolder/test61v2${fileType}.csv -c $pvalue -r $refGen -p $pop -k $studyType -i $studyID -e $ethnicity -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test61v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -i "$studyID" -e "$ethnicity" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test61v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -k "$studyType" -i "$studyID" -e "$ethnicity" -s "2"
 
     # TODO test 62 (test 59 without internet)
 
@@ -444,21 +465,22 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     studyType=$(getRandomElement ${validStudyTypes[@]})
     studyID=$(getRandomElement ${validStudyIDs[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test63${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -k "HI" -i "GCST000010" -e "east asian"
+
+    echo -e "Test 63-- -f $i -o $outputFolder/test63${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID -e $ethnicity" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test63${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "$ethnicity"
 
     # test 64 (-t x2, -k x2, -i x2, -e x2)
-    trait=$(getRandomElement ${validTraits[@]})
-    trait=$(getRandomElement ${validTraits[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyType=$(getRandomElement ${validStudyTypes[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    studyID=$(getRandomElement ${validStudyIDs[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
-    ethnicity=$(getRandomElement ${validEthnicities[@]})
+    trait1=$(getRandomElement ${validTraits[@]})
+    trait2=$(getRandomElement ${validTraits[@]})
+    studyType1=$(getRandomElement ${validStudyTypes[@]})
+    studyType2=$(getRandomElement ${validStudyTypes[@]})
+    studyID1=$(getRandomElement ${validStudyIDs[@]})
+    studyID2=$(getRandomElement ${validStudyIDs[@]})
+    ethnicity1=$(getRandomElement ${validEthnicities[@]})
+    ethnicity2=$(getRandomElement ${validEthnicities[@]})
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test64${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "acne" -t "alzheimer's disease" -k "HI" -k "LC" -i "GCST000001" -i "GCST000010" -e "European" -e "east asian"
+    echo -e "Test 64-- -f $i -o $outputFolder/test64${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait1 -t $trait2 -k $studyType1 -k $studyType2 -i $studyID1 -i $studyID2 -e $ethnicity1 -e $ethnicity2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test64${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait1" -t "$trait2" -k "$studyType1" -k "$studyType2" -i "$studyID1" -i "$studyID2" -e "$ethnicity1" -e "$ethnicity2"
 
     # test 65 (-t, -k, -i, -e, -s)
     trait=$(getRandomElement ${validTraits[@]})
@@ -466,12 +488,12 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     studyID=$(getRandomElement ${validStudyIDs[@]})
     ethnicity=$(getRandomElement ${validEthnicities[@]})
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test65${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "2"
+    echo -e "Test 65a-- -f $i -o $outputFolder/test65${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID -e $ethnicity -s 2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test65${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "$ethnicity" -s "2"
 
-    echo -e "" >> $outputDetails
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test65v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "1"
-    ./runPrsCLI.sh -f $i -o "$outputFolder/test65v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "Small Artery Occlusion" -k "HI" -i "GCST000001" -e "South asian" -s "2"
+    echo -e "Test b-- -f $i -o $outputFolder/test65v2${fileType}.csv -c $pvalue -r $refGen -p $pop -t $trait -k $studyType -i $studyID -e $ethnicity -s 1&2" >> $outputDetails
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test65v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "$ethnicity" -s "1"
+    ./runPrsCLI.sh -f $i -o "$outputFolder/test65v2${fileType}.csv" -c $pvalue -r $refGen -p $pop -t "$trait" -k "$studyType" -i "$studyID" -e "$ethnicity" -s "2"
 
     # TODO test 66 (test 63 without internet)
 
