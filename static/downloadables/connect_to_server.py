@@ -183,7 +183,7 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
     }
 
     if finalStudyList == []:
-        raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
+        raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
 
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
     return associationsReturnObj
