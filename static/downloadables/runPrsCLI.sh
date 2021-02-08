@@ -11,7 +11,7 @@ version="1.4.0"
 # * 8/28/2020 - v1.0.0  - First Creation
 #   Parameter order:
 #       1 VCF file path OR rsIDs file path 
-#       2 output file path (csv or txt format)
+#       2 output file path (tsv or txt format)
 #       3 p-value cutoff (ex: 0.05)
 #       4 refGen {hg17, hg18, hg19, hg38}
 #       5 super population {AFR, AMR, EAS, EUR, SAS}
@@ -32,7 +32,7 @@ version="1.4.0"
 #   Now using getopts. Parameters updated
 #   REQUIRED PARAMS:
 #       -f input file path (VCF or TXT with rsIDs)
-#       -o output file path (CSV or TXT)
+#       -o output file path (TSV or TXT)
 #       -c p-value cutoff
 #       -r refGen (hg17, hg18, hg19, hg38)
 #       -p super population (AFR, AMR, EAS, EUR, SAS)
@@ -54,6 +54,10 @@ version="1.4.0"
 #   
 #   Added the ability to calculate scores using vcf/txt
 #   files zipped in zip, tar-like, and gz-like formats
+#
+# * 2/8/21 - v1.5.0
+#   
+#   Changed csv output type to tsv.
 #
 # ########################################################################
 
@@ -84,7 +88,7 @@ prskbMenu () {
 # the usage statement of the tool
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (csv, json, or txt format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv, json, or txt format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}-t${NC} traitList ex. -t acne -t insomnia -t \"Alzheimer's disease\""
@@ -177,7 +181,7 @@ learnAboutParameters () {
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR}-o Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
-                echo -e "permitted extensions are ${GREEN}.csv${NC}, ${GREEN}.json${NC}, or ${GREEN}.txt${NC} and will dictate the" 
+                echo -e "permitted extensions are ${GREEN}.tsv${NC}, ${GREEN}.json${NC}, or ${GREEN}.txt${NC} and will dictate the" 
                 echo "format of the outputted results."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR}-c P-value Cutoff: ${NC}"
@@ -383,9 +387,9 @@ calculatePRS () {
                     exit 1
                 fi
                 output=$OPTARG
-                if ! [[ "$output" =~ .csv$|.json$|.txt$ ]]; then
-                    echo -e "${LIGHTRED}$output ${NC} is not in the right format."
-                    echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
+                if ! [[ "$output" =~ .tsv$|.json$|.txt$ ]]; then
+                    echo -e "${LIGHTRED}$output ${NC}is not in the right format."
+                    echo -e "Valid formats are ${GREEN}tsv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
                     exit 1
                 fi;;
             c)  if ! [ -z "$cutoff" ]; then
@@ -395,7 +399,7 @@ calculatePRS () {
                 fi
                 cutoff=$OPTARG
                 if ! [[ "$cutoff" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-                    echo -e "${LIGHTRED}$cutoff ${NC} is your p-value, but it is not a number."
+                    echo -e "${LIGHTRED}$cutoff ${NC}is your p-value, but it is not a number."
                     echo "Check the value and try again."
                     exit 1
                 fi;;
@@ -417,7 +421,7 @@ calculatePRS () {
                 fi
                 superPop=$OPTARG
                 if ! [[ "$superPop" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
-                    echo -e "${LIGHTRED}$superPop ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+                    echo -e "${LIGHTRED}$superPop ${NC}should be AFR, AMR, EAS, EUR, or SAS."
                     echo "Check the value and try again."
                     exit 1
                 fi;;
@@ -458,7 +462,7 @@ calculatePRS () {
                 step=$OPTARG
                 # if is not a number, or if it is a number less than 1 or greater than 2
                 if (! [[ $step =~ ^[0-9]+$ ]]) || ([[ $step =~ ^[0-9]+$ ]] && ([[ $step -gt 2 ]] || [[ $step -lt 1 ]])); then 
-                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number input"
+                    echo -e "${LIGHTRED}$step ${NC}is not a valid step number input"
                     echo "Valid step numbers are 1 and 2"
                     exit 1
                 fi;;
@@ -530,8 +534,8 @@ calculatePRS () {
         IFS=' '
 
         echo "Calculating prs on $filename"
-        #outputType="csv" #this is the default
-        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
+        #outputType="tsv" #this is the default
+        #$1=inputFile $2=pValue $3=tsv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
 
         if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
             echo "Calculated score"

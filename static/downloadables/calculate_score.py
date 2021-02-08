@@ -540,7 +540,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
             header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score']
         else:
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
-        formatCSV(isFirst, message, header, outputFile)
+        formatTSV(isFirst, message, header, outputFile)
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
         for (trait, studyID) in txtObj:
@@ -585,14 +585,14 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
                 prs, printStudyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
                 newLine = [printStudyID, citation, reportedTrait, trait, prs, str(protectiveVariants), str(riskVariants), str(unmatchedAlleleVariants), str(clumpedVariants)]
-                formatCSV(isFirst, newLine, header, outputFile)
+                formatTSV(isFirst, newLine, header, outputFile)
                 isFirst = False
 
             if isCondensedFormat:
                 prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, None, None, None, None)
                 header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
                 newLine = [printStudyID, citation, reportedTrait, trait, prs]
-                formatCSV(isFirst, newLine, header, outputFile)
+                formatTSV(isFirst, newLine, header, outputFile)
                 isFirst = False
 
 
@@ -605,7 +605,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
                 header.append(samp)
         else:
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
-        formatCSV(True, message, header, outputFile)
+        formatTSV(True, message, header, outputFile)
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
         condensed_output_map = {}
@@ -657,7 +657,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
                     prs, printStudyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                     newLine = [samp, studyID, citation, reportedTrait, trait, prs, str(protectiveVariants), str(riskVariants), str(unmatchedAlleleVariants), str(clumpedVariants)]
                     header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratios', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-                    formatCSV(isFirst, newLine, header, outputFile)
+                    formatTSV(isFirst, newLine, header, outputFile)
                     isFirst = False
 
                 if isCondensedFormat:
@@ -687,7 +687,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
                         del condensed_output_map[(studyID, trait)]
                         if (studyID, trait) in count_map:
                             del count_map[(studyID, trait)]
-                        formatCSV(isFirst, newLine, header, outputFile)
+                        formatTSV(isFirst, newLine, header, outputFile)
                         isFirst = False
                     else:
                         condensed_output_map[(studyID, trait)] = newLine
@@ -734,7 +734,7 @@ def getPRSFromArray(oddsRatios):
     return(str(combinedOR))
 
 
-def formatCSV(isFirst, newLine, header, outputFile):
+def formatTSV(isFirst, newLine, header, outputFile):
     # if the folder of the output file doesn't exist, create it
     if "/" in outputFile:
         os.makedirs(os.path.dirname(outputFile), exist_ok=True)
