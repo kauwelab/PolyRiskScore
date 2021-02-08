@@ -610,7 +610,7 @@ function formatCSV(jsonObject, isCondensed) {
                 }
             }
             if (isCondensed) {
-                resultsString = resultsString.concat("\n", lineInfo.toString())
+                resultsString = resultsString + "\n" + lineInfo.toString()
             }
         }
     }
