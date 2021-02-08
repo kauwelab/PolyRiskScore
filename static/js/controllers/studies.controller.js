@@ -111,6 +111,7 @@ exports.getFiltered = (req, res) => {
                 res.status(204).send({
                     message: "No matching traits/studies were found"
                 });
+                return;
             }
 
             traitsList = {}
