@@ -622,7 +622,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
                 reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
                 # Output Sets
                 unmatchedAlleleVariants = neutral_snps_map[(trait, studyID, samp)]
-                clumpedVariants = clumped_snps_mp[(trait, studyID, samp)]
+                clumpedVariants = clumped_snps_map[(trait, studyID, samp)]
                 protectiveVariants = set()
                 riskVariants = set()
                 # some studies have duplicate snps with varying pvalue annotations. we keep track of that here.
@@ -657,8 +657,8 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
                     prs, printStudyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                     newLine = [samp, studyID, citation, reportedTrait, trait, prs, str(protectiveVariants), str(riskVariants), str(unmatchedAlleleVariants), str(clumpedVariants)]
                     header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratios', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-                formatCSV(isFirst, newLine, header, outputFile)
-                isFirst = False
+                    formatCSV(isFirst, newLine, header, outputFile)
+                    isFirst = False
 
                 if isCondensedFormat:
                     prs, printStudyID, = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, None, None, None, None)
@@ -736,7 +736,8 @@ def getPRSFromArray(oddsRatios):
 
 def formatCSV(isFirst, newLine, header, outputFile):
     # if the folder of the output file doesn't exist, create it
-    os.makedirs(os.path.dirname(outputFile), exist_ok=True)
+    if "/" in outputFile:
+        os.makedirs(os.path.dirname(outputFile), exist_ok=True)
 
     if isFirst:
         with open(outputFile, 'w', newline='', encoding="utf-8") as f:

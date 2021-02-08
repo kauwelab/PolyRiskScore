@@ -107,7 +107,7 @@ def checkForAllAssociFile(refGen, defaultSex):
             fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
             fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
             # if the file is newer than the database update, we don't need to download a new file
-            if (lastDBUpdateDate < fileModDate):
+            if (lastDBUpdateDate <= fileModDate):
                 dnldNewAllAssociFile = False
         
         return dnldNewAllAssociFile
@@ -165,6 +165,9 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
             "studyIDs": studyIDs
         }
         studyIDDataList = getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)
+        if studyIDDataList == []:
+            print('\n\nWARNING, NO STUDIES MATCHED THE GIVEN STUDY ID(S): {}. \nTHIS MAY CAUSE THE PROGRAM TO QUIT IF THERE WERE NO OTHER FILTERS.\n'.format(studyIDs))
+
         for i in range(len(studyIDDataList)):
             # add the specified studyIDs to the set of studyIDObjs
             finalStudyList.append(json.dumps({
@@ -306,9 +309,10 @@ def getComplement(allele):
 
 
 def checkInternetConnection():
-    import socket
-    IPaddress=socket.gethostbyname(socket.gethostname())
-    if IPaddress=="127.0.0.1":
-        raise SystemExit("ERROR: No internet - Check your connection")
-    else:
+    try:
+        import socket
+        # using an arbitrary connection to check if we can make one
+        socket.create_connection(("1.1.1.1", 53))
         return
+    except OSError:
+        raise SystemExit("ERROR: No internet - Check your connection")

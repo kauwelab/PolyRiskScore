@@ -107,9 +107,10 @@ chooseOption () {
         echo -e "| ${LIGHTBLUE}Options Menu${NC}                                |"
         echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                  |"
         echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or disease  |"
-        echo -e "| ${LIGHTBLUE}3${NC} - View usage                              |"
-        echo -e "| ${LIGHTBLUE}4${NC} - Run the PRSKB calculator                |"
-        echo -e "| ${LIGHTBLUE}5${NC} - Quit                                    |"
+        echo -e "| ${LIGHTBLUE}3${NC} - View available ethnicities for filter   |"
+        echo -e "| ${LIGHTBLUE}4${NC} - View usage                              |"
+        echo -e "| ${LIGHTBLUE}5${NC} - Run the PRSKB calculator                |"
+        echo -e "| ${LIGHTBLUE}6${NC} - Quit                                    |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -118,9 +119,10 @@ chooseOption () {
         case $option in 
             1 ) learnAboutParameters ;;
             2 ) searchTraitsAndStudies ;;
-            3 ) usage ;;
-            4 ) runPRS ;;
-            5 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
+            3 ) printEthnicities ;;
+            4 ) usage ;;
+            5 ) runPRS ;;
+            6 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
                 exit;;
             * ) echo "INVALID OPTION";;
         esac
@@ -155,7 +157,7 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
         echo -e "| ${LIGHTPURPLE}8${NC} - -i studyIDs                             |"
         echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - -v True/False verbose result file               |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - -v verbose result file                 |"
         echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
         echo -e "|                                             |"
@@ -227,10 +229,10 @@ learnAboutParameters () {
             9 ) echo -e "${MYSTERYCOLOR} -e ethnicity: ${NC}"
                 echo "This parameter allows you to filter studies to use by the ethnicity "
                 echo "of the subjects used in the study. These correspond to those listed " 
-                echo "by the authors. " # should we maybe show ethnicities when they search studies?
+                echo "by the authors. A list can be printed from the corresponding menu option."
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} -v: ${NC}"
+            10 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
                 echo "For a more detailed result file, include the '-v True' parameter."
                 echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
                 echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
@@ -244,7 +246,10 @@ learnAboutParameters () {
                 echo "when both options (M/F) are present. The system default is Female"
                 echo "" ;;
             12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
-                echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
+                echo "Either a 1 or a 2."
+                echo "This parameter allows you to split up the running of the tool into two steps."
+                echo "The advantage of this is that the first step, which requires internet, can be"
+                echo "run separately from step 2, which does not require an internet connection."
                 echo "" ;;
             13 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
@@ -288,6 +293,12 @@ searchTraitsAndStudies () {
                 echo -e "${NC}";;
         * ) echo -e "Invalid option." ;;
     esac
+}
+
+printEthnicities () {
+    echo -e " ${LIGHTPURPLE}PRINTING AVAILABLE ETHNICITES TO FILTER BY:${NC}"
+    curl -s https://prs.byu.edu/ethnicities | jq -r '.[]'
+    echo -e ""
 }
 
 # will allow the user to run the PRSKB calculator from the menu
@@ -415,28 +426,39 @@ calculatePRS () {
                 trait="${trait//$space/$underscore}"    # replace spaces with underscores
                 trait="${trait//$quote/$empty}" # replace double quotes with nothing
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
-            k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
+            k)  studyType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $studyType != "hi" ] && [ $studyType != "lc" ] && [ $studyType != "o" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
                     echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
                     exit 1
                 fi
-                studyTypesForCalc+=("$OPTARG");;
+                studyTypesForCalc+=("$studyType");;
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
             v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
                 if [ $verbose == "true" ]; then
                     isCondensedFormat=0
+                elif [ $verbose != "false" ]; then
+                    echo "Invalid argument for -v. Use either true or false"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
                 fi;;
-            g)  defaultSex="$OPTARG";;
-            s)  if ! [ -z "$step" ]; then
+            g)  defaultSex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $defaultSex != 'f' ] || [ $defaultSex != 'm' ] || [ $defaultSex != 'female' ] || [ $defaultSex != 'male' ] ; then
+                    echo "Invalid argument for -g. Use f, m, female, or male."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi;;
+            s)  if ! [ -z "$step" ]; then # should we maybe show ethnicities when they search studies?
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
                 step=$OPTARG
-                if [[ $step -gt 2 ]] || [[ $step -lt 0 ]]; then 
-                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number"
+                # if is not a number, or if it is a number less than 1 or greater than 2
+                if (! [[ $step =~ ^[0-9]+$ ]]) || ([[ $step =~ ^[0-9]+$ ]] && ([[ $step -gt 2 ]] || [[ $step -lt 1 ]])); then 
+                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number input"
                     echo "Valid step numbers are 1 and 2"
                     exit 1
                 fi;;
@@ -491,7 +513,7 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$cutoff','$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
