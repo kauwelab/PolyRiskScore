@@ -359,6 +359,7 @@ calculatePRS () {
                 if [ ! -f "$filename" ]; then
                     echo -e "The file${LIGHTRED} $filename ${NC}does not exist."
                     echo "Check the path and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 elif ! [[ "${filename,,}" =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
@@ -369,11 +370,13 @@ calculatePRS () {
                     elif [ "$zipExtension" = "False" ]; then
                         echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
                         echo -e "Please use a vcf or txt file."
+                        echo -e "${LIGHTRED}Quitting...${NC}"
                         exit 1
                     # if something else, the file is a zipped file, but there are too many/few vcf/txt files in it
                     else
                         # print the error associated with the zipped file and exit
                         echo $zipExtension
+                        echo -e "${LIGHTRED}Quitting...${NC}"
                         exit 1
                     fi
                 fi;;
@@ -384,8 +387,9 @@ calculatePRS () {
                 fi
                 output=$OPTARG
                 if ! [[ "$output" =~ .csv$|.json$|.txt$ ]]; then
-                    echo -e "${LIGHTRED}$output ${NC} is not in the right format."
+                    echo -e "${LIGHTRED}$output ${NC}is not in the right format."
                     echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
             c)  if ! [ -z "$cutoff" ]; then
@@ -395,8 +399,9 @@ calculatePRS () {
                 fi
                 cutoff=$OPTARG
                 if ! [[ "$cutoff" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-                    echo -e "${LIGHTRED}$cutoff ${NC} is your p-value, but it is not a number."
+                    echo -e "${LIGHTRED}$cutoff ${NC}is your p-value, but it is not a number."
                     echo "Check the value and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
             r)  if ! [ -z "$refgen" ]; then
@@ -417,8 +422,9 @@ calculatePRS () {
                 fi
                 superPop=$OPTARG
                 if ! [[ "$superPop" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
-                    echo -e "${LIGHTRED}$superPop ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+                    echo -e "${LIGHTRED}$superPop ${NC}should be AFR, AMR, EAS, EUR, or SAS."
                     echo "Check the value and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
 
@@ -430,6 +436,7 @@ calculatePRS () {
                 if [ $studyType != "hi" ] && [ $studyType != "lc" ] && [ $studyType != "o" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
                     echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
                 studyTypesForCalc+=("$studyType");;
@@ -444,13 +451,18 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
-            g)  defaultSex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $defaultSex != 'f' ] || [ $defaultSex != 'm' ] || [ $defaultSex != 'female' ] || [ $defaultSex != 'male' ] ; then
+            g)  if ! [ -z "$defaultSex" ]; then
+                    echo "Too many default sexes requested at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                defaultSex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $defaultSex != 'f' ] && [ $defaultSex != 'm' ] && [ $defaultSex != 'female' ] && [ $defaultSex != 'male' ] ; then
                     echo "Invalid argument for -g. Use f, m, female, or male."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
-            s)  if ! [ -z "$step" ]; then # should we maybe show ethnicities when they search studies?
+            s)  if ! [ -z "$step" ]; then 
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
@@ -458,8 +470,9 @@ calculatePRS () {
                 step=$OPTARG
                 # if is not a number, or if it is a number less than 1 or greater than 2
                 if (! [[ $step =~ ^[0-9]+$ ]]) || ([[ $step =~ ^[0-9]+$ ]] && ([[ $step -gt 2 ]] || [[ $step -lt 1 ]])); then 
-                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number input"
+                    echo -e "${LIGHTRED}$step ${NC}is not a valid step number input"
                     echo "Valid step numbers are 1 and 2"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
             [?])    usage
