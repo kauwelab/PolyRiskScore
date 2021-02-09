@@ -20,6 +20,11 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
+    if (ethnicity is not None):
+        availableEthnicities = getUrlWithParams("https://prs.byu.edu/ethnicities", params={})
+        if (not bool(set(ethnicity) & set(availableEthnicities)) and studyIDs is None):
+            raise SystemExit('\nThe ethnicities requested are invalid. \nPlease use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
+
     dnldNewAllAssociFile = checkForAllAssociFile(refGen, defaultSex)
     
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
@@ -183,7 +188,7 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
     }
 
     if finalStudyList == []:
-        raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
+        raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
 
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
     return associationsReturnObj

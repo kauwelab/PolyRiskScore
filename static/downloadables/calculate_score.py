@@ -156,34 +156,34 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
         return None, None, None, None, isNoStudies
 
     studySnps = {}
-    for key in tableObjDict['associations'].keys():
-        if ("rs" in key):
-            for trait in tableObjDict['associations'][key]['traits'].keys():
+    for snp in tableObjDict['associations'].keys():
+        if ("rs" in snp):
+            for trait in tableObjDict['associations'][snp]['traits'].keys():
                 # initializing variables
                 useTrait = False
                 useStudy = False
                 if traits is not None and trait in traits:
                     useTrait = True
-                for study in tableObjDict['associations'][key]['traits'][trait].keys():
+                for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
                     if not isAllFiltersNone:
-                        studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                        studyMetaData = tableObjDict['studyIDsToMetaData'][studyID] if studyID in tableObjDict['studyIDsToMetaData'].keys() else None
                         useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait)
                     if isAllFiltersNone or useStudy:
                         pValue = tableObjDict['associations'][snp]['traits'][trait][studyID]['pValue']
                         if pValue <= float(p_cutOff):
                             # Create a map between each study and the corresponding snps
-                            if study in studySnps:
-                                snpSet = studySnps[study]
+                            if studyID in studySnps:
+                                snpSet = studySnps[studyID]
                             else:
                                 snpSet = set()
-                            snpSet.add(key)
-                            studySnps[study]=snpSet
-                        if (trait, study) not in neutral_snps_map:
-                            neutral_snps_map[(trait, study)] = set()
-                        if (trait, study) not in clumped_snps_map:
-                            clumped_snps_map[(trait, study)] = set()
-                        if (trait,study) not in counter_set:
-                            sample_map[(trait,study)][""] = ""
+                            snpSet.add(snp)
+                            studySnps[studyID]=snpSet
+                        if (trait, studyID) not in neutral_snps_map:
+                            neutral_snps_map[(trait, studyID)] = set()
+                        if (trait, studyID) not in clumped_snps_map:
+                            clumped_snps_map[(trait, studyID)] = set()
+                        if (trait,studyID) not in counter_set:
+                            sample_map[(trait,studyID)][""] = ""
 
 
     final_map = dict(sample_map)
@@ -553,6 +553,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
             unmatchedAlleleVariants = neutral_snps_map[(trait, studyID)]
             clumpedVariants= clumped_snps_map[(trait, studyID)]
             protectiveVariants = set()
+            riskVariants = set()
             # Certain studies have duplicate snps with varying p-value annotations. We make mark of that in the output
             if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys():
                 mark = True
