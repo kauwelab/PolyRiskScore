@@ -23,7 +23,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     if (ethnicity is not None):
         availableEthnicities = getUrlWithParams("https://prs.byu.edu/ethnicities", params={})
         if (not bool(set(ethnicity) & set(availableEthnicities)) and studyIDs is None):
-            raise SystemExit('\nThe ethnicities requested are not valid and will result in no valid study results. Please use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
+            raise SystemExit('\nThe ethnicities requested are not valid and will result in no valid study results. \nPlease use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
 
     dnldNewAllAssociFile = checkForAllAssociFile(refGen, defaultSex)
     
