@@ -426,7 +426,6 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     }
 
     try {
-        console.log(greppedSNPs)
         var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
             result = JSON.parse(result)
