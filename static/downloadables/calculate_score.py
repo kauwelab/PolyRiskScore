@@ -654,14 +654,14 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
                                             unmatchedAlleleVariants.add(rsID)
 
                 if not isCondensedFormat:
-                    prs, printStudyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
-                    newLine = [samp, studyID, citation, reportedTrait, trait, prs, str(protectiveVariants), str(riskVariants), str(unmatchedAlleleVariants), str(clumpedVariants)]
+                    prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
+                    newLine = [samp, studyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
                     header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratios', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
                     formatTSV(isFirst, newLine, header, outputFile)
                     isFirst = False
 
                 if isCondensedFormat:
-                    prs, printStudyID, = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, None, None, None, None)
+                    prs, printStudyID, = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
                     if (studyID, trait) in condensed_output_map:
                         newLine = condensed_output_map[(studyID, trait)]
                         newLine.append(prs)
@@ -698,7 +698,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
     return
 
 
-def createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants):
+def createMarks(oddsRatios, studyID, studySnps, sampSnps, mark):
     prs = str(getPRSFromArray(oddsRatios))
     # Add an * to scores that don't include every snp in the study
     if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
@@ -706,20 +706,7 @@ def createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVarian
     # Add a mark to studies that have duplicate snps with varying pvalue annotations
     if mark is True:
         studyID = studyID + '†'
-    # label any variant set as 'none' if it's empty
-    if protectiveVariants is not None:
-        if len(protectiveVariants) == 0:
-            protectiveVariants = "None"
-        elif len(riskVariants) == 0:
-            riskVariants = "None"
-        elif len(unmatchedAlleleVariants) == 0:
-            unmatchedAlleleVariants = "None"
-        elif len(clumpedVariants) == 0:
-            clumpedVariants == "None"
-
-        return prs, studyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants
-    else:
-        return prs, studyID
+    return prs, studyID
 
 
 def getPRSFromArray(oddsRatios):
