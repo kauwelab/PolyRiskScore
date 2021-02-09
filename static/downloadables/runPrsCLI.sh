@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.4.0"
+version="1.5.0"
 #
 # 
 # 
@@ -545,14 +545,14 @@ calculatePRS () {
             echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
 
         fi
-        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-            rm $FILE
-            rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-        fi
-        # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
-        rm -r __pycache__
-        echo "Cleaned up intermediate files"
-        printf "Finished. Exiting...\n"
+        # if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+        #     rm $FILE
+        #     rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+        # fi
+        # # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        # rm -r __pycache__
+        # echo "Cleaned up intermediate files"
+        # printf "Finished. Exiting...\n"
         exit;
     fi
 }
