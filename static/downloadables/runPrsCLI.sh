@@ -536,23 +536,23 @@ calculatePRS () {
         echo "Calculating prs on $filename"
         #outputType="tsv" #this is the default
         #$1=inputFile $2=pValue $3=tsv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
-
+        FILE=".workingFiles/associations_${fileHash}.txt"
+        
         if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
             echo "Calculated score"
-            FILE=".workingFiles/associations_${fileHash}.txt"
-            if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-                rm $FILE
-                rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-            fi
-            # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
-            rm -r __pycache__
-            echo "Cleaned up intermediate files"
             echo "Results saved to $output"
-            echo ""
         else
             echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
 
         fi
+        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+            rm $FILE
+            rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+        fi
+        # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        rm -r __pycache__
+        echo "Cleaned up intermediate files"
+        printf "Finished. Exiting...\n"
         exit;
     fi
 }
