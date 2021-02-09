@@ -584,7 +584,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
             if not isCondensedFormat:
                 prs, printStudyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-                newLine = [printStudyID, citation, reportedTrait, trait, prs, str(protectiveVariants), str(riskVariants), str(unmatchedAlleleVariants), str(clumpedVariants)]
+                newLine = [printStudyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
                 formatTSV(isFirst, newLine, header, outputFile)
                 isFirst = False
 
