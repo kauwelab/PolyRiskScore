@@ -736,6 +736,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
 
                 elif isCondensedFormat:
                     prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
+                    
                     if (studyID, trait) in condensed_output_map:
                         newLine = condensed_output_map[(studyID, trait)]
                         newLine.append(prs)
