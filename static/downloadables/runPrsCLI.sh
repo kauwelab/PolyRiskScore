@@ -96,7 +96,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed CSV result file. By default, JSON output will already be verbose.)"
+    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
@@ -243,8 +243,8 @@ learnAboutParameters () {
                 echo "effect on the PRS for each corresponding sample and study."
                 echo "If the output file is in TSV format and this parameter is not included, the default TSV result"
                 echo "file will include the study ID and the corresponding polygenic risk scores for each sample." 
-		echo "If the output file is in JSON format, the results will, by default, be in verbose format."
-		echo "There is no condensed version of JSON output."
+		        echo "If the output file is in JSON format, the results will, by default, be in verbose format."
+		        echo "There is no condensed version of JSON output."
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} -g defaultSex: ${NC}"
                 echo "Some studies have duplicates of the same snp that differ by which biological sex the"
@@ -392,9 +392,9 @@ calculatePRS () {
                     exit 1
                 fi
                 output=$OPTARG
-                if ! [[ "$output" =~ .csv$|.json$ ]]; then
+                if ! [[ "${output,,}" =~ .tsv$|.json$ ]]; then
                     echo -e "${LIGHTRED}$output ${NC} is not in the right format."
-                    echo -e "Valid formats are ${GREEN}csv${NC} and ${GREEN}json${NC}"
+                    echo -e "Valid formats are ${GREEN}tsv${NC} and ${GREEN}json${NC}"
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
@@ -543,14 +543,9 @@ calculatePRS () {
 
 
     if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
-        IFS='.'
-        read -a outFile <<< "$output"
-        outputType=${outFile[1]}
-        IFS=' '
+        outputType=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_ext.lower());")
 
         echo "Calculating prs on $filename"
-        #outputType="tsv" #this is the default
-        #$1=inputFile $2=pValue $3=tsv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
         FILE=".workingFiles/associations_${fileHash}.txt"
         
         if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
@@ -560,14 +555,14 @@ calculatePRS () {
             echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
 
         fi
-        # if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-        #     rm $FILE
-        #     rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-        # fi
-        # # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
-        # rm -r __pycache__
-        # echo "Cleaned up intermediate files"
-        # printf "Finished. Exiting...\n"
+        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+            rm $FILE
+            rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+        fi
+        # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        rm -r __pycache__
+        echo "Cleaned up intermediate files"
+        printf "Finished. Exiting...\n"
         exit;
     fi
 }
