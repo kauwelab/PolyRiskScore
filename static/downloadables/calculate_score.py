@@ -539,7 +539,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
         if isCondensedFormat:
             header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score']
         else:
-            header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
+            header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
         formatTSV(isFirst, message, header, outputFile)
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
@@ -624,7 +624,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
             for samp in vcfObj:
                 header.append(samp)
         else:
-            header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
+            header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
         formatTSV(True, message, header, outputFile)
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
