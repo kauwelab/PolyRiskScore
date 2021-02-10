@@ -317,7 +317,7 @@ def checkInternetConnection():
     try:
         import socket
         # using an arbitrary connection to check if we can make one
-        socket.create_connection(("1.1.1.1", 53))
+        socket.create_connection(("8.8.8.8", 53))
         return
     except OSError:
         raise SystemExit("ERROR: No internet - Check your connection")
