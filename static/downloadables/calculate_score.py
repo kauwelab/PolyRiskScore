@@ -387,13 +387,8 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
     clumped_snps_map = {}
     sample_num = len(vcf_reader.samples)
 
-<<<<<<< HEAD
     # Create a bool to keep track if the filters result in any viable studies
     isNoStudies = True
-=======
-    # Create a counter to keep track if the filters result in any viable studies
-    isNoStudies = True 
->>>>>>> master
 
     isAllFiltersNone = (traits is None and studyIDs is None and studyTypes is None and ethnicities is None)
 
@@ -546,17 +541,6 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
         else:
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
         formatCSV(isFirst, message, header, outputFile)
-<<<<<<< HEAD
-    else:
-        for (trait, studyID) in txtObj:
-            oddsRatios = []
-            neutral_snps_set = neutral_snps[(trait, studyID)]
-            protectiveAlleles = set()
-            riskAlleles = set()
-            sampSnps = set()
-            citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
-            reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
-=======
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
         for (trait, studyID) in txtObj:
@@ -571,18 +555,11 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
             protectiveVariants = set()
             riskVariants = set()
             # Certain studies have duplicate snps with varying p-value annotations. We make mark of that in the output
->>>>>>> master
             if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys():
                 mark = True
             else:
                 mark = False
 
-<<<<<<< HEAD
-            citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
-            reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
-            
-=======
->>>>>>> master
             # Loop through each snp associated with this disease/study
             for snp in txtObj[(trait, studyID)]:
                 # Also iterate through each of the alleles
@@ -599,28 +576,19 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
                                     sampSnps.add(snp)
                                     oddsRatios.append(oddsRatio)
                                     if oddsRatio < 1:
-<<<<<<< HEAD
-                                        protectiveAlleles.add(snp)
+                                        protectiveVariants.add(snp)
                                     elif oddsRatio > 1:
-                                        riskAlleles.add(snp)
-                                    else:
-                                        neutral_snps_set.add(snp)
+                                        riskVariants.add(snp)
                                 elif allele != riskAllele:
-                                    neutral_snps_set.add(snp)
+                                    unmatchedAlleleVariants.add(snp)
 
             if not isCondensedFormat and not isJson:
-                OR = str(getCombinedORFromArray(oddsRatios))
-                if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
-                    OR = OR + '*'
-                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
-                if mark is True:
-                    studyID = studyID + '†'
-                if str(protectiveAlleles) == "set()":
-                    protectiveAlleles = "None"
-                elif str(riskAlleles) == "set()":
-                    riskAlleles = "None"
-                elif str(neutral_snps_set) == "set()":
-                    neutral_snps_set = "None"
+                prs, printStudyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
+                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+                newLine = [printStudyID, citation, reportedTrait, trait, prs, str(protectiveVariants), str(riskVariants), str(unmatchedAlleleVariants), str(clumpedVariants)]
+                formatCSV(isFirst, newLine, header, outputFile)
+                isFirst = False
+
 
                 newLine = [studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
                 formatCSV(isFirst, newLine, header, outputFile)
@@ -670,44 +638,15 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
                 isFirst = False
                 del study_results
 
-
-
-            if isCondensedFormat:
-                OR = str(getCombinedORFromArray(oddsRatios))
-                if studySnps[studyID] != sampSnps and len(sampSnps) != 0:
-                    OR = OR + '*'
-                if mark is True:
-                    studyID = studyID + '†'
-                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
-                newLine = [studyID, citation, reportedTrait, trait, OR]
-=======
-                                        protectiveVariants.add(snp)
-                                    elif oddsRatio > 1:
-                                        riskVariants.add(snp)
-                                elif allele != riskAllele:
-                                    unmatchedAlleleVariants.add(snp)
-
-            if not isCondensedFormat:
-                prs, printStudyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
-                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-                newLine = [printStudyID, citation, reportedTrait, trait, prs, str(protectiveVariants), str(riskVariants), str(unmatchedAlleleVariants), str(clumpedVariants)]
-                formatCSV(isFirst, newLine, header, outputFile)
-                isFirst = False
-
-            if isCondensedFormat:
+            elif isCondensedFormat:
                 prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, None, None, None, None)
                 header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
                 newLine = [printStudyID, citation, reportedTrait, trait, prs]
->>>>>>> master
                 formatCSV(isFirst, newLine, header, outputFile)
                 isFirst = False
 
 
-<<<<<<< HEAD
-def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps, outputFile, samp_num, studySnps, isNoStudies):
-=======
-def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies):
->>>>>>> master
+def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies):
     if isNoStudies:
         message=[]
         if isCondensedFormat:
@@ -766,28 +705,10 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
                                         elif oddsRatio != 0:
                                             unmatchedAlleleVariants.add(rsID)
 
-<<<<<<< HEAD
-                if not isCondensedFormat and is not isJson:
-                    OR = str(getCombinedORFromArray(oddsRatios))
-                    if len(protectiveAlleles) == 0:
-                        protectiveAlleles = "None"
-                    if len(riskAlleles) == 0:
-                        riskAlleles = "None"
-                    if len(neutral_snps_set) == 0:
-                        neutral_snps_set = "None"
-                    if studySnps != sampSnps and OR != 'NF':
-                        OR = OR + '*'
-                    if mark == True:
-                        studyID = studyID + '†'
-
-                    newLine = [samp, studyID, citation, reportedTrait, trait, OR, str(protectiveAlleles), str(riskAlleles), str(neutral_snps_set)]
-                    header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
-=======
-                if not isCondensedFormat:
+                if not isCondensedFormat and not isJson:
                     prs, printStudyID, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                     newLine = [samp, studyID, citation, reportedTrait, trait, prs, str(protectiveVariants), str(riskVariants), str(unmatchedAlleleVariants), str(clumpedVariants)]
-                    header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratios', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
->>>>>>> master
+                    header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
                     formatCSV(isFirst, newLine, header, outputFile)
                     isFirst = False
 
@@ -858,7 +779,7 @@ def vcfcalculations(tableObjDict, vcfObj, isCondensedFormat, neutral_snps_map, c
                         study_results_map[(studyID, trait)] = study_results
                 
 
-                if isCondensedFormat:
+                elif isCondensedFormat:
                     prs, printStudyID, = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark, None, None, None, None)
                     if (studyID, trait) in condensed_output_map:
                         newLine = condensed_output_map[(studyID, trait)]
