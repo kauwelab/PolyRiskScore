@@ -714,7 +714,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
 
                 elif isJson:
                     # Add needed markings to score and study
-                    if len(protectiveAlleles == 0:
+                    if len(protectiveAlleles) == 0:
                         protectiveAlleles = "None"
                     if len(riskAlleles) == 0:
                         riskAlleles = "None"

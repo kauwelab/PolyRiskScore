@@ -502,7 +502,17 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    res=""
+    { # downloading needed python modules
+        echo -e "${YELLOW}Downloading required python packages${NC}"
+        pip3 install PyVCF
+        pip3 install myvariant
+    } && {
+        echo -e "${GREEN}Finished installing packages. \n${NC}"
+    } || {
+        echo -e "${LIGHTRED}FAILED TO DOWNLOAD REQUIRED PACKAGES:"
+        echo -e "Please check your internet connection and your python version"
+        echo -e "Note: You MUST have python 3 installed for this tool to work.${NC}"
+    }
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
