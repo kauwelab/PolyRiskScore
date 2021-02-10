@@ -88,7 +88,7 @@ prskbMenu () {
 # the usage statement of the tool
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv, json, or txt format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}-t${NC} traitList ex. -t acne -t insomnia -t \"Alzheimer's disease\""
@@ -96,7 +96,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed result file)"
+    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed CSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
@@ -181,7 +181,7 @@ learnAboutParameters () {
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR}-o Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
-                echo -e "permitted extensions are ${GREEN}.tsv${NC}, ${GREEN}.json${NC}, or ${GREEN}.txt${NC} and will dictate the" 
+                echo -e "permitted extensions are ${GREEN}.tsv${NC} or ${GREEN}.json${NC} and will dictate the" 
                 echo "format of the outputted results."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR}-c P-value Cutoff: ${NC}"
@@ -237,12 +237,14 @@ learnAboutParameters () {
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             10 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
-                echo "For a more detailed result file, include the '-v True' parameter."
+                echo "For a more detailed TSV result file, include the '-v True' parameter."
                 echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
                 echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
                 echo "effect on the PRS for each corresponding sample and study."
-                echo "If this parameter is not included, the default result file will include the study ID"
-                echo "and the corresponding polygenic risk scores for each sample." 
+                echo "If the output file is in TSV format and this parameter is not included, the default TSV result"
+                echo "file will include the study ID and the corresponding polygenic risk scores for each sample." 
+		echo "If the output file is in JSON format, the results will, by default, be in verbose format."
+		echo "There is no condensed version of JSON output."
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} -g defaultSex: ${NC}"
                 echo "Some studies have duplicates of the same snp that differ by which biological sex the"
@@ -390,9 +392,9 @@ calculatePRS () {
                     exit 1
                 fi
                 output=$OPTARG
-                if ! [[ "$output" =~ .csv$|.json$|.txt$ ]]; then
-                    echo -e "${LIGHTRED}$output ${NC}is not in the right format."
-                    echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
+                if ! [[ "$output" =~ .csv$|.json$ ]]; then
+                    echo -e "${LIGHTRED}$output ${NC} is not in the right format."
+                    echo -e "Valid formats are ${GREEN}csv${NC} and ${GREEN}json${NC}"
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
