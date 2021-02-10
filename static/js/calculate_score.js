@@ -426,7 +426,6 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     }
 
     try {
-        console.log(greppedSNPs)
         var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
             result = JSON.parse(result)
@@ -560,7 +559,7 @@ function getSnpFromLine(line) {
     return match != null ? match[0] : null
 }
 
-function formatCSV(jsonObject, isCondensed) {
+function formatTSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
     //TODO: account for if the samples are not in the same order everytime
     sampleKeys = []
@@ -588,10 +587,10 @@ function formatCSV(jsonObject, isCondensed) {
                 first = false
                 sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
                 if (isCondensed) {
-                    resultsString = headerInit.toString().concat(sampleKeys.toString())
+                    resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
                 }
                 else {
-                    resultsString = headerInit.toString()
+                    resultsString = headerInit.join("\n")
                 }
             }
 
@@ -605,12 +604,12 @@ function formatCSV(jsonObject, isCondensed) {
                     protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants']
                     riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants']
                     neutralSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['neutralVariants']
-                    lineResult = `${sample},${lineInfo.toString()},${oddsRatio},${protectiveSnps.join("|")},${riskSnps.join("|")},${neutralSnps.join("|")}`
-                    resultsString = resultsString.concat("\n", lineResult)
+                    lineResult = `${sample}\t${lineInfo.join("\n")}\t${oddsRatio}\t${protectiveSnps.join("|")}\t${riskSnps.join("|")}\t${neutralSnps.join("|")}`
+                    resultsString = resultsString + "\n" + lineResult
                 }
             }
             if (isCondensed) {
-                resultsString = resultsString.concat("\n", lineInfo.toString())
+                resultsString = resultsString + "\n" + lineInfo.join("\n")
             }
         }
     }
@@ -651,8 +650,8 @@ function getResultOutput(jsonObject) {
         var fileFormatEle = document.getElementById('fileFormat');
         var isCondensed = fileFormatEle.options[fileFormatEle.selectedIndex].value == 'condensed' ? true : false
 
-        if (format === "csv")
-            outputVal += formatCSV(jsonObject, isCondensed);
+        if (format === "tsv")
+            outputVal += formatTSV(jsonObject, isCondensed);
         else if (format === "json")
             outputVal += JSON.stringify(jsonObject);
         else
@@ -671,8 +670,8 @@ function downloadResults() {
     //TODO better name?
     var fileName = "polyscore_" + getRandomInt(100000000);
     var extension = "";
-    if (format === "csv") {
-        extension = ".csv";
+    if (format === "tsv") {
+        extension = ".tsv";
     }
     else {
         extension = ".txt";

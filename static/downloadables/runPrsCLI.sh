@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.4.0"
+version="1.5.0"
 #
 # 
 # 
@@ -11,7 +11,7 @@ version="1.4.0"
 # * 8/28/2020 - v1.0.0  - First Creation
 #   Parameter order:
 #       1 VCF file path OR rsIDs file path 
-#       2 output file path (csv or txt format)
+#       2 output file path (tsv or txt format)
 #       3 p-value cutoff (ex: 0.05)
 #       4 refGen {hg17, hg18, hg19, hg38}
 #       5 super population {AFR, AMR, EAS, EUR, SAS}
@@ -32,7 +32,7 @@ version="1.4.0"
 #   Now using getopts. Parameters updated
 #   REQUIRED PARAMS:
 #       -f input file path (VCF or TXT with rsIDs)
-#       -o output file path (CSV or TXT)
+#       -o output file path (TSV or TXT)
 #       -c p-value cutoff
 #       -r refGen (hg17, hg18, hg19, hg38)
 #       -p super population (AFR, AMR, EAS, EUR, SAS)
@@ -54,6 +54,10 @@ version="1.4.0"
 #   
 #   Added the ability to calculate scores using vcf/txt
 #   files zipped in zip, tar-like, and gz-like formats
+#
+# * 2/8/21 - v1.5.0
+#   
+#   Changed csv output type to tsv.
 #
 # ########################################################################
 
@@ -84,7 +88,7 @@ prskbMenu () {
 # the usage statement of the tool
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (csv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}-t${NC} traitList ex. -t acne -t insomnia -t \"Alzheimer's disease\""
@@ -92,7 +96,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed CSV result file. By default, JSON output will already be verbose.)"
+    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
@@ -177,7 +181,7 @@ learnAboutParameters () {
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR}-o Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
-                echo -e "permitted extensions are ${GREEN}.csv${NC} or ${GREEN}.json${NC} and will dictate the" 
+                echo -e "permitted extensions are ${GREEN}.tsv${NC} or ${GREEN}.json${NC} and will dictate the" 
                 echo "format of the outputted results."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR}-c P-value Cutoff: ${NC}"
@@ -239,8 +243,8 @@ learnAboutParameters () {
                 echo "effect on the PRS for each corresponding sample and study."
                 echo "If the output file is in TSV format and this parameter is not included, the default TSV result"
                 echo "file will include the study ID and the corresponding polygenic risk scores for each sample." 
-		echo "If the output file is in JSON format, the results will, by default, be in verbose format."
-		echo "There is no condensed version of JSON output."
+		        echo "If the output file is in JSON format, the results will, by default, be in verbose format."
+		        echo "There is no condensed version of JSON output."
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} -g defaultSex: ${NC}"
                 echo "Some studies have duplicates of the same snp that differ by which biological sex the"
@@ -388,9 +392,9 @@ calculatePRS () {
                     exit 1
                 fi
                 output=$OPTARG
-                if ! [[ "$output" =~ .csv$|.json$ ]]; then
+                if ! [[ "${output,,}" =~ .tsv$|.json$ ]]; then
                     echo -e "${LIGHTRED}$output ${NC} is not in the right format."
-                    echo -e "Valid formats are ${GREEN}csv${NC} and ${GREEN}json${NC}"
+                    echo -e "Valid formats are ${GREEN}tsv${NC} and ${GREEN}json${NC}"
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
@@ -539,31 +543,26 @@ calculatePRS () {
 
 
     if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
-        IFS='.'
-        read -a outFile <<< "$output"
-        outputType=${outFile[1]}
-        IFS=' '
+        outputType=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_ext.lower());")
 
         echo "Calculating prs on $filename"
-        #outputType="csv" #this is the default
-        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
-
+        FILE=".workingFiles/associations_${fileHash}.txt"
+        
         if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
             echo "Calculated score"
-            FILE=".workingFiles/associations_${fileHash}.txt"
-            if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-                rm $FILE
-                rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-            fi
-            # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
-            rm -r __pycache__
-            echo "Cleaned up intermediate files"
             echo "Results saved to $output"
-            echo ""
         else
             echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
 
         fi
+        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+            rm $FILE
+            rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+        fi
+        # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        rm -r __pycache__
+        echo "Cleaned up intermediate files"
+        printf "Finished. Exiting...\n"
         exit;
     fi
 }

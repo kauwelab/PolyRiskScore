@@ -10,7 +10,7 @@ import os.path
 
 basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
 
-if sys.argv[3] == 'json':
+if sys.argv[3] == '.json':
     isJson = True
     isCondensedFormat = False
 else:

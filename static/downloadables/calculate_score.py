@@ -540,7 +540,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
             header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score']
         else:
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
-        formatCSV(isFirst, message, header, outputFile)
+        formatTSV(isFirst, message, header, outputFile)
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
         for (trait, studyID) in txtObj:
@@ -584,11 +584,11 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
 
             if not isCondensedFormat and not isJson:
                 prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
-                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
                 newLine = [printStudyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
-                formatCSV(isFirst, newLine, header, outputFile)
+                formatTSV(isFirst, newLine, header, outputFile)
                 isFirst = False
-
+                
             elif isJson:
                 # Add needed markings to scores/studies
                 prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
@@ -612,7 +612,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                 prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
                 header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
                 newLine = [printStudyID, citation, reportedTrait, trait, prs]
-                formatCSV(isFirst, newLine, header, outputFile)
+                formatTSV(isFirst, newLine, header, outputFile)
                 isFirst = False
 
 
@@ -625,7 +625,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                 header.append(samp)
         else:
             header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
-        formatCSV(True, message, header, outputFile)
+        formatTSV(True, message, header, outputFile)
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
         study_results_map = {}
@@ -679,7 +679,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                     prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
                     newLine = [samp, studyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
                     header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-                    formatCSV(isFirst, newLine, header, outputFile)
+                    formatTSV(isFirst, newLine, header, outputFile)
                     isFirst = False
 
                 elif isJson:
@@ -736,6 +736,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
 
                 elif isCondensedFormat:
                     prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
+                    
                     if (studyID, trait) in condensed_output_map:
                         newLine = condensed_output_map[(studyID, trait)]
                         newLine.append(prs)
@@ -761,7 +762,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                         del condensed_output_map[(studyID, trait)]
                         if (studyID, trait) in count_map:
                             del count_map[(studyID, trait)]
-                        formatCSV(isFirst, newLine, header, outputFile)
+                        formatTSV(isFirst, newLine, header, outputFile)
                         isFirst = False
                     else:
                         condensed_output_map[(studyID, trait)] = newLine
@@ -786,6 +787,7 @@ def formatJson(isFirst, studyInfo, outputFile):
             f.write( ",{}]".format(json.dumps(studyInfo, indent=4)))
     return
 
+
 def createMarks(oddsRatios, studyID, studySnps, sampSnps, mark):
     prs = str(getPRSFromArray(oddsRatios))
     # Add an * to scores that don't include every snp in the study
@@ -809,7 +811,7 @@ def getPRSFromArray(oddsRatios):
     return(str(combinedOR))
 
 
-def formatCSV(isFirst, newLine, header, outputFile):
+def formatTSV(isFirst, newLine, header, outputFile):
     # if the folder of the output file doesn't exist, create it
     if "/" in outputFile:
         os.makedirs(os.path.dirname(outputFile), exist_ok=True)
@@ -824,6 +826,7 @@ def formatCSV(isFirst, newLine, header, outputFile):
             output = csv.writer(f, delimiter='\t')
             output.writerow(newLine)
     return
+
 
 # checks if the file is a vaild zipped file and returns the extension of the file inside the zipped file
 # a zipped file is valid if it is a zip, tar, or gz file with only 1 vcf/txt file inside
