@@ -363,9 +363,8 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
     neutral_snps = {}
     sample_num = len(vcf_reader.samples)
 
-    # Create a counter to keep track if the filters result in any viable studies
-    num_studies = 0
-    isNoStudies = False
+    # Create a bool to keep track if the filters result in any viable studies
+    isNoStudies = True
 
     isAllFiltersNone = (traits is None and studyIDs is None and studyTypes is None and ethnicities is None)
 
@@ -397,7 +396,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                                 studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
                                 useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, study, trait, studyMetaData, useTrait)
                             if isAllFiltersNone or useStudy:
-                                num_studies += 1
+                                isNoStudies = False
                                 # Loop through each sample of the vcf file
                                 for call in record.samples:
                                     name = call.sample
@@ -463,8 +462,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
         # Check to see which study/sample combos didn't have any viable snps
         # and create blank entries for the sample map for those that didn't
         # TODO: might need a better way to handle this
-        if num_studies == 0:
-            isNoStudies = True
+        if isNoStudies:
             samples = []
             for name in vcf_reader.samples:
                 samples.append(name)
