@@ -43,7 +43,8 @@
                             if (!(individualName in resultObj[studyID][trait])) {
                                 resultObj[studyID][trait][individualName] = {
                                     snps: {},
-                                    neutralSnps: []
+				    snpsWithoutRiskAllele: [],
+				    snpsInHighLD: []
                                 }
                             }
                             if (!((trait, studyID, individualName) in indexSnpObj)) {
@@ -80,7 +81,7 @@
                                                 numAllelesMatch++;
                                             }
                                             else {
-                                                resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                                resultObj[studyID][trait][individualName]['snpsWithoutRiskAllele'].push(key)
                                             }
                                         }
                                         if (numAllelesMatch > 0) {
@@ -88,16 +89,16 @@
                                                 clumpNum = clumpsData[key]
                                                 if (clumpNum in indexSnpObj[traitStudySamp]) {
                                                     indexClumpSnp = indexSnpObj[traitStudySamp][clumpNum]
-                                                    indexPvalue = associationData['associations'][key]['traits'][trait][studyID]['pValue']
+                                                    indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID]['pValue']
                                                     if (associationObj.pValue < indexPvalue) {
                                                         delete resultObj[studyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
-                                                        resultObj[studyID][trait][individualName]['neutralSnps'].push(indexClumpSnp)
+                                                        resultObj[studyID][trait][individualName]['snpsInHighLD'].push(indexClumpSnp)
                                                         resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
                                                         indexSnpObj[traitStudySamp][clumpNum] = key
                                                     }
                                                     else {
                                                         // add the current snp to neutral snps
-                                                        resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                                        resultObj[studyID][trait][individualName]['snpsInHighLD'].push(key)
                                                     }
                                                 }
                                                 else {
@@ -108,10 +109,6 @@
                                             } else {
                                                 // just add the snp to calculations
                                                 resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
-                                            }
-                                            // if only one of the alleles is a risk allele, add it to the neutralSnps
-                                            if (numAllelesMatch == 1) {
-                                                resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
                                             }
                                         }
                                     }
@@ -135,7 +132,8 @@
                                 oddsRatio: scoreAndSnps[0],
                                 protectiveVariants: scoreAndSnps[2],
                                 riskVariants: scoreAndSnps[1],
-                                neutralVariants: scoreAndSnps[3]
+				variantsWithoutRiskAllele: scoreAndSnps[3],
+				variantsInHighLD: scoreAndSnps[4]
                             }
                             tmpTraitObj[this.trim(sample)] = tmpSampleObj
                         }
@@ -158,7 +156,8 @@
         var combinedOR = 0;
         var protective = new Set()
         var risk = new Set()
-        var neutral = new Set(sampleObj.neutralSnps)
+        var unmatched = new Set(sampleObj.snpsWithoutRiskAllele)
+	var clumped = new Set(sampleObj.snpsInHighLD)
 
         //calculate the odds ratio and determine which alleles are protective, risk, and neutral
         for (snp in sampleObj['snps']) {
@@ -171,9 +170,6 @@
             else if (snpOR < 1) {
                 protective.add(snp)
             }
-            else {
-                neutral.add(snp)
-            }
         }
 
         if (combinedOR === 0) {
@@ -183,7 +179,7 @@
             combinedOR = Math.exp(combinedOR);
         }
 
-        return [combinedOR, Array.from(risk), Array.from(protective), Array.from(neutral)]
+        return [combinedOR, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
     }
 
     /**
