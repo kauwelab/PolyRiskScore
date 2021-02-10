@@ -88,7 +88,7 @@
                                                 clumpNum = clumpsData[key]
                                                 if (clumpNum in indexSnpObj[traitStudySamp]) {
                                                     indexClumpSnp = indexSnpObj[traitStudySamp][clumpNum]
-                                                    indexPvalue = associationData['associations'][key]['traits'][trait][studyID]['pValue']
+                                                    indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID]['pValue']
                                                     if (associationObj.pValue < indexPvalue) {
                                                         delete resultObj[studyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
                                                         resultObj[studyID][trait][individualName]['neutralSnps'].push(indexClumpSnp)
@@ -110,9 +110,10 @@
                                                 resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
                                             }
                                             // if only one of the alleles is a risk allele, add it to the neutralSnps
-                                            if (numAllelesMatch == 1) {
-                                                resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
-                                            }
+						//Don't you do this when you're looping through the alleles to come up with the numAllelesMatch value?
+                                            //if (numAllelesMatch == 1) {
+                                             //   resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                            //}
                                         }
                                     }
                                 }
@@ -170,9 +171,6 @@
             }
             else if (snpOR < 1) {
                 protective.add(snp)
-            }
-            else {
-                neutral.add(snp)
             }
         }
 
