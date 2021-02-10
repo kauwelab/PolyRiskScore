@@ -43,7 +43,8 @@
                             if (!(individualName in resultObj[studyID][trait])) {
                                 resultObj[studyID][trait][individualName] = {
                                     snps: {},
-                                    neutralSnps: []
+                                    variantsWithUnmatchedAlleles: [],
+				    variantsInHighLD: []
                                 }
                             }
                             if (!((trait, studyID, individualName) in indexSnpObj)) {
@@ -80,7 +81,7 @@
                                                 numAllelesMatch++;
                                             }
                                             else {
-                                                resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                                resultObj[studyID][trait][individualName]['variantsWithUnmatchedAlleles'].push(key)
                                             }
                                         }
                                         if (numAllelesMatch > 0) {
@@ -91,13 +92,13 @@
                                                     indexPvalue = associationData['associations'][key]['traits'][trait][studyID]['pValue']
                                                     if (associationObj.pValue < indexPvalue) {
                                                         delete resultObj[studyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
-                                                        resultObj[studyID][trait][individualName]['neutralSnps'].push(indexClumpSnp)
+                                                        resultObj[studyID][trait][individualName]['variantsInHighLD'].push(indexClumpSnp)
                                                         resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
                                                         indexSnpObj[traitStudySamp][clumpNum] = key
                                                     }
                                                     else {
                                                         // add the current snp to neutral snps
-                                                        resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                                        resultObj[studyID][trait][individualName]['variantsInHighLD'].push(key)
                                                     }
                                                 }
                                                 else {
@@ -135,7 +136,8 @@
                                 oddsRatio: scoreAndSnps[0],
                                 protectiveVariants: scoreAndSnps[2],
                                 riskVariants: scoreAndSnps[1],
-                                neutralVariants: scoreAndSnps[3]
+                                unmatchedVariants: scoreAndSnps[3],
+				clumpedVariants: scoreAndSnps[4]
                             }
                             tmpTraitObj[this.trim(sample)] = tmpSampleObj
                         }
@@ -158,7 +160,8 @@
         var combinedOR = 0;
         var protective = new Set()
         var risk = new Set()
-        var neutral = new Set(sampleObj.neutralSnps)
+        var unmatched = new Set(sampleObj.variantsWithUnmatchedAlleles)
+	var clumped = new Set(sampleObj.variantsInHighLD)
 
         //calculate the odds ratio and determine which alleles are protective, risk, and neutral
         for (snp in sampleObj['snps']) {
@@ -171,9 +174,6 @@
             else if (snpOR < 1) {
                 protective.add(snp)
             }
-            else {
-                neutral.add(snp)
-            }
         }
 
         if (combinedOR === 0) {
@@ -183,7 +183,7 @@
             combinedOR = Math.exp(combinedOR);
         }
 
-        return [combinedOR, Array.from(risk), Array.from(protective), Array.from(neutral)]
+        return [combinedOR, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
     }
 
     /**
