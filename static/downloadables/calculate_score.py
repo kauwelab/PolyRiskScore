@@ -531,7 +531,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
     return final_map, neutral_snps_map, clumped_snps_map, sample_num, studySnps, isNoStudies
 
 
-def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies):
+def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies):
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     if isNoStudies:
@@ -584,7 +584,7 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
 
             if not isCondensedFormat and not isJson:
                 prs, studyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
-                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+                header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
                 newLine = [studyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
                 formatTSV(isFirst, newLine, header, outputFile)
                 isFirst = False
@@ -709,7 +709,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
 
                 elif isJson:
                     # Add needed markings to score and study
-                    if len(protectiveAlleles == 0:
+                    if len(protectiveAlleles == 0):
                         protectiveAlleles = "None"
                     if len(riskAlleles) == 0:
                         riskAlleles = "None"
