@@ -588,7 +588,7 @@ function formatCSV(jsonObject, isCondensed) {
                 first = false
                 sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
                 if (isCondensed) {
-                    resultsString = headerInit.toString().concat(',', sampleKeys.toString())
+                    resultsString = headerInit.toString().concat(sampleKeys.toString())
                 }
                 else {
                     resultsString = headerInit.toString()

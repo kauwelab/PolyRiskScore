@@ -109,11 +109,6 @@
                                                 // just add the snp to calculations
                                                 resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
                                             }
-                                            // if only one of the alleles is a risk allele, add it to the neutralSnps
-						//Don't you do this when you're looping through the alleles to come up with the numAllelesMatch value?
-                                            //if (numAllelesMatch == 1) {
-                                             //   resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
-                                            //}
                                         }
                                     }
                                 }
