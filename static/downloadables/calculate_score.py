@@ -531,7 +531,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
     return final_map, neutral_snps_map, clumped_snps_map, sample_num, studySnps, isNoStudies
 
 
-def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies):
+def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies):
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     if isNoStudies:
@@ -598,9 +598,9 @@ def txtcalculations(tableObjDict, txtObj, isCondensedFormat, neutral_snps_map, c
                     'citation':citation,
                     'reportedTrait':reportedTrait,
                     'trait':trait,
-                    'polygenicRiskScore': prs
-                    'protectiveAlleles':"|".join(protectiveAlleles),
-                    'riskAlleles': "|".join(riskAlleles),
+                    'polygenicRiskScore': prs,
+                    'protectiveVariants':"|".join(protectiveVariants),
+                    'riskVariants': "|".join(riskVariants),
                     'variantsWithoutRiskAlleles': "|".join(unmatchedAlleleVariants),
                     'variantsInHighLD': "|".join(clumpedVariants)
                 })
@@ -712,11 +712,11 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                     else:
                         sample_results.update({
                             'sample':samp,
-                            'polygenicRiskScore':OR,
+                            'polygenicRiskScore':prs,
                         })
                     sample_results.update({
-                            'protectiveAlleles': "|".join(protectiveAlleles),
-                            'riskAlleles': "|".join(riskAlleles),
+                            'protectiveAlleles': "|".join(protectiveVariants),
+                            'riskAlleles': "|".join(riskVariants),
                             'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
                             'variantsInHighLD': "|".join(clumpedVariants)
                         })
