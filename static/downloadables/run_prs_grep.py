@@ -1,4 +1,4 @@
-import calculate_score  as cs
+import calculate_score as cs
 import time
 import sys
 import os
@@ -34,8 +34,10 @@ try:
         tableObjList = tableObjFile.read()
     with open(clumpsPath, 'r') as clumpsObjFile:
         clumpsObjList = clumpsObjFile.read()
-    cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, isJson, sys.argv[6], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14])
 except FileNotFoundError: 
     raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}".format(associationsPath, clumpsPath))
+
+cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, isJson, sys.argv[6], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14])
+
 #end = time.time()
 #print(end - start)
