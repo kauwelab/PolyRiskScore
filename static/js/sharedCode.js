@@ -12,6 +12,7 @@
         var resultObj = {};
         var indexSnpObj = {};
         var resultJsons = {};
+	var studySnps = {};
 
         if (greppedSamples == undefined) {
             throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
@@ -80,6 +81,7 @@
 				    }
 
                                     if (associationObj.pValue <= pValue) {
+				    	studySnps[studyID] = (studySnps[studyID] || 0) + 1
                                         numAllelesMatch = 0
                                         for (i=0; i < alleles.length; i++) {
                                             allele = alleles[i]
@@ -116,7 +118,7 @@
                                                 // just add the snp to calculations
                                                 resultObj[printStudyID][trait][individualName]['snps'][key] = numAllelesMatch
                                             }
-                                        }
+                                        } 
                                     }
                                 }
                             }
@@ -136,7 +138,7 @@
                     for (trait in resultObj[studyID]) {
                         tmpTraitObj = {}
                         for (sample in resultObj[studyID][trait]) {
-                            scoreAndSnps = calculateCombinedORandFormatSnps(resultObj[studyID][trait][sample], trait, studyID_og, associationData)
+                            scoreAndSnps = calculateCombinedORandFormatSnps(resultObj[studyID][trait][sample], trait, studyID_og, associationData, studySnps[studyID])
                             tmpSampleObj = {
                                 oddsRatio: scoreAndSnps[0],
                                 protectiveVariants: scoreAndSnps[2],
@@ -161,7 +163,7 @@
         }
     };
 
-    function calculateCombinedORandFormatSnps(sampleObj, trait, studyID, associationData) {
+    function calculateCombinedORandFormatSnps(sampleObj, trait, studyID, associationData, numSnps) {
         var combinedOR = 0;
         var protective = new Set()
         var risk = new Set()
@@ -186,6 +188,9 @@
         }
         else {
             combinedOR = Math.exp(combinedOR);
+	    if (sampleObj['snps'].length < numSnps) {
+	        combinedOR = String(combinedOR).concat('*')
+	    }
         }
 
         return [combinedOR, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
