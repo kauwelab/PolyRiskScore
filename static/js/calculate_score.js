@@ -605,7 +605,7 @@ function formatCSV(jsonObject, isCondensed) {
                     protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants']
                     riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants']
                     unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsWithUnmatchedAlleles']
-		    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsInHighLD']
+                    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsInHighLD']
                     lineResult = `${sample},${lineInfo.toString()},${oddsRatio},${protectiveSnps.join("|")},${riskSnps.join("|")},${unmatchedSnps.join("|")},${clumpedSnps.join("|")}`
                     resultsString = resultsString.concat("\n", lineResult)
                 }
