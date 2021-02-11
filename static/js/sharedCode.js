@@ -81,7 +81,7 @@
 				    }
 
                                     if (associationObj.pValue <= pValue) {
-				    	studySnps[studyID] = (studySnps[studyID] || 0) + 1
+				    	  studySnps[studyID] = (studySnps[studyID] || 0) + 1
                                         numAllelesMatch = 0
                                         for (i=0; i < alleles.length; i++) {
                                             allele = alleles[i]
@@ -188,9 +188,9 @@
         }
         else {
             combinedOR = Math.exp(combinedOR);
-	    if (sampleObj['snps'].length < numSnps) {
-	        combinedOR = String(combinedOR).concat('*')
-	    }
+	      if (sampleObj['snps'].length < numSnps) {
+	          combinedOR = String(combinedOR).concat('*')
+	      }
         }
 
         return [combinedOR, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
