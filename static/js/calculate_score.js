@@ -607,7 +607,7 @@ function formatCSV(jsonObject, isCondensed) {
 		    // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
                     unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsWithUnmatchedAlleles']
 		    // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
-		    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsInHighLD']
+                    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsInHighLD']
                     lineResult = `${sample},${lineInfo.toString()},${oddsRatio},${protectiveSnps.join("|")},${riskSnps.join("|")},${unmatchedSnps.join("|")},${clumpedSnps.join("|")}`
                     resultsString = resultsString.concat("\n", lineResult)
                 }

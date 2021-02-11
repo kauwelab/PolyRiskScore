@@ -44,7 +44,7 @@
                                 resultObj[studyID][trait][individualName] = {
                                     snps: {},
                                     variantsWithUnmatchedAlleles: [],
-				    variantsInHighLD: []
+                                    variantsInHighLD: []
                                 }
                             }
                             if (!((trait, studyID, individualName) in indexSnpObj)) {
@@ -137,7 +137,7 @@
                                 protectiveVariants: scoreAndSnps[2],
                                 riskVariants: scoreAndSnps[1],
                                 unmatchedVariants: scoreAndSnps[3],
-				clumpedVariants: scoreAndSnps[4]
+                                clumpedVariants: scoreAndSnps[4]
                             }
                             tmpTraitObj[this.trim(sample)] = tmpSampleObj
                         }
@@ -161,7 +161,7 @@
         var protective = new Set()
         var risk = new Set()
         var unmatched = new Set(sampleObj.variantsWithUnmatchedAlleles)
-	var clumped = new Set(sampleObj.variantsInHighLD)
+        var clumped = new Set(sampleObj.variantsInHighLD)
 
         //calculate the odds ratio and determine which alleles are protective, risk, and neutral
         for (snp in sampleObj['snps']) {
