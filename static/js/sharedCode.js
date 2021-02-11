@@ -12,7 +12,7 @@
         var resultObj = {};
         var indexSnpObj = {};
         var resultJsons = {};
-	    var studySnps = {};
+	  var studySnps = {};
 
         if (greppedSamples == undefined) {
             throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
