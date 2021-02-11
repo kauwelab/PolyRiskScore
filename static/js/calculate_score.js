@@ -568,7 +568,7 @@ function formatTSV(jsonObject, isCondensed) {
         headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
     }
     else {
-        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
     }
 
     resultsString = ''
@@ -603,9 +603,12 @@ function formatTSV(jsonObject, isCondensed) {
                 else {
                     protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants']
                     riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants']
-                    neutralSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['neutralVariants']
-                    lineResult = `${sample}\t${lineInfo.join("\n")}\t${oddsRatio}\t${protectiveSnps.join("|")}\t${riskSnps.join("|")}\t${neutralSnps.join("|")}`
-                    resultsString = resultsString + "\n" + lineResult
+		    // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
+                    unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsWithUnmatchedAlleles']
+		    // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
+                    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsInHighLD']
+                    lineResult = `${sample},${lineInfo.toString()},${oddsRatio},${protectiveSnps.join("|")},${riskSnps.join("|")},${unmatchedSnps.join("|")},${clumpedSnps.join("|")}`
+                    resultsString = resultsString.concat("\n", lineResult)
                 }
             }
             if (isCondensed) {
