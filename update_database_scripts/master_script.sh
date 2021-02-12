@@ -105,7 +105,7 @@ else
 #==============Perform Strand Flipping=================================================================
 
     echo "Performing strand flipping on the associations"
-    python3 strandFlipping.py 
+    python3 strandFlipping.py $associationTableFolderPath
     wait 
     echo "Finished the strand flipping"
 

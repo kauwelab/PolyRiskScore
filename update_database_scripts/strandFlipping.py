@@ -46,7 +46,7 @@ def main():
     associationTableFolderPath = "../tables/associations_table.tsv"
 
     if len(argv) == 2:
-        associationTableFolderPath = argv[1]
+        associationTableFolderPath = "{}/associations_table.tsv".format(argv[1])
 
     mv = myvariant.MyVariantInfo()
 
