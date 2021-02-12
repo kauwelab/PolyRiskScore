@@ -42,7 +42,7 @@ version="1.5.0"
 #       -k studyType
 #       -i studyIDs
 #       -e ethnicity
-#       -v True/False verbose output file
+#       -v verbose output file
 #       -s stepNumber
 #
 # * 12/9/2020 - v1.3.0
@@ -96,7 +96,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
+    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
@@ -236,7 +236,7 @@ learnAboutParameters () {
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             10 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
-                echo -e "For a more detailed TSV result file, include the ${GREEN}-v True${NC} parameter."
+                echo -e "For a more detailed TSV result file, include the ${GREEN}-v${NC} parameter."
                 echo "The verbose output file will include the following for each corresponding sample, study, and trait combination: "
                 echo ""
                 echo "    - reported trait"
@@ -359,7 +359,7 @@ calculatePRS () {
         pyVer="python3"
     fi
 
-    while getopts 'f:o:c:r:p:t:k:i:e:v:s:g:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -455,14 +455,8 @@ calculatePRS () {
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
-            v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $verbose == "true" ]; then
-                    isCondensedFormat=0
-                elif [ $verbose != "false" ]; then
-                    echo "Invalid argument for -v. Use either true or false"
-                    echo -e "${LIGHTRED}Quitting...${NC}"
-                    exit 1
-                fi;;
+            v)  isCondensedFormat=0
+                ;;
             g)  if ! [ -z "$defaultSex" ]; then
                     echo "Too many default sexes requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
