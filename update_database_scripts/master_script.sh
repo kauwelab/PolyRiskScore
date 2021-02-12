@@ -102,6 +102,13 @@ else
     rm "./rawGWASPublications.tsv"
     rm "./rawGWASAncestries.tsv"
 
+#==============Perform Strand Flipping=================================================================
+
+    echo "Performing strand flipping on the associations"
+    python3 strandFlipping.py 
+    wait 
+    echo "Finished the strand flipping"
+
 #===============Upload Tables to PRSKB Database========================================================
     # if updatedStudies is empty or none, dont' upload, otherwise upload new tables
     echo "Uploading tables to the PRSKB database."

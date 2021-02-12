@@ -171,50 +171,6 @@ function getSelectStudyAssociations(studyList, refGen, sex) {
     }));
 }
 
-function getStrandFlippingInfo(associationData) {
-
-    rsIDs = Object.keys(associationData['associations'])
-    return Promise.resolve($.ajax({
-        type: "POST",
-        url: "/strand_flipping_results",
-        data: { snps: rsIDs },
-        success: async function (data) {
-            return data;
-        },
-        error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
-        }
-    }));
-}
-
-function performStrandFlipping(associationsData, flippingData) {
-    complementMap = {
-        "G": "C",
-        "C": "G",
-        "A": "T",
-        "T": "A"
-    }
-    // console.log(data)
-    for (rsID in flippingData) {
-        if (rsID in associationData['associations']) {
-            for (trait in associationData['associations'][rsID]['traits']) {
-                for (studyID in associationData['associations'][rsID]['traits'][trait]) {
-                    if (!flippingData[rsID].includes(associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele'])){
-                        complement = complementMap[associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele']]
-                        if (flippingData[rsID].includes(complement)) {
-                            associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele'] = complement
-                            associationData['associations'][rsID]['traits'][trait][studyID]['wasFlipped'] = true
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return associationsData
-}
-
 //called in calculatePolyscore below
 //gets the clumping information using the positions from the associations object
 function getClumpsFromPositions(associationsObj, refGen, superPop) {
@@ -296,10 +252,6 @@ var calculatePolyScore = async () => {
 
     //send a get request to the server with the specified traits and studies
     associationData = await getSelectStudyAssociations(studyList, refGen, sex);
-
-    // get info for strand flipping and check associations for if they need to be flipped
-    flippingData = await getStrandFlippingInfo(associationData)
-    associationData = performStrandFlipping(associationData, flippingData)
 
     clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
 
