@@ -42,7 +42,7 @@ version="1.5.0"
 #       -k studyType
 #       -i studyIDs
 #       -e ethnicity
-#       -v True/False verbose output file
+#       -v verbose output file
 #       -s stepNumber
 #
 # * 12/9/2020 - v1.3.0
@@ -96,7 +96,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
+    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo ""
@@ -176,8 +176,7 @@ learnAboutParameters () {
                 echo "The path to the VCF file that contains the samples for which you would like " 
                 echo "the polygenic risk scores calculated. Alternativly, the path to a TXT file that"
                 echo "contains rsIDs in the format of 1 rsID per line, with the genotypes following"
-                echo "on the same line. (ex. rs6656401:AA or rs6656401:A) In this format, we will"
-                echo "assume that any missing alleles are the risk allele."
+                echo "on the same line. (ex. rs6656401:AA or rs6656401:A)"
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR}-o Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
@@ -191,7 +190,7 @@ learnAboutParameters () {
                 echo "" ;;
             4 ) echo -e "${MYSTERYCOLOR}-r RefGen (Reference Genome): ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
-		        echo "in the input VCF file."
+                echo -e "in the input VCF file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
                 echo "" ;;
             5 ) echo -e "${MYSTERYCOLOR}-p Subject Super Population: ${NC}"
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
@@ -206,7 +205,7 @@ learnAboutParameters () {
                 echo "" ;;
             6 ) echo -e "${MYSTERYCOLOR} -t traitsList: ${NC}"
                 echo "This parameter allows you to pick specifically which traits "
-                echo "you would like to use to calculate PRS scores. You can see available "
+                echo "you would like to use to calculate PRS scores. You can search available "
                 echo "traits by choosing the search option in the Options Menu " 
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
@@ -219,7 +218,7 @@ learnAboutParameters () {
                 echo -e "   ${GREEN}HI (High Impact)${NC} - determined by study scores pulled from Almetric. Only " 
                 echo "   the studies with the highest impact are chosen with this option. "
                 echo -e "   ${GREEN}LC (Largest Cohort)${NC} - determined by study cohort size. Only the" 
-                echo "   studies with the highest impact are chosen with this option." 
+                echo "   studies with the largest cohort are chosen with this option." 
                 echo -e "   ${GREEN}O (Other)${NC} - studies are those that do not fall under Highest Impact or" 
                 echo "   Largest Cohort. " 
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
@@ -237,22 +236,29 @@ learnAboutParameters () {
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             10 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
-                echo "For a more detailed TSV result file, include the '-v True' parameter."
-                echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
-                echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
-                echo "effect on the PRS for each corresponding sample and study."
+                echo -e "For a more detailed TSV result file, include the ${GREEN}-v${NC} parameter."
+                echo "The verbose output file will include the following for each corresponding sample, study, and trait combination: "
+                echo ""
+                echo "    - reported trait"
+                echo "    - trait"
+                echo "    - polygenic risk score"
+                echo "    - protective variants"
+                echo "    - risk variants"
+                echo "    - variants that are present but do not include the risk allele"
+                echo "    - variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations"
+                echo ""
                 echo "If the output file is in TSV format and this parameter is not included, the default TSV result"
                 echo "file will include the study ID and the corresponding polygenic risk scores for each sample." 
-		        echo "If the output file is in JSON format, the results will, by default, be in verbose format."
-		        echo "There is no condensed version of JSON output."
+                echo "If the output file is in JSON format, the results will, by default, be in verbose format."
+                echo -e "${LIGHTRED}**NOTE:${NC} There is no condensed version of JSON output."
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} -g defaultSex: ${NC}"
-                echo "Some studies have duplicates of the same snp that differ by which biological sex the"
-                echo "p-value is associated with. You can indicate which sex you would like snps to select"
-                echo "when both options (M/F) are present. The system default is Female"
+                echo "Though a rare occurence, some studies have duplicates of the same snp that differ by which"
+                echo "biological sex the p-value is associated with. You can indicate which sex you would like snps"
+                echo "to select when both options (M/F) are present. The system default is Female."
                 echo "" ;;
             12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
-                echo "Either a 1 or a 2."
+                echo -e "Either ${GREEN}-s 1${NC} or ${GREEN}-s 2${NC}"
                 echo "This parameter allows you to split up the running of the tool into two steps."
                 echo "The advantage of this is that the first step, which requires internet, can be"
                 echo "run separately from step 2, which does not require an internet connection."
@@ -353,7 +359,7 @@ calculatePRS () {
         pyVer="python3"
     fi
 
-    while getopts 'f:o:c:r:p:t:k:i:e:v:s:g:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -449,14 +455,8 @@ calculatePRS () {
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
-            v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $verbose == "true" ]; then
-                    isCondensedFormat=0
-                elif [ $verbose != "false" ]; then
-                    echo "Invalid argument for -v. Use either true or false"
-                    echo -e "${LIGHTRED}Quitting...${NC}"
-                    exit 1
-                fi;;
+            v)  isCondensedFormat=0
+                ;;
             g)  if ! [ -z "$defaultSex" ]; then
                     echo "Too many default sexes requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"

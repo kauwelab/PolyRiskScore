@@ -35,31 +35,21 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
         if (dnldNewAllAssociFile):
             associationsReturnObj = getAllAssociations(refGen, defaultSex)
-            strandFlip = True
             downloadClumpsFile = True
         else:
             # TODO: on a later branch, create an endpoint to check the date of the clumps file with the date of the clumps files on the database
             downloadClumpsFile = True
-            strandFlip = False
             # if os.path.exists(os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))):
             #     # check the date on the file/ server file? 
             #     return
             # else:
             #     downloadClumpsFile = True
-            #     strandFlip = False
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
         associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex)
-        strandFlip = True
         downloadClumpsFile = False
-
-    # flip strands as needed
-    if strandFlip:
-        print("Starting strand flipping on additional process")
-        p = Process(target=handleStrandFlippingAndSave, args=(associationsReturnObj, associationsPath))
-        p.start()
 
     if downloadClumpsFile:
         clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
@@ -78,8 +68,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     f.write(json.dumps(clumpsData))
     f.close()
 
-    if strandFlip:
-        p.join()
     return
 
 
@@ -241,76 +229,6 @@ def getClumps(refGen, superPop, snpsFromAssociations):
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
 
     return clumps
-
-
-def handleStrandFlippingAndSave(associationReturnObj, filePath):
-    import myvariant
-    import contextlib, io
-
-    # print("Performing strand flipping where needed. Please be patient as we download the needed data")
-
-    # preventing print statements from being outputted to terminal
-    f = io.StringIO()
-    with contextlib.redirect_stdout(f):
-        rsIDs = (x for x in associationReturnObj['associations'].keys() if "rs" in x)
-        # returns info about the rsIDs passed
-        mv = myvariant.MyVariantInfo()
-        queryResultsObj = mv.querymany(rsIDs, scopes='dbsnp.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
-    output = f.getvalue()
-
-    # print("Data downloaded")
-
-    rsIDToAlleles = []
-
-    for obj in queryResultsObj['out']:
-        rsID = obj['query']
-        if (rsID not in rsIDToAlleles and 'dbsnp' in obj):
-            # creating a set of possible alleles for the snp to check our riskAlleles against
-            alleles = set()
-            if ('alleles' in obj['dbsnp']):
-                for alleleObj in obj['dbsnp']['alleles']:
-                    alleles.add(alleleObj['allele'])
-            if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
-                alleles.add(obj['dbsnp']['ref'])
-            if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
-                alleles.add(obj['dbsnp']['alt'])
-            if (len(alleles) == 0):
-                print(obj, "STILL NO ALLELES")
-            
-            if (rsID in associationReturnObj['associations']):
-                for trait in associationReturnObj['associations'][rsID]['traits']:
-                    for studyID in associationReturnObj['associations'][rsID]['traits'][trait]:
-                        riskAllele = associationReturnObj['associations'][rsID]['traits'][trait][studyID]['riskAllele']
-                        # if the current risk allele seems like it isn't correct and the length of the risk allele is only one base, try its complement
-                        if riskAllele not in alleles and len(riskAllele) == 1:
-                            complement = getComplement(riskAllele)
-                            if complement in alleles:
-                                associationReturnObj['associations'][rsID]['traits'][trait][studyID]['riskAllele'] = complement
-
-            rsIDToAlleles.append(rsID)
-
-            #TODO: what to do if we have merged rsIDs? 
-            # we could add the rsID of what the old one merged into
-            # queryResultsObj = mv.querymany(queryResultsObj['missing'], scopes='dbsnp.dbsnp_merges.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
-
-            #loop through the ones we couldn't find
-            #see if we can get them from a dbsnp.dbsnp_merges.rsid
-
-    # write the associations to a file
-    f = open(filePath, 'w', encoding="utf-8")
-    f.write(json.dumps(associationReturnObj))
-    f.close()
-    return 
-
-
-def getComplement(allele):
-    complements = {
-        'G': 'C',
-        'C': 'G',
-        'A': 'T',
-        'T': 'A'
-    }
-    return(complements[allele])
 
 
 def checkInternetConnection():
