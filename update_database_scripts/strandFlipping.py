@@ -1,10 +1,16 @@
 import myvariant
 import contextlib, io
-
 import os
 from os import listdir
 from os.path import isfile, join
 from sys import argv
+
+# This script performs strand flipping on the associations_table.tsv. For each line in the associations file, the script grabs information about
+# viable alleles for the variant. The riskAllele is checked against this list to see if the riskAllele needs to be flipped to its complement
+#
+# How to run: python3 strandFlipping.py "associationTableFolderPath"
+# where: "associationTableFolderPath" is the path to the associations_table.tsv (default: "../tables")
+
 
 def getVariantAlleles(rsID, mv):
     f=io.StringIO()
@@ -49,7 +55,6 @@ def main():
         associationTableFolderPath = "{}/associations_table.tsv".format(argv[1])
 
     mv = myvariant.MyVariantInfo()
-
     associFile = open(associationTableFolderPath, 'r')
     content = associFile.readlines()
 
@@ -57,24 +62,19 @@ def main():
         line = content[i].split('\t')
         rsID = line[1]
         possibleAlleles = getVariantAlleles(rsID, mv)
-
         riskAllele = line[9]
         if riskAllele not in possibleAlleles and len(riskAllele) == 1:
             complement = getComplement(riskAllele)
             if complement in possibleAlleles:
                 line[9] = complement
                 print("WE MADE A SWITCH", rsID, riskAllele, complement)
-        
-        content[i] = '\t'.join(line)
 
+        content[i] = '\t'.join(line)
 
     associFile.close()
     associFile = open(associationTableFolderPath, 'w')
-
     associFile.write(''.join(content))
     associFile.close()
-
-
 
 
 if __name__ == "__main__":
