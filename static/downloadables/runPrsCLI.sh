@@ -443,7 +443,7 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                refgen=$OPTARG
+                refgen=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
                 if ! [[ "$refgen" =~ ^hg17$|^hg18$|^hg19$|^hg38$ ]]; then
                     echo -e "${LIGHTRED}$refgen ${NC}should be hg17, hg18, hg19, or hg38"
                     echo "Check the value and try again."
@@ -454,7 +454,7 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                superPop=$OPTARG
+                superPop=$(echo "$OPTARG" | tr '[:lower:]' '[:upper:]') #TODO -- make sure that we put it into all upper case
                 if ! [[ "$superPop" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
                     echo -e "${LIGHTRED}$superPop ${NC}should be AFR, AMR, EAS, EUR, or SAS."
                     echo "Check the value and try again."
