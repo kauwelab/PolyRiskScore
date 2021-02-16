@@ -330,7 +330,7 @@ jqError () {
     echo -e "${LIGHTRED}ERROR: CANNOT PRINT ${typeOfQuery}${NC}"
     echo "In order to use this functionality, you need to have jq downloaded."
     echo -e "You can install it using ${MYSTERYCOLOR}sudo apt-get install jq${NC} on Ubuntu/Debian or go to"
-    echo -e "${MYSTERYCOLOR}https://stedolan.github.io/jq/download/ ${NC}to find how to download and install it"
+    echo -e "${MYSTERYCOLOR}https://stedolan.github.io/jq/download/ ${NC}to download and install it"
     echo -e "for other OS."
     echo -e ""
 }
