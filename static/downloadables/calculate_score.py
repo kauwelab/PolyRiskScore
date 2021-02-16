@@ -882,6 +882,7 @@ def getPRSFromArray(oddsRatios):
         combinedOR = "NF"
     return(str(combinedOR))
 
+
 def formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants):
     protectiveVariants = "." if str(protectiveVariants) == "set()" else "|".join(protectiveVariants)
     riskVariants = "." if str(riskVariants) == "set()" else "|".join(riskVariants)
