@@ -454,7 +454,7 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                superPop=$(echo "$OPTARG" | tr '[:lower:]' '[:upper:]') #TODO -- make sure that we put it into all upper case
+                superPop=$(echo "$OPTARG" | tr '[:lower:]' '[:upper:]') 
                 if ! [[ "$superPop" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
                     echo -e "${LIGHTRED}$superPop ${NC}should be AFR, AMR, EAS, EUR, or SAS."
                     echo "Check the value and try again."
