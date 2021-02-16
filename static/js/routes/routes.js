@@ -53,6 +53,8 @@ module.exports = app => {
 
     app.get("/get_clumps_download_file", clumps.getClumpsDownloadFile)
 
+    app.get("/last_clumps_update", clumps.getLastClumpsUpdate);
+
     app.get("/cli_version", cli.version);
 
     app.get("/download_cli", cli.download);
