@@ -64,6 +64,11 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         # get clumps using the refGen and superpopulation
         clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
 
+    if (dnldNewAllAssociFile):
+        f = open(associationsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(associationsReturnObj))
+        f.close()
+
     f = open(clumpsPath, 'w', encoding="utf-8")
     f.write(json.dumps(clumpsData))
     f.close()
