@@ -294,22 +294,44 @@ searchTraitsAndStudies () {
                 fi
                 echo "" # might need to do something to combine results with the same studyID?
                 echo -e "${LIGHTPURPLE}First Author and Year | GWAS Catalog Study ID | Reported Trait | Trait | Title${NC}"
-		        curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .title + "\n"';;
+                if curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .title + "\n"'; then
+                    echo ""
+                else 
+                    jqError "STUDIES"
+                fi;;
         [tT]* ) read -p "Enter the search term you wish to use: " searchTerm 
                 if [[ "$searchTerm" = *"'"* ]]; then
-                    echo "in if"
                     searchTerm=${searchTerm//${sub}/${backslash}${sub}}
                 fi
                 echo -e "${LIGHTPURPLE}"
-                curl -s https://prs.byu.edu/find_traits/${searchTerm} | jq -r '.[]'
-                echo -e "${NC}";;
+                if curl -s https://prs.byu.edu/find_traits/${searchTerm} | jq -r '.[]'; then
+                    echo -e "${NC}"
+                else
+                    echo -e "${NC}"
+                    jqError "TRAITS"
+                fi;;
         * ) echo -e "Invalid option." ;;
     esac
 }
 
 printEthnicities () {
-    echo -e " ${LIGHTPURPLE}PRINTING AVAILABLE ETHNICITES TO FILTER BY:${NC}"
-    curl -s https://prs.byu.edu/ethnicities | jq -r '.[]'
+    echo ""
+    echo -e "${LIGHTPURPLE}PRINTING AVAILABLE ETHNICITES TO FILTER BY:${NC}"
+    if curl -s https://prs.byu.edu/ethnicities | jq -r '.[]'; then
+        echo -e ""
+    else
+        jqError "ETHNICITIES"
+    fi
+}
+
+jqError () {
+    typeOfQuery=$1
+    echo -e ""
+    echo -e "${LIGHTRED}ERROR: CANNOT PRINT ${typeOfQuery}${NC}"
+    echo "In order to use this functionality, you need to have jq downloaded."
+    echo -e "You can install it using ${MYSTERYCOLOR}sudo apt-get install jq${NC} on Ubuntu/Debian or go to"
+    echo -e "${MYSTERYCOLOR}https://stedolan.github.io/jq/download/ ${NC}to download and install it"
+    echo -e "for other OS."
     echo -e ""
 }
 
