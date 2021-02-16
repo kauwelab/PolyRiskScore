@@ -442,7 +442,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
             if 'GT' in string_format: #TODO might not need this line anymore
                 rsID = record.ID
                 chromPos = str(record.CHROM) + ":" + str(record.POS)
-                if (chromPos in tableObjDict['associations'] and rsID is None or rsID not in tableObjDict['associations']):
+                if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
                     rsID = tableObjDict['associations'][chromPos]
                 ALT = record.ALT
                 REF = record.REF 
@@ -643,7 +643,8 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
             if not isCondensedFormat and not isJson:
                 prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
                 header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-                newLine = [printStudyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
+                protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
+                newLine = [printStudyID, citation, reportedTrait, trait, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                 formatTSV(isFirst, newLine, header, outputFile)
                 isFirst = False
                 
@@ -738,7 +739,8 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
 
                 if not isCondensedFormat and not isJson:
                     prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
-                    newLine = [samp, studyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
+                    protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
+                    newLine = [samp, studyID, citation, reportedTrait, trait, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                     formatTSV(isFirst, newLine, header, outputFile)
                     isFirst = False
 
@@ -879,6 +881,15 @@ def getPRSFromArray(oddsRatios):
     if not oddsRatios:
         combinedOR = "NF"
     return(str(combinedOR))
+
+
+def formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants):
+    protectiveVariants = "." if str(protectiveVariants) == "set()" else "|".join(protectiveVariants)
+    riskVariants = "." if str(riskVariants) == "set()" else "|".join(riskVariants)
+    unmatchedAlleleVariants = "." if str(unmatchedAlleleVariants) == "set()" else "|".join(unmatchedAlleleVariants)
+    clumpedVariants = "." if str(clumpedVariants) == "set()" else "|".join(clumpedVariants)
+
+    return protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants
 
 
 def formatTSV(isFirst, newLine, header, outputFile):
