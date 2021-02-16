@@ -37,6 +37,14 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             associationsReturnObj = getAllAssociations(refGen, defaultSex)
             downloadClumpsFile = True
         else:
+            val = input("Do you wish to overwrite the temporary files (allAssociations_{refGen}_{sex}.txt and {p}_clumps_{r}.txt)? [y/n]".format(refGen=refGen, sex=defaultSex[0], p=superPop, r=refGen)) 
+            if val.lower() != 'y':
+                print("\nTemp files will NOT be overwritten\n")
+                dnldNewAllAssociFile=False
+            else:
+                dnldNewAllAssociFile = True
+                associationsReturnObj = getAllAssociations(refGen, defaultSex)
+
             # TODO: on a later branch, create an endpoint to check the date of the clumps file with the date of the clumps files on the database
             downloadClumpsFile = True
             # if os.path.exists(os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))):

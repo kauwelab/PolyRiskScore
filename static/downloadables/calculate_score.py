@@ -404,7 +404,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
             if 'GT' in string_format: #TODO might not need this line anymore
                 rsID = record.ID
                 chromPos = str(record.CHROM) + ":" + str(record.POS)
-                if (chromPos in tableObjDict['associations'] and rsID is None or rsID not in tableObjDict['associations']):
+                if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
                     rsID = tableObjDict['associations'][chromPos]
                 ALT = record.ALT
                 REF = record.REF 
