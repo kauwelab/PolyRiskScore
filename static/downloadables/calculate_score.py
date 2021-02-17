@@ -807,8 +807,8 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                         condensed_output_map[(studyID, trait)] = newLine
                         samp_set[samp] = None
                     else:
-                        #TODO @MADDY, what should I do here?
-                        raise SystemExit('YOU STILL CANNOT ACCESS STUDYID', studyID)
+                        #TODO have this report directly to the PRSKB server
+                        raise SystemExit('ERROR: A study ID was inaccessable. Please report this to the PRSKB team along with the command you used to run the program.', studyID)
 
                     if (studyID, trait) in count_map:
                         samp_count = count_map[(studyID, trait)]
@@ -829,8 +829,8 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                         condensed_output_map[(studyID, trait)] = newLine
                         count_map[(studyID, trait)] = samp_count
             else:
-                #TODO @MADDY, what should I do here?
-                raise SystemExit("WE ARE MISSING A STUDYID IN THE STUDYIDSTOMETADATA", studyID, trait)
+                #TODO have this report directly to the PRSKB server
+                raise SystemExit("ERROR: A study ID was missing from the our metadata. Please report this to the PRSKB team along with the command you used to run the program.", studyID, trait)
 
     return
 
