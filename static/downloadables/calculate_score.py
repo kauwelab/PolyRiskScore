@@ -30,11 +30,11 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     isRSids = True if extension.lower().endswith(".txt") or inputFile.lower().endswith(".txt") else False
 
     if isRSids:
-        txtObj, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
-        txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies)
+        txtObj, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies, errorFileContent = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
+        txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies, errorFileContent)
     else:
-        vcfObj, neutral_snps_map, clumped_snps_map, samp_num, studySnps, isNoStudies = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
-        vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies)
+        vcfObj, neutral_snps_map, clumped_snps_map, samp_num, studySnps, isNoStudies, errorFileContent = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
+        vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies, errorFileContent)
     return
 
 
@@ -158,9 +158,11 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                                 neutral_snps_map[trait_study] = unmatchedAlleleVariants
                                 clumped_snps_map[trait_study] = clumpedVariants
 
+    # contains the trait/study combos that don't have any matching snps in the input file
+    errorFileContent = {}
 
     if isNoStudies:
-        return None, None, None, None, isNoStudies
+        return None, None, None, None, isNoStudies, errorFileContent
 
     studySnps = {}
     for snp in tableObjDict['associations'].keys():
@@ -185,16 +187,21 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                                 snpSet = set()
                             snpSet.add(snp)
                             studySnps[studyID]=snpSet
-                        if (trait, studyID) not in neutral_snps_map:
-                            neutral_snps_map[(trait, studyID)] = set()
-                        if (trait, studyID) not in clumped_snps_map:
-                            clumped_snps_map[(trait, studyID)] = set()
-                        if (trait,studyID) not in counter_set:
-                            sample_map[(trait,studyID)][""] = ""
-
+                        # check if we don't have any info with the trait/study combination
+                        if (trait, studyID) not in neutral_snps_map and (trait, studyID) not in clumped_snps_map and (trait, studyID) not in counter_set:
+                            if (trait, studyID) not in errorFileContent or errorFileContent[(trait, studyID)] != False:
+                                errorFileContent[(trait, studyID)] = True
+                        else:
+                            errorFileContent[(trait, studyID)] = False
+                            if (trait, studyID) not in neutral_snps_map:
+                                neutral_snps_map[(trait, studyID)] = set()
+                            if (trait, studyID) not in clumped_snps_map:
+                                clumped_snps_map[(trait, studyID)] = set()
+                            if (trait, studyID) not in counter_set:
+                                sample_map[(trait, studyID)][""] = ""
 
     final_map = dict(sample_map)
-    return final_map, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies
+    return final_map, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies, errorFileContent
 
 
 # determines if we should use this association based on the filters given
@@ -228,6 +235,7 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, tra
         useStudyType = True
     # we either want to use this study because of the studyID or because filtering trait, ethnicity, and studyTypes give us this study
     return useStudyID or (useEthnicity and useStudyType)
+
 
 # returns an open file (for txt files) or a vcf.Reader (for vcf files)
 # if the file is zipped (zip, tar, tgz, gz, etc), reads the file without unzipping it
@@ -495,11 +503,14 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                                         clumped_snps_map[trait_study_sample] = clumpedVariants
                                         neutral_snps_map[trait_study_sample] = unmatchedAlleleVariants
 
+        # contains the trait/study combos that don't have any matching snps in the input file
+        errorFileContent = {}
+
         if isNoStudies:
             samples = []
             for name in vcf_reader.samples:
                 samples.append(name)
-            return samples, None, None, None, None, isNoStudies
+            return samples, None, None, None, None, isNoStudies, errorFileContent
 
         # Check to see which study/sample combos didn't have any viable snps
         # and create blank entries for the sample map for those that didn't
@@ -527,20 +538,26 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                                         snpSet = set()
                                     snpSet.add(key)
                                     studySnps[study]=snpSet
-                                if (trait, study, name) not in neutral_snps_map:
-                                    neutral_snps_map[(trait, study, name)] = set()
-                                if (trait, study, name) not in clumped_snps_map:
-                                    clumped_snps_map[(trait, study, name)] = set()
-                                if (trait,study,name) not in counter_set:
-                                    sample_map[(trait,study,name)][""] = ""
+                                # check if we don't have any info with the trait/study/samp combination
+                                if (trait, study, name) not in neutral_snps_map and (trait, study, name) not in clumped_snps_map and (trait,study,name) not in counter_set:
+                                    if (trait,study) not in errorFileContent or errorFileContent[(trait, study)] != False:
+                                        errorFileContent[(trait, study)] = True
+                                else:
+                                    errorFileContent[(trait, study)] = False
+                                    if (trait, study, name) not in neutral_snps_map:
+                                        neutral_snps_map[(trait, study, name)] = set()
+                                    if (trait, study, name) not in clumped_snps_map:
+                                        clumped_snps_map[(trait, study, name)] = set()
+                                    if (trait,study,name) not in counter_set:
+                                        sample_map[(trait,study,name)][""] = ""
     except ValueError:
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     final_map = dict(sample_map)
-    return final_map, neutral_snps_map, clumped_snps_map, sample_num, studySnps, isNoStudies
+    return final_map, neutral_snps_map, clumped_snps_map, sample_num, studySnps, isNoStudies, errorFileContent
 
 
-def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies):
+def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies, errorFileContent):
     # Loop through every disease/study in the txt nested dictionary
     isFirst = True
     if isNoStudies:
@@ -552,7 +569,14 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
         formatTSV(isFirst, message, header, outputFile)
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
-        for (trait, studyID) in txtObj:
+        # TODO: should we print this here or wait till later?
+        printErrorFile(errorFileContent, outputFile)
+
+        trait_study_keys = list(txtObj.keys())
+        trait_study_keys.sort()
+
+        for i in range(len(trait_study_keys)):
+            trait, studyID = trait_study_keys[i]
             oddsRatios = [] # holds the oddsRatios used for calculation
             sampSnps = set() # keep track of the viable snps each sample has
             # study info
@@ -625,7 +649,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                 isFirst = False
 
 
-def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies):
+def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies, errorFileContent):
     if isNoStudies:
         message=[]
         if isCondensedFormat:
@@ -637,14 +661,22 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
         formatTSV(True, message, header, outputFile)
         raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
     else:
+        # TODO: should we print this here or wait till later?
+        printErrorFile(errorFileContent, outputFile)
+
         study_results_map = {}
         sample_results_map = {}
         condensed_output_map = {}
         count_map = {}
         samp_set = {}
-        # For every sample in the vcf nested dictionary
+
         isFirst = True
-        for (trait, studyID, samp) in vcfObj:
+        trait_study_sample_keys = list(vcfObj.keys())
+        trait_study_sample_keys.sort()
+
+        # For every sample in the vcf nested dictionary
+        for i in range(len(trait_study_sample_keys)):
+            trait, studyID, samp = trait_study_sample_keys[i]
             if studyID in tableObjDict['studyIDsToMetaData'].keys():
                 oddsRatios = [] # For storing the oddsRatios used in calculation
                 sampSnps = set() # To keep track of the viable snps for each sample
@@ -806,6 +838,27 @@ def createMarks(oddsRatios, studyID, studySnps, sampSnps, mark):
     if mark is True:
         studyID = studyID + '†'
     return prs, studyID
+
+
+# prints the study/trait combos that don't have matching snps to one in the input file
+def printErrorFile(errorFileContent, outputFile):
+    fileBasename = os.path.basename(outputFile)
+    fileDirname = os.path.dirname(outputFile)
+    fileName, ext = os.path.splitext(fileBasename)
+    fileBasename = fileName + "_studiesNotIncluded.txt"
+    completeOutputFileName = os.path.join(fileDirname, fileBasename)
+
+    openFile = open(completeOutputFileName, "w")
+    openFile.write("Trait/Study combinations with no matching snps in the input file:\n")
+    keys = list(errorFileContent.keys())
+    keys.sort()
+
+    for i in range(len(keys)):
+        if errorFileContent[keys[i]] == True:
+            openFile.write(str(keys[i]))
+            openFile.write("\n")
+    
+    openFile.close()
 
 
 def getPRSFromArray(oddsRatios):
