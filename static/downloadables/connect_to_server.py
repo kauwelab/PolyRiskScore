@@ -53,11 +53,13 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         # get clumps using the refGen and superpopulation
         clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
 
+    # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
         f = open(associationsPath, 'w', encoding="utf-8")
         f.write(json.dumps(associationsReturnObj))
         f.close()
 
+    # check to see if clumpsData is instantiated in the local variables
     if 'clumpsData' in locals():
         f = open(clumpsPath, 'w', encoding="utf-8")
         f.write(json.dumps(clumpsData))
@@ -108,18 +110,19 @@ def checkForAllClumps(pop, refGen):
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
 
-    response = requests.get(url="https://prs.byu.edu/last_clumps_update")
-    response.close()
-    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
-    lastClumpsUpdate = response.text
-    lastClumpsUpdate = lastClumpsUpdate.split('-')
-    lastClumpsUpdate = datetime.date(int(lastClumpsUpdate[0]), int(lastClumpsUpdate[1]), int(lastClumpsUpdate[2]))
-
-    # path to a file containing all the clumps from the database
+     # path to a file containing all the clumps from the database
     allClumpsFile = os.path.join(workingFilesPath, "{0}_clumps_{1}.txt".format(pop, refGen))
 
     # if the path exists, check if we don't need to download a new one
     if os.path.exists(allClumpsFile):
+
+        response = requests.get(url="https://prs.byu.edu/last_clumps_update")
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
+        lastClumpsUpdate = response.text
+        lastClumpsUpdate = lastClumpsUpdate.split('-')
+        lastClumpsUpdate = datetime.date(int(lastClumpsUpdate[0]), int(lastClumpsUpdate[1]), int(lastClumpsUpdate[2]))
+
         fileModDateObj = time.localtime(os.path.getmtime(allClumpsFile))
         fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
         # if the file is newer than the database update, we don't need to download a new file
