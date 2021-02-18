@@ -24,7 +24,7 @@ To download the PRSKB CLI tool, head over to the `PRSKB website download page <h
 
 Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in our database (this needs to be worded better). 
 
-Note: You MUST have bash, python3, and the python package PyVCF downloaded.
+NOTE: You MUST have bash, python3, and the python package PyVCF downloaded.
 
 Required Parameters Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -173,6 +173,7 @@ The verbose output file will include the following for each corresponding sample
 If the output file is in TSV format and this parameter is not included, the default TSV result
 file will include the study ID and the corresponding polygenic risk scores for each sample.
 If the output file is in JSON format, the results will, by default, be in verbose format.
+
 NOTE: There is no condensed version of JSON output.
 
 .. code-block:: bash
