@@ -82,7 +82,12 @@ def checkForAllAssociFile(refGen, defaultSex):
     
     else:
         # get date the database was last updated
-        response = requests.get(url="https://prs.byu.edu/last_database_update")
+        params = {
+            "refGen": refGen,
+            "defaultSex": defaultSex[0]
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_database_update", params=params)
         response.close()
         assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
         lastDatabaseUpdate = response.text
@@ -115,8 +120,12 @@ def checkForAllClumps(pop, refGen):
 
     # if the path exists, check if we don't need to download a new one
     if os.path.exists(allClumpsFile):
+        params = {
+            "refGen": refGen,
+            "superPop": superPop
+        }
 
-        response = requests.get(url="https://prs.byu.edu/last_clumps_update")
+        response = requests.get(url="https://prs.byu.edu/last_clumps_update", params=params)
         response.close()
         assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
         lastClumpsUpdate = response.text
