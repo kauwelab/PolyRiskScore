@@ -39,16 +39,6 @@ def getVariantAlleles(rsID, mv):
     return alleles
 
 
-# def getComplement(allele):
-#     complements = {
-#         'G': 'C',
-#         'C': 'G',
-#         'A': 'T',
-#         'T': 'A'
-#     }
-#     return(complements[allele])
-
-
 def main():
     associationTableFolderPath = "../tables/associations_table.tsv"
 
