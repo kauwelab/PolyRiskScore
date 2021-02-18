@@ -10,10 +10,15 @@ import os.path
 
 basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
 
-if sys.argv[7] == '0':
+if sys.argv[3] == '.json':
+    isJson = True
     isCondensedFormat = False
 else:
-    isCondensedFormat = True
+    isJson = False
+    if sys.argv[7] == '0':
+        isCondensedFormat = False
+    else:
+        isCondensedFormat = True
 
 specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = sys.argv[8]))
 # get the paths for the associationsFile and clumpsFile
@@ -32,7 +37,7 @@ try:
 except FileNotFoundError: 
     raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}".format(associationsPath, clumpsPath))
 
-cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, sys.argv[6], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14])
+cs.calculateScore(sys.argv[1], sys.argv[2], sys.argv[3], tableObjList, clumpsObjList, sys.argv[4], isCondensedFormat, isJson, sys.argv[6], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14])
 
 #end = time.time()
 #print(end - start)

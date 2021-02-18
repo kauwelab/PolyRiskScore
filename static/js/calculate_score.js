@@ -171,50 +171,6 @@ function getSelectStudyAssociations(studyList, refGen, sex) {
     }));
 }
 
-function getStrandFlippingInfo(associationData) {
-
-    rsIDs = Object.keys(associationData['associations'])
-    return Promise.resolve($.ajax({
-        type: "POST",
-        url: "/strand_flipping_results",
-        data: { snps: rsIDs },
-        success: async function (data) {
-            return data;
-        },
-        error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
-        }
-    }));
-}
-
-function performStrandFlipping(associationsData, flippingData) {
-    complementMap = {
-        "G": "C",
-        "C": "G",
-        "A": "T",
-        "T": "A"
-    }
-    // console.log(data)
-    for (rsID in flippingData) {
-        if (rsID in associationData['associations']) {
-            for (trait in associationData['associations'][rsID]['traits']) {
-                for (studyID in associationData['associations'][rsID]['traits'][trait]) {
-                    if (!flippingData[rsID].includes(associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele'])){
-                        complement = complementMap[associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele']]
-                        if (flippingData[rsID].includes(complement)) {
-                            associationData['associations'][rsID]['traits'][trait][studyID]['riskAllele'] = complement
-                            associationData['associations'][rsID]['traits'][trait][studyID]['wasFlipped'] = true
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return associationsData
-}
-
 //called in calculatePolyscore below
 //gets the clumping information using the positions from the associations object
 function getClumpsFromPositions(associationsObj, refGen, superPop) {
@@ -296,10 +252,6 @@ var calculatePolyScore = async () => {
 
     //send a get request to the server with the specified traits and studies
     associationData = await getSelectStudyAssociations(studyList, refGen, sex);
-
-    // get info for strand flipping and check associations for if they need to be flipped
-    flippingData = await getStrandFlippingInfo(associationData)
-    associationData = performStrandFlipping(associationData, flippingData)
 
     clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
 
@@ -426,7 +378,6 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     }
 
     try {
-        console.log(greppedSNPs)
         var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
             result = JSON.parse(result)
@@ -560,7 +511,7 @@ function getSnpFromLine(line) {
     return match != null ? match[0] : null
 }
 
-function formatCSV(jsonObject, isCondensed) {
+function formatTSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
     //TODO: account for if the samples are not in the same order everytime
     sampleKeys = []
@@ -569,7 +520,7 @@ function formatCSV(jsonObject, isCondensed) {
         headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
     }
     else {
-        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Odds Ratio', 'Protective Variants', 'Risk Variants', 'Variants with Unknown Effect']
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
     }
 
     resultsString = ''
@@ -588,10 +539,10 @@ function formatCSV(jsonObject, isCondensed) {
                 first = false
                 sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
                 if (isCondensed) {
-                    resultsString = headerInit.toString().concat(sampleKeys.toString())
+                    resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
                 }
                 else {
-                    resultsString = headerInit.toString()
+                    resultsString = headerInit.join("\n")
                 }
             }
 
@@ -604,13 +555,16 @@ function formatCSV(jsonObject, isCondensed) {
                 else {
                     protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants']
                     riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants']
-                    neutralSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['neutralVariants']
-                    lineResult = `${sample},${lineInfo.toString()},${oddsRatio},${protectiveSnps.join("|")},${riskSnps.join("|")},${neutralSnps.join("|")}`
+		    // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
+                    unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsWithUnmatchedAlleles']
+		    // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
+                    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsInHighLD']
+                    lineResult = `${sample},${lineInfo.toString()},${oddsRatio},${protectiveSnps.join("|")},${riskSnps.join("|")},${unmatchedSnps.join("|")},${clumpedSnps.join("|")}`
                     resultsString = resultsString.concat("\n", lineResult)
                 }
             }
             if (isCondensed) {
-                resultsString = resultsString.concat("\n", lineInfo.toString())
+                resultsString = resultsString + "\n" + lineInfo.join("\n")
             }
         }
     }
@@ -651,8 +605,8 @@ function getResultOutput(jsonObject) {
         var fileFormatEle = document.getElementById('fileFormat');
         var isCondensed = fileFormatEle.options[fileFormatEle.selectedIndex].value == 'condensed' ? true : false
 
-        if (format === "csv")
-            outputVal += formatCSV(jsonObject, isCondensed);
+        if (format === "tsv")
+            outputVal += formatTSV(jsonObject, isCondensed);
         else if (format === "json")
             outputVal += JSON.stringify(jsonObject);
         else
@@ -671,8 +625,8 @@ function downloadResults() {
     //TODO better name?
     var fileName = "polyscore_" + getRandomInt(100000000);
     var extension = "";
-    if (format === "csv") {
-        extension = ".csv";
+    if (format === "tsv") {
+        extension = ".tsv";
     }
     else {
         extension = ".txt";

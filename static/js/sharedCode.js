@@ -33,17 +33,21 @@
                     // var studyObjs = new Map();
                     
                     for (studyID in associationData['studyIDsToMetaData']) {
+			if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
+				printStudyID = studyID.concat('†')
+			}
                         for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
-                            if (!(studyID in resultObj)) {
-                                resultObj[studyID] = {}
+                            if (!(printStudyID in resultObj)) {
+                                resultObj[printStudyID] = {}
                             }
-                            if (!(trait in resultObj[studyID])) {
-                                resultObj[studyID][trait] = {}
+                            if (!(trait in resultObj[printStudyID])) {
+                                resultObj[printStudyID][trait] = {}
                             }
-                            if (!(individualName in resultObj[studyID][trait])) {
-                                resultObj[studyID][trait][individualName] = {
+                            if (!(individualName in resultObj[printStudyID][trait])) {
+                                resultObj[printStudyID][trait][individualName] = {
                                     snps: {},
-                                    neutralSnps: []
+                                    variantsWithUnmatchedAlleles: [],
+                                    variantsInHighLD: []
                                 }
                             }
                             if (!((trait, studyID, individualName) in indexSnpObj)) {
@@ -71,6 +75,9 @@
                                 for (studyID in associationData['associations'][key]['traits'][trait]) {
                                     traitStudySamp = (trait, studyID, individualName)
                                     associationObj = associationData['associations'][key]['traits'][trait][studyID]
+				    if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
+				        printStudyID = studyID.concat('†')
+				    }
 
                                     if (associationObj.pValue <= pValue) {
                                         numAllelesMatch = 0
@@ -80,7 +87,7 @@
                                                 numAllelesMatch++;
                                             }
                                             else {
-                                                resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                                resultObj[printStudyID][trait][individualName]['variantsWithUnmatchedAlleles'].push(key)
                                             }
                                         }
                                         if (numAllelesMatch > 0) {
@@ -88,30 +95,26 @@
                                                 clumpNum = clumpsData[key]
                                                 if (clumpNum in indexSnpObj[traitStudySamp]) {
                                                     indexClumpSnp = indexSnpObj[traitStudySamp][clumpNum]
-                                                    indexPvalue = associationData['associations'][key]['traits'][trait][studyID]['pValue']
+                                                    indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID]['pValue']
                                                     if (associationObj.pValue < indexPvalue) {
-                                                        delete resultObj[studyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
-                                                        resultObj[studyID][trait][individualName]['neutralSnps'].push(indexClumpSnp)
+                                                        delete resultObj[printStudyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                        resultObj[printStudyID][trait][individualName]['variantsInHighLD'].push(indexClumpSnp)
                                                         resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
                                                         indexSnpObj[traitStudySamp][clumpNum] = key
                                                     }
                                                     else {
                                                         // add the current snp to neutral snps
-                                                        resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                                        resultObj[printStudyID][trait][individualName]['variantsInHighLD'].push(key)
                                                     }
                                                 }
                                                 else {
                                                     // add the clumpNum/key to the indexSnpObj
                                                     indexSnpObj[traitStudySamp][clumpNum] = key
-                                                    resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                                    resultObj[printStudyID][trait][individualName]['snps'][key] = numAllelesMatch
                                                 }
                                             } else {
                                                 // just add the snp to calculations
-                                                resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
-                                            }
-                                            // if only one of the alleles is a risk allele, add it to the neutralSnps
-                                            if (numAllelesMatch == 1) {
-                                                resultObj[studyID][trait][individualName]['neutralSnps'].push(key)
+                                                resultObj[printStudyID][trait][individualName]['snps'][key] = numAllelesMatch
                                             }
                                         }
                                     }
@@ -122,20 +125,24 @@
                 }
 
                 for (studyID in resultObj) {
+		    if ('†' in studyID) {
+		        studyID_og = studyID.slice(0, -1)
+		    }
                     tmpStudyObj = {
-                        citation: associationData['studyIDsToMetaData'][studyID]['citation'],
-                        reportedTrait: associationData['studyIDsToMetaData'][studyID]['reportedTrait'],
+                        citation: associationData['studyIDsToMetaData'][studyID_og]['citation'],
+                        reportedTrait: associationData['studyIDsToMetaData'][studyID_og]['reportedTrait'],
                         traits: {}
                     }
                     for (trait in resultObj[studyID]) {
                         tmpTraitObj = {}
                         for (sample in resultObj[studyID][trait]) {
-                            scoreAndSnps = calculateCombinedORandFormatSnps(resultObj[studyID][trait][sample], trait, studyID, associationData)
+                            scoreAndSnps = calculateCombinedORandFormatSnps(resultObj[studyID][trait][sample], trait, studyID_og, associationData)
                             tmpSampleObj = {
                                 oddsRatio: scoreAndSnps[0],
                                 protectiveVariants: scoreAndSnps[2],
                                 riskVariants: scoreAndSnps[1],
-                                neutralVariants: scoreAndSnps[3]
+                                unmatchedVariants: scoreAndSnps[3],
+                                clumpedVariants: scoreAndSnps[4]
                             }
                             tmpTraitObj[this.trim(sample)] = tmpSampleObj
                         }
@@ -158,7 +165,8 @@
         var combinedOR = 0;
         var protective = new Set()
         var risk = new Set()
-        var neutral = new Set(sampleObj.neutralSnps)
+        var unmatched = new Set(sampleObj.variantsWithUnmatchedAlleles)
+        var clumped = new Set(sampleObj.variantsInHighLD)
 
         //calculate the odds ratio and determine which alleles are protective, risk, and neutral
         for (snp in sampleObj['snps']) {
@@ -171,9 +179,6 @@
             else if (snpOR < 1) {
                 protective.add(snp)
             }
-            else {
-                neutral.add(snp)
-            }
         }
 
         if (combinedOR === 0) {
@@ -183,7 +188,7 @@
             combinedOR = Math.exp(combinedOR);
         }
 
-        return [combinedOR, Array.from(risk), Array.from(protective), Array.from(neutral)]
+        return [combinedOR, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
     }
 
     /**

@@ -106,7 +106,7 @@ function startTour() {
             {
                 element: "#fileType",
                 title: "Select output format (pt 1)",
-                content: "Choose between CSV, JSON, or Text output format."
+                content: "Choose between TSV, JSON, or Text output format."
             },
             {
                 element: "#fileFormat",

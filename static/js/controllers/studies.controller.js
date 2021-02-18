@@ -51,7 +51,7 @@ exports.getEthnicities = (req, res) => {
 }
 
 exports.findTraits = (req, res) => {
-    Study.findTrait(req.query.searchStr, (err, data) => {
+    Study.findTrait(req.params.searchStr, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -111,6 +111,7 @@ exports.getFiltered = (req, res) => {
                 res.status(204).send({
                     message: "No matching traits/studies were found"
                 });
+                return;
             }
 
             traitsList = {}
@@ -156,7 +157,7 @@ exports.getByID = (req, res) => {
 }
 
 exports.findStudies = (req, res) => {
-    Study.findStudy(req.query.searchStr, (err, data) => {
+    Study.findStudy(req.params.searchStr, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"

@@ -56,6 +56,9 @@ createStudyTable.R- This R script takes information from the association table T
     GWAS catalog to create a study_table.tsv file. The study table is a summary of all studies in the association table TSV and includes 
     additional information on each study, including the last time it was updated and the name of the study.
 
+strandFlipping.py- This Python script goes through each line of the associations_table.tsv and checks to see if the allele needs to be flipped to its complement. 
+    This uses the myvariant packages to grab viable alleles for the snp. This script can be run independently of the master_script.
+
 uploadTablesToDatabase.py- This Python script uploads the new association table and study table to the PRSKB database. This script can also be run by 
     itself, independently of the master_script.
 

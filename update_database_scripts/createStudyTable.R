@@ -251,8 +251,8 @@ if (is_ebi_reachable()) {
       }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
     }
     studyTable <- arrange(studyTable, trait, citation)
-    # write out the trait and study tables
-    write_tsv(studyTable, studyTablePath)
+    # write out the study table
+    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE)
   }
 } else {
   is_ebi_reachable(chatty = TRUE)
