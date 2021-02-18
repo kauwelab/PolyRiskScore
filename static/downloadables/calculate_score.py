@@ -30,11 +30,11 @@ def calculateScore(inputFile, pValue, outputType, tableObjDict, clumpsObjDict, r
     isRSids = True if extension.lower().endswith(".txt") or inputFile.lower().endswith(".txt") else False
 
     if isRSids:
-        txtObj, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies, errorFileContent = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
-        txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies, errorFileContent)
+        txtObj, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies, inputInFilters, errorFileContent = parse_txt(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
+        txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies, inputInFilters, errorFileContent)
     else:
-        vcfObj, neutral_snps_map, clumped_snps_map, samp_num, studySnps, isNoStudies, errorFileContent = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
-        vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies, errorFileContent)
+        vcfObj, neutral_snps_map, clumped_snps_map, samp_num, studySnps, isNoStudies, inputInFilters, errorFileContent = parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, pValue)
+        vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies, inputInFilters, errorFileContent)
     return
 
 
@@ -64,6 +64,12 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
     # Create a boolean to keep track of whether any studies pass the specified filters
     isNoStudies = True
 
+    # keeps track of if any valid data is found in the file
+    fileEmpty = True
+
+    # True if at least one snp from the input file is in the filtered associations
+    inputInFilters = False
+
     # Create a dictionary of studyIDs to neutral snps
     neutral_snps_map = {}
     clumped_snps_map = {}
@@ -72,18 +78,34 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
 
     # Iterate through each record in the file and save the SNP rs ID
     for line in Lines:
+        # remove all whitespace from line
+        line = "".join(line.split())
+
+        # initialize variables
+        snp = ""
+        alleles = []
+
         try:
-            if line != "":
+            # if the line isn't empty or commented out
+            if line != "" and not line.startswith("#") and not line.startswith("//"):
                 line = line.strip() #line should be in format of rsID:Genotype,Genotype
                 snp, alleles = line.split(':')
                 allele1, allele2 = alleles.split(',')
-                alleles = [allele1, allele2]
+                alleles = [allele1.upper(), allele2.upper()]
+            else:
+                continue
         except ValueError:
-            raise SystemExit("ERROR: Some lines in the input file are not formatted correctly. Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)")
+            raise SystemExit("ERROR: Some lines in the input file are not formatted correctly. " +
+                "Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)\n" +
+                "Offending line:\n" + line)
         
-        if alleles != []: 
-            # if the position is found in our database 
+        if alleles != [] and snp != "":
+            # a valid line exists, so the file was not empty
+            fileEmpty = False
+            # if the position is found in our database
             if snp in tableObjDict['associations']:
+                # data from the input file was found in the filtered database
+                inputInFilters = True
                 # Loop through each trait for the position
                 for trait in tableObjDict['associations'][snp]['traits'].keys():
                     # initializing variables
@@ -161,8 +183,12 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
     # contains the trait/study combos that don't have any matching snps in the input file
     errorFileContent = {}
 
+    # if the file is empty, or formatted incorrectly
+    if fileEmpty:
+        raise SystemExit("The input file is either empty, or not formatted correctly. Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)")
+    
     if isNoStudies:
-        return None, None, None, None, isNoStudies, errorFileContent
+        return None, None, None, None, isNoStudies, inputInFilters, errorFileContent
 
     studySnps = {}
     for snp in tableObjDict['associations'].keys():
@@ -201,7 +227,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                                 sample_map[(trait, studyID)][""] = ""
 
     final_map = dict(sample_map)
-    return final_map, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies, errorFileContent
+    return final_map, neutral_snps_map, clumped_snps_map, studySnps, isNoStudies, inputInFilters, errorFileContent
 
 
 # determines if we should use this association based on the filters given
@@ -273,7 +299,11 @@ def openFileForParsing(inputFile, isTxtExtension):
         return new_file
     else:
         # open the newly unzipped file using the vcf reader
-        return vcf.Reader(new_file)
+        try:
+            return vcf.Reader(new_file)
+        except:
+            # typically happens if the file is empty
+            raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
 
 def formatAndReturnGenotype(genotype, REF, ALT):
@@ -388,7 +418,7 @@ def formatAndReturnGenotype(genotype, REF, ALT):
 
 def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs, ethnicities, p_cutOff):
     vcf_reader = openFileForParsing(inputFile, False)
-    
+
     # Create a default dictionary (nested dictionary)
     sample_map = defaultdict(dict)
     # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
@@ -400,14 +430,22 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
     clumped_snps_map = {}
     sample_num = len(vcf_reader.samples)
 
-    # Create a bool to keep track if the filters result in any viable studies
+    # Create a boolean to keep track of whether any studies pass the specified filters
     isNoStudies = True
+
+    # keeps track of if any valid data is found in the file
+    fileEmpty = True
+
+    # True if at least one snp from the input file is in the filtered associations
+    inputInFilters = False
 
     isAllFiltersNone = (traits is None and studyIDs is None and studyTypes is None and ethnicities is None)
 
     try:
         # Iterate through each line in the vcf file
         for record in vcf_reader:
+            # a record exists, so the file was not empty
+            fileEmpty = False
             string_format = str(record.FORMAT)
             if 'GT' in string_format: #TODO might not need this line anymore
                 rsID = record.ID
@@ -418,6 +456,8 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                 REF = record.REF 
                 # if the position is found in our database 
                 if rsID in tableObjDict['associations']:
+                    # data from the input file was found in the filtered database
+                    inputInFilters = True
                     # Loop through each trait for the position
                     for trait in tableObjDict['associations'][rsID]['traits'].keys():
                         # initializing variables
@@ -506,11 +546,19 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
         # contains the trait/study combos that don't have any matching snps in the input file
         errorFileContent = {}
 
+        # if the file is empty, or formatted incorrectly
+        if fileEmpty:
+            raise SystemExit("The VCF file is either empty, or not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
+        
+        # Check to see which study/sample combos didn't have any viable snps
+        # and create blank entries for the sample map for those that didn't
+        # TODO: might need a better way to handle this
+
         if isNoStudies:
             samples = []
             for name in vcf_reader.samples:
                 samples.append(name)
-            return samples, None, None, None, None, isNoStudies, errorFileContent
+            return samples, None, None, None, None, isNoStudies, inputInFilters, errorFileContent
 
         # Check to see which study/sample combos didn't have any viable snps
         # and create blank entries for the sample map for those that didn't
@@ -554,21 +602,24 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     final_map = dict(sample_map)
-    return final_map, neutral_snps_map, clumped_snps_map, sample_num, studySnps, isNoStudies, errorFileContent
+    return final_map, neutral_snps_map, clumped_snps_map, sample_num, studySnps, isNoStudies, inputInFilters, errorFileContent
 
 
-def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies, errorFileContent):
-    # Loop through every disease/study in the txt nested dictionary
-    isFirst = True
-    if isNoStudies:
-        message = []
-        if isCondensedFormat:
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score']
-        else:
-            header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
-        formatTSV(isFirst, message, header, outputFile)
-        raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
+def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, studySnps, isNoStudies, inputInFilters, errorFileContent):
+    header = []
+    if isCondensedFormat:
+        # this header has samples added onto the end later
+        header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
     else:
+        header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+
+    # if none of the snps in the input file match with the filtered database
+    if isNoStudies:
+        outputHeaderAndQuit(inputInFilters, header, outputFile)
+    else:
+        # Loop through every disease/study in the txt nested dictionary
+        isFirst = True
+
         # TODO: should we print this here or wait till later?
         printErrorFile(errorFileContent, outputFile)
 
@@ -604,7 +655,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                                 # Compare the individual's snp and allele to the study row's snp and risk allele
                                 riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                                 oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
-
+                                
                                 if allele == riskAllele:
                                     sampSnps.add(snp)
                                     oddsRatios.append(oddsRatio)
@@ -618,7 +669,8 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
             if not isCondensedFormat and not isJson:
                 prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
                 header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-                newLine = [printStudyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
+                protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
+                newLine = [printStudyID, citation, reportedTrait, trait, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                 formatTSV(isFirst, newLine, header, outputFile)
                 isFirst = False
                 
@@ -649,17 +701,20 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                 isFirst = False
 
 
-def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies, errorFileContent):
+def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, studySnps, isNoStudies, inputInFilters, errorFileContent):
+    header = []
+    if isCondensedFormat:
+        # this header has samples added onto the end later
+        header = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
+    else:
+        header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+    
+    # if none of the snps in the input file match with the filtered database
     if isNoStudies:
-        message=[]
         if isCondensedFormat:
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
             for samp in vcfObj:
                 header.append(samp)
-        else:
-            header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
-        formatTSV(True, message, header, outputFile)
-        raise SystemExit("\n\n!!!NONE OF THE STUDIES IN THE DATABASE MATCH THE SPECIFIED FILTERS!!!")
+        outputHeaderAndQuit(inputInFilters, header, outputFile)
     else:
         # TODO: should we print this here or wait till later?
         printErrorFile(errorFileContent, outputFile)
@@ -718,8 +773,8 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
 
                 if not isCondensedFormat and not isJson:
                     prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
-                    newLine = [samp, studyID, citation, reportedTrait, trait, prs, "|".join(protectiveVariants), "|".join(riskVariants), "|".join(unmatchedAlleleVariants), "|".join(clumpedVariants)]
-                    header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+                    protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
+                    newLine = [samp, studyID, citation, reportedTrait, trait, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                     formatTSV(isFirst, newLine, header, outputFile)
                     isFirst = False
 
@@ -774,7 +829,6 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                         sample_results_map[(studyID, trait)] = samp_list
                         study_results_map[(studyID, trait)] = study_results
                 
-
                 elif isCondensedFormat:
                     prs, printStudyID = createMarks(oddsRatios, studyID, studySnps, sampSnps, mark)
                     
@@ -787,7 +841,8 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                         condensed_output_map[(studyID, trait)] = newLine
                         samp_set[samp] = None
                     else:
-                        print('YOU STILL CANNOT ACCESS STUDYID', studyID)
+                        #TODO have this report directly to the PRSKB server
+                        raise SystemExit('ERROR: A study ID was inaccessable. Please report this to the PRSKB team along with the command you used to run the program.', studyID)
 
                     if (studyID, trait) in count_map:
                         samp_count = count_map[(studyID, trait)]
@@ -796,7 +851,6 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                         samp_count = 1
                     
                     if samp_count == samp_num:
-                        header = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
                         if isFirst:
                             for samp in samp_set.keys():
                                 header.append(samp)
@@ -808,10 +862,21 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                     else:
                         condensed_output_map[(studyID, trait)] = newLine
                         count_map[(studyID, trait)] = samp_count
-            else: 
-                print("WE ARE MISSING A STUDYID IN THE STUDYIDSTOMETADATA", studyID, trait)
+            else:
+                #TODO have this report directly to the PRSKB server
+                raise SystemExit("ERROR: A study ID was missing from the our metadata. Please report this to the PRSKB team along with the command you used to run the program.", studyID, trait)
 
     return
+
+# handles txtcalculations and vcfcalculations error if isNoStudies is True and/or inputInFilters is false
+# the header is printed to the outputfile, an error is printed, and the program quits
+def outputHeaderAndQuit(inputInFilters, header, outputFile):
+    # TODO if inputInFilters is false, print out all snps that weren't in the filtered database to the output file so there isn't an error
+    formatTSV(True, [], header, outputFile)
+    if not inputInFilters:
+        raise SystemExit("WARNING: None of the SNPs specified in the input file match the SNPs given by the specified filters. Check your input file and your filters and try again.")
+    else:
+        raise SystemExit("WARNING: None of the studies in the PRSKB database match the specified filters. Check your filters and try again.")
 
 
 def formatJson(isFirst, studyInfo, outputFile):
@@ -871,6 +936,15 @@ def getPRSFromArray(oddsRatios):
     if not oddsRatios:
         combinedOR = "NF"
     return(str(combinedOR))
+
+
+def formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants):
+    protectiveVariants = "." if str(protectiveVariants) == "set()" else "|".join(protectiveVariants)
+    riskVariants = "." if str(riskVariants) == "set()" else "|".join(riskVariants)
+    unmatchedAlleleVariants = "." if str(unmatchedAlleleVariants) == "set()" else "|".join(unmatchedAlleleVariants)
+    clumpedVariants = "." if str(clumpedVariants) == "set()" else "|".join(clumpedVariants)
+
+    return protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants
 
 
 def formatTSV(isFirst, newLine, header, outputFile):
