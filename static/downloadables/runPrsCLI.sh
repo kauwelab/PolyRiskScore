@@ -395,7 +395,7 @@ calculatePRS () {
                     echo "Check the path and try again."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
-                elif ! [[ "${filename,,}" =~ .vcf$|.txt$ ]]; then
+                elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
                     zipExtension=`$pyVer -c "import calculate_score; calculate_score.getZippedFileExtension('$filename', True)"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
