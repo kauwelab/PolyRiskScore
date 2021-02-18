@@ -13,22 +13,25 @@ Welcome to PRSKB's CLI documentation!
 The PRSKB's CLI tool is an extension of the PRSKB web application. It is designed to give more flexability and capability in calculating polygenic risk scores for large datasets. Features include:
 
 * Searching our database for studies and traits
+* Printing out available ethnicities to filter by
 * Learning about required and optional parameters for performing calculations
 * Calculating polygenic risk scores
 
 Quick Start
 -----------
 
-To download the PRSKB CLI tool, head over to the `PRSKB website download page <https://prs.byu.edu/cli_download.html>`_ or download the files directly from `GitHub <https://github.com/louisadayton/PolyRiskScore>`_.
+To download the PRSKB CLI tool, head over to the `PRSKB website download page <https://prs.byu.edu/cli_download.html>`_ or download the whole repository directly from `GitHub <https://github.com/louisadayton/PolyRiskScore>`_.
 
-Given the required parameters, the tool will calculate risk scores for each individual sample for each study in our database (this needs to be worded better). 
+Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in our database (this needs to be worded better). 
+
+Note: You MUST have bash, python3, and the python package PyVCF downloaded.
 
 Required Parameters Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
-   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c 0.05 -r hg19 -p EUR 
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.05 -r hg19 -p EUR
 
 
 Features
@@ -50,6 +53,13 @@ After selecting the menu option to search for studies or traits, you will be pro
 
 When the search is complete, the results will be outputted to the console, and you will be returned to the menu. 
 
+Display Ethnicities
+--------------------
+
+The menu has an option for displaying the available ethnicities to filter studies by.
+
+(insert picture here)
+
 Learn about Parameters 
 ----------------------
 
@@ -70,11 +80,11 @@ The path to the input file. Either a vcf or a txt with lines formatted as rsID:a
 
 Output File (-o)
 """"""""""""""""
-The path to output file. Can be either a csv or a json. (TODO somewhere we need to add the option for either full or condesnded output)
+The path to output file. Can be either a tsv or a json. 
 
 .. code-block:: bash
 
-   -o path/to/file/output.csv
+   -o path/to/file/output.tsv
 
 P-value Cutoff (-c)
 """""""""""""""""""
@@ -117,7 +127,7 @@ Specific traits to run the calculator on.
 
 .. code-block:: bash
 
-   -t "alzheimer's disease" -t acne
+   -t "Alzheimer's Disease" -t acne
 
 Study Types (-k)
 """"""""""""""""
@@ -147,6 +157,38 @@ Filters studies by the ethnicity of their sample population.
 
    -e European -e "East Asian"
 
+Verbose (-v)
+"""""""""""""
+Creates a more detailed TSV result file. 
+The verbose output file will include the following for each corresponding sample, study, and trait combination: 
+
+* reported trait
+* trait
+* polygenic risk score
+* protective variants
+* risk variants
+* variants that are present but do not include the risk allele
+* variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations
+
+If the output file is in TSV format and this parameter is not included, the default TSV result
+file will include the study ID and the corresponding polygenic risk scores for each sample.
+If the output file is in JSON format, the results will, by default, be in verbose format.
+NOTE: There is no condensed version of JSON output.
+
+.. code-block:: bash
+
+   -v
+
+Default Sex (-g)
+""""""""""""""""
+Though a rare occurence, some studies have duplicates of the same snp that differ by which
+biological sex the p-value is associated with. You can indicate which sex you would like snps
+to select when both options (M/F) are present. The system default is Female.
+
+.. code-block:: bash
+
+   -g f
+
 Step Number (-s)
 """"""""""""""""
 Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter. NOTE: you may only specify this once
@@ -173,38 +215,44 @@ Run the calculator on all studies in our database:
 
 .. code-block:: bash
 
-   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c 0.0005 -r hg19 -p SAS 
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS 
 
 Run the calculator on all studies about the trait 'acne':
 
 .. code-block:: bash
 
-   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c 0.0005 -r hg19 -p SAS -t acne 
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS -t acne 
 
 Run the calculator on all high impact studies with samples that are of european descent:
 
 .. code-block:: bash
 
-   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c 0.0005 -r hg19 -p AMR -k HI -e european 
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p AMR -k HI -e european 
 
 Run the calculator on the study with studyID GCST004410:
 
 .. code-block:: bash
 
-   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c 0.0005 -r hg19 -p EUR -i GCST004410 
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p EUR -i GCST004410 
 
 Run the calculator on all studies in the database in two steps:
 
 .. code-block:: bash
 
-   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c 0.0005 -r hg19 -p SAS -s 1 
-   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c 0.0005 -r hg19 -p SAS -s 2 
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS -s 1 
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS -s 2 
 
+Run the calculator on all studies about the trait 'acne', filtering studies from the allAssociations_hg19_f.txt working file:
+
+.. code-block:: bash
+
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS -t acne -s 2 
 
 Output Results
 ==============
 
-There are two choices for the output results - condensed (default) or full. 
+There are two choices for the tsv output results - condensed (default) or full. 
 
 Condensed
 ---------
@@ -213,8 +261,9 @@ This version of the output results contains one row for each study with columns 
 
 Study ID | Citation | Reported Trait | Trait(s) | Sample1 | Sample2 | Sample3 | ect. 
 
-(TODO - add code that you run for the example output file)
-(Use the extension to add the output file results)
+.. code-block:: bash
+
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS
 
 Full
 ----
@@ -223,5 +272,6 @@ This version of the output results contains one row for each sample/study pair. 
 
 Sample | Study ID | Citation | Reported Trait | Traits(s) | Risk Score | Protective Alleles | Risk Alleles | Neutral Alleles
 
-(TODO - add code that you run for the example output file)
-(Use the extension to add the output file results)
+.. code-block:: bash
+
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS -v
