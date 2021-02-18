@@ -25,53 +25,45 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         if (not bool(set(ethnicity) & set(availableEthnicities)) and studyIDs is None):
             raise SystemExit('\nThe ethnicities requested are invalid. \nPlease use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
 
-    dnldNewAllAssociFile = checkForAllAssociFile(refGen, defaultSex)
-    
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     associationsPath = ""
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
         associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
-        if (dnldNewAllAssociFile):
+        if (checkForAllAssociFile(refGen, defaultSex)):
             associationsReturnObj = getAllAssociations(refGen, defaultSex)
-            downloadClumpsFile = True
-        else:
-            # TODO: on a later branch, create an endpoint to check the date of the clumps file with the date of the clumps files on the database
-            downloadClumpsFile = True
-            # if os.path.exists(os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))):
-            #     # check the date on the file/ server file? 
-            #     return
-            # else:
-            #     downloadClumpsFile = True
+
+        if (checkForAllClumps(superPop, refGen)):
+            clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
+            clumpsData = getAllClumps(refGen, superPop)
+
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
         associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex)
-        downloadClumpsFile = False
 
-    if downloadClumpsFile:
-        clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
-        clumpsData = getAllClumps(refGen, superPop)
-    else:
         # grab all the snps or positions to use for getting the clumps
         snpsFromAssociations = list(associationsReturnObj['associations'].keys())
-        
+
         #download clumps from database
         fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
         clumpsPath = os.path.join(workingFilesPath, fileName)
         # get clumps using the refGen and superpopulation
         clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
 
-    if (dnldNewAllAssociFile):
+    # check to see if associationsReturnObj is instantiated in the local variables
+    if 'associationsReturnObj' in locals():
         f = open(associationsPath, 'w', encoding="utf-8")
         f.write(json.dumps(associationsReturnObj))
         f.close()
 
-    f = open(clumpsPath, 'w', encoding="utf-8")
-    f.write(json.dumps(clumpsData))
-    f.close()
+    # check to see if clumpsData is instantiated in the local variables
+    if 'clumpsData' in locals():
+        f = open(clumpsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(clumpsData))
+        f.close()
 
     return
 
@@ -109,6 +101,35 @@ def checkForAllAssociFile(refGen, defaultSex):
                 dnldNewAllAssociFile = False
         
         return dnldNewAllAssociFile
+
+
+def checkForAllClumps(pop, refGen):
+    # assume we need to download new file
+    dnldNewClumps = True
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+
+     # path to a file containing all the clumps from the database
+    allClumpsFile = os.path.join(workingFilesPath, "{0}_clumps_{1}.txt".format(pop, refGen))
+
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allClumpsFile):
+
+        response = requests.get(url="https://prs.byu.edu/last_clumps_update")
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
+        lastClumpsUpdate = response.text
+        lastClumpsUpdate = lastClumpsUpdate.split('-')
+        lastClumpsUpdate = datetime.date(int(lastClumpsUpdate[0]), int(lastClumpsUpdate[1]), int(lastClumpsUpdate[2]))
+
+        fileModDateObj = time.localtime(os.path.getmtime(allClumpsFile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastClumpsUpdate <= fileModDate):
+            dnldNewClumps = False
+
+    return dnldNewClumps
 
 
 # gets associations obj download from the Server
