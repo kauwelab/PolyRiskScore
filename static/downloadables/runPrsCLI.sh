@@ -451,13 +451,18 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
-            g)  defaultSex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+            g)  if ! [ -z "$defaultSex" ]; then
+                    echo "Too many default sexes requested at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                defaultSex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
                 if [ $defaultSex != 'f' ] && [ $defaultSex != 'm' ] && [ $defaultSex != 'female' ] && [ $defaultSex != 'male' ] ; then
                     echo "Invalid argument for -g. Use f, m, female, or male."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
-            s)  if ! [ -z "$step" ]; then # should we maybe show ethnicities when they search studies?
+            s)  if ! [ -z "$step" ]; then 
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
