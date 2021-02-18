@@ -1,12 +1,12 @@
 const Association = require("../models/association.model.js");
 const path = require("path")
 const fs = require("fs");
+var Request = require('request');
 
 exports.getFromTables = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
     var refGen = req.body.refGen;
     var defaultSex = req.body.sex;
-    var isVCF = req.body.isVCF;
 
     // if not given a defaultSex, default to female
     if (defaultSex == undefined){
@@ -24,7 +24,7 @@ exports.getFromTables = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            returnData = await separateStudies(associations, traits, refGen, defaultSex, isVCF)
+            returnData = await separateStudies(associations, traits, refGen, defaultSex)
             res.send(returnData);
         }
     });
@@ -33,7 +33,6 @@ exports.getFromTables = (req, res) => {
 exports.getAll = (req, res) => {
     var refGen = req.query.refGen;
     var defaultSex = req.query.sex;
-    var isVCF = req.query.isVCF;
 
     // if not given a defaultSex, default to female
     if (defaultSex == undefined){
@@ -51,7 +50,7 @@ exports.getAll = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            returnData = await separateStudies(associations, traits, refGen, defaultSex, isVCF)
+            returnData = await separateStudies(associations, traits, refGen, defaultSex)
             
             res.send(returnData);
         }
@@ -171,9 +170,12 @@ exports.joinTest = (req, res) => {
     })
 }
 
-// gets the last time the associations tsv was updated. Used for the cli to check if the user needs to re-download association data
+// gets the last time the allAssociations file was updated. Used for the cli to check if the user needs to re-download association data
 exports.getLastAssociationsUpdate = (req, res) => {
-    associationsPath = path.join(__dirname, '../../..', "tables/associations_table.tsv")
+    refGen = req.query.refGen
+    sex = req.query.defaultSex
+
+    associationsPath = path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allAssociations_${refGen}_${sex}.txt`)
     statsObj = fs.statSync(associationsPath)
     updateTime = statsObj.mtime
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
@@ -199,10 +201,7 @@ exports.getAssociationsDownloadFile = (req, res) => {
     }); 
 }
 
-async function separateStudies(associations, traitData, refGen, sex, isVCF) {
-
-    // if isVCF, we want to add postions as keys to rsIDs
-    addPosKeys = (isVCF.toLowerCase() == 'true')
+async function separateStudies(associations, traitData, refGen, sex) {
 
     // store the citation and reported trait for each study
     var studyIDsToMetaData = {}
@@ -287,7 +286,7 @@ async function separateStudies(associations, traitData, refGen, sex, isVCF) {
             AssociationsBySnp[association.snp]['traits'][association.trait] = {}
             AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
             //adds the position as a key to an rsID, if needed
-            if (addPosKeys && association[refGen] != ""){
+            if (association[refGen] != ""){
                 AssociationsBySnp[association[refGen]] = association.snp
             }
         }
