@@ -913,6 +913,10 @@ def printUnusedTraitStudyPairs(unusedTraitStudyPairs, outputFile):
     fileBasename = fileName + "_studiesNotIncluded.txt"
     completeOutputFileName = os.path.join(fileDirname, fileBasename)
 
+    # if the folder of the output file doesn't exist, create it
+    if "/" in completeOutputFileName:
+        os.makedirs(os.path.dirname(completeOutputFileName), exist_ok=True)
+
     openFile = open(completeOutputFileName, "w")
     openFile.write("Trait/Study combinations with no matching snps in the input file:\n")
     keys = list(unusedTraitStudyPairs.keys())
