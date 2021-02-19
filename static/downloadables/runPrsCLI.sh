@@ -371,14 +371,20 @@ calculatePRS () {
 
     # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
     pyVer=""
-    ver=$(python --version)
+    ver=$(python --version 2>&1)
     read -a strarr <<< "$ver"
 
-    # python version is 3.something, then use python as the call
-    if [[ "${strarr[1]}" =~ ^3 ]]; then
+    # if python version isn't blank and is 3.something, then use python as the call
+    if ! [ -z "${strarr[1]}" ] && [[ "${strarr[1]}" =~ ^3 ]]; then
         pyVer="python"
-    else
+    # if python3 doesn't error, use python3 as the call
+    elif python3 --version >/dev/null 2>&1; then
         pyVer="python3"
+    else
+        echo -e "${LIGHTRED}ERROR: PYTHON3 NOT INSTALLED."
+        echo -e "python3 is required to run this script. Please install it and try again."
+        echo -e "Quitting...${NC}"
+        exit 1
     fi
 
     while getopts 'f:o:c:r:p:t:k:i:e:vs:g:' c "$@"
@@ -528,23 +534,40 @@ calculatePRS () {
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    { # downloading needed python modules
-        echo -e "${YELLOW}Downloading required python packages${NC}"
-        pip3 install PyVCF
-        pip3 install myvariant
-    } && {
-        echo -e "${GREEN}Finished installing packages. \n${NC}"
-    } || {
-        echo -e "${LIGHTRED}FAILED TO DOWNLOAD REQUIRED PACKAGES:"
-        echo -e "Please check your internet connection and your python version"
-        echo -e "Note: You MUST have python 3 installed for this tool to work.${NC}"
-    }
-
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
     requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
 
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
+        # check if pip is installed for the python call being used (REQUIRED)
+        if ! $pyVer -m pip --version >/dev/null 2>&1; then
+            echo -e "${LIGHTRED}ERROR: PIP NOT INSTALLED."
+            echo -e "pip for $pyVer is required to run this script. Please install it and try again."
+            echo -e "Quitting...${NC}"
+            exit 1
+        # check that all required packages are installed
+        else
+            echo "Checking for package requirements"
+            {
+                $pyVer -c "import vcf" >/dev/null 2>&1
+            } && {
+                echo -e "Package requirements met\n"
+            } || {
+                {
+                    echo "Missing package requirement: PyVCF"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install PyVCF
+                } && {
+                    echo -e "Download successful, Package requirements met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package and try running the tool again."
+                    exit 1
+                }
+            } 
+        fi
+
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
