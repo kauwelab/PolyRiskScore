@@ -663,7 +663,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                                         protectiveVariants.add(snp)
                                     elif oddsRatio > 1:
                                         riskVariants.add(snp)
-                                elif allele != riskAllele:
+                                else:
                                     unmatchedAlleleVariants.add(snp)
 
             if not isCondensedFormat and not isJson:
@@ -761,14 +761,14 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                                 for allele in alleles:
                                     allele = str(allele)
                                     if allele != "":
-                                        if allele == riskAllele and oddsRatio != 0:
+                                        if allele == riskAllele:
                                             sampSnps.add(rsID)
                                             oddsRatios.append(oddsRatio)
                                             if oddsRatio < 1:
                                                 protectiveVariants.add(rsID)
                                             elif oddsRatio > 1:
                                                 riskVariants.add(rsID)
-                                        elif oddsRatio != 0:
+                                        else:
                                             unmatchedAlleleVariants.add(rsID)
 
                 if not isCondensedFormat and not isJson:
@@ -912,6 +912,10 @@ def printUnusedTraitStudyPairs(unusedTraitStudyPairs, outputFile):
     fileName, ext = os.path.splitext(fileBasename)
     fileBasename = fileName + "_studiesNotIncluded.txt"
     completeOutputFileName = os.path.join(fileDirname, fileBasename)
+
+    # if the folder of the output file doesn't exist, create it
+    if "/" in completeOutputFileName:
+        os.makedirs(os.path.dirname(completeOutputFileName), exist_ok=True)
 
     openFile = open(completeOutputFileName, "w")
     openFile.write("Trait/Study combinations with no matching snps in the input file:\n")

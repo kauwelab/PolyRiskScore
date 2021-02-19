@@ -21,6 +21,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
     if (ethnicity is not None):
+        ethnicity = [sub.replace('_', ' ').replace('"', '') for sub in ethnicity]
         availableEthnicities = getUrlWithParams("https://prs.byu.edu/ethnicities", params={})
         if (not bool(set(ethnicity) & set(availableEthnicities)) and studyIDs is None):
             raise SystemExit('\nThe ethnicities requested are invalid. \nPlease use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
@@ -122,7 +123,7 @@ def checkForAllClumps(pop, refGen):
     if os.path.exists(allClumpsFile):
         params = {
             "refGen": refGen,
-            "superPop": superPop
+            "superPop": pop
         }
 
         response = requests.get(url="https://prs.byu.edu/last_clumps_update", params=params)
