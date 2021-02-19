@@ -368,35 +368,57 @@ calculatePRS () {
     space=" "
     quote='"'
     empty=""
+    #TODO pseudo code
+    # if python --version returns and is 3, pyVer="python"
+    # else if python3 --version returns and is 3, pyVer="python"
+    # else python 3 is not installed 
+    #
 
-    # check if python3 is installed (REQUIRED)
-    if ! python3 --version >/dev/null 2>&1; then
+    # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
+    pyVer=""
+    ver=$(python --version 2>&1)
+    read -a strarr <<< "$ver"
+
+    # if python version isn't blank and is 3.something, then use python as the call
+    if ! [ -z "${strarr[1]}" ] && [[ "${strarr[1]}" =~ ^3 ]]; then
+        pyVer="python"
+    # if python3 doesn't error, use python3 as the call
+    elif python3 --version >/dev/null 2>&1; then
+        pyVer="python3"
+    else
         echo -e "${LIGHTRED}ERROR: PYTHON3 NOT INSTALLED."
         echo -e "python3 is required to run this script. Please install it and try again."
         echo -e "Quitting...${NC}"
         exit 1;
     fi
 
-    # check if pip3 is installed (REQUIRED)
-    if ! pip3 --version >/dev/null 2>&1; then
-        echo -e "${LIGHTRED}ERROR: PIP3 NOT INSTALLED."
-        echo -e "pip3 is required to run this script. Please install it and try again."
+    # check if pip is installed for the python call being used (REQUIRED)
+    if ! $pyVer -m pip --version >/dev/null 2>&1; then
+        echo -e "${LIGHTRED}ERROR: PIP NOT INSTALLED."
+        echo -e "pip for $pyVer is required to run this script. Please install it and try again."
         echo -e "Quitting...${NC}"
         exit 1;
+    # check that all required packages are installed
     else
-        { # downloading needed python modules
-            echo -e "${YELLOW}Checking for required Python packages${NC}"
-            python3 -m pip install PyVCF
-            python3 -m pip install myvariant
+        echo "Checking for package requirements"
+        {
+            $pyVer -c "import vcf" >/dev/null 2>&1
         } && {
-            echo -e "${GREEN}All requirements met.\n${NC}"
+            echo "Package requirements met"
         } || {
-            echo -e "${LIGHTRED}FAILED TO DOWNLOAD REQUIRED PACKAGES:"
-            echo -e "Please check your internet connection and your python version"
-            echo -e "Note: You MUST have python 3 installed for this tool to work."
-            echo -e "Quitting...${NC}"
-            exit 1
-        }
+            {
+            echo "Missing package requirement: PyVCF"
+            echo "Attempting download"
+            } && {
+                $pyVer -m pip install PyVCF
+            } && {
+                echo "Download successful, Package requirements met"
+            } || {
+                echo "Failed to download the required package."
+                echo "Please manually download this package and try running the tool again."
+                exit 1
+            }
+        } 
     fi
 
     while getopts 'f:o:c:r:p:t:k:i:e:vs:g:' c "$@"
@@ -415,7 +437,7 @@ calculatePRS () {
                     exit 1
                 elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
-                    zipExtension=`python3 -c "import calculate_score; calculate_score.getZippedFileExtension('$filename', True)"`
+                    zipExtension=`$pyVer -c "import calculate_score; calculate_score.getZippedFileExtension('$filename', True)"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
                         echo "zipped file validated"
                     # if "False", the file is not a zipped file
@@ -563,14 +585,14 @@ calculatePRS () {
         if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
             extension="$zipExtension"
         else
-            extension=$(python3 -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
+            extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
         fi
 
         # Calls a python function to get a list of SNPs and clumps from our Database
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        if python3 -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
@@ -581,12 +603,12 @@ calculatePRS () {
 
 
     if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
-        outputType=$(python3 -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_ext.lower());")
+        outputType=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_ext.lower());")
 
         echo "Calculating prs on $filename"
         FILE=".workingFiles/associations_${fileHash}.txt"
         
-        if python3 run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
+        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
             echo "Calculated score"
             echo "Results saved to $output"
         else
