@@ -617,7 +617,7 @@ calculatePRS () {
         # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
         rm -r __pycache__
         echo "Cleaned up intermediate files"
-        printf "Finished. Exiting...\n"
+        echo -e "Finished. Exiting...\n\n"
         exit;
     fi
 }
