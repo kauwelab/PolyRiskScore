@@ -656,15 +656,14 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                                 riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                                 oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
                                 
-                                if allele == riskAllele and oddsRatio != 0:
-                                    #TODO: if the odds ratio is zero, we should make a note of it for our server to check
+                                if allele == riskAllele:
                                     sampSnps.add(snp)
                                     oddsRatios.append(oddsRatio)
                                     if oddsRatio < 1:
                                         protectiveVariants.add(snp)
                                     elif oddsRatio > 1:
                                         riskVariants.add(snp)
-                                elif allele != riskAllele:
+                                else:
                                     unmatchedAlleleVariants.add(snp)
 
             if not isCondensedFormat and not isJson:
@@ -762,15 +761,14 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                                 for allele in alleles:
                                     allele = str(allele)
                                     if allele != "":
-                                        if allele == riskAllele and oddsRatio != 0:
-                                            #TODO: if the odds ratio is zero, we should make a note of it for our server to check
+                                        if allele == riskAllele:
                                             sampSnps.add(rsID)
                                             oddsRatios.append(oddsRatio)
                                             if oddsRatio < 1:
                                                 protectiveVariants.add(rsID)
                                             elif oddsRatio > 1:
                                                 riskVariants.add(rsID)
-                                        elif oddsRatio != 0:
+                                        else:
                                             unmatchedAlleleVariants.add(rsID)
 
                 if not isCondensedFormat and not isJson:
