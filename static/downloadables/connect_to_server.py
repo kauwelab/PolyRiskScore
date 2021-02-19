@@ -21,6 +21,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
     if (ethnicity is not None):
+        ethnicity = [sub.replace('_', ' ') for sub in ethnicity]
         availableEthnicities = getUrlWithParams("https://prs.byu.edu/ethnicities", params={})
         if (not bool(set(ethnicity) & set(availableEthnicities)) and studyIDs is None):
             raise SystemExit('\nThe ethnicities requested are invalid. \nPlease use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
