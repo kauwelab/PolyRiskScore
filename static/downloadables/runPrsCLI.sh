@@ -384,7 +384,7 @@ calculatePRS () {
         echo -e "${LIGHTRED}ERROR: PYTHON3 NOT INSTALLED."
         echo -e "python3 is required to run this script. Please install it and try again."
         echo -e "Quitting...${NC}"
-        exit 1;
+        exit 1
     fi
 
     # check if pip is installed for the python call being used (REQUIRED)
@@ -392,7 +392,7 @@ calculatePRS () {
         echo -e "${LIGHTRED}ERROR: PIP NOT INSTALLED."
         echo -e "pip for $pyVer is required to run this script. Please install it and try again."
         echo -e "Quitting...${NC}"
-        exit 1;
+        exit 1
     # check that all required packages are installed
     else
         echo "Checking for package requirements"
@@ -402,8 +402,8 @@ calculatePRS () {
             echo "Package requirements met"
         } || {
             {
-            echo "Missing package requirement: PyVCF"
-            echo "Attempting download"
+                echo "Missing package requirement: PyVCF"
+                echo "Attempting download"
             } && {
                 $pyVer -m pip install PyVCF
             } && {
