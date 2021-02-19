@@ -26,7 +26,7 @@ getRandomElement () {
     let len=${#array[@]}-1
     index=$(awk -v min=0 -v max=${len} 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
     returnVal=$(echo ${array[$index]} | tr -s '_' ' ')
-    sleep 1
+    sleep 2
     echo ${returnVal}
 }
 
