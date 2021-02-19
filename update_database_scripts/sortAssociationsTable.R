@@ -14,9 +14,8 @@ if (length(args)==0) {
 suppressMessages(library(tidyverse))
 #----------------------------------------------------------------------------------------------
 
-
 associationTablePath <- file.path(args[1], "associations_table.tsv")
-associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character(), sex = col_character()))
+associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_character()))
 
 # if the id column already exists, remove it for sorting purposes
 if (names(associationsTibble)[1] == "id") {
