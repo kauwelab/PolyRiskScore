@@ -122,7 +122,7 @@ def checkForAllClumps(pop, refGen):
     if os.path.exists(allClumpsFile):
         params = {
             "refGen": refGen,
-            "superPop": superPop
+            "superPop": pop
         }
 
         response = requests.get(url="https://prs.byu.edu/last_clumps_update", params=params)
