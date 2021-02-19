@@ -657,6 +657,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                                 oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
                                 
                                 if allele == riskAllele and oddsRatio != 0:
+                                    #TODO: if the odds ratio is zero, we should make a note of it for our server to check
                                     sampSnps.add(snp)
                                     oddsRatios.append(oddsRatio)
                                     if oddsRatio < 1:
@@ -762,6 +763,7 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                                     allele = str(allele)
                                     if allele != "":
                                         if allele == riskAllele and oddsRatio != 0:
+                                            #TODO: if the odds ratio is zero, we should make a note of it for our server to check
                                             sampSnps.add(rsID)
                                             oddsRatios.append(oddsRatio)
                                             if oddsRatio < 1:
