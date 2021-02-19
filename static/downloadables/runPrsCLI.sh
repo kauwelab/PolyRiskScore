@@ -387,35 +387,6 @@ calculatePRS () {
         exit 1
     fi
 
-    # check if pip is installed for the python call being used (REQUIRED)
-    if ! $pyVer -m pip --version >/dev/null 2>&1; then
-        echo -e "${LIGHTRED}ERROR: PIP NOT INSTALLED."
-        echo -e "pip for $pyVer is required to run this script. Please install it and try again."
-        echo -e "Quitting...${NC}"
-        exit 1
-    # check that all required packages are installed
-    else
-        echo "Checking for package requirements"
-        {
-            $pyVer -c "import vcf" >/dev/null 2>&1
-        } && {
-            echo "Package requirements met"
-        } || {
-            {
-                echo "Missing package requirement: PyVCF"
-                echo "Attempting download"
-            } && {
-                $pyVer -m pip install PyVCF
-            } && {
-                echo "Download successful, Package requirements met"
-            } || {
-                echo "Failed to download the required package."
-                echo "Please manually download this package and try running the tool again."
-                exit 1
-            }
-        } 
-    fi
-
     while getopts 'f:o:c:r:p:t:k:i:e:vs:g:' c "$@"
     do 
         case $c in 
@@ -568,6 +539,35 @@ calculatePRS () {
     requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
 
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
+        # check if pip is installed for the python call being used (REQUIRED)
+        if ! $pyVer -m pip --version >/dev/null 2>&1; then
+            echo -e "${LIGHTRED}ERROR: PIP NOT INSTALLED."
+            echo -e "pip for $pyVer is required to run this script. Please install it and try again."
+            echo -e "Quitting...${NC}"
+            exit 1
+        # check that all required packages are installed
+        else
+            echo "Checking for package requirements"
+            {
+                $pyVer -c "import vcf" >/dev/null 2>&1
+            } && {
+                echo -e "Package requirements met\n"
+            } || {
+                {
+                    echo "Missing package requirement: PyVCF"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install PyVCF
+                } && {
+                    echo -e "Download successful, Package requirements met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package and try running the tool again."
+                    exit 1
+                }
+            } 
+        fi
+
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
