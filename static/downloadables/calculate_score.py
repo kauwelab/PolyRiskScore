@@ -656,7 +656,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                                 riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                                 oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
                                 
-                                if allele == riskAllele:
+                                if allele == riskAllele and oddsRatio != 0:
                                     sampSnps.add(snp)
                                     oddsRatios.append(oddsRatio)
                                     if oddsRatio < 1:
