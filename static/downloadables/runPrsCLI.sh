@@ -368,11 +368,6 @@ calculatePRS () {
     space=" "
     quote='"'
     empty=""
-    #TODO pseudo code
-    # if python --version returns and is 3, pyVer="python"
-    # else if python3 --version returns and is 3, pyVer="python"
-    # else python 3 is not installed 
-    #
 
     # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
     pyVer=""
