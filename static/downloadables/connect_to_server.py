@@ -28,6 +28,11 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
 
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     associationsPath = ""
+
+    # if the directory doesn't exist, make it, and we will need to download the files
+    if not os.path.exists(workingFilesPath):
+        os.mkdir(workingFilesPath)
+
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
@@ -75,13 +80,12 @@ def checkForAllAssociFile(refGen, defaultSex):
     # check to see if the workingFiles directory is there, if not make the directory
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+    # path to a file containing all the associations from the database
+    allAssociationsFile = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
 
-    # if the directory doesn't exist, make it, and we will need to download the files
-    if not os.path.exists(workingFilesPath):
-        os.mkdir(workingFilesPath)
-        return dnldNewAllAssociFile
-    
-    else:
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allAssociationsFile):
+
         # get date the database was last updated
         params = {
             "refGen": refGen,
@@ -95,18 +99,13 @@ def checkForAllAssociFile(refGen, defaultSex):
         lastDatabaseUpdate = lastDatabaseUpdate.split("-")
         lastDBUpdateDate = datetime.date(int(lastDatabaseUpdate[0]), int(lastDatabaseUpdate[1]), int(lastDatabaseUpdate[2]))
 
-        # path to a file containing all the associations from the database
-        allAssociationsFile = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
+        fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastDBUpdateDate <= fileModDate):
+            dnldNewAllAssociFile = False
 
-        # if the path exists, check if we don't need to download a new one
-        if os.path.exists(allAssociationsFile):
-            fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
-            fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
-            # if the file is newer than the database update, we don't need to download a new file
-            if (lastDBUpdateDate <= fileModDate):
-                dnldNewAllAssociFile = False
-        
-        return dnldNewAllAssociFile
+    return dnldNewAllAssociFile
 
 
 def checkForAllClumps(pop, refGen):
