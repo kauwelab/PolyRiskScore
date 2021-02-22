@@ -1,11 +1,38 @@
-POLYGENIC RISK SCORE COMMAND-LINE INTERFACE CALCULATOR:
+# Polygenic Risk Score Knowledge Base Command-line Interface Calculator
 
-This folder should contain the following files. If it does not, download the tool again from https://prs.byu.edu/download_cli
+The PRSKB CLI calculator is a conglomeration of python scripts directed by a bash script 
+for calculating polygenic risk scores from given input files using GWAS data pulled from the GWAS Catalog stored on the PRSKB server. 
 
-runPrsCLI.sh
-connect_to_server.py
-run_prs_grep.py
-calculate_score.py
+## Requirements
+
+In order to run the PRSKB CLI calculator, you must have ***python3*** and ***bash*** installed in the environment you will be running the tool in. Additionally, the Python library ***PyVCF*** is required. The Python library can be installed using pip:
+
+```bash
+pip install PyVCF
+```
+
+For certain tool functions accessed through the tool's menu, bash ***jq*** is required. To download on Ubuntu or Debian run:
+
+```bash
+sudo apt-get install jq
+```
+
+For other OS, see the proper way to download and install on [https://stedolan.github.io/jq/download/](https://stedolan.github.io/jq/download/)
+
+## PRSKB CLI Download
+
+This folder should contain the following files. If it does not, download the tool again from [https://prs.byu.edu/download_cli](https://prs.byu.edu/download_cli)
+
+* runPrsCLI.sh
+* connect_to_server.py
+* run_prs_grep.py
+* calculate_score.py
+
+## Running the PRSKB CLI
 
 
+## Individual File Breakdown
 
+1. runPrsCLI.sh - Bash script that calls the appropriate python scripts. Also holds the tool's menu, accessed by running the tool without any parameters. This is the only script that the user will directly run.
+2. connect_to_server.py - Python script that connects to the PRSKB database to download the correct association and linkage-disequilibrium clump information for risk score calculations. This script requires an internet connection to run.
+3. run_prs_grep.py - 
