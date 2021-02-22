@@ -371,21 +371,7 @@ if (is_ebi_reachable()) {
         DevPrint(paste0("    Not enough valid association info for ", citation))
         nextWithAppendCheck()
       }
-      #TODO move this to the inside
-      # get a list of the assoication ids
-      association_ids <- associationsTibble[["association_id"]]
-      names(association_ids) <- association_ids
-          
-      # get traits for each of the assoication ids in title case form (tolower, then title case)
-      traits <- association_ids %>%
-        purrr::map(~ get_traits(association_id = .x)@traits) %>%
-        dplyr::bind_rows(.id = 'association_id') %>%
-        mutate(trait=str_to_title(tolower(trait)))
 
-      # merge the traits with the assoications- note: some associations have multiple traits, so the traits
-      # table length is >= the length of assicationsTibble
-      associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
-          
       # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
       riskAlleles <- associations@risk_alleles %>%
         group_by(association_id) %>% 
@@ -404,7 +390,12 @@ if (is_ebi_reachable()) {
       variants <- get_variants(study_id = studyID)
       # contains last update date for each variant ID
       variantsTibble <- variants@variants
-      # TODO put variantsTibble check
+      # if not enough genomic context entries, write out not enough info and go to the next study
+      if (nrow(variantsTibble) < minNumStudyAssociations) {
+        invalidStudies <- c(invalidStudies, studyID)
+        DevPrint(paste0("    Not enough valid variantsTibble info for ", citation))
+        nextWithAppendCheck()
+      }
             
       # contains gene names, position, and distances from nearest genes for each variant ID
       genomicContexts <- variants@genomic_contexts
@@ -427,6 +418,21 @@ if (is_ebi_reachable()) {
       if (nrow(master_variants) > 0) {
         master_variants[master_variants == ""] <- NA
       }
+      
+      # get a list of the assoication ids
+      association_ids <- associationsTibble[["association_id"]]
+      names(association_ids) <- assosciation_ids
+      
+      # get traits for each of the assoication ids in title case form (tolower, then title case)
+      traits <- association_ids %>%
+        purrr::map(~ get_traits(association_id = .x)@traits) %>%
+        dplyr::bind_rows(.id = 'association_id') %>%
+        mutate(trait=str_to_title(tolower(trait)))
+      
+      # merge the traits with the assoications- note: some associations have multiple traits, so the traits
+      # table length is >= the length of assicationsTibble
+      associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
+      
       master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
               
       # if master_variants or master_associations are empty, this study does not have enough info
