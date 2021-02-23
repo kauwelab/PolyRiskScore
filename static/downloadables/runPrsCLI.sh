@@ -48,7 +48,7 @@ version="1.5.0"
 # * 12/9/2020 - v1.3.0
 #
 #   Added optional param:
-#       -g biological sex prefered for snp selection
+#       -g biological sex preferred for snp selection
 #
 # * 1/29/21 - v1.4.0
 #   
@@ -79,7 +79,7 @@ prskbMenu () {
     echo -e "$HORIZONTALLINE"
     echo "Welcome to the PRSKB commandline menu. Here you can learn about the different" 
     echo "parameters required to run a polygenic risk score (PRS) calculation, search" 
-    echo "for a specific study or diesease, view usage, or run the PRSKB calculator."
+    echo "for a specific study or disease, view usage, or run the PRSKB calculator."
     echo ""
     echo "Select an option below by entering the corresponding number"
     echo "then pressing [Enter]."
