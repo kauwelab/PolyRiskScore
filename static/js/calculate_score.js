@@ -1,4 +1,5 @@
 var resultJSON = "";
+var unusedTraitStudyArray = [];
 //TODO gzip and zip still need work
 var validExtensions = ["vcf", "gzip", "zip"]
 var traitObjects = []
@@ -331,6 +332,7 @@ var calculatePolyScore = async () => {
  */
 function resetOutput() { //todo maybe should add this to when the traits/studies/ect are changed?
     resultJSON = "";
+    unusedTraitStudyArray = []
 }
 
 
@@ -380,7 +382,8 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     try {
         var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
-            result = JSON.parse(result)
+            result = JSON.parse(result[0])
+            unusedTraitStudyCombo = result[1]
         } catch (e) {
             //todo create an endpoint that we can send errors to and give a better error response for the user
             console.log("There was an error in calculating the results. Please try again.")
@@ -390,6 +393,7 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
         $('#response').html(outputVal);
         //saves the full result on currently open session of the website for further modifications 
         resultJSON = result;
+        unusedTraitStudyArray = unusedTraitStudyCombo;
         //go the the result output box
         $('#responseBox')[0].scrollIntoView({
             behavior: 'smooth',
@@ -631,7 +635,7 @@ function downloadResults() {
     else {
         extension = ".txt";
     }
-    download(fileName, extension, resultText);
+    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, unusedTraitStudyArray.join("\n")]);
 }
 
 function getRandomInt(max) {
@@ -645,9 +649,10 @@ function getRandomInt(max) {
  * @param {*} filename
  * @param {*} text
  */
-function download(filename, extension, text) {
+function download(filenameArray, extension, textArray) {
     var zip = new JSZip();
-    zip.file(filename + extension, text);
+    zip.file(filenameArray[0] + extension, textArray[0]);
+    zip.file(filenameArray[1] + ".txt", textArray[1]);
     zip.generateAsync({
         type: "blob",
         compression: "DEFLATE",
