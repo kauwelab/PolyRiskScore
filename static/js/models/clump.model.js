@@ -38,24 +38,23 @@ Clump.getClumps = (superpopclump, refGenome, result) => {
 
 Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
     try {
-	if (!(Array.isArray(positions))) {
-	    positions = [positions]
-	}
+	    if (!(Array.isArray(positions))) {
+	        positions = [positions]
+	    }
         refGen = validator.validateRefgen(refGenome)
         positions.sort()
         chromosomesToSearch = {}
-
         for (i=0; i < positions.length; i++) {
-	    position = positions[i]
+	        position = positions[i]
             chrom = position.split(":")
 
             if (Object.keys(chromosomesToSearch).includes(chrom[0])) {
                 chromosomesToSearch[chrom[0]].push(position)
             }
-	    else {
-		chromosomesToSearch[chrom[0]] = []
+            else {
+                chromosomesToSearch[chrom[0]] = []
                 chromosomesToSearch[chrom[0]].push(position)
-	    }
+	        }
         }
 
         sqlString = ""
@@ -73,9 +72,9 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
             sqlParams = sqlParams.concat(Array.from(chromosomesToSearch[i]))
         }
 
-	console.log(chromosomesToSearch)
-	console.log(sqlString)
-	console.log(sqlParams)
+        console.log(chromosomesToSearch)
+        console.log(sqlString)
+        console.log(sqlParams)
 
         sql.query(sqlString, sqlParams, (err, res) => {
             if (err) {
@@ -95,7 +94,6 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
 
 Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
     try {
-
         if (!Array.isArray(snps)){
             snps = [snps]
         }
