@@ -44,7 +44,6 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
         refGen = validator.validateRefgen(refGenome)
         positions.sort()
         chromosomesToSearch = {}
-
         for (i=0; i < positions.length; i++) {
             position = positions[i]
             chrom = position.split(":")
@@ -95,7 +94,6 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
 
 Clump.getClumpsBySnp = (superpopclump, refGenome, snps, result) => {
     try {
-
         if (!Array.isArray(snps)){
             snps = [snps]
         }
