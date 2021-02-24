@@ -157,7 +157,7 @@
                                 clumpedVariants: scoreAndSnps[4]
                             }
                             tmpTraitObj[this.trim(sample)] = tmpSampleObj
-                            if (tmpSampleObj.oddsRatio != "NF" || tmpSampleObj.unmatchedVariants != Set()) {
+                            if (tmpSampleObj.oddsRatio != "NF" || tmpSampleObj.unmatchedVariants.size === 0) {
                                 atLeastOneGoodSamp = true
                             }
                         }
