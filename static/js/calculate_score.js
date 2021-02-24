@@ -573,7 +573,7 @@ function formatTSV(jsonObject, isCondensed) {
                 }
             }
             if (isCondensed) {
-                resultsString = resultsString + "\n" + lineInfo.join("\n")
+                resultsString = resultsString + "\n" + lineInfo.join("\t")
             }
         }
     }
