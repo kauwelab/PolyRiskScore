@@ -133,7 +133,7 @@
                 }
 
                 for (studyID in resultObj) {
-                    if ('†' in studyID) {
+                    if (studyID.includes('†')) {
                         studyID_og = studyID.slice(0, -1)
                     }
                     else {
