@@ -81,7 +81,7 @@
                                     traitStudySamp = (trait, studyID, individualName)
                                     associationObj = associationData['associations'][key]['traits'][trait][studyID]
                                     if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
-                                        if (trait in associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps']) {
+                                        if (associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
                                             //todo doublecheck that this works
                                             printStudyID = studyID.concat('†')
                                         }
