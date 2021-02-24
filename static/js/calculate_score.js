@@ -183,19 +183,24 @@ function getClumpsFromPositions(associationsObj, refGen, superPop) {
         }
     }
 
-    return Promise.resolve($.ajax({
-        type: "POST",
-        url: "/ld_clumping_by_pos",
-        data: { superPop: superPop, refGen: refGen, positions: positions },
-        success: async function (data) {
-            return data;
-        },
-        error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
-        }
-    }));
+    if (positions.length != 0) {
+        return Promise.resolve($.ajax({
+            type: "POST",
+            url: "/ld_clumping_by_pos",
+            data: { superPop: superPop, refGen: refGen, positions: positions },
+            success: async function (data) {
+                return data;
+            },
+            error: function (XMLHttpRequest) {
+                var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+                updateResultBoxAndStoredValue(errMsg)
+                alert(errMsg);
+            }
+        }));
+    }
+    else {
+        return {}
+    }
 }
 
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
