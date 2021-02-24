@@ -640,7 +640,11 @@ function downloadResults() {
     else {
         extension = ".txt";
     }
-    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, unusedTraitStudyArray.join("\n")]);
+    if (unusedTraitStudyArray.length != 0) {
+        unusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+    }
+
+    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, unusedTraitStudyArray]);
 }
 
 function getRandomInt(max) {
@@ -657,7 +661,9 @@ function getRandomInt(max) {
 function download(filenameArray, extension, textArray) {
     var zip = new JSZip();
     zip.file(filenameArray[0] + extension, textArray[0]);
-    zip.file(filenameArray[1] + ".txt", textArray[1]);
+    if (textArray[1].length != 0) {
+        zip.file(filenameArray[1] + ".txt", textArray[1]);
+    }
     zip.generateAsync({
         type: "blob",
         compression: "DEFLATE",
