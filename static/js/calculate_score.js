@@ -551,7 +551,7 @@ function formatTSV(jsonObject, isCondensed) {
                     resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
                 }
                 else {
-                    resultsString = headerInit.join("\n")
+                    resultsString = headerInit.join("\t")
                 }
             }
 
