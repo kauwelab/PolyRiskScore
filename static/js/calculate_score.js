@@ -387,8 +387,8 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     try {
         var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
-            result = JSON.parse(result[0])
             unusedTraitStudyCombo = result[1]
+            result = JSON.parse(result[0])
         } catch (e) {
             //todo create an endpoint that we can send errors to and give a better error response for the user
             console.log("There was an error in calculating the results. Please try again.")
