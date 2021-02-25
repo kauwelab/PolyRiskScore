@@ -393,9 +393,14 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
             //todo create an endpoint that we can send errors to and give a better error response for the user
             console.log("There was an error in calculating the results. Please try again.")
         }
-        //shortens the result for website desplay
-        outputVal = getSimpleOutput(result)
-        $('#response').html(outputVal);
+        if (result == {}) {
+            $('#response').html("None of the inputted snps were found in the requested traits and studies.");
+        }
+        else {
+            //shortens the result for website desplay
+            outputVal = getSimpleOutput(result)
+            $('#response').html(outputVal);
+        }
         //saves the full result on currently open session of the website for further modifications 
         resultJSON = result;
         unusedTraitStudyArray = unusedTraitStudyCombo;
@@ -625,6 +630,11 @@ function getResultOutput(jsonObject) {
 }
 
 function downloadResults() {
+    if (resultJSON == {} && unusedTraitStudyArray.length == 0) {
+        $('#response').html("There are no files to download. Please try the calculator again");
+        return
+    }
+
     //TODO: update
     document.getElementById("download-bar").style.visibility = "visible";
     //var resultText = document.getElementById("response").value;
