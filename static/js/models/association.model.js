@@ -165,7 +165,42 @@ Association.getAllSnpsToStudyIDs = (refGen, result) => {
         console.log("Error: ", e)
         result(e, null)
     }
- }
+}
+
+Association.getSnpsToTraitStudyID = (studyIDObjs, refGen, result) => {
+    // [{trait: "", studyID: ""}, {trait: "", studyID: ""}]
+    try {
+        queryString = ""
+        queryParams = []
+
+        if (!Array.isArray(studyIDObjs)) {
+            studyIDObjs = [studyIDObjs]
+        }
+        // returns the refgen if valid, else throws an error
+        refGen = validator.validateRefgen(refGen)
+
+        studyIDObjs.forEach(studyObj => {
+            if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
+                studyObj = JSON.parse(studyObj)
+            }
+            queryString = queryString.concat(`SELECT snp, ${refGen}, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ?; `)
+            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait])
+        })
+        console.log('about to query table')
+
+        sql.query(queryString, queryParams, (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            result(null, res);
+        });
+    } catch (e) {
+        console.log("Error: ", e)
+        result(e, null)
+    }
+}
 
 Association.getSingleSnpFromEachStudy = (refGen, result) => {
     try {
