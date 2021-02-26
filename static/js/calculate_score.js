@@ -692,7 +692,7 @@ function download(filenameArray, extension, textArray) {
     })
         .then(function (content) {
             // see FileSaver.js
-            saveAs(content, filename + ".zip");
+            saveAs(content, filenameArray[0] + ".zip");
             document.getElementById("download-bar").style.visibility = "hidden";
         });
 
