@@ -658,10 +658,10 @@ function downloadResults() {
         extension = ".txt";
     }
     if (unusedTraitStudyArray.length != 0) {
-        unusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+        formatedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
     }
 
-    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, unusedTraitStudyArray]);
+    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formatedUnusedTraitStudyArray]);
 }
 
 function getRandomInt(max) {
