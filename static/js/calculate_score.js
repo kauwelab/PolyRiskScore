@@ -573,7 +573,14 @@ function formatTSV(jsonObject, isCondensed) {
                     unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['unmatchedVariants']
                     // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
                     clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['clumpedVariants']
-                    lineResult = `${sample}\t${lineInfo.join('\t')}\t${oddsRatio}\t${protectiveSnps.join("|")}\t${riskSnps.join("|")}\t${unmatchedSnps.join("|")}\t${clumpedSnps.join("|")}`
+
+                    // set the arrays to "." if they are empty
+                    protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
+                    riskSnps = (riskSnps.length == 0) ? "." : riskSnps.join("|")
+                    unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
+                    clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
+
+                    lineResult = `${sample}\t${lineInfo.join('\t')}\t${oddsRatio}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
                     resultsString = resultsString.concat("\n", lineResult)
                 }
             }
