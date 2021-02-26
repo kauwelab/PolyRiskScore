@@ -167,6 +167,7 @@
                         else {
                             tmpStudyObj['traits'][trait] = {}
                             unusedTraitStudyCombo.add([trait, studyID_og])
+                            delete tmpStudyObj['traits'][trait]
                         }
                     }
                     if (atLeastOneGoodSamp) {
