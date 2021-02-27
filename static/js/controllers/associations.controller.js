@@ -118,10 +118,10 @@ exports.getSnpsToTraitStudyID = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             for (i=0; i<data.length; i++) {
-                if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID]))) {
-                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID]] = []
+                if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID].join("|")))) {
+                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")] = []
                 }
-                studyIDTraitsToSnps[[data[i].trait, data[i].studyID]].push(data[i].snp)
+                studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")].push(data[i].snp)
             }
             res.send(studyIDTraitsToSnps);
         }

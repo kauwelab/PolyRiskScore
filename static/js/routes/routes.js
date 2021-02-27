@@ -34,7 +34,7 @@ module.exports = app => {
 
     app.get("/all_snps_to_studyIDs", associations.getAllSnpsToStudyIDs);
 
-    app.get("/snps_to_trait_studyID", associations.getSnpsToTraitStudyID);
+    app.post("/snps_to_trait_studyID", associations.getSnpsToTraitStudyID);
 
     app.get("/single_snp_from_each_study", associations.getSingleSnpFromEachStudy)
 
