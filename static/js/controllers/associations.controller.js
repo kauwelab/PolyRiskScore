@@ -103,6 +103,31 @@ exports.getAllSnpsToStudyIDs = (req, res) => {
     })
 }
 
+exports.getSnpsToTraitStudyID = (req, res) => {
+    var studyIDObjs = req.body.studyIDObjs
+    var refGen = req.body.refGen;
+
+    studyIDTraitsToSnps = {}
+
+    Association.getSnpsToTraitStudyID(studyIDObjs, refGen, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: `Error retrieving associations: ${err}`
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            for (i=0; i<data.length; i++) {
+                if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID].join("|")))) {
+                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")] = []
+                }
+                studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")].push(data[i].snp)
+            }
+            res.send(studyIDTraitsToSnps);
+        }
+    });
+}
+
 exports.getSingleSnpFromEachStudy = (req, res) => {
     var refGen = req.query.refGen;
     Association.getSingleSnpFromEachStudy(refGen, (err,data) => {
@@ -199,6 +224,26 @@ exports.getAssociationsDownloadFile = (req, res) => {
             console.log('Sent:', fileName); 
         } 
     }); 
+}
+
+exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
+    refGen = req.query.refGen
+
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `traitStudyIDToSnps_${refGen}.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    });
 }
 
 async function separateStudies(associations, traitData, refGen, sex) {
