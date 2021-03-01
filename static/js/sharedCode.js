@@ -34,13 +34,14 @@
                     // var studyObjs = new Map();
                     
                     for (studyID in associationData['studyIDsToMetaData']) {
-                        if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
-                            printStudyID = studyID.concat('†')
-                        }
-                        else {
-                            printStudyID = studyID
-                        }
                         for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
+                            if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID] && associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
+                                printStudyID = studyID.concat('†')
+                            }
+                            else {
+                                printStudyID = studyID
+                            }
+
                             if (!(printStudyID in resultObj)) {
                                 resultObj[printStudyID] = {}
                             }
