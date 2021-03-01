@@ -117,10 +117,20 @@ exports.getSnpsToTraitStudyID = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             for (i=0; i<data.length; i++) {
-                if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID].join("|")))) {
-                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")] = []
+                if (Array.isArray(data[i])) {
+                    for (j=0; j<data[i].length; j++) {
+                        if (!(Object.keys(studyIDTraitsToSnps).includes([data[i][j].trait, data[i][j].studyID].join("|")))) {
+                            studyIDTraitsToSnps[[data[i][j].trait, data[i][j].studyID].join("|")] = []
+                        }
+                        studyIDTraitsToSnps[[data[i][j].trait, data[i][j].studyID].join("|")].push(data[i][j].snp)
+                    }
                 }
-                studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")].push(data[i].snp)
+                else {
+                    if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID].join("|")))) {
+                        studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")] = []
+                    }
+                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")].push(data[i].snp)
+                }
             }
             res.send(studyIDTraitsToSnps);
         }
