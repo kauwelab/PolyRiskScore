@@ -233,7 +233,7 @@ exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
     var options = { 
         root: downloadPath
     };
-    var fileName = `traitStudyIDToSnps_${refGen}.txt`; 
+    var fileName = `traitStudyIDToSnps.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
             console.log(err); 
