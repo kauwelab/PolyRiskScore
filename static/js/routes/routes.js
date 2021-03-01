@@ -35,6 +35,8 @@ module.exports = app => {
 
     app.get("/all_snps_to_studyIDs", associations.getAllSnpsToStudyIDs);
 
+    app.post("/snps_to_trait_studyID", associations.getSnpsToTraitStudyID);
+
     app.get("/single_snp_from_each_study", associations.getSingleSnpFromEachStudy)
 
     app.get("/search_for_missing_snps", associations.searchMissingRsIDs)
@@ -45,6 +47,8 @@ module.exports = app => {
 
     app.get("/get_associations_download_file", associations.getAssociationsDownloadFile)
 
+    app.get("/get_traitStudyID_to_snp", associations.getTraitStudyIDToSnpsDownloadFile)
+
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 
@@ -53,6 +57,8 @@ module.exports = app => {
     app.post("/ld_clumping_by_snp", clumps.getClumpingBySnp);
 
     app.get("/get_clumps_download_file", clumps.getClumpsDownloadFile)
+
+    app.get("/last_clumps_update", clumps.getLastClumpsUpdate);
 
     app.get("/cli_version", cli.version);
 

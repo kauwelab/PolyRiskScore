@@ -107,6 +107,13 @@ exports.getFiltered = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
+            if (data == null) {
+                res.status(204).send({
+                    message: "No matching traits/studies were found"
+                });
+                return;
+            }
+
             traitsList = {}
             
             for (i=0; i<data.length; i++) {
@@ -136,7 +143,7 @@ exports.getFiltered = (req, res) => {
 };
 
 exports.getByID = (req, res) => {
-    Study.getByID(req.params.studyIDs, (err, data) => {
+    Study.getByID(req.query.studyIDs, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"

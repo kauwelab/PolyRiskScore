@@ -17,36 +17,36 @@
 # See below for other optional arguments
 
 #===============Argument Handling================================================================
-if [ $# -lt 2 ]; then
+if [ $# -lt 1 ]; then
     echo "Too few arguments! Usage:"
     echo "master_script.sh" 
     echo "  [password]"
-    echo "  [number of nodes to download data (default: 1)]"
+    echo "  [optional: number of nodes to download data (default: 1)]"
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
     echo "  [optional: path to association tsv file folder (default: \"../tables/\")]"
     echo "  [optional: path to study table tsv folder (default: \"../tables/\")]"
     echo "  [optional: path to sample vcf  folder (default: \"../static/\")]"
     read -p "Press [Enter] key to quit..."
-# check if $2, or numNodes, is a number
-elif ! [[ "$2" =~ ^[0-9]+$ ]]; then
-    echo "$2 is the number of nodes you specified to download data, but it is not an integer."
+# check if $2, or numNodes, is populated, that it is a number
+elif [ ! -z $2 ] && ! [[ "$2" =~ ^[0-9]+$ ]]; then
+    echo "'$2' is the number of nodes you specified to download data, but it is not an integer."
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
 # check that if $3, the consoleOutputFolder, is populated, it is a directory that exists
 elif [ ! -z $3 ] && [ ! -d $3 ]; then
-    echo "Directory" $3 "does not exist."
+    echo "Directory" \'$3\' "does not exist."
     read -p "Press [Enter] key to quit..."
-# check that if $4, the associationTableFolderPath,  is populated, it is a directory that exists
+# check that if $4, the associationTableFolderPath, is populated, it is a directory that exists
 elif [ ! -z $4 ] && [ ! -d $4 ]; then
-    echo "Directory" $4 "does not exist."
+    echo "Directory" \'$4\' "does not exist."
     read -p "Press [Enter] key to quit..."
 # check that if $5, the studyTableFolderPath, is populated, it is a directory that exists
 elif [ ! -z $5 ] && [ ! -d $5 ]; then
-    echo "Directory " + $5 + " does not exist."
+    echo "Directory" \'$5\' "does not exist."
     read -p "Press [Enter] key to quit..."
 # check that if $6, the sampleVCFFolderPath, is populated, it is a directory that exists
 elif [ ! -z $6 ] && [ ! -d $6 ]; then
-    echo "Directory " + $6 + " does not exist."
+    echo "Directory" \'$6\' "does not exist."
     read -p "Press [Enter] key to quit..."
 else
     password=$1
@@ -56,6 +56,8 @@ else
     associationTableFolderPath=${4:-"../tables/"} 
     studyTableFolderPath=${5:-"../tables/"}
     sampleVCFFolderPath=${6:-"../static/"}
+    studyAndPubTSVFolderPath="."
+    chainFileFolderPath="."
 
 #===============Creating Output Paths========================================================
     # if the default console output folder path doesn't exist, create it
@@ -79,17 +81,15 @@ else
 #===============GWAS Database Unpacker======================================================
     # download a portion of the study data from the GWAS catalog and put it into tsv files
     # this makes it so each instance of the "unpackDatabaseCommandLine.R" doesn't need to download its own data
-    studyAndPubTSVFolderPath="."
     Rscript downloadStudiesToFile.R $studyAndPubTSVFolderPath
 
-    chainFileFolderPath="."
     echo "Running GWAS database unpacker. This will take many hours depending on the number of nodes you specified to download data."
     for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
         Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
     done
     wait
     echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
-    python sortAssociationsTable.py $associationTableFolderPath
+    Rscript sortAssociationsTable.R $associationTableFolderPath
     wait
 
 #===============Study Table Code============================================================
@@ -102,6 +102,13 @@ else
     rm "./rawGWASPublications.tsv"
     rm "./rawGWASAncestries.tsv"
 
+#==============Perform Strand Flipping=================================================================
+
+    echo "Performing strand flipping on the associations"
+    python3 strandFlipping.py $associationTableFolderPath
+    wait 
+    echo "Finished the strand flipping"
+
 #===============Upload Tables to PRSKB Database========================================================
     # if updatedStudies is empty or none, dont' upload, otherwise upload new tables
     echo "Uploading tables to the PRSKB database."
@@ -109,10 +116,12 @@ else
     wait
     echo -e "Finished uploading tables to the PRSKB database.\n"
 
-#===============Create Sample VCF=====================================================================
+#===============Create Sample VCF/TXT=====================================================================
     echo "Creating sample vcf"
     python3 createSampleVCF.py "sample" $sampleVCFFolderPath
     wait 
+    python3 create_rsID_file_from_vcf.py "sample" $sampleVCFFolderPath
+    wait
     echo "Finished creating sample vcf"
 
 #============Create Association and Clumps download files ============================================

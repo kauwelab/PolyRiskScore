@@ -15,12 +15,8 @@ const port = 3000
 const app = express();
 
 app.use('/', express.static(path.join(__dirname, 'static')))
-app.use(bodyParser.urlencoded({
-    parameterLimit: 100000,
-    limit: '50mb',
-    extended: true
-}));
-app.use(bodyParser.json({ extended: true }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 1000000 }));
+app.use(bodyParser.json({limit: '50mb'}));
 app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
 var busboy = require('connect-busboy'); //middleware for form/file upload

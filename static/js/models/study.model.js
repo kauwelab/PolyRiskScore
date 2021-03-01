@@ -96,6 +96,10 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             result(err, null);
             return;
         }
+        if (res.length == 0) {
+            result(null, null);
+            return;
+        }
         var sqlQueryString = "";
         sqlQueryParams  = []
         for (i = 0; i < res.length; i++) {
@@ -156,8 +160,6 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
         }
         console.log(`traits queried, ${res.length} result(s)`);
 
-        console.log(sqlQueryString)
-
         sql.query(sqlQueryString, sqlQueryParams, (err, data) => {
             if (err) {
                 console.log("error: ", err);
@@ -189,7 +191,7 @@ Study.getByID = (studyIDs, result) => {
             return;
         }
 
-        console.log(`find studies queried with '${searchStr}', ${result.length} result(s)`);
+        console.log(`find studies queried by ID, ${res.length} result(s)`);
         result(null, res);
     });
 }
@@ -197,14 +199,14 @@ Study.getByID = (studyIDs, result) => {
 Study.findStudy = (searchStr, result) => {
     // search by citation, title, or pubMedID
     searchString = `%${searchStr}%`
-    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? ;`, [searchString, searchString, searchString],  (err, res) => {
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? OR studyID LIKE ? OR trait LIKE ? OR reportedTrait LIKE ? ;`, [searchString, searchString, searchString, searchString, searchString, searchString],  (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
 
-        console.log(`find studies queried with '${searchStr}', ${result.length} result(s)`);
+        console.log(`find studies queried with '${searchStr}', ${res.length} result(s)`);
         result(null, res);
     });
 };
