@@ -23,7 +23,11 @@ Ukbbdata.getDiseases = (result) => {
 }
 
 Ukbbdata.getSummaryResults = (studyIDs, result) => {
+    if (!Array.isArray(studyIDs)) {
+        studyIDs = [studyIDs]
+    }
     sqlQuestionMarks = ""
+    console.log(studyIDs)
     for(i = 0; i < studyIDs.length - 1; i++) {
         sqlQuestionMarks += "?, "
     }
@@ -42,6 +46,9 @@ Ukbbdata.getSummaryResults = (studyIDs, result) => {
 }
 
 Ukbbdata.getFullResults = (studyIDs, result) => {
+    if (!Array.isArray(studyIDs)) {
+        studyIDs = [studyIDs]
+    }
     sqlQuestionMarks = ""
     for(i = 0; i < studyIDs.length - 1; i++) {
         sqlQuestionMarks += "?, "

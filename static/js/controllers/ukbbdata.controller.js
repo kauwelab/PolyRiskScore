@@ -21,7 +21,7 @@ exports.getDiseases = (req, res) => {
 }
 
 exports.getSummaryResults = (req, res) => {
-    Ukbbdata.getSummaryResults(req.params.studyIDs, (err, data) => {
+    Ukbbdata.getSummaryResults(req.query.studyIDs, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -36,7 +36,7 @@ exports.getSummaryResults = (req, res) => {
 }
 
 exports.getFullResults = (req, res) => {
-    Ukbbdata.getFullResults(req.params.studyIDs, (err, data) => {
+    Ukbbdata.getFullResults(req.query.studyIDs, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
