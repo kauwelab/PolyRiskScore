@@ -574,7 +574,7 @@ function formatTSV(jsonObject, isCondensed) {
                     // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
                     clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['clumpedVariants']
 
-                    // set the arrays to "." if they are empty
+                    // set the arrays to "." if they are empty, otherwise join them on bar ("|")
                     protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
                     riskSnps = (riskSnps.length == 0) ? "." : riskSnps.join("|")
                     unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
