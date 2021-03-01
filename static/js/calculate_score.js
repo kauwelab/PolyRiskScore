@@ -394,7 +394,7 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
             console.log("There was an error in calculating the results. Please try again.")
         }
         if (result == {}) {
-            $('#response').html("None of the inputted snps were found in the requested traits and studies.");
+            $('#response').html("None of the snps from the input file were found.");
         }
         else {
             //shortens the result for website desplay

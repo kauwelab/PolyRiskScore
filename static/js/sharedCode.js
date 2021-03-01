@@ -83,7 +83,6 @@
                                     associationObj = associationData['associations'][key]['traits'][trait][studyID]
                                     if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
                                         if (associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
-                                            //todo doublecheck that this works
                                             printStudyID = studyID.concat('†')
                                         }
                                     }
