@@ -167,7 +167,7 @@ Association.getAllSnpsToStudyIDs = (refGen, result) => {
     }
 }
 
-Association.getSnpsToTraitStudyID = (studyIDObjs, refGen, result) => {
+Association.getSnpsToTraitStudyID = (studyIDObjs, result) => {
     // [{trait: "", studyID: ""}, {trait: "", studyID: ""}]
     try {
         queryString = ""
@@ -176,14 +176,12 @@ Association.getSnpsToTraitStudyID = (studyIDObjs, refGen, result) => {
         if (!Array.isArray(studyIDObjs)) {
             studyIDObjs = [studyIDObjs]
         }
-        // returns the refgen if valid, else throws an error
-        refGen = validator.validateRefgen(refGen)
 
         studyIDObjs.forEach(studyObj => {
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
                 studyObj = JSON.parse(studyObj)
             }
-            queryString = queryString.concat(`SELECT snp, ${refGen}, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ?; `)
+            queryString = queryString.concat(`SELECT snp, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ?; `)
             queryParams = queryParams.concat([studyObj.studyID, studyObj.trait])
         })
         console.log('about to query table')
