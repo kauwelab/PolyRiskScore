@@ -11,8 +11,8 @@ const Ukbbdata = function (mUkbbdata) {
     // the rest of the columns should be labled p0-p100
 }
 
-Ukbbdata.getDiseases = () => {
-    sql.query("SELECT DISTINCT disease FROM ukbiobank_stats;", (err, res) => {
+Ukbbdata.getDiseases = (result) => {
+    sql.query("SELECT DISTINCT disease, studyID FROM ukbiobank_stats;", (err, res) => {
         if (err) {
             console.log("UKBB TABLE error: ", err);
             result(err, null)
