@@ -1,7 +1,7 @@
 const Ukbbdata = require("../models/ukbbdata.model.js");
 
-exports.getDiseases = (req, res) => {
-    Ukbbdata.getDiseases((err, data) => {
+exports.getTraits = (req, res) => {
+    Ukbbdata.getTraits((err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -13,7 +13,7 @@ exports.getDiseases = (req, res) => {
             //todo need to test
             returnData = []
             for (i = 0; i < data.length; i++) {
-                returnData.push(data[i].disease)
+                returnData.push([data[i].trait, data[i].studyID])
             }
             res.send(returnData);
         }

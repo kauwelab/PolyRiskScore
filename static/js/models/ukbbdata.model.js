@@ -2,7 +2,7 @@ const sql = require('./database')
 
 const Ukbbdata = function (mUkbbdata) {
     this.studyID = mUkbbdata.studyID,
-    this.disease = mUkbbdata.disease,
+    this.trait = mUkbbdata.trait,
     this.mean = mUkbbdata.mean,
     this.median = mUkbbdata.median,
     this.min = mUkbbdata.min,
@@ -11,8 +11,8 @@ const Ukbbdata = function (mUkbbdata) {
     // the rest of the columns should be labled p0-p100
 }
 
-Ukbbdata.getDiseases = (result) => {
-    sql.query("SELECT DISTINCT disease, studyID FROM ukbiobank_stats;", (err, res) => {
+Ukbbdata.getTraits = (result) => {
+    sql.query("SELECT DISTINCT trait, studyID FROM ukbiobank_stats;", (err, res) => {
         if (err) {
             console.log("UKBB TABLE error: ", err);
             result(err, null)
@@ -33,7 +33,7 @@ Ukbbdata.getSummaryResults = (studyIDs, result) => {
     }
     sqlQuestionMarks += "?"
 
-    sqlStatement = `SELECT disease, studyID, mean, median, min, max, rng FROM ukbiobank_stats WHERE studyID in (${sqlQuestionMarks})`
+    sqlStatement = `SELECT trait, studyID, mean, median, min, max, rng FROM ukbiobank_stats WHERE studyID in (${sqlQuestionMarks})`
     sql.query(sqlStatement, studyIDs, (err, res) => {
         if (err) {
             console.log("error: ", err);
