@@ -105,6 +105,7 @@ def getTraitStudyToSnp(password):
         raise NameError('Table does not exist in database {refGen}_chr{i}_clumps'.format(refGen=refGen, i=i))
     return returnedAssociations
 
+
 def formatAndSaveTraitStudyToSnp(associLines, generalFilePath):
     formattedTraitStudyToSnps = {}
     for snp, trait, studyID in associLines:
