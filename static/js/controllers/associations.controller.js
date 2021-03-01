@@ -105,11 +105,10 @@ exports.getAllSnpsToStudyIDs = (req, res) => {
 
 exports.getSnpsToTraitStudyID = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
-    var refGen = req.body.refGen;
 
     studyIDTraitsToSnps = {}
 
-    Association.getSnpsToTraitStudyID(studyIDObjs, refGen, async (err, data) => {
+    Association.getSnpsToTraitStudyID(studyIDObjs, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
@@ -227,13 +226,11 @@ exports.getAssociationsDownloadFile = (req, res) => {
 }
 
 exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
-    refGen = req.query.refGen
-
     downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
     var options = { 
         root: downloadPath
     };
-    var fileName = `traitStudyIDToSnps_${refGen}.txt`; 
+    var fileName = `traitStudyIDToSnps.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
             console.log(err); 
