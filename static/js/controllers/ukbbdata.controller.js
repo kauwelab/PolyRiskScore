@@ -20,6 +20,21 @@ exports.getTraits = (req, res) => {
     })
 }
 
+exports.getStudies = (req, res) => {
+    Ukbbdata.getStudies(req.query.trait, req.query.studyTypes, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message:
+                err.message || "Error occured while retrieving data."
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.send(data);
+        }
+    })
+}
+
 exports.getSummaryResults = (req, res) => {
     Ukbbdata.getSummaryResults(req.query.studyIDs, (err, data) => {
         if (err) {
