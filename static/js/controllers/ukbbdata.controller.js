@@ -13,7 +13,7 @@ exports.getTraits = (req, res) => {
             //todo need to test
             returnData = []
             for (i = 0; i < data.length; i++) {
-                returnData.push([data[i].trait, data[i].studyID])
+                returnData.push(data[i].trait)
             }
             res.send(returnData);
         }
@@ -30,7 +30,23 @@ exports.getStudies = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(data);
+            // ensure that we are only returning studies for which we have data in the ukbb table
+            studiesFromStudyTable = data[0]
+            studyDataFromUKBB = data[1]
+            studyIDsFromUKBB = []
+            studiesToReturn = []
+
+            for (i=0; i<studyDataFromUKBB.length; i++) {
+                studyIDsFromUKBB.push(studyDataFromUKBB[i].studyID)
+            }
+
+            for (i=0; i<studiesFromStudyTable.length; i++) {
+                if (studyIDsFromUKBB.includes(studiesFromStudyTable[i].studyID)) {
+                    studiesToReturn.push(studiesFromStudyTable[i])
+                }
+            }
+
+            res.send(studiesToReturn);
         }
     })
 }

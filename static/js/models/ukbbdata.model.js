@@ -11,8 +11,10 @@ const Ukbbdata = function (mUkbbdata) {
     // the rest of the columns should be labled p0-p100
 }
 
+//TODO!!!!!: we should maybe add reportedTrait to the ukbb data table as a column?
+
 Ukbbdata.getTraits = (result) => {
-    sql.query("SELECT DISTINCT trait, studyID FROM ukbiobank_stats;", (err, res) => {
+    sql.query("SELECT DISTINCT trait FROM ukbiobank_stats;", (err, res) => {
         if (err) {
             console.log("UKBB TABLE error: ", err);
             result(err, null)
@@ -50,7 +52,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
         sqlQueryParams = []
         for (i=0; i<res.length; i++) {
             //subQueryString is the string that we append query constraints to from the HTTP request
-            var subQueryString = `SELECT citation, trait, reportedTrait, studyID FROM study_table WHERE ( trait = ? OR reportedTrait = ? ) `;
+            var subQueryString = `SELECT * FROM study_table WHERE ( trait = ? OR reportedTrait = ? ) `;
             sqlQueryParams.push(trait)
             sqlQueryParams.push(trait)
             var appendor = "AND (";
@@ -87,11 +89,32 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
                 result(err, null);
                 return;
             }
-            result(null, data)
+
+            sqlQuestionMarks = ""
+            studyIDs = []
+            for (i=0; i<data.length; i++) {
+                if (i == data.length-1) {
+                    sqlQuestionMarks = sqlQuestionMarks.concat("?")
+                } else {
+                    sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+                }
+                studyIDs.push(data[i].studyID)
+            }
+
+            // grab trait/studyID combos that are in the ukbb table
+            sql.query(`SELECT trait, studyID FROM ukbiobank_stats WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
+                if (err) {
+                    console.log("error: ", err);
+                    result(err, null);
+                    return;
+                }
+                result(null, [data, matchingStudyIDsData])
+            })
         })
     })
 }
 
+//TODO UPDATE THESE FOR TRAIT?
 Ukbbdata.getSummaryResults = (studyIDs, result) => {
     if (!Array.isArray(studyIDs)) {
         studyIDs = [studyIDs]

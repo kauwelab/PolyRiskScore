@@ -3,8 +3,9 @@ function getTraits() {
     //call the API and populate the traits dropdown with the results
     $.ajax({
         type: "GET",
-        url: "get_traits",
+        url: "ukbb_get_traits",
         success: async function (data) {
+            console.log(data)
             traitsList = data;
             var selector = document.getElementById("trait-Selector");
             for (i = 0; i < traitsList.length; i++) {
@@ -25,7 +26,7 @@ function getStudies() {
     var studyTypeSelector = document.getElementById("studyType-Selector");    
 
     if (traitSelector.value != "default" && studyTypeSelector.value != "default"){
-        trait = [traitSelector.value]
+        trait = traitSelector.value
         studyTypes = [studyTypeSelector.value]
         if (studyTypeSelector.value == "ALL"){
             studyTypes = ["HI", "LC", "O"]
@@ -35,31 +36,31 @@ function getStudies() {
         var studySelector = document.getElementById("study-Selector");
         
         $.ajax({
-            type: "POST",
-            url: "/get_studies",
-            data: { traits: trait, studyTypes: studyTypes },
-            success: async function (data) {
-                var studyLists = data;
-                var traits = Object.keys(data);
+            type: "GET",
+            url: "/ukbb_get_studies",
+            data: { trait: trait, studyTypes: studyTypes },
+            success: async function (studyLists) {
 
-                if (traits.length == 0) {
+                if (studyLists.length == 0) {
                     alert(`No results were found using the specified filters. Try using different filters.`)
                 }
 
-                for (i = 0; i < traits.length; i++) {
-                    var trait = traits[i];
-                    for (j = 0; j < studyLists[trait].length; j++) {
-                        var study = studyLists[trait][j];
-                        var opt = document.createElement('option');
-                        var displayString = study.citation + ' | ' + study.studyID;
-                        opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(displayString)));
-                        opt.value = study.studyID;
-                        opt.setAttribute('data-altmetric-score', study.altmetricScore);
-                        opt.setAttribute('data-citation', study.citation);
-                        opt.setAttribute('data-title', study.title);
-                        opt.setAttribute('data-pubmedid', study.pubMedID);
-                        studySelector.appendChild(opt);
-                    }
+                for (i = 0; i < studyLists.length; i++) {
+                    studyObj = studyLists[i]
+                    var trait = studyObj.trait
+                    var studyID = studyObj.studyID
+                    var displayString = studyObj.citation + " | " + studyID //trait + " | " +  <-- putting that code at the front would make it match the calculation page
+
+                    var opt = document.createElement('option');
+                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(displayString)));
+                    opt.value = studyID;
+                    opt.setAttribute('data-altmetric-score', studyObj.altmetricScore);
+                    opt.setAttribute('data-citation', studyObj.citation);
+                    opt.setAttribute('data-title', studyObj.title);
+                    opt.setAttribute('data-pubmedid', studyObj.pubMedID);
+                    opt.setAttribute('data-reported-trait', studyObj.reportedTrait);
+                    opt.setAttribute('data-trait', trait);
+                    studySelector.appendChild(opt);
                 }
             },
             error: function (XMLHttpRequest) {
@@ -137,6 +138,6 @@ function displayGraphs() {
 
     Plotly.newPlot(tablePlot, tableData)
     var studyMetadata = document.getElementById("studymetadata")
-    metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p><p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p><p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p><p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p><br>`
+    metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p><p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p><p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p><p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p><p><b>Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p><p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p><br>`
     studyMetadata.innerHTML = metadatastring
 }
