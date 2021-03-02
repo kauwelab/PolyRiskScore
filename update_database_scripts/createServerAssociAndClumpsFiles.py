@@ -116,13 +116,9 @@ def formatAndSaveTraitStudyToSnp(associLines, generalFilePath):
 
     traitStudyToSnpPath = os.path.join(generalFilePath, "traitStudyIDToSnps.txt")
     f = open(traitStudyToSnpPath, 'w')
-
-    for key in formattedTraitStudyToSnps:
-        line = "\"{}\": \"{}\"".format(key, "|".join(formattedTraitStudyToSnps[key]))
-        line = "{ " + line + " }\n"
-        f.write(line)
-    
+    f.write(json.dumps(formattedTraitStudyToSnps))
     f.close()
+    return
 
 
 def createServerDownloadFiles(params): 
