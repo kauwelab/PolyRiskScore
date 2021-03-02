@@ -81,13 +81,56 @@ def formatClumps(clumpsUnformatted):
     return clumps
 
 
-def createAssociationsAndClumpsFiles(params): 
+# get the trait/study to snps from the database:
+def getTraitStudyToSnp(password):
+    config = {
+        'user': 'polyscore',
+        'password': password,
+        'host': 'localhost',
+        'database': 'polyscore',
+        'auth_plugin': 'mysql_native_password',
+    }
+
+    connection = getConnection(config)
+
+    print("Getting trait/study to snp")
+
+    if (checkTableExists(connection.cursor(), "associations_table")):
+        cursor = connection.cursor()
+        sql = "SELECT snp, trait, studyID FROM associations_table; "
+        cursor.execute(sql)
+        returnedAssociations = cursor.fetchall()
+        cursor.close()
+    else:
+        raise NameError('Table does not exist in database {refGen}_chr{i}_clumps'.format(refGen=refGen, i=i))
+    return returnedAssociations
+
+
+def formatAndSaveTraitStudyToSnp(associLines, generalFilePath):
+    formattedTraitStudyToSnps = {}
+    for snp, trait, studyID in associLines:
+        key = "|".join([trait, studyID])
+        if (key not in formattedTraitStudyToSnps):
+            formattedTraitStudyToSnps[key] = []
+        formattedTraitStudyToSnps[key].append(snp)
+
+    traitStudyToSnpPath = os.path.join(generalFilePath, "traitStudyIDToSnps.txt")
+    f = open(traitStudyToSnpPath, 'w')
+
+    for key in formattedTraitStudyToSnps:
+        line = "\"{}\": \"{}\"".format(key, "|".join(formattedTraitStudyToSnps[key]))
+        line = "{ " + line + " }\n"
+        f.write(line)
+    
+    f.close()
+
+
+def createServerDownloadFiles(params): 
     refGen = params[0]
     password = params[1]
+    generalFilePath = params[2]
 
     rsIDKeys = set()
-    # general file path for writing the files to
-    generalFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../static/downloadables/associationsAndClumpsFiles")
 
     # creating an AllAssociations file for both sexes for the refGen
     for sex in ['male', 'female']:
@@ -119,12 +162,20 @@ def createAssociationsAndClumpsFiles(params):
 def main():
     password = argv[1]
     paramOpts = []
+
+    # general file path for writing the files to
+    generalFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../static/downloadables/associationsAndClumpsFiles")
+
+    # creating the trait/studyID to snps file
+    returnedAssociations = getTraitStudyToSnp(password)
+    formatAndSaveTraitStudyToSnp(returnedAssociations, generalFilePath)
+
     # we create params for each refGen so that we can run them on multiple processes
     for refGen in ['hg17', 'hg18', 'hg19', 'hg38']:
-        paramOpts.append((refGen, password))
+        paramOpts.append((refGen, password, generalFilePath))
 
     with Pool(processes=4) as pool:
-        pool.map(createAssociationsAndClumpsFiles, paramOpts)
+        pool.map(createServerDownloadFiles, paramOpts)
 
 
 if __name__ == "__main__":
