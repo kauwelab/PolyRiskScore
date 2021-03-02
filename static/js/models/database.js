@@ -5,8 +5,8 @@ const passwords = require('../passwords');
 
 const connection = mysql.createConnection({
     host: 'localhost',
-    user: 'polyscore',
-    password: passwords.getMySQLPassword(),
+    user: 'client',
+    password: passwords.getMySQLClientPassword(),
     database: 'polyscore', 
     multipleStatements: true
 });
