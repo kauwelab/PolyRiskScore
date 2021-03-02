@@ -3,6 +3,7 @@ module.exports = app => {
     const associations = require("../controllers/associations.controller");
     const clumps = require("../controllers/clumps.controller");
     const cli = require("../controllers/cli.controller");
+    const ukbbdata = require("../controllers/ukbbdata.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -63,5 +64,12 @@ module.exports = app => {
 
     app.get("/download_cli", cli.download);
 
-    app.get("/join_test", associations.joinTest)
+    app.get("/ukbb_get_traits", ukbbdata.getTraits);
+
+    // gets summary data (mean, median, range, ect.) from database using studyID(s)
+    app.get("/ukbb_summary_results", ukbbdata.getSummaryResults);
+
+    app.get("/ukbb_full_results", ukbbdata.getFullResults);
+
+    app.get("/join_test", associations.joinTest);
 }
