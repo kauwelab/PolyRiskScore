@@ -5,7 +5,6 @@ function getTraits() {
         type: "GET",
         url: "ukbb_get_traits",
         success: async function (data) {
-            console.log(data)
             traitsList = data;
             var selector = document.getElementById("trait-Selector");
             for (i = 0; i < traitsList.length; i++) {
@@ -74,70 +73,96 @@ function getStudies() {
 
 function displayGraphs() {
     var studySelector = document.getElementById("study-Selector");
-    studyID = studySelector.value;
-
-    //update the header name of the study
-    var studyName = document.getElementById("studyName")
     selectedStudy = studySelector.options[studySelector.selectedIndex]
-    studyName.innerText = selectedStudy.getAttribute("data-citation");
-    studyName.hidden = false;
-    var violinPlot = document.getElementById("violinPlot");
-    var tablePlot = document.getElementById("tablePlot");
+    studyID = studySelector.value;
+    trait = selectedStudy.getAttribute("data-trait")
 
-    // add code to hook up with the ukbb endpoints
+    $.ajax({
+        type: "GET",
+        url: "/ukbb_full_results",
+        data: { trait: trait, studyID: studyID },
+        success: async function (data) {
 
-    var violinData = [{
-        type: 'violin',
-        y: [3,5,7,3,5,7,8,2,4,5,7,8,4,8,8,8,2,2,2,30],
-        box: {
-            visible: true
+            if (data.length == 0) {
+                alert(`There was an error retrieving the data to display`)
+            }
+            else {
+                //update the header name of the study
+                var studyName = document.getElementById("studyName")
+                studyName.innerText = selectedStudy.getAttribute("data-citation");
+                studyName.hidden = false;
+                var violinPlot = document.getElementById("violinPlot");
+                var tablePlot = document.getElementById("tablePlot");
+
+                const keys = Object.keys(data[0]);
+                arrayOfValues = []
+
+                // iterate over keys and create datapoints
+                keys.forEach((key, index) => {
+                    if (/^p[0-9]{1,3}$/.test(key)) {
+                        arrayOfValues.push(data[0][key])
+                    }
+                });
+
+                var violinData = [{
+                    type: 'violin',
+                    y: arrayOfValues,
+                    box: {
+                        visible: true
+                    },
+                    boxpoints: false,
+                    line: {
+                        color: 'black'
+                    },
+                    fillcolor: '#8dd3c7',
+                    meanline: {
+                        visible: true
+                    }
+                }]
+
+                var violinLayout= {
+                    title: "",
+                    yaxis: {
+                        zeroline: false
+                    }
+                }
+
+                Plotly.newPlot(violinPlot, violinData, violinLayout)
+
+                var values = [
+                    ['Salaries', 'Office', 'Merchandise', 'Legal', '<b>TOTAL</b>'],
+                    [1200000, 20000, 80000, 2000, 12120000],
+                    [1300000, 20000, 70000, 2000, 130902000],
+                    [1300000, 20000, 120000, 2000, 131222000],
+                    [1400000, 20000, 90000, 2000, 14102000]]
+
+                var tableData = [{
+                    type: 'table',
+                    header: {
+                        values: [["<b>EXPENSES</b>"], ["<b>Q1</b>"],
+                            ["<b>Q2</b>"], ["<b>Q3</b>"], ["<b>Q4</b>"]],
+                        align: "center",
+                        line: {width: 1, color: 'black'},
+                        fill: {color: "grey"},
+                        font: {family: "Arial", size: 12, color: "white"}
+                    },
+                    cells: {
+                        values: values,
+                        align: "center",
+                        line: {color: "black", width: 1},
+                        font: {family: "Arial", size: 11, color: ["black"]}
+                    }
+                }]
+
+                Plotly.newPlot(tablePlot, tableData)
+                var studyMetadata = document.getElementById("studymetadata")
+                metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p><p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p><p><b>Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p><p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p><p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p><p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p><br>`
+                studyMetadata.innerHTML = metadatastring
+            }
         },
-        boxpoints: false,
-        line: {
-            color: 'black'
-        },
-        fillcolor: '#8dd3c7',
-        meanline: {
-            visible: true
+        error: function (XMLHttpRequest) {
+            alert(`There was an error loading the studies`);
         }
-    }]
+    })
 
-    var violinLayout= {
-        title: "",
-        yaxis: {
-            zeroline: false
-        }
-    }
-
-    Plotly.newPlot(violinPlot, violinData, violinLayout)
-
-    var values = [
-        ['Salaries', 'Office', 'Merchandise', 'Legal', '<b>TOTAL</b>'],
-        [1200000, 20000, 80000, 2000, 12120000],
-        [1300000, 20000, 70000, 2000, 130902000],
-        [1300000, 20000, 120000, 2000, 131222000],
-        [1400000, 20000, 90000, 2000, 14102000]]
-
-    var tableData = [{
-        type: 'table',
-        header: {
-            values: [["<b>EXPENSES</b>"], ["<b>Q1</b>"],
-                ["<b>Q2</b>"], ["<b>Q3</b>"], ["<b>Q4</b>"]],
-            align: "center",
-            line: {width: 1, color: 'black'},
-            fill: {color: "grey"},
-            font: {family: "Arial", size: 12, color: "white"}
-        },
-        cells: {
-            values: values,
-            align: "center",
-            line: {color: "black", width: 1},
-            font: {family: "Arial", size: 11, color: ["black"]}
-        }
-    }]
-
-    Plotly.newPlot(tablePlot, tableData)
-    var studyMetadata = document.getElementById("studymetadata")
-    metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p><p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p><p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p><p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p><p><b>Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p><p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p><br>`
-    studyMetadata.innerHTML = metadatastring
 }

@@ -67,7 +67,7 @@ exports.getSummaryResults = (req, res) => {
 }
 
 exports.getFullResults = (req, res) => {
-    Ukbbdata.getFullResults(req.query.studyIDs, (err, data) => {
+    Ukbbdata.getFullResults(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:

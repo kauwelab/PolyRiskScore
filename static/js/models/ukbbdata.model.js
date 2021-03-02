@@ -138,24 +138,15 @@ Ukbbdata.getSummaryResults = (studyIDs, result) => {
     })
 }
 
-Ukbbdata.getFullResults = (studyIDs, result) => {
-    if (!Array.isArray(studyIDs)) {
-        studyIDs = [studyIDs]
-    }
-    sqlQuestionMarks = ""
-    for(i = 0; i < studyIDs.length - 1; i++) {
-        sqlQuestionMarks += "?, "
-    }
-    sqlQuestionMarks += "?"
+Ukbbdata.getFullResults = (studyID, trait, result) => {
 
-    sqlStatement = `SELECT * FROM ukbiobank_stats WHERE studyID in (${sqlQuestionMarks})`
-    sql.query(sqlStatement, studyIDs, (err, res) => {
+    sqlStatement = `SELECT * FROM ukbiobank_stats WHERE studyID = ? and trait = ?`
+    sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-
         result(null, res);
     })
 }
