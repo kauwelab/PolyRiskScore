@@ -30,9 +30,6 @@
                 //then convert this map into the right format for results
                 //for each individual and their snp info in the vcf object
                 for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
-                    // //key value pairs- study:{oddsRatios, snps, pos}
-                    // var studyObjs = new Map();
-                    
                     for (studyID in associationData['studyIDsToMetaData']) {
                         for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
                             if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID] && associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {

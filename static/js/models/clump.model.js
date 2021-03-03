@@ -52,8 +52,8 @@ Clump.getClumpsByPos = (superpopclump, refGenome, positions, result) => {
                 chromosomesToSearch[chrom[0]].push(position)
             }
             else {
-            chromosomesToSearch[chrom[0]] = []
-                    chromosomesToSearch[chrom[0]].push(position)
+                chromosomesToSearch[chrom[0]] = []
+                chromosomesToSearch[chrom[0]].push(position)
             }
         }
 
