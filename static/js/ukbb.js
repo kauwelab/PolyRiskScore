@@ -24,7 +24,7 @@ function getTraits() {
 
 function getStudies() {
     var traitSelector = document.getElementById("trait-Selector");
-    var studyTypeSelector = document.getElementById("studyType-Selector");    
+    var studyTypeSelector = document.getElementById("studyType-Selector");
 
     if (traitSelector.value != "default" && studyTypeSelector.value != "default"){
         trait = traitSelector.value
@@ -44,6 +44,8 @@ function getStudies() {
 
                 if (studyLists.length == 0) {
                     alert(`No results were found using the specified filters. Try using different filters.`)
+                    resetFilters();
+                    return
                 }
 
                 for (i = 0; i < studyLists.length; i++) {
@@ -66,12 +68,23 @@ function getStudies() {
             },
             error: function (XMLHttpRequest) {
                 alert(`There was an error loading the studies`);
+                resetFilters();
+                return
             }
         })
 
         studySelector.disabled = false;
     }
 }
+
+function resetFilters() {
+    var studySelector = document.getElementById("study-Selector");
+    studySelector.value = 'default';
+    studySelector.disabled = true;
+    
+    var studyTypeSelector = document.getElementById("studyType-Selector");
+    studyTypeSelector.value = 'default';
+ }
 
 function displayGraphs() {
     var studySelector = document.getElementById("study-Selector");
