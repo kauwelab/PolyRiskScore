@@ -94,8 +94,23 @@
         </div>
       </div>
       <div class="row">
-        <div id="violinPlot" style="max-width: 29em; margin-bottom: 3em; margin-right: 2em;"></div>
+        <div id="plotAndButtons" class="column" style="width: 50%; max-width: 29em; margin-bottom: 3em; margin-right: 2em; visibility: hidden;">
+          <div id="plotSpace"></div>
+          <div class="text-center" style="margin-top: 1em;">
+            <form name="plotTypeRadio">
+              <input type="radio" name="plot_type" value="Violin" id="violin" checked onchange="changePlot()">
+              <label for="violin" style="margin-right: 1em;">Violin</label>
+              <input type="radio" name="plot_type" value="Box" id="box" onchange="changePlot()">
+              <label for="box" style="margin-right: 1em;">Box</label>
+              <input type="radio" name="plot_type" value="Histogram" id="histogram" onchange="changePlot()">
+              <label for="histogram" style="margin-right: 1em;">Histogram</label>
+            </form>
+          </div>
+        </div>
         <div id="tablePlot" style="max-width: 29em; margin-bottom: 3em;"></div>
+      </div>
+      <div>
+        
       </div>
       <div id="studymetadata">
         <!-- Put meta data here (studyName, citation, altmetric score, ect) -->

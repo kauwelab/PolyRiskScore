@@ -1,3 +1,5 @@
+var displayDataObj = {}
+
 function getTraits() {
 
     //call the API and populate the traits dropdown with the results
@@ -91,10 +93,10 @@ function displayGraphs() {
                 var studyName = document.getElementById("studyName")
                 studyName.innerText = selectedStudy.getAttribute("data-citation");
                 studyName.hidden = false;
-                var violinPlot = document.getElementById("violinPlot");
                 var tablePlot = document.getElementById("tablePlot");
+                displayDataObj = data[0]
 
-                const keys = Object.keys(data[0]);
+                const keys = Object.keys(displayDataObj);
                 arrayOfValues = []
 
                 // iterate over keys and create datapoints
@@ -104,31 +106,9 @@ function displayGraphs() {
                     }
                 });
 
-                var violinData = [{
-                    type: 'violin',
-                    y: arrayOfValues,
-                    box: {
-                        visible: true
-                    },
-                    boxpoints: false,
-                    line: {
-                        color: 'black'
-                    },
-                    fillcolor: '#8dd3c7',
-                    meanline: {
-                        visible: true
-                    },
-                    x0: studyID
-                }]
+                displayDataObj["arrayOfValues"] = arrayOfValues
 
-                var violinLayout= {
-                    title: "",
-                    yaxis: {
-                        zeroline: false
-                    }
-                }
-
-                Plotly.newPlot(violinPlot, violinData, violinLayout)
+                changePlot()
 
                 var values = [
                     ['Salaries', 'Office', 'Merchandise', 'Legal', '<b>TOTAL</b>'],
@@ -165,5 +145,92 @@ function displayGraphs() {
             alert(`There was an error loading the studies`);
         }
     })
+}
 
+function displayViolinPlot() {
+    var violinPlot = document.getElementById("plotSpace");
+
+    var violinData = [{
+        type: 'violin',
+        y: displayDataObj["arrayOfValues"],
+        box: {
+            visible: true
+        },
+        boxpoints: false,
+        opacity: 0.6,
+        line: {
+            color: 'black'
+        },
+        fillcolor: '#8dd3c7',
+        meanline: {
+            visible: true
+        },
+        x0: displayDataObj['studyID']
+    }]
+
+    var violinLayout= {
+        title: "",
+        yaxis: {
+            zeroline: false
+        }
+    }
+
+    Plotly.newPlot(violinPlot, violinData, violinLayout)
+}
+
+function displayBoxPlot() {
+    var boxPlot = document.getElementById("plotSpace");
+
+    var data = [
+        {
+            y: displayDataObj["arrayOfValues"],
+            boxpoints: false,
+            type: 'box',
+            name: displayDataObj['studyID'],
+            opacity: 0.6,
+            line: {
+                color: 'black'
+            },
+            fillcolor: '#8dd3c7'
+        }
+    ];
+
+    Plotly.newPlot(boxPlot, data)
+}
+
+function displayHistogramPlot() {
+    var histogramPlot = document.getElementById("plotSpace");
+
+    var data = [{
+        x: displayDataObj["arrayOfValues"],
+        type: 'histogram',
+        opacity: 0.6,
+        line: {
+            color: 'black'
+        },
+        marker: {
+            color: '#8dd3c7'
+        },
+        name: displayDataObj['studyID']
+    }]
+
+    Plotly.newPlot(histogramPlot, data)
+}
+
+function changePlot() {
+    document.getElementById("plotAndButtons").style.visibility='visible';
+
+    var plotType = document.querySelector('input[name="plot_type"]:checked').value;
+    console.log(plotType)
+
+    switch(plotType) {
+        case "Histogram":
+          displayHistogramPlot()
+          break;
+        case "Box":
+          displayBoxPlot()
+          break;
+        default:
+            displayViolinPlot()
+    }
 }
