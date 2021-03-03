@@ -17,8 +17,7 @@ def callAllAssociationsEndpoint(refGen, sex):
     params = {
         'pValue': 1,
         'refGen': refGen,
-        'sex': sex,
-        'isVCF': True
+        'sex': sex
     }
     associations = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
     return associations
