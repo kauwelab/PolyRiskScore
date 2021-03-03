@@ -14,7 +14,7 @@ const Ukbbdata = function (mUkbbdata) {
 //TODO!!!!!: we should maybe add reportedTrait to the ukbb data table as a column?
 
 Ukbbdata.getTraits = (result) => {
-    sql.query("SELECT DISTINCT trait FROM ukbiobank_stats;", (err, res) => {
+    sql.query("SELECT DISTINCT trait FROM ukbiobank_stats ORDER BY trait;", (err, res) => {
         if (err) {
             console.log("UKBB TABLE error: ", err);
             result(err, null)
@@ -52,7 +52,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
         sqlQueryParams = []
         for (i=0; i<res.length; i++) {
             //subQueryString is the string that we append query constraints to from the HTTP request
-            var subQueryString = `SELECT * FROM study_table WHERE ( trait = ? OR reportedTrait = ? ) ORDER BY trait`;
+            var subQueryString = `SELECT * FROM study_table WHERE ( trait = ? OR reportedTrait = ? )`;
             sqlQueryParams.push(trait)
             sqlQueryParams.push(trait)
             var appendor = "AND (";
@@ -102,7 +102,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
             }
 
             // grab trait/studyID combos that are in the ukbb table
-            sql.query(`SELECT trait, studyID FROM ukbiobank_stats WHERE studyID IN (${sqlQuestionMarks}) ORDER BY trait`, studyIDs, (err, matchingStudyIDsData) => {
+            sql.query(`SELECT trait, studyID FROM ukbiobank_stats WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
