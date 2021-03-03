@@ -29,13 +29,10 @@
                 //then convert this map into the right format for results
                 //for each individual and their snp info in the vcf object
                 for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
-                    // //key value pairs- study:{oddsRatios, snps, pos}
-                    // var studyObjs = new Map();
-                    
                     for (studyID in associationData['studyIDsToMetaData']) {
-			if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
-				printStudyID = studyID.concat('†')
-			}
+                        if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
+                            printStudyID = studyID.concat('†')
+                        }
                         for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
                             if (!(printStudyID in resultObj)) {
                                 resultObj[printStudyID] = {}
@@ -75,9 +72,9 @@
                                 for (studyID in associationData['associations'][key]['traits'][trait]) {
                                     traitStudySamp = (trait, studyID, individualName)
                                     associationObj = associationData['associations'][key]['traits'][trait][studyID]
-				    if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
-				        printStudyID = studyID.concat('†')
-				    }
+                                    if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
+                                        printStudyID = studyID.concat('†')
+                                    }
 
                                     if (associationObj.pValue <= pValue) {
                                         numAllelesMatch = 0
@@ -125,9 +122,9 @@
                 }
 
                 for (studyID in resultObj) {
-		    if ('†' in studyID) {
-		        studyID_og = studyID.slice(0, -1)
-		    }
+                    if ('†' in studyID) {
+                        studyID_og = studyID.slice(0, -1)
+                    }
                     tmpStudyObj = {
                         citation: associationData['studyIDsToMetaData'][studyID_og]['citation'],
                         reportedTrait: associationData['studyIDsToMetaData'][studyID_og]['reportedTrait'],
