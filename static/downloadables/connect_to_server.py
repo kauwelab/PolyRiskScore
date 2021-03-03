@@ -39,16 +39,18 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
         if (checkForAllAssociFile(refGen, defaultSex)):
             associationsReturnObj = getAllAssociations(refGen, defaultSex)
+            studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
+            studySnpsData = getAllStudySnps()
 
         if (checkForAllClumps(superPop, refGen)):
             clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
             clumpsData = getAllClumps(refGen, superPop)
-
+        
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex)
+        associationsReturnObj, finalStudyList = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex)
 
         # grab all the snps or positions to use for getting the clumps
         snpsFromAssociations = list(associationsReturnObj['associations'].keys())
@@ -58,6 +60,11 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         clumpsPath = os.path.join(workingFilesPath, fileName)
         # get clumps using the refGen and superpopulation
         clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
+        
+        # get the study:snps info
+        fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
+        studySnpsPath = os.path.join(workingFilesPath, fileName)
+        studySnpsData = getSpecificStudySnps(refGen, finalStudyList)
 
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
@@ -69,6 +76,12 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     if 'clumpsData' in locals():
         f = open(clumpsPath, 'w', encoding="utf-8")
         f.write(json.dumps(clumpsData))
+        f.close()
+
+    # check to see if studySnpsDat is instantiated in the local variables
+    if 'studySnpsData' in locals():
+        f = open(studySnpsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(studySnpsData))
         f.close()
 
     return
@@ -93,7 +106,7 @@ def checkForAllAssociFile(refGen, defaultSex):
         }
 
         response = requests.get(url="https://prs.byu.edu/last_database_update", params=params)
-        response.close()
+        #response.close()
         assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
         lastDatabaseUpdate = response.text
         lastDatabaseUpdate = lastDatabaseUpdate.split("-")
@@ -102,7 +115,7 @@ def checkForAllAssociFile(refGen, defaultSex):
         fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
         fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
         # if the file is newer than the database update, we don't need to download a new file
-        if (lastDBUpdateDate <= fileModDate):
+        if (lastDBUpdateDate < fileModDate):
             dnldNewAllAssociFile = False
 
     return dnldNewAllAssociFile
@@ -141,6 +154,37 @@ def checkForAllClumps(pop, refGen):
     return dnldNewClumps
 
 
+def checkForAllStudySnps(refGen):
+    # assume we need to download new file
+    dnldNewStudySnpsFile = True
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+
+     # path to a file containing all the clumps from the database
+    studySnpsFile = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
+
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(studySnpsFile):
+        params = {
+            "refGen": refGen,
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_database_update", params=params)
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+        lastDatabaseUpdate = response.text
+        lastDatabaseUpdate = lastDatabaseUpdate.split("-")
+        lastDBUpdateDate = datetime.date(int(lastDatabaseUpdate[0]), int(lastDatabaseUpdate[1]), int(lastDatabaseUpdate[2]))
+
+        fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastDBUpdateDate <= fileModDate):
+            dnldNewStudySnpsFile = False
+
+    return dnldNewStudySnpsFile
+
 # gets associations obj download from the Server
 def getAllAssociations(refGen, defaultSex): 
     params = {
@@ -161,6 +205,11 @@ def getAllClumps(refGen, superPop):
     clumpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_clumps_download_file", params=params)
     return clumpsReturnObj
 
+# gets study snps file download from the Server
+def getAllStudySnps(): 
+    studySnpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_traitStudyID_to_snp", params=None)
+    # Organized with study as the Keys and snps as values
+    return studySnpsReturnObj
 
 # gets associationReturnObj using the given filters
 def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex):
@@ -214,7 +263,7 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
         raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
 
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
-    return associationsReturnObj
+    return associationsReturnObj, finalStudyList
 
 
 # for POST urls
@@ -229,7 +278,10 @@ def postUrlWithBody(url, body):
 
 # for GET urls
 def getUrlWithParams(url, params):
-    response = requests.get(url=url, params=params)
+    if params is None:
+        response = requests.get(url=url)
+    else:
+        response = requests.get(url=url, params=params)
     response.close()
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()  
@@ -265,6 +317,19 @@ def getClumps(refGen, superPop, snpsFromAssociations):
 
     return clumps
 
+# gets associationReturnObj using the given filters
+def getSpecificStudySnps(refGen, finalStudyList):
+    # get the studies matching the parameters
+    body = {
+        "studyIDObjs":finalStudyList
+    }
+    
+    try:
+        studySnps = postUrlWithBody("https://prs.byu.edu/snps_to_trait_studyID", body)
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+    
+    return studySnps
 
 def checkInternetConnection():
     try:
