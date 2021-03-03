@@ -52,7 +52,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
         sqlQueryParams = []
         for (i=0; i<res.length; i++) {
             //subQueryString is the string that we append query constraints to from the HTTP request
-            var subQueryString = `SELECT * FROM study_table WHERE ( trait = ? OR reportedTrait = ? ) `;
+            var subQueryString = `SELECT * FROM study_table WHERE ( trait = ? OR reportedTrait = ? ) ORDER BY trait`;
             sqlQueryParams.push(trait)
             sqlQueryParams.push(trait)
             var appendor = "AND (";
@@ -102,7 +102,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
             }
 
             // grab trait/studyID combos that are in the ukbb table
-            sql.query(`SELECT trait, studyID FROM ukbiobank_stats WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
+            sql.query(`SELECT trait, studyID FROM ukbiobank_stats WHERE studyID IN (${sqlQuestionMarks}) ORDER BY trait`, studyIDs, (err, matchingStudyIDsData) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -140,7 +140,7 @@ Ukbbdata.getSummaryResults = (studyIDs, result) => {
 
 Ukbbdata.getFullResults = (studyID, trait, result) => {
 
-    sqlStatement = `SELECT * FROM ukbiobank_stats WHERE studyID = ? and trait = ? ORDER BY trait`
+    sqlStatement = `SELECT * FROM ukbiobank_stats WHERE studyID = ? and trait = ?`
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);
