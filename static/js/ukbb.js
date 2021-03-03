@@ -117,7 +117,8 @@ function displayGraphs() {
                     fillcolor: '#8dd3c7',
                     meanline: {
                         visible: true
-                    }
+                    },
+                    x0: studyID
                 }]
 
                 var violinLayout= {
