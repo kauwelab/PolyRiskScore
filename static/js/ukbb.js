@@ -48,7 +48,7 @@ function getStudies() {
                     studyObj = studyLists[i]
                     var trait = studyObj.trait
                     var studyID = studyObj.studyID
-                    var displayString = studyObj.citation + " | " + studyID //trait + " | " +  <-- putting that code at the front would make it match the calculation page
+                    var displayString = trait + " | " + studyObj.citation + " | " + studyID
 
                     var opt = document.createElement('option');
                     opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(displayString)));
