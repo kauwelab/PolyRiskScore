@@ -101,7 +101,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
             return;
         }
         var sqlQueryString = "";
-        sqlQueryParams  = []
+        sqlQueryParams = []
         for (i = 0; i < res.length; i++) {
 
             //subQueryString is the string that we append query constraints to from the HTTP request
