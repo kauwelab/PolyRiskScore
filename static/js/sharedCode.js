@@ -12,6 +12,7 @@
         var resultObj = {};
         var indexSnpObj = {};
         var resultJsons = {};
+        var unusedTraitStudyCombo = new Set()
 
         if (greppedSamples == undefined) {
             throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
@@ -30,10 +31,14 @@
                 //for each individual and their snp info in the vcf object
                 for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
                     for (studyID in associationData['studyIDsToMetaData']) {
-                        if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
-                            printStudyID = studyID.concat('†')
-                        }
                         for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
+                            if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID] && associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
+                                printStudyID = studyID.concat('†')
+                            }
+                            else {
+                                printStudyID = studyID
+                            }
+
                             if (!(printStudyID in resultObj)) {
                                 resultObj[printStudyID] = {}
                             }
@@ -70,10 +75,13 @@
                         if (key in associationData['associations'] && alleles != []) {
                             for (trait in associationData['associations'][key]['traits']) {
                                 for (studyID in associationData['associations'][key]['traits'][trait]) {
+                                    printStudyID = studyID
                                     traitStudySamp = (trait, studyID, individualName)
                                     associationObj = associationData['associations'][key]['traits'][trait][studyID]
                                     if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
-                                        printStudyID = studyID.concat('†')
+                                        if (associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
+                                            printStudyID = studyID.concat('†')
+                                        }
                                     }
 
                                     if (associationObj.pValue <= pValue) {
@@ -122,8 +130,11 @@
                 }
 
                 for (studyID in resultObj) {
-                    if ('†' in studyID) {
+                    if (studyID.includes('†')) {
                         studyID_og = studyID.slice(0, -1)
+                    }
+                    else {
+                        studyID_og = studyID
                     }
                     tmpStudyObj = {
                         citation: associationData['studyIDsToMetaData'][studyID_og]['citation'],
@@ -132,6 +143,7 @@
                     }
                     for (trait in resultObj[studyID]) {
                         tmpTraitObj = {}
+                        atLeastOneGoodSamp = false
                         for (sample in resultObj[studyID][trait]) {
                             scoreAndSnps = calculateCombinedORandFormatSnps(resultObj[studyID][trait][sample], trait, studyID_og, associationData)
                             tmpSampleObj = {
@@ -142,10 +154,22 @@
                                 clumpedVariants: scoreAndSnps[4]
                             }
                             tmpTraitObj[this.trim(sample)] = tmpSampleObj
+                            if (tmpSampleObj.oddsRatio != "NF" || tmpSampleObj.unmatchedVariants.length != 0) {
+                                atLeastOneGoodSamp = true
+                            }
                         }
-                        tmpStudyObj['traits'][trait] = tmpTraitObj
+                        if (atLeastOneGoodSamp) {
+                            tmpStudyObj['traits'][trait] = tmpTraitObj
+                        }
+                        else {
+                            tmpStudyObj['traits'][trait] = {}
+                            unusedTraitStudyCombo.add([trait, studyID_og])
+                            delete tmpStudyObj['traits'][trait]
+                        }
                     }
-                    resultJsons['studyResults'][studyID] = tmpStudyObj
+                    if (atLeastOneGoodSamp) {
+                        resultJsons['studyResults'][studyID] = tmpStudyObj
+                    }
                 }
             }
             //if the input data doesn't have an individual in it (we can assume this is a text input query with no matching SNPs)
@@ -153,8 +177,8 @@
             else {
 
             }
-            //convert the result JSON list to a string and return
-            return JSON.stringify(resultJsons);
+            //convert the result JSON list to a string, the unusedTraitStudyCombo to array and return
+            return [JSON.stringify(resultJsons), Array.from(unusedTraitStudyCombo)];
         }
     };
 
@@ -187,6 +211,7 @@
 
         return [combinedOR, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
     }
+
 
     /**
      * Trims the whitespace from both the begginning and the end of the string and returns it.

@@ -663,9 +663,10 @@ askToStartMenu() {
 # BEGINNING OF 'MAIN' FUNCTIONALITY
 
 # check to see if they want the version
-if [[ "$1" =~ "--version" ]] || [[ "$1" =~ "-v" ]]; then 
+if [[ "$1" =~ "--version" ]] || [[ "$1" =~ "-v" ]] && [[ -z $2 ]]; then 
     echo -e "Running version ${version}"
     checkForNewVersion
+    exit 1
 fi
 
 # pass arguments to calculatePRS

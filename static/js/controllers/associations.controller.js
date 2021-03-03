@@ -105,11 +105,10 @@ exports.getAllSnpsToStudyIDs = (req, res) => {
 
 exports.getSnpsToTraitStudyID = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
-    var refGen = req.body.refGen;
 
     studyIDTraitsToSnps = {}
 
-    Association.getSnpsToTraitStudyID(studyIDObjs, refGen, async (err, data) => {
+    Association.getSnpsToTraitStudyID(studyIDObjs, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
@@ -118,10 +117,20 @@ exports.getSnpsToTraitStudyID = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             for (i=0; i<data.length; i++) {
-                if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID].join("|")))) {
-                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")] = []
+                if (Array.isArray(data[i])) {
+                    for (j=0; j<data[i].length; j++) {
+                        if (!(Object.keys(studyIDTraitsToSnps).includes([data[i][j].trait, data[i][j].studyID].join("|")))) {
+                            studyIDTraitsToSnps[[data[i][j].trait, data[i][j].studyID].join("|")] = []
+                        }
+                        studyIDTraitsToSnps[[data[i][j].trait, data[i][j].studyID].join("|")].push(data[i][j].snp)
+                    }
                 }
-                studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")].push(data[i].snp)
+                else {
+                    if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID].join("|")))) {
+                        studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")] = []
+                    }
+                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")].push(data[i].snp)
+                }
             }
             res.send(studyIDTraitsToSnps);
         }
@@ -227,13 +236,11 @@ exports.getAssociationsDownloadFile = (req, res) => {
 }
 
 exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
-    refGen = req.query.refGen
-
     downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
     var options = { 
         root: downloadPath
     };
-    var fileName = `traitStudyIDToSnps_${refGen}.txt`; 
+    var fileName = `traitStudyIDToSnps.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
             console.log(err); 
