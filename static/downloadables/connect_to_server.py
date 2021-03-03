@@ -185,6 +185,7 @@ def checkForAllStudySnps(refGen):
 
     return dnldNewStudySnpsFile
 
+
 # gets associations obj download from the Server
 def getAllAssociations(refGen, defaultSex): 
     params = {
@@ -317,6 +318,7 @@ def getClumps(refGen, superPop, snpsFromAssociations):
 
     return clumps
 
+
 # gets associationReturnObj using the given filters
 def getSpecificStudySnps(refGen, finalStudyList):
     # get the studies matching the parameters
@@ -331,6 +333,7 @@ def getSpecificStudySnps(refGen, finalStudyList):
     
     return studySnps
 
+
 def checkInternetConnection():
     try:
         import socket
@@ -339,3 +342,4 @@ def checkInternetConnection():
         return
     except OSError:
         raise SystemExit("ERROR: No internet - Check your connection")
+

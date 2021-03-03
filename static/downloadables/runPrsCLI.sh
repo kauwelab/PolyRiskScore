@@ -602,28 +602,28 @@ calculatePRS () {
         echo "Calculating prs on $filename"
         FILE=".workingFiles/associations_${fileHash}.txt"
 
-	# Create uniq ID for filtered file path
+        # Create uniq ID for filtered file path
         TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
 
-	if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
+        if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
             echo "Filtered input file"
 
-	    if $pyVer -c "import parse_associations as pa; pa.parse_files('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP')"; then
-                echo "Parsed through genotype information"    
-	        echo "Calculated score"
+            if $pyVer -c "import parse_associations as pa; pa.parse_files('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP')"; then
+                echo "Parsed through genotype information"
+                echo "Calculated score"
             else
                 echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}" 
-	    fi
-	else
+            fi
+        else
             echo -e "${LIGHTRED}ERROR DURING CREATION OF FILTERED INPUT FILE... Quitting${NC}"
-	fi
+        fi
 
         if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
             rm $FILE
             rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-	    rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
-	    rm ".workingFiles/traitStudyIDToSnps_${fileHash}.txt"
-	    rm ".workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+            rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
+            rm ".workingFiles/traitStudyIDToSnps_${fileHash}.txt"
+            rm ".workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         fi
         # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
         rm -r __pycache__

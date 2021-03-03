@@ -60,7 +60,6 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRS
         filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r = refGen, ahash = fileHash))
 
-
     try:
         with open(associationsPath, 'r') as tableObjFile:
             tableObjDict = json.load(tableObjFile)
@@ -271,11 +270,9 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     else:
                         unmatchedAlleleVariants.add(snp)
 
-
     for clumpNum in index_snp_map:
         snp, alleles = index_snp_map[clumpNum]
         sample_map[snp] = alleles
-
 
     final_map = dict(sample_map)
     return final_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy
@@ -387,14 +384,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                         clumped_snps_map[sample] = clumpedVariants
                         neutral_snps_map[sample] = unmatchedAlleleVariants
 
-        
-        # TODO: Now that we filter the vcf first, we catch whether any variants match the filters or not.  But we haven't implemented printing out a header to the file
-        #if isNoStudies:
-        #    samples = []
-        #    for name in vcf_reader.samples:
-        #        samples.append(name)
-        #    return samples, None, None, None, None, isNoStudies, inputInFilters, unusedTraitStudyPairs
-
         # Check to see which study/sample combos didn't have any viable snps
         # and create blank entries for the sample map for those that didn't
         for sample in no_viable_snp_counter:
@@ -405,7 +394,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                 for clumpNum in index_snp_map[sample]:
                     rsID, alleles = index_snp_map[sample][clumpNum]
                     sample_map[sample][rsID] = alleles
-
 
     except ValueError:
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
