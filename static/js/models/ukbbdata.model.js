@@ -140,7 +140,7 @@ Ukbbdata.getSummaryResults = (studyIDs, result) => {
 
 Ukbbdata.getFullResults = (studyID, trait, result) => {
 
-    sqlStatement = `SELECT * FROM ukbiobank_stats WHERE studyID = ? and trait = ?`
+    sqlStatement = `SELECT * FROM ukbiobank_stats WHERE studyID = ? and trait = ? ORDER BY trait`
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);
