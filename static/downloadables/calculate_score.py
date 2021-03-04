@@ -180,7 +180,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                 # if the output format is verbose
                 if not isCondensedFormat and not isJson:
                     # add necessary marks to study/score
-                    prs, printStudyID = createMarks(oddsRatios, studyID, snpDict, sampSnps, mark)
+                    prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
                     #grab variant sets
                     protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                     # add new line to tsv file
@@ -203,16 +203,16 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                         })
 
                         # add the sample score and variant information
-                        json_sample_results.update({
+                        json_sample_results = {
                             'sample': samp,
                             'polygenicRiskScore': prs,
                             'protectiveAlleles': "|".join(protectiveVariants),
                             'riskAlleles': "|".join(riskVariants),
                             'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
                             'variantsInHighLD': "|".join(clumpedVariants)
-                        })
+                        }
                         
-                        json_samp_list.append(sample_results) # Add this sample's results to a list of sample results for this study/trait
+                        json_samp_list.append(json_sample_results) # Add this sample's results to a list of sample results for this study/trait
 
                         # check if scores for all the samples have been calculated
                         # if so, write the object to the json file

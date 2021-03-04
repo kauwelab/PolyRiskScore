@@ -288,7 +288,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     sample_map = defaultdict(dict)
 
     # Create a dictionary with clump number and index nps to keep track of the index snp for each LD region
-    index_snp_map = {}
+    index_snp_map = defaultdict(dict)
 
     # Create dictionaries to store the variants not used in the calculations for each sample
     neutral_snps_map = {}
