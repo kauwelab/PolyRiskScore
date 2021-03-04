@@ -1,3 +1,5 @@
+var displayDataObj = {}
+
 function getTraits() {
 
     //call the API and populate the traits dropdown with the results
@@ -22,7 +24,7 @@ function getTraits() {
 
 function getStudies() {
     var traitSelector = document.getElementById("trait-Selector");
-    var studyTypeSelector = document.getElementById("studyType-Selector");    
+    var studyTypeSelector = document.getElementById("studyType-Selector");
 
     if (traitSelector.value != "default" && studyTypeSelector.value != "default"){
         trait = traitSelector.value
@@ -42,6 +44,8 @@ function getStudies() {
 
                 if (studyLists.length == 0) {
                     alert(`No results were found using the specified filters. Try using different filters.`)
+                    resetFilters();
+                    return
                 }
 
                 for (i = 0; i < studyLists.length; i++) {
@@ -64,12 +68,23 @@ function getStudies() {
             },
             error: function (XMLHttpRequest) {
                 alert(`There was an error loading the studies`);
+                resetFilters();
+                return
             }
         })
 
         studySelector.disabled = false;
     }
 }
+
+function resetFilters() {
+    var studySelector = document.getElementById("study-Selector");
+    studySelector.value = 'default';
+    studySelector.disabled = true;
+    
+    var studyTypeSelector = document.getElementById("studyType-Selector");
+    studyTypeSelector.value = 'default';
+ }
 
 function displayGraphs() {
     var studySelector = document.getElementById("study-Selector");
@@ -91,10 +106,10 @@ function displayGraphs() {
                 var studyName = document.getElementById("studyName")
                 studyName.innerText = selectedStudy.getAttribute("data-citation");
                 studyName.hidden = false;
-                var violinPlot = document.getElementById("violinPlot");
                 var tablePlot = document.getElementById("tablePlot");
+                displayDataObj = data[0]
 
-                const keys = Object.keys(data[0]);
+                const keys = Object.keys(displayDataObj);
                 arrayOfValues = []
 
                 // iterate over keys and create datapoints
@@ -104,44 +119,19 @@ function displayGraphs() {
                     }
                 });
 
-                var violinData = [{
-                    type: 'violin',
-                    y: arrayOfValues,
-                    box: {
-                        visible: true
-                    },
-                    boxpoints: false,
-                    line: {
-                        color: 'black'
-                    },
-                    fillcolor: '#8dd3c7',
-                    meanline: {
-                        visible: true
-                    },
-                    x0: studyID
-                }]
+                displayDataObj["arrayOfValues"] = arrayOfValues
 
-                var violinLayout= {
-                    title: "",
-                    yaxis: {
-                        zeroline: false
-                    }
-                }
-
-                Plotly.newPlot(violinPlot, violinData, violinLayout)
+                changePlot()
 
                 var values = [
-                    ['Salaries', 'Office', 'Merchandise', 'Legal', '<b>TOTAL</b>'],
-                    [1200000, 20000, 80000, 2000, 12120000],
-                    [1300000, 20000, 70000, 2000, 130902000],
-                    [1300000, 20000, 120000, 2000, 131222000],
-                    [1400000, 20000, 90000, 2000, 14102000]]
+                    ['Min', 'Max', 'Mean', 'Median', 'Range'],
+                    [displayDataObj["min"], displayDataObj["max"], displayDataObj["mean"], displayDataObj["median"], displayDataObj["rng"]]
+                ]
 
                 var tableData = [{
                     type: 'table',
                     header: {
-                        values: [["<b>EXPENSES</b>"], ["<b>Q1</b>"],
-                            ["<b>Q2</b>"], ["<b>Q3</b>"], ["<b>Q4</b>"]],
+                        values: [["<b>Summary Values</b>"], ["<b>" + displayDataObj["studyID"] + "</b>"]],
                         align: "center",
                         line: {width: 1, color: 'black'},
                         fill: {color: "grey"},
@@ -165,5 +155,92 @@ function displayGraphs() {
             alert(`There was an error loading the studies`);
         }
     })
+}
 
+function displayViolinPlot() {
+    var violinPlot = document.getElementById("plotSpace");
+
+    var violinData = [{
+        type: 'violin',
+        y: displayDataObj["arrayOfValues"],
+        box: {
+            visible: true
+        },
+        boxpoints: false,
+        opacity: 0.6,
+        line: {
+            color: 'black'
+        },
+        fillcolor: '#8dd3c7',
+        meanline: {
+            visible: true
+        },
+        x0: displayDataObj['studyID']
+    }]
+
+    var violinLayout= {
+        title: "",
+        yaxis: {
+            zeroline: false
+        }
+    }
+
+    Plotly.newPlot(violinPlot, violinData, violinLayout)
+}
+
+function displayBoxPlot() {
+    var boxPlot = document.getElementById("plotSpace");
+
+    var data = [
+        {
+            y: displayDataObj["arrayOfValues"],
+            boxpoints: false,
+            type: 'box',
+            name: displayDataObj['studyID'],
+            opacity: 0.6,
+            line: {
+                color: 'black'
+            },
+            fillcolor: '#8dd3c7'
+        }
+    ];
+
+    Plotly.newPlot(boxPlot, data)
+}
+
+function displayHistogramPlot() {
+    var histogramPlot = document.getElementById("plotSpace");
+
+    var data = [{
+        x: displayDataObj["arrayOfValues"],
+        type: 'histogram',
+        opacity: 0.6,
+        line: {
+            color: 'black'
+        },
+        marker: {
+            color: '#8dd3c7'
+        },
+        name: displayDataObj['studyID']
+    }]
+
+    Plotly.newPlot(histogramPlot, data)
+}
+
+function changePlot() {
+    document.getElementById("plotAndButtons").style.visibility='visible';
+
+    var plotType = document.querySelector('input[name="plot_type"]:checked').value;
+    console.log(plotType)
+
+    switch(plotType) {
+        case "Histogram":
+          displayHistogramPlot()
+          break;
+        case "Box":
+          displayBoxPlot()
+          break;
+        default:
+            displayViolinPlot()
+    }
 }
