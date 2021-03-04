@@ -468,7 +468,8 @@ calculatePRS () {
                     exit 1
                 fi;;
 
-            t)  trait="${OPTARG//$single/$escaped}" # replace single quotes with escaped single quotes
+	    t)  trait=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]') # convert trait to lower case
+                trait="${trait//$single/$escaped}" # replace single quotes with escaped single quotes
                 trait="${trait//$space/$underscore}"    # replace spaces with underscores
                 trait="${trait//$quote/$empty}" # replace double quotes with nothing
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
