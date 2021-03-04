@@ -106,7 +106,7 @@ def checkForAllAssociFile(refGen, defaultSex):
         }
 
         response = requests.get(url="https://prs.byu.edu/last_database_update", params=params)
-        #response.close()
+        response.close()
         assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
         lastDatabaseUpdate = response.text
         lastDatabaseUpdate = lastDatabaseUpdate.split("-")
@@ -207,7 +207,7 @@ def getAllClumps(refGen, superPop):
 
 # gets study snps file download from the Server
 def getAllStudySnps(): 
-    studySnpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_traitStudyID_to_snp", params=None)
+    studySnpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_traitStudyID_to_snp", params={})
     # Organized with study as the Keys and snps as values
     return studySnpsReturnObj
 
@@ -278,10 +278,7 @@ def postUrlWithBody(url, body):
 
 # for GET urls
 def getUrlWithParams(url, params):
-    if params is None:
-        response = requests.get(url=url)
-    else:
-        response = requests.get(url=url, params=params)
+    response = requests.get(url=url, params=params)
     response.close()
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     return response.json()  

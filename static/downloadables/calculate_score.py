@@ -12,6 +12,9 @@ import os
 
 def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids):
     if isRSids:
+        # The isFirstUsed boolean lets us know if a line has been added to the output file
+        # The ifFirstUnused boolean lets us know if a line has been added to the file with unused traits/studies. 
+        # These booleans allow us to know if we should append to or write a new file for the next round of calculations.
         isFirstUsed, isFirstUnused = txtcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused)
     else:
         isFirstUsed, isFirstUnused = vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused)
