@@ -27,12 +27,14 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
         raise SystemExit("WARNING: None of the studies in the database match the specified filters. Adjust your filters and try again.")
 
     # create a new filtered file that only includes associations in the user-specified studies
-    if isRSids: #TODO: do this for txt files
+    if isRSids:
         clumpNumDict = filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff) 
     else:
         clumpNumDict = filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff)
 
     # write the clumpNumDict to a file for future use
+    # the clumpNumDict is used to determine which variants aren't in LD with any of the other variants in the study
+    # this allows us to skip some added checks in the parsing functions
     with open(clumpNumPath, 'w') as f:
         f.write(json.dumps(clumpNumDict))
     # remove clumpNumDict from memory
@@ -103,9 +105,6 @@ def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
     txt_file = openFileForParsing(inputFilePath, True)
     filteredOutput = open(filteredFilePath, 'w')
 
-    # Check to see if any filters were selected by the user
-    isAllFiltersNone = (traits is None and studyIDs is None and studyTypes is None and ethnicities is None)
-
     # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
     inputInFilters = False
 
@@ -141,6 +140,7 @@ def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
 
         snpInFilters = isSnpInFilters(snp, None, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff)
         if snpInFilters:
+            # We use the clumpNumDict later in the parse_files functions to determine which variants are in an LD clump by themselves
             # increase count of the ld clump this snp is in
             if snp in clumpsObjDict:
                 clumpNum = clumpsObjDict[snp]['clumpNum']
@@ -186,6 +186,7 @@ def filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
             snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff)
             if snpInFilters:
                 # increase count of the ld clump this snp is in
+                # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
                 if rsID in clumpsObjDict:
                     clumpNum = clumpsObjDict[rsID]['clumpNum']
                     clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
@@ -203,8 +204,6 @@ def filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
         raise SystemExit("THE VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     vcf_writer.close()
-    vcf_writer = None
-    vcf_reader = None
 
     return clumpNumDict
 
@@ -213,6 +212,7 @@ def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, stud
     studyInFilters = False
     useTrait = False
     useStudy = False
+    # Loop through each trait/study
     for keyString in studySnpsDict:
         trait = keyString.split('|')[0]
         study = keyString.split('|')[1]
@@ -226,7 +226,6 @@ def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, stud
             studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
             useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, study, trait, studyMetaData, useTrait)
         if useStudy or isAllFiltersNone:
-            # check if the variant is in the same ld clump as any other variant being used
             studyInFilters = True
             return studyInFilters
 
@@ -255,7 +254,6 @@ def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, study
                         studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
                         useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, study, trait, studyMetaData, useTrait)
                     if useStudy or isAllFiltersNone:
-                        # check if the variant is in the same ld clump as any other variant being used
                         snpInFilters = True
                         return snpInFilters
 

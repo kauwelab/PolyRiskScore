@@ -537,6 +537,8 @@ calculatePRS () {
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
     requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
+    # Create uniq ID for filtered file path
+    TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
     
     # if zipExtension hasn't been instantiated yet, initialize it
     if [ -z "$zipExtension" ]; then
@@ -602,12 +604,10 @@ calculatePRS () {
         echo "Calculating prs on $filename"
         FILE=".workingFiles/associations_${fileHash}.txt"
 
-        # Create uniq ID for filtered file path
-        TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
-
+	# filter the input file so that it only includes the lines with variants that match the given filters
         if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
             echo "Filtered input file"
-
+	    # parse through the filtered input file and calculate scores for each given study
             if $pyVer -c "import parse_associations as pa; pa.parse_files('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP')"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"

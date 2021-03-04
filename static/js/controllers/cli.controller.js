@@ -19,6 +19,9 @@ exports.download = (req,res) => {
             path: path.join(downloadPath, '/parse_associations.py'),
             name: '/parse_associations.py'
         }, {
+            path: path.join(downloadPath, '/grep_file.py'),
+            name: '/grep_file.py'
+        }, {
             path: path.join(downloadPath, '/connect_to_server.py'),
             name: '/connect_to_server.py'
         }, {

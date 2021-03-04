@@ -28,10 +28,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
     else:
         header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
 
-    # if none of the snps in the input file match with the filtered database
-    #if isNoStudies:
-    #    outputHeaderAndQuit(inputInFilters, header, outputFile)
-    #else:
+    # if this trait/study had no snps in the input file, print the trait/study to the output list
     if unusedTraitStudy:
         isFirstUnused = printUnusedTraitStudyPairs(trait, studyID, outputFile, isFirstUnused)
 
@@ -51,8 +48,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
             else:
                 mark = False
 
-            json_study_results = {}
-
             for snp in txtObj:
                 # Also iterate through each of the alleles
                 if snp in snpSet:
@@ -63,6 +58,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
                             riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                             oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
                             if allele == riskAllele:
+                                #keep track of how many snps from this study are used to calculate the score for this sample
                                 sampSnps.add(snp)
                                 oddsRatios.append(oddsRatio)
                                 if oddsRatio < 1:
@@ -73,17 +69,22 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
                                 unmatchedAlleleVariants.add(snp)
 
             if not isCondensedFormat and not isJson:
+                # add needed markings to scores/studies
                 prs, printStudyID = createMarks(oddsRatios, studyID, snpDict, sampSnps, mark)
+                # Grab variant sets
                 protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
+                # new line to add to tsv file
                 newLine = [printStudyID, citation, reportedTrait, trait, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+                # add new ine to tsv file
                 formatTSV(isFirstUsed, newLine, header, outputFile)
+                # this will make sure the next new line is appended, not written, to the output file
                 isFirstUsed = False
                 
             elif isJson:
                 # Add needed markings to scores/studies
                 prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
 
-                json_study_results.update({
+                json_study_results = {
                     'studyID': printStudyID,
                     'citation': citation,
                     'reportedTrait': reportedTrait,
@@ -93,16 +94,21 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
                     'riskVariants': "|".join(riskVariants),
                     'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
                     'variantsInHighLD': "|".join(clumpedVariants)
-                })
+                }
 
+                # write the dictionary to a json file 
                 formatJson(isFirstUsed, json_study_results, outputFile)
+                # this will make sure the next new line is appended, not written, to the output file
                 isFirstUsed = False
                 json_study_results = {}
 
             elif isCondensedFormat:
+                #add necessary study/score markings
                 prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
                 newLine = [printStudyID, citation, reportedTrait, trait, prs]
+                # write new line to tsv file
                 formatTSV(isFirstUsed, newLine, header, outputFile)
+                # this will make sure the next new line is appended, not written, to the output file
                 isFirstUsed = False
         else:
             raise SystemExit("ERROR: A study ID was missing from our metadata. Please report this to the PRSKB team along with the command you used to run the program.", studyID, trait)
@@ -119,23 +125,17 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
     else:
         header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
 
-    #TODO: figure out how to create output if none of the snps in the input file match with the filtered database
-    #if isNoStudies:
-    #    if isCondensedFormat:
-    #        for samp in vcfObj:
-    #            header.append(samp)
-    #    outputHeaderAndQuit(inputInFilters, header, outputFile)
-    #else:
-    # TODO: check this
+    # if the trait/study has no snps in the input file, write out the trait/study to the output list of unused traits/studies
     if unusedTraitStudy:
+        # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
         isFirstUnused = printUnusedTraitStudyPairs(trait, studyID, outputFile, isFirstUnused)
 
     else:
+        # keep track of the samples that have had their scores calculated so we know when to write out the condensed format line and json output
         samp_count = 0
+        # json output objects
         json_study_results = {}
         json_samp_list = []
-        count_map = {}
-        samp_set = {}
 
         # For every sample in the vcf nested dictionary
         for samp in vcfObj:
@@ -156,6 +156,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                 mark = True if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() else False
                 # Loop through each snp associated with this disease/study/sample
                 for rsID in vcfObj[samp]:
+                    # check if the snp is in this trait/study
                     if rsID in snpSet:
                         pValue = tableObjDict['associations'][rsID]['traits'][trait][studyID]['pValue']
                         riskAllele = tableObjDict['associations'][rsID]['traits'][trait][studyID]['riskAllele']
@@ -165,9 +166,10 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                             for allele in alleles:
                                 allele = str(allele)
                                 if allele != "":
+                                    # check if the risk allele is in the listed alleles
                                     if allele == riskAllele and oddsRatio != 0:
-                                        sampSnps.add(rsID)
-                                        oddsRatios.append(oddsRatio)
+                                        sampSnps.add(rsID) # add the snp to the list of snps used to calculate the score
+                                        oddsRatios.append(oddsRatio) # add the odds ratio to the list of odds ratios used to calculate the score
                                         if oddsRatio < 1:
                                             protectiveVariants.add(rsID)
                                         elif oddsRatio > 1:
@@ -175,20 +177,24 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                                     elif oddsRatio != 0:
                                         unmatchedAlleleVariants.add(rsID)
 
+                # if the output format is verbose
                 if not isCondensedFormat and not isJson:
+                    # add necessary marks to study/score
                     prs, printStudyID = createMarks(oddsRatios, studyID, snpDict, sampSnps, mark)
+                    #grab variant sets
                     protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
+                    # add new line to tsv file
                     newLine = [samp, studyID, citation, reportedTrait, trait, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                     formatTSV(isFirstUsed, newLine, header, outputFile)
+                    # this boolean ensures that the next new line will be appended, not written, to the output file
                     isFirstUsed = False
 
-                #TODO: work on the json format
                 elif isJson:
                     # Add needed markings to score and study
                     prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
                     
                     # if this is the first sample for this study/trait combo, add the study information first
-                    if samp_count == 0:
+                    if samp_count == 1:
                         json_study_results.update({
                             'studyID': printStudyID,
                             'citation': citation,
@@ -196,6 +202,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                             'trait': trait
                         })
 
+                        # add the sample score and variant information
                         json_sample_results.update({
                             'sample': samp,
                             'polygenicRiskScore': prs,
@@ -208,23 +215,28 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                         json_samp_list.append(sample_results) # Add this sample's results to a list of sample results for this study/trait
 
                         # check if scores for all the samples have been calculated
+                        # if so, write the object to the json file
                         if samp_count == samp_num:
                             json_study_results.update({'samples': json_samp_list})
-                            # TODO: check to see if there's a way to just add the sample's info right away, rather than wait for all the samples to be calculated first
                             formatJson(isFirstUsed, json_study_results, outputFile)
-                            isFirstUsed = False
+                            isFirstUsed = False # this boolean ensures that subsequent json objects will be appended to the output file
+                            # set the objects to empty to save memory
                             json_study_results = {}
                             json_samp_list = []
                 
                 elif isCondensedFormat:
+                    # add needed markings to study/score
                     prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
 
+                    # if this is the first sample, initiate the new line with the first four columns
                     if samp_count == 1:
                         newLine = [printStudyID, reportedTrait, trait, citation]
-                    newLine.append(prs)
+                    newLine.append(prs) # append this sample's score to the row
                     
+                    # if we've calculated a score for each sample, write the line to the output file
                     if samp_count == samp_num:
                         formatTSV(isFirstUsed, newLine, header, outputFile)
+                        # this boolean ensures that subsequent lines will be appended, not written
                         isFirstUsed = False
                     
             else:
@@ -234,24 +246,15 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
     return isFirstUsed, isFirstUnused
 
 
-# handles txtcalculations and vcfcalculations error if isNoStudies is True and/or inputInFilters is false
-# the header is printed to the outputfile, an error is printed, and the program quits
-def outputHeaderAndQuit(inputInFilters, header, outputFile):
-    # TODO if inputInFilters is false, print out all snps that weren't in the filtered database to the output file so there isn't an error
-    formatTSV(True, [], header, outputFile)
-    if not inputInFilters:
-        raise SystemExit("WARNING: None of the SNPs specified in the input file match the SNPs given by the specified filters. Check your input file and your filters and try again.")
-    else:
-        raise SystemExit("WARNING: None of the studies in the PRSKB database match the specified filters. Check your filters and try again.")
-
-
 def formatJson(isFirst, studyInfo, outputFile):
     json_output=[]
     json_output.append(studyInfo)
+    # if this is the first object to be added, write it to the output file
     if isFirst:
         with open(outputFile, 'w', newline='') as f:
             json.dump(json_output, f, indent=4)
     else:
+        # if there is already data in the output file, remove the closing ] and add a comma with the new json object and then close the file with a closing ]
         with open(outputFile, 'r+', newline = '') as f:
             f.seek(0,2)
             position = f.tell() -1
@@ -284,6 +287,7 @@ def printUnusedTraitStudyPairs(trait, study, outputFile, isFirstUnused):
     if "/" in completeOutputFileName:
         os.makedirs(os.path.dirname(completeOutputFileName), exist_ok=True)
 
+    # if this is the first trait/study to be added, write the header as well
     if isFirstUnused:
         openFile = open(completeOutputFileName, "w")
         openFile.write("Trait/Study combinations with no matching snps in the input file:")

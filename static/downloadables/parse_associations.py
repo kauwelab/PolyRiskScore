@@ -12,10 +12,10 @@ def parse_files(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, d
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
 
-    # Access the clumpsObjDict
+    # Access the downloaded files and paths
     tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp)
     
-    # Determine whether the output foramt is condensed and either json or tsv
+    # Determine whether the output format is condensed and either json or tsv
     if outputType == '.json':
         isJson = True
         isCondensedFormat = False
@@ -27,13 +27,14 @@ def parse_files(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, d
             isCondensedFormat = True
 
     # Loop through each (trait, study) and perform the parsing and calculations
-    isFirstUsed = True
-    isFirstUnused = True
+    isFirstUsed = True # tells us whether the first line still needs to be added to the output file (true) or not (false)
+    isFirstUnused = True # tells us whether the first line still needs to be added to the outputted list of unused studies (true) or not (false)
     for keyString in studySnpsDict:
         trait = keyString.split('|')[0]
         study = keyString.split('|')[1]
+        # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-        if isRSids: #TODO: do this for txt files
+        if isRSids: 
             txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy= parse_txt(filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
             isFirstUsed, isFirstUnused = cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids)
         else:
@@ -43,7 +44,6 @@ def parse_files(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, d
 
 
 def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp):
-    #TODO: check on when to use ahash and when to not
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
@@ -192,14 +192,15 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
     # Create a default dictionary (nested dictionary)
     sample_map = defaultdict(dict)
-    # Create a default dictionary (nested dictionary) with sample name, clump num, index snp
-    index_snp_map = defaultdict(dict)
+    
+    # Create a dictionary with clump number and index snp to keep track of the variant with the lowest pvalue in each ld region
+    index_snp_map = {}
 
     # create dictionaries to store the variants not used in the calculations
     clumpedVariants= set()
     unmatchedAlleleVariants = set()
 
-    # create boolean to keep track of whether this study/trait has an snps in the vcf
+    # create boolean to keep track of whether this study/trait has any snps in the vcf
     unusedTraitStudy = True
 
     # Iterate through each record in the file and save the SNP rs ID
@@ -228,9 +229,9 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         if alleles != [] and snp != "":
             # check if the snp is found in this study/trait
             if snp in snpSet:
-                # boolean to keep track of whether there were viable snps for this study
+                # boolean to keep track of whether there were viable snps for this study.
                 unusedTraitStudy = False
-                # grab the corresponding pvalue, risk allele, and odds ratio
+                # grab the corresponding pvalue and risk alleleo
                 pValue = tableObjDict['associations'][snp]['traits'][trait][study]['pValue']
                 riskAllele = tableObjDict['associations'][snp]['traits'][trait][study]['riskAllele']
 
@@ -242,11 +243,11 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                         if snp in clumpsObjDict:
                             # Grab the clump number associated with this snp 
                             clumpNum = str(clumpsObjDict[snp]['clumpNum'])
+                            # check to see the number of variants in this ld clump. If the snp is the only, we skip the clumping checks
                             clumpNumTotal = clumpNumDict[clumpNum]
 
                             if clumpNumTotal > 0:
-                                # Check whether the existing index snp or current snp have a lower pvalue for this study
-                                # and switch out the data accordingly
+                                # If this snp is in LD with any other snps, check whether the existing index snp or current snp have a lower pvalue 
                                 if clumpNum in index_snp_map:
                                     index_snp, index_alleles = index_snp_map[clumpNum]
                                     index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][studyID]['pValue']
@@ -259,7 +260,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                         clumpedVariants.add(snp)
                                 else:
                                     # Since the clump number for this snp position and studyID
-                                    # doesn't already exist, add it to the index map and the sample map
+                                    # doesn't already exist, add it to the index map
                                     index_snp_map[clumpNum] = snp, alleles
                             else:
                                 # the variant is the only one in the ld clump
@@ -268,8 +269,9 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                         else:
                             sample_map[snp] = alleles
                     else:
+                        # the risk allele wasn't in the listed alleles
                         unmatchedAlleleVariants.add(snp)
-
+    # Loop through each LD clump and add the index snp to the final sample map
     for clumpNum in index_snp_map:
         snp, alleles = index_snp_map[clumpNum]
         sample_map[snp] = alleles
@@ -285,10 +287,10 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     # Create a dictionary to keep track of the variants in each study
     sample_map = defaultdict(dict)
 
-    # Create a nested dictionary with sample name, clump num, index snp to keep track of the clumps for each sample's variants
-    index_snp_map = defaultdict(dict)
+    # Create a dictionary with clump number and index nps to keep track of the index snp for each LD region
+    index_snp_map = {}
 
-    # Create dictionaries to store the variants not used in the calculations
+    # Create dictionaries to store the variants not used in the calculations for each sample
     neutral_snps_map = {}
     clumped_snps_map = {}
 
@@ -316,12 +318,11 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
             # check if the snp is found in this study/trait
             if rsID in snpSet:
                 unusedTraitStudy = False
-                #grab the corresponding pvalue, risk allele, and odds ratio
+                #grab the corresponding pvalue and risk allele
                 pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
                 riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study]['riskAllele']
-                oddsRatio = tableObjDict['associations'][rsID]['traits'][trait][study]['oddsRatio']
 
-                # comparethe pvalue to the pvalue cutoff
+                # compare the pvalue to the pvalue cutoff
                 if pValue <= float(p_cutOff):
                     # loop through each sample of the vcf file
                     for call in record.samples:
@@ -329,7 +330,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                         genotype = record.genotype(sample)['GT']
                         alleles = formatAndReturnGenotype(genotype, REF, ALT)
 
-                        # Grab or create maps that hold sets of unused variants
+                        # Grab or create maps that hold sets of unused variants for this sample
                         clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
                         unmatchedAlleleVariants = neutral_snps_map[sample] if sample in neutral_snps_map else set()
 
@@ -342,6 +343,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             if rsID in clumpsObjDict:
                                 # Grab the clump number associated with this study and snp position
                                 clumpNum = str(clumpsObjDict[rsID]['clumpNum'])
+                                # Check to see how many variants are in this clump. If there's only one, we can skip the clumping checks.
                                 clumpNumTotal = clumpNumDict[clumpNum]
 
                                 if clumpNumTotal > 0:

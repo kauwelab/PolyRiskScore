@@ -153,39 +153,6 @@ def checkForAllClumps(pop, refGen):
 
     return dnldNewClumps
 
-
-def checkForAllStudySnps(refGen):
-    # assume we need to download new file
-    dnldNewStudySnpsFile = True
-    # check to see if the workingFiles directory is there, if not make the directory
-    scriptPath = os.path.dirname(os.path.abspath(__file__))
-    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
-
-     # path to a file containing all the clumps from the database
-    studySnpsFile = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
-
-    # if the path exists, check if we don't need to download a new one
-    if os.path.exists(studySnpsFile):
-        params = {
-            "refGen": refGen,
-        }
-
-        response = requests.get(url="https://prs.byu.edu/last_database_update", params=params)
-        response.close()
-        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
-        lastDatabaseUpdate = response.text
-        lastDatabaseUpdate = lastDatabaseUpdate.split("-")
-        lastDBUpdateDate = datetime.date(int(lastDatabaseUpdate[0]), int(lastDatabaseUpdate[1]), int(lastDatabaseUpdate[2]))
-
-        fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
-        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
-        # if the file is newer than the database update, we don't need to download a new file
-        if (lastDBUpdateDate <= fileModDate):
-            dnldNewStudySnpsFile = False
-
-    return dnldNewStudySnpsFile
-
-
 # gets associations obj download from the Server
 def getAllAssociations(refGen, defaultSex): 
     params = {
