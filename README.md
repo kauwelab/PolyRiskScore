@@ -4,9 +4,21 @@ The Polygenic Risk Score Knowledge Base (PRSKB) is a website and command-line in
 
 ## Website
 
-Blurb about the website
+The PRSKB website offers users the ability to calculate polygenic risk scores across multiple traits with minimal effort. The website not only offers the calculator, but additional information and tools to aid in calculations and data comparisons. 
 
 Website Link: [https://prs.byu.edu](https://prs.byu.edu)
+
+### Calculate
+The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across 2183 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, default biological sex, p-value cutoff, and selected studies polygenic risk scores can be calculated for the inputted samples. 
+
+### Cite
+The Cite page of the PRSKB website includes a link to the published paper, information on citing the PRSKB, and the ability to search our database of GWAS studies procured from the [GWAS Catalog](https://www.ebi.ac.uk/gwas).
+
+### Download
+The Download page houses the link to download our command-line interface tool and additional videos of setting up and running the tool. 
+
+### UKBB
+\*BLURB HERE\*
 
 ## Command-Line Interface
 
@@ -14,11 +26,13 @@ The command-line interface (CLI) allows users to run larger analyses straight fr
 
 [Download CLI](https://prs.byu.edu/download_cli)
 
-Required installed programs: Bash, Python3
+Required installed programs: Bash and jq for bash, Python3 and PyVCF python library
 
 ## CLI Example
 
-
+```bash
+./runPRSCLI.sh 
+```
 
 ## Citing this work
 
@@ -26,51 +40,3 @@ Required installed programs: Bash, Python3
 
 ## Acknowledgements
 
-<!-- ## Loading a Table into MySQL
-
-1. Make sure you have the necessary files in lsprs.
-If you haven't added them to the github, do so now. Once added, follow the directions for re-uploading the repository
-to the server. 
-
-2. CD into /home/var/www/prs.byu.edu/html/tables
-
-3. Log in
-```console
-mysql -u polyscore -p --local-infile polyscore
-```
-
-4. Switch to the polyscore database. 
-```sql
-USE polyscore;
-```
-
-5. OPTIONAL: If you already have a table for the trait and want to replace it, first drop the table.
-```sql 
-DROP TABLE t2d;
-```
-
-6. Create the new table. Run the following command to create a table with the standard columns:
-```sql
-SET @tblName = 'nameYouWantForTable'; \. createTable.sql
-```
-
-7. Load the data into the table. If your csv file is not located in the same directory that you were in when you logged into mysql, then pass in the full file path.
-
-```sql 
-LOAD DATA LOCAL INFILE 't2d.csv' INTO TABLE t2d COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES;
-```
-
-8. Check whether it's been loaded correctly using code such as 
-```sql
-SELECT * FROM t2d; 
-SELECT * FROM t2d WHERE study='Lambert 2013 etc.';
-```
-
-### Replacing a String:
-
-This code would get rid of an extra \r character in the study column
-```sql
-UPDATE hf 
-SET study = REPLACE(study, '\r', '');
-```
- -->
