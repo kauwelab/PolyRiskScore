@@ -73,7 +73,6 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, sex, isRSid
     except FileNotFoundError: 
         raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}".format(associationsPath, clumpsPath, studySnpsPath))
 
-
     return tableObjDict, clumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath
 
 
@@ -96,7 +95,7 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities):
     ethnicities = ethnicities.split(" ") if ethnicities != "" else None
     if ethnicities is not None:
         ethnicities = [sub.replace("_", " ") for sub in ethnicities]
-    
+
     return traits, studyTypes, studyIDs, ethnicities
 
 
@@ -158,6 +157,7 @@ def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
     filteredOutput.close()
     return clumpNumDict
 
+
 def filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff):
     # open the input vcf
     vcf_reader = openFileForParsing(inputFilePath, False)
@@ -208,6 +208,7 @@ def filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
 
     return clumpNumDict
 
+
 def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff):
     studyInFilters = False
     useTrait = False
@@ -230,6 +231,7 @@ def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, stud
             return studyInFilters
 
     return studyInFilters
+
 
 def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff):
     snpInFilters = False
@@ -411,6 +413,7 @@ def getZippedFileExtension(filePath, shouldPrint):
     else:
         printIfShould(shouldPrint, "False")
         return "False"
+
 
 # prints msg if should is True
 def printIfShould(should, msg):

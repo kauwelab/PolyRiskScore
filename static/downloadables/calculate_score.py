@@ -108,7 +108,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
             raise SystemExit("ERROR: A study ID was missing from our metadata. Please report this to the PRSKB team along with the command you used to run the program.", studyID, trait)
 
     return isFirstUsed, isFirstUnused
-    
 
 
 def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, isFirstUsed, isFirstUnused):
@@ -119,7 +118,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
             header.append(samp)
     else:
         header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-    
+
     #TODO: figure out how to create output if none of the snps in the input file match with the filtered database
     #if isNoStudies:
     #    if isCondensedFormat:
@@ -233,6 +232,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                 raise SystemExit("ERROR: A study ID was missing from the our metadata. Please report this to the PRSKB team along with the command you used to run the program.", studyID, trait)
 
     return isFirstUsed, isFirstUnused
+
 
 # handles txtcalculations and vcfcalculations error if isNoStudies is True and/or inputInFilters is false
 # the header is printed to the outputfile, an error is printed, and the program quits
