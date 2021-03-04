@@ -43,10 +43,8 @@ def formatTraits(traits):
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
         for i in range(len(traits)):
-            trait = traits[i].replace('_', ' ').replace("\\'", "\'").split(" ")
-            for j in range(len(trait)):
-                trait[j] = trait[j].capitalize()
-            traits[i] = " ".join(trait)
+            trait = traits[i].replace('_', ' ').replace("\\'", "\'")
+            traits[i] = trait
     return traits
 
 
@@ -112,7 +110,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                     useTrait = False
                     useStudy = False
                     # if there are traits to filter by and the trait for this snp is in the list, use this trait 
-                    if traits is not None and trait in traits:
+                    if traits is not None and trait.lower() in traits:
                         useTrait = True
                     # Loop through each study containing the position
                     for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
@@ -197,7 +195,7 @@ def parse_txt(txtFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyIDs
                 # initializing variables
                 useTrait = False
                 useStudy = False
-                if traits is not None and trait in traits:
+                if traits is not None and trait.lower() in traits:
                     useTrait = True
                 for studyID in tableObjDict['associations'][snp]['traits'][trait].keys():
                     if not isAllFiltersNone:
@@ -248,7 +246,7 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, tra
     if traits is None:
         useTrait = True
     # if the reportedTrait for the study is in the traits list for filtering, useReportedTrait is true
-    if traits is None or (traits is not None and studyMetaData is not None and studyMetaData['reportedTrait'] in traits):
+    if traits is None or (traits is not None and studyMetaData is not None and studyMetaData['reportedTrait'].lower() in traits):
         useReportedTrait = True
     if studyMetaData is not None and studyMetaData['ethnicity'] is not None: #TODO should probably come up with a better way to handle a situation like this, we need to decide what we will do when the study doens't have an ethnicity attached to it (maybe give it 'other' on the server?)
         ethnicitiesLower = set([x.lower() for x in studyMetaData['ethnicity']])
@@ -464,7 +462,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                         useTrait = False
                         useStudy = False
                         # if there are traits to filter by and the trait for this snp is in the list, use this trait 
-                        if traits is not None and trait in traits:
+                        if traits is not None and trait.lower() in traits:
                             useTrait = True
                         # Loop through each study containing the position
                         for study in tableObjDict['associations'][rsID]['traits'][trait].keys():
@@ -571,7 +569,7 @@ def parse_vcf(inputFile, clumpsObjDict, tableObjDict, traits, studyTypes, studyI
                         # initializing variables
                         useTrait = False
                         useStudy = False
-                        if traits is not None and trait in traits:
+                        if traits is not None and trait.lower() in traits:
                             useTrait = True
                         for study in tableObjDict['associations'][key]['traits'][trait].keys():
                             if not isAllFiltersNone:
@@ -663,7 +661,7 @@ def txtcalculations(tableObjDict, txtObj, isJson, isCondensedFormat, neutral_snp
                                         protectiveVariants.add(snp)
                                     elif oddsRatio > 1:
                                         riskVariants.add(snp)
-                                elif allele != riskAllele:
+                                else:
                                     unmatchedAlleleVariants.add(snp)
 
             if not isCondensedFormat and not isJson:
@@ -761,14 +759,14 @@ def vcfcalculations(tableObjDict, vcfObj, isJson, isCondensedFormat, neutral_snp
                                 for allele in alleles:
                                     allele = str(allele)
                                     if allele != "":
-                                        if allele == riskAllele and oddsRatio != 0:
+                                        if allele == riskAllele:
                                             sampSnps.add(rsID)
                                             oddsRatios.append(oddsRatio)
                                             if oddsRatio < 1:
                                                 protectiveVariants.add(rsID)
                                             elif oddsRatio > 1:
                                                 riskVariants.add(rsID)
-                                        elif oddsRatio != 0:
+                                        else:
                                             unmatchedAlleleVariants.add(rsID)
 
                 if not isCondensedFormat and not isJson:
@@ -912,6 +910,10 @@ def printUnusedTraitStudyPairs(unusedTraitStudyPairs, outputFile):
     fileName, ext = os.path.splitext(fileBasename)
     fileBasename = fileName + "_studiesNotIncluded.txt"
     completeOutputFileName = os.path.join(fileDirname, fileBasename)
+
+    # if the folder of the output file doesn't exist, create it
+    if "/" in completeOutputFileName:
+        os.makedirs(os.path.dirname(completeOutputFileName), exist_ok=True)
 
     openFile = open(completeOutputFileName, "w")
     openFile.write("Trait/Study combinations with no matching snps in the input file:\n")

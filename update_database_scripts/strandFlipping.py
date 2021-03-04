@@ -4,6 +4,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 from sys import argv
+from Bio.Seq import Seq
 
 # This script performs strand flipping on the associations_table.tsv. For each line in the associations file, the script grabs information about
 # viable alleles for the variant. The riskAllele is checked against this list to see if the riskAllele needs to be flipped to its complement
@@ -33,19 +34,9 @@ def getVariantAlleles(rsID, mv):
             print(obj, "STILL NO ALLELES")
     else:
         # TODO maybe: try to find it with a merged snp?
-        continue
+        pass
 
     return alleles
-
-
-def getComplement(allele):
-    complements = {
-        'G': 'C',
-        'C': 'G',
-        'A': 'T',
-        'T': 'A'
-    }
-    return(complements[allele])
 
 
 def main():
@@ -62,9 +53,9 @@ def main():
         line = content[i].split('\t')
         rsID = line[1]
         possibleAlleles = getVariantAlleles(rsID, mv)
-        riskAllele = line[9]
-        if riskAllele not in possibleAlleles and len(riskAllele) == 1:
-            complement = getComplement(riskAllele)
+        riskAllele = Seq(line[9])
+        if riskAllele not in possibleAlleles:
+            complement = riskAllele.reverse_complement()
             if complement in possibleAlleles:
                 line[9] = complement
                 print("WE MADE A SWITCH", rsID, riskAllele, complement)

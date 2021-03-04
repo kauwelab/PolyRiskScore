@@ -21,12 +21,18 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
     if (ethnicity is not None):
+        ethnicity = [sub.replace('_', ' ').replace('"', '') for sub in ethnicity]
         availableEthnicities = getUrlWithParams("https://prs.byu.edu/ethnicities", params={})
         if (not bool(set(ethnicity) & set(availableEthnicities)) and studyIDs is None):
             raise SystemExit('\nThe ethnicities requested are invalid. \nPlease use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
 
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     associationsPath = ""
+
+    # if the directory doesn't exist, make it, and we will need to download the files
+    if not os.path.exists(workingFilesPath):
+        os.mkdir(workingFilesPath)
+
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
@@ -74,13 +80,12 @@ def checkForAllAssociFile(refGen, defaultSex):
     # check to see if the workingFiles directory is there, if not make the directory
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+    # path to a file containing all the associations from the database
+    allAssociationsFile = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
 
-    # if the directory doesn't exist, make it, and we will need to download the files
-    if not os.path.exists(workingFilesPath):
-        os.mkdir(workingFilesPath)
-        return dnldNewAllAssociFile
-    
-    else:
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allAssociationsFile):
+
         # get date the database was last updated
         params = {
             "refGen": refGen,
@@ -94,18 +99,13 @@ def checkForAllAssociFile(refGen, defaultSex):
         lastDatabaseUpdate = lastDatabaseUpdate.split("-")
         lastDBUpdateDate = datetime.date(int(lastDatabaseUpdate[0]), int(lastDatabaseUpdate[1]), int(lastDatabaseUpdate[2]))
 
-        # path to a file containing all the associations from the database
-        allAssociationsFile = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
+        fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastDBUpdateDate <= fileModDate):
+            dnldNewAllAssociFile = False
 
-        # if the path exists, check if we don't need to download a new one
-        if os.path.exists(allAssociationsFile):
-            fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
-            fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
-            # if the file is newer than the database update, we don't need to download a new file
-            if (lastDBUpdateDate <= fileModDate):
-                dnldNewAllAssociFile = False
-        
-        return dnldNewAllAssociFile
+    return dnldNewAllAssociFile
 
 
 def checkForAllClumps(pop, refGen):
@@ -122,7 +122,7 @@ def checkForAllClumps(pop, refGen):
     if os.path.exists(allClumpsFile):
         params = {
             "refGen": refGen,
-            "superPop": superPop
+            "superPop": pop
         }
 
         response = requests.get(url="https://prs.byu.edu/last_clumps_update", params=params)
@@ -203,15 +203,15 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
                 "studyID": studyIDDataList[i]['studyID']
             }))
 
+    if finalStudyList == []:
+        raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
+
     # get the associations based on the studyIDs
     body = {
         "refGen": refGen,
         "studyIDObjs": finalStudyList,
         "sex": defaultSex,
     }
-
-    if finalStudyList == []:
-        raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
 
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
     return associationsReturnObj
