@@ -67,11 +67,13 @@
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
           <!--Select 1 trait-->
-          <select id='trait-Selector' style="margin-top: 2em; margin-bottom: 2em;" onchange="resetFilters()">
+          <label for="traitSelector">Trait<sup><span title="Select a trait to filter studies by before selecting the study you want to display UK BioBank data for.">?</span></sup>:</label>
+          <select name="traitSelector" id='trait-Selector' style="margin-top: 2em; margin-bottom: 2em;" onchange="resetFilters()">
             <option selected="selected" value="default">Select a Trait</option>
           </select>
           <!--Select 1 study type-->
-          <select id='studyType-Selector' style="margin: 2em;" onchange="getStudies()">
+          <label for="studyTypeSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;">Study Type<sup><span title="Select a study type or all study types to filter studies by before selecting the study you want to display UK BioBank data for.">?</span></sup>:</label>
+          <select name="studyTypeSelector" id='studyType-Selector' style="margin-right: 2em; margin-top: 2em; margin-bottom: 2em;" onchange="getStudies()">
             <option selected="selected" value="default">Select a Study Type</option>
             <option value="ALL">All Study Types</option> 
             <option value="HI">High Impact Studies</option>
@@ -79,7 +81,8 @@
             <option value="O">All Other Studies</option>
           </select>
           <!--Select 1 study-->
-          <select id='study-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled>
+          <label for="studySelector">Study<sup><span title="Select a study to display UK BioBank data for. Studies are shown in a trait|citation|studyID format.">?</span></sup>:</label>
+          <select name="studySelector" id='study-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled>
             <option selected="selected" value="default">Select a Study</option>
           </select>
           <button id='viewData' class="btn btn-primary btn-sm" style="margin-left: 1rem;" onClick="displayGraphs()">
