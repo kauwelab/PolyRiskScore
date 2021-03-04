@@ -231,7 +231,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
             if snp in snpSet:
                 # boolean to keep track of whether there were viable snps for this study.
                 unusedTraitStudy = False
-                # grab the corresponding pvalue and risk alleleo
+                # grab the corresponding pvalue and risk allele
                 pValue = tableObjDict['associations'][snp]['traits'][trait][study]['pValue']
                 riskAllele = tableObjDict['associations'][snp]['traits'][trait][study]['riskAllele']
 
@@ -243,7 +243,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                         if snp in clumpsObjDict:
                             # Grab the clump number associated with this snp 
                             clumpNum = str(clumpsObjDict[snp]['clumpNum'])
-                            # check to see the number of variants in this ld clump. If the snp is the only, we skip the clumping checks
+                            # check to see the number of variants in this ld clump. If the snp is the only one in the clump, we skip the clumping checks
                             clumpNumTotal = clumpNumDict[clumpNum]
 
                             if clumpNumTotal > 0:
@@ -271,7 +271,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     else:
                         # the risk allele wasn't in the listed alleles
                         unmatchedAlleleVariants.add(snp)
-    # Loop through each LD clump and add the index snp to the final sample map
+    # loop through each LD clump and add the index snp to the final sample map
     for clumpNum in index_snp_map:
         snp, alleles = index_snp_map[clumpNum]
         sample_map[snp] = alleles
@@ -287,7 +287,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     # Create a dictionary to keep track of the variants in each study
     sample_map = defaultdict(dict)
 
-    # Create a dictionary with clump number and index nps to keep track of the index snp for each LD region
+    # Create a dictionary with clump number and index snps to keep track of the index snp for each LD region
     index_snp_map = defaultdict(dict)
 
     # Create dictionaries to store the variants not used in the calculations for each sample
