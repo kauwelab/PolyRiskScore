@@ -17,6 +17,7 @@ import time
 # where: "password" is the password to the PRSKB database
 #        "associationTableFolderPath" is the path to the associations_table.tsv (default: "../tables")
 #        "studyTableFolderPath" is the path to the study_table.tsv (default: "../tables")
+#        "uploadUKBBTable" is whether the script should upload the ukbb table to the database (default: False)
 
 # creates a connection to the MySQL database using the given config dictionary
 # The config should be given in the following form:
@@ -63,19 +64,15 @@ def deleteTable(cursor, dbTableName):
     cursor.close()
 
 # creates "dbTableName" and adds it to the database with no data
-def createTable(cursor, dbTableName):
+def createTable(cursor, dbTableName, tableColumns):
     tableColumns = ""
-    if dbTableName == "study_table":
-        tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore decimal(15,5), ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )"
-    else:
-        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20), INDEX (trait, studyID) )"
     sql = "CREATE TABLE `" + dbTableName + "` " + tableColumns + ";"
 
     cursor.execute(sql)
     cursor.close()
 
 # removes the table in fileNames if it exists and creates a new table
-def createFreshTable(config, tableName, dbTableName):
+def createFreshTable(config, tableName, dbTableName, tableColumns):
     connection = getConnection(config)
 
     dropped = False
@@ -84,7 +81,7 @@ def createFreshTable(config, tableName, dbTableName):
         deleteTable(connection.cursor(), dbTableName)
         dropped = True
     # create a new table with the table columns specified
-    createTable(connection.cursor(), dbTableName)
+    createTable(connection.cursor(), dbTableName, tableColumns)
     if dropped:
         print(dbTableName + " recreated")
     else:
@@ -173,6 +170,9 @@ def main():
     studyTableFolderPath =  "../tables/"
     associationTableFolderPath = "../tables/"
 
+    # controls whether the ukbb table is uploaded to the database or not
+    uploadUKBBTable = False
+
     # arg handling
     if len(argv) <= 1:
         # if no password is provided, ask for one and close
@@ -181,15 +181,18 @@ def main():
         exit()
     else:
         password = argv[1]
-    if len(argv) > 4:
+    if len(argv) > 5:
         # if too many arguments are provided
         print("Too many arguments: " + str(argv))
         usage()
         exit()
     if len(argv) >= 3:
         associationTableFolderPath = setPathWithCheck(argv[2])
-    if len(argv) == 4:
+    if len(argv) >= 4:
         studyTableFolderPath = setPathWithCheck(argv[3])
+    if len(argv) == 5:
+        #TODO test if not true or false
+        uploadUKBBTable = argv[4]
 
     # set other default variables
     config = {
@@ -208,12 +211,19 @@ def main():
     connection.close()
 
     # add the associations_table to the database
-    createFreshTable(config, "associations_table", "associations_table")
+    tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20), INDEX (trait, studyID) )"
+    createFreshTable(config, "associations_table", "associations_table", tableColumns)
     addDataToTableCatch( config, associationTableFolderPath, "associations_table", "associations_table")
 
     # add the study_table to the database
-    createFreshTable(config, "study_table", "study_table")
+    tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore decimal(15,5), ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )"
+    createFreshTable(config, "study_table", "study_table", tableColumns)
     addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
+
+    # add the ukbb_prs_study_data table to the database
+    tableColumns = ""
+    createFreshTable(config, "ukbiobank_stats", "ukbiobank_stats", tableColumns)
+    addDataToTableCatch(config, studyTableFolderPath, "ukbiobank_stats", "ukbiobank_stats")
 
     print("Done!")
 
