@@ -118,9 +118,14 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
 
 def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, isFirstUsed, isFirstUnused):
     header = []
+
+    # ordering the samples so they will be the same everytime
+    sampleNames = list(vcfObj.keys())
+    sampleNames.sort()
+
     if isCondensedFormat:
         header = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
-        for samp in vcfObj:
+        for samp in sampleNames:
             header.append(samp)
     else:
         header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
@@ -138,7 +143,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
         json_samp_list = []
 
         # For every sample in the vcf nested dictionary
-        for samp in vcfObj:
+        for samp in sampleNames:
             samp_count += 1
             # check if the study exists in the studyMetaData
             if studyID in tableObjDict['studyIDsToMetaData'].keys():
