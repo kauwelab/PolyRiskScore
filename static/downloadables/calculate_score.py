@@ -10,14 +10,14 @@ import csv
 import io
 import os
 
-def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids):
+def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids, sampleOrder):
     if isRSids:
         # The isFirstUsed boolean lets us know if a line has been added to the output file
         # The ifFirstUnused boolean lets us know if a line has been added to the file with unused traits/studies. 
         # These booleans allow us to know if we should append to or write a new file for the next round of calculations.
         isFirstUsed, isFirstUnused = txtcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused)
     else:
-        isFirstUsed, isFirstUnused = vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused)
+        isFirstUsed, isFirstUnused = vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, sampleOrder)
     return isFirstUsed, isFirstUnused
 
 
@@ -116,16 +116,12 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
     return isFirstUsed, isFirstUnused
 
 
-def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, isFirstUsed, isFirstUnused):
+def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, isFirstUsed, isFirstUnused, sampleOrder):
     header = []
-
-    # ordering the samples so they will be the same everytime
-    sampleNames = list(vcfObj.keys())
-    sampleNames.sort()
 
     if isCondensedFormat:
         header = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
-        for samp in sampleNames:
+        for samp in sampleOrder:
             header.append(samp)
     else:
         header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
@@ -143,7 +139,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
         json_samp_list = []
 
         # For every sample in the vcf nested dictionary
-        for samp in sampleNames:
+        for samp in sampleOrder:
             samp_count += 1
             # check if the study exists in the studyMetaData
             if studyID in tableObjDict['studyIDsToMetaData'].keys():

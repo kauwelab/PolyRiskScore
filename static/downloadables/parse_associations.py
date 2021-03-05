@@ -36,10 +36,10 @@ def parse_files(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, d
         snpSet = studySnpsDict[keyString]
         if isRSids: 
             txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy= parse_txt(filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
-            isFirstUsed, isFirstUnused = cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids)
+            isFirstUsed, isFirstUnused = cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids, None)
         else:
-            vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy= parse_vcf(filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
-            isFirstUsed, isFirstUnused = cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids)
+            vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder = parse_vcf(filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
+            isFirstUsed, isFirstUnused = cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids, sampleOrder)
     return
 
 
@@ -295,7 +295,8 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     clumped_snps_map = {}
 
     # Get the number of samples in the vcf
-    sample_num = len(vcf_reader.samples)
+    sampleOrder = vcf_reader.samples
+    sample_num = len(sampleOrder)
 
     # Create sets to keep track of which samples have a viable snp for this trait/study
     no_viable_snp_counter = set()
@@ -404,6 +405,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     no_viable_snp_counter = set()
     viable_snp_counter = set()
     vcf_reader = None
-    return final_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy
+    return final_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder
 
 
