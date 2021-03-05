@@ -186,7 +186,7 @@ function displayViolinPlot() {
         title: "",
         yaxis: {
             zeroline: false,
-            title: "PRS Scores"
+            title: "Polygenic Risk Score"
         }
     }
 
@@ -210,7 +210,15 @@ function displayBoxPlot() {
         }
     ];
 
-    Plotly.newPlot(boxPlot, data)
+    var layout= {
+        title: "",
+        yaxis: {
+            zeroline: false,
+            title: "Polygenic Risk Score"
+        }
+    }
+
+    Plotly.newPlot(boxPlot, data, layout)
 }
 
 function displayHistogramPlot() {
@@ -229,7 +237,18 @@ function displayHistogramPlot() {
         name: displayDataObj['studyID']
     }]
 
-    Plotly.newPlot(histogramPlot, data)
+    var layout= {
+        title: "",
+        xaxis: {
+            title: "Polygenic Risk Score"
+        },
+        yaxis: {
+            title: "Number of Samples Within Each Score Bin"
+            //todo, need a better name?? Or leave off altogether? 
+        }
+    }
+
+    Plotly.newPlot(histogramPlot, data, layout)
 }
 
 function changePlot() {
