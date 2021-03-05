@@ -16,8 +16,11 @@ exports.download = (req,res) => {
     downloadPath = path.join(__dirname, '../..', 'downloadables')
     res.zip({
         files: [{
-            path: path.join(downloadPath, '/run_prs_grep.py'),
-            name: '/run_prs_grep.py'
+            path: path.join(downloadPath, '/parse_associations.py'),
+            name: '/parse_associations.py'
+        }, {
+            path: path.join(downloadPath, '/grep_file.py'),
+            name: '/grep_file.py'
         }, {
             path: path.join(downloadPath, '/connect_to_server.py'),
             name: '/connect_to_server.py'
