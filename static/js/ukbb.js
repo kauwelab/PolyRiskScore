@@ -122,30 +122,8 @@ function displayGraphs() {
                 displayDataObj["arrayOfValues"] = arrayOfValues
 
                 changePlot()
+                displayTable()
 
-                var values = [
-                    ['Min', 'Max', 'Mean', 'Median', 'Range'],
-                    [displayDataObj["min"], displayDataObj["max"], displayDataObj["mean"], displayDataObj["median"], displayDataObj["rng"]]
-                ]
-
-                var tableData = [{
-                    type: 'table',
-                    header: {
-                        values: [["<b>Summary Values</b>"], ["<b>" + displayDataObj["studyID"] + "</b>"]],
-                        align: "center",
-                        line: {width: 1, color: 'black'},
-                        fill: {color: "grey"},
-                        font: {family: "Arial", size: 12, color: "white"}
-                    },
-                    cells: {
-                        values: values,
-                        align: "center",
-                        line: {color: "black", width: 1},
-                        font: {family: "Arial", size: 11, color: ["black"]}
-                    }
-                }]
-
-                Plotly.newPlot(tablePlot, tableData)
                 var studyMetadata = document.getElementById("studymetadata")
                 metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p><p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p><p><b>Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p><p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p><p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p><p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p><br>`
                 studyMetadata.innerHTML = metadatastring
@@ -155,6 +133,32 @@ function displayGraphs() {
             alert(`There was an error loading the studies`);
         }
     })
+}
+
+function displayTable() {
+    var values = [
+        ['Min', 'Max', 'Mean', 'Median', 'Range'],
+        [displayDataObj["min"], displayDataObj["max"], displayDataObj["mean"], displayDataObj["median"], displayDataObj["rng"]]
+    ]
+
+    var tableData = [{
+        type: 'table',
+        header: {
+            values: [["<b>Summary Values</b>"], ["<b>" + displayDataObj["studyID"] + "</b>"]],
+            align: "center",
+            line: {width: 1, color: 'black'},
+            fill: {color: "grey"},
+            font: {family: "Arial", size: 12, color: "white"}
+        },
+        cells: {
+            values: values,
+            align: "center",
+            line: {color: "black", width: 1},
+            font: {family: "Arial", size: 11, color: ["black"]}
+        }
+    }]
+
+    Plotly.newPlot(tablePlot, tableData)
 }
 
 function displayViolinPlot() {
@@ -181,7 +185,8 @@ function displayViolinPlot() {
     var violinLayout= {
         title: "",
         yaxis: {
-            zeroline: false
+            zeroline: false,
+            title: "PRS Scores"
         }
     }
 
