@@ -99,6 +99,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
+    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -s 2 (By default, the calculations will be run on 4 subprocesses"    
     echo ""
 }
 
@@ -164,8 +165,9 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}10${NC} - -v verbose result file                 |"
         echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
+        echo -e "| ${LIGHTPURPLE}13${NC} - -n number of subprocesses              |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}13${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}14${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -263,7 +265,11 @@ learnAboutParameters () {
                 echo "The advantage of this is that the first step, which requires internet, can be"
                 echo "run separately from step 2, which does not require an internet connection."
                 echo "" ;;
-            13 ) cont=0 ;;
+            13 ) echo -e "${MYSTERYCOLOR} -n number of subprocesses: ${NC}"
+                echo "This parameter allows you to choose the number of processes used to run the tool."
+                echo "By default, the Python script will run the calculations using 4 subprocesses."
+                echo "" ;;
+            14 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -387,7 +393,7 @@ calculatePRS () {
         exit 1
     fi
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -510,6 +516,19 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
+            n)  if ! [ -z "$processes" ]; then 
+                    echo "Too many subprocess arguments requested at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                processes=$OPTARG
+                # if is not a number, or if it is a number less than 1
+		if (! [[ $processes =~ ^[0-9]+$ ]]) || ([[ $processes =~ ^[0-9]+$ ]] && [[ $processes -lt 1 ]]); then 
+                    echo -e "${LIGHTRED}$processes ${NC}is not a valid input for the number of subprocesses"
+                    echo "The number of subprocesses must be greater than 1"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi;;
             [?])    usage
                     exit 1;;
         esac
@@ -527,6 +546,10 @@ calculatePRS () {
     # if no sex is specified, set to female
     if [ -z "$defaultSex" ]; then
         defaultSex="female"
+    fi
+    # if no subprocess number is specified, set to 4
+    if [ -z "$processes" ]; then
+        processes=4
     fi
 
     # preps variables for passing to python script
@@ -609,7 +632,7 @@ calculatePRS () {
         if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
             echo "Filtered input file"
 	    # parse through the filtered input file and calculate scores for each given study
-            if $pyVer -c "import parse_associations as pa; pa.runParsingAndCalculations('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP')"; then
+            if $pyVer -c "import parse_associations as pa; pa.runParsingAndCalculations('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP', '$processes')"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else

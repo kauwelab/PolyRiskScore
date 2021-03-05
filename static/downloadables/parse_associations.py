@@ -403,7 +403,7 @@ def getSamples(inputFilePath, header):
     header.extend(samples)
     return header
 
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp):
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp, num_processes):
     paramOpts = []
     
     # tells us if we were passed rsIDs or a vcf
@@ -458,5 +458,5 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids))
 
 
-    with Pool(processes=6) as pool:
+    with Pool(processes=int(num_processes)) as pool:
         pool.map(parseAndCalculateFiles, paramOpts)
