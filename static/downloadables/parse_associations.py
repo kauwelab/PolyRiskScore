@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 import json
 import vcf
 import calculate_score as cs
@@ -7,39 +8,27 @@ import os
 import os.path
 from collections import defaultdict
 
+def parseAndCalculateFiles(params):
+    inputFilePath = params[0]
+    clumpsObjDict = params[1]
+    tableObjDict  = params[2]
+    snpSet = params[3]
+    clumpNumDict = params[4]
+    pValue = params[5]
+    trait = params[6]
+    study = params[7]
+    isJson = params[8]
+    isCondensedFormat = params[9]
+    outputFilePath = params[10]
+    isRSids = params[11]
 
-def parse_files(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp):
-    # tells us if we were passed rsIDs or a vcf
-    isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
-
-    # Access the downloaded files and paths
-    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp)
-    
-    # Determine whether the output format is condensed and either json or tsv
-    if outputType == '.json':
-        isJson = True
-        isCondensedFormat = False
+    if isRSids: 
+        txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy= parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
+        cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, isRSids)
     else:
-        isJson = False
-        if isCondensedFormat == '0':
-            isCondensedFormat = False
-        else:
-            isCondensedFormat = True
+        vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy= parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
+        cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isRSids)
 
-    # Loop through each (trait, study) and perform the parsing and calculations
-    isFirstUsed = True # tells us whether the first line still needs to be added to the output file (true) or not (false)
-    isFirstUnused = True # tells us whether the first line still needs to be added to the outputted list of unused studies (true) or not (false)
-    for keyString in studySnpsDict:
-        trait = keyString.split('|')[0]
-        study = keyString.split('|')[1]
-        # get all of the variants associated with this trait/study
-        snpSet = studySnpsDict[keyString]
-        if isRSids: 
-            txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy= parse_txt(filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
-            isFirstUsed, isFirstUnused = cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids)
-        else:
-            vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy= parse_vcf(filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
-            isFirstUsed, isFirstUnused = cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isFirstUsed, isFirstUnused, isRSids)
     return
 
 
@@ -407,3 +396,67 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     return final_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy
 
 
+def getSamples(inputFilePath, header):
+    # Open filtered file
+    vcf_reader = vcf.Reader(open(inputFilePath, 'r'))
+    samples = vcf_reader.samples
+    header.extend(samples)
+    return header
+
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp):
+    paramOpts = []
+    
+    # tells us if we were passed rsIDs or a vcf
+    isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
+
+    # Access the downloaded files and paths
+    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp)
+    
+    # Determine whether the output format is condensed and either json or tsv
+    if outputType == '.json':
+        isJson = True
+        isCondensedFormat = False
+    else:
+        isJson = False
+        if isCondensedFormat == '0':
+            isCondensedFormat = False
+        else:
+            isCondensedFormat = True
+
+    
+    if isJson: #json and verbose
+        # we need to run through one iteration here so that we know the first json result has the opening list bracket
+        key = next(iter(studySnpsDict))
+        trait = key.split("|")[0]
+        study = key.split("|")[1]
+        snpSet = studySnpsDict[key]
+        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids)
+        if (parseAndCalculateFiles(params)):
+            # remove the key value pair from the dictinoary so that it's not written to the output file twice (see below)
+            del studySnpsDict[key]
+    else:
+        # we need to write out the header depending on the output type
+        header = []
+        if isCondensedFormat and isRSids: # condensed and txt input
+            header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score']
+        elif isCondensedFormat: # condensed and vcf input
+            header = ['Study ID', 'Citation', 'Reported Trait', 'Trait']
+            # loop through each sample and add to the header
+            header = getSamples(filteredInputPath, header)
+        elif not isCondensedFormat  and isRSids: # verbose and txt input
+            header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+        else: # verbose and vcf input
+            header = ['Sample', 'Study ID', 'Citation', 'Reported Trait', 'Trait', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+        cs.formatTSV(True, None, header, outputFilePath)
+
+    # we create params for each study so that we can run them on separate processes
+    for keyString in studySnpsDict:
+        trait = keyString.split('|')[0]
+        study = keyString.split('|')[1]
+        # get all of the variants associated with this trait/study
+        snpSet = studySnpsDict[keyString]
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids))
+
+
+    with Pool(processes=6) as pool:
+        pool.map(parseAndCalculateFiles, paramOpts)
