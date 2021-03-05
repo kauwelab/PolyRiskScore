@@ -252,7 +252,7 @@ function displayHistogramPlot() {
 }
 
 function changePlot() {
-    document.getElementById("plotAndButtons").style.visibility='visible';
+    document.getElementById("plotAndTable").style.visibility='visible';
 
     var plotType = document.querySelector('input[name="plot_type"]:checked').value;
     console.log(plotType)
