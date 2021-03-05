@@ -622,11 +622,11 @@ calculatePRS () {
         if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
             rm $FILE
             rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-            rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
             rm ".workingFiles/traitStudyIDToSnps_${fileHash}.txt"
             rm ".workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         fi
         # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
         rm -r __pycache__
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
