@@ -202,27 +202,27 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                             'trait': trait
                         })
 
-                        # add the sample score and variant information
-                        json_sample_results = {
-                            'sample': samp,
-                            'polygenicRiskScore': prs,
-                            'protectiveAlleles': "|".join(protectiveVariants),
-                            'riskAlleles': "|".join(riskVariants),
-                            'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
-                            'variantsInHighLD': "|".join(clumpedVariants)
-                        }
-                        
-                        json_samp_list.append(json_sample_results) # Add this sample's results to a list of sample results for this study/trait
+                    # add the sample score and variant information
+                    json_sample_results = {
+                        'sample': samp,
+                        'polygenicRiskScore': prs,
+                        'protectiveAlleles': "|".join(protectiveVariants),
+                        'riskAlleles': "|".join(riskVariants),
+                        'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
+                        'variantsInHighLD': "|".join(clumpedVariants)
+                    }
+                    
+                    json_samp_list.append(json_sample_results) # Add this sample's results to a list of sample results for this study/trait
 
-                        # check if scores for all the samples have been calculated
-                        # if so, write the object to the json file
-                        if samp_count == samp_num:
-                            json_study_results.update({'samples': json_samp_list})
-                            formatJson(isFirstUsed, json_study_results, outputFile)
-                            isFirstUsed = False # this boolean ensures that subsequent json objects will be appended to the output file
-                            # set the objects to empty to save memory
-                            json_study_results = {}
-                            json_samp_list = []
+                    # check if scores for all the samples have been calculated
+                    # if so, write the object to the json file
+                    if samp_count == samp_num:
+                        json_study_results.update({'samples': json_samp_list})
+                        formatJson(isFirstUsed, json_study_results, outputFile)
+                        isFirstUsed = False # this boolean ensures that subsequent json objects will be appended to the output file
+                        # set the objects to empty to save memory
+                        json_study_results = {}
+                        json_samp_list = []
                 
                 elif isCondensedFormat:
                     # add needed markings to study/score
