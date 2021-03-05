@@ -609,7 +609,7 @@ calculatePRS () {
         if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
             echo "Filtered input file"
 	    # parse through the filtered input file and calculate scores for each given study
-            if $pyVer -c "import parse_associations as pa; pa.parse_files('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP')"; then
+            if $pyVer -c "import parse_associations as pa; pa.runParsingAndCalculations('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP')"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
