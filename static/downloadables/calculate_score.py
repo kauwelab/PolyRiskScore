@@ -226,6 +226,7 @@ def formatJson(studyInfo, outputFile):
     json_output=[]
     json_output.append(studyInfo)
     # if this is the first object to be added, write it to the output file
+    print(path.exists(outputFile))
     if not path.exists(outputFile):
         with open(outputFile, 'w', newline='') as f:
             json.dump(json_output, f, indent=4)

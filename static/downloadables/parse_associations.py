@@ -427,13 +427,15 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     if isJson: #json and verbose
         # we need to run through one iteration here so that we know the first json result has the opening list bracket
         key = next(iter(studySnpsDict))
+        print(key)
         trait = key.split("|")[0]
         study = key.split("|")[1]
         snpSet = studySnpsDict[key]
         params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids)
-        if (parseAndCalculateFiles(params)):
+        parseAndCalculateFiles(params)
             # remove the key value pair from the dictinoary so that it's not written to the output file twice (see below)
-            del studySnpsDict[key]
+        print(key)
+        del studySnpsDict[key]
     else:
         # we need to write out the header depending on the output type
         header = []
