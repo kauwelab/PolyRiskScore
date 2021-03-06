@@ -523,9 +523,9 @@ calculatePRS () {
                 fi
                 processes=$OPTARG
                 # if is not a number, or if it is a number less than 1
-		if (! [[ $processes =~ ^[0-9]+$ ]]) || ([[ $processes =~ ^[0-9]+$ ]] && [[ $processes -lt 1 ]]); then 
+		if (! [[ $processes =~ ^[0-9]+$ ]]) || ([[ $processes =~ ^[0-9]+$ ]] && [[ $processes -lt 0 ]]); then 
                     echo -e "${LIGHTRED}$processes ${NC}is not a valid input for the number of subprocesses"
-                    echo "The number of subprocesses must be greater than 1"
+                    echo "The number of subprocesses cannot be less than 0"
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
