@@ -267,8 +267,7 @@ def formatJson(isFirst, studyInfo, outputFile):
 def createMarks(oddsRatios, studyID, snpSet, sampSnps, mark):
     prs = str(getPRSFromArray(oddsRatios))
     # Add an * to scores that don't include every snp in the study
-    #TODO: check this
-    if snpSet != sampSnps and len(sampSnps) != 0:
+    if set(snpSet) != sampSnps and len(sampSnps) != 0:
         prs = prs + '*'
     # Add a mark to studies that have duplicate snps with varying pvalue annotations
     if mark is True:
