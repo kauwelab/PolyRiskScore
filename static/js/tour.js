@@ -11,8 +11,9 @@ var templateWithoutNext = `<div class='popover tour'>
 </div> 
 </div>`
 var refGenTourIndex = 3
-var sexTourIndex = 4
-var superPopTourIndex = 5
+var superPopTourIndex = 4
+var sexTourIndex = 5
+
 
 
 function startTour() {
