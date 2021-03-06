@@ -64,8 +64,6 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     $timeCommand ./runPrsCLI.sh -f $i -o "$outputFolder/test0${fileType}.tsv" -c $pvalue -r $refGen -p $pop
     echo -e "\n\n\n"
 
-    exit
-
     # test 1 (-t -k -i -e -v -g -s)
     trait=$(getRandomElement ${validTraits[@]})
     studyType=$(getRandomElement ${validStudyTypes[@]})
