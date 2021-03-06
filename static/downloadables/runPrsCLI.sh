@@ -651,7 +651,6 @@ calculatePRS () {
         # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
         rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
         rm -r __pycache__
-        rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
         exit;
