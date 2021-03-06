@@ -12,11 +12,11 @@ import csv
 import io
 import os
 
-def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isRSids):
+def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isRSids, sampleOrder):
     if isRSids:
         txtcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, unusedTraitStudy, trait, study)
     else:
-        vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study)
+        vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, sampleOrder)
     return
 
 
@@ -104,7 +104,8 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
     return
 
 
-def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID):
+def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, sampleOrder):
+    header = []
 
     # if the trait/study has no snps in the input file, write out the trait/study to the output list of unused traits/studies
     if unusedTraitStudy:
@@ -119,7 +120,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
         json_samp_list = []
 
         # For every sample in the vcf nested dictionary
-        for samp in vcfObj:
+        for samp in sampleOrder:
             samp_count += 1
             # check if the study exists in the studyMetaData
             if studyID in tableObjDict['studyIDsToMetaData'].keys():
@@ -242,8 +243,7 @@ def formatJson(studyInfo, outputFile):
 def createMarks(oddsRatios, studyID, snpSet, sampSnps, mark):
     prs = str(getPRSFromArray(oddsRatios))
     # Add an * to scores that don't include every snp in the study
-    #TODO: check this
-    if snpSet != sampSnps and len(sampSnps) != 0:
+    if set(snpSet) != sampSnps and len(sampSnps) != 0:
         prs = prs + '*'
     # Add a mark to studies that have duplicate snps with varying pvalue annotations
     if mark is True:

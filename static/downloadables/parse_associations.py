@@ -311,7 +311,8 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     vcf_reader = vcf.Reader(open(tempFilePath, 'r'))
 
     # Get the number of samples in the vcf
-    sample_num = len(vcf_reader.samples)
+    sampleOrder = vcf_reader.samples
+    sample_num = len(sampleOrder)
 
     # Create sets to keep track of which samples have a viable snp for this trait/study
     no_viable_snp_counter = set()
@@ -429,7 +430,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     if os.path.exists(tempFilePath):
         os.remove(tempFilePath)
 
-    return final_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy
+    return final_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder
 
 
 def getSamples(inputFilePath, header):
@@ -495,6 +496,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
         paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp))
+        # if no subprocesses are going to be used, run the calculations once for each study/trait
         if int(num_processes) == 0:
             parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp))
 
