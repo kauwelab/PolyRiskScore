@@ -175,7 +175,7 @@ function displayViolinPlot() {
         line: {
             color: 'black'
         },
-        fillcolor: '#8dd3c7',
+        fillcolor: 'rgba(141, 211, 199, 1)',
         meanline: {
             visible: true
         },
@@ -206,7 +206,7 @@ function displayBoxPlot() {
             line: {
                 color: 'black'
             },
-            fillcolor: '#8dd3c7'
+            fillcolor: 'rgba(141, 211, 199, 1)'
         }
     ];
 
@@ -227,12 +227,15 @@ function displayHistogramPlot() {
     var data = [{
         x: displayDataObj["arrayOfValues"],
         type: 'histogram',
-        opacity: 0.6,
         line: {
             color: 'black'
         },
         marker: {
-            color: '#8dd3c7'
+            color: 'rgba(141, 211, 199, 0.6)',
+            line: {
+                color:  "rgba(141, 211, 199, 1)", 
+                width: 1
+            }
         },
         name: displayDataObj['studyID']
     }]
@@ -245,7 +248,7 @@ function displayHistogramPlot() {
         yaxis: {
             title: "Number of Samples Within Each Score Bin"
             //todo, need a better name?? Or leave off altogether? 
-        }
+        },
     }
 
     Plotly.newPlot(histogramPlot, data, layout)
