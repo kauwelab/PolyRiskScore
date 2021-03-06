@@ -262,11 +262,11 @@ function changePlot() {
 
     switch(plotType) {
         case "Histogram":
-          displayHistogramPlot()
-          break;
+            displayHistogramPlot()
+            break;
         case "Box":
-          displayBoxPlot()
-          break;
+            displayBoxPlot()
+            break;
         default:
             displayViolinPlot()
     }
