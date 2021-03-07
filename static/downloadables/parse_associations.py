@@ -25,10 +25,10 @@ def parseAndCalculateFiles(params):
 
     if isRSids: 
         txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy= parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study)
-        cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, isRSids)
+        cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, isRSids, None)
     else:
-        vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy= parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
-        cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isRSids)
+        vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sample_order= parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
+        cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isRSids, sample_order)
 
     return
 
@@ -267,7 +267,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         sample_map[snp] = alleles
 
     final_map = dict(sample_map)
-    return final_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy
+    return final_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, None
 
 
 def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, timestamp):
@@ -323,7 +323,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         unusedTraitStudy = True
         if os.path.exists(tempFilePath):
             os.remove(tempFilePath)
-        return sample_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy
+        return sample_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder
     else:
         unusedTraitStudy = False
 
