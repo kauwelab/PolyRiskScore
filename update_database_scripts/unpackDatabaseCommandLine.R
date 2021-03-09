@@ -359,7 +359,7 @@ if (is_ebi_reachable()) {
       studyID <- pull(studiesTibble[i, "study_id"])
       
       # get citation data (author + year published)
-      citation <- paste(pull(publications[i, "author_fullname"]), str_sub(pull(publications[i, "publication_date"]), 0, 4))
+      citation <- paste(sub(" .*", "", pull(publications[i, "author_fullname"])), "et al.",  str_sub(pull(publications[i, "publication_date"]), 0, 4))
       # get pubmed ID for the study
       pubmedID <- pull(publications[i, "pubmed_id"])
       
