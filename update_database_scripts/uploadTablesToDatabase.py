@@ -65,7 +65,6 @@ def deleteTable(cursor, dbTableName):
 
 # creates "dbTableName" and adds it to the database with no data
 def createTable(cursor, dbTableName, tableColumns):
-    tableColumns = ""
     sql = "CREATE TABLE `" + dbTableName + "` " + tableColumns + ";"
 
     cursor.execute(sql)
@@ -171,7 +170,7 @@ def main():
     associationTableFolderPath = "../tables/"
 
     # controls whether the ukbb table is uploaded to the database or not
-    uploadUKBBTable = False
+    uploadUKBBTable = "false"
 
     # arg handling
     if len(argv) <= 1:
@@ -191,8 +190,8 @@ def main():
     if len(argv) >= 4:
         studyTableFolderPath = setPathWithCheck(argv[3])
     if len(argv) == 5:
-        #TODO test if not true or false
-        uploadUKBBTable = argv[4]
+        uploadUKBBTable = argv[4].lower()
+
 
     # set other default variables
     config = {
@@ -220,10 +219,11 @@ def main():
     createFreshTable(config, "study_table", "study_table", tableColumns)
     addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
 
-    # add the ukbb_prs_study_data table to the database
-    tableColumns = ""
-    createFreshTable(config, "ukbiobank_stats", "ukbiobank_stats", tableColumns)
-    addDataToTableCatch(config, studyTableFolderPath, "ukbiobank_stats", "ukbiobank_stats")
+    # add the ukbiobank_stats table to the database
+    if uploadUKBBTable == "true":
+        tableColumns = "( trait	varchar(50), studyID varchar(50), mean float, median float, min float, max float, rng float, p0 float, p1 float, p2 float, p3 float, p4 float, p5 float, p6 float, p7 float, p8 float, p9 float, p10 float, p11 float, p12 float, p13 float, p14 float, p15 float, p16 float, p17 float, p18 float, p19 float, p20 float, p21 float, p22 float, p23 float, p24 float, p25 float, p26 float, p27 float, p28 float, p29 float, p30 float, p31 float, p32 float, p33 float, p34 float, p35 float, p36 float, p37 float, p38 float, p39 float, p40 float, p41 float, p42 float, p43 float, p44 float, p45 float, p46 float, p47 float, p48 float, p49 float, p50 float, p51 float, p52 float, p53 float, p54 float, p55 float, p56 float, p57 float, p58 float, p59 float, p60 float, p61 float, p62 float, p63 float, p64 float, p65 float, p66 float, p67 float, p68 float, p69 float, p70 float, p71 float, p72 float, p73 float, p74 float, p75 float, p76 float, p77 float, p78 float, p79 float, p80 float, p81 float, p82 float, p83 float, p84 float, p85 float, p86 float, p87 float, p88 float, p89 float, p90 float, p91 float, p92 float, p93 float, p94 float, p95 float, p96 float, p97 float, p98 float, p99 float, p100 float )" 
+        createFreshTable(config, "ukbiobank_stats", "ukbiobank_stats", tableColumns)
+        addDataToTableCatch(config, studyTableFolderPath, "ukbiobank_stats", "ukbiobank_stats")
 
     print("Done!")
 
