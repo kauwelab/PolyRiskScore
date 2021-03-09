@@ -240,7 +240,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                 # If this snp is in LD with any other snps, check whether the existing index snp or current snp have a lower pvalue 
                                 if clumpNum in index_snp_map:
                                     index_snp, index_alleles = index_snp_map[clumpNum]
-                                    index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][studyID]['pValue']
+                                    index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
 
                                     if pValue < index_pvalue:
                                         index_snp_map[clumpNum] = snp, alleles
@@ -267,7 +267,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         sample_map[snp] = alleles
 
     final_map = dict(sample_map)
-    return final_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, None
+    return final_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy
 
 
 def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, timestamp):
