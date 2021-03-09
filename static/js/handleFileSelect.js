@@ -94,7 +94,7 @@ function readSomeLines(file, maxlines, forEachLine, onComplete) {
 var printFileEnds = async (file, sizeToPrint) => {
     var extension = file.name.split(".").pop();
     extension = extension.toLowerCase();
-    if (extension == "zip" || extension == "gzip") {
+    if (extension == "zip") {
         var fileContents = await getZipText(file);
         file = new File([fileContents], "temp.vcf")
     }
@@ -154,25 +154,13 @@ var readFile = async (vcfFile) => {
 }
 
 var getZipText = async (f) => {
-    return JSZip.loadAsync(f)                                   // 1) read the Blob
+    return JSZip.loadAsync(f)
         .then(function (zip) {
             for (const path of Object.keys(zip.files)) {
                 return zip.files[path].async('blob').then(async function (blob) {
-                    return blob.text()/*.then(function (result) {
-                        return result;
-                    });*/
+                    return blob.text()
                 });
             }
-            /*
-            zip.forEach(async function (relativePath, zipEntry) {  // 2) print entries
-                zip.files[relativePath].async('blob').then(function (blob) {
-                    var fileContents = blob.text();
-                    fileContents.then(function (result) {
-                        return result;
-                    });
-                });
-            });
-            */
         }, function (e) {
             $('#response').html("There was an error reading the zip file:\n" + e.message);
         });
