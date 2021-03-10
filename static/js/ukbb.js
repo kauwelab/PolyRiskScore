@@ -246,8 +246,7 @@ function displayHistogramPlot() {
             title: "Polygenic Risk Score"
         },
         yaxis: {
-            title: "Number of Samples Within Each Score Bin"
-            //todo, need a better name?? Or leave off altogether? 
+            title: "Number of Samples"
         },
     }
 
