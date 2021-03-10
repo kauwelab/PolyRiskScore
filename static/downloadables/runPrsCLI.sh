@@ -111,7 +111,7 @@ chooseOption () {
         echo    "|                                             |"
         echo -e "| ${LIGHTBLUE}Options Menu${NC}                                |"
         echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                  |"
-        echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or disease  |"
+        echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or trait    |"
         echo -e "| ${LIGHTBLUE}3${NC} - View available ethnicities for filter   |"
         echo -e "| ${LIGHTBLUE}4${NC} - View usage                              |"
         echo -e "| ${LIGHTBLUE}5${NC} - Run the PRSKB calculator                |"

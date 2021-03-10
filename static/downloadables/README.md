@@ -72,9 +72,11 @@ These parameters must be present in order for the PRSKB CLI tool to run calculat
 In addition to running calculations on all the study/trait combinations in our database, you can choose to filter which studies you want to recieve polygenic risk score results for by adding additional parameters.
 
 * **-t trait** -- Adding trait filters will filter out all studies that do not include the traits specified (see note on studyID)
-* **-k studyType** -- Adding study types (HI for High Impact, LC for Large Cohort, O for Other) will filter out all studies except those labeled as the desired study type (see note on studyID)
+* **-k studyType** -- Adding study types will filter out all studies except those labeled as the desired study type (see note on studyID). Acceptable values are **HI** (High Impact), **LC** (Large Cohort), and **O** (Other).
 * **-i studyID** -- Adding a study ID will ensure that the study corresponding to the study ID given will have polygenic risk scores calculated for it. *NOTE: The study ID filter is not affected by other filters and the calculator will run for the study corresponding to the study ID given, notwithstanding the presence of other filters.*
 * **-e ethnicity** -- Adding an ethnicity filter will restrict risk score calculations to those studies that report the given ethnicity in either their discovery sample ancestry or their replication sample ancestry. (see note on studyID)
+
+Traits and studies available through this tool can be searched from the PRSKB CLI interactive menu using the *Search for a specific study or trait* option. A list of ethnicities from the server can be printed using the *View available ethnicities for filter* menu option. 
 
 ### Additional Optional Parameters
 
