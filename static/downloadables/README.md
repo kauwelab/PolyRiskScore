@@ -25,8 +25,10 @@ This folder should contain the following files. If it does not, download the too
 
 * runPrsCLI.sh
 * connect_to_server.py
-* run_prs_grep.py
+* grep_file.py
+* parse_associations.py
 * calculate_score.py
+* README.md
 
 ## Running the PRSKB CLI
 
@@ -35,4 +37,6 @@ This folder should contain the following files. If it does not, download the too
 
 1. runPrsCLI.sh - Bash script that calls the appropriate python scripts. Also holds the tool's menu, accessed by running the tool without any parameters. This is the only script that the user will directly run.
 2. connect_to_server.py - Python script that connects to the PRSKB database to download the correct association and linkage-disequilibrium clump information for risk score calculations. This script requires an internet connection to run.
-3. run_prs_grep.py - 
+3. grep_file.py - Creates a filtered input file using the input file given and the requested parameters. This filtered file will only retain lines from the given input file that contain snps included in the association data for calculations.
+4. parse_associations.py - 
+5. calculate_score.py - Calculates the risk scores for each study/trait combination using the data passed from the parse_associations.py and prints the results to the specified output file.
