@@ -30,7 +30,7 @@ This folder should contain the following files. If it does not, download the too
 
 ## Running the PRSKB CLI
 
-There are 2 ways to run the PRSBK calculator. It can be run directly from the command line or it can be run through the tool's menu.
+There are two ways to run the PRSBK calculator. It can be run directly from the command line or it can be run through the tool's menu.
 
 ### Running from the Command Line
 
@@ -47,7 +47,6 @@ To run the risk score calculator from the command line, you should pass the requ
 ```
 
 *NOTE: Each line in the txt file should be formatted rsID:allele1,allele2*
-
 
 ### Running from the Menu
 
@@ -82,7 +81,7 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 
 * **-v verbose result file** -- Adding the **-v** parameter will return the output file in a 'verbose' format, switching to including a line for each sample/study/trait combination. Additional columns are added that display lists of protective variants, risk variants, variants that are present but do not include the risk allele, and variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations. *NOTE: This only applies to TSV output files. JSON output files are always 'verbose'.*
 * **-g defaultSex** -- This parameter will set the default sex for the samples in the input file. Though a rare occurence, some studies have duplicates of the same snp that differ by which biological sex the p-value is associated with. You can indicate which sex you would like snps to select when both options (M/F) are present. The system default is Female."
-* **-s stepNumber** -- The calculator can be run in two steps. The first step deals with downloading necessary information for calculations from our server. The second step is responsible for performing the actual calculations and does not require an internet connection. 
+* **-s stepNumber** -- The calculator can be run in two steps. The first step deals with downloading necessary information for calculations from our server. The second step is responsible for performing the actual calculations and does not require an internet connection. Running the tool without a specified step number will run both steps sequentially. 
 * **-n numberOfSubprocesses** -- 
 
 ## Examples
@@ -163,7 +162,7 @@ Using All Filter Types
 
 Additional Step Number Example
 ```bash
-# calculates scores for all studies for inputFile.vcf, then using the already downloaded all_associations_hg19_f.txt file, calculates scores for inputFile_1.vcf using the given filters
+# calculates scores for all studies for inputFile.vcf, then using the already downloaded allAssociations_hg19_f.txt file, calculates scores for inputFile_1.vcf using the given filters
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ./runPrsCLI.sh -f inputFile_1.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t Insomnia -t acne -i GCST000010 -k O -s 2
 ```
@@ -179,6 +178,22 @@ Additional Step Number Example
 ## .workingFiles Directory
 
 The .workingFiles directory is created by this tool to hold various files necessary to calculate polygenic risk scores. Each file is important in their own way and can cause the tool to quit prematurly if it is not present. 
+
+### Association Files
+
+Association files hold the association data downloaded from our server required to calculate polygenic risk scores. These files are created in the connect_to_server.py script as part of step 1. There are two naming conventions for associations files:
+
+* **allAssociations_{refGen}_{sex}.txt** -- This associations file is downloaded from the server when no filters are supplied. It contains all the associations from the server and is formatted for the specified reference genome (refGen) and default sex (sex). This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example))
+* **associations_{ahash}.txt** -- This associations file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under *Applying Step Numbers*).
+
+
+### Clumping Files
+
+
+### Filtered Files
+
+
+
 
 
 
