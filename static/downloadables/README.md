@@ -61,7 +61,7 @@ Below is a break down and explanation of all the parameters that can be used wit
 
 These parameters must be present in order for the PRSKB CLI tool to run calculations. If any of these are missing, the tool will give you the option of printing out the usage statement or starting the interactive menu.
 
-* **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on *Using a TXT with required parameters* for the format of the txt file.) or a zip file of the VCF or TXT file. 
+* **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on *Using a TXT with required parameters* for the format of the txt file) or a zip file of the VCF or TXT file. 
 * **-o outputFilePath** -- The location the output file should be created at. Must be either a TSV or a JSON file.
 * **-r refGen** -- The reference genome the samples in the input file. Acceptable values are **hg17**, **hg18**, **hg19**, and **hg38**.
 * **-c pValueCutoff** -- The p-value cutoff for snps that will be included. Any snp that has a p-value greater than the cutoff will not be considered for calculation.
@@ -76,7 +76,14 @@ In addition to running calculations on all the study/trait combinations in our d
 * **-i studyID** -- Adding a study ID will ensure that the study corresponding to the study ID given will have polygenic risk scores calculated for it. *NOTE: The study ID filter is not affected by other filters and the calculator will run for the study corresponding to the study ID given, notwithstanding the presence of other filters.*
 * **-e ethnicity** -- Adding an ethnicity filter will restrict risk score calculations to those studies that report the given ethnicity in either their discovery sample ancestry or their replication sample ancestry. (see note on studyID)
 
-#### Examples
+### Additional Optional Parameters
+
+* **-v verbose result file** -- Adding the **-v** parameter will return the output file in a 'verbose' format, switching to including a line for each sample/study/trait combination. Additional columns are added that display lists of protective variants, risk variants, variants that are present but do not include the risk allele, and variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations. *NOTE: This only applies to TSV output files. JSON output files are always 'verbose'.*
+* **-g defaultSex** -- This parameter will set the default sex for the samples in the input file. Though a rare occurence, some studies have duplicates of the same snp that differ by which biological sex the p-value is associated with. You can indicate which sex you would like snps to select when both options (M/F) are present. The system default is Female."
+* **-s stepNumber** -- The calculator can be run in two steps. The first step deals with downloading necessary information for calculations from our server. The second step is responsible for performing the actual calculations and does not require an internet connection. 
+* **-n numberOfSubprocesses** -- 
+
+## Examples
 
 Filtering By Trait
 ```bash
@@ -114,15 +121,6 @@ Filtering By Ethncity
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -e European -e "East Asian"
 ```
 
-### Additional Optional Parameters
-
-* **-v verbose result file** -- Adding the **-v** parameter will return the output file in a 'verbose' format, switching to including a line for each sample/study/trait combination. Additional columns are added that display lists of protective variants, risk variants, variants that are present but do not include the risk allele, and variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations. *NOTE: This only applies to TSV output files. JSON output files are always 'verbose'.*
-* **-g defaultSex** -- This parameter will set the default sex for the samples in the input file. Though a rare occurence, some studies have duplicates of the same snp that differ by which biological sex the p-value is associated with. You can indicate which sex you would like snps to select when both options (M/F) are present. The system default is Female."
-* **-s stepNumber** -- The calculator can be run in two steps. The first step deals with downloading necessary information for calculations from our server. The second step is responsible for performing the actual calculations and does not require an internet connection. 
-* **-n numberOfSubprocesses** -- 
-
-#### Examples
-
 Requesting a Verbose File
 ```bash
 # runs the calculator and returns a 'verbose' tsv output file
@@ -154,8 +152,6 @@ Specifying Number of Subprocesses
 # runs the calculator using 4 subprocessors
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -n 4
 ```
-
-### More Examples
 
 Using All Filter Types
 ```bash
