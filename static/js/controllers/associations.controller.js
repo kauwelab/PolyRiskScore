@@ -103,6 +103,40 @@ exports.getAllSnpsToStudyIDs = (req, res) => {
     })
 }
 
+exports.getSnpsToTraitStudyID = (req, res) => {
+    var studyIDObjs = req.body.studyIDObjs
+
+    studyIDTraitsToSnps = {}
+
+    Association.getSnpsToTraitStudyID(studyIDObjs, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: `Error retrieving associations: ${err}`
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            for (i=0; i<data.length; i++) {
+                if (Array.isArray(data[i])) {
+                    for (j=0; j<data[i].length; j++) {
+                        if (!(Object.keys(studyIDTraitsToSnps).includes([data[i][j].trait, data[i][j].studyID].join("|")))) {
+                            studyIDTraitsToSnps[[data[i][j].trait, data[i][j].studyID].join("|")] = []
+                        }
+                        studyIDTraitsToSnps[[data[i][j].trait, data[i][j].studyID].join("|")].push(data[i][j].snp)
+                    }
+                }
+                else {
+                    if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID].join("|")))) {
+                        studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")] = []
+                    }
+                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID].join("|")].push(data[i].snp)
+                }
+            }
+            res.send(studyIDTraitsToSnps);
+        }
+    });
+}
+
 exports.getSingleSnpFromEachStudy = (req, res) => {
     var refGen = req.query.refGen;
     Association.getSingleSnpFromEachStudy(refGen, (err,data) => {
@@ -201,6 +235,24 @@ exports.getAssociationsDownloadFile = (req, res) => {
     }); 
 }
 
+exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `traitStudyIDToSnps.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    });
+}
+
 async function separateStudies(associations, traitData, refGen, sex) {
 
     // store the citation and reported trait for each study
@@ -258,7 +310,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
                     if (replace) {
                         AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
                     }
-		    //Add an indication of which traits/studies have duplicated snps
+                    //Add an indication of which traits/studies have duplicated snps
                     if (!('traitsWithDuplicateSnps' in studyIDsToMetaData[association.studyID])) {
                         studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'] = [association.trait]
                     }

@@ -1,4 +1,5 @@
 var resultJSON = "";
+var unusedTraitStudyArray = [];
 //TODO gzip and zip still need work
 var validExtensions = ["vcf", "gzip", "zip"]
 var traitObjects = []
@@ -182,19 +183,24 @@ function getClumpsFromPositions(associationsObj, refGen, superPop) {
         }
     }
 
-    return Promise.resolve($.ajax({
-        type: "POST",
-        url: "/ld_clumping_by_pos",
-        data: { superPop: superPop, refGen: refGen, positions: positions },
-        success: async function (data) {
-            return data;
-        },
-        error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
-        }
-    }));
+    if (positions.length != 0) {
+        return Promise.resolve($.ajax({
+            type: "POST",
+            url: "/ld_clumping_by_pos",
+            data: { superPop: superPop, refGen: refGen, positions: positions },
+            success: async function (data) {
+                return data;
+            },
+            error: function (XMLHttpRequest) {
+                var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+                updateResultBoxAndStoredValue(errMsg)
+                alert(errMsg);
+            }
+        }));
+    }
+    else {
+        return {}
+    }
 }
 
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
@@ -331,6 +337,7 @@ var calculatePolyScore = async () => {
  */
 function resetOutput() { //todo maybe should add this to when the traits/studies/ect are changed?
     resultJSON = "";
+    unusedTraitStudyArray = []
 }
 
 
@@ -380,16 +387,23 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     try {
         var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
-            result = JSON.parse(result)
+            unusedTraitStudyCombo = result[1]
+            result = JSON.parse(result[0])
         } catch (e) {
             //todo create an endpoint that we can send errors to and give a better error response for the user
             console.log("There was an error in calculating the results. Please try again.")
         }
-        //shortens the result for website desplay
-        outputVal = getSimpleOutput(result)
-        $('#response').html(outputVal);
+        if (result == {}) {
+            $('#response').html("None of the snps from the input file were found.");
+        }
+        else {
+            //shortens the result for website desplay
+            outputVal = getSimpleOutput(result)
+            $('#response').html(outputVal);
+        }
         //saves the full result on currently open session of the website for further modifications 
         resultJSON = result;
+        unusedTraitStudyArray = unusedTraitStudyCombo;
         //go the the result output box
         $('#responseBox')[0].scrollIntoView({
             behavior: 'smooth',
@@ -542,7 +556,7 @@ function formatTSV(jsonObject, isCondensed) {
                     resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
                 }
                 else {
-                    resultsString = headerInit.join("\n")
+                    resultsString = headerInit.join("\t")
                 }
             }
 
@@ -555,16 +569,23 @@ function formatTSV(jsonObject, isCondensed) {
                 else {
                     protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants']
                     riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants']
-		    // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
-                    unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsWithUnmatchedAlleles']
-		    // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
-                    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['variantsInHighLD']
-                    lineResult = `${sample},${lineInfo.toString()},${oddsRatio},${protectiveSnps.join("|")},${riskSnps.join("|")},${unmatchedSnps.join("|")},${clumpedSnps.join("|")}`
+                    // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
+                    unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['unmatchedVariants']
+                    // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
+                    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['clumpedVariants']
+
+                    // set the arrays to "." if they are empty, otherwise join them on bar ("|")
+                    protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
+                    riskSnps = (riskSnps.length == 0) ? "." : riskSnps.join("|")
+                    unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
+                    clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
+
+                    lineResult = `${sample}\t${lineInfo.join('\t')}\t${oddsRatio}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
                     resultsString = resultsString.concat("\n", lineResult)
                 }
             }
             if (isCondensed) {
-                resultsString = resultsString + "\n" + lineInfo.join("\n")
+                resultsString = resultsString + "\n" + lineInfo.join("\t")
             }
         }
     }
@@ -616,6 +637,11 @@ function getResultOutput(jsonObject) {
 }
 
 function downloadResults() {
+    if (resultJSON == {} && unusedTraitStudyArray.length == 0) {
+        $('#response').html("There are no files to download. Please try the calculator again");
+        return
+    }
+
     //TODO: update
     document.getElementById("download-bar").style.visibility = "visible";
     //var resultText = document.getElementById("response").value;
@@ -631,7 +657,11 @@ function downloadResults() {
     else {
         extension = ".txt";
     }
-    download(fileName, extension, resultText);
+    if (unusedTraitStudyArray.length != 0) {
+        formatedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+    }
+
+    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formatedUnusedTraitStudyArray]);
 }
 
 function getRandomInt(max) {
@@ -645,9 +675,12 @@ function getRandomInt(max) {
  * @param {*} filename
  * @param {*} text
  */
-function download(filename, extension, text) {
+function download(filenameArray, extension, textArray) {
     var zip = new JSZip();
-    zip.file(filename + extension, text);
+    zip.file(filenameArray[0] + extension, textArray[0]);
+    if (textArray[1].length != 0) {
+        zip.file(filenameArray[1] + ".txt", textArray[1]);
+    }
     zip.generateAsync({
         type: "blob",
         compression: "DEFLATE",
@@ -659,7 +692,7 @@ function download(filename, extension, text) {
     })
         .then(function (content) {
             // see FileSaver.js
-            saveAs(content, filename + ".zip");
+            saveAs(content, filenameArray[0] + ".zip");
             document.getElementById("download-bar").style.visibility = "hidden";
         });
 

@@ -105,13 +105,19 @@ def addStudyMaxesView(config):
 # gets the line ending pattern ("\n" or "\r\n") from the file at the given filePath; the line ending is then used outside of this function to upload the
 # file to the mysql database with the correct line ending
 def getFileLineEnding(filePath):
+    # assume "\n" ending
     ending = "\n"
-    with open(filePath) as readFile:
-        readFile.readline() # header
+    # open the file in binary to keep "\r" if they exist
+    with open(filePath, "rb") as readFile:
+        # get the first line
         line = readFile.readline()
-        if line[-2] == '\r':
+        # check what the ending of the line is using binary strings
+        if line.endswith(b"\r\n"):
             ending = "\r\n"
-    return ending
+        elif line.endswith(b"\n\r"):
+            ending = "\n\r"
+    # return the string form of the endings containing backslashes and not the literal ending
+    return repr(ending)
 
 # the same as the addDataToTable function except if there is an exception, it waits and then attepts to excecute addDataToTable again (this catches the 
 # occational hitch where the table isn't created before the program tries to add data to it)
@@ -130,7 +136,7 @@ def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     cursor = connection.cursor()
     path = os.path.join(tablesFolderPath, tableName + ".tsv")
     path = path.replace("\\", "/")
-    lineEnding = repr(getFileLineEnding(path))
+    lineEnding = getFileLineEnding(path)
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
         '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding + ' IGNORE 1 LINES;'

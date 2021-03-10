@@ -403,7 +403,7 @@ calculatePRS () {
                     exit 1
                 elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
-                    zipExtension=`$pyVer -c "import calculate_score; calculate_score.getZippedFileExtension('$filename', True)"`
+                    zipExtension=`$pyVer -c "import grep_file; grep_file.getZippedFileExtension('$filename', True)"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
                         echo "zipped file validated"
                     # if "False", the file is not a zipped file
@@ -468,7 +468,8 @@ calculatePRS () {
                     exit 1
                 fi;;
 
-            t)  trait="${OPTARG//$single/$escaped}" # replace single quotes with escaped single quotes
+	    t)  trait=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]') # convert trait to lower case
+                trait="${trait//$single/$escaped}" # replace single quotes with escaped single quotes
                 trait="${trait//$space/$underscore}"    # replace spaces with underscores
                 trait="${trait//$quote/$empty}" # replace double quotes with nothing
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
@@ -537,7 +538,20 @@ calculatePRS () {
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
     requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
-
+    # Create uniq ID for filtered file path
+    TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
+    
+    # if zipExtension hasn't been instantiated yet, initialize it
+    if [ -z "$zipExtension" ]; then
+        zipExtension="NULL"
+    fi
+    # if the zip extension is valid, set extension to the zip extension, 
+    # otherwise use Pyhton os.path.splitext to get the extension
+    if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
+        extension="$zipExtension"
+    else
+        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
+    fi
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
         # check if pip is installed for the python call being used (REQUIRED)
         if ! $pyVer -m pip --version >/dev/null 2>&1; then
@@ -571,18 +585,6 @@ calculatePRS () {
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
-        # if zipExtension hasn't been instantiated yet, initialize it
-        if [ -z "$zipExtension" ]; then
-            zipExtension="NULL"
-        fi
-        # if the zip extension is valid, set extension to the zip extension, 
-        # otherwise use Pyhton os.path.splitext to get the extension
-        if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
-            extension="$zipExtension"
-        else
-            extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
-        fi
-
         # Calls a python function to get a list of SNPs and clumps from our Database
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
@@ -602,19 +604,29 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         FILE=".workingFiles/associations_${fileHash}.txt"
-        
-        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex" "$traits" "$studyTypes" "$studyIDs" "$ethnicities"; then
-            echo "Calculated score"
-            echo "Results saved to $output"
-        else
-            echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
 
+	# filter the input file so that it only includes the lines with variants that match the given filters
+        if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
+            echo "Filtered input file"
+	    # parse through the filtered input file and calculate scores for each given study
+            if $pyVer -c "import parse_associations as pa; pa.parse_files('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP')"; then
+                echo "Parsed through genotype information"
+                echo "Calculated score"
+            else
+                echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}" 
+            fi
+        else
+            echo -e "${LIGHTRED}ERROR DURING CREATION OF FILTERED INPUT FILE... Quitting${NC}"
         fi
+
         if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
             rm $FILE
             rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            rm ".workingFiles/traitStudyIDToSnps_${fileHash}.txt"
+            rm ".workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         fi
         # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
         rm -r __pycache__
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
@@ -663,9 +675,10 @@ askToStartMenu() {
 # BEGINNING OF 'MAIN' FUNCTIONALITY
 
 # check to see if they want the version
-if [[ "$1" =~ "--version" ]] || [[ "$1" =~ "-v" ]]; then 
+if [[ "$1" =~ "--version" ]] || [[ "$1" =~ "-v" ]] && [[ -z $2 ]]; then 
     echo -e "Running version ${version}"
     checkForNewVersion
+    exit 1
 fi
 
 # pass arguments to calculatePRS
