@@ -202,9 +202,16 @@ Clumping files hold pre-computed clump numbers for snps downloaded from the serv
 
 ### Clump Number Dictionary Files
 
-In addition to the [Clumping Files](#clumping-files) above, clump number dictionary files are created in the grep_file.py script as part of step 2. 
+In addition to the [Clumping Files](#clumping-files) above, clump number dictionary files are created in the grep_file.py script as part of step 2. @LIZ fill out this section
+
+* **clumpNumDict_{refGen}.txt** --
+* **clumpNumDict_{refGen}_{ahash}.txt** --
 
 ### Filtered Files
+
+Filtered files are created during step 2. @LIZ fill out this section
+
+* **filteredInput_{uniq}.txt** -- 
 
 
 
