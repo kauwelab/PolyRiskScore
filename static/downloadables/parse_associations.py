@@ -442,6 +442,11 @@ def getSamples(inputFilePath, header):
 
 def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp, num_processes):
     paramOpts = []
+    if num_processes == "":
+        num_processes = None
+    else:
+        num_processes = int(num_processes)
+    print(num_processes)
     
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
@@ -497,10 +502,10 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         snpSet = studySnpsDict[keyString]
         paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
-        if int(num_processes) == 0:
+        if num_processes == 0:
             parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp))
 
 
-    if int(num_processes) > 0:
-        with Pool(processes=int(num_processes)) as pool:
+    if num_processes is None or (num_processes is int and num_processes > 0):
+        with Pool(processes=num_processes) as pool:
             pool.map(parseAndCalculateFiles, paramOpts)

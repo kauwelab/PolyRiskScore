@@ -547,10 +547,6 @@ calculatePRS () {
     if [ -z "$defaultSex" ]; then
         defaultSex="female"
     fi
-    # if no subprocess number is specified, set to 4
-    if [ -z "$processes" ]; then
-        processes=4
-    fi
 
     # preps variables for passing to python script
     export traits=${traitsForCalc[@]}
