@@ -34,7 +34,7 @@ There are 2 ways to run the PRSBK calculator. It can be run directly from the co
 
 ### Running from the Command Line
 
-To run the risk score calculator from the command line, you should pass the required parameters to the script as shown below. You may also pass the file path to a zipped vcf or txt file. See the ___ section of this document to learn more about filtering studies to calculate scores for. 
+To run the risk score calculator from the command line, you should pass the required parameters to the script as shown below. You may also pass the file path to a zipped vcf or txt file. See the *Filtering* section of this document to learn more about filtering studies to calculate scores for. 
 
 #### Using a VCF with required parameters
 ```bash
@@ -58,10 +58,10 @@ To access the PRSKB CLI menu, click on the script in a file viewer or run the sc
 
 In addition to running calculations on all the study/trait combinations in our database, you can choose to filter which studies you want to recieve polygenic risk score results for by adding additional parameters.
 
-* -t trait -- Adding trait filters will filter out all studies that do not include the traits specified (see note on studyID)
-* -k studyType -- Adding study types (HI for High Impact, LC for Large Cohort, O for Other) will filter out all studies except those labeled as the desired study type (see note on studyID)
-* -i studyID -- Adding a study ID will ensure that the study corresponding to the study ID given will have polygenic risk scores calculated for it. *NOTE*: The study ID filter is not affected by other filters and the calculator will run for the study corresponding to the study ID given, notwithstanding the presence of other filters.
-* -e ethnicity -- Adding an ethnicity filter will restrict risk score calculations to those studies that report the given ethnicity in either their discovery sample ancestry or their replication sample ancestry. (see note on studyID)
+* **-t trait** -- Adding trait filters will filter out all studies that do not include the traits specified (see note on studyID)
+* **-k studyType** -- Adding study types (HI for High Impact, LC for Large Cohort, O for Other) will filter out all studies except those labeled as the desired study type (see note on studyID)
+* **-i studyID** -- Adding a study ID will ensure that the study corresponding to the study ID given will have polygenic risk scores calculated for it. *NOTE*: The study ID filter is not affected by other filters and the calculator will run for the study corresponding to the study ID given, notwithstanding the presence of other filters.
+* **-e ethnicity** -- Adding an ethnicity filter will restrict risk score calculations to those studies that report the given ethnicity in either their discovery sample ancestry or their replication sample ancestry. (see note on studyID)
 
 #### Examples
 
@@ -103,10 +103,10 @@ Filtering By Ethncity
 
 ### Additional Parameters
 
-* -v verbose result file -- Adding the **-v** parameter will return the output file in a 'verbose' format, switching to including a line for each sample/study/trait combination. Additional columns are added that display lists of protective variants, risk variants, variants that are present but do not include the risk allele, and variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations. 
-* -g defaultSex -- 
-* -s stepNumber
-* -n number of subprocesses
+* **-v verbose result file** -- Adding the **-v** parameter will return the output file in a 'verbose' format, switching to including a line for each sample/study/trait combination. Additional columns are added that display lists of protective variants, risk variants, variants that are present but do not include the risk allele, and variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations. 
+* **-g defaultSex** -- 
+* **-s stepNumber** --
+* **-n numberOfSubprocesses** --
 
 #### Examples
 
