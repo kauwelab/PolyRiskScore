@@ -1,7 +1,6 @@
 # Polygenic Risk Score Knowledge Base Command-line Interface Calculator
 
-The PRSKB CLI calculator is a conglomeration of python scripts directed by a bash script 
-for calculating polygenic risk scores from given input files using GWAS data pulled from the GWAS Catalog stored on the PRSKB server. 
+The PRSKB CLI calculator is a conglomeration of python scripts directed by a bash script for calculating polygenic risk scores from given input files using GWAS data pulled from the GWAS Catalog stored on the PRSKB server. 
 
 ## Requirements
 
@@ -28,9 +27,17 @@ This folder should contain the following files. If it does not, download the too
 * grep_file.py
 * parse_associations.py
 * calculate_score.py
-* README.md
 
 ## Running the PRSKB CLI
+
+There are 2 ways to run the PRSBK calculator. It can be run directly from the command line or it can be run through the tool's menu.
+
+### Running from the Command Line
+
+
+### Running from the Menu
+
+To access the PRSKB CLI menu, click on the script in a file viewer or run the script without any additional arguments on the command line, and then follow the prompts to start the menu. Once the menu has been reached, choosing menu option "Run the PRSKB calculator" will initiate a prompt to perform polygenic risk score calculations. 
 
 
 ## Individual File Breakdown
