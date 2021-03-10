@@ -34,7 +34,7 @@ There are two ways to run the PRSBK calculator. It can be run directly from the 
 
 ### Running from the Command Line
 
-To run the risk score calculator from the command line, you should pass the required parameters to the script as shown below. You may also pass the file path to a zipped vcf or txt file. See the *Optional Filtering Parameters* section of this document to learn more about filtering studies for score calculations. 
+To run the risk score calculator from the command line, you should pass the required parameters to the script as shown below. You may also pass the file path to a zipped vcf or txt file. See the [Optional Filtering Parameters](#optional-filtering-parameters) section of this document to learn more about filtering studies for score calculations. 
 
 #### Using a VCF with required parameters
 ```bash
@@ -60,7 +60,7 @@ Below is a break down and explanation of all the parameters that can be used wit
 
 These parameters must be present in order for the PRSKB CLI tool to run calculations. If any of these are missing, the tool will give you the option of printing out the usage statement or starting the interactive menu.
 
-* **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on *Using a TXT with required parameters* for the format of the txt file) or a zip file of the VCF or TXT file. 
+* **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on [Using a TXT with required parameters](#using-a-txt-with-required-parameters) for the format of the txt file) or a zip file of the VCF or TXT file. 
 * **-o outputFilePath** -- The location the output file should be created at. Must be either a TSV or a JSON file.
 * **-r refGen** -- The reference genome the samples in the input file. Acceptable values are **hg17**, **hg18**, **hg19**, and **hg38**.
 * **-c pValueCutoff** -- The p-value cutoff for snps that will be included. Any snp that has a p-value greater than the cutoff will not be considered for calculation.
@@ -86,7 +86,7 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 
 ## Examples
 
-Filtering By Trait
+#### Filtering By Trait
 ```bash
 # runs the calculator on studies that include the "Alzheimer's Disease" trait
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t "Alzheimer's Disease"
@@ -96,7 +96,7 @@ Filtering By Trait
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t "Alzheimer's Disease" -t acne
 ```
 
-Filtering By Study Type
+#### Filtering By Study Type
 ```bash
 # runs the calculator on studies that are High Impact
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -k HI
@@ -104,7 +104,7 @@ Filtering By Study Type
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -k HI -k LC
 ```
 
-Filtering By Study ID
+#### Filtering By Study ID
 ```bash
 # runs the calculator on the study corresponding to the studyID GCST000001
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -i GCST000001
@@ -112,7 +112,7 @@ Filtering By Study ID
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -i GCST000001 -i GCST000010
 ```
 
-Filtering By Ethncity
+#### Filtering By Ethncity
 ```bash
 # runs the calculator on studies that include European ancestry
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -e European
@@ -122,19 +122,19 @@ Filtering By Ethncity
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -e European -e "East Asian"
 ```
 
-Requesting a Verbose File
+#### Requesting a Verbose File
 ```bash
 # runs the calculator and returns a 'verbose' tsv output file
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -v
 ```
 
-Specifying a Default Sex
+#### Specifying a Default Sex
 ```bash
 # runs the calculator specifying Male as the default sex
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -g Male
 ```
 
-Applying Step Numbers
+#### Applying Step Numbers
 ```bash
 # runs the calculator in two steps
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -s 1
@@ -148,19 +148,19 @@ Applying Step Numbers
 ./runPrsCLI.sh -f inputFile_2.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t "Alzheimer's Disease" -k LC -e European -s 2
 ```
 
-Specifying Number of Subprocesses
+#### Specifying Number of Subprocesses
 ```bash
 # runs the calculator using 4 subprocessors
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -n 4
 ```
 
-Using All Filter Types
+#### Using All Filter Types
 ```bash
 # runs the calculator on studies with the trait "Alzheimer's Disease", European ethnicty, and are High Impact, and the study corresponding to the studyID GCST000001
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t "Alzheimer's Disease" -e European -k HI -i GCST000001
 ```
 
-##### Additional Step Number Example
+#### Additional Step Number Example
 ```bash
 # calculates scores for all studies for inputFile.vcf, then using the already downloaded allAssociations_hg19_f.txt file, calculates scores for inputFile_1.vcf using the given filters
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
@@ -184,7 +184,7 @@ The .workingFiles directory is created by this tool to hold various files necess
 Association files hold the association data downloaded from our server required to calculate polygenic risk scores. These files are created in the connect_to_server.py script as part of step 1. There are two naming conventions for associations files:
 
 * **allAssociations_{refGen}_{sex}.txt** -- This associations file is downloaded from the server when no filters are supplied. It contains all the associations from the server and is formatted for the specified reference genome (refGen) and default sex (sex). This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example))
-* **associations_{ahash}.txt** -- This associations file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under *Applying Step Numbers*).
+* **associations_{ahash}.txt** -- This associations file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
 
 
 ### Clumping Files
