@@ -31,7 +31,7 @@ Required installed programs: Bash and jq for bash, Python3 and PyVCF python libr
 ## CLI Example
 
 ```bash
-./runPRSCLI.sh 
+./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ```
 
 ## Citing this work
