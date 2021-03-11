@@ -50,18 +50,18 @@ To run the risk score calculator from the command-line, you should pass the requ
 
 ### Running from the Menu
 
-To access the PRSKB CLI menu, click on the script in a file viewer or run the script without any additional arguments on the command-line, and then follow the prompts to start the menu. Once the menu has been reached, choosing menu option "Run the PRSKB calculator" will initiate a prompt to perform polygenic risk score calculations. You will then pass the parameters in a similar fashion to running the calculator from the command-line.
+To access the PRSKB CLI menu, double click the file or run the script without any additional arguments on the command-line, and then follow the prompts to start the menu. Once the menu has been reached, choosing menu option "Run the PRSKB calculator" will initiate a prompt to perform polygenic risk score calculations. You will then pass the parameters in a similar fashion to running the calculator from the command-line.
 
 ## Parameters
 
-Below is a break down and explanation of all the parameters that can be used with the PRSKB CLI tool.
+Below is a breakdown and explanation of all the parameters that can be used with the PRSKB CLI tool.
 
 ### Required Parameters
 
 These parameters must be present in order for the PRSKB CLI tool to run calculations. If any of these are missing, the tool will give you the option of printing out the usage statement or starting the interactive menu.
 
-* **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on [Using a TXT with required parameters](#using-a-txt-with-required-parameters) for the format of the txt file) or a zip file of the VCF or TXT file. 
-* **-o outputFilePath** -- The location the output file should be created at. Must be either a TSV or a JSON file.
+* **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on [Using a TXT with required parameters](#using-a-txt-with-required-parameters) for the format of the txt file) or a zipped VCF or TXT file. 
+* **-o outputFilePath** -- The location where the output file should be created. Must be either a TSV or a JSON file.
 * **-r refGen** -- The reference genome used to sequence the variants in the input file. Acceptable values are **hg17**, **hg18**, **hg19**, and **hg38**.
 * **-c pValueCutoff** -- The p-value cutoff for SNPs that will be included. Any SNP that has a p-value greater than the cutoff will not be considered for calculation.
 * **-p superPopulation** -- The super population of the samples in the input file. This parameter is used for performing linkage-disequilibrium clumping. Acceptable values are **AFR**, **AMR**, **EAS**, **EUR**, and **SAS**.
