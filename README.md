@@ -34,5 +34,11 @@ Required installed programs: Bash and jq for bash, Python3 and PyVCF python libr
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ```
 
-More CLI examples can be found in the README.md file included in the CLI download or on the readthedocs page for the tool. 
+More CLI examples can be found in the README.md file included in the CLI download or on the readthedocs page for the tool.
+
+## Citing this work
+
+Please visit the [Cite](https://prs.byu.edu/cite.htm) page of the website for information on how to cite this tool and the GWAS publications used. 
+
+## Acknowledgements
 
