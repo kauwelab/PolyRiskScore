@@ -323,7 +323,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         unusedTraitStudy = True
         if os.path.exists(tempFilePath):
             # delete the vcf_reader so when we go to remove the tempFilePath, we don't get an error that the file is open
-            del vcf_reader
+            vcf_reader = None
             os.remove(tempFilePath)
         return sample_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder
     else:
@@ -431,7 +431,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     #remove temp file
     if os.path.exists(tempFilePath):
         # delete the vcf_reader so when we go to remove the tempFilePath, we don't get an error that the file is open
-        del vcf_reader
         os.remove(tempFilePath)
 
     return final_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder
