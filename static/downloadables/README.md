@@ -16,7 +16,7 @@ For certain tool functions accessed through the tool's menu, bash ***jq*** is re
 sudo apt-get install jq
 ```
 
-For other OS, see the proper way to download and install on [https://stedolan.github.io/jq/download/](https://stedolan.github.io/jq/download/)
+For other OS, download and install using the following link: [https://stedolan.github.io/jq/download/](https://stedolan.github.io/jq/download/)
 
 ## PRSKB CLI Download
 
@@ -30,11 +30,11 @@ This folder should contain the following files. If it does not, download the too
 
 ## Running the PRSKB CLI
 
-There are two ways to run the PRSBK calculator. It can be run directly from the command line or it can be run through the tool's menu.
+There are two ways to run the PRSBK calculator. It can be run directly from the command-line or through the tool's menu.
 
-### Running from the Command Line
+### Running from the Command-line
 
-To run the risk score calculator from the command line, you should pass the required parameters to the script as shown below. You may also pass the file path to a zipped vcf or txt file. See the [Optional Filtering Parameters](#optional-filtering-parameters) section of this document to learn more about filtering studies for score calculations. 
+To run the risk score calculator from the command-line, you should pass the required parameters to the script as shown below. You may also pass the file path to a zipped vcf or txt file. See the [Optional Filtering Parameters](#optional-filtering-parameters) section of this document to learn more about filtering studies for score calculations. 
 
 #### Using a VCF with required parameters
 ```bash
@@ -50,7 +50,7 @@ To run the risk score calculator from the command line, you should pass the requ
 
 ### Running from the Menu
 
-To access the PRSKB CLI menu, click on the script in a file viewer or run the script without any additional arguments on the command line, and then follow the prompts to start the menu. Once the menu has been reached, choosing menu option "Run the PRSKB calculator" will initiate a prompt to perform polygenic risk score calculations. You will then pass the parameters in a similar fashion to running the calculator from the command line.
+To access the PRSKB CLI menu, click on the script in a file viewer or run the script without any additional arguments on the command-line, and then follow the prompts to start the menu. Once the menu has been reached, choosing menu option "Run the PRSKB calculator" will initiate a prompt to perform polygenic risk score calculations. You will then pass the parameters in a similar fashion to running the calculator from the command-line.
 
 ## Parameters
 
@@ -62,9 +62,9 @@ These parameters must be present in order for the PRSKB CLI tool to run calculat
 
 * **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on [Using a TXT with required parameters](#using-a-txt-with-required-parameters) for the format of the txt file) or a zip file of the VCF or TXT file. 
 * **-o outputFilePath** -- The location the output file should be created at. Must be either a TSV or a JSON file.
-* **-r refGen** -- The reference genome the samples in the input file. Acceptable values are **hg17**, **hg18**, **hg19**, and **hg38**.
+* **-r refGen** -- The reference genome used to sequence the variants in the input file. Acceptable values are **hg17**, **hg18**, **hg19**, and **hg38**.
 * **-c pValueCutoff** -- The p-value cutoff for snps that will be included. Any snp that has a p-value greater than the cutoff will not be considered for calculation.
-* **-p superPopulation** -- The 1000 genomes super population of the samples in the input file. This parameter is used for performing linkage-disequilibrium clumping. Acceptable values are **AFR**, **AMR**, **EAS**, **EUR**, and **SAS**.
+* **-p superPopulation** -- The super population of the samples in the input file. This parameter is used for performing linkage-disequilibrium clumping. Acceptable values are **AFR**, **AMR**, **EAS**, **EUR**, and **SAS**.
 
 ### Optional Filtering Parameters 
 
