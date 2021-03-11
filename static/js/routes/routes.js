@@ -3,6 +3,7 @@ module.exports = app => {
     const associations = require("../controllers/associations.controller");
     const clumps = require("../controllers/clumps.controller");
     const cli = require("../controllers/cli.controller");
+    const ukbbdata = require("../controllers/ukbbdata.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -34,6 +35,8 @@ module.exports = app => {
 
     app.get("/all_snps_to_studyIDs", associations.getAllSnpsToStudyIDs);
 
+    app.post("/snps_to_trait_studyID", associations.getSnpsToTraitStudyID);
+
     app.get("/single_snp_from_each_study", associations.getSingleSnpFromEachStudy)
 
     app.get("/search_for_missing_snps", associations.searchMissingRsIDs)
@@ -44,6 +47,8 @@ module.exports = app => {
 
     app.get("/get_associations_download_file", associations.getAssociationsDownloadFile)
 
+    app.get("/get_traitStudyID_to_snp", associations.getTraitStudyIDToSnpsDownloadFile)
+
     // Gets the clumping numbers for studies and ethnicities
     app.get("/ld_clumping", clumps.getClumping);
 
@@ -53,9 +58,20 @@ module.exports = app => {
 
     app.get("/get_clumps_download_file", clumps.getClumpsDownloadFile)
 
+    app.get("/last_clumps_update", clumps.getLastClumpsUpdate);
+
     app.get("/cli_version", cli.version);
 
     app.get("/download_cli", cli.download);
 
-    app.get("/join_test", associations.joinTest)
+    app.get("/ukbb_get_traits", ukbbdata.getTraits);
+
+    app.get("/ukbb_get_studies", ukbbdata.getStudies);
+
+    // gets summary data (mean, median, range, ect.) from database using studyID(s)
+    app.get("/ukbb_summary_results", ukbbdata.getSummaryResults);
+
+    app.get("/ukbb_full_results", ukbbdata.getFullResults);
+
+    app.get("/join_test", associations.joinTest);
 }

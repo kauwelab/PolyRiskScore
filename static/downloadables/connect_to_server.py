@@ -9,7 +9,7 @@ import datetime
 from multiprocessing import Process
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
+def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
     checkInternetConnection()
 
     # Format variables used for getting associations
@@ -19,104 +19,168 @@ def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, 
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
-    isVCF = True if extension.lower() == ".vcf" else False
-    
-    # TODO still need to test this - can't be done until the new server is live with the new api code
-    dnldNewAllAssociFile = checkForAllAssociFile()
-    
+
+    if (ethnicity is not None):
+        ethnicity = [sub.replace('_', ' ').replace('"', '') for sub in ethnicity]
+        availableEthnicities = getUrlWithParams("https://prs.byu.edu/ethnicities", params={})
+        if (not bool(set(ethnicity) & set(availableEthnicities)) and studyIDs is None):
+            raise SystemExit('\nThe ethnicities requested are invalid. \nPlease use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
+
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     associationsPath = ""
+
+    # if the directory doesn't exist, make it, and we will need to download the files
+    if not os.path.exists(workingFilesPath):
+        os.mkdir(workingFilesPath)
+
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
-        associationsPath = os.path.join(workingFilesPath, "allAssociations_{sex}.txt".format(sex=defaultSex))
-        if (dnldNewAllAssociFile):
-            associationsReturnObj = getAllAssociations(refGen, defaultSex, isVCF)
-            strandFlip = True
-        else:
-            f = open(associationsPath, 'r')
-            associationsReturnObj = json.loads(f.read())
-            f.close()
-            strandFlip = False
+        associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
+        if (checkForAllAssociFile(refGen, defaultSex)):
+            associationsReturnObj = getAllAssociations(refGen, defaultSex)
+            studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
+            studySnpsData = getAllStudySnps()
+
+        if (checkForAllClumps(superPop, refGen)):
+            clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
+            clumpsData = getAllClumps(refGen, superPop)
+        
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF)
-        strandFlip = True
+        associationsReturnObj, finalStudyList = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex)
 
-    # grab all the snps or positions to use for getting the clumps
-    snpsFromAssociations = list(associationsReturnObj['associations'].keys())
-    # flip strands as needed
-    if (strandFlip):
-        print("Starting strand flipping on additional process")
-        p = Process(target=handleStrandFlippingAndSave, args=(associationsReturnObj, associationsPath))
-        p.start()
+        # grab all the snps or positions to use for getting the clumps
+        snpsFromAssociations = list(associationsReturnObj['associations'].keys())
 
-    #download clumps
-    fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
-    clumpsPath = os.path.join(workingFilesPath, fileName)
-    # get clumps using the refGen and superpopulation
-    clumpsData = getClumps(refGen, superPop, snpsFromAssociations, isVCF)
-    f = open(clumpsPath, 'w')
-    f.write(json.dumps(clumpsData))
-    f.close()
+        #download clumps from database
+        fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
+        clumpsPath = os.path.join(workingFilesPath, fileName)
+        # get clumps using the refGen and superpopulation
+        clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
+        
+        # get the study:snps info
+        fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
+        studySnpsPath = os.path.join(workingFilesPath, fileName)
+        studySnpsData = getSpecificStudySnps(refGen, finalStudyList)
 
-    if (strandFlip):
-        print("finishing strand flipping")
-        p.join()
+    # check to see if associationsReturnObj is instantiated in the local variables
+    if 'associationsReturnObj' in locals():
+        f = open(associationsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(associationsReturnObj))
+        f.close()
+
+    # check to see if clumpsData is instantiated in the local variables
+    if 'clumpsData' in locals():
+        f = open(clumpsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(clumpsData))
+        f.close()
+
+    # check to see if studySnpsDat is instantiated in the local variables
+    if 'studySnpsData' in locals():
+        f = open(studySnpsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(studySnpsData))
+        f.close()
+
     return
 
 
-def checkForAllAssociFile():
+def checkForAllAssociFile(refGen, defaultSex):
     # assume we will need to download new files
     dnldNewAllAssociFile = True
     # check to see if the workingFiles directory is there, if not make the directory
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+    # path to a file containing all the associations from the database
+    allAssociationsFile = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
 
-    # if the directory doesn't exist, make it, and we will need to download the files
-    if not os.path.exists(workingFilesPath):
-        os.mkdir(workingFilesPath) # need a better name for this?
-        return dnldNewAllAssociFile
-    
-    else:
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allAssociationsFile):
+
         # get date the database was last updated
-        response = requests.get(url="https://prs.byu.edu/last_database_update")
+        params = {
+            "refGen": refGen,
+            "defaultSex": defaultSex[0]
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_database_update", params=params)
         response.close()
         assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
         lastDatabaseUpdate = response.text
         lastDatabaseUpdate = lastDatabaseUpdate.split("-")
         lastDBUpdateDate = datetime.date(int(lastDatabaseUpdate[0]), int(lastDatabaseUpdate[1]), int(lastDatabaseUpdate[2]))
 
-        # path to a file containing all the associations from the database
-        allAssociationsFile = os.path.join(workingFilesPath, "allAssociations.txt")
+        fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastDBUpdateDate < fileModDate):
+            dnldNewAllAssociFile = False
 
-        # if the path exists, check if we don't need to download a new one
-        if os.path.exists(allAssociationsFile):
-            fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
-            fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
-            # if the file is newer than the database update, we don't need to download a new file
-            if (lastDBUpdateDate < fileModDate):
-                dnldNewAllAssociFile = False
-        
-        return dnldNewAllAssociFile
+    return dnldNewAllAssociFile
 
 
-# gets associationReturnObj from the Server for all associations
-def getAllAssociations(refGen, defaultSex, isVCF): 
+def checkForAllClumps(pop, refGen):
+    # assume we need to download new file
+    dnldNewClumps = True
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+
+     # path to a file containing all the clumps from the database
+    allClumpsFile = os.path.join(workingFilesPath, "{0}_clumps_{1}.txt".format(pop, refGen))
+
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allClumpsFile):
+        params = {
+            "refGen": refGen,
+            "superPop": pop
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_clumps_update", params=params)
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
+        lastClumpsUpdate = response.text
+        lastClumpsUpdate = lastClumpsUpdate.split('-')
+        lastClumpsUpdate = datetime.date(int(lastClumpsUpdate[0]), int(lastClumpsUpdate[1]), int(lastClumpsUpdate[2]))
+
+        fileModDateObj = time.localtime(os.path.getmtime(allClumpsFile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastClumpsUpdate <= fileModDate):
+            dnldNewClumps = False
+
+    return dnldNewClumps
+
+# gets associations obj download from the Server
+def getAllAssociations(refGen, defaultSex): 
     params = {
         "refGen": refGen,
-        "sex": defaultSex,
-        "isVCF": isVCF
+        "defaultSex": defaultSex[0],
     }
-    associationsReturnObj = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
+    associationsReturnObj = getUrlWithParams("https://prs.byu.edu/get_associations_download_file", params = params)
     # Organized with pos/snp as the Keys
     return associationsReturnObj
 
 
+# gets the clumps file download from the server
+def getAllClumps(refGen, superPop):
+    params = {
+        'refGen': refGen,
+        'superPop': superPop
+    }
+    clumpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_clumps_download_file", params=params)
+    return clumpsReturnObj
+
+# gets study snps file download from the Server
+def getAllStudySnps(): 
+    studySnpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_traitStudyID_to_snp", params={})
+    # Organized with study as the Keys and snps as values
+    return studySnpsReturnObj
+
 # gets associationReturnObj using the given filters
-def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex, isVCF):
+def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex):
     finalStudyList = []
 
     if (traits is not None or studyTypes is not None or ethnicity is not None):
@@ -145,24 +209,29 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
         params = {
             "studyIDs": studyIDs
         }
-        studyIDData = {**getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)}
-        # add the specified studyIDs to the set of studyIDObjs
-        for studyObj in studyIDData:
+        studyIDDataList = getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)
+        if studyIDDataList == []:
+            print('\n\nWARNING, NO STUDIES MATCHED THE GIVEN STUDY ID(S): {}. \nTHIS MAY CAUSE THE PROGRAM TO QUIT IF THERE WERE NO OTHER FILTERS.\n'.format(studyIDs))
+
+        for i in range(len(studyIDDataList)):
+            # add the specified studyIDs to the set of studyIDObjs
             finalStudyList.append(json.dumps({
-                "trait": studyObj['trait'],
-                "studyID": studyObj['studyID']
+                "trait": studyIDDataList[i]['trait'],
+                "studyID": studyIDDataList[i]['studyID']
             }))
+
+    if finalStudyList == []:
+        raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
 
     # get the associations based on the studyIDs
     body = {
         "refGen": refGen,
         "studyIDObjs": finalStudyList,
         "sex": defaultSex,
-        "isVCF": isVCF
     }
 
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
-    return associationsReturnObj
+    return associationsReturnObj, finalStudyList
 
 
 # for POST urls
@@ -170,6 +239,8 @@ def postUrlWithBody(url, body):
     response = requests.post(url=url, data=body)
     response.close()
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    if response.status_code == 204:
+        return {}
     return response.json() 
 
 
@@ -182,7 +253,7 @@ def getUrlWithParams(url, params):
 
 
 # get clumps using the refGen and superPop
-def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
+def getClumps(refGen, superPop, snpsFromAssociations):
     body = {
         "refGen": refGen,
         "superPop": superPop,
@@ -190,106 +261,49 @@ def getClumps(refGen, superPop, snpsFromAssociations, isVCF):
     print("Retrieving clumping information")
 
     try:
-        if isVCF:
-            chromToPosMap = {}
-            clumps = {}
-            for pos in snpsFromAssociations:
-                if (len(pos.split(":")) > 1):
-                    chrom,posit = pos.split(":")
-                    if (chrom not in chromToPosMap.keys()):
-                        chromToPosMap[chrom] = [pos]
-                    else:
-                        chromToPosMap[chrom].append(pos)
+        chromToPosMap = {}
+        clumps = {}
+        for pos in snpsFromAssociations:
+            if (len(pos.split(":")) > 1):
+                chrom,posit = pos.split(":")
+                if (chrom not in chromToPosMap.keys()):
+                    chromToPosMap[chrom] = [pos]
+                else:
+                    chromToPosMap[chrom].append(pos)
 
-            print("Clumps downloaded by chromosome:")
-            for chrom in chromToPosMap:
-                print("{0}...".format(chrom), end="", flush=True)
-                body['positions'] = chromToPosMap[chrom]
-                clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
-            print('\n')
-        else:
-            body['snps'] = snpsFromAssociations
-            clumps = postUrlWithBody("https://prs.byu.edu/ld_clumping_by_snp", body)
+        print("Clumps downloaded by chromosome:")
+        for chrom in chromToPosMap:
+            print("{0}...".format(chrom), end="", flush=True)
+            body['positions'] = chromToPosMap[chrom]
+            clumps = {**postUrlWithBody("https://prs.byu.edu/ld_clumping_by_pos", body), **clumps}
+        print('\n')
     except AssertionError:
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
 
     return clumps
 
 
-def handleStrandFlippingAndSave(associationReturnObj, filePath):
-    import myvariant
-    import contextlib, io
-
-    # print("Performing strand flipping where needed. Please be patient as we download the needed data")
-
-    # preventing print statements from being outputted to terminal
-    f = io.StringIO()
-    with contextlib.redirect_stdout(f):
-        rsIDs = (x for x in associationReturnObj['associations'].keys() if "rs" in x)
-        # returns info about the rsIDs passed
-        mv = myvariant.MyVariantInfo()
-        queryResultsObj = mv.querymany(rsIDs, scopes='dbsnp.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
-    output = f.getvalue()
-
-    # print("Data downloaded")
-
-    rsIDToAlleles = []
-
-    for obj in queryResultsObj['out']:
-        rsID = obj['query']
-        if (rsID not in rsIDToAlleles and 'dbsnp' in obj):
-            # creating a set of possible alleles for the snp to check our riskAlleles against
-            alleles = set()
-            if ('alleles' in obj['dbsnp']):
-                for alleleObj in obj['dbsnp']['alleles']:
-                    alleles.add(alleleObj['allele'])
-            if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
-                alleles.add(obj['dbsnp']['ref'])
-            if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
-                alleles.add(obj['dbsnp']['alt'])
-            if (len(alleles) == 0):
-                print(obj, "STILL NO ALLELES")
-            
-            if (rsID in associationReturnObj['associations']):
-                for trait in associationReturnObj['associations'][rsID]['traits']:
-                    for studyID in associationReturnObj['associations'][rsID]['traits'][trait]:
-                        riskAllele = associationReturnObj['associations'][rsID]['traits'][trait][studyID]['riskAllele']
-                        # if the current risk allele seems like it isn't correct and the length of the risk allele is only one base, try its complement
-                        if riskAllele not in alleles and len(riskAllele) == 1:
-                            complement = getComplement(riskAllele)
-                            if complement in alleles:
-                                associationReturnObj['associations'][rsID]['traits'][trait][studyID]['riskAllele'] = complement
-
-            rsIDToAlleles.append(rsID)
-
-            #TODO: what to do if we have merged rsIDs? 
-            # we could add the rsID of what the old one merged into
-            # queryResultsObj = mv.querymany(queryResultsObj['missing'], scopes='dbsnp.dbsnp_merges.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
-
-            #loop through the ones we couldn't find
-            #see if we can get them from a dbsnp.dbsnp_merges.rsid
-
-    # write the associations to a file
-    f = open(filePath, 'w')
-    f.write(json.dumps(associationReturnObj))
-    f.close()
-    return 
-
-
-def getComplement(allele):
-    complements = {
-        'G': 'C',
-        'C': 'G',
-        'A': 'T',
-        'T': 'A'
+# gets associationReturnObj using the given filters
+def getSpecificStudySnps(refGen, finalStudyList):
+    # get the studies matching the parameters
+    body = {
+        "studyIDObjs":finalStudyList
     }
-    return(complements[allele])
+    
+    try:
+        studySnps = postUrlWithBody("https://prs.byu.edu/snps_to_trait_studyID", body)
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+    
+    return studySnps
 
 
 def checkInternetConnection():
-    import socket
-    IPaddress=socket.gethostbyname(socket.gethostname())
-    if IPaddress=="127.0.0.1":
-        raise SystemExit("ERROR: No internet - Check your connection")
-    else:
+    try:
+        import socket
+        # using an arbitrary connection to check if we can make one
+        socket.create_connection(("8.8.8.8", 53))
         return
+    except OSError:
+        raise SystemExit("ERROR: No internet - Check your connection")
+

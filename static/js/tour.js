@@ -11,6 +11,10 @@ var templateWithoutNext = `<div class='popover tour'>
 </div> 
 </div>`
 var refGenTourIndex = 3
+var superPopTourIndex = 4
+var sexTourIndex = 5
+
+
 
 function startTour() {
     // Instance the tour
@@ -58,7 +62,16 @@ function startTour() {
                 title: "Select ethnicity of individual(s) in your VCF file.",
                 content: "This will be used to perform LD clumping on your data (see the learn more \
                 page). If you are unsure about the ethnicity of the individual(s) in your file, \
-                leave this field blank. For now, just press the next button."
+                choose the one you believe to be the most accurate.",
+                template: templateWithoutNext
+            },
+            {
+                element: "#sex",
+                title: "Select the sex of the individuals in your VCF file.",
+                content: "This will be used to select odds ratios and p-values to use when there \
+                are multiple odds ratios available for the same snp due to them being associated \
+                with biological sex. This is not a common occurence. Our system defaults to \
+                female. When you are done, press the \"next\" button to continue the tour."
             },
             {
                 element: "#traitSelectContainer",
@@ -73,10 +86,10 @@ function startTour() {
                 element: "#applyFilters",
                 title: "Select additional study filters",
                 content: "Studies about the traits you selected can be further filtered by choosing \
-                study type or study ethnicity. \"High impact\" is mesured by Altmetric score while \
+                study type or study ethnicity. \"High impact\" is measured by Altmetric score while \
                 \"large cohort\" is measured \ by the size of a study's initial sample size plus its \
                 replication sample size. Once you have \ finished selecting your filters, press the \
-                \"Apply filters\" button to update the studies list.",
+                \"Apply Filters\" button to update the studies list.",
                 reflex: true,
                 template: templateWithoutNext
             },
@@ -84,8 +97,8 @@ function startTour() {
                 element: "#studySelectContainer",
                 title: "Select studies",
                 content: "Search and select studies to include in your results. A separate polygenic risk score \
-                will be calculated for each study. Once you have finished selecting your filters, press the \"next\" \
-                button to continue the tour."
+                will be calculated for each study/trait pair. Once you have finished selecting your filters, press \
+                the \"next\" button to continue the tour."
             },
             {
                 element: "#pvalInput",
@@ -95,8 +108,16 @@ function startTour() {
             },
             {
                 element: "#fileType",
-                title: "Select output format",
-                content: "Choose between CSV, JSON, or Text output format."
+                title: "Select output format (pt 1)",
+                content: "Choose between TSV or JSON output format."
+            },
+            {
+                element: "#fileFormat",
+                title: "Select output format (pt 2)",
+                content: "Choose either a condensed results version or a full results version. The condensed version displays \
+                the polygenic risk scores for each sample for each trait/study combination. The full version additionally gives \
+                information for each sample on which snps contribute to the trait, which are protective against the trait, and \
+                which are neutral or have unknown contributions."
             },
             {
                 element: "#feedbackSubmit",
@@ -144,6 +165,12 @@ function moveToNextTourIndex(stepName) {
     if (typeof tour !== "undefined") {
         //check if the tour is at the refGen selection point to prevent advances at the wrong times 
         if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
+            tour.next()
+        }
+        if ((stepName == 'sex' && tour.getCurrentStep() == sexTourIndex)) {
+            tour.next()
+        }
+        if ((stepName == 'superPop' && tour.getCurrentStep() == superPopTourIndex)) {
             tour.next()
         }
     }

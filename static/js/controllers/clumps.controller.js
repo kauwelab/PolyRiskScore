@@ -1,6 +1,7 @@
 const Clump = require("../models/clump.model.js");
 const formatter = require("../formatHelper")
 const path = require("path")
+const fs = require("fs");
 
 exports.getClumping = (req, res) => {
     refGenome = req.query.refGen
@@ -74,6 +75,17 @@ exports.getClumpsDownloadFile = (req, res) => {
             console.log('Sent:', fileName); 
         } 
     }); 
+}
+
+// gets the last time the clumps file was updated.Used for the cli to check if the user needs to re-download clumps data
+exports.getLastClumpsUpdate = (req, res) => {
+    refGen = req.query.refGen
+    pop = req.query.superPop
+
+    clumpsPath = path.join(path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/${pop}_clumps_${refGen}.txt`))
+    statsObj = fs.statSync(clumpsPath)
+    updateTime = statsObj.mtime
+    res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
 }
 
 function formatClumpingReturn(clumps) {

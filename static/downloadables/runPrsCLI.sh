@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.2.0" #TODO change to 1.3.0
+version="1.5.0"
 #
 # 
 # 
@@ -11,7 +11,7 @@ version="1.2.0" #TODO change to 1.3.0
 # * 8/28/2020 - v1.0.0  - First Creation
 #   Parameter order:
 #       1 VCF file path OR rsIDs file path 
-#       2 output file path (csv or txt format)
+#       2 output file path (tsv or txt format)
 #       3 p-value cutoff (ex: 0.05)
 #       4 refGen {hg17, hg18, hg19, hg38}
 #       5 super population {AFR, AMR, EAS, EUR, SAS}
@@ -32,7 +32,7 @@ version="1.2.0" #TODO change to 1.3.0
 #   Now using getopts. Parameters updated
 #   REQUIRED PARAMS:
 #       -f input file path (VCF or TXT with rsIDs)
-#       -o output file path (CSV or TXT)
+#       -o output file path (TSV or TXT)
 #       -c p-value cutoff
 #       -r refGen (hg17, hg18, hg19, hg38)
 #       -p super population (AFR, AMR, EAS, EUR, SAS)
@@ -42,13 +42,22 @@ version="1.2.0" #TODO change to 1.3.0
 #       -k studyType
 #       -i studyIDs
 #       -e ethnicity
-#       -v True/False verbose output file
+#       -v verbose output file
 #       -s stepNumber
 #
 # * 12/9/2020 - v1.3.0
 #
 #   Added optional param:
 #       -g biological sex prefered for snp selection
+#
+# * 1/29/21 - v1.4.0
+#   
+#   Added the ability to calculate scores using vcf/txt
+#   files zipped in zip, tar-like, and gz-like formats
+#
+# * 2/8/21 - v1.5.0
+#   
+#   Changed csv output type to tsv.
 #
 # ########################################################################
 
@@ -79,7 +88,7 @@ prskbMenu () {
 # the usage statement of the tool
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (csv, json, or txt format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}-t${NC} traitList ex. -t acne -t insomnia -t \"Alzheimer's disease\""
@@ -87,9 +96,10 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
-    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v True (indicates a more detailed result file)"
+    echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
+    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -s 2 (By default, the calculations will be run on 4 subprocesses"    
     echo ""
 }
 
@@ -102,9 +112,10 @@ chooseOption () {
         echo -e "| ${LIGHTBLUE}Options Menu${NC}                                |"
         echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                  |"
         echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or disease  |"
-        echo -e "| ${LIGHTBLUE}3${NC} - View usage                              |"
-        echo -e "| ${LIGHTBLUE}4${NC} - Run the PRSKB calculator                |"
-        echo -e "| ${LIGHTBLUE}5${NC} - Quit                                    |"
+        echo -e "| ${LIGHTBLUE}3${NC} - View available ethnicities for filter   |"
+        echo -e "| ${LIGHTBLUE}4${NC} - View usage                              |"
+        echo -e "| ${LIGHTBLUE}5${NC} - Run the PRSKB calculator                |"
+        echo -e "| ${LIGHTBLUE}6${NC} - Quit                                    |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -113,9 +124,10 @@ chooseOption () {
         case $option in 
             1 ) learnAboutParameters ;;
             2 ) searchTraitsAndStudies ;;
-            3 ) usage ;;
-            4 ) runPRS ;;
-            5 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
+            3 ) printEthnicities ;;
+            4 ) usage ;;
+            5 ) runPRS ;;
+            6 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
                 exit;;
             * ) echo "INVALID OPTION";;
         esac
@@ -150,11 +162,12 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
         echo -e "| ${LIGHTPURPLE}8${NC} - -i studyIDs                             |"
         echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - -v True/False verbose result file               |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - -v verbose result file                 |"
         echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
+        echo -e "| ${LIGHTPURPLE}13${NC} - -n number of subprocesses              |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}13${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}14${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -165,12 +178,11 @@ learnAboutParameters () {
                 echo "The path to the VCF file that contains the samples for which you would like " 
                 echo "the polygenic risk scores calculated. Alternativly, the path to a TXT file that"
                 echo "contains rsIDs in the format of 1 rsID per line, with the genotypes following"
-                echo "on the same line. (ex. rs6656401:AA or rs6656401:A) In this format, we will"
-                echo "assume that any missing alleles are the risk allele."
+                echo "on the same line. (ex. rs6656401:AA or rs6656401:A)"
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR}-o Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
-                echo -e "permitted extensions are ${GREEN}.csv${NC}, ${GREEN}.json${NC}, or ${GREEN}.txt${NC} and will dictate the" 
+                echo -e "permitted extensions are ${GREEN}.tsv${NC} or ${GREEN}.json${NC} and will dictate the" 
                 echo "format of the outputted results."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR}-c P-value Cutoff: ${NC}"
@@ -180,7 +192,7 @@ learnAboutParameters () {
                 echo "" ;;
             4 ) echo -e "${MYSTERYCOLOR}-r RefGen (Reference Genome): ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
-		        echo "in the input VCF file."
+                echo -e "in the input VCF file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
                 echo "" ;;
             5 ) echo -e "${MYSTERYCOLOR}-p Subject Super Population: ${NC}"
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
@@ -195,7 +207,7 @@ learnAboutParameters () {
                 echo "" ;;
             6 ) echo -e "${MYSTERYCOLOR} -t traitsList: ${NC}"
                 echo "This parameter allows you to pick specifically which traits "
-                echo "you would like to use to calculate PRS scores. You can see available "
+                echo "you would like to use to calculate PRS scores. You can search available "
                 echo "traits by choosing the search option in the Options Menu " 
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
@@ -208,7 +220,7 @@ learnAboutParameters () {
                 echo -e "   ${GREEN}HI (High Impact)${NC} - determined by study scores pulled from Almetric. Only " 
                 echo "   the studies with the highest impact are chosen with this option. "
                 echo -e "   ${GREEN}LC (Largest Cohort)${NC} - determined by study cohort size. Only the" 
-                echo "   studies with the highest impact are chosen with this option." 
+                echo "   studies with the largest cohort are chosen with this option." 
                 echo -e "   ${GREEN}O (Other)${NC} - studies are those that do not fall under Highest Impact or" 
                 echo "   Largest Cohort. " 
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
@@ -222,26 +234,42 @@ learnAboutParameters () {
             9 ) echo -e "${MYSTERYCOLOR} -e ethnicity: ${NC}"
                 echo "This parameter allows you to filter studies to use by the ethnicity "
                 echo "of the subjects used in the study. These correspond to those listed " 
-                echo "by the authors. " # should we maybe show ethnicities when they search studies?
+                echo "by the authors. A list can be printed from the corresponding menu option."
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} -v: ${NC}"
-                echo "For a more detailed result file, include the '-v True' parameter."
-                echo "The verbose output file will include the reported trait, trait, polygenic risk score," 
-                echo "and lists of the protective variants, risk variants, and variants with unknown or neutral"
-                echo "effect on the PRS for each corresponding sample and study."
-                echo "If this parameter is not included, the default result file will include the study ID"
-                echo "and the corresponding polygenic risk scores for each sample." 
+            10 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
+                echo -e "For a more detailed TSV result file, include the ${GREEN}-v${NC} parameter."
+                echo "The verbose output file will include the following for each corresponding sample, study, and trait combination: "
+                echo ""
+                echo "    - reported trait"
+                echo "    - trait"
+                echo "    - polygenic risk score"
+                echo "    - protective variants"
+                echo "    - risk variants"
+                echo "    - variants that are present but do not include the risk allele"
+                echo "    - variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations"
+                echo ""
+                echo "If the output file is in TSV format and this parameter is not included, the default TSV result"
+                echo "file will include the study ID and the corresponding polygenic risk scores for each sample." 
+                echo "If the output file is in JSON format, the results will, by default, be in verbose format."
+                echo -e "${LIGHTRED}**NOTE:${NC} There is no condensed version of JSON output."
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} -g defaultSex: ${NC}"
-                echo "Some studies have duplicates of the same snp that differ by which biological sex the"
-                echo "p-value is associated with. You can indicate which sex you would like snps to select"
-                echo "when both options (M/F) are present. The system default is Female"
+                echo "Though a rare occurence, some studies have duplicates of the same snp that differ by which"
+                echo "biological sex the p-value is associated with. You can indicate which sex you would like snps"
+                echo "to select when both options (M/F) are present. The system default is Female."
                 echo "" ;;
             12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
-                echo "EXPLAIN THIS PARAM " #TODO explain the stepNumber param
+                echo -e "Either ${GREEN}-s 1${NC} or ${GREEN}-s 2${NC}"
+                echo "This parameter allows you to split up the running of the tool into two steps."
+                echo "The advantage of this is that the first step, which requires internet, can be"
+                echo "run separately from step 2, which does not require an internet connection."
                 echo "" ;;
-            13 ) cont=0 ;;
+            13 ) echo -e "${MYSTERYCOLOR} -n number of subprocesses: ${NC}"
+                echo "This parameter allows you to choose the number of processes used to run the tool."
+                echo "By default, the Python script will run the calculations using 4 subprocesses."
+                echo "" ;;
+            14 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -272,17 +300,45 @@ searchTraitsAndStudies () {
                 fi
                 echo "" # might need to do something to combine results with the same studyID?
                 echo -e "${LIGHTPURPLE}First Author and Year | GWAS Catalog Study ID | Reported Trait | Trait | Title${NC}"
-		        curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .title + "\n"';;
+                if curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .title + "\n"'; then
+                    echo ""
+                else 
+                    jqError "STUDIES"
+                fi;;
         [tT]* ) read -p "Enter the search term you wish to use: " searchTerm 
                 if [[ "$searchTerm" = *"'"* ]]; then
-                    echo "in if"
                     searchTerm=${searchTerm//${sub}/${backslash}${sub}}
                 fi
                 echo -e "${LIGHTPURPLE}"
-                curl -s https://prs.byu.edu/find_traits/${searchTerm} | jq -r '.[]'
-                echo -e "${NC}";;
+                if curl -s https://prs.byu.edu/find_traits/${searchTerm} | jq -r '.[]'; then
+                    echo -e "${NC}"
+                else
+                    echo -e "${NC}"
+                    jqError "TRAITS"
+                fi;;
         * ) echo -e "Invalid option." ;;
     esac
+}
+
+printEthnicities () {
+    echo ""
+    echo -e "${LIGHTPURPLE}PRINTING AVAILABLE ETHNICITES TO FILTER BY:${NC}"
+    if curl -s https://prs.byu.edu/ethnicities | jq -r '.[]'; then
+        echo -e ""
+    else
+        jqError "ETHNICITIES"
+    fi
+}
+
+jqError () {
+    typeOfQuery=$1
+    echo -e ""
+    echo -e "${LIGHTRED}ERROR: CANNOT PRINT ${typeOfQuery}${NC}"
+    echo "In order to use this functionality, you need to have jq downloaded."
+    echo -e "You can install it using ${MYSTERYCOLOR}sudo apt-get install jq${NC} on Ubuntu/Debian or go to"
+    echo -e "${MYSTERYCOLOR}https://stedolan.github.io/jq/download/ ${NC}to download and install it"
+    echo -e "for other OS."
+    echo -e ""
 }
 
 # will allow the user to run the PRSKB calculator from the menu
@@ -316,8 +372,28 @@ calculatePRS () {
     escaped="\'"
     underscore="_"
     space=" "
+    quote='"'
+    empty=""
 
-    while getopts 'f:o:c:r:p:t:k:i:e:v:s:g:' c "$@"
+    # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
+    pyVer=""
+    ver=$(python --version 2>&1)
+    read -a strarr <<< "$ver"
+
+    # if python version isn't blank and is 3.something, then use python as the call
+    if ! [ -z "${strarr[1]}" ] && [[ "${strarr[1]}" =~ ^3 ]]; then
+        pyVer="python"
+    # if python3 doesn't error, use python3 as the call
+    elif python3 --version >/dev/null 2>&1; then
+        pyVer="python3"
+    else
+        echo -e "${LIGHTRED}ERROR: PYTHON3 NOT INSTALLED."
+        echo -e "python3 is required to run this script. Please install it and try again."
+        echo -e "Quitting...${NC}"
+        exit 1
+    fi
+
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -329,21 +405,37 @@ calculatePRS () {
                 if [ ! -f "$filename" ]; then
                     echo -e "The file${LIGHTRED} $filename ${NC}does not exist."
                     echo "Check the path and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
-                elif ! [[ "$filename" =~ .vcf$|.VCF$|.txt$|.TXT$ ]]; then
-                    echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
-                    echo -e "Please use a vcf or txt file."
-                    exit 1
+                elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
+                    # check if the file is a valid zipped file (check getZippedFileExtension for more details)
+                    zipExtension=`$pyVer -c "import grep_file; grep_file.getZippedFileExtension('$filename', True)"`
+                    if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
+                        echo "zipped file validated"
+                    # if "False", the file is not a zipped file
+                    elif [ "$zipExtension" = "False" ]; then
+                        echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
+                        echo -e "Please use a vcf or txt file."
+                        echo -e "${LIGHTRED}Quitting...${NC}"
+                        exit 1
+                    # if something else, the file is a zipped file, but there are too many/few vcf/txt files in it
+                    else
+                        # print the error associated with the zipped file and exit
+                        echo $zipExtension
+                        echo -e "${LIGHTRED}Quitting...${NC}"
+                        exit 1
+                    fi
                 fi;;
             o)  if ! [ -z "$output" ]; then
                     echo "Too many output files given."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                output=$OPTARG
-                if ! [[ "$output" =~ .csv$|.json$|.txt$ ]]; then
+                output=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
+                if ! [[ "${output}" =~ .tsv$|.json$ ]]; then
                     echo -e "${LIGHTRED}$output ${NC} is not in the right format."
-                    echo -e "Valid formats are ${GREEN}csv${NC}, ${GREEN}json${NC}, and ${GREEN}txt${NC}"
+                    echo -e "Valid formats are ${GREEN}tsv${NC} and ${GREEN}json${NC}"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
             c)  if ! [ -z "$cutoff" ]; then
@@ -353,8 +445,9 @@ calculatePRS () {
                 fi
                 cutoff=$OPTARG
                 if ! [[ "$cutoff" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
-                    echo -e "${LIGHTRED}$cutoff ${NC} is your p-value, but it is not a number."
+                    echo -e "${LIGHTRED}$cutoff ${NC}is your p-value, but it is not a number."
                     echo "Check the value and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
             r)  if ! [ -z "$refgen" ]; then
@@ -362,7 +455,7 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                refgen=$OPTARG
+                refgen=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
                 if ! [[ "$refgen" =~ ^hg17$|^hg18$|^hg19$|^hg38$ ]]; then
                     echo -e "${LIGHTRED}$refgen ${NC}should be hg17, hg18, hg19, or hg38"
                     echo "Check the value and try again."
@@ -373,40 +466,67 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                superPop=$OPTARG
+                superPop=$(echo "$OPTARG" | tr '[:lower:]' '[:upper:]') 
                 if ! [[ "$superPop" =~ ^AFR$|^AMR$|^EAS$|^EUR$|^SAS$ ]]; then
-                    echo -e "${LIGHTRED}$superPop ${NC} should be AFR, AMR, EAS, EUR, or SAS."
+                    echo -e "${LIGHTRED}$superPop ${NC}should be AFR, AMR, EAS, EUR, or SAS."
                     echo "Check the value and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
 
-            t)  trait="${OPTARG//$single/$escaped}"
-                trait="${trait//$space/$underscore}"
-                echo $trait
+	    t)  trait=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]') # convert trait to lower case
+                trait="${trait//$single/$escaped}" # replace single quotes with escaped single quotes
+                trait="${trait//$space/$underscore}"    # replace spaces with underscores
+                trait="${trait//$quote/$empty}" # replace double quotes with nothing
                 traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
-            k)  if [ $OPTARG != "HI" ] && [ $OPTARG != "LC" ] && [ $OPTARG != "O" ]; then
+            k)  studyType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $studyType != "hi" ] && [ $studyType != "lc" ] && [ $studyType != "o" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
                     echo "enter 'HI' for High Impact, 'LC' for Largest Cohort, or 'O' for Other."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                studyTypesForCalc+=("$OPTARG");;
+                studyTypesForCalc+=("$studyType");;
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
-            v)  verbose=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $verbose == "true" ]; then
-                    isCondensedFormat=0
+            v)  isCondensedFormat=0
+                ;;
+            g)  if ! [ -z "$defaultSex" ]; then
+                    echo "Too many default sexes requested at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                defaultSex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $defaultSex != 'f' ] && [ $defaultSex != 'm' ] && [ $defaultSex != 'female' ] && [ $defaultSex != 'male' ] ; then
+                    echo "Invalid argument for -g. Use f, m, female, or male."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
                 fi;;
-            g)  defaultSex="$OPTARG";;
-            s)  if ! [ -z "$step" ]; then
+            s)  if ! [ -z "$step" ]; then 
                     echo "Too many steps requested at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
                 step=$OPTARG
-                if [[ $step -gt 2 ]] || [[ $step -lt 0 ]]; then 
-                    echo -e "${LIGHTRED}$step ${NC} is not a valid step number"
+                # if is not a number, or if it is a number less than 1 or greater than 2
+                if (! [[ $step =~ ^[0-9]+$ ]]) || ([[ $step =~ ^[0-9]+$ ]] && ([[ $step -gt 2 ]] || [[ $step -lt 1 ]])); then 
+                    echo -e "${LIGHTRED}$step ${NC}is not a valid step number input"
                     echo "Valid step numbers are 1 and 2"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi;;
+            n)  if ! [ -z "$processes" ]; then 
+                    echo "Too many subprocess arguments requested at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                processes=$OPTARG
+                # if is not a number, or if it is a number less than 1
+		if (! [[ $processes =~ ^[0-9]+$ ]]) || ([[ $processes =~ ^[0-9]+$ ]] && [[ $processes -lt 0 ]]); then 
+                    echo -e "${LIGHTRED}$processes ${NC}is not a valid input for the number of subprocesses"
+                    echo "The number of subprocesses cannot be less than 0"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
             [?])    usage
@@ -428,31 +548,59 @@ calculatePRS () {
         defaultSex="female"
     fi
 
-    # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
-    pyVer=""
-    ver=$(python --version)
-    read -a strarr <<< "$ver"
-
-    # python version is 3.something, then use python as the call
-    if [[ "${strarr[1]}" =~ ^3 ]]; then
-        pyVer="python"
-    else
-        pyVer="python3"
-    fi
-
     # preps variables for passing to python script
     export traits=${traitsForCalc[@]}
     export studyTypes=${studyTypesForCalc[@]}
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
 
-    res=""
-
     # Creates a hash to put on the associations file if needed or to call the correct associations file
-    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}" | cut -f 1 -d ' ')
-    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
-
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
+    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
+    # Create uniq ID for filtered file path
+    TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
+    
+    # if zipExtension hasn't been instantiated yet, initialize it
+    if [ -z "$zipExtension" ]; then
+        zipExtension="NULL"
+    fi
+    # if the zip extension is valid, set extension to the zip extension, 
+    # otherwise use Pyhton os.path.splitext to get the extension
+    if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
+        extension="$zipExtension"
+    else
+        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
+    fi
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
+        # check if pip is installed for the python call being used (REQUIRED)
+        if ! $pyVer -m pip --version >/dev/null 2>&1; then
+            echo -e "${LIGHTRED}ERROR: PIP NOT INSTALLED."
+            echo -e "pip for $pyVer is required to run this script. Please install it and try again."
+            echo -e "Quitting...${NC}"
+            exit 1
+        # check that all required packages are installed
+        else
+            echo "Checking for package requirements"
+            {
+                $pyVer -c "import vcf" >/dev/null 2>&1
+            } && {
+                echo -e "Package requirements met\n"
+            } || {
+                {
+                    echo "Missing package requirement: PyVCF"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install PyVCF
+                } && {
+                    echo -e "Download successful, Package requirements met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package and try running the tool again."
+                    exit 1
+                }
+            } 
+        fi
+
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
@@ -460,42 +608,47 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
-        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '$studyTypes', '$studyIDs','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
+        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
-            echo -e "${LIGHTRED}ERROR CONTACTING THE SERVER... Quitting${NC}"
+            echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
             exit;
         fi
     fi
 
 
     if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
-        IFS='.'
-        read -a outFile <<< "$output"
-        outputType=${outFile[1]}
-        IFS=' '
+        outputType=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_ext.lower());")
 
         echo "Calculating prs on $filename"
-        #outputType="csv" #this is the default
-        #$1=inputFile $2=pValue $3=csv $4=refGen $5=superPop $6=outputFile $7=outputFormat  $8=fileHash $9=requiredParamsHash $10=defaultSex
+        FILE=".workingFiles/associations_${fileHash}.txt"
 
-        if $pyVer run_prs_grep.py "$filename" "$cutoff" "$outputType" "$refgen" "$superPop" "$output" "$isCondensedFormat" "$fileHash" "$requiredParamsHash" "$defaultSex"; then
-            echo "Caculated score"
-            if [[ $fileHash != $requiredParamsHash ]]; then
-                rm ".workingFiles/associations_${fileHash}.txt"
+	# filter the input file so that it only includes the lines with variants that match the given filters
+        if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
+            echo "Filtered input file"
+	    # parse through the filtered input file and calculate scores for each given study
+            if $pyVer -c "import parse_associations as pa; pa.runParsingAndCalculations('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP', '$processes')"; then
+                echo "Parsed through genotype information"
+                echo "Calculated score"
+            else
+                echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}" 
             fi
-           # rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-            # I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
-            rm -r __pycache__
-            echo "Cleaned up intermediate files"
-            echo "Results saved to $output"
-            echo ""
         else
-            echo -e "${LIGHTRED}ERROR DURING CALCULATION... Quitting${NC}"
-
+            echo -e "${LIGHTRED}ERROR DURING CREATION OF FILTERED INPUT FILE... Quitting${NC}"
         fi
+
+        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+            rm $FILE
+            rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            rm ".workingFiles/traitStudyIDToSnps_${fileHash}.txt"
+            rm ".workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+        fi
+        # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
+        rm -r __pycache__
+        echo "Cleaned up intermediate files"
+        echo -e "Finished. Exiting...\n\n"
         exit;
     fi
 }
@@ -541,9 +694,10 @@ askToStartMenu() {
 # BEGINNING OF 'MAIN' FUNCTIONALITY
 
 # check to see if they want the version
-if [[ "$1" =~ "--version" ]] || [[ "$1" =~ "-v" ]]; then 
+if [[ "$1" =~ "--version" ]] || [[ "$1" =~ "-v" ]] && [[ -z $2 ]]; then 
     echo -e "Running version ${version}"
     checkForNewVersion
+    exit 1
 fi
 
 # pass arguments to calculatePRS

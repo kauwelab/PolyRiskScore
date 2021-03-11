@@ -24,6 +24,7 @@
     <a href="cite.html">CITE</a>
     <a href="cli_download.html">DOWNLOAD</a>
     <a href="about.html">ABOUT</a>
+    <a href="ukbb.html">UKBB</a>
     <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
     <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
       <i class="fa fa-bars"></i>
@@ -70,7 +71,7 @@
                 <div class="form-text font-weight-bold">
 
                   <textarea rows="10" cols="100" class="form-control nowrap" id="input" name="input"
-                    placeholder="rs3:AT,rs1:T rs4:G&#10;rs5:G&#10;rs6" aria-describedby="input rsID"></textarea>
+                    placeholder="rs3:A,T&#10;rs1:T,C&#10;rs4:G,C&#10;rs5:G,A&#10;" aria-describedby="input rsID"></textarea>
                   <span id="messageHelp" class="form-text text-muted" style="display: none;">Please enter a
                     message.</span>
                 </div>
@@ -111,7 +112,7 @@
 
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                  <h5>2: Specify Reference Genome and Super Population of Samples &nbsp;</h5>
+                  <h5>2: Specify Sample Information &nbsp;</h5>
                   <select id="refGenome" onchange="moveToNextTourIndex('refGen')">
                     <option selected="selected" value="default">--Reference Genome--</option>
                     <option value="hg38">GRCh38/hg38</option>
@@ -119,13 +120,17 @@
                     <option value="hg18">NCBI36/hg18</option>
                     <option value="hg17">NCBI35/hg17</option>
                   </select>
-                  <select id='LD-ethnicitySelect'>
+                  <select id='LD-ethnicitySelect' onchange="moveToNextTourIndex('superPop')">
                     <option selected="selected" value="default">--LD Ethnicity--</option>
                     <option>African</option>
                     <option>American</option>
                     <option>East Asian</option>
                     <option>European</option>
                     <option>South Asian</option>
+                  </select>
+                  <select id="sex" onchange="moveToNextTourIndex('sex')">
+                    <option selected="selected" value="f">Female</option>
+                    <option value="m">Male</option>
                   </select>
                 </div>
               </div>
@@ -140,7 +145,7 @@
 
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                  <h5>4: Filter Studies by Type or Ethnicity&nbsp;</h5>
+                  <h5>4: Filter Studies by Type<sup><span title="NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database.">?</span></sup> or Ethnicity&nbsp;</h5>
                   <select id='studyTypeSelect' multiple>
                     <option value="HI" selected="selected">High Impact Studies</option>
                     <option value="LC" selected="selected">Large Cohort Studies</option>
@@ -196,9 +201,12 @@
                   <script src="js/vcf_parser.js"></script>
                   <div class="fileFormOptions">
                     <select id="fileType" , onchange="changeFormat();">
-                      <option value="csv">CSV</option>
+                      <option value="tsv">TSV</option>
                       <option value="json">JSON</option>
-                      <option value="text">Text</option>
+                    </select>
+                    <select id="fileFormat", onchange="changeFormat();">
+                      <option selected="selected" value="condensed">Condensed</option>
+                      <option value="full">Full</option>
                     </select>
                   </div>
                 </div>
@@ -228,7 +236,7 @@
               <form id="responseBox" class="text-center">
                 <div class="form-text font-weight-bold">
                   <textarea readonly rows="10" cols="100" class="form-control nowrap" id="response" name="response"
-                    placeholder="Results" aria-describedby="response to query"></textarea>
+                    placeholder="Results..." aria-describedby="response to query"></textarea>
                 </div>
               </form>
               <p>&nbsp;</p>

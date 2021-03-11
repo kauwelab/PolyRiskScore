@@ -1,4 +1,5 @@
 var resultJSON = "";
+var unusedTraitStudyArray = [];
 //TODO gzip and zip still need work
 var validExtensions = ["vcf", "gzip", "zip"]
 var traitObjects = []
@@ -12,6 +13,12 @@ var textButtonSelected = true;
 function updateResultBoxAndStoredValue(str) {
     $('#response').html(str);
     resultJSON = str
+}
+
+function addToResultBox(str) {
+    newText = document.getElementById('response').innerHTML.concat('\n', str);
+    $('#response').html(newText);
+    resultJSON = newText
 }
 
 function getTraits() {
@@ -71,26 +78,9 @@ function getEthnicities() {
     })
 }
 
-function getStudies() {
-    //get the users selected traits, ethnicities, and studty types as arrays of values
-    var traitNodes = document.querySelectorAll('#traitSelect :checked');
-    var selectedTraits = [...traitNodes].map(option => option.value);
-    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked');
-    var selectedEthnicities = [...ethnicityNodes].map(option => option.value);
-    var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
-    var selectedTypes = [...typeNodes].map(option => option.value);
-
-    if (selectedTraits.length == 0) {
-        console.log("NO TRAIT SELECTED")
-        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
-        return;
-    }
-
-    //make sure the select is reset/empty so that the multiselect command will function properly
-    $('#studySelect').replaceWith("<select id='studySelect' multiple></select>");
+function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
     var studySelector = document.getElementById("studySelect");
 
-    //call the API and populate the study dropdown/multiselect with the results
     $.ajax({
         type: "POST",
         url: "/get_studies",
@@ -108,15 +98,31 @@ function getStudies() {
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
                     var study = studyLists[trait][j];
-                    var opt = document.createElement('option');
-                    var displayString = study.citation + ' | ' + trait + ' | ' + study.studyID;
-                    opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(displayString)));
-                    opt.value = study.studyID;
-                    opt.setAttribute('data-trait', trait);
-                    studySelector.appendChild(opt);
+                    createOpt = true
+                    var hasOption = $(`#studySelect option[value='${study.studyID}']`);
+                    if (hasOption.length > 0) {
+                        for (k=0; k < hasOption.length; k++) {
+                            data_trait = hasOption[k].getAttribute('data-trait')
+                            if (data_trait == trait) {
+                                createOpt = false
+                            }
+                        }
+                    }
+                    if (createOpt) {
+                        var opt = document.createElement('option');
+                        var displayString = formatHelper.formatForWebsite(trait + ' | ' + study.citation + ' | ' + study.studyID);
+                        opt.appendChild(document.createTextNode(displayString));
+                        opt.value = study.studyID;
+                        opt.setAttribute('data-trait', trait);
+                        studySelector.appendChild(opt);
+                    }
                 }
             }
 
+            // order the studies (trait -> citation -> studyID)
+            $("#studySelect").html($("#studySelect option").sort(function (a, b) {
+                return a.text == b.text ? 0 : a.text < b.text ? -1 : 1
+            }))
             document.multiselect('#studySelect');
         },
         error: function (XMLHttpRequest) {
@@ -125,14 +131,36 @@ function getStudies() {
     })
 }
 
+function getStudies() {
+    //get the users selected traits, ethnicities, and studty types as arrays of values
+    var traitNodes = document.querySelectorAll('#traitSelect :checked');
+    var selectedTraits = [...traitNodes].map(option => option.value);
+    var ethnicityNodes = document.querySelectorAll('#ethnicitySelect :checked');
+    var selectedEthnicities = [...ethnicityNodes].map(option => option.value);
+    var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
+    var selectedTypes = [...typeNodes].map(option => option.value);
+
+    if (selectedTraits.length == 0) {
+        console.log("NO TRAIT SELECTED")
+        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
+        return;
+    }
+
+    //make sure the select is reset/empty so that the multiselect command will function properly
+    $('#studySelect').replaceWith("<select id='studySelect' multiple></select>")    
+
+    //call the API and populate the study dropdown/multiselect with the results
+    callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities)
+}
+
 //called in calculatePolyScore below, 
-//queries the server for associations with the given traits, studies, pValue, and reference genome
-function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
-    traitList = JSON.stringify(traitList)
+//queries the server for associations with the given studyIDs, pValue, and reference genome
+function getSelectStudyAssociations(studyList, refGen, sex) {
+
     return Promise.resolve($.ajax({
         type: "POST",
         url: "/get_associations",
-        data: { traits: traitList, pValue: pValue, refGen: refGen },
+        data: { studyIDObjs: studyList, refGen: refGen, isVCF: true, sex: sex },
         success: async function (data) {
             return data;
         },
@@ -144,17 +172,47 @@ function getSelectStudyAssociationsByTraits(traitList, pValue, refGen) {
     }));
 }
 
+//called in calculatePolyscore below
+//gets the clumping information using the positions from the associations object
+function getClumpsFromPositions(associationsObj, refGen, superPop) {
+    positions = []
+
+    for (key in associationsObj) {
+        if (key.includes(":")) {
+            positions.push(key)
+        }
+    }
+
+    if (positions.length != 0) {
+        return Promise.resolve($.ajax({
+            type: "POST",
+            url: "/ld_clumping_by_pos",
+            data: { superPop: superPop, refGen: refGen, positions: positions },
+            success: async function (data) {
+                return data;
+            },
+            error: function (XMLHttpRequest) {
+                var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+                updateResultBoxAndStoredValue(errMsg)
+                alert(errMsg);
+            }
+        }));
+    }
+    else {
+        return {}
+    }
+}
+
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
 var calculatePolyScore = async () => {
-    document.getElementById('resultsDisplay').style.display = 'block';
-    updateResultBoxAndStoredValue("Calculating. Please wait...")
-
     // get the values from the user's inputs/selections
     var vcfFile = document.getElementById("files").files[0];
     var refGenElement = document.getElementById("refGenome");
     var refGen = refGenElement.options[refGenElement.selectedIndex].value
     var ethElement = document.getElementById("LD-ethnicitySelect");
-    var ethnicity = ethElement.options[ethElement.selectedIndex].value
+    var superPop = ethElement.options[ethElement.selectedIndex].value
+    var sexElement = document.getElementById("sex");
+    var sex = sexElement.options[sexElement.selectedIndex].value
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
     var traits = [...traitNodes].map(option => option.value);
     var studyNodes = document.querySelectorAll('#studySelect :checked');
@@ -164,31 +222,38 @@ var calculatePolyScore = async () => {
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
 
     //if the user doesn't specify a trait, study, or reference genome, prompt them to do so
-    if (studies.length === 0) {
-        updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
-        return;
-    }
     if (refGen == "default") {
         updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
+        document.getElementById('resultsDisplay').style.display = 'block';
+        return;
+    }
+    if (superPop == "default") {
+        updateResultBoxAndStoredValue('Please select the super population corresponding to your file (step 2).');
+        document.getElementById('resultsDisplay').style.display = 'block';
+        return;
+    }
+    if (studies.length === 0) {
+        updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
+        document.getElementById('resultsDisplay').style.display = 'block';
         return;
     }
 
-    //convert the studies into a list of trait-study object pairs
-    var traitList = [];
-    for (i = 0; i < traits.length; i++) {
-        trait = traits[i];
-        studyList = []
-        for (j = 0; j < studies.length; j++) {
-            if (studies[j][1] === trait) {
-                studyList.push(studies[j][0]);
-            }
-        }
-        traitObj = { trait: trait, studies: studyList };
-        traitList.push(traitObj);
+    document.getElementById('resultsDisplay').style.display = 'block';
+    updateResultBoxAndStoredValue("Calculating. Please wait...")
+
+    //convert the studies into a list of studyIDs/traits
+    var studyList = [];
+    for (i = 0; i < studies.length; i++) {
+        studyList.push({
+            trait: studies[i][1],
+            studyID: studies[i][0]
+        });
     }
 
     //send a get request to the server with the specified traits and studies
-    associationData = await getSelectStudyAssociationsByTraits(traitList, pValue, refGen);
+    associationData = await getSelectStudyAssociations(studyList, refGen, sex);
+
+    clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
@@ -201,7 +266,8 @@ var calculatePolyScore = async () => {
             return;
         }
 
-        var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|,]+/);
+        var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|]+/);
+        console.log(arrayOfInputtedSnps)
         var snpObjs = new Map();
         for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
             var snpObj;
@@ -219,7 +285,7 @@ var calculatePolyScore = async () => {
             }
             else if (snpArray.length == 2) {
                 //get the alleles in list form
-                var alleleArray = snpArray[1].split("");
+                var alleleArray = snpArray[1].split(",");
                 //if more than 2 alleles, return error
                 if (alleleArray.length > 2) {
                     
@@ -240,7 +306,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        ClientCalculateScore(snpObjs, associationData, pValue, false);
+        ClientCalculateScore(snpObjs, associationData, clumpsData, pValue, false);
     }
     else {
         //if text input is empty, return error
@@ -255,7 +321,7 @@ var calculatePolyScore = async () => {
                 updateResultBoxAndStoredValue("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
                 return;
             }
-            ClientCalculateScore(vcfFile, associationData, pValue, true);
+            ClientCalculateScore(vcfFile, associationData, clumpsData, pValue, true);
         }
     }
 }
@@ -263,8 +329,9 @@ var calculatePolyScore = async () => {
 /**
  * Resets resultJSON
  */
-function resetOutput() {
+function resetOutput() { //todo maybe should add this to when the traits/studies/ect are changed?
     resultJSON = "";
+    unusedTraitStudyArray = []
 }
 
 
@@ -272,13 +339,14 @@ function resetOutput() {
  * Calculates scores client side for the file input from the user
  * @param {*} snpsInput- the file or text input by the user (specifiying snps of interest)
  * @param {*} associationData- the associations from get_associations (specifying traits and studies for calculations)
+ * @param {*} clumpsData - the clumping data needed to 
  * @param {*} pValue- the pvalue cutoff for scores
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => {
+var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue, isVCF) => {
     //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
-    var associMap = sharedCode.getAssociationMap(associationData, isVCF);
+    var associMap = associationData['associations']
 
     //remove SNPs that aren't relevant from the snpsInput object
     var greppedSNPs;
@@ -302,7 +370,7 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
         var greppedSNPsList = [];
         totalInputVariants = snpsInput.size;
         for (const key of snpsInput.keys()) {
-            if (associMap.has(key)) {
+            if (key in associMap) {
                 greppedSNPsList.push(snpsInput.get(key));
             }
         }
@@ -311,12 +379,25 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
     }
 
     try {
-        var result = sharedCode.calculateScore(associationData, greppedSNPs, pValue, associMap, totalInputVariants);
-        //shortens the result for website desplay
-        outputVal = getSimpleOutput(result)
-        $('#response').html(outputVal);
+        var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
+        try {
+            unusedTraitStudyCombo = result[1]
+            result = JSON.parse(result[0])
+        } catch (e) {
+            //todo create an endpoint that we can send errors to and give a better error response for the user
+            console.log("There was an error in calculating the results. Please try again.")
+        }
+        if (result == {}) {
+            $('#response').html("None of the snps from the input file were found.");
+        }
+        else {
+            //shortens the result for website desplay
+            outputVal = getSimpleOutput(result)
+            $('#response').html(outputVal);
+        }
         //saves the full result on currently open session of the website for further modifications 
         resultJSON = result;
+        unusedTraitStudyArray = unusedTraitStudyCombo;
         //go the the result output box
         $('#responseBox')[0].scrollIntoView({
             behavior: 'smooth',
@@ -328,7 +409,7 @@ var ClientCalculateScore = async (snpsInput, associationData, pValue, isVCF) => 
     }
 }
 
-function getErrorMessage(err) {
+function getErrorMessage(err) { //TODO we are going to want to NOT give this information to the user in the final product. What we can and should do is create an endpoint to send errors to that can be saved for us to look over later
     var response = 'There was an error computing the risk score:'
     if (err != undefined) {
         response += '\n' + err;
@@ -342,12 +423,14 @@ function getErrorMessage(err) {
 /**
  * Returns a simplified output using the given json. The json is truncated and converted to the correct format.
  * Then, if a truncation occured, "Results preview:" is appended to the beginning and "..." is appended to the end.
- * @param {*} resultJsonStr
+ * @param {*} resultJsn
  */
-function getSimpleOutput(resultJsonStr) {
-    var simpleJsonStr = simplifyResultJson(resultJsonStr);
-    var simpleOutput = getResultOutput(simpleJsonStr)
-    if (simpleJsonStr != resultJsonStr) {
+function getSimpleOutput(resultJsn) {
+    var fullResultNum = Object.keys(resultJsn['studyResults']).length
+    var simpleJson = simplifyResultJson(resultJsn);
+    var simpleResultNum = Object.keys(simpleJson['studyResults']).length
+    var simpleOutput = getResultOutput(simpleJson)
+    if (fullResultNum != simpleResultNum) {
         simpleOutput = "Results preview:\n" + simpleOutput + "\n...";
     }
     return simpleOutput;
@@ -355,22 +438,30 @@ function getSimpleOutput(resultJsonStr) {
 
 /**
  * Truncates the result to include the results for the first two individuals, including calculation info ("resultJsonObj[0]").
- * @param {*} resultJsonStr the large resultJson to be truncated
+ * @param {*} resultJsonObj the large resultJson to be truncated
  */
-function simplifyResultJson(resultJsonStr) {
-    //TODO avoid having to parse again! -is there anyway to keep this in obj form instead of passing a string?
-    var resultJsonObj = JSON.parse(resultJsonStr);
+function simplifyResultJson(resultJsonObj) {
     //if the resultJson is already truncated, return it
-    if (resultJsonObj.length <= 3) {
-        return resultJsonStr;
+    if (resultJsonObj['studyResults'].length <= 2) {
+        return resultJsonObj;
     }
-    //create a new array, add the first three objects from the resultJson, and return its string version
+    //create a new obj, add the first 2 studyIDs to the studyResults
     else {
-        var simpleResultObj = [];
-        for (var i = 0; i < 3; ++i) {
-            simpleResultObj.push(resultJsonObj[i]);
+        var simpleResultObj = {
+            "pValueCutoff": resultJsonObj['pValueCutoff'],
+            "totalVariants": resultJsonObj['totalVariants'],
+            "studyResults": {}
+        };
+
+        i=0
+        for (studyID in resultJsonObj['studyResults']) {
+            i++
+            simpleResultObj['studyResults'][studyID] = resultJsonObj['studyResults'][studyID];
+            if (i >= 2) {
+                break
+            }
         }
-        return JSON.stringify(simpleResultObj);
+        return simpleResultObj;
     }
 }
 
@@ -405,7 +496,7 @@ function getNumDatalines(fileLines) {
  */
 async function getGreppedFileLines(fileLines, associMap) {
     return jQuery.grep(fileLines, function (line) {
-        return line[0] === '#' || associMap.has(getPosFromLine(line));
+        return line[0] === '#' || getSnpFromLine(line) in associMap || getPosFromLine(line) in associMap;
     });
 }
 
@@ -418,69 +509,97 @@ function getPosFromLine(line) {
     return line.substr(0, secondTab).replace('\t', ':');
 }
 
-function formatText(jsonObject) {
-    var returnText = "P Value Cutoff: " + jsonObject[0].pValueCutoff +
-        " \nTotal Variants in File: " + jsonObject[0].totalVariants + " ";
-
-    //iterate through the list of people and print them each out seperately.
-    for (var i = 0; i < jsonObject.length; ++i) {
-        if (i == 0 || !jsonObject[i]) {
-            continue;
-        }
-        returnText += "\nIndividual Name: " + jsonObject[i].individualName;
-        jsonObject[i].traitResults.forEach(function (traitResult) {
-            returnText += " \n  Trait: " + traitResult.trait;
-            traitResult.studyResults.forEach(function (studyResult) {
-                returnText +=
-                    " \n    Study ID: " + studyResult.studyID +
-                    " \n      Citation: " + studyResult.citation +
-                    " \n      Odds Ratio: " + studyResult.oddsRatio +
-                    " \n      Percentile: " + studyResult.percentile +
-                    " \n      # SNPs in OR: " + studyResult.numSNPsIncluded +
-                    " \n      Chrom Positions in OR: " + studyResult.chromPositionsIncluded +
-                    " \n      SNPs in OR: " + studyResult.snpsIncluded;
-            });
-        });
-    }
-    return returnText;
+/**
+ * Gets the snp from the line
+ * @param {} line 
+ */
+function getSnpFromLine(line) {
+    const regex = /rs[0-9]+/;
+    match = line.match(regex)
+    return match != null ? match[0] : null
 }
 
-function formatCSV(jsonObject) {
+function formatTSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
-    var returnText = "Individual Name, Trait, Study ID, Citation, Odds Ratio, Percentile, # SNPs in OR, Chrom Positions in OR, SNPs in OR";
+    //TODO: account for if the samples are not in the same order everytime
+    sampleKeys = []
 
-    for (var i = 0; i < jsonObject.length; ++i) {
-        if (i == 0) {
-            continue;
-        }
-        jsonObject[i].traitResults.forEach(function (traitResult) {
-
-            traitResult.studyResults.forEach(function (studyResult) {
-                returnText +=
-                    "\n" + jsonObject[i].individualName +
-                    "," + traitResult.trait +
-                    "," + studyResult.studyID +
-                    "," + studyResult.citation +
-                    "," + studyResult.oddsRatio +
-                    "," + studyResult.percentile +
-                    "," + studyResult.numSNPsIncluded +
-                    "," + studyResult.chromPositionsIncluded.join(";") +
-                    "," + studyResult.snpsIncluded.join(";");
-            });
-        });
+    if (isCondensed) {
+        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
     }
-    // var pattern = new RegExp("2016");
-    // returnText.replace(pattern, "HELLO");
-    return returnText;
+    else {
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
+    }
+
+    resultsString = ''
+
+    studyIDKeys = Object.keys(jsonObject['studyResults'])
+
+    first = true
+    for (var i = 0; i < studyIDKeys.length; i++) {
+        studyID = studyIDKeys[i]
+        traitKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'])
+        for (var j = 0; j < traitKeys.length; j++) {
+            trait = traitKeys[j]
+            lineInfo = [studyID, jsonObject['studyResults'][studyID]['reportedTrait'], trait, jsonObject['studyResults'][studyID]['citation']]
+
+            if (first) {
+                first = false
+                sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
+                if (isCondensed) {
+                    resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
+                }
+                else {
+                    resultsString = headerInit.join("\t")
+                }
+            }
+
+            for (var k = 0; k < sampleKeys.length; k++) {
+                sample = sampleKeys[k]
+                oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][sample]['oddsRatio']
+                if (isCondensed) {
+                    lineInfo.push(oddsRatio)
+                }
+                else {
+                    protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['protectiveVariants']
+                    riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['riskVariants']
+                    // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
+                    unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['unmatchedVariants']
+                    // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
+                    clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][sample]['clumpedVariants']
+
+                    // set the arrays to "." if they are empty, otherwise join them on bar ("|")
+                    protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
+                    riskSnps = (riskSnps.length == 0) ? "." : riskSnps.join("|")
+                    unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
+                    clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
+
+                    lineResult = `${sample}\t${lineInfo.join('\t')}\t${oddsRatio}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
+                    resultsString = resultsString.concat("\n", lineResult)
+                }
+            }
+            if (isCondensed) {
+                resultsString = resultsString + "\n" + lineInfo.join("\t")
+            }
+        }
+    }
+
+    // console.log(resultsString)
+    return resultsString;
 }
 
 function changeFormat() {
-    // if (!sessionStorage.getItem("riskResults")) {
-    //     return
-    // }
+    var formatDropdown = document.getElementById("fileType");
+    var format = formatDropdown.options[formatDropdown.selectedIndex].value;
 
-    // var data = sessionStorage.getItem("riskResults");
-    // setResultOutput(data);
+    if (format == 'json') {
+        $('#fileFormat option[value=full]').prop('selected', true);
+        document.getElementById("fileFormat").disabled = true;
+    }
+    else {
+        document.getElementById("fileFormat").disabled = false;
+    }
+
     if (!resultJSON) {
         return;
     }
@@ -488,29 +607,23 @@ function changeFormat() {
     $('#response').html(outputVal);
 }
 
-function getResultOutput(data) {
-    if (data == undefined || data == "") {
+function getResultOutput(jsonObject) {
+    if (jsonObject == undefined || jsonObject == "") {
         return "";
     }
     else {
-        var jsonObject = ""
-        //if the data string isn't in JSON format, just return the string, otherwise format the data accordingly
-        try {
-            jsonObject = JSON.parse(data);
-        } catch (e) {
-            return data;
-        }
         
         var outputVal = "";
         var formatDropdown = document.getElementById("fileType");
         var format = formatDropdown.options[formatDropdown.selectedIndex].value;
 
-        if (format === "text")
-            outputVal += formatText(jsonObject);
-        else if (format === "csv")
-            outputVal += formatCSV(jsonObject);
+        var fileFormatEle = document.getElementById('fileFormat');
+        var isCondensed = fileFormatEle.options[fileFormatEle.selectedIndex].value == 'condensed' ? true : false
+
+        if (format === "tsv")
+            outputVal += formatTSV(jsonObject, isCondensed);
         else if (format === "json")
-            outputVal += data;
+            outputVal += JSON.stringify(jsonObject);
         else
             outputVal += "Please select a valid format."
         return outputVal;
@@ -518,6 +631,12 @@ function getResultOutput(data) {
 }
 
 function downloadResults() {
+    if (resultJSON == {} && unusedTraitStudyArray.length == 0) {
+        $('#response').html("There are no files to download. Please try the calculator again");
+        return
+    }
+
+    //TODO: update
     document.getElementById("download-bar").style.visibility = "visible";
     //var resultText = document.getElementById("response").value;
     var resultText = getResultOutput(resultJSON);
@@ -526,13 +645,17 @@ function downloadResults() {
     //TODO better name?
     var fileName = "polyscore_" + getRandomInt(100000000);
     var extension = "";
-    if (format === "csv") {
-        extension = ".csv";
+    if (format === "tsv") {
+        extension = ".tsv";
     }
     else {
         extension = ".txt";
     }
-    download(fileName, extension, resultText);
+    if (unusedTraitStudyArray.length != 0) {
+        formatedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+    }
+
+    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formatedUnusedTraitStudyArray]);
 }
 
 function getRandomInt(max) {
@@ -546,9 +669,12 @@ function getRandomInt(max) {
  * @param {*} filename
  * @param {*} text
  */
-function download(filename, extension, text) {
+function download(filenameArray, extension, textArray) {
     var zip = new JSZip();
-    zip.file(filename + extension, text);
+    zip.file(filenameArray[0] + extension, textArray[0]);
+    if (textArray[1].length != 0) {
+        zip.file(filenameArray[1] + ".txt", textArray[1]);
+    }
     zip.generateAsync({
         type: "blob",
         compression: "DEFLATE",
@@ -560,7 +686,7 @@ function download(filename, extension, text) {
     })
         .then(function (content) {
             // see FileSaver.js
-            saveAs(content, filename + ".zip");
+            saveAs(content, filenameArray[0] + ".zip");
             document.getElementById("download-bar").style.visibility = "hidden";
         });
 
@@ -594,30 +720,38 @@ function exampleInput() {
     document.getElementById('fileUploadButton').click();
     var result = null;
     var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open('GET', "sample.vcf", false);
-    xmlhttp.send();
-    if (xmlhttp.status == 200) {
-        result = xmlhttp.responseText;
+    xmlhttp.open('GET', "sample.vcf");
+    var errorLoading = function(pe) {
+        alert("Error loading the example file. Please try again")
     }
-    var parts = [
-        new Blob([result], { type: 'text/plain' }),
-        new Uint16Array([33])
-    ];
-
-    // Construct a file
-    var file = new File(parts, 'example.vcf', {
-        lastModified: new Date(0), // optional - default = now
-        type: "overide/mimetype" // optional - default = ''
-    });
-    document.getElementById("files").files = new FileListItem(file);
-    var textInput = document.getElementById('input');
-    //print the file's contents into the input box
-    textInput.value = (result);
-    //print the file's contents into an invisible storage box
-    document.getElementById('savedVCFInput').value = (result);
-    textInput.setAttribute("wrap", "soft");
-    //removes file information text if a file was uploaded previously
-    document.getElementById('list').innerHTML = ""
+    xmlhttp.onload = function(pe) {
+        if (xmlhttp.status == 200) {
+            result = xmlhttp.responseText;
+        }
+        var parts = [
+            new Blob([result], { type: 'text/plain' }),
+            new Uint16Array([33])
+        ];
+    
+        // Construct a file
+        var file = new File(parts, 'example.vcf', {
+            lastModified: new Date(0), // optional - default = now
+            type: "overide/mimetype" // optional - default = ''
+        });
+        document.getElementById("files").files = new FileListItem(file);
+        var textInput = document.getElementById('input');
+        //print the file's contents into the input box
+        textInput.value = (result);
+        //print the file's contents into an invisible storage box
+        document.getElementById('savedVCFInput').value = (result);
+        textInput.setAttribute("wrap", "soft");
+        //removes file information text if a file was uploaded previously
+        document.getElementById('list').innerHTML = ""
+    }
+    xmlhttp.onabort = errorLoading
+    xmlhttp.onerror = errorLoading
+    xmlhttp.ontimeout = errorLoading
+    xmlhttp.send();
 }
 
 //code run when the 'Text input' button is pressed
