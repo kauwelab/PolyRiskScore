@@ -38,7 +38,7 @@ More CLI examples can be found in the README.md file included in the CLI downloa
 
 ## Citing this work
 
-Please visit the [Cite](https://prs.byu.edu/cite.htm) page of the website for information on how to cite this tool and the GWAS publications used. 
+Please visit the [Cite](https://prs.byu.edu/cite.htm) page of the website for information on how to cite this tool and GWAS publications used. 
 
 ## Acknowledgements
 
