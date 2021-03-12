@@ -12,7 +12,7 @@ Welcome to PRSKB's CLI documentation!
 
 The PRSKB's CLI tool is an extension of the PRSKB web application. It is designed to give more flexability and capability in calculating polygenic risk scores for large datasets. Features include:
 
-* Searching our database for studies and traits
+* Searching the database for studies and traits
 * Printing out available ethnicities to filter by
 * Learning about required and optional parameters for performing calculations
 * Calculating polygenic risk scores
@@ -22,7 +22,7 @@ Quick Start
 
 To download the PRSKB CLI tool, head over to the `PRSKB website download page <https://prs.byu.edu/cli_download.html>`_ or download the whole repository directly from `GitHub <https://github.com/kauwelab/PolyRiskScore>`_.
 
-Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in our database (this needs to be worded better). 
+Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database (this needs to be worded better). 
 
 *NOTE: You MUST have bash and jq for bash, and python3 and the python package PyVCF downloaded.*
 
@@ -37,7 +37,7 @@ Required Parameters Example
 Features
 ========
 
-The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI's interactive menu. The menu includes the options to search our database and to learn more about the parameters involved in risk score calculations. 
+The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI's interactive menu. The menu includes the options to search the database and to learn more about the parameters involved in risk score calculations. 
 To access the menu, run the script without parameters. You will be given the option to see the usage statement or start the interactive menu. 
 
 .. image:: ../../../images/RunCLIwithoutParams.png
@@ -49,7 +49,7 @@ To access the menu, run the script without parameters. You will be given the opt
 Search the Database
 ----------------------
 
-Through the interactive menu, users can search our database for traits or studies. This can be helpful when filtering studies to run the calculator on. 
+Through the interactive menu, users can search the database for traits or studies. This can be helpful when filtering studies to run the calculator on. 
 
 After selecting the menu option to search for studies or traits, you will be prompted to specify if you are searching for studies or traits. You can then enter the search term you wish to use. 
 
@@ -227,13 +227,13 @@ Number Of Processes (-n)
 Calculate Scores
 ----------------
 
-Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in our database for each individual in the input file. Additional parameters will filter studies to be included in the calculation. 
+Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in the database for each individual in the input file. Additional parameters will filter studies to be included in the calculation. 
 
 
 Examples
 ========
 
-Run the calculator on all studies in our database:
+Run the calculator on all studies in the database:
 
 .. code-block:: bash
 
