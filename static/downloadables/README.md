@@ -82,7 +82,8 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 * **-v verbose result file** -- Adding the **-v** parameter will return the output file in a 'verbose' format, which includes a line for each sample/study/trait combination. Additional columns are added that display lists of protective variants, risk variants, variants that are present but do not include the risk allele, and variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations. *NOTE: This only applies to TSV output files. JSON output files are always 'verbose'.*
 * **-g defaultSex** -- This parameter will set the default sex for the samples in the input file. Though a rare occurence, some studies have duplicates of the same SNP that differ by which biological sex the p-value is associated with. You can indicate which sex you would like SNPs to select when both options (M/F) are present. The system default is Female."
 * **-s stepNumber** -- The calculator can be run in two steps. The first step deals with downloading necessary information for calculations from our server. The second step is responsible for performing the actual calculations and does not require an internet connection. Running the tool without a specified step number will run both steps sequentially. 
-* **-n numberOfSubprocesses** -- @Liz add despcription
+* **-n numberOfSubprocesses** -- The calculations for each trait/study can be run using multiprocessing. Users can designate the number of subprocesses used by the multiprocessing module. If no value is given, all available cores will be used.
+
 
 ## Examples
 
@@ -172,7 +173,7 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 1. **runPrsCLI.sh** - Bash script that calls the appropriate python scripts. Also holds the tool's menu, accessed by running the tool without any parameters. This is the only script that the user will directly run.
 2. **connect_to_server.py** - Python script that connects to the PRSKB database to download the correct association and linkage-disequilibrium clump information for risk score calculations. This script requires an internet connection to run.
 3. **grep_file.py** - Creates a filtered input file using the input file given and the requested parameters. This filtered file will only retain lines from the given input file that contain SNPs included in the association data for calculations.
-4. **parse_associations.py** - @Liz add despcription
+4. **parse_associations.py** - Python script that parses through the filtered input file, and for each study/trait organizes the data necessary for PRS calculations, which is then passed to the calculate_score.py script.
 5. **calculate_score.py** - Calculates the risk scores for each study/trait combination using the data passed from the parse_associations.py and prints the results to the specified output file.
 
 ## .workingFiles Directory
@@ -202,16 +203,22 @@ Clumping files hold pre-computed linkage disequilibrium clump numbers for SNPs d
 
 ### Clump Number Dictionary Files
 
-In addition to the [Clumping Files](#clumping-files) above, clump number dictionary files are created in the grep_file.py script as part of step 2. @LIZ fill out this section
+In addition to the [Clumping Files](#clumping-files) above, clump number dictionary files are created in the grep_file.py script as part of step 2. The clump number dicionaries help speed up the calculation process by informing the tool which variants are in an linkage disequilibrium region to themselves.
 
-* **clumpNumDict_{refGen}.txt** --
-* **clumpNumDict_{refGen}_{ahash}.txt** --
+* **clumpNumDict_{refGen}.txt** -- This clump number dictionary is created when no filters are supplied. The dictionary keys are made up of numbers representing linkage disequilibrium regions. The value for each clump number key is a list of SNPs that reside in that LD region. The clump number dictionary is specific to the reference genome (refGen) that matches the input file.
+* **clumpNumDict_{refGen}_{ahash}.txt** -- This clump number dictionary is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
 
 ### Filtered Files
 
-Filtered files are created during step 2. @LIZ fill out this section
+Filtered files are created in order to speed up the calculation process. In the grep_file.py script as part of step 2, the input VCF or TXT file is filtered so that only SNPs that are present in the designated studies are maintained in a new temporary file. This file is named as follows:
 
-* **filteredInput_{uniq}.txt** -- 
+* **filteredInput_{uniq}.txt** -- where 'uniq' is a uniqe timestamp for the particular user. 
+
+For each study/trait, we create an additional temporary file that includes only SNPs from the above file that are included in the study/trait. This file is created in the parse_associations.py script in step 2 and is named as follows:
+
+* **{t}_{s}_{uniq}.txt** -- where 't' referes to the trait, 's' refers to the study, and 'uniq' is a uniqe timestamp for the particular user. 
+
+Each filtered file is removed before the program finishes.
 
 
 
