@@ -20,11 +20,11 @@ The PRSKB's CLI tool is an extension of the PRSKB web application. It is designe
 Quick Start
 -----------
 
-To download the PRSKB CLI tool, head over to the `PRSKB website download page <https://prs.byu.edu/cli_download.html>`_ or download the whole repository directly from `GitHub <https://github.com/louisadayton/PolyRiskScore>`_.
+To download the PRSKB CLI tool, head over to the `PRSKB website download page <https://prs.byu.edu/cli_download.html>`_ or download the whole repository directly from `GitHub <https://github.com/kauwelab/PolyRiskScore>`_.
 
 Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in our database (this needs to be worded better). 
 
-NOTE: You MUST have bash and jq for bash, and python3 and the python package PyVCF downloaded.
+*NOTE: You MUST have bash and jq for bash, and python3 and the python package PyVCF downloaded.*
 
 Required Parameters Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -40,8 +40,11 @@ Features
 The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI's interactive menu. The menu includes the options to search our database and to learn more about the parameters involved in risk score calculations. 
 To access the menu, run the script without parameters. You will be given the option to see the usage statement or start the interactive menu. 
 
-.. image:: ../../../images/commandPrompt1.png
-  :alt: Placeholder Image
+.. image:: ../../../images/RunCLIwithoutParams.png
+  :alt: CLI tool run without parameters
+
+.. image:: ../../../images/RunMenu.png
+  :alt: CLI menu screen shot
 
 Search the Database
 ----------------------
@@ -68,10 +71,8 @@ Learn about Parameters
 
 The menu also has an option for learning about the parameters involved in filtering studies and calculating scores. 
 
-.. image:: ../../../images/commandPrompt1.png
-  :alt: Placeholder Image
-
-(insert picture of params menu?)
+.. image:: ../../../images/LearnAboutParams.png
+  :alt: Screen shot of Parameters menu
 
 Required Parameters
 ^^^^^^^^^^^^^^^^^^^
@@ -213,6 +214,10 @@ Number Of Processes (-n)
 
 @Liz, write this section
 
+.. code-block:: bash
+
+   -n 4
+
 
 Calculate Scores
 ----------------
@@ -284,7 +289,7 @@ Full
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Citation | Reported Trait | Traits(s) | Risk Score | Protective Alleles | Risk Alleles | Neutral Alleles
+Sample | Study ID | Citation | Reported Trait | Traits(s) | Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
