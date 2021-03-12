@@ -1,7 +1,5 @@
 var resultJSON = "";
 var unusedTraitStudyArray = [];
-//TODO gzip and zip still need work
-var validExtensions = ["vcf", "gzip", "zip"]
 var traitObjects = []
 var studyObjects = [] //holds the study object so that their additional data (ethnicity, cohort, ect) can be accessed
 var traitsList = []
@@ -316,9 +314,13 @@ var calculatePolyScore = async () => {
         }
         else {
             var extension = vcfFile.name.split(".").pop();
-            if (!validExtensions.includes(extension.toLowerCase())) {
+            if (!extension.toLowerCase() != "vcf") {
                 //if here, the user uploded a file with an invalid format
-                updateResultBoxAndStoredValue("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+                updateResultBoxAndStoredValue("Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
+                                                "Please note that the web version of PRSKB does not support zipped files,\n"+ 
+                                                "but that the command line interface does. It is available for download\n" +
+                                                "above under the \"Download\" tab or at https://prs.byu.edu/cli_download.html");
+                                                
                 return;
             }
             ClientCalculateScore(vcfFile, associationData, clumpsData, pValue, true);
