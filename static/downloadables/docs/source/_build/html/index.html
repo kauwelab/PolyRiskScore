@@ -121,9 +121,9 @@ To access the menu, run the script without parameters. You will be given the opt
 </div>
 </div>
 </div>
-<div class="section" id="optional-parameters">
-<h3>Optional Parameters<a class="headerlink" href="#optional-parameters" title="Permalink to this headline">¶</a></h3>
-<p>When specifying more than one, add the identifying flag in front of every _____ specified.</p>
+<div class="section" id="optional-filtering-parameters">
+<h3>Optional Filtering Parameters<a class="headerlink" href="#optional-filtering-parameters" title="Permalink to this headline">¶</a></h3>
+<p>To run the PRSKB CLI calculator on a more specific set of studies, optional filtering parameters can be added. When specifying more than one, add the identifying flag in front of every filter specified.</p>
 <div class="section" id="traits-t">
 <h4>Traits (-t)<a class="headerlink" href="#traits-t" title="Permalink to this headline">¶</a></h4>
 <p>Specific traits to run the calculator on.</p>
@@ -157,6 +157,10 @@ To access the menu, run the script without parameters. You will be given the opt
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="additonal-optional-parameters">
+<h3>Additonal Optional Parameters<a class="headerlink" href="#additonal-optional-parameters" title="Permalink to this headline">¶</a></h3>
+<p>These additional parameters manage calculation details and may only be specified once.</p>
 <div class="section" id="verbose-v">
 <h4>Verbose (-v)<a class="headerlink" href="#verbose-v" title="Permalink to this headline">¶</a></h4>
 <p>Creates a more detailed TSV result file.
@@ -173,7 +177,7 @@ The verbose output file will include the following for each corresponding sample
 <p>If the output file is in TSV format and this parameter is not included, the default TSV result
 file will include the study ID and the corresponding polygenic risk scores for each sample.
 If the output file is in JSON format, the results will, by default, be in verbose format.</p>
-<p>NOTE: There is no condensed version of JSON output.</p>
+<p><em>NOTE: There is no condensed version of JSON output.</em></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-v
 </pre></div>
 </div>
@@ -189,7 +193,7 @@ to select when both options (M/F) are present. The system default is Female.</p>
 </div>
 <div class="section" id="step-number-s">
 <h4>Step Number (-s)<a class="headerlink" href="#step-number-s" title="Permalink to this headline">¶</a></h4>
-<p>Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter. NOTE: you may only specify this once</p>
+<p>Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter.</p>
 <p>Step 1 deals with downloading data from the server for use in calculations. This step requires internet access.</p>
 <p>Step 2 deals with the actual calculation of polygenic risk scores. This step does not require internet access but does need to have access to the files that were downloaded in step 1.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-s <span class="m">1</span>

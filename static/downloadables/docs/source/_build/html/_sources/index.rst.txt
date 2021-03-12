@@ -123,10 +123,10 @@ The super population of samples in the input file. These are the five super popu
 
    -p EUR
 
-Optional Parameters
-^^^^^^^^^^^^^^^^^^^
+Optional Filtering Parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When specifying more than one, add the identifying flag in front of every _____ specified.
+To run the PRSKB CLI calculator on a more specific set of studies, optional filtering parameters can be added. When specifying more than one, add the identifying flag in front of every filter specified. 
 
 Traits (-t)
 """""""""""
@@ -164,6 +164,11 @@ Filters studies by the ethnicity of their sample population.
 
    -e European -e "East Asian"
 
+Additonal Optional Parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These additional parameters manage calculation details and may only be specified once.
+
 Verbose (-v)
 """""""""""""
 Creates a more detailed TSV result file. 
@@ -181,7 +186,7 @@ If the output file is in TSV format and this parameter is not included, the defa
 file will include the study ID and the corresponding polygenic risk scores for each sample.
 If the output file is in JSON format, the results will, by default, be in verbose format.
 
-NOTE: There is no condensed version of JSON output.
+*NOTE: There is no condensed version of JSON output.*
 
 .. code-block:: bash
 
@@ -199,7 +204,7 @@ to select when both options (M/F) are present. The system default is Female.
 
 Step Number (-s)
 """"""""""""""""
-Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter. NOTE: you may only specify this once
+Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter.
 
 Step 1 deals with downloading data from the server for use in calculations. This step requires internet access.
 
