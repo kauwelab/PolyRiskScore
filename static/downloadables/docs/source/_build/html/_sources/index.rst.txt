@@ -53,8 +53,8 @@ Through the interactive menu, users can search the database for traits or studie
 
 After selecting the menu option to search for studies or traits, you will be prompted to specify if you are searching for studies or traits. You can then enter the search term you wish to use. 
 
-.. image:: ../../../images/commandPrompt1.png
-  :alt: Placeholder Image
+.. image:: ../../../images/SearchTraits.png
+  :alt: Screenshot example for searching traits about teeth
 
 When the search is complete, the results will be outputted to the console, and you will be returned to the menu. 
 
@@ -63,8 +63,8 @@ Display Ethnicities
 
 The menu has an option for displaying the available ethnicities to filter studies by.
 
-.. image:: ../../../images/commandPrompt1.png
-  :alt: Placeholder Image
+.. image:: ../../../images/displayEthnicities.png
+  :alt: Screenshot showing displayed ethnicities
 
 Learn about Parameters 
 ----------------------
