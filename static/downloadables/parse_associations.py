@@ -446,7 +446,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         num_processes = None
     else:
         num_processes = int(num_processes)
-    print(num_processes)
     
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
@@ -493,6 +492,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         else: # verbose and vcf input
             header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)
+        cs.printUnusedTraitStudyPairs(None, None, outputFilePath, True)
 
     # we create params for each study so that we can run them on separate processes
     for keyString in studySnpsDict:
