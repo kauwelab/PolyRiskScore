@@ -9,7 +9,7 @@ The PRSKB website offers users the ability to calculate polygenic risk scores ac
 Website Link: [https://prs.byu.edu](https://prs.byu.edu)
 
 ### Calculate
-The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across 2183 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, default biological sex, p-value cutoff, and selected studies polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file. 
+The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across more than 2100 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, default biological sex, p-value cutoff, and selected studies polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file. 
 
 ### Cite
 The Cite page of the PRSKB website includes a link to the published paper, information on citing the PRSKB, and the ability to search the database of GWAS studies procured from the [GWAS Catalog](https://www.ebi.ac.uk/gwas).

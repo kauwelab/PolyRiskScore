@@ -24,7 +24,7 @@ To download the PRSKB CLI tool, head over to the `PRSKB website download page <h
 
 Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database (this needs to be worded better). 
 
-*NOTE: You MUST have bash and jq for bash, and python3 and the python package PyVCF downloaded.*
+*NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF Python module installed.*
 
 Required Parameters Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
