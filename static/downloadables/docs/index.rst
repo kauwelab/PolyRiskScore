@@ -56,7 +56,7 @@ After selecting the menu option to search for studies or traits, you will be pro
 .. image:: ../../../images/SearchTraits.png
   :alt: Screenshot example for searching traits about teeth
 
-When the search is complete, the results will be outputted to the console, and you will be returned to the menu. 
+When the search is complete, the results will be printed to the console, and you will be returned to the menu. 
 
 Display Ethnicities
 --------------------
@@ -167,7 +167,7 @@ Filters studies by the ethnicity of their sample population.
 Additonal Optional Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-These additional parameters manage calculation details and may only be specified once.
+These additional parameters manage calculation details and may only be specified once per calculation.
 
 Verbose (-v)
 """""""""""""
@@ -245,13 +245,13 @@ Run the calculator on all studies about the trait 'acne':
 
    ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS -t acne 
 
-Run the calculator on all high impact studies with samples that are of european descent:
+Run the calculator on all high impact studies with samples that are of European descent:
 
 .. code-block:: bash
 
    ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p AMR -k HI -e european 
 
-Run the calculator on the study with studyID GCST004410:
+Run the calculator on the study with study ID GCST004410:
 
 .. code-block:: bash
 

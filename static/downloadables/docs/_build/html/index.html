@@ -65,7 +65,7 @@ To access the menu, run the script without parameters. You will be given the opt
 <p>Through the interactive menu, users can search the database for traits or studies. This can be helpful when filtering studies to run the calculator on.</p>
 <p>After selecting the menu option to search for studies or traits, you will be prompted to specify if you are searching for studies or traits. You can then enter the search term you wish to use.</p>
 <img alt="Screenshot example for searching traits about teeth" src="../../../images/SearchTraits.png" />
-<p>When the search is complete, the results will be outputted to the console, and you will be returned to the menu.</p>
+<p>When the search is complete, the results will be printed to the console, and you will be returned to the menu.</p>
 </div>
 <div class="section" id="display-ethnicities">
 <h2>Display Ethnicities<a class="headerlink" href="#display-ethnicities" title="Permalink to this headline">¶</a></h2>
@@ -160,7 +160,7 @@ To access the menu, run the script without parameters. You will be given the opt
 </div>
 <div class="section" id="additonal-optional-parameters">
 <h3>Additonal Optional Parameters<a class="headerlink" href="#additonal-optional-parameters" title="Permalink to this headline">¶</a></h3>
-<p>These additional parameters manage calculation details and may only be specified once.</p>
+<p>These additional parameters manage calculation details and may only be specified once per calculation.</p>
 <div class="section" id="verbose-v">
 <h4>Verbose (-v)<a class="headerlink" href="#verbose-v" title="Permalink to this headline">¶</a></h4>
 <p>Creates a more detailed TSV result file.
@@ -224,11 +224,11 @@ to select when both options (M/F) are present. The system default is Female.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS -t acne
 </pre></div>
 </div>
-<p>Run the calculator on all high impact studies with samples that are of european descent:</p>
+<p>Run the calculator on all high impact studies with samples that are of European descent:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p AMR -k HI -e european
 </pre></div>
 </div>
-<p>Run the calculator on the study with studyID GCST004410:</p>
+<p>Run the calculator on the study with study ID GCST004410:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p EUR -i GCST004410
 </pre></div>
 </div>
