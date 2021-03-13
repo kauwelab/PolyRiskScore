@@ -207,8 +207,8 @@ var calculatePolyScore = async () => {
     var vcfFile = document.getElementById("files").files[0];
     var refGenElement = document.getElementById("refGenome");
     var refGen = refGenElement.options[refGenElement.selectedIndex].value
-    var ethElement = document.getElementById("LD-ethnicitySelect");
-    var superPop = ethElement.options[ethElement.selectedIndex].value
+    var superPopElement = document.getElementById("superPopSelect");
+    var superPop = superPopElement.options[superPopElement.selectedIndex].value
     var sexElement = document.getElementById("sex");
     var sex = sexElement.options[sexElement.selectedIndex].value
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
