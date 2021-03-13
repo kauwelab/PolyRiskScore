@@ -353,7 +353,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         if os.path.exists(tempFilePath):
             vcf_reader = None
             os.remove(tempFilePath)
-        return sample_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder
+        return sample_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder, snpCount
     else:
         unusedTraitStudy = False
 
