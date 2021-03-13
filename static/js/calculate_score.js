@@ -314,7 +314,7 @@ var calculatePolyScore = async () => {
         }
         else {
             var extension = vcfFile.name.split(".").pop();
-            if (!extension.toLowerCase() != "vcf") {
+            if (extension.toLowerCase() != "vcf") {
                 //if here, the user uploded a file with an invalid format
                 updateResultBoxAndStoredValue("Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
                                                 "Please note that the web version of PRSKB does not support zipped files,\n"+ 
@@ -654,10 +654,13 @@ function downloadResults() {
         extension = ".txt";
     }
     if (unusedTraitStudyArray.length != 0) {
-        formatedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+        formattedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+    }
+    else {
+        formattedUnusedTraitStudyArray = null
     }
 
-    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formatedUnusedTraitStudyArray]);
+    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formattedUnusedTraitStudyArray]);
 }
 
 function getRandomInt(max) {
@@ -674,7 +677,7 @@ function getRandomInt(max) {
 function download(filenameArray, extension, textArray) {
     var zip = new JSZip();
     zip.file(filenameArray[0] + extension, textArray[0]);
-    if (textArray[1].length != 0) {
+    if (textArray[1] != null && textArray[1].length != 0) {
         zip.file(filenameArray[1] + ".txt", textArray[1]);
     }
     zip.generateAsync({
