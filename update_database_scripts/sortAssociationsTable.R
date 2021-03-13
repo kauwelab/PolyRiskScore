@@ -27,3 +27,5 @@ associationsTibble <- arrange(associationsTibble, trait, citation, snp) %>%
   tibble::rowid_to_column("id")
 
 write_tsv(associationsTibble, associationTablePath, append = FALSE)
+
+print(paste(associationTablePath, "sorted"))
