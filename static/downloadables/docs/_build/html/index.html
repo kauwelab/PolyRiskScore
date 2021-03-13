@@ -5,14 +5,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome to PRSKB’s CLI documentation! &#8212; PRSKB CLI  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <title>Welcome to PRSKB’s CLI documentation!</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -37,17 +36,19 @@
 </div>
 <p>The PRSKB’s CLI tool is an extension of the PRSKB web application. It is designed to give more flexability and capability in calculating polygenic risk scores for large datasets. Features include:</p>
 <ul class="simple">
-<li><p>Searching our database for studies and traits</p></li>
+<li><p>Searching the database for studies and traits</p></li>
+<li><p>Printing out available ethnicities to filter by</p></li>
 <li><p>Learning about required and optional parameters for performing calculations</p></li>
 <li><p>Calculating polygenic risk scores</p></li>
 </ul>
 <div class="section" id="quick-start">
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
-<p>To download the PRSKB CLI tool, head over to the <a class="reference external" href="https://prs.byu.edu/cli_download.html">PRSKB website download page</a> or download the files directly from <a class="reference external" href="https://github.com/louisadayton/PolyRiskScore">GitHub</a>.</p>
-<p>Given the required parameters, the tool will calculate risk scores for each individual sample for each study in our database (this needs to be worded better).</p>
+<p>To download the PRSKB CLI tool, head over to the <a class="reference external" href="https://prs.byu.edu/cli_download.html">PRSKB website download page</a> or download the whole repository directly from <a class="reference external" href="https://github.com/kauwelab/PolyRiskScore">GitHub</a>.</p>
+<p>Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database (this needs to be worded better).</p>
+<p><em>NOTE: You MUST have bash and jq for bash, and python3 and the python package PyVCF downloaded.</em></p>
 <div class="section" id="required-parameters-example">
 <h3>Required Parameters Example<a class="headerlink" href="#required-parameters-example" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c <span class="m">0</span>.05 -r hg19 -p EUR
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.05 -r hg19 -p EUR
 </pre></div>
 </div>
 </div>
@@ -55,20 +56,26 @@
 </div>
 <div class="section" id="features">
 <h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
-<p>The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI’s interactive menu. The menu includes the options to search our database and to learn more about the parameters involved in risk score calculations.
+<p>The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI’s interactive menu. The menu includes the options to search the database and to learn more about the parameters involved in risk score calculations.
 To access the menu, run the script without parameters. You will be given the option to see the usage statement or start the interactive menu.</p>
-<p>(Insert picture here)</p>
+<img alt="CLI tool run without parameters" src="../../../images/RunCLIwithoutParams.png" />
+<img alt="CLI menu screen shot" src="../../../images/RunMenu.png" />
 <div class="section" id="search-the-database">
 <h2>Search the Database<a class="headerlink" href="#search-the-database" title="Permalink to this headline">¶</a></h2>
-<p>Through the interactive menu, users can search our database for traits or studies. This can be helpful when filtering studies to run the calculator on.</p>
+<p>Through the interactive menu, users can search the database for traits or studies. This can be helpful when filtering studies to run the calculator on.</p>
 <p>After selecting the menu option to search for studies or traits, you will be prompted to specify if you are searching for studies or traits. You can then enter the search term you wish to use.</p>
-<p>(insert picture here)</p>
+<img alt="Screenshot example for searching traits about teeth" src="../../../images/SearchTraits.png" />
 <p>When the search is complete, the results will be outputted to the console, and you will be returned to the menu.</p>
+</div>
+<div class="section" id="display-ethnicities">
+<h2>Display Ethnicities<a class="headerlink" href="#display-ethnicities" title="Permalink to this headline">¶</a></h2>
+<p>The menu has an option for displaying the available ethnicities to filter studies by.</p>
+<img alt="Screenshot showing displayed ethnicities" src="../../../images/displayEthnicities.png" />
 </div>
 <div class="section" id="learn-about-parameters">
 <h2>Learn about Parameters<a class="headerlink" href="#learn-about-parameters" title="Permalink to this headline">¶</a></h2>
 <p>The menu also has an option for learning about the parameters involved in filtering studies and calculating scores.</p>
-<p>(insert picture of params menu?)</p>
+<img alt="Screen shot of Parameters menu" src="../../../images/LearnAboutParams.png" />
 <div class="section" id="required-parameters">
 <h3>Required Parameters<a class="headerlink" href="#required-parameters" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="file-path-f">
@@ -80,8 +87,8 @@ To access the menu, run the script without parameters. You will be given the opt
 </div>
 <div class="section" id="output-file-o">
 <h4>Output File (-o)<a class="headerlink" href="#output-file-o" title="Permalink to this headline">¶</a></h4>
-<p>The path to output file. Can be either a csv or a json. (TODO somewhere we need to add the option for either full or condesnded output)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-o path/to/file/output.csv
+<p>The path to output file. Can be either a tsv or a json.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-o path/to/file/output.tsv
 </pre></div>
 </div>
 </div>
@@ -114,13 +121,13 @@ To access the menu, run the script without parameters. You will be given the opt
 </div>
 </div>
 </div>
-<div class="section" id="optional-parameters">
-<h3>Optional Parameters<a class="headerlink" href="#optional-parameters" title="Permalink to this headline">¶</a></h3>
-<p>When specifying more than one, add the identifying flag in front of every _____ specified.</p>
+<div class="section" id="optional-filtering-parameters">
+<h3>Optional Filtering Parameters<a class="headerlink" href="#optional-filtering-parameters" title="Permalink to this headline">¶</a></h3>
+<p>To run the PRSKB CLI calculator on a more specific set of studies, optional filtering parameters can be added. When specifying more than one, add the identifying flag in front of every filter specified.</p>
 <div class="section" id="traits-t">
 <h4>Traits (-t)<a class="headerlink" href="#traits-t" title="Permalink to this headline">¶</a></h4>
 <p>Specific traits to run the calculator on.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-t <span class="s2">&quot;alzheimer&#39;s disease&quot;</span> -t acne
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-t <span class="s2">&quot;Alzheimer&#39;s Disease&quot;</span> -t acne
 </pre></div>
 </div>
 </div>
@@ -150,12 +157,53 @@ To access the menu, run the script without parameters. You will be given the opt
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="additonal-optional-parameters">
+<h3>Additonal Optional Parameters<a class="headerlink" href="#additonal-optional-parameters" title="Permalink to this headline">¶</a></h3>
+<p>These additional parameters manage calculation details and may only be specified once.</p>
+<div class="section" id="verbose-v">
+<h4>Verbose (-v)<a class="headerlink" href="#verbose-v" title="Permalink to this headline">¶</a></h4>
+<p>Creates a more detailed TSV result file.
+The verbose output file will include the following for each corresponding sample, study, and trait combination:</p>
+<ul class="simple">
+<li><p>reported trait</p></li>
+<li><p>trait</p></li>
+<li><p>polygenic risk score</p></li>
+<li><p>protective variants</p></li>
+<li><p>risk variants</p></li>
+<li><p>variants that are present but do not include the risk allele</p></li>
+<li><p>variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations</p></li>
+</ul>
+<p>If the output file is in TSV format and this parameter is not included, the default TSV result
+file will include the study ID and the corresponding polygenic risk scores for each sample.
+If the output file is in JSON format, the results will, by default, be in verbose format.</p>
+<p><em>NOTE: There is no condensed version of JSON output.</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-v
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-sex-g">
+<h4>Default Sex (-g)<a class="headerlink" href="#default-sex-g" title="Permalink to this headline">¶</a></h4>
+<p>Though a rare occurence, some studies have duplicates of the same snp that differ by which
+biological sex the p-value is associated with. You can indicate which sex you would like snps
+to select when both options (M/F) are present. The system default is Female.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-g f
+</pre></div>
+</div>
+</div>
 <div class="section" id="step-number-s">
 <h4>Step Number (-s)<a class="headerlink" href="#step-number-s" title="Permalink to this headline">¶</a></h4>
-<p>Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter. NOTE: you may only specify this once</p>
+<p>Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter.</p>
 <p>Step 1 deals with downloading data from the server for use in calculations. This step requires internet access.</p>
 <p>Step 2 deals with the actual calculation of polygenic risk scores. This step does not require internet access but does need to have access to the files that were downloaded in step 1.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-s <span class="m">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="number-of-processes-n">
+<h4>Number Of Processes (-n)<a class="headerlink" href="#number-of-processes-n" title="Permalink to this headline">¶</a></h4>
+<p>&#64;Liz, write this section</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-n <span class="m">4</span>
 </pre></div>
 </div>
 </div>
@@ -163,49 +211,57 @@ To access the menu, run the script without parameters. You will be given the opt
 </div>
 <div class="section" id="calculate-scores">
 <h2>Calculate Scores<a class="headerlink" href="#calculate-scores" title="Permalink to this headline">¶</a></h2>
-<p>Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in our database for each individual in the input file. Additional parameters will filter studies to be included in the calculation.</p>
+<p>Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in the database for each individual in the input file. Additional parameters will filter studies to be included in the calculation.</p>
 </div>
 </div>
 <div class="section" id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
-<p>Run the calculator on all studies in our database:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c <span class="m">0</span>.0005 -r hg19 -p SAS
+<p>Run the calculator on all studies in the database:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS
 </pre></div>
 </div>
 <p>Run the calculator on all studies about the trait ‘acne’:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c <span class="m">0</span>.0005 -r hg19 -p SAS -t acne
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS -t acne
 </pre></div>
 </div>
 <p>Run the calculator on all high impact studies with samples that are of european descent:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c <span class="m">0</span>.0005 -r hg19 -p AMR -k HI -e european
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p AMR -k HI -e european
 </pre></div>
 </div>
 <p>Run the calculator on the study with studyID GCST004410:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c <span class="m">0</span>.0005 -r hg19 -p EUR -i GCST004410
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p EUR -i GCST004410
 </pre></div>
 </div>
 <p>Run the calculator on all studies in the database in two steps:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c <span class="m">0</span>.0005 -r hg19 -p SAS -s <span class="m">1</span>
-./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.csv -c <span class="m">0</span>.0005 -r hg19 -p SAS -s <span class="m">2</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS -s <span class="m">1</span>
+./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS -s <span class="m">2</span>
 </pre></div>
 </div>
+<p>Run the calculator on all studies about the trait ‘acne’, filtering studies from the allAssociations_hg19_f.txt working file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS
+./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS -t acne -s <span class="m">2</span>
+</pre></div>
+</div>
+<p>More examples can be found in the CLI download README.md</p>
 </div>
 <div class="section" id="output-results">
 <h1>Output Results<a class="headerlink" href="#output-results" title="Permalink to this headline">¶</a></h1>
-<p>There are two choices for the output results - condensed (default) or full.</p>
+<p>There are two choices for the tsv output results - condensed (default) or full.</p>
 <div class="section" id="condensed">
 <h2>Condensed<a class="headerlink" href="#condensed" title="Permalink to this headline">¶</a></h2>
 <p>This version of the output results contains one row for each study with columns for each sample’s polygenic risk score.</p>
 <p>Study ID | Citation | Reported Trait | Trait(s) | Sample1 | Sample2 | Sample3 | ect.</p>
-<p>(TODO - add code that you run for the example output file)
-(Use the extension to add the output file results)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS
+</pre></div>
+</div>
 </div>
 <div class="section" id="full">
 <h2>Full<a class="headerlink" href="#full" title="Permalink to this headline">¶</a></h2>
 <p>This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation.</p>
-<p>Sample | Study ID | Citation | Reported Trait | Traits(s) | Risk Score | Protective Alleles | Risk Alleles | Neutral Alleles</p>
-<p>(TODO - add code that you run for the example output file)
-(Use the extension to add the output file results)</p>
+<p>Sample | Study ID | Citation | Reported Trait | Traits(s) | Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS -v
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -216,7 +272,7 @@ To access the menu, run the script without parameters. You will be given the opt
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">PRSKB CLI</a></h1>
+<h1 class="logo"><a href="#">Polygenic Risk Score Knowledge Base</a></h1>
 
 
 
@@ -257,10 +313,10 @@ To access the menu, run the script without parameters. You will be given the opt
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020, Madeline Page, Matthew Cloward, Elizabeth Ward, Louisa Dayton, Ed Ringger.
+      &copy;2021, Madeline Page, Elizabeth Ward, Matthew Cloward, Ed Ringger, Louisa Dayton.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
