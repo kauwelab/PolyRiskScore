@@ -70,14 +70,13 @@
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
           <h2 style="margin-top: 2rem;">Calculating a Polygenic Risk Score</h2>
-          <p class="lead"><br>The score is derived by the data collected in<dfn
+          <p class="lead"><br>A polygenic risk score is derived from the data collected in<dfn
               data-info="an observational study of a genome-wide set of genetic variants in a group of individuals that calculates associations between variants and traits.">genome-wide
-              association studies</dfn>The odds ratios from the studies in our database are used as weights for each
-            variant in order to compute a cumulative risk score for each sample.</p>
-          <p class="lead"> The equation we use for calculating polygenic
-            risk scores sums the risk alleles present in the individual as seen here, where a<sub>i</sub> is the number
-            of risk
-            alleles at the i<sup>th</sup> locus, r<sub>i</sub> is the odds ratio at that locus, and c is the exponent
+              association studies</dfn>. The odds ratios from the studies in the PRSKB database are used as weights for each
+            variant in order to compute a trait and study specific cumulative risk score for each sample.</p>
+          <p class="lead"> The equation used by the PRSKB for calculating polygenic
+            risk scores sums the weights of the reported variants present in the individual as seen here, where a<sub>i</sub> is the number
+            of risk alleles at the i<sup>th</sup> locus, r<sub>i</sub> is the odds ratio at that locus, and c is the exponent
             for the p-value cutoff.
             The p-value cutoff is an input for the calculation that is chosen by users.
           </p>
@@ -101,7 +100,7 @@
               <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')">
                 <i id="diseasePredictionPanel_sign" class="fa fa-angle-down" aria-hidden="true"
                   style="margin-right:5px;"></i>
-                <a>Disease prediction</a>
+                <a>Disease Prediction</a>
               </li>
               <div class="" id="diseasePredictionPanel"
                 style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
@@ -113,7 +112,7 @@
               </div>
               <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')">
                 <i id="screeningPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
-                <a>Clinical trial screening</a>
+                <a>Clinical Trial Screening</a>
               </li>
               <div id="screeningPanel"
                 style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
@@ -124,7 +123,7 @@
               </div>
               <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')">
                 <i id="filterPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
-                <a>Additional filtering in genome-wide association studies</a>
+                <a>Additional Filtering in Genome-wide Association Studies</a>
               </li>
               <div id="filterPanel"
                 style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
@@ -135,7 +134,7 @@
               </div>
               <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')">
                 <i id="mdsPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
-                <a>Mendelian Randomization studies</a>
+                <a>Mendelian Randomization Studies</a>
               </li>
               <div id="mdsPanel"
                 style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
@@ -145,7 +144,7 @@
               </div>
               <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')">
                 <i id="inferPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
-                <a>Infer disease status in cohorts lacking phenotypic data</a>
+                <a>Infer Disease Status in Cohorts Lacking Phenotypic Data</a>
               </li>
               <div id="inferPanel"
                 style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
@@ -200,19 +199,19 @@
           <div id="flex-container">
             <div id="box1" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
               <h5>User-Friendly</h5>
-              <p>Until now, the only tools available for calculating polygenic risk scores were on the command line.
+              <p>Until now, the only tools available for calculating polygenic risk scores were on the command-line.
                 Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
             </div>
             <div id="box2" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
               <h5>Centralized Database</h5>
               <p>The PRSKB has a centralized database for all of the genome-wide association studies used
-                to compute the scores. As new studies are performed and added to the NHGRI-EBI GWAS Catalog, they will
-                be added to the PRSKB database.</p>
+                to compute the scores. As new studies are performed and added to the NHGRI-EBI GWAS Catalog, 
+                they are added to the PRSKB database.</p>
             </div>
             <div id="box3" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
-              <h5>UK Bio-Bank</h5>
-              <p>We provide graphs and percentiles of the UK BioBank data after it has been run through our calculator.
-                Each study has its own graph and percentile chart.
+              <h5>UK Biobank</h5>
+              <p>We provide graphs and percentiles of the UK Biobank data after it has been run through our calculator.
+                Each study has its own graph and percentile chart. <!--TODO THIS NEEDS TO BE UPDATED, we don't currently have a percentile chart-->
               </p>
             </div>
           </div>
