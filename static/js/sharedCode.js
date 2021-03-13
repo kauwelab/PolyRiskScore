@@ -52,8 +52,8 @@
                                     variantsInHighLD: []
                                 }
                             }
-                            if (!((trait, studyID, individualName) in indexSnpObj)) {
-                                indexSnpObj[(trait, studyID, individualName)] = {}
+                            if (!([trait, studyID, individualName].join("|") in indexSnpObj)) {
+                                indexSnpObj[[trait, studyID, individualName].join("|")] = {}
                             }
                         }
                     }

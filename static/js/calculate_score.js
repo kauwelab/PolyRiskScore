@@ -656,6 +656,9 @@ function downloadResults() {
     if (unusedTraitStudyArray.length != 0) {
         formatedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
     }
+    else {
+        formatedUnusedTraitStudyArray = null
+    }
 
     download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formatedUnusedTraitStudyArray]);
 }
@@ -674,7 +677,7 @@ function getRandomInt(max) {
 function download(filenameArray, extension, textArray) {
     var zip = new JSZip();
     zip.file(filenameArray[0] + extension, textArray[0]);
-    if (textArray[1].length != 0) {
+    if (textArray[1] != null && textArray[1].length != 0) {
         zip.file(filenameArray[1] + ".txt", textArray[1]);
     }
     zip.generateAsync({
