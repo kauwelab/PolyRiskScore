@@ -177,7 +177,7 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 
 ## .workingFiles Directory
 
-The .workingFiles directory is created by this tool to hold various files necessary to calculate polygenic risk scores. Each file is vital to the calculation process and can cause the tool to quit prematurly if it is not present. 
+The .workingFiles directory is created by this tool to hold various files necessary to calculate polygenic risk scores. Each file is vital to the calculation process and can cause the tool to quit prematurly if it is not present. Details on these files can be found below.
 
 ### Association Files
 
