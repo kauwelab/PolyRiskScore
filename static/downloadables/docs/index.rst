@@ -217,7 +217,7 @@ Step 2 deals with the actual calculation of polygenic risk scores. This step doe
 Number Of Processes (-n)
 """"""""""""""""""""""""
 
-@Liz, write this section
+This parameter determines the number of subprocesses used by the Python multiprocessing module during the calculations. If no value is given by the user, all available cores will be utilized.
 
 .. code-block:: bash
 
