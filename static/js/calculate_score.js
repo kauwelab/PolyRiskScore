@@ -314,7 +314,7 @@ var calculatePolyScore = async () => {
         }
         else {
             var extension = vcfFile.name.split(".").pop();
-            if (!extension.toLowerCase() != "vcf") {
+            if (extension.toLowerCase() != "vcf") {
                 //if here, the user uploded a file with an invalid format
                 updateResultBoxAndStoredValue("Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
                                                 "Please note that the web version of PRSKB does not support zipped files,\n"+ 
