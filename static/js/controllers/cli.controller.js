@@ -30,6 +30,9 @@ exports.download = (req,res) => {
         }, {
             path: path.join(downloadPath, '/runPrsCLI.sh'),
             name: '/runPrsCLI.sh'
+        }, {
+            path: path.join(downloadPath, '/README.md'),
+            name: '/README.md'
         }],
         filename: 'PrskbCLITool.zip'
     });

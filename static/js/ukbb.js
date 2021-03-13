@@ -122,30 +122,8 @@ function displayGraphs() {
                 displayDataObj["arrayOfValues"] = arrayOfValues
 
                 changePlot()
+                displayTable()
 
-                var values = [
-                    ['Min', 'Max', 'Mean', 'Median', 'Range'],
-                    [displayDataObj["min"], displayDataObj["max"], displayDataObj["mean"], displayDataObj["median"], displayDataObj["rng"]]
-                ]
-
-                var tableData = [{
-                    type: 'table',
-                    header: {
-                        values: [["<b>Summary Values</b>"], ["<b>" + displayDataObj["studyID"] + "</b>"]],
-                        align: "center",
-                        line: {width: 1, color: 'black'},
-                        fill: {color: "grey"},
-                        font: {family: "Arial", size: 12, color: "white"}
-                    },
-                    cells: {
-                        values: values,
-                        align: "center",
-                        line: {color: "black", width: 1},
-                        font: {family: "Arial", size: 11, color: ["black"]}
-                    }
-                }]
-
-                Plotly.newPlot(tablePlot, tableData)
                 var studyMetadata = document.getElementById("studymetadata")
                 metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p><p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p><p><b>Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p><p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p><p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p><p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p><br>`
                 studyMetadata.innerHTML = metadatastring
@@ -155,6 +133,32 @@ function displayGraphs() {
             alert(`There was an error loading the studies`);
         }
     })
+}
+
+function displayTable() {
+    var values = [
+        ['Min', 'Max', 'Mean', 'Median', 'Range'],
+        [displayDataObj["min"], displayDataObj["max"], displayDataObj["mean"], displayDataObj["median"], displayDataObj["rng"]]
+    ]
+
+    var tableData = [{
+        type: 'table',
+        header: {
+            values: [["<b>Summary Values</b>"], ["<b>" + displayDataObj["studyID"] + "</b>"]],
+            align: "center",
+            line: {width: 1, color: 'black'},
+            fill: {color: "grey"},
+            font: {family: "Arial", size: 12, color: "white"}
+        },
+        cells: {
+            values: values,
+            align: "center",
+            line: {color: "black", width: 1},
+            font: {family: "Arial", size: 11, color: ["black"]}
+        }
+    }]
+
+    Plotly.newPlot(tablePlot, tableData)
 }
 
 function displayViolinPlot() {
@@ -171,7 +175,7 @@ function displayViolinPlot() {
         line: {
             color: 'black'
         },
-        fillcolor: '#8dd3c7',
+        fillcolor: 'rgba(141, 211, 199, 1)',
         meanline: {
             visible: true
         },
@@ -181,7 +185,8 @@ function displayViolinPlot() {
     var violinLayout= {
         title: "",
         yaxis: {
-            zeroline: false
+            zeroline: false,
+            title: "Polygenic Risk Score"
         }
     }
 
@@ -201,11 +206,19 @@ function displayBoxPlot() {
             line: {
                 color: 'black'
             },
-            fillcolor: '#8dd3c7'
+            fillcolor: 'rgba(141, 211, 199, 1)'
         }
     ];
 
-    Plotly.newPlot(boxPlot, data)
+    var layout= {
+        title: "",
+        yaxis: {
+            zeroline: false,
+            title: "Polygenic Risk Score"
+        }
+    }
+
+    Plotly.newPlot(boxPlot, data, layout)
 }
 
 function displayHistogramPlot() {
@@ -214,32 +227,45 @@ function displayHistogramPlot() {
     var data = [{
         x: displayDataObj["arrayOfValues"],
         type: 'histogram',
-        opacity: 0.6,
         line: {
             color: 'black'
         },
         marker: {
-            color: '#8dd3c7'
+            color: 'rgba(141, 211, 199, 0.6)',
+            line: {
+                color:  "rgba(141, 211, 199, 1)", 
+                width: 1
+            }
         },
         name: displayDataObj['studyID']
     }]
 
-    Plotly.newPlot(histogramPlot, data)
+    var layout= {
+        title: "",
+        xaxis: {
+            title: "Polygenic Risk Score"
+        },
+        yaxis: {
+            title: "Number of Samples"
+        },
+    }
+
+    Plotly.newPlot(histogramPlot, data, layout)
 }
 
 function changePlot() {
-    document.getElementById("plotAndButtons").style.visibility='visible';
+    document.getElementById("plotAndTable").style.visibility='visible';
 
     var plotType = document.querySelector('input[name="plot_type"]:checked').value;
     console.log(plotType)
 
     switch(plotType) {
         case "Histogram":
-          displayHistogramPlot()
-          break;
+            displayHistogramPlot()
+            break;
         case "Box":
-          displayBoxPlot()
-          break;
+            displayBoxPlot()
+            break;
         default:
             displayViolinPlot()
     }
