@@ -76,7 +76,7 @@
                             for (trait in associationData['associations'][key]['traits']) {
                                 for (studyID in associationData['associations'][key]['traits'][trait]) {
                                     printStudyID = studyID
-                                    traitStudySamp = (trait, studyID, individualName)
+                                    traitStudySamp = [trait, studyID, individualName].join("|")
                                     associationObj = associationData['associations'][key]['traits'][trait][studyID]
                                     if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
                                         if (associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
