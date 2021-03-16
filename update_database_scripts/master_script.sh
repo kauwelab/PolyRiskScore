@@ -32,22 +32,6 @@ elif [ ! -z $2 ] && ! [[ "$2" =~ ^[0-9]+$ ]]; then
     echo "'$2' is the number of nodes you specified to download data, but it is not an integer."
     echo "Check the value and try again."
     read -p "Press [Enter] key to quit..."
-# check that if $3, the consoleOutputFolder, is populated, it is a directory that exists
-elif [ ! -z $3 ] && [ ! -d $3 ]; then
-    echo "Directory" \'$3\' "does not exist."
-    read -p "Press [Enter] key to quit..."
-# check that if $4, the associationTableFolderPath, is populated, it is a directory that exists
-elif [ ! -z $4 ] && [ ! -d $4 ]; then
-    echo "Directory" \'$4\' "does not exist."
-    read -p "Press [Enter] key to quit..."
-# check that if $5, the studyTableFolderPath, is populated, it is a directory that exists
-elif [ ! -z $5 ] && [ ! -d $5 ]; then
-    echo "Directory" \'$5\' "does not exist."
-    read -p "Press [Enter] key to quit..."
-# check that if $6, the sampleVCFFolderPath, is populated, it is a directory that exists
-elif [ ! -z $6 ] && [ ! -d $6 ]; then
-    echo "Directory" \'$6\' "does not exist."
-    read -p "Press [Enter] key to quit..."
 else
     password=$1
     numGroups=$2
@@ -60,22 +44,28 @@ else
     chainFileFolderPath="."
 
 #===============Creating Output Paths========================================================
-    # if the default console output folder path doesn't exist, create it
+    # if the console output folder path doesn't exist, create it
     if [ ! -d $consoleOutputFolder ]; then
         mkdir $consoleOutputFolder
-        echo "Default console output folder created at" $consoleOutputFolder
+        echo "Console output folder created at" $consoleOutputFolder
     fi
 
-    # if the default association table folder path doesn't exist, create it
+    # if the association table folder path doesn't exist, create it
     if [ ! -d $associationTableFolderPath ]; then
         mkdir $associationTableFolderPath
-        echo "Default associations table folder created at" $associationTableFolderPath
+        echo "Associations table folder created at" $associationTableFolderPath
     fi
 
-    # if the default study table folder path doesn't exist, create it
+    # if the study table folder path doesn't exist, create it
     if [ ! -d $studyTableFolderPath ]; then
         mkdir $studyTableFolderPath
-        echo "Default associations table folder created at" $studyTableFolderPath
+        echo "Study table folder created at" $studyTableFolderPath
+    fi
+
+    # if the sample VCF folder path doesn't exist, create it
+    if [ ! -d $sampleVCFFolderPath ]; then
+        mkdir $sampleVCFFolderPath
+        echo "Sample VCF folder created at" $sampleVCFFolderPath
     fi
 
 #===============GWAS Database Unpacker======================================================
