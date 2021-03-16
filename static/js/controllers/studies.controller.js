@@ -1,3 +1,4 @@
+const path = require("path");
 const Study = require("../models/study.model.js");
 
 // get all traits from the database, returns a list of traits
