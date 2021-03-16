@@ -52,8 +52,8 @@
                                     variantsInHighLD: []
                                 }
                             }
-                            if (!((trait, studyID, individualName) in indexSnpObj)) {
-                                indexSnpObj[(trait, studyID, individualName)] = {}
+                            if (!([trait, studyID, individualName].join("|") in indexSnpObj)) {
+                                indexSnpObj[[trait, studyID, individualName].join("|")] = {}
                             }
                         }
                     }
@@ -76,7 +76,7 @@
                             for (trait in associationData['associations'][key]['traits']) {
                                 for (studyID in associationData['associations'][key]['traits'][trait]) {
                                     printStudyID = studyID
-                                    traitStudySamp = (trait, studyID, individualName)
+                                    traitStudySamp = [trait, studyID, individualName].join("|")
                                     associationObj = associationData['associations'][key]['traits'][trait][studyID]
                                     if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
                                         if (associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
@@ -104,7 +104,7 @@
                                                     if (associationObj.pValue < indexPvalue) {
                                                         delete resultObj[printStudyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
                                                         resultObj[printStudyID][trait][individualName]['variantsInHighLD'].push(indexClumpSnp)
-                                                        resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                                        resultObj[printStudyID][trait][individualName]['snps'][key] = numAllelesMatch
                                                         indexSnpObj[traitStudySamp][clumpNum] = key
                                                     }
                                                     else {
