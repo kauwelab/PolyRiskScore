@@ -25,6 +25,8 @@ module.exports = app => {
     //searches for study titles or citations containing the given search string
     app.get("/find_studies/:searchStr", studies.findStudies);
 
+    app.get("/download_study_table", studies.downloadStudyTable);
+
     // Retrieves applicable associations given correct query parameters -> see association.model.js
     app.post("/get_associations", associations.getFromTables);
 
