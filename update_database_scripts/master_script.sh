@@ -86,7 +86,7 @@ else
     echo "Creating the study table. This can take an hour or more to complete."
     Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
     wait
-    echo -e "Finished creating the study table. It can be found at" $studyTableFolderPath "\n"
+    
     # delete the raw study data files after the study table has been created
     rm "./rawGWASStudyData.tsv"
     rm "./rawGWASPublications.tsv"

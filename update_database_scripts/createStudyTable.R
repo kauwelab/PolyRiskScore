@@ -259,5 +259,5 @@ if (is_ebi_reachable()) {
   stop("The EBI API is unreachable. Check internet connection and try again.", call.=FALSE)
 }
 
-print(paste0("Finished unpacking the GWAS database. The associations table can be found at", associationTablePath, "\n")
-print(paste0("Total time elapsed: ", format(Sys.time() - start_time)))
+print(paste0("Finished creating the study table. It can be found at", studyTablePath, "\n")
+print(paste0("Time elapsed to create the study table: ", format(Sys.time() - start_time)))
