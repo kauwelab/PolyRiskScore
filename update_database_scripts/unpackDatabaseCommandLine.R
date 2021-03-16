@@ -277,8 +277,8 @@ if (is_ebi_reachable()) {
         associationsTable <- formatAssociationsTable(associationsTable)
         appendToAssociationsTable(associationsTable)
         # reset the associationsTable and keep going
-        associationsTable <- tibble()
-        indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
+        associationsTable <<- tibble()
+        indecesAppendedStr <<- paste(studyIndeciesAppended,collapse=",")
         DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
         studyIndeciesAppended <<- c()
       }
