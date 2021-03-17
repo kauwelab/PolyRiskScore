@@ -7,6 +7,12 @@ var selectedStudies = []
 //if false, the VCF button is selected- used as a toggle to prevent action on double click
 var textButtonSelected = true;
 
+// ensure that they know they need to reupload the file by clearing the input area
+function pageReset() {
+    var textInput = document.getElementById('input');
+    textInput.value = ""
+}
+
 //updates the output box and resultJSON string with the new string
 function updateResultBoxAndStoredValue(str) {
     $('#response').html(str);
