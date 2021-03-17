@@ -172,7 +172,7 @@ function getSelectStudyAssociations(studyList, refGen, sex) {
 
 //called in calculatePolyscore below
 //gets the clumping information using the positions from the associations object
-function getClumpsFromPositions(associationsObj, refGen, superPop) {
+var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
     positions = []
 
     for (key in associationsObj) {
@@ -181,24 +181,46 @@ function getClumpsFromPositions(associationsObj, refGen, superPop) {
         }
     }
 
-    if (positions.length != 0) {
-        return Promise.resolve($.ajax({
-            type: "POST",
-            url: "/ld_clumping_by_pos",
-            data: { superPop: superPop, refGen: refGen, positions: positions },
-            success: async function (data) {
-                return data;
-            },
-            error: function (XMLHttpRequest) {
-                var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-                updateResultBoxAndStoredValue(errMsg)
-                alert(errMsg);
+    posMap = {}
+
+    for (i=0; i < positions.length; i++) {
+        if (positions[i].includes(":")) {
+            position = positions[i]
+            chromPos = position.split(":")
+            if (!(chromPos[0] in posMap)) {
+                posMap[chromPos[0]] = []
             }
-        }));
+            posMap[chromPos[0]].push(position)
+        }
     }
-    else {
-        return {}
+
+    returnedResults = {}
+
+    if (positions.length > 0) {
+        for (chrom in posMap) {
+            returnedResults = Object.assign(await callClumpsEndpoint(superPop, refGen, posMap[chrom]), returnedResults)
+            console.log(returnedResults)
+        }
     }
+
+    return returnedResults
+}
+
+function callClumpsEndpoint(superPop, refGen, positions) {
+    return Promise.resolve($.ajax({
+        type: "POST",
+        url: "/ld_clumping_by_pos",
+        data: { superPop: superPop, refGen: refGen, positions: positions },
+        success: async function (data) {
+            console.log("Got the Data ")
+            return data;
+        },
+        error: function (XMLHttpRequest) {
+            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(errMsg)
+            alert(errMsg);
+        }
+    }));
 }
 
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
