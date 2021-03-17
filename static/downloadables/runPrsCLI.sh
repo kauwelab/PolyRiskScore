@@ -474,7 +474,7 @@ calculatePRS () {
                     exit 1
                 fi;;
 
-	        t)  trait=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]') # convert trait to lower case
+            t)  trait=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]') # convert trait to lower case
                 trait="${trait//$single/$escaped}" # replace single quotes with escaped single quotes
                 trait="${trait//$space/$underscore}"    # replace spaces with underscores
                 trait="${trait//$quote/$empty}" # replace double quotes with nothing
@@ -523,7 +523,7 @@ calculatePRS () {
                 fi
                 processes=$OPTARG
                 # if is not a number, or if it is a number less than 1
-		        if (! [[ $processes =~ ^[0-9]+$ ]]) || ([[ $processes =~ ^[0-9]+$ ]] && [[ $processes -lt 0 ]]); then 
+                if (! [[ $processes =~ ^[0-9]+$ ]]) || ([[ $processes =~ ^[0-9]+$ ]] && [[ $processes -lt 0 ]]); then 
                     echo -e "${LIGHTRED}$processes ${NC}is not a valid input for the number of subprocesses"
                     echo "The number of subprocesses cannot be less than 0"
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -624,10 +624,10 @@ calculatePRS () {
         echo "Calculating prs on $filename"
         FILE=".workingFiles/associations_${fileHash}.txt"
 
-	# filter the input file so that it only includes the lines with variants that match the given filters
+        # filter the input file so that it only includes the lines with variants that match the given filters
         if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
             echo "Filtered input file"
-	    # parse through the filtered input file and calculate scores for each given study
+            # parse through the filtered input file and calculate scores for each given study
             if $pyVer -c "import parse_associations as pa; pa.runParsingAndCalculations('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP', '$processes')"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"

@@ -535,7 +535,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         if num_processes == 0:
             parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp))
 
-
-    if num_processes is None or (num_processes is int and num_processes > 0):
+    if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
             pool.map(parseAndCalculateFiles, paramOpts)
