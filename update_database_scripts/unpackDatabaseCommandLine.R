@@ -264,7 +264,7 @@ if (is_ebi_reachable()) {
   # appends the contents of the associationsTable to the associations table found in the outPath folder
   appendToAssociationsTable <- function(associationsTable) {
     # writes out the data into a TSV at outPath (from argv)
-    write.table(associationsTable, file=file.path(outPath, "associations_table.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE)
+    write.table(associationsTable, file=file.path(outPath, "associations_table.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE, fileEncoding = "native.enc")
   }
   
   # if the current study index is divisible by 10, formats the contents of the associationsTable tibble
