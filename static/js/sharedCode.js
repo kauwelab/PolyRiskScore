@@ -97,7 +97,7 @@
                                         }
                                         if (numAllelesMatch > 0) {
                                             if (clumpsData !== undefined && key in clumpsData) {
-                                                clumpNum = clumpsData[key]
+                                                clumpNum = clumpsData[key]['clumpNum']
                                                 if (clumpNum in indexSnpObj[traitStudySamp]) {
                                                     indexClumpSnp = indexSnpObj[traitStudySamp][clumpNum]
                                                     indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID]['pValue']
