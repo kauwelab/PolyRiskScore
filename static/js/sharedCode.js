@@ -104,7 +104,7 @@
                                                     if (associationObj.pValue < indexPvalue) {
                                                         delete resultObj[printStudyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
                                                         resultObj[printStudyID][trait][individualName]['variantsInHighLD'].push(indexClumpSnp)
-                                                        resultObj[studyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                                        resultObj[printStudyID][trait][individualName]['snps'][key] = numAllelesMatch
                                                         indexSnpObj[traitStudySamp][clumpNum] = key
                                                     }
                                                     else {
