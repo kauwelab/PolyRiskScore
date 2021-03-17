@@ -199,7 +199,6 @@ var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
     if (positions.length > 0) {
         for (chrom in posMap) {
             returnedResults = Object.assign(await callClumpsEndpoint(superPop, refGen, posMap[chrom]), returnedResults)
-            console.log(returnedResults)
         }
     }
 
@@ -212,7 +211,6 @@ function callClumpsEndpoint(superPop, refGen, positions) {
         url: "/ld_clumping_by_pos",
         data: { superPop: superPop, refGen: refGen, positions: positions },
         success: async function (data) {
-            console.log("Got the Data ")
             return data;
         },
         error: function (XMLHttpRequest) {
@@ -287,7 +285,6 @@ var calculatePolyScore = async () => {
         }
 
         var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|]+/);
-        console.log(arrayOfInputtedSnps)
         var snpObjs = new Map();
         for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
             var snpObj;
@@ -608,7 +605,6 @@ function formatTSV(jsonObject, isCondensed) {
         }
     }
 
-    // console.log(resultsString)
     return resultsString;
 }
 
@@ -636,7 +632,6 @@ function getResultOutput(jsonObject) {
         return "";
     }
     else {
-        
         var outputVal = "";
         var formatDropdown = document.getElementById("fileType");
         var format = formatDropdown.options[formatDropdown.selectedIndex].value;
