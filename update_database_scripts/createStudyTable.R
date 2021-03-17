@@ -252,7 +252,7 @@ if (is_ebi_reachable()) {
     }
     studyTable <- arrange(studyTable, trait, citation)
     # write out the study table
-    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE, fileEncoding = "UTF-8")
+    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE, fileEncoding = "native.enc")
   }
 } else {
   is_ebi_reachable(chatty = TRUE)
