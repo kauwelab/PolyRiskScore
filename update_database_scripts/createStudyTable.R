@@ -252,12 +252,12 @@ if (is_ebi_reachable()) {
     }
     studyTable <- arrange(studyTable, trait, citation)
     # write out the study table
-    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE)
+    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE, fileEncoding = "UTF-8")
   }
 } else {
   is_ebi_reachable(chatty = TRUE)
   stop("The EBI API is unreachable. Check internet connection and try again.", call.=FALSE)
 }
 
-print(paste0("Finished creating the study table. It can be found at", studyTablePath, "\n")
+print(paste0("Finished creating the study table. It can be found at", studyTablePath, "\n"))
 print(paste0("Time elapsed to create the study table: ", format(Sys.time() - start_time)))
