@@ -22,7 +22,7 @@ Quick Start
 
 To download the PRSKB CLI tool, head over to the `PRSKB website download page <https://prs.byu.edu/cli_download.html>`_ or download the whole repository directly from `GitHub <https://github.com/kauwelab/PolyRiskScore>`_.
 
-Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database (this needs to be worded better). 
+Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database. 
 
 *NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF Python module installed.*
 
