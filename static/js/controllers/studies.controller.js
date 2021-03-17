@@ -1,3 +1,4 @@
+const path = require("path");
 const Study = require("../models/study.model.js");
 
 // get all traits from the database, returns a list of traits
@@ -169,3 +170,21 @@ exports.findStudies = (req, res) => {
         }
     });
 };
+
+exports.downloadStudyTable = (req, res) => {
+    downloadPath = path.join(__dirname, '../../..', 'tables')
+    var options = {
+        root: downloadPath
+    };
+    var fileName = 'study_table.tsv';
+    res.sendFile(fileName, options, function (err) {
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        }
+    });
+}

@@ -1,7 +1,5 @@
 var resultJSON = "";
 var unusedTraitStudyArray = [];
-//TODO gzip and zip still need work
-var validExtensions = ["vcf", "gzip", "zip"]
 var traitObjects = []
 var studyObjects = [] //holds the study object so that their additional data (ethnicity, cohort, ect) can be accessed
 var traitsList = []
@@ -174,7 +172,7 @@ function getSelectStudyAssociations(studyList, refGen, sex) {
 
 //called in calculatePolyscore below
 //gets the clumping information using the positions from the associations object
-function getClumpsFromPositions(associationsObj, refGen, superPop) {
+var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
     positions = []
 
     for (key in associationsObj) {
@@ -183,24 +181,44 @@ function getClumpsFromPositions(associationsObj, refGen, superPop) {
         }
     }
 
-    if (positions.length != 0) {
-        return Promise.resolve($.ajax({
-            type: "POST",
-            url: "/ld_clumping_by_pos",
-            data: { superPop: superPop, refGen: refGen, positions: positions },
-            success: async function (data) {
-                return data;
-            },
-            error: function (XMLHttpRequest) {
-                var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-                updateResultBoxAndStoredValue(errMsg)
-                alert(errMsg);
+    posMap = {}
+
+    for (i=0; i < positions.length; i++) {
+        if (positions[i].includes(":")) {
+            position = positions[i]
+            chromPos = position.split(":")
+            if (!(chromPos[0] in posMap)) {
+                posMap[chromPos[0]] = []
             }
-        }));
+            posMap[chromPos[0]].push(position)
+        }
     }
-    else {
-        return {}
+
+    returnedResults = {}
+
+    if (positions.length > 0) {
+        for (chrom in posMap) {
+            returnedResults = Object.assign(await callClumpsEndpoint(superPop, refGen, posMap[chrom]), returnedResults)
+        }
     }
+
+    return returnedResults
+}
+
+function callClumpsEndpoint(superPop, refGen, positions) {
+    return Promise.resolve($.ajax({
+        type: "POST",
+        url: "/ld_clumping_by_pos",
+        data: { superPop: superPop, refGen: refGen, positions: positions },
+        success: async function (data) {
+            return data;
+        },
+        error: function (XMLHttpRequest) {
+            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(errMsg)
+            alert(errMsg);
+        }
+    }));
 }
 
 //called when the user clicks the "Caculate Risk Scores" button on the calculation page
@@ -267,7 +285,6 @@ var calculatePolyScore = async () => {
         }
 
         var arrayOfInputtedSnps = textArea.value.split(/[\s|\n|]+/);
-        console.log(arrayOfInputtedSnps)
         var snpObjs = new Map();
         for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
             var snpObj;
@@ -316,9 +333,13 @@ var calculatePolyScore = async () => {
         }
         else {
             var extension = vcfFile.name.split(".").pop();
-            if (!validExtensions.includes(extension.toLowerCase())) {
+            if (extension.toLowerCase() != "vcf") {
                 //if here, the user uploded a file with an invalid format
-                updateResultBoxAndStoredValue("Invalid file format. Check that your file is a vcf, gzip, or zip file and try again.");
+                updateResultBoxAndStoredValue("Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
+                                                "Please note that the web version of PRSKB does not support zipped files,\n"+ 
+                                                "but that the command line interface does. It is available for download\n" +
+                                                "above under the \"Download\" tab or at https://prs.byu.edu/cli_download.html");
+                                                
                 return;
             }
             ClientCalculateScore(vcfFile, associationData, clumpsData, pValue, true);
@@ -584,7 +605,6 @@ function formatTSV(jsonObject, isCondensed) {
         }
     }
 
-    // console.log(resultsString)
     return resultsString;
 }
 
@@ -612,7 +632,6 @@ function getResultOutput(jsonObject) {
         return "";
     }
     else {
-        
         var outputVal = "";
         var formatDropdown = document.getElementById("fileType");
         var format = formatDropdown.options[formatDropdown.selectedIndex].value;
@@ -652,10 +671,13 @@ function downloadResults() {
         extension = ".txt";
     }
     if (unusedTraitStudyArray.length != 0) {
-        formatedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+        formattedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+    }
+    else {
+        formattedUnusedTraitStudyArray = null
     }
 
-    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formatedUnusedTraitStudyArray]);
+    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formattedUnusedTraitStudyArray]);
 }
 
 function getRandomInt(max) {
@@ -672,7 +694,7 @@ function getRandomInt(max) {
 function download(filenameArray, extension, textArray) {
     var zip = new JSZip();
     zip.file(filenameArray[0] + extension, textArray[0]);
-    if (textArray[1].length != 0) {
+    if (textArray[1] != null && textArray[1].length != 0) {
         zip.file(filenameArray[1] + ".txt", textArray[1]);
     }
     zip.generateAsync({

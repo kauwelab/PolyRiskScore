@@ -12,15 +12,15 @@ import csv
 import io
 import os
 
-def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, isRSids, sampleOrder):
+def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sampleOrder):
     if isRSids:
-        txtcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, unusedTraitStudy, trait, study)
+        txtcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, unusedTraitStudy, trait, study, snpCount)
     else:
-        vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, sampleOrder)
+        vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, sampleOrder, snpCount)
     return
 
 
-def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, unusedTraitStudy, trait, studyID):
+def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, unusedTraitStudy, trait, studyID, snpCount):
 
     # if this trait/study had no snps in the input file, print the trait/study to the output list
     if unusedTraitStudy:
@@ -32,7 +32,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
             citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
             reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
             oddsRatios = [] # holds the oddsRatios used for calculation
-            sampSnps = set() # keep track of the viable snps each sample has
             # Output Sets
             protectiveVariants = set()
             riskVariants = set()
@@ -41,6 +40,9 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
                 mark = True
             else:
                 mark = False
+
+            #Add a mark to the studies that have SNPs that aren't present in the input file
+            asterisk = True if len(snpSet) != snpCount else False
 
             for snp in txtObj:
                 # Also iterate through each of the alleles
@@ -52,8 +54,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
                             riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                             oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
                             if allele == riskAllele:
-                                #keep track of how many snps from this study are used to calculate the score for this sample
-                                sampSnps.add(snp)
                                 oddsRatios.append(oddsRatio)
                                 if oddsRatio < 1:
                                     protectiveVariants.add(snp)
@@ -64,7 +64,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
 
             if not isCondensedFormat and not isJson:
                 # add needed markings to scores/studies
-                prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
+                prs, printStudyID = createMarks(oddsRatios, studyID, asterisk, mark)
                 # Grab variant sets
                 protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 # new line to add to tsv file
@@ -74,7 +74,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
                 
             elif isJson:
                 # Add needed markings to scores/studies
-                prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
+                prs, printStudyID = createMarks(oddsRatios, studyID, asterisk, mark)
 
                 json_study_results = {
                     'studyID': printStudyID,
@@ -94,7 +94,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
 
             elif isCondensedFormat:
                 #add necessary study/score markings
-                prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
+                prs, printStudyID = createMarks(oddsRatios, studyID, asterisk, mark)
                 newLine = [printStudyID, citation, reportedTrait, trait, prs]
                 # write new line to tsv file
                 formatTSV(False, newLine, [], outputFile)
@@ -104,7 +104,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
     return
 
 
-def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, sampleOrder):
+def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, sampleOrder, snpCount):
     header = []
 
     # if the trait/study has no snps in the input file, write out the trait/study to the output list of unused traits/studies
@@ -125,7 +125,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
             # check if the study exists in the studyMetaData
             if studyID in tableObjDict['studyIDsToMetaData'].keys():
                 oddsRatios = [] # For storing the oddsRatios used in calculation
-                sampSnps = set() # To keep track of the viable snps for each sample
                 # study info
                 citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
                 reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
@@ -136,6 +135,8 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                 riskVariants = set()
                 # some studies have duplicate snps with varying pvalue annotations. we keep track of that here.
                 mark = True if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() else False
+                # Create a mark for the studies that have SNPs that aren't present in the input file
+                asterisk = True if len(snpSet) != snpCount else False
                 # Loop through each snp associated with this disease/study/sample
                 for rsID in vcfObj[samp]:
                     # check if the snp is in this trait/study
@@ -150,7 +151,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                                 if allele != "":
                                     # check if the risk allele is in the listed alleles
                                     if allele == riskAllele and oddsRatio != 0:
-                                        sampSnps.add(rsID) # add the snp to the list of snps used to calculate the score
                                         oddsRatios.append(oddsRatio) # add the odds ratio to the list of odds ratios used to calculate the score
                                         if oddsRatio < 1:
                                             protectiveVariants.add(rsID)
@@ -162,7 +162,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                 # if the output format is verbose
                 if not isCondensedFormat and not isJson:
                     # add necessary marks to study/score
-                    prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
+                    prs, printStudyID = createMarks(oddsRatios, studyID, asterisk, mark)
                     #grab variant sets
                     protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                     # add new line to tsv file
@@ -171,7 +171,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
 
                 elif isJson:
                     # Add needed markings to score and study
-                    prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
+                    prs, printStudyID = createMarks(oddsRatios, studyID, asterisk, mark)
                     
                     # if this is the first sample for this study/trait combo, add the study information first
                     if samp_count == 1:
@@ -205,7 +205,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neu
                 
                 elif isCondensedFormat:
                     # add needed markings to study/score
-                    prs, printStudyID = createMarks(oddsRatios, studyID, snpSet, sampSnps, mark)
+                    prs, printStudyID = createMarks(oddsRatios, studyID, asterisk, mark)
 
                     # if this is the first sample, initiate the new line with the first four columns
                     if samp_count == 1:
@@ -240,11 +240,11 @@ def formatJson(studyInfo, outputFile):
     return
 
 
-def createMarks(oddsRatios, studyID, snpSet, sampSnps, mark):
+def createMarks(oddsRatios, studyID, asterisk, mark):
     prs = str(getPRSFromArray(oddsRatios))
-    # Add an * to scores that don't include every snp in the study
-    if set(snpSet) != sampSnps and len(sampSnps) != 0:
-        prs = prs + '*'
+    # Add an * to studies that have SNPs not present in the input file
+    if asterisk:
+        studyID = studyID + '*'
     # Add a mark to studies that have duplicate snps with varying pvalue annotations
     if mark is True:
         studyID = studyID + '†'
