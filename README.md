@@ -18,7 +18,7 @@ The Cite page of the PRSKB website includes a link to the published paper, infor
 The Download page houses the link to download the command-line interface tool and additional videos of setting up and running the tool. 
 
 ### UKBB
-\*BLURB HERE\*
+The UKBB page allows users to view polygenic risk score distributions and statistics for 500,000 individuals from the UKBB. Because individual scores have no absolute meaning, this page allows for a very rough contextualization of scores recieved from the Calculate page.
 
 ## Command-Line Interface
 
