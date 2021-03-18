@@ -91,7 +91,6 @@ optUsage () {
                     echo "Creating example VCF and TXT files disabled";;
                 -c)  clumpAssociationDownloadFiles="false"
                     echo "Creating clump and association downloadable files disabled";;
-                #TODO add usage for options
                 *)  echo ""
                     echo "Error: option '$arg' not recognized. Valid options are daosrfuec. Please check your options and try again."
                     optUsage
@@ -236,8 +235,6 @@ optUsage () {
         echo "Performing strand flipping on the associations"
         python3 strandFlipping.py $associationTableFolderPath
         wait
-        #TODO move to inside function
-        echo "Finished the strand flipping"
     fi
 
 #===============Upload Tables to PRSKB Database========================================================
@@ -245,8 +242,6 @@ optUsage () {
         echo "Uploading tables to the PRSKB database."
         python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
         wait
-        #TODO move to inside function
-        echo -e "Finished uploading tables to the PRSKB database.\n"
     fi
 
 #===============Create Sample VCF/TXT=====================================================================
@@ -256,8 +251,6 @@ optUsage () {
         wait 
         python3 create_rsID_file_from_vcf.py "sample" $sampleVCFFolderPath
         wait
-        #TODO move to inside function
-        echo "Finished creating sample vcf"
     fi
 
 #============Create Association and Clumps download files ============================================
@@ -265,8 +258,6 @@ optUsage () {
         echo "Creating Association and Clumps download files"
         python3 createServerAssociAndClumpsFiles.py $password
         wait
-        #TODO move to inside function
-        echo "Finished creating server download association and clumps files"
     fi
 
     read -p "Press [Enter] key to finish..."

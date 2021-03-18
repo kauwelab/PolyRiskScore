@@ -225,7 +225,7 @@ def main():
         createFreshTable(config, "ukbiobank_stats", "ukbiobank_stats", tableColumns)
         addDataToTableCatch(config, studyTableFolderPath, "ukbiobank_stats", "ukbiobank_stats")
 
-    print("Done!")
+    print("Finished uploading tables to the PRSKB database.")
 
 if __name__ == "__main__":
     main()

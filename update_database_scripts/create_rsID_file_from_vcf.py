@@ -101,3 +101,5 @@ for record in vcf_reader:
     print("{0}:{1}".format(snp,alleles), file = sample)
 
 sample.close()
+
+print("Finished creating sample rsID file from VCF")

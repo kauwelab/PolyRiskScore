@@ -67,6 +67,8 @@ def main():
     associFile.write(''.join(content))
     associFile.close()
 
+    print("Finished strand flipping")
+
 
 if __name__ == "__main__":
     main()
