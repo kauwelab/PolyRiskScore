@@ -1,9 +1,7 @@
-from collections import defaultdict
 import parse_associations as pa
 import zipfile
 import tarfile
 import gzip
-import os
 import os.path
 import json
 import vcf

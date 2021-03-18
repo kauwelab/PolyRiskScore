@@ -27,6 +27,7 @@ This folder should contain the following files. If it does not, download the too
 * grep_file.py
 * parse_associations.py
 * calculate_score.py
+* write_to_file.py
 
 ## Running the PRSKB CLI
 
@@ -174,7 +175,8 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 2. **connect_to_server.py** - Python script that connects to the PRSKB database to download the correct association and linkage-disequilibrium clump information for risk score calculations. This script requires an internet connection to run.
 3. **grep_file.py** - Creates a filtered input file using the input file given and the requested parameters. This filtered file will only retain lines from the given input file that contain SNPs included in the association data for calculations.
 4. **parse_associations.py** - Python script that parses through the filtered input file, and for each study/trait organizes the data necessary for PRS calculations, which is then passed to the calculate_score.py script.
-5. **calculate_score.py** - Calculates the risk scores for each study/trait combination using the data passed from the parse_associations.py and prints the results to the specified output file.
+5. **calculate_score.py** - Calculates the risk scores for each study/trait combination using the data passed from the parse_associations.py and returns it to be written to the output file.
+6. **write_to_file.py** - Writes the results to the output file(s).
 
 ## .workingFiles Directory
 
@@ -216,7 +218,7 @@ Filtered files are created in order to speed up the calculation process. In the 
 
 For each study/trait, we create an additional temporary file that includes only SNPs from the above file that are included in the study/trait. This file is created in the parse_associations.py script in step 2 and is named as follows:
 
-* **{t}_{s}_{uniq}.txt** -- where 't' referes to the trait, 's' refers to the study, and 'uniq' is a uniqe timestamp for the particular user. 
+* **{t}_\{s}\_{uniq}.txt** -- where 't' referes to the trait, 's' refers to the study, and 'uniq' is a uniqe timestamp for the particular user. 
 
 Each filtered file is removed before the program finishes.
 

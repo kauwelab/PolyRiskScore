@@ -28,6 +28,9 @@ exports.download = (req,res) => {
             path: path.join(downloadPath, '/calculate_score.py'),
             name: '/calculate_score.py'
         }, {
+            path: path.join(downloadPath, '/write_to_file.py'),
+            name: '/write_to_file.py'
+        }, {
             path: path.join(downloadPath, '/runPrsCLI.sh'),
             name: '/runPrsCLI.sh'
         }, {

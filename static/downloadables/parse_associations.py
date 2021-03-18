@@ -2,6 +2,7 @@ from multiprocessing import Pool
 import json
 import vcf
 import calculate_score as cs
+import write_to_file as wrtfl
 import time
 import sys
 import os
@@ -25,12 +26,12 @@ def parseAndCalculateFiles(params):
 
     if isRSids: 
         txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
-        cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, snpCount, isRSids, None)
+        newLine = cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, snpCount, isRSids, None)
     else:
         vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
-        cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sample_order)
+        newLine = cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sample_order)
 
-    return
+    return newLine
 
 
 def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp):
@@ -470,6 +471,7 @@ def getSamples(inputFilePath, header):
     header.extend(samples)
     return header
 
+
 def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp, num_processes):
     paramOpts = []
     if num_processes == "":
@@ -493,7 +495,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             isCondensedFormat = False
         else:
             isCondensedFormat = True
-
     
     if isJson: #json and verbose
         # we need to run through one iteration here so that we know the first json result has the opening list bracket
@@ -521,8 +522,8 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         else: # verbose and vcf input
             header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
-        cs.formatTSV(True, None, header, outputFilePath)
-        cs.printUnusedTraitStudyPairs(None, None, outputFilePath, True)
+        wrtfl.formatTSV(True, None, header, outputFilePath)
+        wrtfl.printUnusedTraitStudyPairs(None, None, outputFilePath, True)
 
     # we create params for each study so that we can run them on separate processes
     for keyString in studySnpsDict:
@@ -537,4 +538,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
-            pool.map(parseAndCalculateFiles, paramOpts)
+            returnedResults = pool.map(parseAndCalculateFiles, paramOpts)
+            for line in returnedResults:
+                wrtfl.writeToFile(line[0], line[1])
