@@ -19,6 +19,7 @@
 
 #===============Usage======================================================
 usage () { 
+    echo ""
     echo "----Usage----"
     echo "master_script.sh" 
     echo "  [password]"
@@ -34,15 +35,13 @@ usage () {
         [Yy]* ) optUsage;;
         * ) exit;;
     esac
-
-    read -p "Press [Enter] key to quit..."
-    exit 1
 }
 
 # usage statements for different script disabling options (options start with a dash (-))
 # note: these options are not robust (ex: if -a is selected, but not -s and an associations table does not already exist,
 # the program will crash trying to make a new studies table)
 optUsage () {
+    echo ""
     echo "----Options usage----"
     echo "  [-d: disables downloading new raw data]"
     echo "  [-a: disables creating new associations table]"
@@ -93,13 +92,15 @@ optUsage () {
                 -c)  clumpAssociationDownloadFiles="false"
                     echo "Creating clump and association downloadable files disabled";;
                 #TODO add usage for options
-                *)  echo "Error: option '$arg' not recognized. Valid options are daosrfuec. Please check your options and try again."
-                    exit 1;;            
+                *)  echo ""
+                    echo "Error: option '$arg' not recognized. Valid options are daosrfuec. Please check your options and try again."
+                    optUsage
+                    read -p "Press [Enter] key to quit..."
+                    exit 1;;
             esac
         # otherwise parse the argument as a non-option argument based on its position in relation to other
         # non-option arguments
         else
-            echo "$i: $arg"
             if [ $i -eq 1 ]; then
                 password=$arg
             elif [ $i -eq 2 ]; then
@@ -127,11 +128,17 @@ optUsage () {
 
     # if there were to many or not enough non-option arguments
     if [ $i -eq 1 ]; then
+        echo ""
         echo "Too few arguments!"
         usage
+        read -p "Press [Enter] key to quit..."
+        exit 1
     elif [ $i -ge 8 ]; then
+        echo ""
         echo "Too many arguments!"
         usage
+        read -p "Press [Enter] key to quit..."
+        exit 1
     fi
 
     # if the folder locations aren't populated, set them to default values
@@ -142,7 +149,7 @@ optUsage () {
     studyAndPubTSVFolderPath="."
     chainFileFolderPath="."
 
-        #TODO remove
+    #TODO remove
     echo "password: $password"
     echo "numGroups: $numGroups"
     echo "consoleOutputFolder: $consoleOutputFolder"
