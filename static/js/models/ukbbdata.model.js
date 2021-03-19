@@ -116,7 +116,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
 
 Ukbbdata.getSummaryResults = (studyID, trait, result) => {
 
-    sqlStatement = `SELECT studyID, trait, min, max, median, range, mean, geomMean, harmMean, stdev, geomStdev FROM ukbb_summary_data WHERE studyID = ? and trait = ?`
+    sqlStatement = `SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM ukbb_summary_data WHERE studyID = ? and trait = ?`
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -130,7 +130,7 @@ Ukbbdata.getSummaryResults = (studyID, trait, result) => {
 
 Ukbbdata.getFullResults = (studyID, trait, result) => {
 
-    sqlStatement = `SELECT * FROM ukbb_summary_data JOIN ukbb_percentiles ON ( ukbb_summary_data.studyID = ukbb_percentiles.studyID AND ukbb_summary_data.trait = ukbb_percentiles.trait ) WHERE studyID = ? and trait = ?`
+    sqlStatement = `SELECT * FROM ukbb_summary_data JOIN ukbb_percentiles ON ( ukbb_summary_data.studyID = ukbb_percentiles.studyID AND ukbb_summary_data.trait = ukbb_percentiles.trait ) WHERE ukbb_summary_data.studyID = ? and ukbb_summary_data.trait = ?`
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);
