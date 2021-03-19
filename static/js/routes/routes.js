@@ -70,10 +70,11 @@ module.exports = app => {
 
     app.get("/ukbb_get_studies", ukbbdata.getStudies);
 
-    // gets summary data (mean, median, range, ect.) from database using studyID(s)
     app.get("/ukbb_summary_results", ukbbdata.getSummaryResults);
 
     app.get("/ukbb_full_results", ukbbdata.getFullResults);
+
+    app.get("/ukbb_study_snps", ukbbdata.getStudySNps);
 
     app.get("/join_test", associations.joinTest);
 }
