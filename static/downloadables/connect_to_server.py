@@ -1,6 +1,5 @@
 import json
 import math
-import ast
 import requests
 import os
 import os.path
