@@ -1,5 +1,6 @@
-from uploadTablesToDatabase.py import getConnection, checkTableExists, deleteTable, createTable, createFreshTable, getFileLineEnding, enableLocalLoad, setPathWithCheck
 import os
+from sys import argv
+from uploadTablesToDatabase.py import getConnection, checkTableExists, deleteTable, createTable, createFreshTable, getFileLineEnding, enableLocalLoad, setPathWithCheck
 
 def addDataToUkbbTableCatch(config, tablesFolderPath, tableName, ext, dbTableName):
     try:
