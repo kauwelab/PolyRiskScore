@@ -75,11 +75,12 @@ HORIZONTALLINE="================================================================
 # introduces the PRSKB menu
 prskbMenu () {
     echo -e "\n$HORIZONTALLINE"
-    echo -e "                   ${LIGHTBLUE}PRSKB Command Line Menu/Instructions${NC}"
+    echo -e "                   ${LIGHTBLUE}PRSKB Command-Line Menu/Instructions${NC}"
     echo -e "$HORIZONTALLINE"
-    echo "Welcome to the PRSKB commandline menu. Here you can learn about the different" 
+    echo "Welcome to the PRSKB command-line menu. Here you can learn about the different" 
     echo "parameters required to run a polygenic risk score (PRS) calculation, search" 
-    echo "for a specific study or diesease, view usage, or run the PRSKB calculator."
+    echo "for a specific study or diesease, display available ethnicities for filtering," 
+    echo "view usage, or run the PRSKB calculator."
     echo ""
     echo "Select an option below by entering the corresponding number"
     echo "then pressing [Enter]."
