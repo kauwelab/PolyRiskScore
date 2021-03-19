@@ -137,8 +137,8 @@ function displayGraphs() {
 
 function displayTable() {
     var values = [
-        ['Min', 'Max', 'Mean', 'Median', 'Range'],
-        [displayDataObj["min"], displayDataObj["max"], displayDataObj["mean"], displayDataObj["median"], displayDataObj["rng"]]
+        ['Min', 'Max', 'Median', 'Range', 'Mean', 'Geometric Mean', 'Harmonic Mean', "Standard Deviation", "Geometric Standard Deviation"],
+        [displayDataObj["min"], displayDataObj["max"], displayDataObj["median"], displayDataObj["rng"], displayDataObj["mean"], displayDataObj["geomMean"], displayDataObj["harmMean"], displayDataObj["stdev"], displayDataObj["geomStdev"]]
     ]
 
     var tableData = [{
