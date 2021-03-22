@@ -82,7 +82,7 @@ exports.getFullResults = (req, res) => {
 }
 
 exports.getStudySnps = (req, res) => {
-    Ukbbdata.getStudySnps((err, data) => {
+    Ukbbdata.getStudySnps(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -91,7 +91,9 @@ exports.getStudySnps = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(data);
+            console.log(data)
+            snps = data[0]['snps'].split("|")
+            res.send(snps);
         }
     })
 }

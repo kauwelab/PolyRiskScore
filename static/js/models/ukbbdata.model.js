@@ -141,8 +141,16 @@ Ukbbdata.getFullResults = (studyID, trait, result) => {
     })
 }
 
-Ukbbdata.getStudySnps = () => {
-
+Ukbbdata.getStudySnps = (studyID, trait, result) => {
+    sqlStatement = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
+    sql.query(sqlStatement, [studyID, trait], (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        result(null, res);
+    })
 }
 
 module.exports = Ukbbdata;

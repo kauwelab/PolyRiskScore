@@ -74,7 +74,7 @@ module.exports = app => {
 
     app.get("/ukbb_full_results", ukbbdata.getFullResults);
 
-    app.get("/ukbb_study_snps", ukbbdata.getStudySNps);
+    app.get("/ukbb_study_snps", ukbbdata.getStudySnps);
 
     app.get("/join_test", associations.joinTest);
 }
