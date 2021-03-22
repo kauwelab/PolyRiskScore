@@ -10,7 +10,7 @@
 #   7. upload the new study and association tables to the PRSKB database,
 #   8. create example VCF and rsID files,
 #   9. and create association and clumps download files. 
-# It usually takes 4ish hours to complete (TODO: update this estimage) on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
+# It usually takes 4ish hours to complete (TODO: update this estimate) on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
 #
