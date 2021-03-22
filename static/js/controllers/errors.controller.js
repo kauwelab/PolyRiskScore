@@ -10,14 +10,12 @@ exports.sendError = (req, res) => {
     lineToAppend = [date, error + '\n'].join('\t')
     uploadPath = path.join(__dirname, '../..', 'errorFiles', `${platform}_errors.tsv`)
 
-    console.log("we are in sendError")
     
     fs.appendFile(uploadPath, lineToAppend, { flag: 'a+' }, err => {
         if (err) {
             console.error(err)
             return
         }
-        console.log("we have appended to the file")
         countdownToNotification -= 1
         if (countdownToNotification <= 0) {
             countdownToNotification = 10
