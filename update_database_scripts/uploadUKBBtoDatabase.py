@@ -1,8 +1,9 @@
 import os
 from sys import argv
-from uploadTablesToDatabase.py import getConnection, checkTableExists, deleteTable, createTable, createFreshTable, getFileLineEnding, enableLocalLoad, setPathWithCheck
+from time import sleep
+from uploadTablesToDatabase import getConnection, checkTableExists, deleteTable, createTable, createFreshTable, getFileLineEnding, enableLocalLoad, setPathWithCheck
 
-def addDataToUkbbTableCatch(config, tablesFolderPath, tableName, ext, dbTableName):
+def addDataToUkbbTableCatch(config, tablesFolderPath, tableName, dbTableName):
     try:
         addDataToUkbbTable(config, tablesFolderPath, tableName, dbTableName)
     except:
@@ -12,11 +13,11 @@ def addDataToUkbbTableCatch(config, tablesFolderPath, tableName, ext, dbTableNam
         addDataToUkbbTable(config, tablesFolderPath, tableName, dbTableName)
 
 
-def addDataToUkbbTable(config, tablesFolderPath, tableName, ext, dbTableName):
+def addDataToUkbbTable(config, tablesFolderPath, tableName, dbTableName):
     connection = getConnection(config)
     cursor = connection.cursor()
-    path = os.path.join(tablesFolderPath, tableName + ext)
-    path = os.path.replace("\\", "/")
+    path = os.path.join(tablesFolderPath, tableName + ".tsv")
+    path = path.replace("\\", "/")
     lineEnding = getFileLineEnding(path)
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
@@ -76,18 +77,17 @@ def main():
     # add the ukbb_percentiles table to the database
     tableColumns = "( studyID varchar(20), reportedTrait varchar(255), trait varchar(255), citation varchar(50), p0 float, p1 float, p2 float, p3 float, p4 float, p5 float, p6 float, p7 float, p8 float, p9 float, p10 float, p11 float, p12 float, p13 float, p14 float, p15 float, p16 float, p17 float, p18 float, p19 float, p20 float, p21 float, p22 float, p23 float, p24 float, p25 float, p26 float, p27 float, p28 float, p29 float, p30 float, p31 float, p32 float, p33 float, p34 float, p35 float, p36 float, p37 float, p38 float, p39 float, p40 float, p41 float, p42 float, p43 float, p44 float, p45 float, p46 float, p47 float, p48 float, p49 float, p50 float, p51 float, p52 float, p53 float, p54 float, p55 float, p56 float, p57 float, p58 float, p59 float, p60 float, p61 float, p62 float, p63 float, p64 float, p65 float, p66 float, p67 float, p68 float, p69 float, p70 float, p71 float, p72 float, p73 float, p74 float, p75 float, p76 float, p77 float, p78 float, p79 float, p80 float, p81 float, p82 float, p83 float, p84 float, p85 float, p86 float, p87 float, p88 float, p89 float, p90 float, p91 float, p92 float, p93 float, p94 float, p95 float, p96 float, p97 float, p98 float, p99 float, p100 float )"
     createFreshTable(config, "ukbb_raw_percentiles", "ukbb_percentiles", tableColumns)
-    addDataToUkbbTableCatch(config, ukbbTablesFolderPath, "ukbb_raw_percentiles", ".tsv", "ukbb_percentiles")
+    addDataToUkbbTableCatch(config, ukbbTablesFolderPath, "ukbb_raw_percentiles", "ukbb_percentiles")
 
     # add the ukbb_summary_data table to the database
-    tableColumns = "( studyID varchar(20), reportedTrait varchar(255), trait varchar(255), citation varchar(50), min float, max float, median float, range float, mean float, geomMean float, harmMean float, stdev float, geomStdev float )"
+    tableColumns = "( studyID varchar(20), reportedTrait varchar(255), trait varchar(255), citation varchar(50), min float, max float, median float, rng float, mean float, geomMean float, harmMean float, stdev float, geomStdev float )"
     createFreshTable(config, "ukbb_raw_summary_data", "ukbb_summary_data", tableColumns)
-    addDataToUkbbTableCatch(config, ukbbTablesFolderPath, "ukbb_raw_summary_data", ".tsv", "ukbb_summary_data")
+    addDataToUkbbTableCatch(config, ukbbTablesFolderPath, "ukbb_raw_summary_data", "ukbb_summary_data")
 
-    # TODO figure out how the snps table will be procured -- have to reformat the snps.json file and maybe check against snps in study/trait combo to make sure is accurate. 
-    # # add the ukbb_snps table to the database
-    # tableColumns = "( studyID varchar(20), snp varchar(20) )"
-    # createFreshTable(config, "{name_TBD}", "ukbb_snps", tableColumns)
-    # addDataToUkbbTableCatch(config, ukbbTablesFolderPath, "{name_TBD}", ".{ext_TBD}", "ukbb_snps")
+    # add the ukbb_snps table to the database
+    tableColumns = "( studyID varchar(20), trait varchar(255), snps varchar(255) )"
+    createFreshTable(config, "ukbb_snps", "ukbb_snps", tableColumns)
+    addDataToUkbbTableCatch(config, ukbbTablesFolderPath, "ukbb_snps", "ukbb_snps")
 
     print("Done!")
 
