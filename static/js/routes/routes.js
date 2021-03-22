@@ -4,6 +4,7 @@ module.exports = app => {
     const clumps = require("../controllers/clumps.controller");
     const cli = require("../controllers/cli.controller");
     const ukbbdata = require("../controllers/ukbbdata.controller");
+    const errors = require("../controllers/errors.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -74,6 +75,10 @@ module.exports = app => {
     app.get("/ukbb_summary_results", ukbbdata.getSummaryResults);
 
     app.get("/ukbb_full_results", ukbbdata.getFullResults);
+
+    app.post("/send_error", errors.sendError);
+
+    app.get("/download_errors", errors.downloadErrors);
 
     app.get("/join_test", associations.joinTest);
 }
