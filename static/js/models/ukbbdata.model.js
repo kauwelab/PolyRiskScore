@@ -14,7 +14,7 @@ const Ukbbdata = function (mUkbbdata) {
 //TODO!!!!!: we should maybe add reportedTrait to the ukbb data table as a column?
 
 Ukbbdata.getTraits = (result) => {
-    sql.query("SELECT DISTINCT trait FROM ukbiobank_stats ORDER BY trait;", (err, res) => {
+    sql.query("SELECT DISTINCT trait FROM ukbb_summary_data ORDER BY trait;", (err, res) => {
         if (err) {
             console.log("UKBB TABLE error: ", err);
             result(err, null)
@@ -102,7 +102,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
             }
 
             // grab trait/studyID combos that are in the ukbb table
-            sql.query(`SELECT trait, studyID FROM ukbiobank_stats WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
+            sql.query(`SELECT trait, studyID FROM ukbb_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -137,7 +137,16 @@ Ukbbdata.getFullResults = (studyID, trait, result) => {
             result(err, null);
             return;
         }
-        result(null, res);
+        sqlGetSnps = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
+        sql.query(sqlGetSnps, [studyID, trait], (err, res2) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            res[0]["snps"] = res2[0]["snps"].split("|")
+            result(null, res);
+        })
     })
 }
 

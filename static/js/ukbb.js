@@ -106,7 +106,6 @@ function displayGraphs() {
                 var studyName = document.getElementById("studyName")
                 studyName.innerText = selectedStudy.getAttribute("data-citation");
                 studyName.hidden = false;
-                var tablePlot = document.getElementById("tablePlot");
                 displayDataObj = data[0]
 
                 const keys = Object.keys(displayDataObj);
@@ -131,7 +130,7 @@ function displayGraphs() {
                 <p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p>
                 <p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p>
                 <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>
-                <p><b>UK Biobank SNPs Used:</b><br>`
+                <p><b>UK Biobank SNPs Used:</b> ${displayDataObj["snps"].join(", ")}<br>`
                 studyMetadata.innerHTML = metadatastring
             }
         },
@@ -142,6 +141,8 @@ function displayGraphs() {
 }
 
 function displayTable() {
+    var tablePlot = document.getElementById("tablePlot");
+
     var values = [
         ['Min', 'Max', 'Median', 'Range', 'Mean', 'Geometric Mean', 'Harmonic Mean', "Standard Deviation", "Geometric Standard Deviation"],
         [displayDataObj["min"], displayDataObj["max"], displayDataObj["median"], displayDataObj["rng"], displayDataObj["mean"], displayDataObj["geomMean"], displayDataObj["harmMean"], displayDataObj["stdev"], displayDataObj["geomStdev"]]
