@@ -49,7 +49,7 @@ elif [ ! -z $5 ] && [ ! -d $5 ]; then
 elif [ ! -z $6 ] && [ ! -d $6 ]; then
     echo "Directory" \'$6\' "does not exist."
     read -p "Press [Enter] key to quit..."
-# check that if $6, the sampleVCFFolderPath, is populated, it is a directory that exists
+# check that if $7, the sampleVCFFolderPath, is populated, it is a directory that exists
 elif [ ! -z $7 ] && [ ! -d $7 ]; then
     echo "Directory" \'$7\' "does not exist."
     read -p "Press [Enter] key to quit..."
