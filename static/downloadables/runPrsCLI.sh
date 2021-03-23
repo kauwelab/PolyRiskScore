@@ -666,7 +666,7 @@ calculatePRS () {
             rm ".workingFiles/traitStudyIDToSnps_${fileHash}.txt"
             rm ".workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         fi
-        # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        
         rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
         [ -d __pycache__ ] && rm -r __pycache__
         [ -e $output.lock ] && rm -- $output.lock
