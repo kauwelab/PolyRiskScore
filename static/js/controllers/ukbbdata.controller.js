@@ -52,7 +52,7 @@ exports.getStudies = (req, res) => {
 }
 
 exports.getSummaryResults = (req, res) => {
-    Ukbbdata.getSummaryResults(req.query.studyIDs, (err, data) => {
+    Ukbbdata.getSummaryResults(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -77,6 +77,23 @@ exports.getFullResults = (req, res) => {
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.send(data);
+        }
+    })
+}
+
+exports.getStudySnps = (req, res) => {
+    Ukbbdata.getStudySnps(req.query.studyID, req.query.trait, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message:
+                err.message || "Error occured while retrieving data."
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            console.log(data)
+            snps = data[0]['snps'].split("|")
+            res.send(snps);
         }
     })
 }

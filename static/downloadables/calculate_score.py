@@ -1,16 +1,10 @@
-import os.path
-from os import path
 import sys
 import vcf
-import zipfile
-import tarfile
-import gzip
-from collections import defaultdict
 import json
 import math
 import csv
-import io
 import os
+from filelock import FileLock
 
 def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sampleOrder):
     if isRSids:
@@ -228,15 +222,17 @@ def formatJson(studyInfo, outputFile):
     json_output.append(studyInfo)
     # if this is the first object to be added, write it to the output file
     if not path.exists(outputFile):
-        with open(outputFile, 'w', newline='') as f:
-            json.dump(json_output, f, indent=4)
+        with FileLock(outputFile + ".lock"):
+            with open(outputFile, 'w', newline='') as f:
+                json.dump(json_output, f, indent=4)
     else:
-        # if there is already data in the output file, remove the closing ] and add a comma with the new json object and then close the file with a closing ]
-        with open(outputFile, 'r+', newline = '') as f:
-            f.seek(0,2)
-            position = f.tell() -1
-            f.seek(position)
-            f.write( ",{}]".format(json.dumps(studyInfo, indent=4)))
+        with FileLock(outputFile + ".lock"):
+            # if there is already data in the output file, remove the closing ] and add a comma with the new json object and then close the file with a closing ]
+            with open(outputFile, 'r+', newline = '') as f:
+                f.seek(0,2)
+                position = f.tell() -1
+                f.seek(position)
+                f.write( ",{}]".format(json.dumps(studyInfo, indent=4)))
     return
 
 
@@ -265,15 +261,16 @@ def printUnusedTraitStudyPairs(trait, study, outputFile, isFirst):
 
     # if this is the first trait/study to be added, write the header as well
     if isFirst:
-        with open(completeOutputFileName, 'w') as openFile:
-            openFile.write("Trait/Study combinations with no matching snps in the input file:")
+        with FileLock(completeOutputFileName + ".lock"):
+            with open(completeOutputFileName, 'w') as openFile:
+                openFile.write("Trait/Study combinations with no matching snps in the input file:")
     else:
-        with open(completeOutputFileName, 'a') as openFile:
-            openFile.write('\n')
-            openFile.write(str(trait))
-            openFile.write(', ')
-            openFile.write(str(study))
-    
+        with FileLock(completeOutputFileName + ".lock"):
+            with open(completeOutputFileName, 'a') as openFile:
+                openFile.write('\n')
+                openFile.write(str(trait))
+                openFile.write(', ')
+                openFile.write(str(study))
 
     return 
 
@@ -305,12 +302,14 @@ def formatTSV(isFirst, newLine, header, outputFile):
         os.makedirs(os.path.dirname(outputFile), exist_ok=True)
 
     if isFirst:
-        with open(outputFile, 'w', newline='', encoding="utf-8") as f:
-            output = csv.writer(f, delimiter='\t')
-            output.writerow(header)
+        with FileLock(outputFile + ".lock"):
+            with open(outputFile, 'w', newline='', encoding="utf-8") as f:
+                output = csv.writer(f, delimiter='\t')
+                output.writerow(header)
     else:
-        with open(outputFile, 'a', newline='', encoding="utf-8") as f:
-            output = csv.writer(f, delimiter='\t')
-            output.writerow(newLine)
+        with FileLock(outputFile + ".lock"):
+            with open(outputFile, 'a', newline='', encoding="utf-8") as f:
+                output = csv.writer(f, delimiter='\t')
+                output.writerow(newLine)
     return
 

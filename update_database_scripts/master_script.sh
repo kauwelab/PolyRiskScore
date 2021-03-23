@@ -30,6 +30,7 @@ usage () {
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
     echo "  [optional: path to association tsv file folder (default: \"../tables/\")]"
     echo "  [optional: path to study table tsv folder (default: \"../tables/\")]"
+    echo "  [optional: path to ukbb tables tsv folder (default: \"../tables/\")]"
     echo "  [optional: path to sample vcf  folder (default: \"../static/\")]"
     echo "  [optional: 'daosrfuec' options for disabling parts of the script (can be anywhere in the arguments)]"
     echo ""
@@ -121,6 +122,8 @@ optUsage () {
             elif [ $i -eq 5 ]; then
                 studyTableFolderPath=$arg
             elif [ $i -eq 6 ]; then
+                ukbbTablesFolderPath=$arg
+            elif [ $i -eq 7 ]; then
                 sampleVCFFolderPath=$arg
             fi
             # increment the non-option argument position
@@ -147,6 +150,7 @@ optUsage () {
     consoleOutputFolder=${consoleOutputFolder:-"./console_files/"}
     associationTableFolderPath=${associationTableFolderPath:-"../tables/"} 
     studyTableFolderPath=${studyTableFolderPath:-"../tables/"}
+    ukbbTablesFolderPath=${ukbbTablesFolderPath:-"../tables/"}
     sampleVCFFolderPath=${sampleVCFFolderPath:-"../static/"}
     studyAndPubTSVFolderPath="."
     chainFileFolderPath="."
@@ -244,6 +248,8 @@ optUsage () {
     if [ $uploadTables == "true" ]; then
         echo "Uploading tables to the PRSKB database."
         python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
+        wait
+        python3 uploadUKBBtoDatabase.py "$password" $ukbbTablesFolderPath
         wait
     fi
 
