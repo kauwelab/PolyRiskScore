@@ -17,7 +17,6 @@ import time
 # where: "password" is the password to the PRSKB database
 #        "associationTableFolderPath" is the path to the associations_table.tsv (default: "../tables")
 #        "studyTableFolderPath" is the path to the study_table.tsv (default: "../tables")
-#        "uploadUKBBTable" is whether the script should upload the ukbb table to the database (default: False)
 
 # creates a connection to the MySQL database using the given config dictionary
 # The config should be given in the following form:
@@ -71,7 +70,7 @@ def createTable(cursor, dbTableName, tableColumns):
     cursor.close()
 
 # removes the table in fileNames if it exists and creates a new table
-def createFreshTable(config, tableName, dbTableName, tableColumns):
+def createFreshTable(config, dbTableName, tableColumns):
     connection = getConnection(config)
 
     dropped = False
@@ -169,9 +168,6 @@ def main():
     studyTableFolderPath =  "../tables/"
     associationTableFolderPath = "../tables/"
 
-    # controls whether the ukbb table is uploaded to the database or not
-    uploadUKBBTable = "false"
-
     # arg handling
     if len(argv) <= 1:
         # if no password is provided, ask for one and close
@@ -180,17 +176,15 @@ def main():
         exit()
     else:
         password = argv[1]
-    if len(argv) > 5:
+    if len(argv) > 4:
         # if too many arguments are provided
         print("Too many arguments: " + str(argv))
         usage()
         exit()
     if len(argv) >= 3:
         associationTableFolderPath = setPathWithCheck(argv[2])
-    if len(argv) >= 4:
+    if len(argv) == 4:
         studyTableFolderPath = setPathWithCheck(argv[3])
-    if len(argv) == 5:
-        uploadUKBBTable = argv[4].lower()
 
 
     # set other default variables
@@ -211,19 +205,13 @@ def main():
 
     # add the associations_table to the database
     tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20), INDEX (trait, studyID) )"
-    createFreshTable(config, "associations_table", "associations_table", tableColumns)
+    createFreshTable(config, "associations_table", tableColumns)
     addDataToTableCatch( config, associationTableFolderPath, "associations_table", "associations_table")
 
     # add the study_table to the database
     tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore decimal(15,5), ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )"
-    createFreshTable(config, "study_table", "study_table", tableColumns)
+    createFreshTable(config, "study_table", tableColumns)
     addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
-
-    # add the ukbiobank_stats table to the database
-    if uploadUKBBTable == "true":
-        tableColumns = "( trait varchar(50), studyID varchar(50), mean float, median float, min float, max float, rng float, p0 float, p1 float, p2 float, p3 float, p4 float, p5 float, p6 float, p7 float, p8 float, p9 float, p10 float, p11 float, p12 float, p13 float, p14 float, p15 float, p16 float, p17 float, p18 float, p19 float, p20 float, p21 float, p22 float, p23 float, p24 float, p25 float, p26 float, p27 float, p28 float, p29 float, p30 float, p31 float, p32 float, p33 float, p34 float, p35 float, p36 float, p37 float, p38 float, p39 float, p40 float, p41 float, p42 float, p43 float, p44 float, p45 float, p46 float, p47 float, p48 float, p49 float, p50 float, p51 float, p52 float, p53 float, p54 float, p55 float, p56 float, p57 float, p58 float, p59 float, p60 float, p61 float, p62 float, p63 float, p64 float, p65 float, p66 float, p67 float, p68 float, p69 float, p70 float, p71 float, p72 float, p73 float, p74 float, p75 float, p76 float, p77 float, p78 float, p79 float, p80 float, p81 float, p82 float, p83 float, p84 float, p85 float, p86 float, p87 float, p88 float, p89 float, p90 float, p91 float, p92 float, p93 float, p94 float, p95 float, p96 float, p97 float, p98 float, p99 float, p100 float )" 
-        createFreshTable(config, "ukbiobank_stats", "ukbiobank_stats", tableColumns)
-        addDataToTableCatch(config, studyTableFolderPath, "ukbiobank_stats", "ukbiobank_stats")
 
     print("Done!")
 

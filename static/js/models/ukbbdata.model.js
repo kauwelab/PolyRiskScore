@@ -14,7 +14,7 @@ const Ukbbdata = function (mUkbbdata) {
 //TODO!!!!!: we should maybe add reportedTrait to the ukbb data table as a column?
 
 Ukbbdata.getTraits = (result) => {
-    sql.query("SELECT DISTINCT trait FROM ukbiobank_stats ORDER BY trait;", (err, res) => {
+    sql.query("SELECT DISTINCT trait FROM ukbb_summary_data ORDER BY trait;", (err, res) => {
         if (err) {
             console.log("UKBB TABLE error: ", err);
             result(err, null)
@@ -102,7 +102,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
             }
 
             // grab trait/studyID combos that are in the ukbb table
-            sql.query(`SELECT trait, studyID FROM ukbiobank_stats WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
+            sql.query(`SELECT trait, studyID FROM ukbb_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -114,20 +114,10 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
     })
 }
 
-//TODO UPDATE THESE FOR TRAIT?
-Ukbbdata.getSummaryResults = (studyIDs, result) => {
-    if (!Array.isArray(studyIDs)) {
-        studyIDs = [studyIDs]
-    }
-    sqlQuestionMarks = ""
-    console.log(studyIDs)
-    for(i = 0; i < studyIDs.length - 1; i++) {
-        sqlQuestionMarks += "?, "
-    }
-    sqlQuestionMarks += "?"
+Ukbbdata.getSummaryResults = (studyID, trait, result) => {
 
-    sqlStatement = `SELECT trait, studyID, mean, median, min, max, rng FROM ukbiobank_stats WHERE studyID in (${sqlQuestionMarks})`
-    sql.query(sqlStatement, studyIDs, (err, res) => {
+    sqlStatement = `SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM ukbb_summary_data WHERE studyID = ? and trait = ?`
+    sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -140,7 +130,28 @@ Ukbbdata.getSummaryResults = (studyIDs, result) => {
 
 Ukbbdata.getFullResults = (studyID, trait, result) => {
 
-    sqlStatement = `SELECT * FROM ukbiobank_stats WHERE studyID = ? and trait = ?`
+    sqlStatement = `SELECT * FROM ukbb_summary_data JOIN ukbb_percentiles ON ( ukbb_summary_data.studyID = ukbb_percentiles.studyID AND ukbb_summary_data.trait = ukbb_percentiles.trait ) WHERE ukbb_summary_data.studyID = ? and ukbb_summary_data.trait = ?`
+    sql.query(sqlStatement, [studyID, trait], (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        sqlGetSnps = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
+        sql.query(sqlGetSnps, [studyID, trait], (err, res2) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            res[0]["snps"] = res2[0]["snps"].split("|")
+            result(null, res);
+        })
+    })
+}
+
+Ukbbdata.getStudySnps = (studyID, trait, result) => {
+    sqlStatement = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);

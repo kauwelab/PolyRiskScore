@@ -25,6 +25,7 @@ if [ $# -lt 1 ]; then
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
     echo "  [optional: path to association tsv file folder (default: \"../tables/\")]"
     echo "  [optional: path to study table tsv folder (default: \"../tables/\")]"
+    echo "  [optional: path to ukbb tables tsv folder (default: \"../tables/\")]"
     echo "  [optional: path to sample vcf  folder (default: \"../static/\")]"
     read -p "Press [Enter] key to quit..."
 # check if $2, or numNodes, is populated, that it is a number
@@ -44,9 +45,13 @@ elif [ ! -z $4 ] && [ ! -d $4 ]; then
 elif [ ! -z $5 ] && [ ! -d $5 ]; then
     echo "Directory" \'$5\' "does not exist."
     read -p "Press [Enter] key to quit..."
-# check that if $6, the sampleVCFFolderPath, is populated, it is a directory that exists
+# check that if $6, the ukbbTablesFolderPath, is populated, it is a directory that exists
 elif [ ! -z $6 ] && [ ! -d $6 ]; then
     echo "Directory" \'$6\' "does not exist."
+    read -p "Press [Enter] key to quit..."
+# check that if $7, the sampleVCFFolderPath, is populated, it is a directory that exists
+elif [ ! -z $7 ] && [ ! -d $7 ]; then
+    echo "Directory" \'$7\' "does not exist."
     read -p "Press [Enter] key to quit..."
 else
     password=$1
@@ -55,7 +60,8 @@ else
     consoleOutputFolder=${3:-"./console_files/"}
     associationTableFolderPath=${4:-"../tables/"} 
     studyTableFolderPath=${5:-"../tables/"}
-    sampleVCFFolderPath=${6:-"../static/"}
+    ukbbTablesFolderPath=${6:-"../tables/"}
+    sampleVCFFolderPath=${7:-"../static/"}
     studyAndPubTSVFolderPath="."
     chainFileFolderPath="."
 
@@ -113,6 +119,8 @@ else
     # if updatedStudies is empty or none, dont' upload, otherwise upload new tables
     echo "Uploading tables to the PRSKB database."
     python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
+    wait
+    python3 uploadUKBBtoDatabase.py "$password" $ukbbTablesFolderPath
     wait
     echo -e "Finished uploading tables to the PRSKB database.\n"
 
