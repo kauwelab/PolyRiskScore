@@ -1,16 +1,16 @@
 const path = require("path")
 const fs = require("fs");
-countdownToNotification = 10
+const countdownPath = path.join(__dirname, '../..', 'errorFiles', `countdownToNotification.txt`)
 
 exports.sendError = (req, res) => {
     // platform options --> website, cli
+    countdownToNotification = getCountdownNumber()
     platform = req.body.platform.toLowerCase()
     error = req.body.error
     date = req.body.date
     lineToAppend = [date, error + '\n'].join('\t')
     uploadPath = path.join(__dirname, '../..', 'errorFiles', `${platform}_errors.tsv`)
 
-    
     fs.appendFile(uploadPath, lineToAppend, { flag: 'a+' }, err => {
         if (err) {
             console.error(err)
@@ -19,8 +19,10 @@ exports.sendError = (req, res) => {
         countdownToNotification -= 1
         if (countdownToNotification <= 0) {
             countdownToNotification = 10
+            console.log("Reset error countdown")
             sendNotification()
         }
+        setCountdownNumber(countdownToNotification.toString())
         res.status(200).send("OK");
     })
 }
@@ -51,3 +53,12 @@ function sendNotification() {
     return
 }
 
+function getCountdownNumber() {
+    return fs.readFileSync(countdownPath, function(err, data) {}).toString('utf-8')
+}
+
+function setCountdownNumber(number) {
+    fs.writeFile(countdownPath, number, function (err) {
+        if (err) throw err;
+    });
+}
