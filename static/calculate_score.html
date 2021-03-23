@@ -16,7 +16,7 @@
 </head>
 <script src="js/multiselect.min.js"></script>
 
-<body onload="getTraits(); getEthnicities();">
+<body onload="getTraits(); getEthnicities(); pageReset();">
 
   <div id="topnav" class='topnav'>
     <a href="index.html">HOME</a>
@@ -120,8 +120,8 @@
                     <option value="hg18">NCBI36/hg18</option>
                     <option value="hg17">NCBI35/hg17</option>
                   </select>
-                  <select id='LD-ethnicitySelect' onchange="moveToNextTourIndex('superPop')">
-                    <option selected="selected" value="default">--LD Ethnicity--</option>
+                  <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
+                    <option selected="selected" value="default">--Super Population--</option>
                     <option>African</option>
                     <option>American</option>
                     <option>East Asian</option>
