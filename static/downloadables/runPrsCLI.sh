@@ -641,10 +641,11 @@ calculatePRS () {
 
     if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
         outputType=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_ext.lower());")
+        outputName=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_name);")
 
         echo "Calculating prs on $filename"
         FILE=".workingFiles/associations_${fileHash}.txt"
-
+        
         # filter the input file so that it only includes the lines with variants that match the given filters
         if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
             echo "Filtered input file"
@@ -668,7 +669,8 @@ calculatePRS () {
         # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
         rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
         rm -r __pycache__
-        rm *.lock
+        [ -e $output.lock ] && rm -- $output.lock
+        [ -e ${outputName}_studiesNotIncluded.txt.lock ] && rm -- ${outputName}_studiesNotIncluded.txt.lock
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
         exit;
