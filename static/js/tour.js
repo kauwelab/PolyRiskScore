@@ -58,10 +58,10 @@ function startTour() {
                 template: templateWithoutNext
             },
             {
-                element: "#LD-ethnicitySelect",
-                title: "Select ethnicity of individual(s) in your VCF file.",
+                element: "#superPopSelect",
+                title: "Select super population of individual(s) in your VCF file.",
                 content: "This will be used to perform LD clumping on your data (see the learn more \
-                page). If you are unsure about the ethnicity of the individual(s) in your file, \
+                page). If you are unsure about the super population of the individual(s) in your file, \
                 choose the one you believe to be the most accurate.",
                 template: templateWithoutNext
             },
