@@ -100,7 +100,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
-    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -s 2 (By default, the calculations will be run on 4 subprocesses"    
+    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on 4 subprocesses)"    
     echo ""
 }
 
@@ -581,11 +581,11 @@ calculatePRS () {
             exit 1
         # check that all required packages are installed
         else
-            echo "Checking for package requirements"
+            echo "Checking for PyVCF package requirement"
             {
                 $pyVer -c "import vcf" >/dev/null 2>&1
             } && {
-                echo -e "Package requirements met\n"
+                echo -e "PyVCF package requirement met\n"
             } || {
                 {
                     echo "Missing package requirement: PyVCF"
@@ -593,13 +593,33 @@ calculatePRS () {
                 } && {
                     $pyVer -m pip install PyVCF
                 } && {
-                    echo -e "Download successful, Package requirements met\n"
+                    echo -e "Download successful, Package requirement met\n"
                 } || {
                     echo "Failed to download the required package."
-                    echo "Please manually download this package and try running the tool again."
+                    echo "Please manually download this package (PyVCF) and try running the tool again."
                     exit 1
                 }
-            } 
+            }
+            echo "Checking for filelock package requirement"
+            {
+                $pyVer -c "from filelock import FileLock" >/dev/null 2>&1
+            } && {
+                echo -e "filelock package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: filelock"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install filelock
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (filelock) and try running the tool again."
+                    exit 1
+                }
+            }
+            echo "All package requirements met"
         fi
 
         checkForNewVersion
@@ -621,6 +641,7 @@ calculatePRS () {
 
     if [[ $step -eq 0 ]] || [[ $step -eq 2 ]]; then
         outputType=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_ext.lower());")
+        outputName=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_name);")
 
         echo "Calculating prs on $filename"
         FILE=".workingFiles/associations_${fileHash}.txt"
@@ -645,9 +666,11 @@ calculatePRS () {
             rm ".workingFiles/traitStudyIDToSnps_${fileHash}.txt"
             rm ".workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         fi
-        # TODO I've never tested this with running multiple iterations. I don't know if this is something that would negativly affect the tool
+        
         rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
-        rm -r __pycache__
+        [ -d __pycache__ ] && rm -r __pycache__
+        [ -e $output.lock ] && rm -- $output.lock
+        [ -e ${outputName}_studiesNotIncluded.txt.lock ] && rm -- ${outputName}_studiesNotIncluded.txt.lock
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
         exit;
