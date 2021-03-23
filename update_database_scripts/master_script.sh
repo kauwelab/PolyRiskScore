@@ -7,7 +7,7 @@
 #   4. create a study table,
 #   5. remove raw data dowloaded,
 #   6. do strand flipping on the associations table,
-#   7. upload the new study and association tables to the PRSKB database,
+#   7. upload the new study and association tables as well as the ukbb tables to the PRSKB database,
 #   8. create example VCF and rsID files,
 #   9. and create association and clumps download files. 
 # It usually takes 4ish hours to complete (TODO: update this estimate) on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
