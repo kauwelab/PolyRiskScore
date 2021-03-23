@@ -580,11 +580,11 @@ calculatePRS () {
             exit 1
         # check that all required packages are installed
         else
-            echo "Checking for package requirements"
+            echo "Checking for PyVCF package requirement"
             {
                 $pyVer -c "import vcf" >/dev/null 2>&1
             } && {
-                echo -e "Package requirements met\n"
+                echo -e "PyVCF package requirement met\n"
             } || {
                 {
                     echo "Missing package requirement: PyVCF"
@@ -592,13 +592,33 @@ calculatePRS () {
                 } && {
                     $pyVer -m pip install PyVCF
                 } && {
-                    echo -e "Download successful, Package requirements met\n"
+                    echo -e "Download successful, Package requirement met\n"
                 } || {
                     echo "Failed to download the required package."
-                    echo "Please manually download this package and try running the tool again."
+                    echo "Please manually download this package (PyVCF) and try running the tool again."
                     exit 1
                 }
-            } 
+            }
+            echo "Checking for filelock package requirement"
+            {
+                $pyVer -c "from filelock import FileLock" >/dev/null 2>&1
+            } && {
+                echo -e "filelock package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: filelock"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install filelock
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (filelock) and try running the tool again."
+                    exit 1
+                }
+            }
+            echo "All package requirements met"
         fi
 
         checkForNewVersion
