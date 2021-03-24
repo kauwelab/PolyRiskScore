@@ -45,7 +45,7 @@ elif [ ! -z $4 ] && [ ! -d $4 ]; then
 elif [ ! -z $5 ] && [ ! -d $5 ]; then
     echo "Directory" \'$5\' "does not exist."
     read -p "Press [Enter] key to quit..."
-# check that if $6, the ukbbTablesFolderPath, is populated, it is a directory that exists
+# check that if $6, the percentilesTablesFolderPath, is populated, it is a directory that exists
 elif [ ! -z $6 ] && [ ! -d $6 ]; then
     echo "Directory" \'$6\' "does not exist."
     read -p "Press [Enter] key to quit..."
@@ -60,7 +60,7 @@ else
     consoleOutputFolder=${3:-"./console_files/"}
     associationTableFolderPath=${4:-"../tables/"} 
     studyTableFolderPath=${5:-"../tables/"}
-    ukbbTablesFolderPath=${6:-"../tables/"}
+    percentilesTablesFolderPath=${6:-"../tables/"}
     sampleVCFFolderPath=${7:-"../static/"}
     studyAndPubTSVFolderPath="."
     chainFileFolderPath="."
@@ -120,7 +120,7 @@ else
     echo "Uploading tables to the PRSKB database."
     python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
     wait
-    python3 uploadUKBBtoDatabase.py "$password" $ukbbTablesFolderPath
+    python3 uploadPercentilesEctToDatabase.py "$password" $percentilesTablesFolderPath
     wait
     echo -e "Finished uploading tables to the PRSKB database.\n"
 
