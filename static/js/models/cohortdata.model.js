@@ -1,19 +1,19 @@
 const sql = require('./database')
 
-const Ukbbdata = function (mUkbbdata) {
-    this.studyID = mUkbbdata.studyID,
-    this.trait = mUkbbdata.trait,
-    this.mean = mUkbbdata.mean,
-    this.median = mUkbbdata.median,
-    this.min = mUkbbdata.min,
-    this.max = mUkbbdata.max,
-    this.rng = mUkbbdata.rng
+const Cohortdata = function (mCohortData) {
+    this.studyID = mCohortData.studyID,
+    this.trait = mCohortData.trait,
+    this.mean = mCohortData.mean,
+    this.median = mCohortData.median,
+    this.min = mCohortData.min,
+    this.max = mCohortData.max,
+    this.rng = mCohortData.rng
     // the rest of the columns should be labled p0-p100
 }
 
 //TODO!!!!!: we should maybe add reportedTrait to the ukbb data table as a column?
 
-Ukbbdata.getTraits = (result) => {
+Cohortdata.getTraits = (result) => {
     sql.query("SELECT DISTINCT trait FROM ukbb_summary_data ORDER BY trait;", (err, res) => {
         if (err) {
             console.log("UKBB TABLE error: ", err);
@@ -24,7 +24,7 @@ Ukbbdata.getTraits = (result) => {
     })
 }
 
-Ukbbdata.getStudies = (trait, studyTypes, result) => {
+Cohortdata.getStudies = (trait, studyTypes, result) => {
     // studyMaxes is a view in the database used to find the max values we need 
     studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait = ?`
 
@@ -114,7 +114,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
     })
 }
 
-Ukbbdata.getSummaryResults = (studyID, trait, result) => {
+Cohortdata.getSummaryResults = (studyID, trait, result) => {
 
     sqlStatement = `SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM ukbb_summary_data WHERE studyID = ? and trait = ?`
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
@@ -128,7 +128,7 @@ Ukbbdata.getSummaryResults = (studyID, trait, result) => {
     })
 }
 
-Ukbbdata.getFullResults = (studyID, trait, result) => {
+Cohortdata.getFullResults = (studyID, trait, result) => {
 
     sqlStatement = `SELECT * FROM ukbb_summary_data JOIN ukbb_percentiles ON ( ukbb_summary_data.studyID = ukbb_percentiles.studyID AND ukbb_summary_data.trait = ukbb_percentiles.trait ) WHERE ukbb_summary_data.studyID = ? and ukbb_summary_data.trait = ?`
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
@@ -150,7 +150,7 @@ Ukbbdata.getFullResults = (studyID, trait, result) => {
     })
 }
 
-Ukbbdata.getStudySnps = (studyID, trait, result) => {
+Cohortdata.getStudySnps = (studyID, trait, result) => {
     sqlStatement = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
@@ -162,4 +162,4 @@ Ukbbdata.getStudySnps = (studyID, trait, result) => {
     })
 }
 
-module.exports = Ukbbdata;
+module.exports = Cohortdata;

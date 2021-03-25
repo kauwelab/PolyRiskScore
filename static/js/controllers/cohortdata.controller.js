@@ -1,7 +1,7 @@
-const Ukbbdata = require("../models/ukbbdata.model.js");
+const cohortdata = require("../models/cohortdata.model.js");
 
 exports.getTraits = (req, res) => {
-    Ukbbdata.getTraits((err, data) => {
+    cohortdata.getTraits((err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -21,7 +21,7 @@ exports.getTraits = (req, res) => {
 }
 
 exports.getStudies = (req, res) => {
-    Ukbbdata.getStudies(req.query.trait, req.query.studyTypes, (err, data) => {
+    cohortdata.getStudies(req.query.trait, req.query.studyTypes, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -52,7 +52,7 @@ exports.getStudies = (req, res) => {
 }
 
 exports.getSummaryResults = (req, res) => {
-    Ukbbdata.getSummaryResults(req.query.studyID, req.query.trait, (err, data) => {
+    cohortdata.getSummaryResults(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -67,7 +67,7 @@ exports.getSummaryResults = (req, res) => {
 }
 
 exports.getFullResults = (req, res) => {
-    Ukbbdata.getFullResults(req.query.studyID, req.query.trait, (err, data) => {
+    cohortdata.getFullResults(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -82,7 +82,7 @@ exports.getFullResults = (req, res) => {
 }
 
 exports.getStudySnps = (req, res) => {
-    Ukbbdata.getStudySnps(req.query.studyID, req.query.trait, (err, data) => {
+    cohortdata.getStudySnps(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:

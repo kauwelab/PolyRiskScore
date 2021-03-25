@@ -92,9 +92,12 @@ function displayGraphs() {
     studyID = studySelector.value;
     trait = selectedStudy.getAttribute("data-trait")
 
+    var sampleSelector = document.getElementById("sampleType-Selector");
+    sampleType = sampleSelector.value;
+
     $.ajax({
         type: "GET",
-        url: "/ukbb_full_results",
+        url: "/sample_full_results",
         data: { trait: trait, studyID: studyID },
         success: async function (data) {
 

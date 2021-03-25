@@ -3,7 +3,7 @@ module.exports = app => {
     const associations = require("../controllers/associations.controller");
     const clumps = require("../controllers/clumps.controller");
     const cli = require("../controllers/cli.controller");
-    const ukbbdata = require("../controllers/ukbbdata.controller");
+    const cohortdata = require("../controllers/cohortdata.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -66,15 +66,15 @@ module.exports = app => {
 
     app.get("/download_cli", cli.download);
 
-    app.get("/ukbb_get_traits", ukbbdata.getTraits);
+    app.get("/cohort_get_traits", cohortdata.getTraits);
 
-    app.get("/ukbb_get_studies", ukbbdata.getStudies);
+    app.get("/cohort_get_studies", cohortdata.getStudies);
 
-    app.get("/ukbb_summary_results", ukbbdata.getSummaryResults);
+    app.get("/cohort_summary_results", cohortdata.getSummaryResults);
 
-    app.get("/ukbb_full_results", ukbbdata.getFullResults);
+    app.get("/cohort_full_results", cohortdata.getFullResults);
 
-    app.get("/ukbb_study_snps", ukbbdata.getStudySnps);
+    app.get("/cohort_study_snps", cohortdata.getStudySnps);
 
     app.get("/join_test", associations.joinTest);
 }
