@@ -133,7 +133,7 @@ function displayGraphs() {
                 <p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p>
                 <p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p>
                 <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>
-                <p><b>UK Biobank SNPs Used:</b> ${displayDataObj["snps"].join(", ")}<br>`
+                <p><b>Cohort SNPs Used:</b> ${displayDataObj["snps"].join(", ")}<br>`
                 studyMetadata.innerHTML = metadatastring
             }
         },
