@@ -70,6 +70,8 @@ module.exports = app => {
 
     app.get("/cohort_get_studies", cohortdata.getStudies);
 
+    app.get("/cohort_get_cohorts", cohortdata.getCohorts);
+
     app.get("/cohort_summary_results", cohortdata.getSummaryResults);
 
     app.get("/cohort_full_results", cohortdata.getFullResults);

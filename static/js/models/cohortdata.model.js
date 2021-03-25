@@ -11,12 +11,12 @@ const Cohortdata = function (mCohortData) {
     // the rest of the columns should be labled p0-p100
 }
 
-//TODO!!!!!: we should maybe add reportedTrait to the ukbb data table as a column?
+//TODO!!!!!: we should maybe add reportedTrait to the cohort data table as a column?
 
 Cohortdata.getTraits = (result) => {
-    sql.query("SELECT DISTINCT trait FROM ukbb_summary_data ORDER BY trait;", (err, res) => {
+    sql.query("SELECT DISTINCT trait FROM cohort_summary_data ORDER BY trait;", (err, res) => {
         if (err) {
-            console.log("UKBB TABLE error: ", err);
+            console.log("Cohort TABLE error: ", err);
             result(err, null)
             return;
         }
@@ -39,7 +39,7 @@ Cohortdata.getStudies = (trait, studyTypes, result) => {
 
     sql.query(studyMaxQuery, [trait], (err, res) => {
         if (err) {
-            console.log("UKBB TABLE error: ", err);
+            console.log("Cohort TABLE error: ", err);
             result(err, null)
             return;
         }
@@ -101,8 +101,8 @@ Cohortdata.getStudies = (trait, studyTypes, result) => {
                 studyIDs.push(data[i].studyID)
             }
 
-            // grab trait/studyID combos that are in the ukbb table
-            sql.query(`SELECT trait, studyID FROM ukbb_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
+            // grab trait/studyID combos that are in the cohort table
+            sql.query(`SELECT trait, studyID FROM cohort_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -114,10 +114,9 @@ Cohortdata.getStudies = (trait, studyTypes, result) => {
     })
 }
 
-Cohortdata.getSummaryResults = (studyID, trait, result) => {
-
-    sqlStatement = `SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM ukbb_summary_data WHERE studyID = ? and trait = ?`
-    sql.query(sqlStatement, [studyID, trait], (err, res) => {
+Cohortdata.getCohorts = (studyID, trait, result) => {
+    sqlStatement = `SELECT DISTINCT cohort FROM cohort_summary_data WHERE studyID = ? and trait = ?`
+    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -128,17 +127,31 @@ Cohortdata.getSummaryResults = (studyID, trait, result) => {
     })
 }
 
-Cohortdata.getFullResults = (studyID, trait, result) => {
+Cohortdata.getSummaryResults = (studyID, trait, cohort, result) => {
 
-    sqlStatement = `SELECT * FROM ukbb_summary_data JOIN ukbb_percentiles ON ( ukbb_summary_data.studyID = ukbb_percentiles.studyID AND ukbb_summary_data.trait = ukbb_percentiles.trait ) WHERE ukbb_summary_data.studyID = ? and ukbb_summary_data.trait = ?`
-    sql.query(sqlStatement, [studyID, trait], (err, res) => {
+    sqlStatement = `SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM cohort_summary_data WHERE studyID = ? and trait = ? and cohort = ?`
+    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-        sqlGetSnps = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
-        sql.query(sqlGetSnps, [studyID, trait], (err, res2) => {
+
+        result(null, res);
+    })
+}
+
+Cohortdata.getFullResults = (studyID, trait, cohort, result) => {
+
+    sqlStatement = `SELECT * FROM cohort_summary_data JOIN cohort_percentiles ON ( cohort_summary_data.studyID = cohort_percentiles.studyID AND cohort_summary_data.trait = cohort_percentiles.trait and cohort_summary_data.cohort = cohort_percentiles.cohort ) WHERE cohort_summary_data.studyID = ? and cohort_summary_data.trait = ? and cohort_summary_data.cohort = ?`
+    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        sqlGetSnps = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?"
+        sql.query(sqlGetSnps, [studyID, trait, cohort], (err, res2) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -150,9 +163,9 @@ Cohortdata.getFullResults = (studyID, trait, result) => {
     })
 }
 
-Cohortdata.getStudySnps = (studyID, trait, result) => {
-    sqlStatement = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
-    sql.query(sqlStatement, [studyID, trait], (err, res) => {
+Cohortdata.getStudySnps = (studyID, trait, cohort, result) => {
+    sqlStatement = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?"
+    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);

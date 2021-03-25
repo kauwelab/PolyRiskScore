@@ -5,7 +5,7 @@ function getTraits() {
     //call the API and populate the traits dropdown with the results
     $.ajax({
         type: "GET",
-        url: "ukbb_get_traits",
+        url: "cohort_get_traits",
         success: async function (data) {
             traitsList = data;
             var selector = document.getElementById("trait-Selector");
@@ -38,7 +38,7 @@ function getStudies() {
         
         $.ajax({
             type: "GET",
-            url: "/ukbb_get_studies",
+            url: "/cohort_get_studies",
             data: { trait: trait, studyTypes: studyTypes },
             success: async function (studyLists) {
 
@@ -77,11 +77,36 @@ function getStudies() {
     }
 }
 
+function getCohorts() {
+    var studySelector = document.getElementById("study-Selector");
+    selectedStudy = studySelector.options[studySelector.selectedIndex]
+    studyID = studySelector.value;
+    trait = selectedStudy.getAttribute("data-trait")
+    var cohortSelector = document.getElementById("cohort-Selector");
+    cohortSelector.disabled = false;
+
+    // enable children that have the correct cohorts
+    $.ajax({
+        type: "GET",
+        url: "cohort_get_cohorts",
+        success: async function (data) {
+            cohortList = data;
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
+
 function resetFilters() {
     var studySelector = document.getElementById("study-Selector");
     studySelector.value = 'default';
     studySelector.disabled = true;
-    
+
+    var cohortSelector = document.getElementById("cohort-Selector");
+    cohortSelector.value = 'default';
+    cohortSelector.disabled = true;
+
     var studyTypeSelector = document.getElementById("studyType-Selector");
     studyTypeSelector.value = 'default';
  }
@@ -98,7 +123,7 @@ function displayGraphs() {
     $.ajax({
         type: "GET",
         url: "/cohort_full_results",
-        data: { trait: trait, studyID: studyID },
+        data: { trait: trait, studyID: studyID, cohort: cohort },
         success: async function (data) {
 
             if (data.length == 0) {
