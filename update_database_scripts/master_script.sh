@@ -131,16 +131,10 @@ optUsage () {
         fi
     done
 
-    # if there were to many or not enough non-option arguments
+    # if there are not enough non-option arguments
     if [ $i -eq 1 ]; then
         echo ""
         echo "Too few arguments!"
-        usage
-        read -p "Press [Enter] key to quit..."
-        exit 1
-    elif [ $i -ge 8 ]; then
-        echo ""
-        echo "Too many arguments!"
         usage
         read -p "Press [Enter] key to quit..."
         exit 1
