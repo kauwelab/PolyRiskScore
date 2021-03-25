@@ -57,6 +57,10 @@ optUsage () {
     echo "  [-e: disables creating example VCF and TXT files]"
     echo "  [-c: disables creating clump and association downloadable files]"
 }
+    # get start seconds
+    start=$(date +%s)
+    # print date, including day, year, and time
+    echo "Start time: $(date)"
 
 #===============Argument Handling======================================================
     # all options default to true
@@ -262,6 +266,14 @@ optUsage () {
         python3 createServerAssociAndClumpsFiles.py $password
         wait
     fi
+
+
+    end=$(date +%s)
+    # gets the difference between start and end seeconds
+    diff=$(( ($end - $start) / 1 ))
+    # gets the time in hms format
+    diffTime=$(printf '%02dh:%dm:%ds\n' $((diff/3600)) $((diff%3600/60)) $((diff%60)))
+    echo "Total time taken: $diffTime"
 
     read -p "Press [Enter] key to finish..."
 fi
