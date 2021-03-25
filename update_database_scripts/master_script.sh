@@ -31,7 +31,7 @@ usage () {
     echo "  [optional: path to association tsv file folder (default: \"../tables/\")]"
     echo "  [optional: path to study table tsv folder (default: \"../tables/\")]"
     echo "  [optional: path to ukbb tables tsv folder (default: \"../tables/\")]"
-    echo "  [optional: path to sample vcf  folder (default: \"../static/\")]"
+    echo "  [optional: path to example vcf and txt folders (default: \"../static/\")]"
     echo "  [optional: 'daosrfuec' options for disabling parts of the script (can be anywhere in the arguments)]"
     echo ""
     read -p "Would you like to see option usage? (Yn)" yn
