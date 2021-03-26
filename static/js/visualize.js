@@ -33,7 +33,7 @@ function getStudies() {
             studyTypes = ["HI", "LC", "O"]
         }
         
-        $('#study-Selector').replaceWith("<select id='study-Selector' style='margin-top: 2em; margin-bottom: 2em;' disabled> <option selected='selected' value='default'>Select a Study</option> </select>");
+        $('#study-Selector').replaceWith("<select id='study-Selector' style='margin-top: 2em; margin-bottom: 2em;' disabled onchange=\'getCohorts()\'> <option selected='selected' value='default'>Select a Study</option> </select>");
         var studySelector = document.getElementById("study-Selector");
         
         $.ajax({
@@ -84,13 +84,26 @@ function getCohorts() {
     trait = selectedStudy.getAttribute("data-trait")
     var cohortSelector = document.getElementById("cohort-Selector");
     cohortSelector.disabled = false;
+    cohortSelectorList = cohortSelector.options
 
     // enable children that have the correct cohorts
     $.ajax({
         type: "GET",
         url: "cohort_get_cohorts",
+        data: { trait: trait, studyID: studyID },
         success: async function (data) {
             cohortList = data;
+            // ensure the correct cohort options are available
+            for (i = 0; i < cohortSelectorList.length; i++) {
+                if (cohortSelectorList[i].value != "default") {
+                    if (cohortList.includes(cohortSelectorList[i].value)) {
+                        cohortSelectorList[i].disabled = false
+                    }
+                    else {
+                        cohortSelectorList[i].disabled = true
+                    }
+                }
+            }
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
@@ -99,6 +112,9 @@ function getCohorts() {
 }
 
 function resetFilters() {
+    var studyTypeSelector = document.getElementById("studyType-Selector");
+    studyTypeSelector.value = 'default';
+
     var studySelector = document.getElementById("study-Selector");
     studySelector.value = 'default';
     studySelector.disabled = true;
@@ -106,10 +122,7 @@ function resetFilters() {
     var cohortSelector = document.getElementById("cohort-Selector");
     cohortSelector.value = 'default';
     cohortSelector.disabled = true;
-
-    var studyTypeSelector = document.getElementById("studyType-Selector");
-    studyTypeSelector.value = 'default';
- }
+}
 
 function displayGraphs() {
     var studySelector = document.getElementById("study-Selector");
