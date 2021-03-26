@@ -61,10 +61,9 @@ exports.getCohorts = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            //todo need to test
             returnData = []
             for (i = 0; i < data.length; i++) {
-                returnData.push(data[i].cohort)
+                returnData.push(data[i].cohort.toLowerCase())
             }
             res.send(returnData);
         }

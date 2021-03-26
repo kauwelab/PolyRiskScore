@@ -116,7 +116,7 @@ Cohortdata.getStudies = (trait, studyTypes, result) => {
 
 Cohortdata.getCohorts = (studyID, trait, result) => {
     sqlStatement = `SELECT DISTINCT cohort FROM cohort_summary_data WHERE studyID = ? and trait = ?`
-    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
+    sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
