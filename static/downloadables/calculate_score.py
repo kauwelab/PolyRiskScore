@@ -6,18 +6,18 @@ import csv
 import os
 from filelock import FileLock
 
-def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sampleOrder):
+def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sampleOrder):
     if isRSids:
-        txtcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, unusedTraitStudy, trait, study, snpCount)
+        txtcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, unusedTraitStudy, trait, study, snpCount)
     else:
-        vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, sampleOrder, snpCount)
+        vcfcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, sampleOrder, snpCount)
     return
 
 
-def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, unusedTraitStudy, trait, studyID, snpCount):
+def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, unmatchedAlleleVariants, clumpedVariants, outputFile, unusedTraitStudy, trait, studyID, snpCount):
 
     # if this trait/study had no snps in the input file, print the trait/study to the output list
-    if unusedTraitStudy:
+    if unusedTraitStudy and not omitUnusedStudiesFile:
         printUnusedTraitStudyPairs(trait, studyID, outputFile, False)
 
     else:
@@ -98,11 +98,11 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unm
     return
 
 
-def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, sampleOrder, snpCount):
+def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFile, samp_num, unusedTraitStudy, trait, studyID, sampleOrder, snpCount):
     header = []
 
     # if the trait/study has no snps in the input file, write out the trait/study to the output list of unused traits/studies
-    if unusedTraitStudy:
+    if unusedTraitStudy and not omitUnusedStudiesFile:
         # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
         printUnusedTraitStudyPairs(trait, studyID, outputFile, False)
 
