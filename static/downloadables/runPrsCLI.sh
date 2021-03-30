@@ -394,6 +394,59 @@ calculatePRS () {
         exit 1
     fi
 
+    # create python import paths
+    SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+    SCRIPT_DIR=$(echo $SCRIPT_DIR | sed 's,/,,' | sed 's,/,.,g')
+    echo $SCRIPT_DIR
+    CURR_DIR=$(pwd | sed 's,/,,' | sed 's,/,.,g')
+    echo $CURR_DIR
+
+    IFS="."
+
+    read -a scriptdirarray <<< "$SCRIPT_DIR"
+    read -a currdirarray <<< "$CURR_DIR"
+
+    if [ ${#scriptdirarray[*]} > ${#currdirarray[*]} ]; then
+        arrLen=${#scriptdirarray[*]}
+    else
+        arrLen=${#currdirarray[*]}
+    fi
+
+    importString=""
+    firstParent=1
+
+    for (( i=0; i<${arrLen}; i++ ))
+    do
+        if [ -z ${currdirarray[$i]} ]; then
+            if [ $firstParent == 1 ]; then
+                importString="${scriptdirarray[$i]}"
+                firstParent=0
+            else
+                importString="${importString}.${scriptdirarray[$i]}"
+            fi
+        elif [ -z ${scriptdirarray[$i]} ]; then
+            if [ $firstParent == 1 ]; then
+                importString="..${importString}"
+                firstParent=0
+            else
+                importString="${importString}"
+            fi
+        elif [ ${currdirarray[$i]} != ${scriptdirarray[$i]} ]; then
+            if [ $firstParent == 1 ]; then
+                importString="..${scriptdirarray[$i]}"
+                firstParent=0
+            else
+                importString="${importString}.${scriptdirarray[$i]}"
+            fi
+        fi
+    done
+
+    if [ "$importString" != "" ]; then
+        importString="${importString}."
+    fi
+
+    echo "$importString"
+
     while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:' c "$@"
     do 
         case $c in 
@@ -629,7 +682,7 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
+        if $pyVer -c "import ${importString}connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
