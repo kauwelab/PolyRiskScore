@@ -288,20 +288,17 @@ optUsage () {
         wait
     fi
 
-# #============Upload Tables to Github============================================
-#     if [ $github == "true" ]; then
-#         # get GitHub password
-#         #gitPassword #TODO is this necessary?
-#         date=$(printf  $(date '+%m-%d-%Y'))
-#         message="database update: ${date}"
-#         echo $message
-#         echo "early exit"
-#         exit 1 #TODO
-#         git commit -a -m "$message" & git push origin master
-#         # git add .
-#         # git commit -m "database update: $(date '+%m-%d-%Y')"
-#         # git push origin master
-#     fi 
+#============Upload Tables to Github============================================
+    if [ $github == "true" ]; then
+        # get GitHub password
+        #gitPassword #TODO is this necessary?
+        date=$(printf  $(date '+%m-%d-%Y'))
+        message="database update: ${date}"
+        git commit -a -m "$message" & git push origin master
+        # git add .
+        # git commit -m "database update: $(date '+%m-%d-%Y')"
+        # git push origin master
+    fi 
 
 
     end=$(date +%s)
