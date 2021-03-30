@@ -1,22 +1,25 @@
 const sql = require('./database')
 
-const Ukbbdata = function (mUkbbdata) {
-    this.studyID = mUkbbdata.studyID,
-    this.trait = mUkbbdata.trait,
-    this.mean = mUkbbdata.mean,
-    this.median = mUkbbdata.median,
-    this.min = mUkbbdata.min,
-    this.max = mUkbbdata.max,
-    this.rng = mUkbbdata.rng
+const Cohortdata = function (mCohortData) {
+    this.studyID = mCohortData.studyID,
+    this.reportedTrait = mCohortData.reportedTrait,
+    this.trait = mCohortData.trait,
+    this.min = mCohortData.min,
+    this.max = mCohortData.max,
+    this.rng = mCohortData.rng,
+    this.median = mCohortData.median,
+    this.mean = mCohortData.mean,
+    this.geomMean = mCohortData.geomMean,
+    this.harmMean = mCohortData.harmMean,
+    this.stdev = mCohortData.stdev,
+    this.geomStdev = mCohortData.geomStdev
     // the rest of the columns should be labled p0-p100
 }
 
-//TODO!!!!!: we should maybe add reportedTrait to the ukbb data table as a column?
-
-Ukbbdata.getTraits = (result) => {
-    sql.query("SELECT DISTINCT trait FROM ukbb_summary_data ORDER BY trait;", (err, res) => {
+Cohortdata.getTraits = (result) => {
+    sql.query("SELECT DISTINCT trait FROM cohort_summary_data ORDER BY trait;", (err, res) => {
         if (err) {
-            console.log("UKBB TABLE error: ", err);
+            console.log("Cohort TABLE error: ", err);
             result(err, null)
             return;
         }
@@ -24,7 +27,7 @@ Ukbbdata.getTraits = (result) => {
     })
 }
 
-Ukbbdata.getStudies = (trait, studyTypes, result) => {
+Cohortdata.getStudies = (trait, studyTypes, result) => {
     // studyMaxes is a view in the database used to find the max values we need 
     studyMaxQuery = `SELECT * FROM studyMaxes WHERE trait = ?`
 
@@ -39,7 +42,7 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
 
     sql.query(studyMaxQuery, [trait], (err, res) => {
         if (err) {
-            console.log("UKBB TABLE error: ", err);
+            console.log("Cohort TABLE error: ", err);
             result(err, null)
             return;
         }
@@ -101,8 +104,8 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
                 studyIDs.push(data[i].studyID)
             }
 
-            // grab trait/studyID combos that are in the ukbb table
-            sql.query(`SELECT trait, studyID FROM ukbb_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
+            // grab trait/studyID combos that are in the cohort table
+            sql.query(`SELECT trait, studyID FROM cohort_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -114,9 +117,8 @@ Ukbbdata.getStudies = (trait, studyTypes, result) => {
     })
 }
 
-Ukbbdata.getSummaryResults = (studyID, trait, result) => {
-
-    sqlStatement = `SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM ukbb_summary_data WHERE studyID = ? and trait = ?`
+Cohortdata.getCohorts = (studyID, trait, result) => {
+    sqlStatement = `SELECT DISTINCT cohort FROM cohort_summary_data WHERE studyID = ? and trait = ?`
     sql.query(sqlStatement, [studyID, trait], (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -128,17 +130,31 @@ Ukbbdata.getSummaryResults = (studyID, trait, result) => {
     })
 }
 
-Ukbbdata.getFullResults = (studyID, trait, result) => {
+Cohortdata.getSummaryResults = (studyID, trait, cohort, result) => {
 
-    sqlStatement = `SELECT * FROM ukbb_summary_data JOIN ukbb_percentiles ON ( ukbb_summary_data.studyID = ukbb_percentiles.studyID AND ukbb_summary_data.trait = ukbb_percentiles.trait ) WHERE ukbb_summary_data.studyID = ? and ukbb_summary_data.trait = ?`
-    sql.query(sqlStatement, [studyID, trait], (err, res) => {
+    sqlStatement = `SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM cohort_summary_data WHERE studyID = ? and trait = ? and cohort = ?`
+    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-        sqlGetSnps = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
-        sql.query(sqlGetSnps, [studyID, trait], (err, res2) => {
+
+        result(null, res);
+    })
+}
+
+Cohortdata.getFullResults = (studyID, trait, cohort, result) => {
+
+    sqlStatement = `SELECT * FROM cohort_summary_data JOIN cohort_percentiles ON ( cohort_summary_data.studyID = cohort_percentiles.studyID AND cohort_summary_data.trait = cohort_percentiles.trait and cohort_summary_data.cohort = cohort_percentiles.cohort ) WHERE cohort_summary_data.studyID = ? and cohort_summary_data.trait = ? and cohort_summary_data.cohort = ?`
+    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        sqlGetSnps = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?"
+        sql.query(sqlGetSnps, [studyID, trait, cohort], (err, res2) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -150,9 +166,9 @@ Ukbbdata.getFullResults = (studyID, trait, result) => {
     })
 }
 
-Ukbbdata.getStudySnps = (studyID, trait, result) => {
-    sqlStatement = "SELECT * FROM ukbb_snps WHERE studyID = ? and trait = ?"
-    sql.query(sqlStatement, [studyID, trait], (err, res) => {
+Cohortdata.getStudySnps = (studyID, trait, cohort, result) => {
+    sqlStatement = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?"
+    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -162,4 +178,4 @@ Ukbbdata.getStudySnps = (studyID, trait, result) => {
     })
 }
 
-module.exports = Ukbbdata;
+module.exports = Cohortdata;
