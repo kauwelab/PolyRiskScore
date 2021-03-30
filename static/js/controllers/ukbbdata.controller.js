@@ -1,7 +1,7 @@
-const cohortdata = require("../models/cohortdata.model.js");
+const Ukbbdata = require("../models/ukbbdata.model.js");
 
 exports.getTraits = (req, res) => {
-    cohortdata.getTraits((err, data) => {
+    Ukbbdata.getTraits((err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -21,7 +21,7 @@ exports.getTraits = (req, res) => {
 }
 
 exports.getStudies = (req, res) => {
-    cohortdata.getStudies(req.query.trait, req.query.studyTypes, (err, data) => {
+    Ukbbdata.getStudies(req.query.trait, req.query.studyTypes, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -30,18 +30,18 @@ exports.getStudies = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            // ensure that we are only returning studies for which we have data in the cohort table
+            // ensure that we are only returning studies for which we have data in the ukbb table
             studiesFromStudyTable = data[0]
-            studyDataFromCohortTable = data[1]
-            studyIDsFromCohortTable = []
+            studyDataFromUKBB = data[1]
+            studyIDsFromUKBB = []
             studiesToReturn = []
 
-            for (i=0; i<studyDataFromCohortTable.length; i++) {
-                studyIDsFromCohortTable.push(studyDataFromCohortTable[i].studyID)
+            for (i=0; i<studyDataFromUKBB.length; i++) {
+                studyIDsFromUKBB.push(studyDataFromUKBB[i].studyID)
             }
 
             for (i=0; i<studiesFromStudyTable.length; i++) {
-                if (studyIDsFromCohortTable.includes(studiesFromStudyTable[i].studyID)) {
+                if (studyIDsFromUKBB.includes(studiesFromStudyTable[i].studyID)) {
                     studiesToReturn.push(studiesFromStudyTable[i])
                 }
             }
@@ -51,27 +51,8 @@ exports.getStudies = (req, res) => {
     })
 }
 
-exports.getCohorts = (req, res) => {
-    cohortdata.getCohorts(req.query.studyID, req.query.trait, (err, data) => {
-        if (err) {
-            res.status(500).send({
-                message:
-                err.message || "Error occured while retrieving cohort data."
-            });
-        }
-        else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            returnData = []
-            for (i = 0; i < data.length; i++) {
-                returnData.push(data[i].cohort.toLowerCase())
-            }
-            res.send(returnData);
-        }
-    })
-}
-
 exports.getSummaryResults = (req, res) => {
-    cohortdata.getSummaryResults(req.query.studyID, req.query.trait, req.query.cohort, (err, data) => {
+    Ukbbdata.getSummaryResults(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -86,7 +67,7 @@ exports.getSummaryResults = (req, res) => {
 }
 
 exports.getFullResults = (req, res) => {
-    cohortdata.getFullResults(req.query.studyID, req.query.trait, req.query.cohort, (err, data) => {
+    Ukbbdata.getFullResults(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -101,7 +82,7 @@ exports.getFullResults = (req, res) => {
 }
 
 exports.getStudySnps = (req, res) => {
-    cohortdata.getStudySnps(req.query.studyID, req.query.trait, req.query.cohort, (err, data) => {
+    Ukbbdata.getStudySnps(req.query.studyID, req.query.trait, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:

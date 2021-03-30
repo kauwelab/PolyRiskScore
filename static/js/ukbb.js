@@ -5,7 +5,7 @@ function getTraits() {
     //call the API and populate the traits dropdown with the results
     $.ajax({
         type: "GET",
-        url: "cohort_get_traits",
+        url: "ukbb_get_traits",
         success: async function (data) {
             traitsList = data;
             var selector = document.getElementById("trait-Selector");
@@ -33,12 +33,12 @@ function getStudies() {
             studyTypes = ["HI", "LC", "O"]
         }
         
-        $('#study-Selector').replaceWith("<select id='study-Selector' style='margin-top: 2em; margin-bottom: 2em;' disabled onchange=\'getCohorts()\'> <option selected='selected' value='default'>Select a Study</option> </select>");
+        $('#study-Selector').replaceWith("<select id='study-Selector' style='margin-top: 2em; margin-bottom: 2em;' disabled> <option selected='selected' value='default'>Select a Study</option> </select>");
         var studySelector = document.getElementById("study-Selector");
         
         $.ajax({
             type: "GET",
-            url: "/cohort_get_studies",
+            url: "/ukbb_get_studies",
             data: { trait: trait, studyTypes: studyTypes },
             success: async function (studyLists) {
 
@@ -77,52 +77,14 @@ function getStudies() {
     }
 }
 
-function getCohorts() {
-    var studySelector = document.getElementById("study-Selector");
-    selectedStudy = studySelector.options[studySelector.selectedIndex]
-    studyID = studySelector.value;
-    trait = selectedStudy.getAttribute("data-trait")
-    var cohortSelector = document.getElementById("cohort-Selector");
-    cohortSelector.disabled = false;
-    cohortSelectorList = cohortSelector.options
-
-    // enable children that have the correct cohorts
-    $.ajax({
-        type: "GET",
-        url: "cohort_get_cohorts",
-        data: { trait: trait, studyID: studyID },
-        success: async function (data) {
-            cohortList = data;
-            // ensure the correct cohort options are available
-            for (i = 0; i < cohortSelectorList.length; i++) {
-                if (cohortSelectorList[i].value != "default") {
-                    if (cohortList.includes(cohortSelectorList[i].value)) {
-                        cohortSelectorList[i].disabled = false
-                    }
-                    else {
-                        cohortSelectorList[i].disabled = true
-                    }
-                }
-            }
-        },
-        error: function (XMLHttpRequest) {
-            alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
-        }
-    })
-}
-
 function resetFilters() {
-    var studyTypeSelector = document.getElementById("studyType-Selector");
-    studyTypeSelector.value = 'default';
-
     var studySelector = document.getElementById("study-Selector");
     studySelector.value = 'default';
     studySelector.disabled = true;
-
-    var cohortSelector = document.getElementById("cohort-Selector");
-    cohortSelector.value = 'default';
-    cohortSelector.disabled = true;
-}
+    
+    var studyTypeSelector = document.getElementById("studyType-Selector");
+    studyTypeSelector.value = 'default';
+ }
 
 function displayGraphs() {
     var studySelector = document.getElementById("study-Selector");
@@ -130,13 +92,10 @@ function displayGraphs() {
     studyID = studySelector.value;
     trait = selectedStudy.getAttribute("data-trait")
 
-    var cohortSelector = document.getElementById("cohort-Selector");
-    cohort = cohortSelector.value;
-
     $.ajax({
         type: "GET",
-        url: "/cohort_full_results",
-        data: { trait: trait, studyID: studyID, cohort: cohort },
+        url: "/ukbb_full_results",
+        data: { trait: trait, studyID: studyID },
         success: async function (data) {
 
             if (data.length == 0) {
@@ -171,7 +130,7 @@ function displayGraphs() {
                 <p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p>
                 <p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p>
                 <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>
-                <p><b>Cohort SNPs Used:</b> ${displayDataObj["snps"].join(", ")}<br>`
+                <p><b>UK Biobank SNPs Used:</b> ${displayDataObj["snps"].join(", ")}<br>`
                 studyMetadata.innerHTML = metadatastring
             }
         },
