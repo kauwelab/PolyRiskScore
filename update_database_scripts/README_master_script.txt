@@ -19,7 +19,8 @@ To update the PRSKB database manually (without using the cron job) with the late
    Opening a tmux window allows the scripts to run even when you are not logged onto the server.
     a. If tmux is not available, install it with the following command: "sudo apt-get install tmux"
     b. You can leave or come back to a tmux window at any time with "tmux detach" and "tmux a -t session_name" respectively. 
-4. Run the following command, replacing "passwordPath" with the password path to the JavaScript file contaning the PRSKB MySQL password: sudo ./master_script.sh "passwordPath" 8 &> output.txt &
+4. Run the following command, replacing "password" with the password for the PRSKB MySQL database or the path to the JavaScript file contaning the PRSKB MySQL password: 
+   sudo ./master_script.sh "password" 8 &> output.txt &
     a. After running the command, make sure the script has started working by opening the output.txt file and confirming there are no errors.
         aa. If you get the error: "./master_script.sh: Permission denied" then do "chmod 777 master_script"
     b. See the master_script file for additional information on its parameters.
@@ -48,7 +49,7 @@ master_script.sh- A shell script that calls the other files in the update_databa
     GWAS catalog to the PRSKB database. See the file for details on command line arguments.
 	
 passwordGetter.py- A Python file that, given a password file path and a password name, gets the specified password from the JavaScript password file.
-    This file ensures that no passwords need to be manually coded into any scripts.
+    This file ensures that no passwords need to be manually coded into any scripts, especially the cron job scripts.
 
 downloadStudiesToFile.R- An R script that downloads study, publication, and ancestry data for all GWAS catalog studies so each instance of the
 	unpackDatabaseCommandLine.R doesn't have to (speeds up the process). These tables are written out as TSVs, but later deleted by the master_script after use.
