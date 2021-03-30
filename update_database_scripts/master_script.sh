@@ -10,12 +10,12 @@
 #   7. upload the new study and association tables as well as the ukbb tables to the PRSKB database,
 #   8. create example VCF and rsID files,
 #   9. and create association and clumps download files. 
-# It usually takes 4ish hours to complete (TODO: update this estimate) on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
+# It usually takes 4ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
 #
 # How to run: sudo ./master_script.sh "password" "numNodes" &> output.txt &
-# where "password" is the password to the PRSKB database
+# where "password" is the password for the PRSKB database oor the path to the password file
 #       "numNodes" is the number of times the GWAS database will be divided for download (higher is better for beefy computers)
 #       "outputFile.txt" is the file where terminal output will be stored
 # See the usage and optUsage functions below for other optional arguments
@@ -25,7 +25,7 @@ usage () {
     echo ""
     echo "----Usage----"
     echo "master_script.sh" 
-    echo "  [password]"
+    echo "  [password or path to passwords file]"
     echo "  [optional: number of nodes to download data (default: 1)]"
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
     echo "  [optional: path to association tsv file folder (default: \"../tables/\")]"
@@ -49,14 +49,40 @@ optUsage () {
     echo "----Options usage----"
     echo "  [-d: disables downloading new raw data]"
     echo "  [-a: disables creating new associations table]"
-    echo "  [-o: disables ording associations table]"
+    echo "  [-o: disables ordering associations table]"
     echo "  [-s: disables creating new studies table]"
     echo "  [-r: disables removing downloaded raw data]"
     echo "  [-f: disables strand flipping]"
     echo "  [-u: disables uploading tables to the database]"
     echo "  [-e: disables creating example VCF and TXT files]"
     echo "  [-c: disables creating clump and association downloadable files]"
+    echo "  [-g: disables uploading updated files to GitHub]"
 }
+
+#===============Error Handling======================================================
+    # exit when any command fails
+    set -e
+
+    # keep track of the last executed command
+    trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+    # echo an error message before exiting
+    trap 'echo "\"${last_command}\": exit code $?"' EXIT
+
+#===============Python Version======================================================
+# finds out which version of python is called using the 'python' command, uses the correct call to use python 3
+    pyVer=""
+    ver=$(python --version 2>&1)
+    read -a strarr <<< "$ver"
+
+    # if python version isn't blank and is 3.something, then use python as the call
+    if ! [ -z "${strarr[1]}" ] && [[ "${strarr[1]}" =~ ^3 ]]; then
+        pyVer="python"
+    # if python3 doesn't error, use python3 as the call
+    elif python3 --version >/dev/null 2>&1; then
+        pyVer="python3"
+    fi
+
+#===============Start Timer======================================================
     # get start seconds
     start=$(date +%s)
     # print date, including day, year, and time
@@ -73,6 +99,7 @@ optUsage () {
 	uploadTables="true"
 	exampleFiles="true"
 	clumpAssociationDownloadFiles="true"
+    github="true"
 
     # non-option argument position counter
     i=1
@@ -81,26 +108,28 @@ optUsage () {
         if [[ $arg == -* ]]; then
             # option handling
             case $arg in 
-                -d)  downloadRawData="false"
+                -d) downloadRawData="false"
                     echo "Downloading new raw data disabled";;
-                -a)  associationsTable="false"
+                -a) associationsTable="false"
                     echo "Creating new associations table disabled";;
-                -o)  orderAssociations="false"
+                -o) orderAssociations="false"
                     echo "Ordering associations table disabled";;
-                -s)  studiesTable="false"
+                -s) studiesTable="false"
                     echo "Creating new studies table disabled";;
-                -r)  removeRawData="false"
+                -r) removeRawData="false"
                     echo "Removing downloaded raw data disabled";;
-                -f)  strandFlipping="false"
+                -f) strandFlipping="false"
                     echo "Strand flipping disabled";;
-                -u)  uploadTables="false"
+                -u) uploadTables="false"
                     echo "Upload tables to database disabled";;
-                -e)  exampleFiles="false"
+                -e) exampleFiles="false"
                     echo "Creating example VCF and TXT files disabled";;
-                -c)  clumpAssociationDownloadFiles="false"
+                -c) clumpAssociationDownloadFiles="false"
                     echo "Creating clump and association downloadable files disabled";;
+                -g) github="false"
+                    echo "Uploading new data to GitHub disabled";;
                 *)  echo ""
-                    echo "Error: option '$arg' not recognized. Valid options are daosrfuec. Please check your options and try again."
+                    echo "Error: option '$arg' not recognized. Valid options are daosrfuecg. Please check your options and try again."
                     optUsage
                     read -p "Press [Enter] key to quit..."
                     exit 1;;
@@ -109,7 +138,21 @@ optUsage () {
         # non-option arguments
         else
             if [ $i -eq 1 ]; then
-                password=$arg
+                passwordPath=$arg
+                # if the password path is invalid, this must be a regular password
+                pathExists=$($pyVer -c "from os import path; print(path.exists('$passwordPath'));")
+                if [[ $pathExists == "False" ]]; then
+                    echo "using regular password system"
+                    password=$passwordPath
+                else
+                    echo "getting password from file path specified"
+                    password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLClientPassword'); print(password);")
+                    invalidPass=$($pyVer -c "import passwordGetter as p; print('$password' == p.INVALID_NUM_ARGS or '$password' == p.INVALID_PASS or '$password' == p.INVALID_PATH);")
+                    if [[ $invalidPass == "True" ]]; then
+                        echo -e "Error with password file: \"$password\" Exiting...\n"
+                        exit 1
+                    fi
+                fi
             elif [ $i -eq 2 ]; then
                 if ! [[ "$arg" =~ ^[0-9]+$ ]]; then
                     echo "'$arg' is the number of nodes you specified to download data, but it is not an integer."
@@ -153,27 +196,6 @@ optUsage () {
     studyAndPubTSVFolderPath="."
     chainFileFolderPath="."
 
-    #TODO remove
-    echo "password: $password"
-    echo "numGroups: $numGroups"
-    echo "consoleOutputFolder: $consoleOutputFolder"
-    echo "associationTableFolderPath: $associationTableFolderPath"
-    echo "studyTableFolderPath: $studyTableFolderPath"
-    echo "sampleVCFFolderPath: $sampleVCFFolderPath"
-    echo "studyAndPubTSVFolderPath: $studyAndPubTSVFolderPath"
-    echo "chainFileFolderPath: $chainFileFolderPath"
-    
-    #TODO remove
-    echo "downloadRawData: $downloadRawData"
-    echo "associationsTable: $associationsTable"
-    echo "orderAssociations: $orderAssociations"
-    echo "studiesTable: $studiesTable"
-    echo "removeRawData: $removeRawData"
-    echo "strandFlipping: $strandFlipping"
-    echo "uploadTables: $uploadTables"
-    echo "exampleFiles: $exampleFiles"
-    echo "clumpAssociationDownloadFiles: $clumpAssociationDownloadFiles"
-
 #===============Creating Output Paths========================================================
     # if the console output folder path doesn't exist, create it
     if [ ! -d $consoleOutputFolder ]; then
@@ -214,7 +236,6 @@ optUsage () {
         wait
         echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
     fi
-    exit 1
 
     if [ $orderAssociations == "true" ]; then
         Rscript sortAssociationsTable.R $associationTableFolderPath
@@ -260,12 +281,27 @@ optUsage () {
         wait
     fi
 
-#============Create Association and Clumps download files ============================================
+#============Create Association and Clumps download files============================================
     if [ $clumpAssociationDownloadFiles == "true" ]; then
         echo "Creating Association and Clumps download files"
         python3 createServerAssociAndClumpsFiles.py $password
         wait
     fi
+
+# #============Upload Tables to Github============================================
+#     if [ $github == "true" ]; then
+#         # get GitHub password
+#         #gitPassword #TODO is this necessary?
+#         date=$(printf  $(date '+%m-%d-%Y'))
+#         message="database update: ${date}"
+#         echo $message
+#         echo "early exit"
+#         exit 1 #TODO
+#         git commit -a -m "$message" & git push origin master
+#         # git add .
+#         # git commit -m "database update: $(date '+%m-%d-%Y')"
+#         # git push origin master
+#     fi 
 
 
     end=$(date +%s)
