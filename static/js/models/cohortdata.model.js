@@ -2,16 +2,19 @@ const sql = require('./database')
 
 const Cohortdata = function (mCohortData) {
     this.studyID = mCohortData.studyID,
+    this.reportedTrait = mCohortData.reportedTrait,
     this.trait = mCohortData.trait,
-    this.mean = mCohortData.mean,
-    this.median = mCohortData.median,
     this.min = mCohortData.min,
     this.max = mCohortData.max,
-    this.rng = mCohortData.rng
+    this.rng = mCohortData.rng,
+    this.median = mCohortData.median,
+    this.mean = mCohortData.mean,
+    this.geomMean = mCohortData.geomMean,
+    this.harmMean = mCohortData.harmMean,
+    this.stdev = mCohortData.stdev,
+    this.geomStdev = mCohortData.geomStdev
     // the rest of the columns should be labled p0-p100
 }
-
-//TODO!!!!!: we should maybe add reportedTrait to the cohort data table as a column?
 
 Cohortdata.getTraits = (result) => {
     sql.query("SELECT DISTINCT trait FROM cohort_summary_data ORDER BY trait;", (err, res) => {
