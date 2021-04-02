@@ -254,6 +254,7 @@ optUsage () {
         rm "./rawGWASStudyData.tsv"
         rm "./rawGWASPublications.tsv"
         rm "./rawGWASAncestries.tsv"
+        rm "./lastUpdated.tsv"
     fi
 
 #==============Perform Strand Flipping=================================================================

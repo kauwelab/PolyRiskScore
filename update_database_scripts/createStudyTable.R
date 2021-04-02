@@ -41,6 +41,7 @@ studyTablePath <- file.path(args[2], "study_table.tsv")
 rawStudyTablePath <- file.path(args[3], "rawGWASStudyData.tsv")
 publicationsPath <- file.path(args[3], "rawGWASPublications.tsv")
 ancestriesPath <- file.path(args[3], "rawGWASAncestries.tsv")
+lastUpdatedPath <- file.path(args[3], "lastUpdated.tsv")
 
 ## imports and import downloads (dupicate from master_script.sh)---------------------------------------------------------------------------------
 my_packages <- c("BiocManager", "rtracklayer", "remotes", "gwasrapidd", "tidyverse", "rAltmetric", "magrittr", "purrr")
@@ -99,11 +100,6 @@ getAltmetricScore <- function(pubmed_id) {
   return(as.numeric(getAltmetrics(pubmed_id)[["score"]]))
 }
 
-# given a studyID, returns the most recent date a snp has been updated
-getLastUpdated <- function(studyID) {
-  return(max(as.Date(get_associations(study_id = studyID)@associations$last_update_date)))
-}
-
 # sums all the numbers found in a string- used to calculate cohort size (if given a list, returns a list of nums)
 SumNumsFromString <- function(string){
   sums <- c()
@@ -149,12 +145,13 @@ getDatabaseTraitName <- function(traitName) {
 
 # if the GWAS catalog is available
 if (is_ebi_reachable()) {
-  if (!file.exists(associationTablePath) || !file.exists(rawStudyTablePath) || !file.exists(publicationsPath) || !file.exists(ancestriesPath)) {
+  if (!file.exists(associationTablePath) || !file.exists(rawStudyTablePath) || !file.exists(publicationsPath) || !file.exists(ancestriesPath) || !file.exists(lastUpdatedPath)) {
     print("One or more of the following tables do not exist. Please check which ones are missing and run the downloadStudiesToFile.R or unpackDatabaseCommandLine.R scripts to create them.")
     print(associationTablePath)
     print(rawStudyTablePath)
     print(publicationsPath)
     print(ancestriesPath)
+    print(lastUpdatedPath)
   }
   else {
     # initialize table
@@ -168,6 +165,7 @@ if (is_ebi_reachable()) {
     studiesTibble <- read_tsv(rawStudyTablePath, col_types = cols())
     publications <- read_tsv(publicationsPath, col_types = cols())
     ancestries <- read_tsv(ancestriesPath, col_types = cols())
+    lastUpdatedTibble <- read_tsv(lastUpdatedPath, col_types = cols())
 
     print("Study data read!")
     
@@ -215,8 +213,8 @@ if (is_ebi_reachable()) {
           ethnicity <- NA
         }
 
-        # get the last time the study was updated
-        lastUpdated <- as.character(getLastUpdated(studyID))
+        # get the last time the study was updated from the lastUpdatedTibble
+        lastUpdated <- lastUpdatedTibble[lastUpdatedTibble$studyID == studyID,]$lastUpdated
         
         initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
         replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])

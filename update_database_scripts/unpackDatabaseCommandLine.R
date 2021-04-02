@@ -131,6 +131,10 @@ if (is_ebi_reachable()) {
   columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "trait", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "sex", "citation", "studyID")
   writeLines(paste(columnNames, collapse = "\t"), file.path(outPath, "associations_table.tsv"))
 
+  # remove the old lastUpdated.tsv and create a new blank one with column names "lastUpdatedColumnNames" and no data yet
+  lastUpdatedColumnNames <- c("studyID", "lastUpdated")
+  writeLines(paste(lastUpdatedColumnNames, collapse = "\t"), file.path(rawGWASTSVFolderPath, "lastUpdated.tsv"))
+  
   # the minimum number of SNPs a study must have to be valid and outputted
   minNumStudyAssociations <- 1
   
@@ -346,6 +350,8 @@ if (is_ebi_reachable()) {
   invalidStudies <- c()
   #initiaize the new assocations table
   associationsTable <- tibble()
+  # initiaize lastUpdated tibble with studyID and lastUpdated as columns
+  lastUpdatedTibble <- tibble(studyID = character(), lastUpdated = character())
   
   # holds the indices (i) that have been appended to the associationsTable
   studyIndeciesAppended <- c()
@@ -446,6 +452,10 @@ if (is_ebi_reachable()) {
       if (is.null(checkIfValidDataObj(studyData))) {next}
 
       associationsTable <- bind_rows(studyData, associationsTable)
+      
+      # add lastUpdated to rawGWASStudyData.tsv
+      lastUpdatedTibble <- add_row(lastUpdatedTibble, studyID = studyID, lastUpdated = as.character(max(as.Date(associationsTibble$last_update_date))))
+      
       studyIndeciesAppended <- c(studyIndeciesAppended, i)
       
       # for every 10 studies, append to the associations_table.tsv
@@ -469,6 +479,9 @@ if (is_ebi_reachable()) {
   is_ebi_reachable(chatty = TRUE)
   stop("The EBI API is unreachable. Check internet connection and try again.", call.=FALSE)
 }
+
+# write to lastUpdated.tsv
+write.table(lastUpdatedTibble, file=file.path(rawGWASTSVFolderPath, "lastUpdated.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE, fileEncoding = "native.enc")
 
 DevPrint(paste("Studies with no valid snps:", length(invalidStudies)))
 DevPrint(invalidStudies)
