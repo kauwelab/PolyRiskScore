@@ -295,7 +295,8 @@ optUsage () {
         #gitPassword #TODO is this necessary?
         date=$(printf  $(date '+%m-%d-%Y'))
         message="database update: ${date}"
-        git commit -a -m "$message" & git push origin master
+        git commit -a -m "$message" & git push origin master-script-speed-up
+        echo "Pushed to github"
         # git add .
         # git commit -m "database update: $(date '+%m-%d-%Y')"
         # git push origin master
