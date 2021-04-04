@@ -291,17 +291,13 @@ optUsage () {
 
 #============Upload Tables to Github============================================
     if [ $github == "true" ]; then
-        # get GitHub password
-        #gitPassword #TODO is this necessary?
         date=$(printf  $(date '+%m-%d-%Y'))
-        message="test database update: ${date}"
-        git commit -a -m "$message" & git push master-script-speed-up master-script-speed-up
+        #TODO message="test database update: ${date}" #TODO
+        message="test shell upload"
+        git commit -a -m "$message"
+        git push origin master-script-speed-up #TODO 
         echo "Pushed to github"
-        # git add .
-        # git commit -m "database update: $(date '+%m-%d-%Y')"
-        # git push origin master
     fi 
-
 
     end=$(date +%s)
     # gets the difference between start and end seeconds
