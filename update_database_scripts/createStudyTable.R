@@ -214,7 +214,7 @@ if (is_ebi_reachable()) {
         }
 
         # get the last time the study was updated from the lastUpdatedTibble
-        lastUpdated <- lastUpdatedTibble[lastUpdatedTibble$studyID == studyID,]$lastUpdated
+        lastUpdated <- as.character(lastUpdatedTibble[lastUpdatedTibble$studyID == studyID,]$lastUpdated)
         
         initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
         replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])
