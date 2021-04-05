@@ -295,7 +295,7 @@ optUsage () {
         #TODO message="test database update: ${date}" #TODO
         message="test shell upload"
         git commit -a -m "$message"
-        git push origin master-script-speed-up #TODO 
+        git push Polyscore master-script-speed-up #TODO 
         echo "Pushed to github"
     fi 
 
