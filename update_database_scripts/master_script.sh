@@ -60,251 +60,257 @@ optUsage () {
 }
 
 #===============Error Handling======================================================
-    # exit when any command fails
-    set -e
+# exit when any command fails
+set -e
 
-    # keep track of the last executed command
-    trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
-    # echo an error message before exiting
-    trap 'echo "\"${last_command}\": exit code $?"' EXIT
+# keep track of the last executed command
+trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+# echo an error message before exiting
+trap 'echo "\"${last_command}\": exit code $?"' EXIT
 
 #===============Python Version======================================================
 # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
-    pyVer=""
-    ver=$(python --version 2>&1)
-    read -a strarr <<< "$ver"
+pyVer=""
+ver=$(python --version 2>&1)
+read -a strarr <<< "$ver"
 
-    # if python version isn't blank and is 3.something, then use python as the call
-    if ! [ -z "${strarr[1]}" ] && [[ "${strarr[1]}" =~ ^3 ]]; then
-        pyVer="python"
-    # if python3 doesn't error, use python3 as the call
-    elif python3 --version >/dev/null 2>&1; then
-        pyVer="python3"
-    fi
+# if python version isn't blank and is 3.something, then use python as the call
+if ! [ -z "${strarr[1]}" ] && [[ "${strarr[1]}" =~ ^3 ]]; then
+    pyVer="python"
+# if python3 doesn't error, use python3 as the call
+elif python3 --version >/dev/null 2>&1; then
+    pyVer="python3"
+fi
 
 #===============Start Timer======================================================
-    # get start seconds
-    start=$(date +%s)
-    # print date, including day, year, and time
-    echo "Start time: $(date)"
+# get start seconds
+start=$(date +%s)
+# print date, including day, year, and time
+echo "Start time: $(date)"
 
 #===============Argument Handling======================================================
-    # all options default to true
-	downloadRawData="true"
-	associationsTable="true"
-	orderAssociations="true"
-	studiesTable="true"
-	removeRawData="true"
-	strandFlipping="true"
-	uploadTables="true"
-	exampleFiles="true"
-	clumpAssociationDownloadFiles="true"
-    github="true"
+# all options default to true
+downloadRawData="true"
+associationsTable="true"
+orderAssociations="true"
+studiesTable="true"
+removeRawData="true"
+strandFlipping="true"
+uploadTables="true"
+exampleFiles="true"
+clumpAssociationDownloadFiles="true"
+github="true"
 
-    # non-option argument position counter
-    i=1
-    for arg do
-        # if the argument starts with dash, parse it as an option
-        if [[ $arg == -* ]]; then
-            # option handling
-            case $arg in 
-                -d) downloadRawData="false"
-                    echo "Downloading new raw data disabled";;
-                -a) associationsTable="false"
-                    echo "Creating new associations table disabled";;
-                -o) orderAssociations="false"
-                    echo "Ordering associations table disabled";;
-                -s) studiesTable="false"
-                    echo "Creating new studies table disabled";;
-                -r) removeRawData="false"
-                    echo "Removing downloaded raw data disabled";;
-                -f) strandFlipping="false"
-                    echo "Strand flipping disabled";;
-                -u) uploadTables="false"
-                    echo "Upload tables to database disabled";;
-                -e) exampleFiles="false"
-                    echo "Creating example VCF and TXT files disabled";;
-                -c) clumpAssociationDownloadFiles="false"
-                    echo "Creating clump and association downloadable files disabled";;
-                -g) github="false"
-                    echo "Uploading new data to GitHub disabled";;
-                *)  echo ""
-                    echo "Error: option '$arg' not recognized. Valid options are daosrfuecg. Please check your options and try again."
-                    optUsage
-                    read -p "Press [Enter] key to quit..."
-                    exit 1;;
-            esac
-        # otherwise parse the argument as a non-option argument based on its position in relation to other
-        # non-option arguments
-        else
-            if [ $i -eq 1 ]; then
-                passwordPath=$arg
-                # if the password path is invalid, this must be a regular password
-                pathExists=$($pyVer -c "from os import path; print(path.exists('$passwordPath'));")
-                if [[ $pathExists == "False" ]]; then
-                    echo "using regular password system"
-                    password=$passwordPath
-                else
-                    echo "getting password from file path specified"
-                    password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLClientPassword'); print(password);")
-                    invalidPass=$($pyVer -c "import passwordGetter as p; print('$password' == p.INVALID_NUM_ARGS or '$password' == p.INVALID_PASS or '$password' == p.INVALID_PATH);")
-                    if [[ $invalidPass == "True" ]]; then
-                        echo -e "Error with password file: \"$password\" Exiting...\n"
-                        exit 1
-                    fi
-                fi
-            elif [ $i -eq 2 ]; then
-                if ! [[ "$arg" =~ ^[0-9]+$ ]]; then
-                    echo "'$arg' is the number of nodes you specified to download data, but it is not an integer."
-                    echo "Check the value and try again."
-                    read -p "Press [Enter] key to quit..."
+# non-option argument position counter
+i=1
+for arg do
+    # if the argument starts with dash, parse it as an option
+    if [[ $arg == -* ]]; then
+        # option handling
+        case $arg in 
+            -d) downloadRawData="false"
+                echo "Downloading new raw data disabled";;
+            -a) associationsTable="false"
+                echo "Creating new associations table disabled";;
+            -o) orderAssociations="false"
+                echo "Ordering associations table disabled";;
+            -s) studiesTable="false"
+                echo "Creating new studies table disabled";;
+            -r) removeRawData="false"
+                echo "Removing downloaded raw data disabled";;
+            -f) strandFlipping="false"
+                echo "Strand flipping disabled";;
+            -u) uploadTables="false"
+                echo "Upload tables to database disabled";;
+            -e) exampleFiles="false"
+                echo "Creating example VCF and TXT files disabled";;
+            -c) clumpAssociationDownloadFiles="false"
+                echo "Creating clump and association downloadable files disabled";;
+            -g) github="false"
+                echo "Uploading new data to GitHub disabled";;
+            *)  echo ""
+                echo "Error: option '$arg' not recognized. Valid options are daosrfuecg. Please check your options and try again."
+                optUsage
+                read -p "Press [Enter] key to quit..."
+                exit 1;;
+        esac
+    # otherwise parse the argument as a non-option argument based on its position in relation to other
+    # non-option arguments
+    else
+        if [ $i -eq 1 ]; then
+            passwordPath=$arg
+            # if the password path is invalid, this must be a regular password
+            pathExists=$($pyVer -c "from os import path; print(path.exists('$passwordPath'));")
+            if [[ $pathExists == "False" ]]; then
+                echo "using regular password system"
+                password=$passwordPath
+            else
+                echo "getting password from file path specified"
+                password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLClientPassword'); print(password);")
+                invalidPass=$($pyVer -c "import passwordGetter as p; print('$password' == p.INVALID_NUM_ARGS or '$password' == p.INVALID_PASS or '$password' == p.INVALID_PATH);")
+                if [[ $invalidPass == "True" ]]; then
+                    echo -e "Error with password file: \"$password\" Exiting...\n"
                     exit 1
-                else
-                    numGroups=$arg
                 fi
-            elif [ $i -eq 3 ]; then
-                consoleOutputFolder=$arg
-            elif [ $i -eq 4 ]; then
-                associationTableFolderPath=$arg
-            elif [ $i -eq 5 ]; then
-                studyTableFolderPath=$arg
-            elif [ $i -eq 6 ]; then
-                ukbbTablesFolderPath=$arg
-            elif [ $i -eq 7 ]; then
-                sampleVCFFolderPath=$arg
             fi
-            # increment the non-option argument position
-            i=$((i+1))
+        elif [ $i -eq 2 ]; then
+            if ! [[ "$arg" =~ ^[0-9]+$ ]]; then
+                echo "'$arg' is the number of nodes you specified to download data, but it is not an integer."
+                echo "Check the value and try again."
+                read -p "Press [Enter] key to quit..."
+                exit 1
+            else
+                numGroups=$arg
+            fi
+        elif [ $i -eq 3 ]; then
+            consoleOutputFolder=$arg
+        elif [ $i -eq 4 ]; then
+            associationTableFolderPath=$arg
+        elif [ $i -eq 5 ]; then
+            studyTableFolderPath=$arg
+        elif [ $i -eq 6 ]; then
+            ukbbTablesFolderPath=$arg
+        elif [ $i -eq 7 ]; then
+            sampleVCFFolderPath=$arg
         fi
-    done
-
-    # if there are not enough non-option arguments
-    if [ $i -eq 1 ]; then
-        echo ""
-        echo "Too few arguments!"
-        usage
-        read -p "Press [Enter] key to quit..."
-        exit 1
+        # increment the non-option argument position
+        i=$((i+1))
     fi
+done
 
-    # if the folder locations aren't populated, set them to default values
-    consoleOutputFolder=${consoleOutputFolder:-"./console_files/"}
-    associationTableFolderPath=${associationTableFolderPath:-"../tables/"} 
-    studyTableFolderPath=${studyTableFolderPath:-"../tables/"}
-    ukbbTablesFolderPath=${ukbbTablesFolderPath:-"../tables/"}
-    sampleVCFFolderPath=${sampleVCFFolderPath:-"../static/"}
-    studyAndPubTSVFolderPath="."
-    chainFileFolderPath="."
+# if there are not enough non-option arguments
+if [ $i -eq 1 ]; then
+    echo ""
+    echo "Too few arguments!"
+    usage
+    read -p "Press [Enter] key to quit..."
+    exit 1
+fi
+
+# if the folder locations aren't populated, set them to default values
+consoleOutputFolder=${consoleOutputFolder:-"./console_files/"}
+associationTableFolderPath=${associationTableFolderPath:-"../tables/"} 
+studyTableFolderPath=${studyTableFolderPath:-"../tables/"}
+ukbbTablesFolderPath=${ukbbTablesFolderPath:-"../tables/"}
+sampleVCFFolderPath=${sampleVCFFolderPath:-"../static/"}
+studyAndPubTSVFolderPath="."
+chainFileFolderPath="."
 
 #===============Creating Output Paths========================================================
-    # if the console output folder path doesn't exist, create it
-    if [ ! -d $consoleOutputFolder ]; then
-        mkdir $consoleOutputFolder
-        echo "Console output folder created at" $consoleOutputFolder
-    fi
+# if the console output folder path doesn't exist, create it
+if [ ! -d $consoleOutputFolder ]; then
+    mkdir $consoleOutputFolder
+    echo "Console output folder created at" $consoleOutputFolder
+fi
 
-    # if the association table folder path doesn't exist, create it
-    if [ ! -d $associationTableFolderPath ]; then
-        mkdir $associationTableFolderPath
-        echo "Associations table folder created at" $associationTableFolderPath
-    fi
+# if the association table folder path doesn't exist, create it
+if [ ! -d $associationTableFolderPath ]; then
+    mkdir $associationTableFolderPath
+    echo "Associations table folder created at" $associationTableFolderPath
+fi
 
-    # if the study table folder path doesn't exist, create it
-    if [ ! -d $studyTableFolderPath ]; then
-        mkdir $studyTableFolderPath
-        echo "Study table folder created at" $studyTableFolderPath
-    fi
+# if the study table folder path doesn't exist, create it
+if [ ! -d $studyTableFolderPath ]; then
+    mkdir $studyTableFolderPath
+    echo "Study table folder created at" $studyTableFolderPath
+fi
 
-    # if the sample VCF folder path doesn't exist, create it
-    if [ ! -d $sampleVCFFolderPath ]; then
-        mkdir $sampleVCFFolderPath
-        echo "Sample VCF folder created at" $sampleVCFFolderPath
-    fi
+# if the sample VCF folder path doesn't exist, create it
+if [ ! -d $sampleVCFFolderPath ]; then
+    mkdir $sampleVCFFolderPath
+    echo "Sample VCF folder created at" $sampleVCFFolderPath
+fi
 
 #===============GWAS Database Unpacker======================================================
-    # download a portion of the study data from the GWAS catalog and put it into tsv files
-    # this makes it so each instance of the "unpackDatabaseCommandLine.R" doesn't need to download its own data
-    if [ $downloadRawData == "true" ]; then
-        Rscript downloadStudiesToFile.R $studyAndPubTSVFolderPath
-    fi
-    
-    if [ $associationsTable == "true" ]; then
-        echo "Running GWAS database unpacker. This will take many hours depending on the number of nodes you specified to download data."
-        for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
-            Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
-        done
-        wait
-        echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
-    fi
+# download a portion of the study data from the GWAS catalog and put it into tsv files
+# this makes it so each instance of the "unpackDatabaseCommandLine.R" doesn't need to download its own data
+if [ $downloadRawData == "true" ]; then
+    Rscript downloadStudiesToFile.R $studyAndPubTSVFolderPath
+fi
 
-    if [ $orderAssociations == "true" ]; then
-        Rscript sortAssociationsTable.R $associationTableFolderPath
-        wait
-    fi
+if [ $associationsTable == "true" ]; then
+    echo "Running GWAS database unpacker. This will take many hours depending on the number of nodes you specified to download data."
+    for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
+        Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
+    done
+    wait
+    echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
+fi
+
+if [ $orderAssociations == "true" ]; then
+    Rscript sortAssociationsTable.R $associationTableFolderPath
+    wait
+fi
 
 #===============Study Table Code============================================================
-    if [ $studiesTable == "true" ]; then
-        echo "Creating the study table. This can take an hour or more to complete."
-        Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
-        wait
-    fi
-    
-    if [ $removeRawData == "true" ]; then
-        # delete the raw study data files after the study table has been created
-        rm "./rawGWASStudyData.tsv"
-        rm "./rawGWASPublications.tsv"
-        rm "./rawGWASAncestries.tsv"
-        rm "./lastUpdated.tsv"
-    fi
+if [ $studiesTable == "true" ]; then
+    echo "Creating the study table. This can take an hour or more to complete."
+    Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
+    wait
+fi
+
+if [ $removeRawData == "true" ]; then
+    # delete the raw study data files after the study table has been created
+    rm "./rawGWASStudyData.tsv"
+    rm "./rawGWASPublications.tsv"
+    rm "./rawGWASAncestries.tsv"
+    rm "./lastUpdated.tsv"
+fi
 
 #==============Perform Strand Flipping=================================================================
-    if [ $strandFlipping == "true" ]; then
-        echo "Performing strand flipping on the associations"
-        python3 strandFlipping.py $associationTableFolderPath
-        wait
-    fi
+if [ $strandFlipping == "true" ]; then
+    echo "Performing strand flipping on the associations"
+    python3 strandFlipping.py $associationTableFolderPath
+    wait
+fi
 
 #===============Upload Tables to PRSKB Database========================================================
-    if [ $uploadTables == "true" ]; then
-        echo "Uploading tables to the PRSKB database."
-        python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
-        wait
-        python3 uploadUKBBtoDatabase.py "$password" $ukbbTablesFolderPath
-        wait
-    fi
+if [ $uploadTables == "true" ]; then
+    echo "Uploading tables to the PRSKB database."
+    python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
+    wait
+    python3 uploadUKBBtoDatabase.py "$password" $ukbbTablesFolderPath
+    wait
+fi
 
 #===============Create Sample VCF/TXT=====================================================================
-    if [ $exampleFiles == "true" ]; then
-        echo "Creating sample vcf"
-        python3 createSampleVCF.py "sample" $sampleVCFFolderPath
-        wait 
-        python3 create_rsID_file_from_vcf.py "sample" $sampleVCFFolderPath
-        wait
-    fi
+if [ $exampleFiles == "true" ]; then
+    echo "Creating sample vcf"
+    python3 createSampleVCF.py "sample" $sampleVCFFolderPath
+    wait 
+    python3 create_rsID_file_from_vcf.py "sample" $sampleVCFFolderPath
+    wait
+fi
 
 #============Create Association and Clumps download files============================================
-    if [ $clumpAssociationDownloadFiles == "true" ]; then
-        echo "Creating Association and Clumps download files"
-        python3 createServerAssociAndClumpsFiles.py $password
-        wait
-    fi
+if [ $clumpAssociationDownloadFiles == "true" ]; then
+    echo "Creating Association and Clumps download files"
+    python3 createServerAssociAndClumpsFiles.py $password
+    wait
+fi
 
 #============Upload Tables to Github============================================
-    if [ $github == "true" ]; then
-        date=$(printf  $(date '+%m-%d-%Y'))
-        #TODO message="test database update: ${date}" #TODO
-        message="test shell upload"
-        git commit -a -m "$message"
-        git push Polyscore master-script-speed-up #TODO 
-        echo "Pushed to github"
-    fi 
+if [ $github == "true" ]; then
+    date=$(printf  $(date '+%m-%d-%Y'))
+    #TODO message="test database update: ${date}" #TODO
+    message="fixed "
+    git commit -a -m "$message"
+    gitPassPhrase=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassPhrase'); print(password);")
+    # /usr/bin/expect <<EOD
+    echo $gitPassPhrase | git push Polyscore master-script-speed-up #TODO 
+    # expect "Enter passphrase for key '/home/$USER/.ssh/id_rsa': " {
+    #     send "$gitPassPhrase\r"
+    #     expect eof { send EOD }
+    # }
+    # EOD
+    echo "Pushed to github"
+fi 
 
-    end=$(date +%s)
-    # gets the difference between start and end seeconds
-    diff=$(( ($end - $start) / 1 ))
-    # gets the time in hms format
-    diffTime=$(printf '%02dh:%dm:%ds\n' $((diff/3600)) $((diff%3600/60)) $((diff%60)))
-    echo "Total time taken: $diffTime"
+end=$(date +%s)
+# gets the difference between start and end seeconds
+diff=$(( ($end - $start) / 1 ))
+# gets the time in hms format
+diffTime=$(printf '%02dh:%dm:%ds\n' $((diff/3600)) $((diff%3600/60)) $((diff%60)))
+echo "Total time taken: $diffTime"
 
-    read -p "Press [Enter] key to finish..."
-fi
+read -p "Press [Enter] key to finish..."
