@@ -293,15 +293,14 @@ fi
 if [ $github == "true" ]; then
     date=$(printf  $(date '+%m-%d-%Y'))
     #TODO message="test database update: ${date}" #TODO
-    message="fixed "
+    message="wip fixed passphrase passer"
     git commit -a -m "$message"
     gitPassPhrase=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassPhrase'); print(password);")
     # /usr/bin/expect <<EOD
-    echo $gitPassPhrase | git push Polyscore master-script-speed-up #TODO 
-    # expect "Enter passphrase for key '/home/$USER/.ssh/id_rsa': " {
-    #     send "$gitPassPhrase\r"
+    spawn git push Polyscore master-script-speed-up #TODO 
+    expect "Enter passphrase for key '/home/$USER/.ssh/id_rsa': "
+    send "$gitPassPhrase\r"
     #     expect eof { send EOD }
-    # }
     # EOD
     echo "Pushed to github"
 fi 
