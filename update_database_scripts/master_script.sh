@@ -292,7 +292,8 @@ fi
 #============Upload Tables to Github============================================
 if [ $github == "true" ]; then
     date=$(printf  $(date '+%m-%d-%Y'))
-    message="test database update: ${date}" #TODO
+    # message="test database update: ${date}" #TODO
+    message="removed test files" #TODO    
     git commit -a -m "$message"
     gitUsername=$($pyVer -c "import passwordGetter as p; username = p.getPassword('$passwordPath', 'getGitUsername'); print(username);")
     gitPassword=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassword'); print(password);")
