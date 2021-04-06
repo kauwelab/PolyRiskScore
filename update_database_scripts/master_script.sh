@@ -291,14 +291,20 @@ fi
 
 #============Upload Tables to Github============================================
 if [ $github == "true" ]; then
-    date=$(printf  $(date '+%m-%d-%Y'))
-    # message="test database update: ${date}" #TODO
-    message="windows test" #TODO    
-    git commit -a -m "$message"
-    gitUsername=$($pyVer -c "import passwordGetter as p; username = p.getPassword('$passwordPath', 'getGitUsername'); print(username);")
-    gitPassword=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassword'); print(password);")
-    ./gitPush.sh $gitUsername $gitPassword
-    echo "Synchronized with GitHub"
+    operatingSystem=$(printf  $(uname -s))
+    if [ $operatingSystem == "Linux" ]; then
+        date=$(printf  $(date '+%m-%d-%Y'))
+        # message="test database update: ${date}" #TODO
+        message="temporary fix for windows" #TODO    
+        git commit -a -m "$message"
+        gitUsername=$($pyVer -c "import passwordGetter as p; username = p.getPassword('$passwordPath', 'getGitUsername'); print(username);")
+        gitPassword=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassword'); print(password);")
+        ./gitPush.sh $gitUsername $gitPassword
+        echo "Synchronized with GitHub"
+    else
+        #TODO find way to git push on Windows
+        echo "Skipping GitHub synchronization: not running on Linux"
+    fi
 fi 
 
 end=$(date +%s)
