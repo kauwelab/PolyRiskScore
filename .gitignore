@@ -10,3 +10,4 @@ core
 /update_database_scripts/rawGWASStudyData.tsv
 /.vscode/settings.json
 /update_database_scripts/lastUpdated.tsv
+/update_database_scripts/__pycache__

@@ -294,8 +294,7 @@ if [ $github == "true" ]; then
     operatingSystem=$(printf  $(uname -s))
     if [ $operatingSystem == "Linux" ]; then
         date=$(printf  $(date '+%m-%d-%Y'))
-        # message="test database update: ${date}" #TODO
-        message="temporary fix for windows" #TODO    
+        message="database update: ${date}"
         git commit -a -m "$message"
         gitUsername=$($pyVer -c "import passwordGetter as p; username = p.getPassword('$passwordPath', 'getGitUsername'); print(username);")
         gitPassword=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassword'); print(password);")
