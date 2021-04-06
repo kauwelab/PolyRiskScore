@@ -291,21 +291,13 @@ fi
 
 #============Upload Tables to Github============================================
 if [ $github == "true" ]; then
-
     date=$(printf  $(date '+%m-%d-%Y'))
-    # #TODO message="test database update: ${date}" #TODO
-    message="wip fixed passphrase passer"
+    message="test database update: ${date}" #TODO
     git commit -a -m "$message"
-    gitPassPhrase=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassPhrase'); print(password);")
-    ./testExcept2.sh $USER $gitPassPhrase
-    # # /usr/bin/expect <<EOD
-    # spawn git push Polyscore master-script-speed-up #TODO 
-    # expect "Enter passphrase for key '/home/$USER/.ssh/id_rsa': "
-    # send "$gitPassPhrase\r"
-    #     expect eof { send EOD }
-    # EOD
-    # ./testExcept.sh
-    echo "Pushed to github"
+    gitUsername=$($pyVer -c "import passwordGetter as p; username = p.getPassword('$passwordPath', 'getGitUsername'); print(username);")
+    gitPassword=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassword'); print(password);")
+    ./testExcept2.sh $gitUsername $gitPassword
+    echo "Synchronized with GitHub"
 fi 
 
 end=$(date +%s)
