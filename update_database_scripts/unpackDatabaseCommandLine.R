@@ -268,7 +268,7 @@ if (is_ebi_reachable()) {
   # appends the contents of the associationsTable to the associations table found in the outPath folder
   appendToAssociationsTable <- function(associationsTable) {
     # writes out the data into a TSV at outPath (from argv)
-    write.table(associationsTable, file=file.path(outPath, "associations_table.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE, fileEncoding = "native.enc")
+    write.table(associationsTable, file=file.path(outPath, "associations_table.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE, fileEncoding = "UTF-8")
   }
   
   # if the current study index is divisible by 10, formats the contents of the associationsTable tibble
@@ -336,9 +336,9 @@ if (is_ebi_reachable()) {
   # get study data from TSVs
   print("Reading study data from TSVs!")
   # get study data for all the studies
-  studiesTibble <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASStudyData.tsv"), col_types = cols())
+  studiesTibble <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASStudyData.tsv"), col_types = cols(), locale = locale(encoding = "UTF-8"))
   # get publication data for all the studies
-  publications <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASPublications.tsv"), col_types = cols())
+  publications <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASPublications.tsv"), col_types = cols(), locale = locale(encoding = "UTF-8"))
   print("Study data read!")
 
   # get the start and stop indecies of the study data given groupNum and numGroups
@@ -481,7 +481,7 @@ if (is_ebi_reachable()) {
 }
 
 # write to lastUpdated.tsv
-write.table(lastUpdatedTibble, file=file.path(rawGWASTSVFolderPath, "lastUpdated.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE, fileEncoding = "native.enc")
+write.table(lastUpdatedTibble, file=file.path(rawGWASTSVFolderPath, "lastUpdated.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE, fileEncoding = "UTF-8")
 
 DevPrint(paste("Studies with no valid snps:", length(invalidStudies)))
 DevPrint(invalidStudies)

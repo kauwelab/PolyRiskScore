@@ -161,11 +161,11 @@ if (is_ebi_reachable()) {
     DevPrint("Creating Study Table")
     
     # read in the associations table, and the raw studies, publications, and ancestries tables
-    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character(), sex = col_character()))
-    studiesTibble <- read_tsv(rawStudyTablePath, col_types = cols())
-    publications <- read_tsv(publicationsPath, col_types = cols())
-    ancestries <- read_tsv(ancestriesPath, col_types = cols())
-    lastUpdatedTibble <- read_tsv(lastUpdatedPath, col_types = cols())
+    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character(), sex = col_character()), locale = locale(encoding = "UTF-8"))
+    studiesTibble <- read_tsv(rawStudyTablePath, col_types = cols(), locale = locale(encoding = "UTF-8"))
+    publications <- read_tsv(publicationsPath, col_types = cols(), locale = locale(encoding = "UTF-8"))
+    ancestries <- read_tsv(ancestriesPath, col_types = cols(), locale = locale(encoding = "UTF-8"))
+    lastUpdatedTibble <- read_tsv(lastUpdatedPath, col_types = cols(), locale = locale(encoding = "UTF-8"))
 
     print("Study data read!")
     
@@ -250,12 +250,12 @@ if (is_ebi_reachable()) {
     }
     studyTable <- arrange(studyTable, trait, citation)
     # write out the study table
-    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE, fileEncoding = "native.enc")
+    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE, fileEncoding = "UTF-8")
   }
 } else {
   is_ebi_reachable(chatty = TRUE)
   stop("The EBI API is unreachable. Check internet connection and try again.", call.=FALSE)
 }
 
-print(paste0("Finished creating the study table. It can be found at", studyTablePath, "\n"))
+cat(paste0("Finished creating the study table. It can be found at", studyTablePath, "\n"))
 print(paste0("Time elapsed to create the study table: ", format(Sys.time() - start_time)))
