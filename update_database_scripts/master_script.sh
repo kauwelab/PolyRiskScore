@@ -244,7 +244,7 @@ fi
 
 #===============Study Table Code============================================================
 if [ $studiesTable == "true" ]; then
-    echo "Creating the study table. This can take an hour or more to complete."
+    echo "Creating the study table. This should take up to 10 min depending on internet download speed."
     Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
     wait
 fi

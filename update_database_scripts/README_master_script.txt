@@ -68,7 +68,7 @@ sortAssociationsTable.R- An R script that sorts the associations table after it 
 
 createStudyTable.R- This R script takes information from the association table TSV created by the unpackDatabaseCommandLine.R script as well as the 
     GWAS catalog to create a study_table.tsv file. The study table is a summary of all studies in the association table TSV and includes 
-    additional information on each study, including the last time it was updated and the name of the study.
+    additional information on each study, including the last time it was updated and the name of the study. This script takes around 10 minutes to run fully.
 
 strandFlipping.py- This Python script goes through each line of the associations_table.tsv and checks to see if the allele needs to be flipped to its complement. 
     This uses the myvariant packages to grab viable alleles for the snp. This script can be run independently of the master_script.
