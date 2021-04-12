@@ -137,7 +137,6 @@ exports.getFiltered = (req, res) => {
                     }
                 }
             }
-
             res.send(traitsList);
         }
     });

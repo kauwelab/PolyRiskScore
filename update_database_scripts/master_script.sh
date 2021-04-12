@@ -296,12 +296,13 @@ if [ $github == "true" ]; then
         date=$(printf  $(date '+%m-%d-%Y'))
         message="database update: ${date}"
         git commit -a -m "$message"
+        # get the GitHub username and password for the project using the passwordGetter.py file
         gitUsername=$($pyVer -c "import passwordGetter as p; username = p.getPassword('$passwordPath', 'getGitUsername'); print(username);")
         gitPassword=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassword'); print(password);")
         ./gitPush.sh $gitUsername $gitPassword
         echo "Synchronized with GitHub"
     else
-        #TODO find way to git push on Windows
+        # TODO find way to git push on Windows
         echo "Skipping GitHub synchronization because not running on Linux"
     fi
 fi 
