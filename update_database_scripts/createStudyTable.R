@@ -219,9 +219,6 @@ if (is_ebi_reachable()) {
         initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
         replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])
         
-        # TODO the title for study ID "GCST004165" has a ligated character in it (https://github.com/EBISPOT/gwas-user-requests/issues/7)
-        # R doesn't seem to be able to remove it, so we'll have to wait for the GWAS catalog people to do it.
-        #trait <- str_replace_all(publication[["title"]], "???", "fi") 
         title <- publication[["title"]]
 
         # populate the studyTable with data from the study
