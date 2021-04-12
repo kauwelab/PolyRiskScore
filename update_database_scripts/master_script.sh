@@ -302,7 +302,7 @@ if [ $github == "true" ]; then
         echo "Synchronized with GitHub"
     else
         #TODO find way to git push on Windows
-        echo "Skipping GitHub synchronization: not running on Linux"
+        echo "Skipping GitHub synchronization because not running on Linux"
     fi
 fi 
 
