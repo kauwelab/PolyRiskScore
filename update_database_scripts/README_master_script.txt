@@ -42,7 +42,7 @@ To update the PRSKB database manually (without using the cron job) with the late
 The following is a simplified description of the files in the update_database_scripts folder. They are listed in the order they are used when running 
 the master_script. Please see the beginning of each of the files for command line parameters, usage, and additional information.
 
-updaateDatabseCron.sh- A shell script that is run as a cron job the first day of each month. The cron job passes a password file path to the script
+updateDatabseCron.sh- A shell script that is run as a cron job the first day of each month. The cron job passes a password file path to the script
     and its output is stored in a file "output.txt" in the update_database_scripts folder.
 
 master_script.sh- A shell script that calls the other files in the update_database_scripts folder to download, format, and upload new data from the 
