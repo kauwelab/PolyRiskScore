@@ -13,7 +13,7 @@ def addDataToCohortTableCatch(config, tablesFolderPath, tableName, dbTableName):
         addDataToCohortTable(config, tablesFolderPath, tableName, dbTableName)
 
 
-def addDataToCohortTable(config, tablesFolderPath, tableName, dbTableName, cohort):
+def addDataToCohortTable(config, tablesFolderPath, tableName, dbTableName):
     connection = getConnection(config)
     cursor = connection.cursor()
     path = os.path.join(tablesFolderPath, tableName + ".tsv")
@@ -21,7 +21,7 @@ def addDataToCohortTable(config, tablesFolderPath, tableName, dbTableName, cohor
     lineEnding = getFileLineEnding(path)
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
-        '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding + ' SET cohort =' + cohort +';'
+        '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding ';'
     cursor.execute(sql)
     print(dbTableName + " data added")
     cursor.close()
@@ -84,28 +84,37 @@ def main():
     createFreshTable(config, "cohort_snps", snpTableColumns)
 
     # add the percentiles data tables to the database
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_percentiles", "cohort_percentiles", "ukbb")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AFR_percentiles", "cohort_percentiles", "afr")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AMR_percentiles", "cohort_percentiles", "amr")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_percentiles", "cohort_percentiles", "eas")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_percentiles", "cohort_percentiles", "eur")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_percentiles", "cohort_percentiles", "sas")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AFR_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AMR_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_percentiles", "cohort_percentiles")
 
     # add the summary data tables to the database
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_summary_data", "cohort_summary_data", "ukbb")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AFR_summary_data", "cohort_summary_data", "afr")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AMR_summary_data", "cohort_summary_data", "amr")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_summary_data", "cohort_summary_data", "eas")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_summary_data", "cohort_summary_data", "eur")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_summary_data", "cohort_summary_data", "sas")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AFR_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AMR_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_summary_data", "cohort_summary_data")
 
     # add the snps data tables to the database
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_snps", "cohort_snps", "ukbb")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AFR_snps", "cohort_snps", "afr")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AMR_snps", "cohort_snps", "amr")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_snps", "cohort_snps", "eas")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_snps", "cohort_snps", "eur")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_snps", "cohort_snps", "sas")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AFR_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AMR_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_snps", "cohort_snps")
+    # addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_snps", "cohort_snps")
+    # addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_snps", "cohort_snps")
+    # addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_snps", "cohort_snps")
 
     print("Done!")
 
