@@ -276,15 +276,13 @@ function displayLinePlot() {
     var data = [{
         x: ranks,
         y: displayDataObj["arrayOfValues"],
+        mode: 'lines+markers',
         line: {
             color: 'rgba(141, 211, 199, 0.6)'
         },
         marker: {
             color: 'rgba(141, 211, 199, 1)',
-            line: {
-                color:  "rgba(141, 211, 199, 1)", 
-                width: 1
-            }
+            size: 3
         },
         name: displayDataObj['studyID']
     }]
