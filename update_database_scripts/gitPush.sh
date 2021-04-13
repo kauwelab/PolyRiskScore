@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-# This script uses "expect" instead of bin to push committed files to the GitHub project. "except" allows the script to automatically return the GitHub
+# This script uses "expect" instead of bash to push committed files to the GitHub project. "except" allows the script to automatically return the GitHub
 # user name and password to the "git pull" command when they are requested.
 #
 # How to run: ./gitPush.sh $gitUsername $gitPassword
