@@ -7,7 +7,7 @@
 #   4. create a study table,
 #   5. remove raw data dowloaded,
 #   6. do strand flipping on the associations table,
-#   7. upload the new study and association tables as well as the ukbb tables to the PRSKB database,
+#   7. upload the new study and association tables as well as the cohort tables to the PRSKB database,
 #   8. create example VCF and rsID files,
 #   9. and create association and clumps download files. 
 # It usually takes 3-5ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
@@ -30,7 +30,7 @@ usage () {
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
     echo "  [optional: path to association tsv file folder (default: \"../tables/\")]"
     echo "  [optional: path to study table tsv folder (default: \"../tables/\")]"
-    echo "  [optional: path to ukbb tables tsv folder (default: \"../tables/\")]"
+    echo "  [optional: path to cohort tables tsv folder (default: \"../tables/\")]"
     echo "  [optional: path to example vcf and txt folders (default: \"../static/\")]"
     echo "  [optional: 'daosrfuec' options for disabling parts of the script (can be anywhere in the arguments)]"
     echo ""
@@ -169,7 +169,7 @@ for arg do
         elif [ $i -eq 5 ]; then
             studyTableFolderPath=$arg
         elif [ $i -eq 6 ]; then
-            ukbbTablesFolderPath=$arg
+            cohortTablesFolderPath=$arg
         elif [ $i -eq 7 ]; then
             sampleVCFFolderPath=$arg
         fi
@@ -191,7 +191,7 @@ fi
 consoleOutputFolder=${consoleOutputFolder:-"./console_files/"}
 associationTableFolderPath=${associationTableFolderPath:-"../tables/"} 
 studyTableFolderPath=${studyTableFolderPath:-"../tables/"}
-ukbbTablesFolderPath=${ukbbTablesFolderPath:-"../tables/"}
+cohortTablesFolderPath=${cohortTablesFolderPath:-"../tables/"}
 sampleVCFFolderPath=${sampleVCFFolderPath:-"../static/"}
 studyAndPubTSVFolderPath="."
 chainFileFolderPath="."
@@ -269,7 +269,7 @@ if [ $uploadTables == "true" ]; then
     echo "Uploading tables to the PRSKB database."
     python3 uploadTablesToDatabase.py "$password" $associationTableFolderPath $studyTableFolderPath
     wait
-    python3 uploadUKBBtoDatabase.py "$password" $ukbbTablesFolderPath
+    python3 uploadCohortDataToDatabase.py "$password" $cohortTablesFolderPath
     wait
 fi
 

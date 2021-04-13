@@ -15,14 +15,14 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 
-<body onload="getTraits();">
+<body onload="getTraits();" onbeforeunload="resetFilters()">
   <div id="topnav" class='topnav'>
     <a href="index.html">HOME</a>
     <a href="calculate_score.html">CALCULATE</a>
     <a href="cite.html">CITE</a>
     <a href="cli_download.html">DOWNLOAD</a>
     <a href="about.html">ABOUT</a>
-    <a href="ukbb.html">UKBB</a>
+    <a href="visualize.html">VISUALIZE</a>
     <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
     <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
       <i class="fa fa-bars"></i>
@@ -83,9 +83,25 @@
           <!--Select 1 study-->
           <br>
           <label for="studySelector"><span title="Select a study to display UK BioBank data for. Studies are shown in a trait|citation|studyID format.">Study<sup>?</sup>:</span></label>
-          <select name="studySelector" id='study-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled>
+          <select name="studySelector" id='study-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled onchange="getCohorts()">
             <option selected="selected" value="default">Select a Study</option>
           </select>
+          <!--Select 1 cohort-->
+          <br>
+          <label for="cohortSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a Cohort to view graphs and summary values. Each of these Cohorts were run on all the studies in the database and percentiles computed.">Cohort<sup>?</sup>:</span></label>
+          <select name="cohortSelector" id='cohort-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled>
+            <option selected="selected" value="default">Select a Cohort</option>
+            <option value="ukbb" disabled>UK Biobank</option> 
+            <option value="afr" disabled>1000 Genomes - AFR population</option>
+            <option value="amr" disabled>1000 Genomes - AMR population</option>
+            <option value="eas" disabled>1000 Genomes - EAS population</option>
+            <option value="eur" disabled>1000 Genomes - EUR population</option>
+            <option value="sas" disabled>1000 Genomes - SAS population</option>
+            <option value="adni_ad" disabled>ADNI - Alzheimer's Disease</option>
+            <option value="adni_mci" disabled>ADNI - Mild Cognitive Impairment</option>
+            <option value="adni_controls" disabled>ADNI - Controls</option>
+          </select>
+          <br>
           <button id='viewData' class="btn btn-primary btn-sm" style="margin-left: 1rem;" onClick="displayGraphs()">
             View Data
           </button>
@@ -143,7 +159,7 @@
       }
     }
   </script>
-  <script src="js/ukbb.js"></script>
+  <script src="js/visualize.js"></script>
   <script src="js/formatHelper.js"></script>
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="js/jquery-3.3.1.min.js"></script>
