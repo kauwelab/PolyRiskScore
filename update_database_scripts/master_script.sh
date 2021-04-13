@@ -10,12 +10,12 @@
 #   7. upload the new study and association tables as well as the ukbb tables to the PRSKB database,
 #   8. create example VCF and rsID files,
 #   9. and create association and clumps download files. 
-# It usually takes 4ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
+# It usually takes 3-5ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
 #
 # How to run: sudo ./master_script.sh "password" "numNodes" &> output.txt &
-# where "password" is the password for the PRSKB database oor the path to the password file
+# where "password" is the password for the PRSKB database or the path to the password file
 #       "numNodes" is the number of times the GWAS database will be divided for download (higher is better for beefy computers)
 #       "outputFile.txt" is the file where terminal output will be stored
 # See the usage and optUsage functions below for other optional arguments
@@ -229,7 +229,7 @@ if [ $downloadRawData == "true" ]; then
 fi
 
 if [ $associationsTable == "true" ]; then
-    echo "Running GWAS database unpacker. This will take many hours depending on the number of nodes you specified to download data."
+    echo "Running GWAS database unpacker. This will take up to 1.5 hrs depending on the number of nodes you specified to download data."
     for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
         Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
     done
@@ -244,7 +244,7 @@ fi
 
 #===============Study Table Code============================================================
 if [ $studiesTable == "true" ]; then
-    echo "Creating the study table. This should take up to 10 min depending on internet download speed."
+    echo "Creating the study table. This should take up to 15 min, but is often faster."
     Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
     wait
 fi
