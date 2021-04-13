@@ -269,36 +269,35 @@ function displayBoxPlot() {
     Plotly.newPlot(boxPlot, data, layout)
 }
 
-function displayHistogramPlot() {
-    var histogramPlot = document.getElementById("plotSpace");
+function displayLinePlot() {
+    var linePlot = document.getElementById("plotSpace");
+    ranks = [...Array(101).keys()]
 
     var data = [{
-        x: displayDataObj["arrayOfValues"],
-        type: 'histogram',
+        x: ranks,
+        y: displayDataObj["arrayOfValues"],
+        mode: 'lines+markers',
         line: {
-            color: 'black'
+            color: 'rgba(141, 211, 199, 0.6)'
         },
         marker: {
-            color: 'rgba(141, 211, 199, 0.6)',
-            line: {
-                color:  "rgba(141, 211, 199, 1)", 
-                width: 1
-            }
+            color: 'rgba(141, 211, 199, 1)',
+            size: 3
         },
         name: displayDataObj['studyID']
     }]
 
     var layout= {
-        title: "",
+        title: displayDataObj['studyID'],
         xaxis: {
-            title: "Polygenic Risk Score"
+            title: "Rank"
         },
         yaxis: {
-            title: "Number of Samples"
+            title: "Polygenic Risk Score"
         },
     }
 
-    Plotly.newPlot(histogramPlot, data, layout)
+    Plotly.newPlot(linePlot, data, layout)
 }
 
 function changePlot() {
@@ -308,8 +307,8 @@ function changePlot() {
     console.log(plotType)
 
     switch(plotType) {
-        case "Histogram":
-            displayHistogramPlot()
+        case "Line":
+            displayLinePlot()
             break;
         case "Box":
             displayBoxPlot()
