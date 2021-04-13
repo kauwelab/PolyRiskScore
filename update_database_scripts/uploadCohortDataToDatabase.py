@@ -114,7 +114,7 @@ def main():
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_snps", "cohort_snps")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "adni_snps", "cohort_snps")
 
-    print("Done!")
+    print("Finished uploading cohort data to the PRSKB database!")
 
 
 if __name__ == "__main__":
