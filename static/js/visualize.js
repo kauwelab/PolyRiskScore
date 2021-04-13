@@ -99,6 +99,9 @@ function getCohorts() {
                     if (cohortList.includes(cohortSelectorList[i].value)) {
                         cohortSelectorList[i].disabled = false
                     }
+                    else if (cohortSelectorList[i].value.includes("adni") && cohortList.includes(adni)) {
+                        cohortSelectorList[i].disabled = false
+                    }
                     else {
                         cohortSelectorList[i].disabled = true
                     }
