@@ -21,7 +21,7 @@ def addDataToCohortTable(config, tablesFolderPath, tableName, dbTableName):
     lineEnding = getFileLineEnding(path)
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
-        '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding ';'
+        '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding + ';'
     cursor.execute(sql)
     print(dbTableName + " data added")
     cursor.close()
@@ -40,7 +40,7 @@ def main():
     # the password for connecting to the database
     password = ""
     # the location of the tables
-    cohortTablesFolderPath =  "../tables/"
+    cohortTablesFolderPath =  "../tables/cohorts/"
 
     # arg handling
     if len(argv) <= 1:
