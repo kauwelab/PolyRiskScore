@@ -28,7 +28,7 @@ To update the PRSKB database manually (without using the cron job) with the late
        command will continue to run in the detached tmux window.
     d. The "8" in the command is the number of times the GWAS catalog will be split to download different parts of the database concurrently. 
        Increase this number to speed up the download, but don't increase the number too much since the website computer only has 2 cores.
-5. This command will take between 3-5 hours to run. It is done when the last line of "output.txt" says "Press [Enter] key to finish..." At this point, 
+5. The total master script process is expected to take 3-5 hours to run. It is done when the last line of "output.txt" says "Press [Enter] key to finish..." At this point, 
    all of the new data is already uploaded to the database. In addition, the updated tables and files will have been uploaded to GitHub.
 6. If you run the master script, but then want to stop it, you can use the following process:
     a. When you ran the "./master_script.sh" command, it should have returned a number. This number is the PID, or the process ID for the background
