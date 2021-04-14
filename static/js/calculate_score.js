@@ -261,6 +261,12 @@ var calculatePolyScore = async () => {
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
     }
+    if (sex == "default") {
+        sex = "f"
+        if (!confirm("Female is the default for default sex. Since no default sex was selected, we will use female as the default sex. Continue?")) {
+            return
+        }
+    }
 
     document.getElementById('resultsDisplay').style.display = 'block';
     updateResultBoxAndStoredValue("Calculating. Please wait...")
