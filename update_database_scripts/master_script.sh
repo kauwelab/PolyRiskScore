@@ -9,7 +9,7 @@
 #   6. do strand flipping on the associations table,
 #   7. upload the new study and association tables as well as the cohort tables to the PRSKB database,
 #   8. create example VCF and rsID files,
-#   9. and create association and clumps download files. 
+#   9. and create association and clumps download files.
 # It usually takes 3-5ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).

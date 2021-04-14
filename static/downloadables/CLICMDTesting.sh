@@ -1031,4 +1031,3 @@ for i in "../sample.vcf" "../sample.txt"; do #TODO - we will need to add in the 
     # $timeCommand ./runPrsCLI.sh -f $i -o "$outputFolder/test123${fileType}.tsv" -c $pvalue -r $refGen -p "FIF"
     # echo -e "\n\n\n"
 done
-

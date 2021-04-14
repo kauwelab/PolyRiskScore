@@ -362,7 +362,7 @@ runPRS () {
 # parses the arguments for calculation
 # then calls the scripts required for calculations
 calculatePRS () {
-    # parse arguments 
+    # parse arguments
     traitsForCalc=()
     studyTypesForCalc=()
     studyIDsForCalc=()
