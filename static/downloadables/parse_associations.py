@@ -538,3 +538,8 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
             pool.map(parseAndCalculateFiles, paramOpts)
+
+
+if __name__ == "__main__":
+    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13])
+
