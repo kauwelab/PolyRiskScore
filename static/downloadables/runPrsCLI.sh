@@ -619,6 +619,26 @@ calculatePRS () {
                     exit 1
                 }
             }
+
+            echo "Checking for requests package requirement"
+            {
+                $pyVer -c "import requests" >/dev/null 2>&1
+            } && {
+                echo -e "requests package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: requests"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install requests
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (requests) and try running the tool again."
+                    exit 1
+                }
+            }
             echo "All package requirements met"
         fi
 
