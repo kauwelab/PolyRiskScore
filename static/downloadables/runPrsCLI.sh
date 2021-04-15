@@ -704,7 +704,7 @@ calculatePRS () {
             rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         fi
         
-        rm "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
+        [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
         [ -e "${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock" ] && rm -- "${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock"
