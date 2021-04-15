@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title class="lead">Polygenic Risk Scores</title>
+  <!-- Bootstrap -->
+  <link href="css/topnav.css" rel="stylesheet">
+  <link href="css/banner.css" rel="stylesheet">
+  <link href="css/tile.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body onload="getTraits();" onbeforeunload="resetFilters()">
+  <div id="topnav" class='topnav'>
+    <a href="index.html">HOME</a>
+    <a href="calculate_score.html">CALCULATE</a>
+    <a href="cite.html">CITE</a>
+    <a href="cli_download.html">DOWNLOAD</a>
+    <a href="about.html">ABOUT</a>
+    <a href="visualize.html">VISUALIZE</a>
+    <a href="https://biology.byu.edu/kauwe-lab">THE LAB</a>
+    <a href="javascript:void(0);" class="icon" onclick="sidemenuFunction()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+
+  <script>
+    function sidemenuFunction() {
+      var topnav = document.getElementById("topnav");
+      if (topnav.className.includes("responsive")) {
+        topnav.classList.remove("responsive");
+      }
+      else {
+        topnav.classList.add("responsive");
+      }
+    }
+  </script>
+
+  <header>
+    <div class="banner">
+      <img src="/images/dnaCalcBanner.jpg" width="100%" style="overflow: hidden;">
+      <div class="centered-title">UK BioBank Graphs and Percentiles</div>
+    </div>
+  </header>
+
+  <section>
+    <div class="jumbotron">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="forDesktop text-center">*Under Construction*</h1> <!--Header blurb about UKBB stuff-->
+            <!-- <h5 class="text-justify"><br>paragraph about ukbiobank data (why, how, cautions ect.)</h5> -->
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="background-color: whitesmoke;">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mb-4 mt-2 text-center">
+          <!--Select 1 trait-->
+          <label for="traitSelector"><span title="Select a trait to filter studies by before selecting the study you want to display UK BioBank data for.">Trait<sup>?</sup>:</span></label>
+          <select name="traitSelector" id='trait-Selector' style="margin-top: 2em; margin-bottom: 2em;" onchange="resetFilters()">
+            <option selected="selected" value="default">Select a Trait</option>
+          </select>
+          <!--Select 1 study type-->
+          <label for="studyTypeSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a study type or all study types to filter studies by before selecting the study you want to display UK BioBank data for. NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database.">Study Type<sup>?</sup>:</span></label>
+          <select name="studyTypeSelector" id='studyType-Selector' style="margin-right: 2em; margin-top: 2em; margin-bottom: 2em;" onchange="getStudies()">
+            <option selected="selected" value="default">Select a Study Type</option>
+            <option value="ALL">All Study Types</option> 
+            <option value="HI">High Impact Studies</option>
+            <option value="LC">Large Cohort Studies</option>
+            <option value="O">All Other Studies</option>
+          </select>
+          <!--Select 1 study-->
+          <br>
+          <label for="studySelector"><span title="Select a study to display UK BioBank data for. Studies are shown in a trait|citation|studyID format.">Study<sup>?</sup>:</span></label>
+          <select name="studySelector" id='study-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled onchange="getCohorts()">
+            <option selected="selected" value="default">Select a Study</option>
+          </select>
+          <!--Select 1 cohort-->
+          <br>
+          <label for="cohortSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a Cohort to view graphs and summary values. Each of these Cohorts were run on all the studies in the database and percentiles computed.">Cohort<sup>?</sup>:</span></label>
+          <select name="cohortSelector" id='cohort-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled>
+            <option selected="selected" value="default">Select a Cohort</option>
+            <option value="ukbb" disabled>UK Biobank</option> 
+            <option value="afr" disabled>1000 Genomes - AFR population</option>
+            <option value="amr" disabled>1000 Genomes - AMR population</option>
+            <option value="eas" disabled>1000 Genomes - EAS population</option>
+            <option value="eur" disabled>1000 Genomes - EUR population</option>
+            <option value="sas" disabled>1000 Genomes - SAS population</option>
+            <option value="adni_ad" disabled>ADNI - Alzheimer's Disease</option>
+            <option value="adni_mci" disabled>ADNI - Mild Cognitive Impairment</option>
+            <option value="adni_controls" disabled>ADNI - Controls</option>
+          </select>
+          <br>
+          <button id='viewData' class="btn btn-primary btn-sm" style="margin-left: 1rem;" onClick="displayGraphs()">
+            View Data
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-12 mb-4 mt-2 text-center">
+        <h2 style="color: #416d9d;" id="studyName" hidden></h2>
+        <div class="row" style="margin-right: 0em; margin-left: 0em;">
+          <!-- code here for the select boxes, the name, and the graph and table -->
+        </div>
+      </div>
+      <div class="row" id="plotAndTable" style="visibility: hidden;">
+        <div id="plotAndButtons" class="column" style="width: 100%; max-width: 29em; margin-bottom: 3em; margin-right: 2em;">
+          <div id="plotSpace"></div>
+          <div class="text-center" style="margin-top: 1em;">
+            <form name="plotTypeRadio">
+              <input type="radio" name="plot_type" value="Violin" id="violin" checked onchange="changePlot()">
+              <label for="violin" style="margin-right: 1em;">Violin</label>
+              <input type="radio" name="plot_type" value="Box" id="box" onchange="changePlot()">
+              <label for="box" style="margin-right: 1em;">Box</label>
+              <input type="radio" name="plot_type" value="Line" id="line" onchange="changePlot()">
+              <label for="line" style="margin-right: 1em;">Line</label>
+            </form>
+          </div>
+        </div>
+        <div id="tablePlot" style="max-width: 29em; margin-bottom: 6em;"></div>
+        <div id="studymetadata" style="margin-bottom: 2em;">
+          <!-- Put meta data here (studyName, citation, altmetric score, ect) -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center" style="background-color: #343a40;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-white" style="margin-top: 1rem;">
+          <p>Copyright © Miller et al. (2020) All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- Making the top menu sticky -->
+  <script>
+    window.onscroll = function () { myFunction() };
+
+    var topnav = document.getElementById("topnav");
+    var sticky = topnav.offsetTop;
+
+    function myFunction() {
+      if (window.pageYOffset >= sticky) {
+        topnav.classList.add("sticky")
+      } else {
+        topnav.classList.remove("sticky");
+      }
+    }
+  </script>
+  <script src="js/visualize.js"></script>
+  <script src="js/formatHelper.js"></script>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap-4.2.1.js"></script>
+  <script src="js/displayPanel.js"></script>
+</body>
+
+</html>

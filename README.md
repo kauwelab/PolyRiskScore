@@ -1,48 +1,44 @@
-## Loading a Table into MySQL
+# PRSKB
 
-1. Make sure you have the necessary files in lsprs.
-If you haven't added them to the github, do so now. Once added, follow the directions for re-uploading the repository
-to the server. 
+The Polygenic Risk Score Knowledge Base (PRSKB) is a website and command-line interface tool designed to facilitate the calculation of polygenic risk scores using genome-wide association studies from the [NHGRI-EBI Catalog](https://www.ebi.ac.uk/gwas). 
 
-2. CD into /home/var/www/prs.byu.edu/html/tables
+## Website
 
-3. Log in
-```console
-mysql -u polyscore -p --local-infile polyscore
+The PRSKB website offers users the ability to calculate polygenic risk scores across multiple traits with minimal effort. The website not only offers the calculator, but additional information and tools to aid in calculations and data comparisons. 
+
+Website Link: [https://prs.byu.edu](https://prs.byu.edu)
+
+### Calculate
+The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across more than 2100 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, default biological sex, p-value cutoff, and selected studies polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file. 
+
+### Cite
+The Cite page of the PRSKB website includes a link to the published paper, information on citing the PRSKB, and the ability to search the database of GWAS studies procured from the [GWAS Catalog](https://www.ebi.ac.uk/gwas).
+
+### Download
+The Download page houses the link to download the command-line interface tool and additional videos of setting up and running the tool. 
+
+### UKBB
+The UKBB page allows users to view polygenic risk score distributions and statistics for 500,000 individuals from the UK Biobank. Since individual scores have no absolute meaning, this page allows for a very rough contextualization of scores recieved from the Calculate page.
+
+## Command-Line Interface
+
+The command-line interface (CLI) allows users to run larger analyses straight from their command-line. In addition to this, the tool has a built-in, interactive menu for searching studies and traits in the database, printing out available ethnicities from the database, and learning more about tool parameters. 
+
+[Download CLI](https://prs.byu.edu/download_cli)
+
+Required installed programs: Bash and jq for bash, Python3 and the PyVCF, filelock, and requests Python modules
+
+## CLI Example
+
+```bash
+./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ```
 
-4. Switch to the polyscore database. 
-```sql
-USE polyscore;
-```
+More CLI examples can be found in the README.md file included in the CLI download or on the readthedocs page for the tool.
 
-5. OPTIONAL: If you already have a table for the trait and want to replace it, first drop the table.
-```sql 
-DROP TABLE t2d;
-```
+## Citing this work
 
-6. Create the new table. Run the following command to create a table with the standard columns:
-```sql
-SET @tblName = 'nameYouWantForTable'; \. createTable.sql
-```
+Please visit the [Cite](https://prs.byu.edu/cite.htm) page of the website for information on how to cite this tool and GWAS publications used. 
 
-7. Load the data into the table. If your csv file is not located in the same directory that you were in when you logged into mysql, then pass in the full file path.
-
-```sql 
-LOAD DATA LOCAL INFILE 't2d.csv' INTO TABLE t2d COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES;
-```
-
-8. Check whether it's been loaded correctly using code such as 
-```sql
-SELECT * FROM t2d; 
-SELECT * FROM t2d WHERE study='Lambert 2013 etc.';
-```
-
-### Replacing a String:
-
-This code would get rid of an extra \r character in the study column
-```sql
-UPDATE hf 
-SET study = REPLACE(study, '\r', '');
-```
+## Acknowledgements
 

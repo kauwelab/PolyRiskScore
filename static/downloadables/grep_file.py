@@ -1,12 +1,10 @@
-from collections import defaultdict
-import parse_associations as pa
 import zipfile
 import tarfile
 import gzip
-import os
 import os.path
 import json
 import vcf
+from sys import argv
 
 def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp):
     # tells us if we were passed rsIDs or a vcf
@@ -417,4 +415,11 @@ def getZippedFileExtension(filePath, shouldPrint):
 def printIfShould(should, msg):
     if should:
         print(msg)
+
+
+if __name__ == "__main__":
+    if (argv[1]) == "zip":
+        getZippedFileExtension(argv[2], argv[3])
+    else:
+        createFilteredFile(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11], argv[12], argv[13])
 

@@ -41,6 +41,7 @@ studyTablePath <- file.path(args[2], "study_table.tsv")
 rawStudyTablePath <- file.path(args[3], "rawGWASStudyData.tsv")
 publicationsPath <- file.path(args[3], "rawGWASPublications.tsv")
 ancestriesPath <- file.path(args[3], "rawGWASAncestries.tsv")
+lastUpdatedPath <- file.path(args[3], "lastUpdated.tsv")
 
 ## imports and import downloads (dupicate from master_script.sh)---------------------------------------------------------------------------------
 my_packages <- c("BiocManager", "rtracklayer", "remotes", "gwasrapidd", "tidyverse", "rAltmetric", "magrittr", "purrr")
@@ -99,11 +100,6 @@ getAltmetricScore <- function(pubmed_id) {
   return(as.numeric(getAltmetrics(pubmed_id)[["score"]]))
 }
 
-# given a studyID, returns the most recent date a snp has been updated
-getLastUpdated <- function(studyID) {
-  return(max(as.Date(get_associations(study_id = studyID)@associations$last_update_date)))
-}
-
 # sums all the numbers found in a string- used to calculate cohort size (if given a list, returns a list of nums)
 SumNumsFromString <- function(string){
   sums <- c()
@@ -149,12 +145,13 @@ getDatabaseTraitName <- function(traitName) {
 
 # if the GWAS catalog is available
 if (is_ebi_reachable()) {
-  if (!file.exists(associationTablePath) || !file.exists(rawStudyTablePath) || !file.exists(publicationsPath) || !file.exists(ancestriesPath)) {
+  if (!file.exists(associationTablePath) || !file.exists(rawStudyTablePath) || !file.exists(publicationsPath) || !file.exists(ancestriesPath) || !file.exists(lastUpdatedPath)) {
     print("One or more of the following tables do not exist. Please check which ones are missing and run the downloadStudiesToFile.R or unpackDatabaseCommandLine.R scripts to create them.")
     print(associationTablePath)
     print(rawStudyTablePath)
     print(publicationsPath)
     print(ancestriesPath)
+    print(lastUpdatedPath)
   }
   else {
     # initialize table
@@ -164,10 +161,11 @@ if (is_ebi_reachable()) {
     DevPrint("Creating Study Table")
     
     # read in the associations table, and the raw studies, publications, and ancestries tables
-    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character(), sex = col_character()))
-    studiesTibble <- read_tsv(rawStudyTablePath, col_types = cols())
-    publications <- read_tsv(publicationsPath, col_types = cols())
-    ancestries <- read_tsv(ancestriesPath, col_types = cols())
+    associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character(), sex = col_character()), locale = locale(encoding = "UTF-8"))
+    studiesTibble <- read_tsv(rawStudyTablePath, col_types = cols(), locale = locale(encoding = "UTF-8"))
+    publications <- read_tsv(publicationsPath, col_types = cols(), locale = locale(encoding = "UTF-8"))
+    ancestries <- read_tsv(ancestriesPath, col_types = cols(), locale = locale(encoding = "UTF-8"))
+    lastUpdatedTibble <- read_tsv(lastUpdatedPath, col_types = cols(), locale = locale(encoding = "UTF-8"))
 
     print("Study data read!")
     
@@ -215,15 +213,12 @@ if (is_ebi_reachable()) {
           ethnicity <- NA
         }
 
-        # get the last time the study was updated
-        lastUpdated <- as.character(getLastUpdated(studyID))
+        # get the last time the study was updated from the lastUpdatedTibble
+        lastUpdated <- as.character(lastUpdatedTibble[lastUpdatedTibble$studyID == studyID,]$lastUpdated)
         
         initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
         replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])
         
-        # TODO the title for study ID "GCST004165" has a ligated character in it (https://github.com/EBISPOT/gwas-user-requests/issues/7)
-        # R doesn't seem to be able to remove it, so we'll have to wait for the GWAS catalog people to do it.
-        #trait <- str_replace_all(publication[["title"]], "???", "fi") 
         title <- publication[["title"]]
 
         # populate the studyTable with data from the study
@@ -252,11 +247,12 @@ if (is_ebi_reachable()) {
     }
     studyTable <- arrange(studyTable, trait, citation)
     # write out the study table
-    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE)
+    write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE, fileEncoding = "UTF-8")
   }
 } else {
   is_ebi_reachable(chatty = TRUE)
   stop("The EBI API is unreachable. Check internet connection and try again.", call.=FALSE)
 }
 
-print(paste0("Total time elapsed: ", format(Sys.time() - start_time)))
+cat(paste0("Finished creating the study table. It can be found at", studyTablePath, "\n"))
+print(paste0("Time elapsed to create the study table: ", format(Sys.time() - start_time)))

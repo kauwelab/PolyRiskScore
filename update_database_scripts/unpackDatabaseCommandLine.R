@@ -131,6 +131,10 @@ if (is_ebi_reachable()) {
   columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "trait", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "sex", "citation", "studyID")
   writeLines(paste(columnNames, collapse = "\t"), file.path(outPath, "associations_table.tsv"))
 
+  # remove the old lastUpdated.tsv and create a new blank one with column names "lastUpdatedColumnNames" and no data yet
+  lastUpdatedColumnNames <- c("studyID", "lastUpdated")
+  writeLines(paste(lastUpdatedColumnNames, collapse = "\t"), file.path(rawGWASTSVFolderPath, "lastUpdated.tsv"))
+  
   # the minimum number of SNPs a study must have to be valid and outputted
   minNumStudyAssociations <- 1
   
@@ -264,7 +268,44 @@ if (is_ebi_reachable()) {
   # appends the contents of the associationsTable to the associations table found in the outPath folder
   appendToAssociationsTable <- function(associationsTable) {
     # writes out the data into a TSV at outPath (from argv)
-    write.table(associationsTable, file=file.path(outPath, "associations_table.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE)
+    write.table(associationsTable, file=file.path(outPath, "associations_table.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE, fileEncoding = "UTF-8")
+  }
+  
+  # if the current study index is divisible by 10, formats the contents of the associationsTable tibble
+  # and adds it to the associations table found in the outPath folder
+  appendWithCheck <- function() {
+    # for every 10 studies, append to the associations_table.tsv
+    if (i %% 10 == 0) {
+      # if there are studies in the associations table, print them out and reset the tibble
+      if (nrow(associationsTable) > 0) {
+        associationsTable <- formatAssociationsTable(associationsTable)
+        appendToAssociationsTable(associationsTable)
+        # reset the associationsTable and keep going
+        associationsTable <<- tibble()
+        indecesAppendedStr <<- paste(studyIndeciesAppended,collapse=",")
+        DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
+        studyIndeciesAppended <<- c()
+      }
+      DevPrint(paste0("Time elapsed: ", format(Sys.time() - start_time)))
+    }
+  }
+  
+  # skips the current SNP, but checks to see if previous data should be added to the associations table
+  nextWithAppendCheck <- function() {
+    appendWithCheck()
+    return(NULL)
+  }
+
+  # if the data object does not have enough SNPs, prints and returns NULL
+  checkIfValidDataObj <- function(dataObj) {
+    if (nrow(dataObj) < minNumStudyAssociations) {
+      # get the name of the variable passed into the function
+      dataObjName <- deparse(substitute(dataObj))
+      invalidStudies <<- c(invalidStudies, studyID)
+      DevPrint(paste0("    Not enough valid ", dataObjName, " info for ", citation))
+      return(nextWithAppendCheck())
+    }
+    return("good")
   }
   
   # returns a vector of NA, male, or female given a vector of p-value descriptions
@@ -295,9 +336,9 @@ if (is_ebi_reachable()) {
   # get study data from TSVs
   print("Reading study data from TSVs!")
   # get study data for all the studies
-  studiesTibble <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASStudyData.tsv"), col_types = cols())
+  studiesTibble <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASStudyData.tsv"), col_types = cols(), locale = locale(encoding = "UTF-8"))
   # get publication data for all the studies
-  publications <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASPublications.tsv"), col_types = cols())
+  publications <- read_tsv(file.path(rawGWASTSVFolderPath, "rawGWASPublications.tsv"), col_types = cols(), locale = locale(encoding = "UTF-8"))
   print("Study data read!")
 
   # get the start and stop indecies of the study data given groupNum and numGroups
@@ -309,6 +350,8 @@ if (is_ebi_reachable()) {
   invalidStudies <- c()
   #initiaize the new assocations table
   associationsTable <- tibble()
+  # initiaize lastUpdated tibble with studyID and lastUpdated as columns
+  lastUpdatedTibble <- tibble(studyID = character(), lastUpdated = character())
   
   # holds the indices (i) that have been appended to the associationsTable
   studyIndeciesAppended <- c()
@@ -322,118 +365,101 @@ if (is_ebi_reachable()) {
       studyID <- pull(studiesTibble[i, "study_id"])
       
       # get citation data (author + year published)
-      citation <- paste(pull(publications[i, "author_fullname"]), str_sub(pull(publications[i, "publication_date"]), 0, 4))
+      citation <- paste(sub(" .*", "", pull(publications[i, "author_fullname"])), "et al.",  str_sub(pull(publications[i, "publication_date"]), 0, 4))
       # get pubmed ID for the study
       pubmedID <- pull(publications[i, "pubmed_id"])
       
       # if the study ID is invalid, skip it (currently does nothing since all studies are only visited once)
+      # this structure may be useful later for additional script speedups
       if (studyID %in% invalidStudies) {
-        DevPrint(paste0("    skipping study bc not enough snps: ", citation, "-", studyID))
-      } else {
-        DevPrint(paste0("  ", i, ". ", citation))
-
-        # gets the association data associated with the study ID
-        associations <- get_associations(study_id = studyID)
-        associationsTibble <- associations@associations
-        
-        # if there aren't enough associations, write out not enough info and go to the next study
-        if (nrow(associationsTibble) < minNumStudyAssociations) {
-          invalidStudies <- c(invalidStudies, studyID)
-          DevPrint(paste0("    Not enough association info for ", citation))
-        } else {
-          # get a list of the assoication ids
-          association_ids <- associationsTibble[["association_id"]]
-          names(association_ids) <- association_ids
-          
-          # get traits for each of the assoication ids in title case form (tolower, then title case)
-          traits <- association_ids %>%
-            purrr::map(~ get_traits(association_id = .x)@traits) %>%
-            dplyr::bind_rows(.id = 'association_id') %>%
-            mutate(trait=str_to_title(tolower(trait)))
-
-          # merge the traits with the assoications- note: some associations have multiple traits, so the traits
-          # table length is >= the length of assicationsTibble
-          associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
-          
-          # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
-          riskAlleles <- associations@risk_alleles %>%
-            group_by(association_id) %>% 
-            filter(dplyr::n()==1)
-          
-          # if not enough risk allele entries, write out not enough info and go to the next study
-          if (nrow(riskAlleles) < minNumStudyAssociations) {
-            invalidStudies <- c(invalidStudies, studyID)
-            DevPrint(paste0("    Not enough risk allele info for ", citation))
-          } else {
-            # gets the variants data associated with the study ID
-            variants <- get_variants(study_id = studyID)
-            # contains last update date for each variant ID
-            variantsTibble <- variants@variants
-            # contains gene names, position, and distances from nearest genes for each variant ID
-            genomicContexts <- variants@genomic_contexts
-            
-            # if not enough genomic context entries, write out not enough info and go to the next study
-            if (nrow(genomicContexts) < minNumStudyAssociations) {
-              invalidStudies <- c(invalidStudies, studyID)
-              DevPrint(paste0("    Not enough genomic context info for ", citation))
-            } else {
-              # merge data together
-              master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
-                dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
-                unite("gene", gene_name, distance, sep = ":") %>%
-                mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
-                group_by(variant_id) %>%
-                summarise_all(list(~toString(unique(na.omit(.))))) %>%
-                mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
-              # set the values of all empty cells to NA
-              if (nrow(master_variants) > 0) {
-                master_variants[master_variants == ""] <- NA
-              }
-              master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
-              
-              # if master_variants or master_associations are empty, this study does not have enough info
-              if (nrow(master_variants) <= 0 || nrow(master_associations) <= 0) {
-                invalidStudies <- c(invalidStudies, studyID)
-                DevPrint(paste0("    Not enough risk allele or association info for ", citation))
-              } else {
-                studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
-                  unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
-                  mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
-                  mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
-                  tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
-                  add_column(citation = citation) %>%
-                  add_column(studyID = studyID, .after = "citation") %>%
-                  add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
-                  mutate(pvalue_description = tolower(pvalue_description))
-                # remove rows missing risk alleles or odds ratios, or which have X or Y as their chromosome, or SNPs conditioned on other SNPs
-                studyData <- filter(studyData, !is.na(risk_allele)&!is.na(or_per_copy_number)&(or_per_copy_number > 0)&startsWith(variant_id, "rs")&!startsWith(hg38, "X")&!startsWith(hg38, "Y")&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
-                # if there are not enough snps left in the study table, add it to a list of ignored studies
-                if (nrow(studyData) < minNumStudyAssociations) {
-                  invalidStudies <- c(invalidStudies, studyID)
-                  DevPrint(paste0("    Not enough studyData info for ", citation))
-                } else { # otherwise add the rows to the association table
-                  associationsTable <- bind_rows(studyData, associationsTable)
-                  studyIndeciesAppended <- c(studyIndeciesAppended, i)
-                }
-              }
-            }
-          }
-        }
-        # for every 10 studies, append to the associations_table.tsv
-        if (i %% 10 == 0) {
-          # if there are studies in the associations table, print them out and reset the tibble
-          if (nrow(associationsTable) > 0) {
-            associationsTable <- formatAssociationsTable(associationsTable)
-            appendToAssociationsTable(associationsTable)
-            # reset the associationsTable and keep going
-            associationsTable <- tibble()
-            indecesAppendedStr <- paste(studyIndeciesAppended,collapse=",")
-            DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
-            studyIndeciesAppended <- c()
-          }
-          DevPrint(paste0("Time elapsed: ", format(Sys.time() - start_time)))
-        }
+        DevPrint(paste0("    skipping study bc not enough valid snps: ", citation, " - ", studyID))
+        nextWithAppendCheck()
       }
+      DevPrint(paste0("  ", i, ". ", citation, " - ", studyID))
+
+      # gets the association data associated with the study ID
+      associations <- get_associations(study_id = studyID)
+      associationsTibble <- associations@associations
+      # filter out blank ORs, invalid ORs, and SNPs associated with other SNPs
+      associationsTibble <- filter(associationsTibble, !is.na(or_per_copy_number)&(or_per_copy_number > -1)&!grepl("condition", pvalue_description)&!grepl("adjusted for rs", pvalue_description))
+      # check if associationsTibble has enough snps
+      if (is.null(checkIfValidDataObj(associationsTibble))) {next}
+
+      # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
+      riskAlleles <- associations@risk_alleles %>%
+        group_by(association_id) %>% 
+        filter(dplyr::n()==1)
+      #filter out empty risk alleles, and snp ids that don't start with rs
+      riskAlleles <- filter(riskAlleles, !is.na(risk_allele)&startsWith(variant_id, "rs"))
+      # check if riskAlleles has enough snps
+      if (is.null(checkIfValidDataObj(riskAlleles))) {next}
+
+      # gets the variants data associated with the study ID
+      variants <- get_variants(study_id = studyID)
+      # contains last update date for each variant ID
+      variantsTibble <- variants@variants
+      # check if variantsTibble has enough snps
+      if (is.null(checkIfValidDataObj(variantsTibble))) {next}
+
+      # contains gene names, position, and distances from nearest genes for each variant ID
+      genomicContexts <- variants@genomic_contexts
+      # check if genomicContexts has enough snps
+      if (is.null(checkIfValidDataObj(genomicContexts))) {next}
+
+      # merge data together
+      master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
+      dplyr::filter(!grepl('CHR_H', chromosome_name.x)) %>% # removes rows that contain "CHR_H" so that only numerical chrom names remain (these tend to be duplicates of numerically named chroms anyway)
+        unite("gene", gene_name, distance, sep = ":") %>%
+        mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
+        group_by(variant_id) %>%
+        summarise_all(list(~toString(unique(na.omit(.))))) %>%
+        mutate(gene = str_replace_all(gene, ", ", "|")) # separates each gene_name:distance pair by "|" instead of ", "
+      # set the values of all empty cells to NA
+      if (nrow(master_variants) > 0) {
+        master_variants[master_variants == ""] <- NA
+      }
+      # check if master_variants has enough snps
+      if (is.null(checkIfValidDataObj(master_variants))) {next}
+
+      # get a list of the assoication ids
+      association_ids <- associationsTibble[["association_id"]]
+      names(association_ids) <- association_ids
+      # get traits for each of the assoication ids in title case form (tolower, then title case)
+      traits <- association_ids %>%
+        purrr::map(~ get_traits(association_id = .x)@traits) %>%
+        dplyr::bind_rows(.id = 'association_id') %>%
+        mutate(trait=str_to_title(tolower(trait)))
+      # merge the traits with the assoications- note: some associations have multiple traits, 
+      # so the traits table length is >= the length of assicationsTibble
+      associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
+      
+      master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
+      # check if master_associations has enough snps
+      if (is.null(checkIfValidDataObj(master_associations))) {next}
+
+      studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
+        unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
+        mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
+        mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
+        tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
+        add_column(citation = citation) %>%
+        add_column(studyID = studyID, .after = "citation") %>%
+        add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]])) %>%
+        mutate(pvalue_description = tolower(pvalue_description))
+      # filter out SNPs on the X or Y chromosome
+      studyData <- filter(studyData, !startsWith(hg38, "X")&!startsWith(hg38, "Y"))
+      # check if studyData has enough snps
+      if (is.null(checkIfValidDataObj(studyData))) {next}
+
+      associationsTable <- bind_rows(studyData, associationsTable)
+      
+      # add lastUpdated to rawGWASStudyData.tsv
+      lastUpdatedTibble <- add_row(lastUpdatedTibble, studyID = studyID, lastUpdated = as.character(max(as.Date(associationsTibble$last_update_date))))
+      
+      studyIndeciesAppended <- c(studyIndeciesAppended, i)
+      
+      # for every 10 studies, append to the associations_table.tsv
+      appendWithCheck()
     }, error=function(e){
       cat("ERROR:",conditionMessage(e), "\n")
       if (conditionMessage(e) == "cannot open the connection") {
@@ -454,6 +480,9 @@ if (is_ebi_reachable()) {
   stop("The EBI API is unreachable. Check internet connection and try again.", call.=FALSE)
 }
 
-DevPrint(paste("Traits with no valid snps:", length(invalidStudies)))
+# write to lastUpdated.tsv
+write.table(lastUpdatedTibble, file=file.path(rawGWASTSVFolderPath, "lastUpdated.tsv"), sep="\t", col.names=FALSE, row.names=FALSE, quote=FALSE, append=TRUE, fileEncoding = "UTF-8")
+
+DevPrint(paste("Studies with no valid snps:", length(invalidStudies)))
 DevPrint(invalidStudies)
 print(paste0("Data download and unpack complete! ", "took: ", format(Sys.time() - start_time)))
