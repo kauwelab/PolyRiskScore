@@ -5,5 +5,7 @@
 # How to run: ./updateDatabasecron.sh "filePath"
 # where: "filePath" is the path to the passwords file
 
+# cd to where the master script is stored
+cd /var/www/prs.byu.edu/html/update_database_scripts/
 # runs the master script with the password path specified by $1 with 8 subprocesses downloading association data
 ./master_script.sh $1 8

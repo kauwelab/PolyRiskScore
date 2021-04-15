@@ -5,6 +5,7 @@ import os
 import os.path
 import time
 import datetime
+from sys import argv
 from multiprocessing import Process
 
 # get the associations and clumps from the Server
@@ -306,3 +307,8 @@ def checkInternetConnection():
     except OSError:
         raise SystemExit("ERROR: No internet - Check your connection")
 
+
+if __name__ == "__main__":
+    retrieveAssociationsAndClumps(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9])
+
+    

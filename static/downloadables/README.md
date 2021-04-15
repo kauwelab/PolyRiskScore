@@ -4,11 +4,12 @@ The PRSKB CLI calculator is a conglomeration of python scripts directed by a bas
 
 ## Requirements
 
-In order to run the PRSKB CLI calculator, you must have ***python3*** and ***bash*** installed in the environment you will be running the tool in. Additionally, the Python modules ***PyVCF*** and ***filelock*** are required. The Python modules can be installed using pip:
+In order to run the PRSKB CLI calculator, you must have ***python3*** and ***bash*** installed in the environment you will be running the tool in. Additionally, the Python modules ***PyVCF***, ***filelock***, and ***requests*** are required. The Python modules can be installed using pip:
 
 ```bash
 pip install PyVCF
 pip install filelock
+pip install requests
 ```
 
 For certain tool functions accessed through the tool's menu, bash ***jq*** is required. To download on Ubuntu or Debian run:
