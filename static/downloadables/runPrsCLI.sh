@@ -416,6 +416,7 @@ calculatePRS () {
                     exit 1
                 fi
                 filename=$OPTARG
+                filename="${filename//\\//}" # replace backslashes with forward slashes
                 if [ ! -f "$filename" ]; then
                     echo -e "The file${LIGHTRED} $filename ${NC}does not exist."
                     echo "Check the path and try again."
@@ -423,7 +424,7 @@ calculatePRS () {
                     exit 1
                 elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
-                    zipExtension=`$pyVer $SCRIPT_DIR/grep_file.py "zip" "$filename" "True"`
+                    zipExtension=`$pyVer "$SCRIPT_DIR/grep_file.py" "zip" "$filename" "True"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
                         echo "zipped file validated"
                     # if "False", the file is not a zipped file
@@ -446,6 +447,7 @@ calculatePRS () {
                     exit 1
                 fi
                 output=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
+                output="${output//\\//}" # replace backslashes with forward slashes
                 if ! [[ "${output}" =~ .tsv$|.json$ ]]; then
                     echo -e "${LIGHTRED}$output ${NC} is not in the right format."
                     echo -e "Valid formats are ${GREEN}tsv${NC} and ${GREEN}json${NC}"
@@ -664,7 +666,7 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        if $pyVer $SCRIPT_DIR/connect_to_server.py "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$superPop" "$fileHash" "$extension" "$defaultSex"; then
+        if $pyVer "$SCRIPT_DIR/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$superPop" "$fileHash" "$extension" "$defaultSex"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
@@ -682,10 +684,10 @@ calculatePRS () {
         FILE="${SCRIPT_DIR}/.workingFiles/associations_${fileHash}.txt"
 
         # filter the input file so that it only includes the lines with variants that match the given filters
-        if $pyVer $SCRIPT_DIR/grep_file.py "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP"; then
+        if $pyVer "$SCRIPT_DIR/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer $SCRIPT_DIR/parse_associations.py "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes"; then
+            if $pyVer "$SCRIPT_DIR/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
@@ -702,10 +704,10 @@ calculatePRS () {
             rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         fi
         
-        rm "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
-        [ -d ${SCRIPT_DIR}/__pycache__ ] && rm -r ${SCRIPT_DIR}/__pycache__
-        [ -e ${SCRIPT_DIR}/$output.lock ] && rm -- ${SCRIPT_DIR}/$output.lock
-        [ -e ${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock ] && rm -- ${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock
+        [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
+        [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
+        [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
+        [ -e "${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock" ] && rm -- "${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock"
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
         exit;
