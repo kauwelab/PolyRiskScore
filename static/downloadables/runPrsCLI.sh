@@ -413,7 +413,7 @@ calculatePRS () {
                     exit 1
                 elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
-                    zipExtension=`$pyVer $SCRIPT_DIR/grep_file.py "zip" "$filename" "True"` # TODO THIS NEEDS TO BE TESTED!!!!
+                    zipExtension=`$pyVer $SCRIPT_DIR/grep_file.py "zip" "$filename" "True"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
                         echo "zipped file validated"
                     # if "False", the file is not a zipped file
