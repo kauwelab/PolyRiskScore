@@ -172,6 +172,8 @@ def main():
     with Pool(processes=4) as pool:
         pool.map(createServerDownloadFiles, paramOpts)
 
+    print("Finished creating server download association and clumps files")
+
 
 if __name__ == "__main__":
     main()

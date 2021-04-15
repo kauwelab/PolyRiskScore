@@ -49,6 +49,8 @@ version="1.5.0"
 #
 #   Added optional param:
 #       -g biological sex prefered for snp selection
+#       -n number of processes
+#       -m omit *_studiesNotIncluded.txt file
 #
 # * 1/29/21 - v1.4.0
 #   
@@ -100,7 +102,8 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
-    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on 4 subprocesses)"    
+    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available processes)"
+    echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
     echo ""
 }
 
@@ -167,8 +170,9 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
         echo -e "| ${LIGHTPURPLE}13${NC} - -n number of subprocesses              |"
+        echo -e "| ${LIGHTPURPLE}14${NC} - -m omit *_studiesNotIncluded.txt       |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}14${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}15${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -270,7 +274,12 @@ learnAboutParameters () {
                 echo "This parameter allows you to choose the number of processes used to run the tool."
                 echo "By default, the Python script will run the calculations using 4 subprocesses."
                 echo "" ;;
-            14 ) cont=0 ;;
+            14 ) echo -e "${MYSTERYCOLOR} -m omit *_studiesNotIncluded.txt: ${NC}"
+                echo -e "To omit the *_studiesNotIncluded.txt file, include the ${GREEN}-m${NC} parameter."
+                echo "The *_studiesNotIncluded.txt file details study and trait combinations that no scores were"
+                echo "calculated for, due to none of the study snps being present in the samples. "
+                echo "" ;;
+            15 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -362,12 +371,13 @@ runPRS () {
 # parses the arguments for calculation
 # then calls the scripts required for calculations
 calculatePRS () {
-    # parse arguments 
+    # parse arguments
     traitsForCalc=()
     studyTypesForCalc=()
     studyIDsForCalc=()
     ethnicityForCalc=()
     isCondensedFormat=1
+    omitUnusedStudiesFile=0
 
     single="'"
     escaped="\'"
@@ -397,7 +407,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:m' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -533,6 +543,8 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
+            m)  omitUnusedStudiesFile=1
+                ;;
             [?])    usage
                     exit 1;;
         esac
@@ -622,6 +634,26 @@ calculatePRS () {
                     exit 1
                 }
             }
+
+            echo "Checking for requests package requirement"
+            {
+                $pyVer -c "import requests" >/dev/null 2>&1
+            } && {
+                echo -e "requests package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: requests"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install requests
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (requests) and try running the tool again."
+                    exit 1
+                }
+            }
             echo "All package requirements met"
         fi
 
@@ -653,7 +685,7 @@ calculatePRS () {
         if $pyVer $SCRIPT_DIR/grep_file.py "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer $SCRIPT_DIR/parse_associations.py "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$TIMESTAMP" "$processes"; then
+            if $pyVer $SCRIPT_DIR/parse_associations.py "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else

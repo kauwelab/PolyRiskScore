@@ -80,5 +80,4 @@ for i in range(len(snpsData)):
         
 f.close()
 
-
-
+print("Finished creating sample VCF")

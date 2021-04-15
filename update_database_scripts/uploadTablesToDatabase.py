@@ -213,7 +213,8 @@ def main():
     createFreshTable(config, "study_table", tableColumns)
     addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
 
-    print("Done!")
+    print("Finished uploading association and study tables to the PRSKB database.")
+    
 
 if __name__ == "__main__":
     main()

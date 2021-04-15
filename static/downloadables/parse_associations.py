@@ -19,16 +19,17 @@ def parseAndCalculateFiles(params):
     study = params[7]
     isJson = params[8]
     isCondensedFormat = params[9]
-    outputFilePath = params[10]
-    isRSids = params[11]
-    timestamp = params[12]
+    omitUnusedStudiesFile = params[10]
+    outputFilePath = params[11]
+    isRSids = params[12]
+    timestamp = params[13]
 
     if isRSids: 
         txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
-        cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, snpCount, isRSids, None)
+        cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, snpCount, isRSids, None)
     else:
         vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
-        cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sample_order)
+        cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sample_order)
 
     return
 
@@ -470,7 +471,7 @@ def getSamples(inputFilePath, header):
     header.extend(samples)
     return header
 
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp, num_processes):
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, omitUnusedStudiesFile, timestamp, num_processes):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -493,6 +494,12 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             isCondensedFormat = False
         else:
             isCondensedFormat = True
+
+    # Determine whether the unusedStudiesFile should be made
+    if omitUnusedStudiesFile == '0':
+        omitUnusedStudiesFile = False
+    else:
+        omitUnusedStudiesFile = True
 
     
     if isJson: #json and verbose
@@ -522,7 +529,8 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         else: # verbose and vcf input
             header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)
-        cs.printUnusedTraitStudyPairs(None, None, outputFilePath, True)
+        if not omitUnusedStudiesFile:
+            cs.printUnusedTraitStudyPairs(None, None, outputFilePath, True)
 
     # we create params for each study so that we can run them on separate processes
     for keyString in studySnpsDict:
@@ -530,10 +538,10 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         study = keyString.split('|')[1]
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
@@ -541,5 +549,5 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
 
 if __name__ == "__main__":
-    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13])
+    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14])
 

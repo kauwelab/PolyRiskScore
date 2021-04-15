@@ -1,6 +1,6 @@
 /node_modules
 /uploads
-/static/js/passwords.js
+passwords.js
 node_modules
 .DS_Store
 static/.DS_Store
@@ -9,3 +9,5 @@ core
 /update_database_scripts/rawGWASPublications.tsv
 /update_database_scripts/rawGWASStudyData.tsv
 /.vscode/settings.json
+/update_database_scripts/lastUpdated.tsv
+/update_database_scripts/__pycache__
