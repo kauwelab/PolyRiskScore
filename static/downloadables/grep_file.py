@@ -1,10 +1,10 @@
 import zipfile
 import tarfile
-import gzip
 import os.path
 import json
 import vcf
 from sys import argv
+from io import TextIOWrapper
 
 def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp):
     # tells us if we were passed rsIDs or a vcf
@@ -258,53 +258,49 @@ def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, study
     return snpInFilters
 
 
+# opens and returns either a file (isTxtExtension == True) or a vcf reader (isTxtExtension == False) from the inputFile path
+# assumes the file is valid (validated with getZippedFileExtension function)
 def openFileForParsing(inputFile, isTxtExtension):
     filename = ""
     compressed = False
-    # if the file is zipped
     if zipfile.is_zipfile(inputFile):
         # open the file
         archive = zipfile.ZipFile(inputFile)
-        validArchive = []
         # get the vcf or txt file in the zip
         for filename in archive.namelist():
-            if filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt":
-                validArchive.append(filename)
-                filename = validArchive[0]
-
+            extension = filename[-4:].lower()
+            # TextIOWrapper converts bytes to strings and force_zip64 is for files potentially larger than 2GB
+            if extension == ".txt":
+                return TextIOWrapper(archive.open(filename, force_zip64=True))
+            elif extension == ".vcf":
+                return vcf.Reader(TextIOWrapper(archive.open(filename, force_zip64=True)))
     # TODO: Figure this out: if the file is tar zipped
     elif tarfile.is_tarfile(inputFile):
         # open the file
         archive = tarfile.open(inputFile)
         # get the vcf or txt file in the tar
         for tarInfo in archive:
-            if tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt":
-                # wrap the ExFileObject in an io.TextIOWrapper and read
-                if tarInfo.name[-4:].lower() == ".txt":
-                    newFile = archive.extractfile(tarInfo) 
-                    return newFile
-                else:
-                    newFile = archive.extractfile(tarInfo)
-                    vcf_reader = vcf.Reader(newFile)
-                    return vcf_reader
-                new_file = io.TextIOWrapper(archive.extractfile(tarInfo)).read().replace("\r", "").split("\n")
-    # if file is gzipped
+            extension = tarInfo.name[-4:].lower()
+            # TextIOWrapper converts bytes to strings
+            if extension == ".txt":
+                return TextIOWrapper(archive.extractfile(tarInfo))
+            elif extension == ".vcf":
+                return vcf.Reader(TextIOWrapper(archive.extractfile(tarInfo)))
     elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
         filename = inputFile
-        compressed= True
+        compressed = True
+    # default options for regular vcf and txt files
     else:
-        # default open for regular vcf and txt files
         filename = inputFile
         compressed = False
+    
     # return the new file either as is (txt) or as a vcf.Reader (vcf)
     if isTxtExtension:
-        txt_file = open(filename, 'r')
-        return txt_file
+        return open(filename, 'r')
     else:
         # open the newly unzipped file using the vcf reader
         try:
-            vcf_reader = vcf.Reader(filename = filename, compressed = compressed)
-            return vcf_reader
+            return vcf.Reader(filename = filename, compressed = compressed)
         except:
             # typically happens if the file is empty
             raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
@@ -347,7 +343,6 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, tra
 # returns and prints: ".vcf" or "txt" if the zipped file is valid and contains one of those files
                     # "False" if the file is not a zipped file
                     # error message if the file is a zipped file, but is not vaild
-    
 def getZippedFileExtension(filePath, shouldPrint):
     # if the file is a zip file
     if zipfile.is_zipfile(filePath):
