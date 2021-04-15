@@ -5,8 +5,6 @@ const nodeMailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars')
 var zip = require('express-easy-zip')
-//the shared code module between the browser and server
-const passwords = require('./static/js/passwords')
 
 //Define the port for app to listen on
 const port = 3000

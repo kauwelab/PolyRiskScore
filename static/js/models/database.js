@@ -1,5 +1,5 @@
 var mysql = require( 'mysql' );
-const passwords = require('../passwords');
+const passwords = require('../../../passwords');
 
 // Code from https://bezkoder.com/node-js-rest-api-express-mysql/ 
 
