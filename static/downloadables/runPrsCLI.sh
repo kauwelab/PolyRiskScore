@@ -403,6 +403,7 @@ calculatePRS () {
                     exit 1
                 fi
                 filename=$OPTARG
+                filename="${filename//\\//}" # replace backslashes with forward slashes
                 if [ ! -f "$filename" ]; then
                     echo -e "The file${LIGHTRED} $filename ${NC}does not exist."
                     echo "Check the path and try again."
@@ -433,6 +434,7 @@ calculatePRS () {
                     exit 1
                 fi
                 output=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
+                output="${output//\\//}" # replace backslashes with forward slashes
                 if ! [[ "${output}" =~ .tsv$|.json$ ]]; then
                     echo -e "${LIGHTRED}$output ${NC} is not in the right format."
                     echo -e "Valid formats are ${GREEN}tsv${NC} and ${GREEN}json${NC}"
@@ -669,8 +671,8 @@ calculatePRS () {
         
         rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
         [ -d __pycache__ ] && rm -r __pycache__
-        [ -e $output.lock ] && rm -- $output.lock
-        [ -e ${outputName}_studiesNotIncluded.txt.lock ] && rm -- ${outputName}_studiesNotIncluded.txt.lock
+        [ -e "$output.lock" ] && rm -- "$output.lock"
+        [ -e "${outputName}_studiesNotIncluded.txt.lock" ] && rm -- "${outputName}_studiesNotIncluded.txt.lock"
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
         exit;
