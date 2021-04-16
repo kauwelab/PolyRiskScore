@@ -146,7 +146,7 @@ for arg do
                 password=$passwordPath
             else
                 echo "getting password from file path specified"
-                password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLClientPassword'); print(password);")
+                password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLPassword'); print(password);")
                 invalidPass=$($pyVer -c "import passwordGetter as p; print('$password' == p.INVALID_NUM_ARGS or '$password' == p.INVALID_PASS or '$password' == p.INVALID_PATH);")
                 if [[ $invalidPass == "True" ]]; then
                     echo -e "Error with password file: \"$password\" Exiting...\n"
