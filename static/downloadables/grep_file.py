@@ -1,5 +1,6 @@
 import zipfile
 import tarfile
+import gzip
 import os.path
 import json
 import vcf
@@ -274,7 +275,6 @@ def openFileForParsing(inputFile, isTxtExtension):
                 return TextIOWrapper(archive.open(filename, force_zip64=True))
             elif extension == ".vcf":
                 return vcf.Reader(TextIOWrapper(archive.open(filename, force_zip64=True)))
-    # TODO: Figure this out: if the file is tar zipped
     elif tarfile.is_tarfile(inputFile):
         # open the file
         archive = tarfile.open(inputFile)
@@ -285,10 +285,13 @@ def openFileForParsing(inputFile, isTxtExtension):
             if extension == ".txt":
                 return TextIOWrapper(archive.extractfile(tarInfo))
             elif extension == ".vcf":
-                return vcf.Reader(TextIOWrapper(archive.extractfile(tarInfo)))
+                return vcf.Reader(TextIOWrapper(archive.extractfile(tarInfo)), compressed=False)
     elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
         filename = inputFile
         compressed = True
+        # if txt, open with gzip, otherwise use the vcf reader code used by regular vcf files, but with compressed == True
+        if isTxtExtension:
+            return TextIOWrapper(gzip.open(filename, 'r'))
     # default options for regular vcf and txt files
     else:
         filename = inputFile
