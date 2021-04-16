@@ -157,51 +157,56 @@ def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
 
 
 def filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff):
-    # open the input vcf
-    vcf_reader = openFileForParsing(inputFilePath, False)
-    # open the filtered input path for writing out the lines from the input vcf that match the given filters
-    vcf_writer = vcf.Writer(open(filteredFilePath, 'w'), vcf_reader)
+    # open the input file path for opening
+    inputVCF, compressed = openFileForParsing(inputFilePath, False)
 
-    # create a set to keep track of which ld clump numbers are assigned to only a single snp
-    clumpNumDict = {}
+    with open(inputVCF, 'r') as f:
+        with open(filteredFilePath, 'w') as w:
+            # create a set to keep track of which ld clump numbers are assigned to only a single snp
+            clumpNumDict = {}
 
-    # Create a boolean to check whether the input VCF is empty
-    fileEmpty = True
+            # Create a boolean to check whether the input VCF is empty
+            fileEmpty = True
 
-    # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
-    inputInFilters = False
+            # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
+            inputInFilters = False
 
-    try:
-        for record in vcf_reader:
-            # a record exists, so the file was not empty
-            fileEmpty = False
-            # get the rsID and chromPos
-            rsID = record.ID
-            chromPos = str(record.CHROM) + ":" + str(record.POS)
-            if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
-                rsID = tableObjDict['associations'][chromPos]
-            # check if the snp is in the filtered studies
-            snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff)
-            if snpInFilters:
-                # increase count of the ld clump this snp is in
-                # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
-                if rsID in clumpsObjDict:
-                    clumpNum = clumpsObjDict[rsID]['clumpNum']
-                    clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
+            try:
+                for line in f:
+                    # cut the line so that we don't use memory to tab split a huge file
+                    shortLine = line[0:500]
+                    if shortLine[0] == '#':
+                        w.write(line)
+                    else:
+                        cols = shortLine.split('\t')
+                        # get the rsid and chrompos
+                        rsID = cols[2]
+                        chromPos = str(cols[0]) + ':' + str(cols[1])
+                        # a record exists, so the file was not empty
+                        fileEmpty = False
+                        if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
+                            rsID = tableObjDict['associations'][chromPos]
+                        # check if the snp is in the filtered studies
+                        snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff)
+                        if snpInFilters:
+                            # increase count of the ld clump this snp is in
+                            # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
+                            if rsID in clumpsObjDict:
+                                clumpNum = clumpsObjDict[rsID]['clumpNum']
+                                clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
 
-                # write the line to the filtered VCF
-                vcf_writer.write_record(record)
-                inputInFilters = True
+                            # write the line to the filtered VCF
+                            w.write(line)
+                            inputInFilters = True
 
-        if fileEmpty:
-            raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
-        # send error message if input not in filters
-        if not inputInFilters:
-            raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified filters. Check your input file and your filters and try again.")
-    except ValueError:
-        raise SystemExit("THE VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
+                if fileEmpty:
+                    raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
+                # send error message if input not in filters
+                if not inputInFilters:
+                    raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified filters. Check your input file and your filters and try again.")
+            except ValueError:
+                raise SystemExit("THE VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
-    vcf_writer.close()
 
     return clumpNumDict
 
@@ -303,8 +308,8 @@ def openFileForParsing(inputFile, isTxtExtension):
     else:
         # open the newly unzipped file using the vcf reader
         try:
-            vcf_reader = vcf.Reader(filename = filename, compressed = compressed)
-            return vcf_reader
+            #vcf_reader = vcf.Reader(filename = filename, compressed = compressed)
+            return filename, compressed
         except:
             # typically happens if the file is empty
             raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
