@@ -191,7 +191,7 @@ fi
 consoleOutputFolder=${consoleOutputFolder:-"./console_files/"}
 associationTableFolderPath=${associationTableFolderPath:-"../tables/"} 
 studyTableFolderPath=${studyTableFolderPath:-"../tables/"}
-cohortTablesFolderPath=${cohortTablesFolderPath:-"../tables/"}
+cohortTablesFolderPath=${cohortTablesFolderPath:-"../tables/cohorts/"}
 sampleVCFFolderPath=${sampleVCFFolderPath:-"../static/"}
 studyAndPubTSVFolderPath="."
 chainFileFolderPath="."
