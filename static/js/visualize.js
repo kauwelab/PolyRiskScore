@@ -5,7 +5,7 @@ function getTraits() {
     //call the API and populate the traits dropdown with the results
     $.ajax({
         type: "GET",
-        url: "ukbb_get_traits",
+        url: "cohort_get_traits",
         success: async function (data) {
             traitsList = data;
             var selector = document.getElementById("trait-Selector");
@@ -33,12 +33,12 @@ function getStudies() {
             studyTypes = ["HI", "LC", "O"]
         }
         
-        $('#study-Selector').replaceWith("<select id='study-Selector' style='margin-top: 2em; margin-bottom: 2em;' disabled> <option selected='selected' value='default'>Select a Study</option> </select>");
+        $('#study-Selector').replaceWith("<select id='study-Selector' style='margin-top: 2em; margin-bottom: 2em;' disabled onchange=\'getCohorts()\'> <option selected='selected' value='default'>Select a Study</option> </select>");
         var studySelector = document.getElementById("study-Selector");
         
         $.ajax({
             type: "GET",
-            url: "/ukbb_get_studies",
+            url: "/cohort_get_studies",
             data: { trait: trait, studyTypes: studyTypes },
             success: async function (studyLists) {
 
@@ -77,14 +77,52 @@ function getStudies() {
     }
 }
 
+function getCohorts() {
+    var studySelector = document.getElementById("study-Selector");
+    selectedStudy = studySelector.options[studySelector.selectedIndex]
+    studyID = studySelector.value;
+    trait = selectedStudy.getAttribute("data-trait")
+    var cohortSelector = document.getElementById("cohort-Selector");
+    cohortSelector.disabled = false;
+    cohortSelectorList = cohortSelector.options
+
+    // enable children that have the correct cohorts
+    $.ajax({
+        type: "GET",
+        url: "cohort_get_cohorts",
+        data: { trait: trait, studyID: studyID },
+        success: async function (data) {
+            cohortList = data;
+            // ensure the correct cohort options are available
+            for (i = 0; i < cohortSelectorList.length; i++) {
+                if (cohortSelectorList[i].value != "default") {
+                    if (cohortList.includes(cohortSelectorList[i].value)) {
+                        cohortSelectorList[i].disabled = false
+                    }
+                    else {
+                        cohortSelectorList[i].disabled = true
+                    }
+                }
+            }
+        },
+        error: function (XMLHttpRequest) {
+            alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
+        }
+    })
+}
+
 function resetFilters() {
+    var studyTypeSelector = document.getElementById("studyType-Selector");
+    studyTypeSelector.value = 'default';
+
     var studySelector = document.getElementById("study-Selector");
     studySelector.value = 'default';
     studySelector.disabled = true;
-    
-    var studyTypeSelector = document.getElementById("studyType-Selector");
-    studyTypeSelector.value = 'default';
- }
+
+    var cohortSelector = document.getElementById("cohort-Selector");
+    cohortSelector.value = 'default';
+    cohortSelector.disabled = true;
+}
 
 function displayGraphs() {
     var studySelector = document.getElementById("study-Selector");
@@ -92,10 +130,13 @@ function displayGraphs() {
     studyID = studySelector.value;
     trait = selectedStudy.getAttribute("data-trait")
 
+    var cohortSelector = document.getElementById("cohort-Selector");
+    cohort = cohortSelector.value;
+
     $.ajax({
         type: "GET",
-        url: "/ukbb_full_results",
-        data: { trait: trait, studyID: studyID },
+        url: "/cohort_full_results",
+        data: { trait: trait, studyID: studyID, cohort: cohort },
         success: async function (data) {
 
             if (data.length == 0) {
@@ -106,7 +147,6 @@ function displayGraphs() {
                 var studyName = document.getElementById("studyName")
                 studyName.innerText = selectedStudy.getAttribute("data-citation");
                 studyName.hidden = false;
-                var tablePlot = document.getElementById("tablePlot");
                 displayDataObj = data[0]
 
                 const keys = Object.keys(displayDataObj);
@@ -125,7 +165,13 @@ function displayGraphs() {
                 displayTable()
 
                 var studyMetadata = document.getElementById("studymetadata")
-                metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p><p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p><p><b>Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p><p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p><p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p><p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p><br>`
+                metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p>
+                <p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p>
+                <p><b>Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p>
+                <p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p>
+                <p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p>
+                <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>
+                <p><b>Cohort SNPs Used:</b> ${displayDataObj["snps"].join(", ")}<br>`
                 studyMetadata.innerHTML = metadatastring
             }
         },
@@ -136,9 +182,11 @@ function displayGraphs() {
 }
 
 function displayTable() {
+    var tablePlot = document.getElementById("tablePlot");
+
     var values = [
-        ['Min', 'Max', 'Mean', 'Median', 'Range'],
-        [displayDataObj["min"], displayDataObj["max"], displayDataObj["mean"], displayDataObj["median"], displayDataObj["rng"]]
+        ['Min', 'Max', 'Median', 'Range', 'Mean', 'Geometric Mean', 'Harmonic Mean', "Standard Deviation", "Geometric Standard Deviation"],
+        [displayDataObj["min"], displayDataObj["max"], displayDataObj["median"], displayDataObj["rng"], displayDataObj["mean"], displayDataObj["geomMean"], displayDataObj["harmMean"], displayDataObj["stdev"], displayDataObj["geomStdev"]]
     ]
 
     var tableData = [{
@@ -221,36 +269,35 @@ function displayBoxPlot() {
     Plotly.newPlot(boxPlot, data, layout)
 }
 
-function displayHistogramPlot() {
-    var histogramPlot = document.getElementById("plotSpace");
+function displayLinePlot() {
+    var linePlot = document.getElementById("plotSpace");
+    ranks = [...Array(101).keys()]
 
     var data = [{
-        x: displayDataObj["arrayOfValues"],
-        type: 'histogram',
+        x: ranks,
+        y: displayDataObj["arrayOfValues"],
+        mode: 'lines+markers',
         line: {
-            color: 'black'
+            color: 'rgba(141, 211, 199, 0.6)'
         },
         marker: {
-            color: 'rgba(141, 211, 199, 0.6)',
-            line: {
-                color:  "rgba(141, 211, 199, 1)", 
-                width: 1
-            }
+            color: 'rgba(141, 211, 199, 1)',
+            size: 3
         },
         name: displayDataObj['studyID']
     }]
 
     var layout= {
-        title: "",
+        title: displayDataObj['studyID'],
         xaxis: {
-            title: "Polygenic Risk Score"
+            title: "Rank"
         },
         yaxis: {
-            title: "Number of Samples"
+            title: "Polygenic Risk Score"
         },
     }
 
-    Plotly.newPlot(histogramPlot, data, layout)
+    Plotly.newPlot(linePlot, data, layout)
 }
 
 function changePlot() {
@@ -260,8 +307,8 @@ function changePlot() {
     console.log(plotType)
 
     switch(plotType) {
-        case "Histogram":
-            displayHistogramPlot()
+        case "Line":
+            displayLinePlot()
             break;
         case "Box":
             displayBoxPlot()

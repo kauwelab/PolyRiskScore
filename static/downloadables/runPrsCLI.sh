@@ -49,6 +49,8 @@ version="1.5.0"
 #
 #   Added optional param:
 #       -g biological sex prefered for snp selection
+#       -n number of processes
+#       -m omit *_studiesNotIncluded.txt file
 #
 # * 1/29/21 - v1.4.0
 #   
@@ -100,7 +102,8 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
-    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on 4 subprocesses)"    
+    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available processes)"
+    echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
     echo ""
 }
 
@@ -167,8 +170,9 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
         echo -e "| ${LIGHTPURPLE}13${NC} - -n number of subprocesses              |"
+        echo -e "| ${LIGHTPURPLE}14${NC} - -m omit *_studiesNotIncluded.txt       |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}14${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}15${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -270,7 +274,12 @@ learnAboutParameters () {
                 echo "This parameter allows you to choose the number of processes used to run the tool."
                 echo "By default, the Python script will run the calculations using 4 subprocesses."
                 echo "" ;;
-            14 ) cont=0 ;;
+            14 ) echo -e "${MYSTERYCOLOR} -m omit *_studiesNotIncluded.txt: ${NC}"
+                echo -e "To omit the *_studiesNotIncluded.txt file, include the ${GREEN}-m${NC} parameter."
+                echo "The *_studiesNotIncluded.txt file details study and trait combinations that no scores were"
+                echo "calculated for, due to none of the study snps being present in the samples. "
+                echo "" ;;
+            15 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -362,12 +371,13 @@ runPRS () {
 # parses the arguments for calculation
 # then calls the scripts required for calculations
 calculatePRS () {
-    # parse arguments 
+    # parse arguments
     traitsForCalc=()
     studyTypesForCalc=()
     studyIDsForCalc=()
     ethnicityForCalc=()
     isCondensedFormat=1
+    omitUnusedStudiesFile=0
 
     single="'"
     escaped="\'"
@@ -394,7 +404,10 @@ calculatePRS () {
         exit 1
     fi
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:' c "$@"
+    # create python import paths
+    SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:m' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -410,7 +423,7 @@ calculatePRS () {
                     exit 1
                 elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
-                    zipExtension=`$pyVer -c "import grep_file; grep_file.getZippedFileExtension('$filename', True)"`
+                    zipExtension=`$pyVer $SCRIPT_DIR/grep_file.py "zip" "$filename" "True"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
                         echo "zipped file validated"
                     # if "False", the file is not a zipped file
@@ -530,6 +543,8 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
+            m)  omitUnusedStudiesFile=1
+                ;;
             [?])    usage
                     exit 1;;
         esac
@@ -619,6 +634,26 @@ calculatePRS () {
                     exit 1
                 }
             }
+
+            echo "Checking for requests package requirement"
+            {
+                $pyVer -c "import requests" >/dev/null 2>&1
+            } && {
+                echo -e "requests package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: requests"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install requests
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (requests) and try running the tool again."
+                    exit 1
+                }
+            }
             echo "All package requirements met"
         fi
 
@@ -629,7 +664,7 @@ calculatePRS () {
         # saves them to files
         # associations --> either allAssociations.txt OR associations_{fileHash}.txt
         # clumps --> {superPop}_clumps_{refGen}.txt
-        if $pyVer -c "import connect_to_server as cts; cts.retrieveAssociationsAndClumps('$refgen','${traits}', '${studyTypes}', '${studyIDs}','$ethnicities', '$superPop', '$fileHash', '$extension', '$defaultSex')"; then
+        if $pyVer $SCRIPT_DIR/connect_to_server.py "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$superPop" "$fileHash" "$extension" "$defaultSex"; then
             echo "Got SNPs and disease information from PRSKB"
             echo "Got Clumping information from PRSKB"
         else
@@ -644,13 +679,13 @@ calculatePRS () {
         outputName=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_name);")
 
         echo "Calculating prs on $filename"
-        FILE=".workingFiles/associations_${fileHash}.txt"
+        FILE="${SCRIPT_DIR}/.workingFiles/associations_${fileHash}.txt"
 
         # filter the input file so that it only includes the lines with variants that match the given filters
-        if $pyVer -c "import grep_file as gp; gp.createFilteredFile('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '${traits}', '${studyTypes}', '${studyIDs}', '$ethnicities', '$extension', '$TIMESTAMP')"; then
+        if $pyVer $SCRIPT_DIR/grep_file.py "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer -c "import parse_associations as pa; pa.runParsingAndCalculations('$filename', '$fileHash', '$requiredParamsHash', '$superPop', '$refgen', '$defaultSex', '$cutoff', '$extension', '$output', '$outputType', '$isCondensedFormat', '$TIMESTAMP', '$processes')"; then
+            if $pyVer $SCRIPT_DIR/parse_associations.py "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
@@ -662,15 +697,15 @@ calculatePRS () {
 
         if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
             rm $FILE
-            rm ".workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-            rm ".workingFiles/traitStudyIDToSnps_${fileHash}.txt"
-            rm ".workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+            rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
+            rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         fi
         
-        rm ".workingFiles/filteredInput_${TIMESTAMP}${extension}"
-        [ -d __pycache__ ] && rm -r __pycache__
-        [ -e $output.lock ] && rm -- $output.lock
-        [ -e ${outputName}_studiesNotIncluded.txt.lock ] && rm -- ${outputName}_studiesNotIncluded.txt.lock
+        rm "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
+        [ -d ${SCRIPT_DIR}/__pycache__ ] && rm -r ${SCRIPT_DIR}/__pycache__
+        [ -e ${SCRIPT_DIR}/$output.lock ] && rm -- ${SCRIPT_DIR}/$output.lock
+        [ -e ${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock ] && rm -- ${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
         exit;
