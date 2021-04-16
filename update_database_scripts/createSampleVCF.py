@@ -65,7 +65,7 @@ f.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMP001\tSAMP002
 for i in range(len(snpsData)):
     snp = snpsData[i]['snp']
     ref = snpRefAlleleDict[snp]['ref']
-    if  snpsData[i]['riskAllele'] == ref[0]:
+    if snpsData[i]['riskAllele'] == ref[0] and snpRefAlleleDict[snp]['alt'] != "":
         alt = snpRefAlleleDict[snp]['alt']
     else: 
         alt = snpsData[i]['riskAllele']
