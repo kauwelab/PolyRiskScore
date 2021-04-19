@@ -17,4 +17,3 @@ send -- "$username\r"
 expect "Password for 'https://$username@github.com': "
 send -- "$gitPassword\r"
 expect eof
-
