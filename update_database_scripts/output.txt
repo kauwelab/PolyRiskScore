@@ -1,4 +1,4 @@
-Start time: Mon 19 Apr 2021 12:23:01 PM MDT
+Start time: Mon 19 Apr 2021 12:25:01 PM MDT
 Downloading new raw data disabled
 Creating new associations table disabled
 Ordering associations table disabled
