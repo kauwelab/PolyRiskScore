@@ -9,7 +9,7 @@
 #   6. do strand flipping on the associations table,
 #   7. upload the new study and association tables as well as the cohort tables to the PRSKB database,
 #   8. create example VCF and rsID files,
-#   9. and create association and clumps download files. 
+#   9. and create association and clumps download files.
 # It usually takes 3-5ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
 # you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
@@ -146,7 +146,7 @@ for arg do
                 password=$passwordPath
             else
                 echo "getting password from file path specified"
-                password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLClientPassword'); print(password);")
+                password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLPassword'); print(password);")
                 invalidPass=$($pyVer -c "import passwordGetter as p; print('$password' == p.INVALID_NUM_ARGS or '$password' == p.INVALID_PASS or '$password' == p.INVALID_PATH);")
                 if [[ $invalidPass == "True" ]]; then
                     echo -e "Error with password file: \"$password\" Exiting...\n"
@@ -191,7 +191,7 @@ fi
 consoleOutputFolder=${consoleOutputFolder:-"./console_files/"}
 associationTableFolderPath=${associationTableFolderPath:-"../tables/"} 
 studyTableFolderPath=${studyTableFolderPath:-"../tables/"}
-cohortTablesFolderPath=${cohortTablesFolderPath:-"../tables/"}
+cohortTablesFolderPath=${cohortTablesFolderPath:-"../tables/cohorts/"}
 sampleVCFFolderPath=${sampleVCFFolderPath:-"../static/"}
 studyAndPubTSVFolderPath="."
 chainFileFolderPath="."
@@ -285,7 +285,7 @@ fi
 #============Create Association and Clumps download files============================================
 if [ $clumpAssociationDownloadFiles == "true" ]; then
     echo "Creating Association and Clumps download files"
-    python3 createServerAssociAndClumpsFiles.py $password
+    python3 createServerAssociAndClumpsFiles.py "$password"
     wait
 fi
 
