@@ -1,9 +1,6 @@
 var resultJSON = "";
 var unusedTraitStudyArray = [];
-var traitObjects = []
-var studyObjects = [] //holds the study object so that their additional data (ethnicity, cohort, ect) can be accessed
 var traitsList = []
-var selectedStudies = []
 //if false, the VCF button is selected- used as a toggle to prevent action on double click
 var textButtonSelected = true;
 
@@ -11,6 +8,12 @@ var textButtonSelected = true;
 function pageReset() {
     var textInput = document.getElementById('input');
     textInput.value = ""
+
+    document.getElementById("database").checked = true;
+    document.getElementById("gwasDatabase").style.display = "initial";
+    document.getElementById("gwasUpload").style.display = "none";
+    
+    //TODO reset the GWAS upload input
 }
 
 //updates the output box and resultJSON string with the new string
@@ -174,6 +177,19 @@ function getSelectStudyAssociations(studyList, refGen, sex) {
             alert(errMsg);
         }
     }));
+}
+
+function changeGwasType() {
+    var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
+
+    if (gwasType === "Database") {
+        document.getElementById("gwasDatabase").style.display = "initial";
+        document.getElementById("gwasUpload").style.display = "none";
+    }
+    else {
+        document.getElementById("gwasDatabase").style.display = "none";
+        document.getElementById("gwasUpload").style.display = "initial";
+    }
 }
 
 //called in calculatePolyscore below
