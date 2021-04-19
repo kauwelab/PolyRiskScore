@@ -24,7 +24,7 @@ To download the PRSKB CLI tool, head over to the `PRSKB website download page <h
 
 Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database. 
 
-*NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF and filelock Python modules installed.*
+*NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF, filelock, and requests Python modules installed.*
 
 Required Parameters Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -40,10 +40,10 @@ Features
 The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI's interactive menu. The menu includes the options to search the database and to learn more about the parameters involved in risk score calculations. 
 To access the menu, run the script without parameters. You will be given the option to see the usage statement or start the interactive menu. 
 
-.. image:: ../../../images/RunCLIwithoutParams.png
+.. image:: ../../images/RunCLIwithoutParams.png
   :alt: CLI tool run without parameters
 
-.. image:: ../../../images/RunMenu.png
+.. image:: ../../images/RunMenu.png
   :alt: CLI menu screen shot
 
 Search the Database
@@ -53,7 +53,7 @@ Through the interactive menu, users can search the database for traits or studie
 
 After selecting the menu option to search for studies or traits, you will be prompted to specify if you are searching for studies or traits. You can then enter the search term you wish to use. 
 
-.. image:: ../../../images/SearchTraits.png
+.. image:: ../../images/SearchTraits.png
   :alt: Screenshot example for searching traits about teeth
 
 When the search is complete, the results will be printed to the console, and you will be returned to the menu. 
@@ -63,7 +63,7 @@ Display Ethnicities
 
 The menu has an option for displaying the available ethnicities to filter studies by.
 
-.. image:: ../../../images/displayEthnicities.png
+.. image:: ../../images/displayEthnicities.png
   :alt: Screenshot showing displayed ethnicities
 
 Learn about Parameters 
@@ -71,7 +71,7 @@ Learn about Parameters
 
 The menu also has an option for learning about the parameters involved in filtering studies and calculating scores. 
 
-.. image:: ../../../images/LearnAboutParams.png
+.. image:: ../../images/LearnAboutParams.png
   :alt: Screen shot of Parameters menu
 
 Required Parameters

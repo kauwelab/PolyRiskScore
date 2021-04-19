@@ -45,7 +45,7 @@
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
 <p>To download the PRSKB CLI tool, head over to the <a class="reference external" href="https://prs.byu.edu/cli_download.html">PRSKB website download page</a> or download the whole repository directly from <a class="reference external" href="https://github.com/kauwelab/PolyRiskScore">GitHub</a>.</p>
 <p>Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database.</p>
-<p><em>NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF and filelock Python modules installed.</em></p>
+<p><em>NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF, filelock, and requests Python modules installed.</em></p>
 <div class="section" id="required-parameters-example">
 <h3>Required Parameters Example<a class="headerlink" href="#required-parameters-example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.05 -r hg19 -p EUR
@@ -58,24 +58,24 @@
 <h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
 <p>The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI’s interactive menu. The menu includes the options to search the database and to learn more about the parameters involved in risk score calculations.
 To access the menu, run the script without parameters. You will be given the option to see the usage statement or start the interactive menu.</p>
-<img alt="CLI tool run without parameters" src="../../../images/RunCLIwithoutParams.png" />
-<img alt="CLI menu screen shot" src="../../../images/RunMenu.png" />
+<img alt="CLI tool run without parameters" src="_images/RunCLIwithoutParams.png" />
+<img alt="CLI menu screen shot" src="_images/RunMenu.png" />
 <div class="section" id="search-the-database">
 <h2>Search the Database<a class="headerlink" href="#search-the-database" title="Permalink to this headline">¶</a></h2>
 <p>Through the interactive menu, users can search the database for traits or studies. This can be helpful when filtering studies to run the calculator on.</p>
 <p>After selecting the menu option to search for studies or traits, you will be prompted to specify if you are searching for studies or traits. You can then enter the search term you wish to use.</p>
-<img alt="Screenshot example for searching traits about teeth" src="../../../images/SearchTraits.png" />
+<img alt="Screenshot example for searching traits about teeth" src="_images/SearchTraits.png" />
 <p>When the search is complete, the results will be printed to the console, and you will be returned to the menu.</p>
 </div>
 <div class="section" id="display-ethnicities">
 <h2>Display Ethnicities<a class="headerlink" href="#display-ethnicities" title="Permalink to this headline">¶</a></h2>
 <p>The menu has an option for displaying the available ethnicities to filter studies by.</p>
-<img alt="Screenshot showing displayed ethnicities" src="../../../images/displayEthnicities.png" />
+<img alt="Screenshot showing displayed ethnicities" src="_images/displayEthnicities.png" />
 </div>
 <div class="section" id="learn-about-parameters">
 <h2>Learn about Parameters<a class="headerlink" href="#learn-about-parameters" title="Permalink to this headline">¶</a></h2>
 <p>The menu also has an option for learning about the parameters involved in filtering studies and calculating scores.</p>
-<img alt="Screen shot of Parameters menu" src="../../../images/LearnAboutParams.png" />
+<img alt="Screen shot of Parameters menu" src="_images/LearnAboutParams.png" />
 <div class="section" id="required-parameters">
 <h3>Required Parameters<a class="headerlink" href="#required-parameters" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="file-path-f">

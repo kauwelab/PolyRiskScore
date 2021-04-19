@@ -26,7 +26,7 @@ The command-line interface (CLI) allows users to run larger analyses straight fr
 
 [Download CLI](https://prs.byu.edu/download_cli)
 
-Required installed programs: Bash and jq for bash, Python3 and the PyVCF and filelock Python modules
+Required installed programs: Bash and jq for bash, Python3 and the PyVCF, filelock, and requests Python modules
 
 ## CLI Example
 
