@@ -207,13 +207,13 @@
                 <div class="file-field" style="padding: .5em;">
                   <h5 class="text-left">1. Upload GWAS File</h5>
                   <div class="float-left">
-                    <input type="file" id="gwasFile" name="gwas-file" />
+                    <input type="file" id="gwasFile" name="gwas-file" onchange="moveToNextTourIndex('gwasFile')"/>
                   </div>
                 </div>
                 <p>&nbsp;</p>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
                   <h5>2. Specify GWAS Reference Genome</h5>
-                  <select id="gwasRefGenome" onchange="">
+                  <select id="gwasRefGenome" onchange="moveToNextTourIndex('gwasRefGenome')">
                     <option selected="selected" value="default">--Reference Genome--</option>
                     <option value="hg38">GRCh38/hg38</option>
                     <option value="hg19">GRCh37/hg19</option>
