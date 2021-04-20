@@ -43,7 +43,8 @@ function startTour() {
                 element: "#feedbackForm",
                 title: "Input your data",
                 content: "Data can be input either by typing SNP IDs and alleles directly on the page using the \"Text Input\" button \
-                (see examples in the text box) or by uploading a VCF file using the \"File Upload\" button."
+                (see examples in the text box) or by uploading a VCF file using the \"File Upload\" button. Note: zipped files are only \
+                supported on the CLI version of PRSKB."
             },
             {
                 element: "#exampleInput",

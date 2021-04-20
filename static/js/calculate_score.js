@@ -257,7 +257,7 @@ var calculatePolyScore = async () => {
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
 
-    //if the user doesn't specify a refgen or super pop, prompt them to do so
+    //if the user doesn't specify a refgen, super pop, or default sex prompt them to do so
     if (refGen == "default") {
         updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
@@ -267,6 +267,12 @@ var calculatePolyScore = async () => {
         updateResultBoxAndStoredValue('Please select the super population corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
+    }
+    if (sex == "default") {
+        sex = "f"
+        if (!confirm("Female is the default for default sex. Since no default sex was selected, we will use female as the default sex. Continue?")) {
+            return
+        }
     }
 
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
