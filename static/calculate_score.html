@@ -195,14 +195,17 @@
                   <p class="text-left">Instead of using GWAS data from our database, you are welcome to upload your own GWAS data. 
                     Your file <span title="It is very important that the file be in the correct format. If it is not tab deliminated and does not have the columns specified and have a header line with the EXACT names of the columns, this option WILL NOT work. "><b>must</b><sup>*</sup></span> be tab separated (either .tsv or .txt), and have the following columns: 
                     <span title="A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want.">Study&nbsp;ID<sup>?</sup></span>, 
-                    <span title="The trait the GWAS deals with.">Trait<sup>?</sup></span>, 
+                    <span title="The Experimental Factor Ontology (EFO) trait the GWAS deals with.">Trait<sup>?</sup></span>, 
                     <span title="The Rsid of the SNP.">Rsid<sup>?</sup></span>, 
                     <span title="The chromosome the SNP resides on.">Chromosome<sup>?</sup></span>, 
                     <span title="The position of the SNP in the reference genome.">Position<sup>?</sup></span>, 
                     <span title="The allele that confers Risk or Protection.">Risk&nbsp;Allele<sup>?</sup></span>, 
                     <span title="Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.">Odds&nbsp;Ratio<sup>?</sup></span>, and 
-                    <span title="The probability that the risk allele confers the amount of risk stated.">P-value<sup>?</sup></span>. All other columns in the file will be ignored. If 
-                    more than one odds ratio exists for an Rsid, the odd ratio and corresponding risk allele with the most significant P-value will be used.</p>
+                    <span title="The probability that the risk allele confers the amount of risk stated.">P-value<sup>?</sup></span>. 
+                    Optional column headers that will be included if present are:
+                    <span title="The citation information for the study.">Citation<sup>?</sup></span>
+                    and <span title ="Trait description for this study in the authors own words.">Reported&nbsp;Trait<sup>?</sup></span>.
+                    All other columns in the file will be ignored. If more than one odds ratio exists for an Rsid, the odd ratio and corresponding risk allele with the most significant P-value will be used.</p>
                 </div>
                 <div class="file-field" style="padding: .5em;">
                   <h5 class="text-left">1. Upload GWAS File</h5>

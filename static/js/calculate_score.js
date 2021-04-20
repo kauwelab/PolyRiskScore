@@ -410,6 +410,8 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
     rai = -1 //risk allele index
     ori = -1 //odds ratio index
     pvi = -1 //p value index
+    cti = -1 // optional citation index
+    rti = -1 // optional reported trait index
 
     for (i=0; i<fileLines.length; i++) {
         if (i==0) {
@@ -422,6 +424,8 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
             rai = cols.indexOf("risk allele")
             ori = cols.indexOf("odds ratio")
             pvi = cols.indexOf("p-value")
+            cti = cols.indexOf("citation")
+            rti = cols.indexOf("reported trait")
 
             if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1 || pvi == -1) {
                 console.log(sii, ti, si, ci, pi, rai, ori, pvi)
@@ -468,8 +472,8 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
             // create the metadata info dict
             if (!(cols[sii] in studyIDsToMetaData)) {
                 studyIDsToMetaData[cols[sii]] = {
-                    citation: "",
-                    reportedTrait: "",
+                    citation: (cti != -1 ? cols[cti] : ""),
+                    reportedTrait: (rti != -1 ? cols[rti] : ""),
                     studyTypes: [],
                     traits: {},
                     ethnicity: []
