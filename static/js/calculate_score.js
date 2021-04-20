@@ -253,15 +253,11 @@ var calculatePolyScore = async () => {
     var superPop = superPopElement.options[superPopElement.selectedIndex].value
     var sexElement = document.getElementById("sex");
     var sex = sexElement.options[sexElement.selectedIndex].value
-    var traitNodes = document.querySelectorAll('#traitSelect :checked');
-    var traits = [...traitNodes].map(option => option.value);
-    var studyNodes = document.querySelectorAll('#studySelect :checked');
-    var studies = [...studyNodes].map(option => [option.value, option.dataset.trait]);
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
 
-    //if the user doesn't specify a trait, study, or reference genome, prompt them to do so
+    //if the user doesn't specify a refgen or super pop, prompt them to do so
     if (refGen == "default") {
         updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
@@ -272,26 +268,46 @@ var calculatePolyScore = async () => {
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
     }
-    if (studies.length === 0) {
-        updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
+
+    var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
+
+    // if the user is uploading GWAS data, grab it and format it correctly
+    if (gwasType == "Upload") {
+        var gwasDataFile = document.getElementById("gwasFile").files[0];
+        var gwasRefGenElement = document.getElementById("gwasRefGenome");
+        var gwasRefGen = gwasRefGenElement.options[gwasRefGenElement.selectedIndex].value
+
         document.getElementById('resultsDisplay').style.display = 'block';
-        return;
+        updateResultBoxAndStoredValue("Calculating. Please wait...")
+
+        associationData = await getGWASuploadData(gwasDataFile, gwasRefGen, refGen)
+
     }
+    else {
+        var studyNodes = document.querySelectorAll('#studySelect :checked');
+        var studies = [...studyNodes].map(option => [option.value, option.dataset.trait]);
 
-    document.getElementById('resultsDisplay').style.display = 'block';
-    updateResultBoxAndStoredValue("Calculating. Please wait...")
-
-    //convert the studies into a list of studyIDs/traits
-    var studyList = [];
-    for (i = 0; i < studies.length; i++) {
-        studyList.push({
-            trait: studies[i][1],
-            studyID: studies[i][0]
-        });
+        if (studies.length === 0) {
+            updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
+            document.getElementById('resultsDisplay').style.display = 'block';
+            return;
+        }
+    
+        document.getElementById('resultsDisplay').style.display = 'block';
+        updateResultBoxAndStoredValue("Calculating. Please wait...")
+    
+        //convert the studies into a list of studyIDs/traits
+        var studyList = [];
+        for (i = 0; i < studies.length; i++) {
+            studyList.push({
+                trait: studies[i][1],
+                studyID: studies[i][0]
+            });
+        }
+    
+        //send a get request to the server with the specified traits and studies
+        associationData = await getSelectStudyAssociations(studyList, refGen, sex);
     }
-
-    //send a get request to the server with the specified traits and studies
-    associationData = await getSelectStudyAssociations(studyList, refGen, sex);
 
     clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
 
@@ -367,6 +383,137 @@ var calculatePolyScore = async () => {
             ClientCalculateScore(vcfFile, associationData, clumpsData, pValue, true);
         }
     }
+}
+
+/**
+ * 
+ * @param {*} gwasUploadFile the uploaded tab separated GWAS data file
+ * @param {*} gwasRefGen the reference genome of the GWAS upload data
+ * @param {*} refGen the reference genome of the samples
+ * @returns the associations data object used in calculating polygenic risk scores
+ */
+async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
+    var fileContents = await readFile(gwasUploadFile);
+    fileLines = fileContents.split("\n")
+
+    //TODO? put in that they have the option to include other columns and we will add that to the output??
+
+    associationsDict = {}
+    chromSnpDict = {}
+    studyIDsToMetaData = {}
+
+    sii = -1 //studyID index
+    ti = -1 //trait index
+    si = -1 //snp index
+    ci = -1 //chromosome index
+    pi = -1 //position index
+    rai = -1 //risk allele index
+    ori = -1 //odds ratio index
+    pvi = -1 //p value index
+
+    for (i=0; i<fileLines.length; i++) {
+        if (i==0) {
+            cols = fileLines[i].toLowerCase().replace(/\r$/, '').split('\t')
+            sii = cols.indexOf("study id")
+            ti = cols.indexOf("trait")
+            si = cols.indexOf("rsid")
+            ci = cols.indexOf("chromosome")
+            pi = cols.indexOf("position")
+            rai = cols.indexOf("risk allele")
+            ori = cols.indexOf("odds ratio")
+            pvi = cols.indexOf("p-value")
+
+            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1 || pvi == -1) {
+                console.log(sii, ti, si, ci, pi, rai, ori, pvi)
+                alert("The format of your GWAS upload is incorrect. Please fix it and try again.")
+                return
+            }
+        }
+        else {
+            cols = fileLines[i].replace(/\r$/, '').split('\t')
+            // create the chrom:pos to snp dict
+            if (!(`${cols[ci]}:${cols[pi]}` in chromSnpDict)) {
+                chromSnpDict[`${cols[ci]}:${cols[pi]}`] = cols[si]
+            }
+
+            // create the snp to associations stuff dict
+            if (!(cols[si] in associationsDict)) {
+                associationsDict[cols[si]] = {
+                    pos: `${cols[ci]}:${cols[pi]}`,
+                    traits: {}
+                }
+            }
+            if (!(cols[ti] in associationsDict[cols[si]]["traits"])) {
+                associationsDict[cols[si]]["traits"][cols[ti]] = {}
+            }
+            if (!(cols[sii] in associationsDict[cols[si]]["traits"][cols[ti]])) {
+                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {
+                    riskAllele: cols[rai],
+                    pValue: parseFloat(cols[pvi]),
+                    oddsRatio: parseFloat(cols[ori]),
+                    sex: "NA"
+                }
+            }
+            else {
+                if (parseFloat(cols[pvi]) < associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]["pValue"]) {
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {
+                        riskAllele: cols[rai],
+                        pValue: parseFloat(cols[pvi]),
+                        oddsRatio: parseFloat(cols[ori]),
+                        sex: "NA"
+                    }
+                }
+            }
+
+            // create the metadata info dict
+            if (!(cols[sii] in studyIDsToMetaData)) {
+                studyIDsToMetaData[cols[sii]] = {
+                    citation: "",
+                    reportedTrait: "",
+                    studyTypes: [],
+                    traits: {},
+                    ethnicity: []
+                }
+            }
+            if (!(cols[ti] in studyIDsToMetaData[cols[sii]]["traits"])) {
+                studyIDsToMetaData[cols[sii]]["traits"][cols[ti]] = []
+            }
+        }
+    }
+
+    if (gwasRefGen != refGen) {
+        snps = Object.keys(associationsDict)
+        chromSnpDict = await getChromposToSnps(refGen, snps)
+    }
+
+    associationData = Object.assign(associationsDict, chromSnpDict)
+    returnDict = {
+        associations: associationData,
+        studyIDsToMetaData: studyIDsToMetaData
+    }
+    return returnDict
+}
+
+/**
+ * 
+ * @param {*} refGen the reference genome of the samples
+ * @param {*} snps the rsids of the snps from gwas upload data
+ * @returns an object of chrom:pos to snp to use in conversions in the associations data
+ */
+function getChromposToSnps(refGen, snps) {
+    return Promise.resolve($.ajax({
+        type: "GET",
+        url: "/snps_to_chrom_pos",
+        data: { snps: snps, refGen: refGen },
+        success: async function (data) {
+            return data
+        },
+        error: function (XMLHttpRequest) {
+            var errMsg = `There was an error retrieving required snps data: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(errMsg)
+            alert(errMsg);
+        }
+    }));
 }
 
 /**
