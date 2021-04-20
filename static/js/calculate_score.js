@@ -329,6 +329,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
+        //TODO rename
         ClientCalculateScore(snpObjs, associationData, clumpsData, pValue, false);
     }
     else {
@@ -348,6 +349,7 @@ var calculatePolyScore = async () => {
                                                 
                 return;
             }
+            //TODO rename
             ClientCalculateScore(vcfFile, associationData, clumpsData, pValue, true);
         }
     }
@@ -361,20 +363,12 @@ function resetOutput() { //todo maybe should add this to when the traits/studies
     unusedTraitStudyArray = []
 }
 
-
-/**
- * Calculates scores client side for the file input from the user
- * @param {*} snpsInput- the file or text input by the user (specifiying snps of interest)
- * @param {*} associationData- the associations from get_associations (specifying traits and studies for calculations)
- * @param {*} clumpsData - the clumping data needed to 
- * @param {*} pValue- the pvalue cutoff for scores
- * @param {*} isVCF - whether the user gave us a VCF file or SNP text
- * No return- prints the simplified scores result onto the webpage
- */
-var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue, isVCF) => {
+//TODO write comment
+//TODO rename function
+var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isVCF) => {
     //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
     var associMap = associationData['associations']
-
+    
     //remove SNPs that aren't relevant from the snpsInput object
     var greppedSNPs;
     var totalInputVariants = 0;
@@ -387,6 +381,7 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
 
             //converts the vcf lines into an object that can be parsed
             greppedSNPs = vcf_parser.getVCFObj(reducedVCFLines);
+            return [greppedSNPs, totalInputVariants]
         }
         catch (err) {
             updateResultBoxAndStoredValue(getErrorMessage(err));
@@ -403,8 +398,25 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
         }
         var greppedSNPs = new Map();
         greppedSNPs.set("TextInput", greppedSNPsList);
+        return [greppedSNPs, totalInputVariants]
     }
+}
 
+//TODO change comment
+/**
+ * Calculates scores client side for the file input from the user
+ * @param {*} snpsInput- the file or text input by the user (specifiying snps of interest)
+ * @param {*} associationData- the associations from get_associations (specifying traits and studies for calculations)
+ * @param {*} clumpsData - the clumping data needed to 
+ * @param {*} pValue- the pvalue cutoff for scores
+ * @param {*} isVCF - whether the user gave us a VCF file or SNP text
+ * No return- prints the simplified scores result onto the webpage
+ */
+//TODO rename
+var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue, isVCF) => {
+    var greppedSNPsAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF)
+    var greppedSNPs = greppedSNPsAndtotalInputVariants[0]
+    var totalInputVariants = greppedSNPsAndtotalInputVariants[1]
     try {
         var result = sharedCode.calculateScore(associationData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
