@@ -12,8 +12,6 @@ function pageReset() {
     document.getElementById("database").checked = true;
     document.getElementById("gwasDatabase").style.display = "initial";
     document.getElementById("gwasUpload").style.display = "none";
-    
-    //TODO reset the GWAS upload input
 }
 
 //updates the output box and resultJSON string with the new string
@@ -257,7 +255,7 @@ var calculatePolyScore = async () => {
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
 
-    //if the user doesn't specify a refgen, super pop, or default sex prompt them to do so
+    //if the user doesn't specify a refgen, super pop, or default sex, prompt them to do so
     if (refGen == "default") {
         updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
@@ -402,8 +400,6 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
     var fileContents = await readFile(gwasUploadFile);
     fileLines = fileContents.split("\n")
 
-    //TODO? put in that they have the option to include other columns and we will add that to the output??
-
     associationsDict = {}
     chromSnpDict = {}
     studyIDsToMetaData = {}
@@ -442,20 +438,26 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
         else {
             cols = fileLines[i].replace(/\r$/, '').split('\t')
             // create the chrom:pos to snp dict
+            // if the chrom:pos not in the chromSnpDict
             if (!(`${cols[ci]}:${cols[pi]}` in chromSnpDict)) {
+                // add the chrom:pos with the snp rsID
                 chromSnpDict[`${cols[ci]}:${cols[pi]}`] = cols[si]
             }
 
             // create the snp to associations stuff dict
+            // if snp not in associations dict
             if (!(cols[si] in associationsDict)) {
                 associationsDict[cols[si]] = {
+                    // pos: "chromosome:position"
                     pos: `${cols[ci]}:${cols[pi]}`,
                     traits: {}
                 }
             }
+            // if trait not in associationsDict[snp][traits]
             if (!(cols[ti] in associationsDict[cols[si]]["traits"])) {
                 associationsDict[cols[si]]["traits"][cols[ti]] = {}
             }
+            // if studyID not in associationsDict[snp]["traits"][trait]
             if (!(cols[sii] in associationsDict[cols[si]]["traits"][cols[ti]])) {
                 associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {
                     riskAllele: cols[rai],
@@ -465,6 +467,8 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
                 }
             }
             else {
+                // if the pvalue for the current association is more significant that the one in the associations dict for this snp->trait->studyID
+                // replace the association data
                 if (parseFloat(cols[pvi]) < associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]["pValue"]) {
                     associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {
                         riskAllele: cols[rai],
@@ -476,16 +480,21 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
             }
 
             // create the metadata info dict
+            // if the studyID is not in the studyIDsToMetaData
             if (!(cols[sii] in studyIDsToMetaData)) {
                 studyIDsToMetaData[cols[sii]] = {
+                    // if the citation index is not -1 (meaning the user had a citation column in the GWAS tsv), add the citation, otherwise, leave blank
                     citation: (cti != -1 ? cols[cti] : ""),
+                    // if the reportedTrait index is not -1 (meaning the user had a reportedTrait column in the GWAS tsv), add the reportedTrait, otherwise, leave blank
                     reportedTrait: (rti != -1 ? cols[rti] : ""),
                     studyTypes: [],
                     traits: {},
                     ethnicity: []
                 }
             }
+            // if the trait is not in studyIDsToMetaData[studyID]["traits"]
             if (!(cols[ti] in studyIDsToMetaData[cols[sii]]["traits"])) {
+                // add the trait
                 studyIDsToMetaData[cols[sii]]["traits"][cols[ti]] = []
             }
         }
