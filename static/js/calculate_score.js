@@ -19,12 +19,14 @@ function updateResultBoxAndStoredValue(str) {
     resultJSON = str
 }
 
+//TODO comment
 function addToResultBox(str) {
     newText = document.getElementById('response').innerHTML.concat('\n', str);
     $('#response').html(newText);
     resultJSON = newText
 }
 
+//TODO comment
 function getTraits() {
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#traitSelect').replaceWith("<select id='traitSelect' multiple></select>");
@@ -50,6 +52,7 @@ function getTraits() {
     })
 }
 
+//TODO comment
 function getEthnicities() {
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#ethnicitySelect').replaceWith("<select id='ethnicitySelect' multiple></select>");
@@ -82,6 +85,7 @@ function getEthnicities() {
     })
 }
 
+//TODO comment
 function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
     var studySelector = document.getElementById("studySelect");
 
@@ -135,6 +139,7 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
     })
 }
 
+//TODO comment
 function getStudies() {
     //get the users selected traits, ethnicities, and studty types as arrays of values
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
@@ -227,7 +232,8 @@ function callClumpsEndpoint(superPop, refGen, positions) {
     }));
 }
 
-//called when the user clicks the "Caculate Risk Scores" button on the calculation page
+//called when the user clicks the "Calcuate Risk Scores" button on the calculation page
+//TODO comment
 var calculatePolyScore = async () => {
     // get the values from the user's inputs/selections
     var vcfFile = document.getElementById("files").files[0];
@@ -329,8 +335,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        //TODO rename
-        ClientCalculateScore(snpObjs, associationData, clumpsData, pValue, false);
+        handleCalculateScore(snpObjs, associationData, clumpsData, pValue, false);
     }
     else {
         //if text input is empty, return error
@@ -349,8 +354,7 @@ var calculatePolyScore = async () => {
                                                 
                 return;
             }
-            //TODO rename
-            ClientCalculateScore(vcfFile, associationData, clumpsData, pValue, true);
+            handleCalculateScore(vcfFile, associationData, clumpsData, pValue, true);
         }
     }
 }
@@ -402,9 +406,8 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
     }
 }
 
-//TODO change comment
 /**
- * Calculates scores client side for the file input from the user
+ * Calculates scores from the file input from the user
  * @param {*} snpsInput- the file or text input by the user (specifiying snps of interest)
  * @param {*} associationData- the associations from get_associations (specifying traits and studies for calculations)
  * @param {*} clumpsData - the clumping data needed to 
@@ -412,8 +415,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-//TODO rename
-var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue, isVCF) => {
+var handleCalculateScore = async (snpsInput, associationData, clumpsData, pValue, isVCF) => {
     var greppedSNPsAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF)
     var greppedSNPs = greppedSNPsAndtotalInputVariants[0]
     var totalInputVariants = greppedSNPsAndtotalInputVariants[1]
@@ -447,6 +449,191 @@ var ClientCalculateScore = async (snpsInput, associationData, clumpsData, pValue
         updateResultBoxAndStoredValue(getErrorMessage(err));
     }
 }
+
+//TODO fix comment
+/**
+ * Calculates the polygenetic risk score using table rows from the database and the vcfObj.
+ * If the vcfObj is undefined, throws an error message that can be printed to the user.
+ * P-value is required so the result can also return information about the calculation.
+ * @param {*} tableObj 
+ * @param {*} vcfObj 
+ * @param {*} pValue 
+ * @return a string in JSON format of each idividual, their scores, and other information about their scores.
+ */
+//TODO fix function
+exports.calculateScore = function (associationData, clumpsData, greppedSamples, pValue, totalInputVariants) {
+    var resultObj = {};
+    var indexSnpObj = {};
+    var resultJsons = {};
+    var unusedTraitStudyCombo = new Set()
+
+    if (greppedSamples == undefined) {
+        throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
+    }
+    else {
+        //add information to results
+        resultJsons = { 
+            pValueCutoff: pValue, 
+            totalVariants: totalInputVariants,
+            studyResults: {}
+        }
+        //if the input data has at least one individual
+        if (greppedSamples.size > 0) {
+            //for each individual, get a map containing all studies to the oddsRatios, snps and pos associated to each study and individual
+            //then convert this map into the right format for results
+            //for each individual and their snp info in the vcf object
+            for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
+                for (studyID in associationData['studyIDsToMetaData']) {
+                    for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
+                        if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID] && associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
+                            printStudyID = studyID.concat('†')
+                        }
+                        else {
+                            printStudyID = studyID
+                        }
+
+                        if (!(printStudyID in resultObj)) {
+                            resultObj[printStudyID] = {}
+                        }
+                        if (!(trait in resultObj[printStudyID])) {
+                            resultObj[printStudyID][trait] = {}
+                        }
+                        if (!(individualName in resultObj[printStudyID][trait])) {
+                            resultObj[printStudyID][trait][individualName] = {
+                                snps: {},
+                                variantsWithUnmatchedAlleles: [],
+                                variantsInHighLD: []
+                            }
+                        }
+                        if (!([trait, studyID, individualName].join("|") in indexSnpObj)) {
+                            indexSnpObj[[trait, studyID, individualName].join("|")] = {}
+                        }
+                    }
+                }
+
+                //for each snp of the individual in the vcf
+                individualSNPObjs.forEach(function (individualSNPObj) {
+                    //using the individualSNPObj.pos as key, gets all corresponding databasePosObjs from the database through
+                    //usefulPos. Each databasePosObj contains: snp, pos, oddsRatio, allele, study, traits, reportedTraits, and studyID
+                    //databasePosObjs will normally only be size 1, but when mutiple studies have the same allele, it will be longer
+                    key = individualSNPObj.snp
+                    alleles = individualSNPObj.alleleArray
+
+                    if (!key.includes("rs")) {
+                        if (individualSNPObj.pos in associationData['associations']){
+                            key = associationData['associations'][individualSNPObj.pos]
+                        }
+                    }
+
+                    if (key in associationData['associations'] && alleles != []) {
+                        for (trait in associationData['associations'][key]['traits']) {
+                            for (studyID in associationData['associations'][key]['traits'][trait]) {
+                                printStudyID = studyID
+                                traitStudySamp = [trait, studyID, individualName].join("|")
+                                associationObj = associationData['associations'][key]['traits'][trait][studyID]
+                                if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
+                                    if (associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
+                                        printStudyID = studyID.concat('†')
+                                    }
+                                }
+
+                                if (associationObj.pValue <= pValue) {
+                                    numAllelesMatch = 0
+                                    for (i=0; i < alleles.length; i++) {
+                                        allele = alleles[i]
+                                        if (allele == associationObj.riskAllele){
+                                            numAllelesMatch++;
+                                        }
+                                        else {
+                                            resultObj[printStudyID][trait][individualName]['variantsWithUnmatchedAlleles'].push(key)
+                                        }
+                                    }
+                                    if (numAllelesMatch > 0) {
+                                        if (clumpsData !== undefined && key in clumpsData) {
+                                            clumpNum = clumpsData[key]['clumpNum']
+                                            if (clumpNum in indexSnpObj[traitStudySamp]) {
+                                                indexClumpSnp = indexSnpObj[traitStudySamp][clumpNum]
+                                                indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID]['pValue']
+                                                if (associationObj.pValue < indexPvalue) {
+                                                    delete resultObj[printStudyID][trait][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                    resultObj[printStudyID][trait][individualName]['variantsInHighLD'].push(indexClumpSnp)
+                                                    resultObj[printStudyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                                    indexSnpObj[traitStudySamp][clumpNum] = key
+                                                }
+                                                else {
+                                                    // add the current snp to neutral snps
+                                                    resultObj[printStudyID][trait][individualName]['variantsInHighLD'].push(key)
+                                                }
+                                            }
+                                            else {
+                                                // add the clumpNum/key to the indexSnpObj
+                                                indexSnpObj[traitStudySamp][clumpNum] = key
+                                                resultObj[printStudyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                            }
+                                        } else {
+                                            // just add the snp to calculations
+                                            resultObj[printStudyID][trait][individualName]['snps'][key] = numAllelesMatch
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+            for (studyID in resultObj) {
+                if (studyID.includes('†')) {
+                    studyID_og = studyID.slice(0, -1)
+                }
+                else {
+                    studyID_og = studyID
+                }
+                tmpStudyObj = {
+                    citation: associationData['studyIDsToMetaData'][studyID_og]['citation'],
+                    reportedTrait: associationData['studyIDsToMetaData'][studyID_og]['reportedTrait'],
+                    traits: {}
+                }
+                for (trait in resultObj[studyID]) {
+                    tmpTraitObj = {}
+                    atLeastOneGoodSamp = false
+                    for (sample in resultObj[studyID][trait]) {
+                        scoreAndSnps = calculateCombinedORandFormatSnps(resultObj[studyID][trait][sample], trait, studyID_og, associationData)
+                        tmpSampleObj = {
+                            oddsRatio: scoreAndSnps[0],
+                            protectiveVariants: scoreAndSnps[2],
+                            riskVariants: scoreAndSnps[1],
+                            unmatchedVariants: scoreAndSnps[3],
+                            clumpedVariants: scoreAndSnps[4]
+                        }
+                        tmpTraitObj[this.trim(sample)] = tmpSampleObj
+                        if (tmpSampleObj.oddsRatio != "NF" || tmpSampleObj.unmatchedVariants.length != 0) {
+                            atLeastOneGoodSamp = true
+                        }
+                    }
+                    if (atLeastOneGoodSamp) {
+                        tmpStudyObj['traits'][trait] = tmpTraitObj
+                    }
+                    else {
+                        tmpStudyObj['traits'][trait] = {}
+                        unusedTraitStudyCombo.add([trait, studyID_og])
+                        delete tmpStudyObj['traits'][trait]
+                    }
+                }
+                if (atLeastOneGoodSamp) {
+                    resultJsons['studyResults'][studyID] = tmpStudyObj
+                }
+            }
+        }
+        //if the input data doesn't have an individual in it (we can assume this is a text input query with no matching SNPs)
+        //TODO fill this out
+        else {
+
+        }
+        //convert the result JSON list to a string, the unusedTraitStudyCombo to array and return
+        return [JSON.stringify(resultJsons), Array.from(unusedTraitStudyCombo)];
+    }
+};
 
 function getErrorMessage(err) { //TODO we are going to want to NOT give this information to the user in the final product. What we can and should do is create an endpoint to send errors to that can be saved for us to look over later
     var response = 'There was an error computing the risk score:'
@@ -558,6 +745,7 @@ function getSnpFromLine(line) {
     return match != null ? match[0] : null
 }
 
+//TODO comment
 function formatTSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
     //TODO: account for if the samples are not in the same order everytime
@@ -626,6 +814,7 @@ function formatTSV(jsonObject, isCondensed) {
     return resultsString;
 }
 
+//TODO comment
 function changeFormat() {
     var formatDropdown = document.getElementById("fileType");
     var format = formatDropdown.options[formatDropdown.selectedIndex].value;
@@ -645,6 +834,7 @@ function changeFormat() {
     $('#response').html(outputVal);
 }
 
+//TODO comment
 function getResultOutput(jsonObject) {
     if (jsonObject == undefined || jsonObject == "") {
         return "";
@@ -667,6 +857,7 @@ function getResultOutput(jsonObject) {
     }
 }
 
+//TODO comment
 function downloadResults() {
     if (resultJSON == {} && unusedTraitStudyArray.length == 0) {
         $('#response').html("There are no files to download. Please try the calculator again");
@@ -698,6 +889,7 @@ function downloadResults() {
     download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formattedUnusedTraitStudyArray]);
 }
 
+//TODO comment
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
@@ -748,7 +940,7 @@ function download(filenameArray, extension, textArray) {
 
 // Used for creating a new FileList in a round-about way- found at https://stackoverflow.com/questions/52078853/is-it-possible-to-update-filelist/52079109
 //see exampleInput for usage
-function FileListItem(a) {
+function fileListItem(a) {
     a = [].slice.call(Array.isArray(a) ? a : arguments)
     for (var c, b = c = a.length, d = !0; b-- && d;) d = a[b] instanceof File
     if (!d) throw new TypeError("expected argument to FileList is File or array of File objects")
@@ -756,6 +948,7 @@ function FileListItem(a) {
     return b.files
 }
 
+//TODO comment
 function exampleInput() {
     document.getElementById('fileUploadButton').click();
     var result = null;
@@ -778,7 +971,7 @@ function exampleInput() {
             lastModified: new Date(0), // optional - default = now
             type: "overide/mimetype" // optional - default = ''
         });
-        document.getElementById("files").files = new FileListItem(file);
+        document.getElementById("files").files = new fileListItem(file);
         var textInput = document.getElementById('input');
         //print the file's contents into the input box
         textInput.value = (result);
@@ -847,6 +1040,8 @@ function changePValScalar() {
     resetOutput()
     updateResultBoxAndStoredValue("");
 }
+
+//TODO comment
 function changePValMagnitude() {
     $("#pvalMagnigtude").html(-1 * $("#pValMagIn").val());
     resetOutput()
