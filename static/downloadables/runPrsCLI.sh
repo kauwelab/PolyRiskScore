@@ -667,10 +667,48 @@ calculatePRS () {
                 fi;;
             m)  omitUnusedStudiesFile=1
                 ;;
-            u)  #filepath GWAS upload
-                ;;
-            a)  #gwas reference genome
-                ;;
+            u)  if ! [ -z "$GWASfilename" ]; then
+                    echo "Too many GWAS filenames given at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                GWASfilename=$OPTARG
+                GWASfilename="${GWASfilename//\\//}" # replace backslashes with forward slashes
+                if [ ! -f "$GWASfilename" ]; then
+                    echo -e "The file${LIGHTRED} $GWASfilename ${NC}does not exist."
+                    echo "Check the path and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                elif ! [[ $(echo $GWASfilename | tr '[:upper:]' '[:lower:]') =~ .tsv$|.txt$ ]]; then
+                    # check if the file is a valid zipped file (check getZippedFileExtension for more details)
+                    GWASzipExtension=`$pyVer "$SCRIPT_DIR/grep_file.py" "zip" "$GWASfilename" "True"`
+                    if [ "$GWASzipExtension" = ".tsv" ] || [ "$GWASzipExtension" = ".txt" ]; then
+                        echo "zipped file validated"
+                    # if "False", the file is not a zipped file
+                    elif [ "$GWASzipExtension" = "False" ]; then
+                        echo -e "The file${LIGHTRED} $GWASfilename ${NC}is in the wrong format."
+                        echo -e "Please use a tsv or a tab separated txt file."
+                        echo -e "${LIGHTRED}Quitting...${NC}"
+                        exit 1
+                    # if something else, the file is a zipped file, but there are too many/few tsv/txt files in it
+                    else
+                        # print the error associated with the zipped file and exit
+                        echo $GWASzipExtension
+                        echo -e "${LIGHTRED}Quitting...${NC}"
+                        exit 1
+                    fi
+                fi;;
+            a)  if ! [ -z "$GWASrefgen" ]; then
+                    echo "Too many GWAS reference genomes given."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                GWASrefgen=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if ! [[ "$GWASrefgen" =~ ^hg17$|^hg18$|^hg19$|^hg38$ ]]; then
+                    echo -e "${LIGHTRED}$GWASrefgen ${NC}should be hg17, hg18, hg19, or hg38"
+                    echo "Check the value and try again."
+                    exit 1
+                fi;;
             [?])    usage
                     exit 1;;
         esac
@@ -689,6 +727,10 @@ calculatePRS () {
     if [ -z "$defaultSex" ]; then
         defaultSex="female"
     fi
+    # if no GWAS refgen is specified but a path to a gwas file is give, set GWASrefgen to the samples refgen
+    if [ -z "${GWASrefgen}" ] && ! [ -z "${GWASfilename}" ]; then
+        GWASrefgen=${refgen}
+    fi
 
     # preps variables for passing to python script
     export traits=${traitsForCalc[@]}
@@ -698,6 +740,9 @@ calculatePRS () {
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
+    if ! [ -z ${GWASfilename} ]; then
+        fileHash=$(chsum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}" | cut -f 1 -d ' ')
+    fi
     requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
     # Create uniq ID for filtered file path
     TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
@@ -713,6 +758,21 @@ calculatePRS () {
     else
         extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
     fi
+
+    # if GWAS file is present and GWASzipExtension hasn't been instantiated yet, initialize it
+    if ! [ -z "${GWASfilename}" ]; then
+        if [ -z "$GWASzipExtension" ]; then
+            GWASzipExtension="NULL"
+        fi
+        # if the zip extension is valid, set extension to the zip extension, 
+        # otherwise use Pyhton os.path.splitext to get the extension
+        if [ $GWASzipExtension = ".tsv" ] || [ $GWASzipExtension = ".txt" ]; then
+            GWASextension="$GWASzipExtension"
+        else
+            GWASextension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$GWASfilename'); print(f_ext);")
+        fi
+    fi
+
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
         # check if pip is installed for the python call being used (REQUIRED)
         if ! $pyVer -m pip --version >/dev/null 2>&1; then
@@ -786,16 +846,29 @@ calculatePRS () {
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
-        # Calls a python function to get a list of SNPs and clumps from our Database
-        # saves them to files
-        # associations --> either allAssociations.txt OR associations_{fileHash}.txt
-        # clumps --> {superPop}_clumps_{refGen}.txt
-        if $pyVer "$SCRIPT_DIR/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$superPop" "$fileHash" "$extension" "$defaultSex"; then
-            echo "Got SNPs and disease information from PRSKB"
-            echo "Got Clumping information from PRSKB"
-        else
-            echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
-            exit;
+        if ! [ -z "${GWASfilename}" ]; then 
+            # Calls a python function to format the given GWAS data and get the clumps from our database
+            # saves both to files
+            # GWAS data --> GWASassociations_{fileHash}.txt
+            # clumps --> {superPop}_clumps_{refGen}_{fileHash}.txt
+            if $pyver "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${GWASrefgen}" "${refgen}" "${superPop}" "${fileHash}"; then
+                echo "Formatted GWAS data and retrieved clumping information from the PRSKB"
+            else
+                echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
+                exit;
+            fi
+        else 
+            # Calls a python function to get a list of SNPs and clumps from our Database
+            # saves them to files
+            # associations --> either allAssociations.txt OR associations_{fileHash}.txt
+            # clumps --> {superPop}_clumps_{refGen}.txt OR {superPop}_clumps_{refGen}_{fileHash}.txt
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$superPop" "$fileHash" "$extension" "$defaultSex"; then
+                echo "Got SNPs and disease information from PRSKB"
+                echo "Got Clumping information from PRSKB"
+            else
+                echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
+                exit;
+            fi
         fi
     fi
 
@@ -806,12 +879,15 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         FILE="${SCRIPT_DIR}/.workingFiles/associations_${fileHash}.txt"
+        if ! [ -z "${GWASfilename}" ]; then 
+            FILE="${SCRIPT_DIR}/.workingFiles/GWASassociations_${fileHash}.txt"
+        fi
 
         # filter the input file so that it only includes the lines with variants that match the given filters
-        if $pyVer "$SCRIPT_DIR/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP"; then
+        if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "$SCRIPT_DIR/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else

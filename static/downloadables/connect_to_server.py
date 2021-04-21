@@ -87,6 +87,55 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     return
 
 
+# format the uploaded GWAS data and get the clumps from the server
+def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, superPop, fileHash):
+    checkInternetConnection()
+
+    # TODO figure out how the file should be opened.
+    GWASfileOpen = ""
+
+    associationDict = {}
+    chromPosToSnpDict = {}
+    studyIDsToMetaData = {}
+
+    sii = -1 # studyID index
+    ti = -1 # trait index
+    si = -1 # snp index
+    ci = -1 # chromosome index
+    pi = -1 # position index
+    rai = -1 # risk allele index
+    ori = -1 # odds ratio index
+    pvi = -1 # p-value index
+    cti = -1 # citation index
+    rti = -1 # reported trait index
+
+    firstLine = True
+    for line in GWASfileOpen:
+        if firstLine:
+            firstLine = False
+            headers = line.rstrip("\r").rstrip("\n").lower().split("\t")
+
+            try:
+                sii = headers.index("study id")
+                ti = headers.index("trait")
+                si = headers.index("rsid")
+                ci = headers.index("chromosome")
+                pi = headers.index("position")
+                rai = headers.index("risk allele")
+                ori = headers.index("odds ratio")
+                pvi = headers.index("p-value")
+            except ValueError:
+                raise SystemExit("ERROR: The GWAS file is missing the correct headers. Please check your file to ensure the required columns are present.")
+
+            cti = headers.index("citation") if "citation" in headers else -1
+            rti = headers.index("reported trait") if "reported trait" in headers else -1
+        else:
+            line = line.rstrip("\r").rstrip("\n").split("\t")
+            
+
+
+
+
 def checkForAllAssociFile(refGen, defaultSex):
     # assume we will need to download new files
     dnldNewAllAssociFile = True
@@ -309,6 +358,9 @@ def checkInternetConnection():
 
 
 if __name__ == "__main__":
-    retrieveAssociationsAndClumps(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9])
+    if argv[1] == "GWAS":
+        formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6])
+    else:
+        retrieveAssociationsAndClumps(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9])
 
     
