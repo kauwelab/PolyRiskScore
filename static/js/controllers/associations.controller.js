@@ -80,6 +80,29 @@ exports.getAllSnps = (req, res) => {
     })
 }
 
+exports.getSnpsToChromPos = (req, res) => {
+    var refGen = req.query.refGen;
+    var snps = req.query.snps
+
+    Association.getSnpsToChromPos(snps, refGen, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving chrom:pos"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            chromPosToSnps = {}
+            for (i=0; i<data.length; i++) {
+                if (!(Object.keys(chromPosToSnps).includes(data[i].pos))) {
+                    chromPosToSnps[data[i].pos] = data[i].snp
+                }
+            }
+            res.send(chromPosToSnps)
+        }
+    })
+}
+
 exports.getAllSnpsToStudyIDs = (req, res) => {
     var refGen = req.query.refGen;
     Association.getAllSnpsToStudyIDs(refGen, async (err, data) => {
