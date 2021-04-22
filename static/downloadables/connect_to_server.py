@@ -64,7 +64,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         # get the study:snps info
         fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
         studySnpsPath = os.path.join(workingFilesPath, fileName)
-        studySnpsData = getSpecificStudySnps(refGen, finalStudyList)
+        studySnpsData = getSpecificStudySnps(finalStudyList)
 
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
@@ -95,8 +95,9 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
     GWASfileOpen = ""
 
     associationDict = {}
-    chromPosToSnpDict = {}
+    chromSnpDict = {}
     studyIDsToMetaData = {}
+    studySnpsData = {}
 
     sii = -1 # studyID index
     ti = -1 # trait index
@@ -125,15 +126,123 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
                 ori = headers.index("odds ratio")
                 pvi = headers.index("p-value")
             except ValueError:
-                raise SystemExit("ERROR: The GWAS file is missing the correct headers. Please check your file to ensure the required columns are present.")
+                raise SystemExit("ERROR: The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format.")
 
             cti = headers.index("citation") if "citation" in headers else -1
             rti = headers.index("reported trait") if "reported trait" in headers else -1
         else:
             line = line.rstrip("\r").rstrip("\n").split("\t")
+            # create the chrom:pos to snp dict
+            # if the chrom:pos not in the chromSnpDict
+            chromPos = ":".join([line[ci], line[pi]])
+            if chromPos not in chromSnpDict:
+                # add the chrom:pos with the snp rsID
+                chromSnpDict[chromPos] = cols[si]
             
+            # create the snp to associations stuff dict
+            # if snp not in associationsDict
+            if line[si] not in associationDict:
+                associationDict[line[si]] = {
+                    "pos": chromPos,
+                    "traits": {}
+                }
+            # if trait not in associationsDict[snp][traits]
+            if line[ti] not in associationDict[line[si]]["traits"]:
+                associationDict[line[si]]["traits"][line[ti]] = {}
+            # if studyID not in associationDict[snp]["traits"][trait]
+            if line[sii] not in associationDict[line[si]]["traits"][line[ti]]:
+                associationDict[line[si]]["traits"][line[ti]][line[sii]] = {
+                    "riskAllele": line[rai],
+                    "pValue": float(line[pvi]),
+                    "oddsRatio": float(line[ori]),
+                    "sex": "NA"
+                }
+            else:
+                # if the pvalue for the current association is more significant than the one in the associationsDict for this snp->trait->studyID
+                # replace the association data
+                if float(line[pvi]) < associationDict[line[si]]["traits"][line[ti]][line[sii]]["pValue"]:
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]] = {
+                    "riskAllele": line[rai],
+                    "pValue": float(line[pvi]),
+                    "oddsRatio": float(line[ori]),
+                    "sex": "NA"
+                }
+
+            # create the metadata info dict
+            # if the studyID is not in the studyIDsToMetaData
+            if line[sii] not in studyIDsToMetaData:
+                studyIDsToMetaData[line[sii]] = {
+                    "citation": line[cti] if cti != -1 else "",
+                    "reportedTrait": line[rti] if rti != -1 else "",
+                    "studyTypes": [],
+                    "traits": {},
+                    "ethnicity": []
+                }
+            # if the trait is not in the studyIDsToMetaData[studyID]["traits"]
+            if line[ti] not in studyIDsToMetaData[line[sii]]["traits"]:
+                # add the trait
+                studyIDsToMetaData[line[sii]]["traits"][line[ti]] = []
+            
+            # create studyID/trait to snps
+            # if trait|studyID not in the studySnpsData
+            traitStudyID = "|".join([line[ti], line[sii]])
+            if traitStudyID not in studySnpsData:
+                studySnpsData[traitStudyID] = []
+            # add snp to the traitStudyIDToSnp
+            studySnpsData[traitStudyID].append(line[si])
 
 
+    if GWASrefGen != refGen:
+        snps = list(associationDict.keys())
+        chromSnpDict = getUrlWithParams("https://prs.byu.edu/snps_to_chrom_pos", { "snps": snps, "refGen": refGen })
+
+    mergedAssociDict = dict()
+    mergedAssociDict.update(associationDict)
+    mergedAssociDict.update(chromSnpDict)
+    chromPos = list(chromSnpDict.keys())
+
+    associationsReturnObj = {
+        "associations": mergedAssociDict,
+        "studyIDsToMetaData": studyIDsToMetaData
+    }
+        
+    workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
+    # if the directory doesn't exist, make it, and we will need to download the files
+    if not os.path.exists(workingFilesPath):
+        os.mkdir(workingFilesPath)
+    
+    fileName = "GWASassociations_{fileHash}.txt".format(fileHash=fileHash)
+    associationsPath = os.path.join(workingFilesPath, fileName)
+
+    fileName = "{superPop}_clumps_{refGen}_{fileHash}.txt".format(superPop=superPop, refGen=refGen, fileHash=fileHash)
+    clumpsPath = os.path.join(workingFilesPath, fileName)
+
+    # get clumps using the refGen and superpopulation
+    clumpsData = getClumps(refGen, superPop, chromPos)
+
+    # get the study:snps info
+    fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
+    studySnpsPath = os.path.join(workingFilesPath, fileName)
+
+    # check to see if associationsReturnObj is instantiated in the local variables
+    if 'associationsReturnObj' in locals():
+        f = open(associationsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(associationsReturnObj))
+        f.close()
+
+    # check to see if clumpsData is instantiated in the local variables
+    if 'clumpsData' in locals():
+        f = open(clumpsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(clumpsData))
+        f.close()
+
+    # check to see if studySnpsDat is instantiated in the local variables
+    if 'studySnpsData' in locals():
+        f = open(studySnpsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(studySnpsData))
+        f.close()
+
+    return
 
 
 def checkForAllAssociFile(refGen, defaultSex):
@@ -333,7 +442,7 @@ def getClumps(refGen, superPop, snpsFromAssociations):
 
 
 # gets associationReturnObj using the given filters
-def getSpecificStudySnps(refGen, finalStudyList):
+def getSpecificStudySnps(finalStudyList):
     # get the studies matching the parameters
     body = {
         "studyIDObjs":finalStudyList
