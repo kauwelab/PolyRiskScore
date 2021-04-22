@@ -13,6 +13,8 @@ var templateWithoutNext = `<div class='popover tour'>
 var refGenTourIndex = 3
 var superPopTourIndex = 4
 var sexTourIndex = 5
+var gwasFileTourIndex = 10
+var gwasRefGenTourIndex = 11
 
 
 
@@ -41,7 +43,8 @@ function startTour() {
                 element: "#feedbackForm",
                 title: "Input your data",
                 content: "Data can be input either by typing SNP IDs and alleles directly on the page using the \"Text Input\" button \
-                (see examples in the text box) or by uploading a VCF file using the \"File Upload\" button."
+                (see examples in the text box) or by uploading a VCF file using the \"File Upload\" button. Note: zipped files are only \
+                supported on the CLI version of PRSKB."
             },
             {
                 element: "#exampleInput",
@@ -74,6 +77,13 @@ function startTour() {
                 female. When you are done, press the \"next\" button to continue the tour."
             },
             {
+                element: "#GWAStypeSelector",
+                title: "GWAS",
+                content: "Users have the option of either calculating polygenic risk scores from \
+                GWAS data in the database or uploading their own GWAS data. Choose which one you \
+                would like to use."
+            },
+            {
                 element: "#traitSelectContainer",
                 title: "Select traits",
                 content: "Use the search bar to search specific traits for which you would like to \
@@ -99,6 +109,18 @@ function startTour() {
                 content: "Search and select studies to include in your results. A separate polygenic risk score \
                 will be calculated for each study/trait pair. Once you have finished selecting your filters, press \
                 the \"next\" button to continue the tour."
+            },
+            {
+                element: "#gwasFile",
+                title: "Upload a GWAS file",
+                content: "See the above paragraph for the requirements for uploading GWAS data.",
+                template: templateWithoutNext
+            },
+            {
+                element: "#gwasRefGenome",
+                title: "Select the reference genome of the uploaded GWAS data",
+                content: "Select the reference genome corresponding to the GWAS data you have uploaded.",
+                template: templateWithoutNext
             },
             {
                 element: "#pvalInput",
@@ -171,6 +193,12 @@ function moveToNextTourIndex(stepName) {
             tour.next()
         }
         if ((stepName == 'superPop' && tour.getCurrentStep() == superPopTourIndex)) {
+            tour.next()
+        }
+        if ((stepName == 'gwasFile' && tour.getCurrentStep() == gwasFileTourIndex)) {
+            tour.next()
+        }
+        if ((stepName == 'gwasRefGenome' && tour.getCurrentStep() == gwasRefGenTourIndex)) {
             tour.next()
         }
     }

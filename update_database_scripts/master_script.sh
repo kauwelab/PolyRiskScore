@@ -146,7 +146,7 @@ for arg do
                 password=$passwordPath
             else
                 echo "getting password from file path specified"
-                password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLClientPassword'); print(password);")
+                password=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getMySQLPassword'); print(password);")
                 invalidPass=$($pyVer -c "import passwordGetter as p; print('$password' == p.INVALID_NUM_ARGS or '$password' == p.INVALID_PASS or '$password' == p.INVALID_PATH);")
                 if [[ $invalidPass == "True" ]]; then
                     echo -e "Error with password file: \"$password\" Exiting...\n"
@@ -191,7 +191,7 @@ fi
 consoleOutputFolder=${consoleOutputFolder:-"./console_files/"}
 associationTableFolderPath=${associationTableFolderPath:-"../tables/"} 
 studyTableFolderPath=${studyTableFolderPath:-"../tables/"}
-cohortTablesFolderPath=${cohortTablesFolderPath:-"../tables/"}
+cohortTablesFolderPath=${cohortTablesFolderPath:-"../tables/cohorts/"}
 sampleVCFFolderPath=${sampleVCFFolderPath:-"../static/"}
 studyAndPubTSVFolderPath="."
 chainFileFolderPath="."
@@ -285,7 +285,7 @@ fi
 #============Create Association and Clumps download files============================================
 if [ $clumpAssociationDownloadFiles == "true" ]; then
     echo "Creating Association and Clumps download files"
-    python3 createServerAssociAndClumpsFiles.py $password
+    python3 createServerAssociAndClumpsFiles.py "$password"
     wait
 fi
 
