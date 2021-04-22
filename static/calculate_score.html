@@ -103,7 +103,7 @@
               <form class="md-form" id="file-form" style="visibility: hidden;">
                 <div class="file-field">
                   <div class="float-left">
-                    <input type="file" id="files" name="file" />
+                    <input type="file" id="files" name="file" accept=".vcf,.txt"/>
                     <script src="js/handleFileSelect.js"></script>
                     <script>document.getElementById('files').addEventListener('change', handleFileSelect, false); </script>
                     <input type="hidden" id="savedVCFInput" value="" />
@@ -210,7 +210,7 @@
                 <div class="file-field" style="padding: .5em;">
                   <h5 class="text-left">1. Upload GWAS File</h5>
                   <div class="float-left">
-                    <input type="file" id="gwasFile" name="gwas-file" onchange="moveToNextTourIndex('gwasFile')"/>
+                    <input type="file" accept=".tsv,.txt" id="gwasFile" name="gwas-file" onchange="moveToNextTourIndex('gwasFile')"/>
                   </div>
                 </div>
                 <p>&nbsp;</p>
