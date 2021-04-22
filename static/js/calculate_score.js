@@ -965,7 +965,6 @@ function exampleInput() {
 }
 
 function exampleGWASInput() {
-    // document.getElementById('fileUploadButton').click();
     var result = null;
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "sampleGWAS.tsv");
@@ -987,14 +986,6 @@ function exampleGWASInput() {
             type: "overide/mimetype" // optional - default = ''
         });
         document.getElementById("gwasFile").files = new FileListItem(file);
-        // var textInput = document.getElementById('input');
-        //print the file's contents into the input box
-        // textInput.value = (result);
-        //print the file's contents into an invisible storage box
-        // document.getElementById('savedVCFInput').value = (result);
-        // textInput.setAttribute("wrap", "soft");
-        //removes file information text if a file was uploaded previously
-        // document.getElementById('list').innerHTML = ""
     }
     xmlhttp.onabort = errorLoading
     xmlhttp.onerror = errorLoading
