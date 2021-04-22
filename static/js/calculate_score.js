@@ -467,7 +467,7 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
                 }
             }
             else {
-                // if the pvalue for the current association is more significant that the one in the associations dict for this snp->trait->studyID
+                // if the pvalue for the current association is more significant than the one in the associations dict for this snp->trait->studyID
                 // replace the association data
                 if (parseFloat(cols[pvi]) < associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]["pValue"]) {
                     associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {
