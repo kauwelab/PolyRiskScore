@@ -142,16 +142,16 @@
 
               <div class="child">
                 <div class="col-lg-12 mb-0 mt-2 text-center" style="padding: .5em;">
-                  <h2>GWAS</h2>
+                  <h2>GWAS Summary Statistics</h2>
                 </div>
               </div>
 
               <div id="GWAStypeSelector" class="column">
                 <form name="plotTypeRadio" class="text-center" style="padding: .5em;">
                   <input type="radio" name="gwas_type" value="Database" id="database" checked onchange="changeGwasType()">
-                  <label for="database" style="margin-right: 1em;">Database</label>
+                  <label for="database" style="margin-right: 1em;">GWAS Catalog</label>
                   <input type="radio" name="gwas_type" value="Upload" id="upload" onchange="changeGwasType()">
-                  <label for="upload" style="margin-right: 1em;">Upload</label>
+                  <label for="upload" style="margin-right: 1em;">User Upload</label>
                 </form>
               </div>
 
@@ -196,7 +196,7 @@
                     Your file <span title="It is very important that the file be in the correct format. If it is not tab deliminated and does not have the columns specified and have a header line with the EXACT names of the columns, this option WILL NOT work. "><b>must</b><sup>*</sup></span> be tab separated (either .tsv or .txt), and have the following columns: 
                     <span title="A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want.">Study&nbsp;ID<sup>?</sup></span>, 
                     <span title="The Experimental Factor Ontology (EFO) trait the GWAS deals with.">Trait<sup>?</sup></span>, 
-                    <span title="The Rsid of the SNP.">Rsid<sup>?</sup></span>, 
+                    <span title="The dbSNP reference (rs) number of the SNP.">Rsid<sup>?</sup></span>, 
                     <span title="The chromosome the SNP resides on.">Chromosome<sup>?</sup></span>, 
                     <span title="The position of the SNP in the reference genome.">Position<sup>?</sup></span>, 
                     <span title="The allele that confers Risk or Protection.">Risk&nbsp;Allele<sup>?</sup></span>, 
@@ -205,7 +205,7 @@
                     Optional column headers that will be included if present are:
                     <span title="The citation information for the study.">Citation<sup>?</sup></span>
                     and <span title ="Trait description for this study in the authors own words.">Reported&nbsp;Trait<sup>?</sup></span>.
-                    All other columns in the file will be ignored. If more than one odds ratio exists for an Rsid, the odd ratio and corresponding risk allele with the most significant P-value will be used.</p>
+                    All other columns in the file will be ignored. If more than one odds ratio exists for a dbSNP reference (rs) number, the odd ratio and corresponding risk allele with the most significant p-value will be used.</p>
                 </div>
                 <div class="file-field" style="padding: .5em;">
                   <h5 class="text-left">1. Upload GWAS File</h5>
