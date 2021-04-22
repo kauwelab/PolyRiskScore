@@ -111,9 +111,10 @@ function startTour() {
                 the \"next\" button to continue the tour."
             },
             {
-                element: "#gwasFile",
+                element: "#exampleGWASInput",
                 title: "Upload a GWAS file",
-                content: "See the above paragraph for the requirements for uploading GWAS data.",
+                content: "See the above paragraph for the requirements for uploading GWAS data. For this tour, select the example file.",
+                reflex: true,
                 template: templateWithoutNext
             },
             {
