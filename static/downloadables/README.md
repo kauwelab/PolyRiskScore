@@ -85,7 +85,41 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 * **-g defaultSex** -- This parameter will set the default sex for the samples in the input file. Though a rare occurence, some studies have duplicates of the same SNP that differ by which biological sex the p-value is associated with. You can indicate which sex you would like SNPs to select when both options (M/F) are present. The system default is Female."
 * **-s stepNumber** -- The calculator can be run in two steps. The first step deals with downloading necessary information for calculations from our server. The second step is responsible for performing the actual calculations and does not require an internet connection. Running the tool without a specified step number will run both steps sequentially. 
 * **-n numberOfSubprocesses** -- The calculations for each trait/study can be run using multiprocessing. Users can designate the number of subprocesses used by the multiprocessing module. If no value is given, all available cores will be used.
+* **-m omitUnusedStudiesFile** -- Prevents the creation of the additional output file that lists the trait/study combinations that produced no risk score due to the absence of the study's snps in the samples vcf/txt file. 
+* **-u userGWASUploadFile** -- This parameter allows the user to upload a GWAS summary statistics file to be used in polygenic risk score calculations instead of GWAS Catalog data stored in our database. The file must be tab separated, use a .tsv or .txt extension (or be a zipped file with one of those extensions), and have the correct columns in order for calculations to occur. See [Uploading GWAS Summary Statistics](#uploading-gwas-summary-statistics) for more directions on uploading GWAS data. 
+* **-a GWASrefGen** -- Indicates the reference genome of the GWAS data. If this parameter is not included, it is assumed that the reference genome for the GWAS data is the same as the samples. 
 
+## Uploading GWAS Summary Statistics
+
+In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations. 
+
+### Format
+
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, Rsid, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
+
+If more than one odds ratio exists for an Rsid in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used.
+
+*NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.*
+
+### Columns
+
+Below is a brief overview of the required and optional columns for uploading GWAS summary statistics data.
+
+#### Required Columns
+
+1. Study ID - A unique study identifyer. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want.
+2. Trait - The Experimental Factor Ontology (EFO) trait the GWAS deals with.
+3. Rsid - The Reference SNP cluster ID (Rsid) of the SNP.
+4. Chromosome - The chromosome the SNP resides on.
+5. Position - The position of the SNP in the reference genome.
+6. Risk Allele - The allele that confers risk or protection.
+7. Odds Ratio - Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.
+8. P-value - The probability that the risk allele confers the amount of risk stated.
+
+#### Optional Columns
+
+1. Citation - The citation information for the study.
+2. Reported Trait - Trait description for this study in the authors own words.
 
 ## Examples
 
@@ -170,10 +204,18 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 ./runPrsCLI.sh -f inputFile_1.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t Insomnia -t acne -i GCST000010 -k O -s 2
 ```
 
+#### Uploading GWAS summary statistics files
+```bash
+# calculates risk scores using the provided GWAS summary statistics data. 
+./runPrsCLI.sh -f inputFile.vcf -o outputfile.tsv -r hg19 -c 0.05 -p EUR -u GWASsummaryStatistics.tsv -a hg38
+# if the -a parameter is not supplied, it is assumed that the reference genome of the file passed to -u is the same as the reference genome passed for the input file (-r)
+./runPrsCLI.sh -f inputFile.vcf -o outputfile.tsv -r hg19 -c 0.05 -p EUR -u GWASsummaryStatistics.tsv
+```
+
 ## Individual File Breakdown
 
 1. **runPrsCLI.sh** - Bash script that calls the appropriate python scripts. Also holds the tool's menu, accessed by running the tool without any parameters. This is the only script that the user will directly run.
-2. **connect_to_server.py** - Python script that connects to the PRSKB database to download the correct association and linkage-disequilibrium clump information for risk score calculations. This script requires an internet connection to run.
+2. **connect_to_server.py** - Python script that connects to the PRSKB database to download the correct association and linkage-disequilibrium clump information for risk score calculations. If an upload GWAS summary statistics file is used, it formats the data to use calculations and downloads linkage-disequilibrium clump information. This script requires an internet connection to run.
 3. **grep_file.py** - Creates a filtered input file using the input file given and the requested parameters. This filtered file will only retain lines from the given input file that contain SNPs included in the association data for calculations.
 4. **parse_associations.py** - Python script that parses through the filtered input file, and for each study/trait organizes the data necessary for PRS calculations, which is then passed to the calculate_score.py script.
 5. **calculate_score.py** - Calculates the risk scores for each study/trait combination using the data passed from the parse_associations.py and prints the results to the specified output file.
@@ -188,6 +230,7 @@ Association files hold the association data downloaded from our server required 
 
 * **allAssociations_{refGen}_{sex}.txt** -- This associations file is downloaded from the server when no filters are supplied. It contains all the associations from the server and is formatted for the specified reference genome (refGen) and default sex (sex). This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
 * **associations_{ahash}.txt** -- This associations file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
+* **GWASassociations_{bhash}.txt** -- This associations file is created when using user supplied GWAS summary statistics data. The number at the end of the file name (bhash) is a hash created using the five required parameters as well as the -u and -a parameters.
 
 ### Trait/StudyID to SNPs Files
 
@@ -195,6 +238,7 @@ These files contain a dictionary of trait/studyID combinations to a list of SNPs
 
 * **traitStudyIDToSnps.txt** -- This file is downloaded from the server when no filters are supplied. It contains a dictionary of all trait/studyID combinations to a list of all the SNPs included in the study. This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
 * **traitStudyIDToSnps_{ahash}.txt** -- This file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
+* **traitStudyIDToSnps_{bhash}.txt** -- This file is created when using user supplied GWAS summary statistics data. The number at the end of the file name (bhash) is a hash created using the five required parameters as well as the -u and -a parameters.
 
 ### Clumping Files
 
@@ -202,6 +246,7 @@ Clumping files hold pre-computed linkage disequilibrium clump numbers for SNPs d
 
 * **{superPop}\_clumps\_{refGen}.txt** -- This clumping file is downloaded from the server when no filters are supplied. It contains each SNP from the server and a corresponding number that represents its linkage disequilibrium. The file is formatted for the specified reference genome (refGen) and super population (superPop). This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
 * **{superPop}\_clumps\_{refGen}_{ahash}.txt** -- This clumping file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
+* **{superPop}\_clumps\_{refGen}_{bhash}.txt** -- This clumping file is created when using user supplied GWAS summary statistics data. The number at the end of the file name (bhash) is a hash created using the five required parameters as well as the -u and -a parameters.
 
 ### Clump Number Dictionary Files
 
@@ -218,7 +263,7 @@ Filtered files are created in order to speed up the calculation process. In the 
 
 For each study/trait, we create an additional temporary file that includes only SNPs from the above file that are included in the study/trait. This file is created in the parse_associations.py script in step 2 and is named as follows:
 
-* **{t}_{s}_{uniq}.txt** -- where 't' referes to the trait, 's' refers to the study, and 'uniq' is a uniqe timestamp for the particular user. 
+* **{t}\_{s}\_{uniq}.txt** -- where 't' referes to the trait, 's' refers to the study, and 'uniq' is a uniqe timestamp for the particular user. 
 
 Each filtered file is removed before the program finishes.
 
