@@ -102,7 +102,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
-    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available processes)"
+    echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available subprocesses)"
     echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
     echo ""
 }
@@ -272,7 +272,7 @@ learnAboutParameters () {
                 echo "" ;;
             13 ) echo -e "${MYSTERYCOLOR} -n number of subprocesses: ${NC}"
                 echo "This parameter allows you to choose the number of processes used to run the tool."
-                echo "By default, the Python script will run the calculations using 4 subprocesses."
+                echo "By default, the Python script will run the calculations using all available nodes."
                 echo "" ;;
             14 ) echo -e "${MYSTERYCOLOR} -m omit *_studiesNotIncluded.txt: ${NC}"
                 echo -e "To omit the *_studiesNotIncluded.txt file, include the ${GREEN}-m${NC} parameter."
