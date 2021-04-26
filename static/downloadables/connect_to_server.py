@@ -137,7 +137,7 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
             chromPos = ":".join([line[ci], line[pi]])
             if chromPos not in chromSnpDict:
                 # add the chrom:pos with the snp rsID
-                chromSnpDict[chromPos] = cols[si]
+                chromSnpDict[chromPos] = line[si]
             
             # create the snp to associations stuff dict
             # if snp not in associationsDict
@@ -468,7 +468,7 @@ def checkInternetConnection():
 
 if __name__ == "__main__":
     if argv[1] == "GWAS":
-        formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6])
+        formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7])
     else:
         retrieveAssociationsAndClumps(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9])
 
