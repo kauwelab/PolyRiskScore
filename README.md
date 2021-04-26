@@ -41,7 +41,7 @@ Required installed programs: Bash and jq for bash, Python3 and the PyVCF, filelo
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ```
 
-More CLI examples can be found in the README.md file included in the CLI download or on the [readthedocs page](polyriskscore.rtfd.io) for the tool.
+More CLI examples can be found in the README.md file included in the CLI download or on the [readthedocs page](https://polyriskscore.rtfd.io) for the tool.
 
 ## Citing this work
 
