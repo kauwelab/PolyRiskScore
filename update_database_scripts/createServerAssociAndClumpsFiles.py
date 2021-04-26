@@ -1,4 +1,3 @@
-import mysql.connector
 import os
 from os.path import join
 from sys import argv
