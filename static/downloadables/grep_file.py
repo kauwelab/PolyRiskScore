@@ -3,8 +3,8 @@ import tarfile
 import gzip
 import os.path
 import json
-import vcf
 from sys import argv
+from io import TextIOWrapper
 
 def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp):
     # tells us if we were passed rsIDs or a vcf
@@ -100,7 +100,7 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities):
 
 
 def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff):
-    txt_file = openFileForParsing(inputFilePath, True)
+    txt_file = openFileForParsing(inputFilePath)
     filteredOutput = open(filteredFilePath, 'w')
 
     # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
@@ -157,51 +157,55 @@ def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
 
 
 def filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff):
-    # open the input vcf
-    vcf_reader = openFileForParsing(inputFilePath, False)
-    # open the filtered input path for writing out the lines from the input vcf that match the given filters
-    vcf_writer = vcf.Writer(open(filteredFilePath, 'w'), vcf_reader)
+    # open the input file path for opening
+    inputVCF = openFileForParsing(inputFilePath)
 
-    # create a set to keep track of which ld clump numbers are assigned to only a single snp
-    clumpNumDict = {}
+    with open(filteredFilePath, 'w') as w:
+        # create a set to keep track of which ld clump numbers are assigned to only a single snp
+        clumpNumDict = {}
 
-    # Create a boolean to check whether the input VCF is empty
-    fileEmpty = True
+        # Create a boolean to check whether the input VCF is empty
+        fileEmpty = True
 
-    # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
-    inputInFilters = False
+        # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
+        inputInFilters = False
 
-    try:
-        for record in vcf_reader:
-            # a record exists, so the file was not empty
-            fileEmpty = False
-            # get the rsID and chromPos
-            rsID = record.ID
-            chromPos = str(record.CHROM) + ":" + str(record.POS)
-            if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
-                rsID = tableObjDict['associations'][chromPos]
-            # check if the snp is in the filtered studies
-            snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff)
-            if snpInFilters:
-                # increase count of the ld clump this snp is in
-                # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
-                if rsID in clumpsObjDict:
-                    clumpNum = clumpsObjDict[rsID]['clumpNum']
-                    clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
+        try:
+            for line in inputVCF:
+                # cut the line so that we don't use memory to tab split a huge file
+                shortLine = line[0:500]
+                if shortLine[0] == '#':
+                    w.write(line)
+                else:
+                    cols = shortLine.split('\t')
+                    # get the rsid and chrompos
+                    rsID = cols[2]
+                    chromPos = str(cols[0]) + ':' + str(cols[1])
+                    # a record exists, so the file was not empty
+                    fileEmpty = False
+                    if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
+                        rsID = tableObjDict['associations'][chromPos]
+                    # check if the snp is in the filtered studies
+                    snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff)
+                    if snpInFilters:
+                        # increase count of the ld clump this snp is in
+                        # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
+                        if rsID in clumpsObjDict:
+                            clumpNum = clumpsObjDict[rsID]['clumpNum']
+                            clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
 
-                # write the line to the filtered VCF
-                vcf_writer.write_record(record)
-                inputInFilters = True
+                        # write the line to the filtered VCF
+                        w.write(line)
+                        inputInFilters = True
 
-        if fileEmpty:
-            raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
-        # send error message if input not in filters
-        if not inputInFilters:
-            raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified filters. Check your input file and your filters and try again.")
-    except ValueError:
-        raise SystemExit("THE VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
+            if fileEmpty:
+                raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
+            # send error message if input not in filters
+            if not inputInFilters:
+                raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified filters. Check your input file and your filters and try again.")
+        except ValueError:
+            raise SystemExit("THE VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
-    vcf_writer.close()
 
     return clumpNumDict
 
@@ -258,56 +262,33 @@ def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, study
     return snpInFilters
 
 
-def openFileForParsing(inputFile, isTxtExtension):
+# opens and returns an open file from the inputFile path, using zipfile, tarfile, gzip, or open depending on the file's type
+# assumes the file is valid (validated with getZippedFileExtension function)
+def openFileForParsing(inputFile):
     filename = ""
-    compressed = False
-    # if the file is zipped
     if zipfile.is_zipfile(inputFile):
         # open the file
         archive = zipfile.ZipFile(inputFile)
-        validArchive = []
         # get the vcf or txt file in the zip
         for filename in archive.namelist():
-            if filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt":
-                validArchive.append(filename)
-                filename = validArchive[0]
-
-    # TODO: Figure this out: if the file is tar zipped
+            extension = filename[-4:].lower()
+            if extension == ".txt" or extension == ".vcf":
+                # TextIOWrapper converts bytes to strings and force_zip64 is for files potentially larger than 2GB
+                return TextIOWrapper(archive.open(filename, force_zip64=True))
     elif tarfile.is_tarfile(inputFile):
         # open the file
         archive = tarfile.open(inputFile)
         # get the vcf or txt file in the tar
         for tarInfo in archive:
-            if tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt":
-                # wrap the ExFileObject in an io.TextIOWrapper and read
-                if tarInfo.name[-4:].lower() == ".txt":
-                    newFile = archive.extractfile(tarInfo) 
-                    return newFile
-                else:
-                    newFile = archive.extractfile(tarInfo)
-                    vcf_reader = vcf.Reader(newFile)
-                    return vcf_reader
-                new_file = io.TextIOWrapper(archive.extractfile(tarInfo)).read().replace("\r", "").split("\n")
-    # if file is gzipped
+            extension = tarInfo.name[-4:].lower()
+            if extension == ".txt" or extension == ".vcf":
+                # TextIOWrapper converts bytes to strings
+                return TextIOWrapper(archive.extractfile(tarInfo))
     elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
-        filename = inputFile
-        compressed= True
+        return TextIOWrapper(gzip.open(inputFile, 'r'))
     else:
-        # default open for regular vcf and txt files
-        filename = inputFile
-        compressed = False
-    # return the new file either as is (txt) or as a vcf.Reader (vcf)
-    if isTxtExtension:
-        txt_file = open(filename, 'r')
-        return txt_file
-    else:
-        # open the newly unzipped file using the vcf reader
-        try:
-            vcf_reader = vcf.Reader(filename = filename, compressed = compressed)
-            return vcf_reader
-        except:
-            # typically happens if the file is empty
-            raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
+        # default option for regular vcf and txt files
+        return open(inputFile, 'r')
 
 
 def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, trait, studyMetaData, useTrait):
@@ -347,7 +328,6 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, tra
 # returns and prints: ".vcf" or "txt" if the zipped file is valid and contains one of those files
                     # "False" if the file is not a zipped file
                     # error message if the file is a zipped file, but is not vaild
-    
 def getZippedFileExtension(filePath, shouldPrint):
     # if the file is a zip file
     if zipfile.is_zipfile(filePath):
