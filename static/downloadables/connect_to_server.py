@@ -5,6 +5,7 @@ import os.path
 import time
 import datetime
 from sys import argv
+from grep_file import openFileForParsing
 
 # get the associations and clumps from the Server
 def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
@@ -89,8 +90,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
 def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, superPop, fileHash):
     checkInternetConnection()
 
-    # TODO figure out how the file should be opened.
-    GWASfileOpen = ""
+    GWASfileOpen = openFileForParsing(GWASfile, True)
 
     associationDict = {}
     chromSnpDict = {}
@@ -189,6 +189,7 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
             # add snp to the traitStudyIDToSnp
             studySnpsData[traitStudyID].append(line[si])
 
+    GWASfileOpen.close()
 
     if GWASrefGen != refGen:
         snps = list(associationDict.keys())
