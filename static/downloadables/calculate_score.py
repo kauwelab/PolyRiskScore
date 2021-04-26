@@ -1,5 +1,3 @@
-import sys
-import vcf
 import json
 import math
 import csv

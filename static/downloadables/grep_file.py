@@ -3,7 +3,6 @@ import tarfile
 import gzip
 import os.path
 import json
-import vcf
 from sys import argv
 from io import TextIOWrapper
 
@@ -263,7 +262,7 @@ def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, study
     return snpInFilters
 
 
-# opens and returns an open file from the inputFile path, usiing zipfile, tarfile, gzip, or open depending on the file's type
+# opens and returns an open file from the inputFile path, using zipfile, tarfile, gzip, or open depending on the file's type
 # assumes the file is valid (validated with getZippedFileExtension function)
 def openFileForParsing(inputFile):
     filename = ""

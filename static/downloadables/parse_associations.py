@@ -3,7 +3,6 @@ from io import StringIO
 import json
 import vcf
 import calculate_score as cs
-import time
 import sys
 import os
 import os.path
