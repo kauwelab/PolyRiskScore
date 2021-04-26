@@ -55,27 +55,24 @@
           <div class="col-12">
             <h1 class="forDesktop text-center">Viewing PRS Distributions for Various Genetic Cohorts</h1> 
             <h5 class="text-justify">
-              <br>Using this page, you can visualize polygenic risk score distributions and summary statistics generated for each study. 
-              These distributions have been created by running our PRS Calculator on genetic data from various cohorts. 
-              While individual scores have no absolute meaning, 
-              this page allows for an approximate contextualization of the score(s) you recieved from the 
-              <a href="calculate_score.html">"Calculate"</a> page.
+              <br>This interactive page allows you to visualize polygenic risk score distributions and summary statistics generated 
+              for each study. These distributions have been created by running the PRS Calculator on the UK Biobank, each population in the 1000 Genomes Project, 
+              and the Alzheimer's Disease Neuroimaging Initiate. This page allows for raw scores calculated from the 
+              <a href="calculate_score.html">Calculate</a> page to be contextualized against different populations.
               <br> 
-              <br> Most Notably, the "UK Biobank" cohort uses score percentiles from 500,000 individuals from the UK Biobank.
-              For more information on the UK Biobank and the anonymized genetic data used to generate these statistics, 
-              please visit the UK Biobank Website at <a href="https://www.ukbiobank.ac.uk/">https://www.ukbiobank.ac.uk/</a>.
-              Please note that the majority of the individuals from this cohort have European ancestry, and that polygenic risk scores from one racial or ethnic group 
-              are usually not comparable to scores for individuals with other ethnic or racial backgrounds.
-              You can also visualize score distributions for each of the 5 superpopulations from the 1000 genomes project 
-              (<a href="https://www.internationalgenome.org/">https://www.internationalgenome.org/</a>) and 3 cohorts from the Alzheimer's Disease Neuroimaging Initiative 
-              (<a href="http://adni.loni.usc.edu/">http://adni.loni.usc.edu/</a>).
+              <br> Notably, the UK Biobank cohort uses score percentiles from approximately 500,000 relatively-healthy individuals in the United Kingdom. 
+              For more information on the UK Biobank and the anonymized genetic data used to generate these statistics, please visit the 
+              UK Biobank <a href="https://www.ukbiobank.ac.uk/">website</a>. Please note: the majority of individuals from in the UK Biobank have European ancestry, 
+              and polygenic risk scores from one population are generally not comparable to scores for individuals from a different population. Therefore, we also 
+              include contextualization for the five superpopulations in the 1000 Genomes Project. For more information on the five superpopulations, you can visit the 
+              International Genome Sample Resource <a href="https://www.internationalgenome.org/">website</a>. Comparisons to individuals from the 
+              <a href="http://adni.loni.usc.edu/">Alzheimer's Disease Neuroimaging Initiative</a> can also be visualized.
               <br> 
-              <br>Similar to the <a href="calculate_score.html">"Calculate"</a> page, you can refine
-              your search for a specific study by first selecting a trait or disease of interest, then selecting the type of study
-              you are interested in. 
-              Once you have selected a study of interest, select a cohort, then click "View Score Distribution."
-              This will load distribution plots and summary statistics based on
-              score percentiles calculated using genetic data from the given cohort in combination with the risk loci from the selected study.
+              <br>User-defined queries allow you to view summary statistics for specific studies. First, select the trait or disease of interest. Next, select 
+              the type of study (e.g., high impact or all studies) and the specific study by author, year, and accession number. Finally, select the cohort and 
+              click "View Score Distribution." A violin plot of the score distributions will appear with a table of summary statistics and study-specific information. 
+              Users can toggle between violin, box, and line plots. The line plot shows the progression of scores  for each percentile rank (i.e., for the specific cohort, 
+              how many individuals have a score at or below a specific polygenic risk score?).
               <br> 
             </h5>
           </div>
@@ -89,12 +86,12 @@
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
           <!--Select 1 trait-->
-          <label for="traitSelector"><span title="Select a trait to filter studies by before selecting the study you want to display UK BioBank data for.">Trait<sup>?</sup>:</span></label>
+          <label for="traitSelector"><span title="Select a disease/trait to filter studies by before selecting the study you want to display contextualization data for.">Disease/Trait<sup>?</sup>:</span></label>
           <select name="traitSelector" id='trait-Selector' style="margin-top: 2em; margin-bottom: 2em;" onchange="resetFilters()">
-            <option selected="selected" value="default">Select a Trait</option>
+            <option selected="selected" value="default">Select a Disease/Trait</option>
           </select>
           <!--Select 1 study type-->
-          <label for="studyTypeSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a study type or all study types to filter studies by before selecting the study you want to display UK BioBank data for. NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database.">Study Type<sup>?</sup>:</span></label>
+          <label for="studyTypeSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a study type or all study types to filter studies by before selecting the study you want to display contextualization data for. NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database.">Study Type<sup>?</sup>:</span></label>
           <select name="studyTypeSelector" id='studyType-Selector' style="margin-right: 2em; margin-top: 2em; margin-bottom: 2em;" onchange="getStudies()">
             <option selected="selected" value="default">Select a Study Type</option>
             <option value="ALL">All Study Types</option> 
@@ -104,7 +101,7 @@
           </select>
           <!--Select 1 study-->
           <br>
-          <label for="studySelector"><span title="Select a study to display UK BioBank data for. Studies are shown in a trait|citation|studyID format.">Study<sup>?</sup>:</span></label>
+          <label for="studySelector"><span title="Select a study to display contextualization data for. Studies are shown in a disease/trait|citation|studyID format.">Study<sup>?</sup>:</span></label>
           <select name="studySelector" id='study-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled onchange="getCohorts()">
             <option selected="selected" value="default">Select a Study</option>
           </select>
