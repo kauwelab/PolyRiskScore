@@ -290,7 +290,7 @@ function displayLinePlot() {
     var layout= {
         title: displayDataObj['studyID'],
         xaxis: {
-            title: "Rank"
+            title: "Percentile"
         },
         yaxis: {
             title: "Polygenic Risk Score"
