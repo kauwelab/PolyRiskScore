@@ -964,6 +964,35 @@ function exampleInput() {
     xmlhttp.send();
 }
 
+function exampleGWASInput() {
+    var result = null;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open('GET', "sampleGWAS.tsv");
+    var errorLoading = function(pe) {
+        alert("Error loading the example GWAS file. Please try again")
+    }
+    xmlhttp.onload = function(pe) {
+        if (xmlhttp.status == 200) {
+            result = xmlhttp.responseText;
+        }
+        var parts = [
+            new Blob([result], { type: 'text/plain' }),
+            new Uint16Array([33])
+        ];
+    
+        // Construct a file
+        var file = new File(parts, 'sampleGWAS.tsv', {
+            lastModified: new Date(0), // optional - default = now
+            type: "overide/mimetype" // optional - default = ''
+        });
+        document.getElementById("gwasFile").files = new FileListItem(file);
+    }
+    xmlhttp.onabort = errorLoading
+    xmlhttp.onerror = errorLoading
+    xmlhttp.ontimeout = errorLoading
+    xmlhttp.send();
+}
+
 //code run when the 'Text input' button is pressed
 function clickTextInput() {
     //if the text button isn't already pressed
