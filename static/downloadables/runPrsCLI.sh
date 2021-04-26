@@ -380,7 +380,9 @@ ${MYSTERYCOLOR}Reported Trait${NC}. Column order does not matter and there may b
 present in the file. Required and optional header names must be exact."
     echo ""
     echo "If more than one odds ratio exists for an Rsid in a study, the odds ratio and corresponding risk allele \
-with the most significant P-value will be used."
+with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics \
+data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your \
+data is presented on the correct strand."
     echo ""
     echo -e "${LIGHTRED}NOTE: If a GWAS data file is specified, risk scores will only be calculated on \
 that data. No association data from the PRSKB will be used. Additionally, the optional params \
@@ -433,7 +435,7 @@ and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
                 echo "The position of the SNP in the reference genome."
                 echo "" ;;
             6 ) echo -e "${MYSTERYCOLOR} Risk Allele: ${NC}"
-                echo "The allele that confers Risk or Protection."
+                echo "The allele that confers risk or protection."
                 echo "" ;;
             7 ) echo -e "${MYSTERYCOLOR} Odds Ratio: ${NC}"
                 echo "Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest."
@@ -741,7 +743,7 @@ calculatePRS () {
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
     if ! [ -z ${GWASfilename} ]; then
-        fileHash=$(chsum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}" | cut -f 1 -d ' ')
+        fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}" | cut -f 1 -d ' ')
     fi
     requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
     # Create uniq ID for filtered file path
@@ -851,7 +853,7 @@ calculatePRS () {
             # saves both to files
             # GWAS data --> GWASassociations_{fileHash}.txt
             # clumps --> {superPop}_clumps_{refGen}_{fileHash}.txt
-            if $pyver "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${GWASrefgen}" "${refgen}" "${superPop}" "${fileHash}"; then
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${fileHash}"; then
                 echo "Formatted GWAS data and retrieved clumping information from the PRSKB"
             else
                 echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
