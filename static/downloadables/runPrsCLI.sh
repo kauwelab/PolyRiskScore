@@ -900,7 +900,7 @@ calculatePRS () {
         fi
 
         if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-            rm $FILE
+            rm "$FILE"
             rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
             rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 

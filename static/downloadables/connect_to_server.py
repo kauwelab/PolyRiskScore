@@ -1,12 +1,10 @@
 import json
-import math
 import requests
 import os
 import os.path
 import time
 import datetime
 from sys import argv
-from multiprocessing import Process
 
 # get the associations and clumps from the Server
 def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
