@@ -6,12 +6,14 @@ import json
 from sys import argv
 from io import TextIOWrapper
 
-def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp):
+def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp, useGWASupload):
+    useGWASupload = True if useGWASupload == "True" of useGWASupload == True else False
+
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
     
     # get the associations, clumps, study snps, and the paths to the filtered input file and the clump number file
-    tableObjDict, clumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp)
+    tableObjDict, clumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp, useGWASupload)
 
     # format the filters
     traits, studyTypes, studyIDs, ethnicities = formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities)
@@ -41,14 +43,20 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
     return
 
 
-def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp):
+def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp, useGWASupload):
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     # create path for filtered input file
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
     # create path for filtered associations
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile , study snps, and clumpsFile
-    if (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
+    if useGWASupload:
+        associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
+        clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
+        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
+        # create path for clump number dictionary
+        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
+    elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associationsPath = os.path.join(basePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0]))
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = superPop, r = refGen))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
@@ -409,5 +417,5 @@ if __name__ == "__main__":
     if (argv[1]) == "zip":
         getZippedFileExtension(argv[2], argv[3], argv[4])
     else:
-        createFilteredFile(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11], argv[12], argv[13])
+        createFilteredFile(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11], argv[12], argv[13], argv[14])
 

@@ -699,7 +699,8 @@ calculatePRS () {
                         echo -e "${LIGHTRED}Quitting...${NC}"
                         exit 1
                     fi
-                fi;;
+                fi
+                useGWAS="True";;
             a)  if ! [ -z "$GWASrefgen" ]; then
                     echo "Too many GWAS reference genomes given."
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -886,10 +887,10 @@ calculatePRS () {
         fi
 
         # filter the input file so that it only includes the lines with variants that match the given filters
-        if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP"; then
+        if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
