@@ -291,7 +291,7 @@ var calculatePolyScore = async () => {
         document.getElementById('resultsDisplay').style.display = 'block';
         updateResultBoxAndStoredValue("Calculating. Please wait...")
 
-        associationData = await getGWASuploadData(gwasDataFile, gwasRefGen, refGen)
+        associationData = await getGWASUploadData(gwasDataFile, gwasRefGen, refGen)
 
     }
     else {
@@ -403,7 +403,7 @@ var calculatePolyScore = async () => {
  * @param {*} refGen the reference genome of the samples
  * @returns the associations data object used in calculating polygenic risk scores
  */
-async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
+async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen) {
     var fileContents = await readFile(gwasUploadFile);
     fileLines = fileContents.split("\n")
 
