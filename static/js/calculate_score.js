@@ -230,6 +230,7 @@ var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
     return returnedResults
 }
 
+// TODO comment
 function callClumpsEndpoint(superPop, refGen, positions) {
     return Promise.resolve($.ajax({
         type: "POST",
@@ -508,7 +509,7 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
 
     if (gwasRefGen != refGen) {
         snps = Object.keys(associationsDict)
-        chromSnpDict = await getChromposToSnps(refGen, snps)
+        chromSnpDict = await getChromPosToSnps(refGen, snps)
     }
 
     associationData = Object.assign(associationsDict, chromSnpDict)
@@ -525,7 +526,7 @@ async function getGWASuploadData(gwasUploadFile, gwasRefGen, refGen) {
  * @param {*} snps the rsids of the snps from gwas upload data
  * @returns an object of chrom:pos to snp to use in conversions in the associations data
  */
-function getChromposToSnps(refGen, snps) {
+function getChromPosToSnps(refGen, snps) {
     return Promise.resolve($.ajax({
         type: "GET",
         url: "/snps_to_chrom_pos",
