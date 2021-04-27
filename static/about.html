@@ -209,10 +209,11 @@
                 they are added to the PRSKB database.</p>
             </div>
             <div id="box3" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
-              <h5>UK Biobank</h5>
-              <p>We provide graphs and percentiles of the UK Biobank data after it has been run through our calculator.
-                Each study has its own graph and percentile chart. <!--TODO THIS NEEDS TO BE UPDATED, we don't currently have a percentile chart-->
-              </p>
+              <h5>Contextualization</h5>
+              <p>We present polygenic risk score distributions and summary statistics for each of the studies in
+	      the PRSKB database, generated from individual genetic data in the 1000 Genomes, UK Biobank, and ADNI
+	      datasets. Users can utilize this data as an approximate contextualization for their own reported risk
+	      scores.</p>
             </div>
           </div>
         </div>
@@ -234,9 +235,20 @@
               similarly increase.
             </p>
             <p style="text-align: left">
-              There are other environmental and genetic factors not measured in a polygenic risk score that can
-              contribute to disease risk. Lifestyle factors, non-additive loci, epistasis, and gene by environment
-              interactions play a role in actual disease phenotype.
+	      Although polygenic risk scores have become increasingly prevalent in genetic research, historically, only
+	      minimal guidelines have existed for performing polygenic risk score analyses. This limitation has led to an 
+	      inconsistency in the methodology of polygenic risk score calculations in different studies and the
+	      misinterpretation of results. In our efforts to overcome the variability in current polygenic risk score
+	      research, we follow the standards set forth by Choi, et al. (2020), including the implementation of the
+	      clumping and threshold (C+T) method.
+
+	      The Linkage disequilibrium (LD) clumping and threshold method reduces the inflation of polygenic risk scores
+	      by ensuring that no more than one genetic variant from each LD region is included in the risk score calculations.
+	      We calculated LD clumps for each population in the 1000 Genomes dataset using an r-squared value of 0.25 and a
+	      distance threshold of 500 kb. The clumping analysis results were used to assign each 1000 Genomes variant to an
+	      LD clump ID for each population. The clump IDs facilitate the dynamic retrieval of LD clumps from the PRSKB 
+	      database so that only the genetic variant with the most significant p-value in the GWA study of interest is 
+	      used in the polygenic risk score calculation.
             </p>
           </div>
         </div>
@@ -253,7 +265,7 @@
             <h1 class="font-weight-bold">
               Questions or Comments?</h1><br>
             <p class="lead">Email us at <a class="email" href="#"
-                onclick="javascript:window.location='mailto:kauwelab19@gmail.com';return false;">kauwelab19@gmail.com</a>
+                onclick="javascript:window.location='mailto:kauwe@gmail.com';return false;">kauwe@gmail.com</a>
             </p>
           </div>
         </div>
@@ -262,13 +274,6 @@
   </div>
 
   <footer class="text-center" style="background-color: #343a40;">
-    <div class="container">
-      <div class="row">
-        <div class="col-12 text-white" style="margin-top: 1rem;">
-          <p>Copyright © Miller et al. (2020) All rights reserved.</p>
-        </div>
-      </div>
-    </div>
   </footer>
   <!-- Making the top menu sticky -->
   <script>
