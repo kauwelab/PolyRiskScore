@@ -2,7 +2,6 @@ import requests
 import myvariant
 import sys
 from sys import argv
-import json
 import os
 
 # This script creates a test VCF using one SNP from every study in the database. The VCF has 3 samples, 

@@ -1,8 +1,5 @@
 import myvariant
 import contextlib, io
-import os
-from os import listdir
-from os.path import isfile, join
 from sys import argv
 from Bio.Seq import Seq
 
