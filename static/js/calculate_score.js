@@ -633,6 +633,7 @@ var handleCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     }
 }
 
+// TODO comment
 function getErrorMessage(err) { //TODO we are going to want to NOT give this information to the user in the final product. What we can and should do is create an endpoint to send errors to that can be saved for us to look over later
     var response = 'There was an error computing the risk score:'
     if (err != undefined) {
@@ -985,6 +986,7 @@ function exampleInput() {
     xmlhttp.send();
 }
 
+//TODO comment
 function exampleGWASInput() {
     var result = null;
     var xmlhttp = new XMLHttpRequest();
