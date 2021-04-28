@@ -25,7 +25,7 @@ The Studies page of the PRSKB website includes a link to the published paper, in
 The Download page houses the link to download the command-line interface tool and additional videos of setting up and running the tool. 
 
 ### Visualize
-The Visualize page allows users to view polygenic risk score distributions and statistics for 500,000 individuals from the UK Biobank, as well as from other cohorts including 1000 Genomes super populations and cohorts from the ADNI database. Since individual scores are only a relative metric to be understood in comparison to others with varied genetic makeup, this page allows for an approximate contextualization of scores received from the Calculate page.
+The Visualize page allows users to view polygenic risk score distributions and statistics for 500,000 individuals from the UK Biobank, as well as from other cohorts including 1000 Genomes super populations and cohorts from the ADNI database. Since individual scores are only a relative metric to be understood in comparison to others within a population, this page allows for an approximate contextualization of scores received from the Calculate page.
 
 ## Command-Line Interface
 
