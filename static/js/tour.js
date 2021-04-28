@@ -120,7 +120,7 @@ function startTour() {
             {
                 element: "#gwasRefGenome",
                 title: "Select the reference genome of the uploaded GWAS data",
-                content: "Select the reference genome corresponding to the GWAS data you have uploaded. For the example GWAS file, select the 'GRCh37/hg19' option.",
+                content: "Select the reference genome corresponding to the GWAS data you have uploaded. For the example GWAS file, select the 'GRCh38/hg38' option.",
                 template: templateWithoutNext
             },
             {
