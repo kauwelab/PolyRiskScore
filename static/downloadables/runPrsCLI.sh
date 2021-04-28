@@ -61,6 +61,12 @@ version="1.5.0"
 #   
 #   Changed csv output type to tsv.
 #
+#   4/20/21 - v1.6.0
+#
+#   Added option to upload GWAS data:
+#       -u path to GWAS upload file
+#       -a refGen of GWAS upload file
+#
 # ########################################################################
 
 # colors for text printing
@@ -104,6 +110,8 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available subprocesses)"
     echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
+    echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about uploading GWAS data for calculations' or the CLI readme)"
+    echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file" 
     echo ""
 }
 
@@ -111,16 +119,17 @@ usage () {
 chooseOption () {
     while true
     do
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
-        echo    "|                                             |"
-        echo -e "| ${LIGHTBLUE}Options Menu${NC}                                |"
-        echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                  |"
-        echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or trait    |"
-        echo -e "| ${LIGHTBLUE}3${NC} - View available ethnicities for filter   |"
-        echo -e "| ${LIGHTBLUE}4${NC} - View usage                              |"
-        echo -e "| ${LIGHTBLUE}5${NC} - Run the PRSKB calculator                |"
-        echo -e "| ${LIGHTBLUE}6${NC} - Quit                                    |"
-        echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
+        echo    "|                                                         |"
+        echo -e "| ${LIGHTBLUE}Options Menu${NC}                                            |"
+        echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                              |"
+        echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or trait                |"
+        echo -e "| ${LIGHTBLUE}3${NC} - View available ethnicities for filter               |"
+        echo -e "| ${LIGHTBLUE}4${NC} - View usage                                          |"
+        echo -e "| ${LIGHTBLUE}5${NC} - Learn about uploading GWAS data for calculations    |"
+        echo -e "| ${LIGHTBLUE}6${NC} - Run the PRSKB calculator                            |"
+        echo -e "| ${LIGHTBLUE}7${NC} - Quit                                                |"
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
 
         read -p "#? " option
         echo ""
@@ -130,8 +139,9 @@ chooseOption () {
             2 ) searchTraitsAndStudies ;;
             3 ) printEthnicities ;;
             4 ) usage ;;
-            5 ) runPRS ;;
-            6 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
+            5 ) learnAboutGWASupload ;;
+            6 ) runPRS ;;
+            7 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
                 exit;;
             * ) echo "INVALID OPTION";;
         esac
@@ -171,8 +181,10 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
         echo -e "| ${LIGHTPURPLE}13${NC} - -n number of subprocesses              |"
         echo -e "| ${LIGHTPURPLE}14${NC} - -m omit *_studiesNotIncluded.txt       |"
+        echo -e "| ${LIGHTPURPLE}15${NC} - -u tab separated GWAS data file        |"
+        echo -e "| ${LIGHTPURPLE}16${NC} - -a reference genome of GWAS data file  |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}15${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}17${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         read -p "#? " option
@@ -279,7 +291,19 @@ learnAboutParameters () {
                 echo "The *_studiesNotIncluded.txt file details study and trait combinations that no scores were"
                 echo "calculated for, due to none of the study snps being present in the samples. "
                 echo "" ;;
-            15 ) cont=0 ;;
+            15 ) echo -e "${MYSTERYCOLOR} -u tab separated GWAS data file path: ${NC}"
+                echo "If you wish to calculate polygenic risk scores using your own GWAS data, use this"
+                echo "parameter to specifiy the GWAS data file path. It must be a tab separated file."
+                echo "For more information about file format, see the 'Learn about uploading GWAS data for calculations'"
+                echo "option from the main menu."
+                echo "" ;;
+            16 ) echo -e "${MYSTERYCOLOR} -a reference genome of uploaded GWAS data: ${NC}"
+                echo "This parameter tells us which reference genome was used to identify the variants " 
+                echo -e "in the GWAS data file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
+                echo "If a GWAS data file is specified without this reference genome being specified, we assume the"
+                echo "reference genome is the same as the one for the input VCF or TXT."
+                echo "" ;;
+            17 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -340,14 +364,112 @@ printEthnicities () {
     fi
 }
 
+learnAboutGWASupload () {
+    echo -e "${LIGHTPURPLE} UPLOADING GWAS DATA FOR PRS CALCULATIONS${NC}"
+    echo ""
+    echo "The PRSKB CLI polygenic risk score calculator has the option of calculating \
+risk scores for GWAS data supplied by the user. The GWAS data file must be \
+correctly formatted for calculations to occur. "
+    echo ""
+    echo -e "The file must be a ${MYSTERYCOLOR}tab separated${NC} .tsv or .txt file. It must \
+include a header line with named columns. The required columns are: ${MYSTERYCOLOR}Study ID${NC}, \
+${MYSTERYCOLOR}Trait${NC}, ${MYSTERYCOLOR}RsID${NC}, ${MYSTERYCOLOR}Chromosome${NC}, ${MYSTERYCOLOR}Position${NC}, \
+${MYSTERYCOLOR}Risk Allele${NC}, ${MYSTERYCOLOR}Odds Ratio${NC}, and ${MYSTERYCOLOR}P-value${NC}. \
+Optional column headers that will be included if present are: ${MYSTERYCOLOR}Citation${NC} and \
+${MYSTERYCOLOR}Reported Trait${NC}. Column order does not matter and there may be extra columns \
+present in the file. Required and optional header names must be exact."
+    echo ""
+    echo "If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele \
+with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics \
+data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your \
+data is presented on the correct strand."
+    echo ""
+    echo -e "${LIGHTRED}NOTE: If a GWAS data file is specified, risk scores will only be calculated on \
+that data. No association data from the PRSKB will be used. Additionally, the optional params \
+${MYSTERYCOLOR}-t${LIGHTRED}, ${MYSTERYCOLOR}-k${LIGHTRED}, ${MYSTERYCOLOR}-i${LIGHTRED}, ${MYSTERYCOLOR}-e${LIGHTRED}, \
+and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
+    echo ""
+    echo "Choose a column header below to learn more about it or select 'Return To Main Menu'."
+    echo ""
+
+    cont=1
+    
+    while [[ "$cont" != "0" ]]
+    do 
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ "
+        echo    "|                              |"
+        echo -e "|${LIGHTPURPLE}REQUIRED COLUMNS: ${NC}            |"
+        echo -e "| ${LIGHTPURPLE}1${NC} - Study ID                 |"
+        echo -e "| ${LIGHTPURPLE}2${NC} - Trait                    |"
+        echo -e "| ${LIGHTPURPLE}3${NC} - RsID                     |"
+        echo -e "| ${LIGHTPURPLE}4${NC} - Chromosome               |"
+        echo -e "| ${LIGHTPURPLE}5${NC} - Position                 |"
+        echo -e "| ${LIGHTPURPLE}6${NC} - Risk Allele              |"
+        echo -e "| ${LIGHTPURPLE}7${NC} - Odds Ratio               |"
+        echo -e "| ${LIGHTPURPLE}8${NC} - P-value                  |"
+        echo    "|                              |"
+        echo -e "|${LIGHTPURPLE}OPTIONAL COLUMNS: ${NC}            |"
+        echo -e "| ${LIGHTPURPLE}9${NC} - Citation                 |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - Reported Trait          |"
+        echo -e "|                              |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - Return To Main Menu     |"
+        echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |"
+
+        read -p "#? " option
+        echo ""
+
+        case $option in 
+            1 ) echo -e "${MYSTERYCOLOR} Study ID: ${NC}" 
+                echo "A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want."
+                echo "" ;;
+            2 ) echo -e "${MYSTERYCOLOR} Trait: ${NC}" 
+                echo "The Experimental Factor Ontology (EFO) trait the GWAS deals with."
+                echo "" ;;
+            3 ) echo -e "${MYSTERYCOLOR} RsID: ${NC}"
+                echo "The Reference SNP cluster ID (RsID) of the SNP."
+                echo "" ;;
+            4 ) echo -e "${MYSTERYCOLOR} Chromosome: ${NC}"
+                echo "The chromosome the SNP resides on."
+                echo "" ;;
+            5 ) echo -e "${MYSTERYCOLOR} Position: ${NC}"
+                echo "The position of the SNP in the reference genome."
+                echo "" ;;
+            6 ) echo -e "${MYSTERYCOLOR} Risk Allele: ${NC}"
+                echo "The allele that confers risk or protection."
+                echo "" ;;
+            7 ) echo -e "${MYSTERYCOLOR} Odds Ratio: ${NC}"
+                echo "Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest."
+                echo "" ;;
+            8 ) echo -e "${MYSTERYCOLOR} P-value: ${NC}"
+                echo "The probability that the risk allele confers the amount of risk stated."
+                echo "" ;;
+            9 ) echo -e "${MYSTERYCOLOR} Citation: ${NC}"
+                echo "The citation information for the study."
+                echo "" ;;
+            10 ) echo -e "${MYSTERYCOLOR} Reported Trait: ${NC}"
+                echo "Trait description for this study in the authors own words."
+                echo "" ;;
+            11 ) cont=0 ;;
+            * ) echo "INVALID OPTION";;
+        esac
+        if [[ "$cont" != "0" ]]; then
+            read -p "Return to GWAS Columns? (y/n) " returnToParams
+            echo ""
+            case $returnToParams in 
+                [yY]* ) ;;
+                * ) cont=0;;
+            esac
+        fi
+    done 
+}
+
 jqError () {
     typeOfQuery=$1
     echo -e ""
     echo -e "${LIGHTRED}ERROR: CANNOT PRINT ${typeOfQuery}${NC}"
     echo "In order to use this functionality, you need to have jq downloaded."
-    echo -e "You can install it using ${MYSTERYCOLOR}sudo apt-get install jq${NC} on Ubuntu/Debian or go to"
-    echo -e "${MYSTERYCOLOR}https://stedolan.github.io/jq/download/ ${NC}to download and install it"
-    echo -e "for other OS."
+    echo -e "You can install it using ${MYSTERYCOLOR}sudo apt-get install jq${NC} on Ubuntu/Debian or go to \
+${MYSTERYCOLOR}https://stedolan.github.io/jq/download/ ${NC}to download and install it for other OS."
     echo -e ""
 }
 
@@ -355,9 +477,9 @@ jqError () {
 # takes in the required params, then passes to calculatePRS
 runPRS () {
     echo -e "${LIGHTBLUE}RUN THE PRSKB CALCULATOR:${NC}"
-    echo "The calculator will run and then the program will exit. Enter the parameters "
-    echo "as you would if you were running the program without opening the menu. The "
-    echo "usage is given below for your convenience (You don't need to include ./runPrsCLI.sh) "
+    echo "The calculator will run and then the program will exit. Enter the parameters \
+as you would if you were running the program without opening the menu. The \
+usage is given below for your convenience (You don't need to include ./runPrsCLI.sh) "
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
@@ -407,7 +529,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:m' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -424,7 +546,7 @@ calculatePRS () {
                     exit 1
                 elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
-                    zipExtension=`$pyVer "$SCRIPT_DIR/grep_file.py" "zip" "$filename" "True"`
+                    zipExtension=`$pyVer "$SCRIPT_DIR/grep_file.py" "zip" "$filename" "True" "False"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
                         echo "zipped file validated"
                     # if "False", the file is not a zipped file
@@ -547,6 +669,49 @@ calculatePRS () {
                 fi;;
             m)  omitUnusedStudiesFile=1
                 ;;
+            u)  if ! [ -z "$GWASfilename" ]; then
+                    echo "Too many GWAS filenames given at once."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                GWASfilename=$OPTARG
+                GWASfilename="${GWASfilename//\\//}" # replace backslashes with forward slashes
+                if [ ! -f "$GWASfilename" ]; then
+                    echo -e "The file${LIGHTRED} $GWASfilename ${NC}does not exist."
+                    echo "Check the path and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                elif ! [[ $(echo $GWASfilename | tr '[:upper:]' '[:lower:]') =~ .tsv$|.txt$ ]]; then
+                    # check if the file is a valid zipped file (check getZippedFileExtension for more details)
+                    GWASzipExtension=`$pyVer "$SCRIPT_DIR/grep_file.py" "zip" "$GWASfilename" "True" "True"`
+                    if [ "$GWASzipExtension" = ".tsv" ] || [ "$GWASzipExtension" = ".txt" ]; then
+                        echo "zipped file validated"
+                    # if "False", the file is not a zipped file
+                    elif [ "$GWASzipExtension" = "False" ]; then
+                        echo -e "The file${LIGHTRED} $GWASfilename ${NC}is in the wrong format."
+                        echo -e "Please use a tsv or a tab separated txt file."
+                        echo -e "${LIGHTRED}Quitting...${NC}"
+                        exit 1
+                    # if something else, the file is a zipped file, but there are too many/few tsv/txt files in it
+                    else
+                        # print the error associated with the zipped file and exit
+                        echo $GWASzipExtension
+                        echo -e "${LIGHTRED}Quitting...${NC}"
+                        exit 1
+                    fi
+                fi
+                useGWAS="True";;
+            a)  if ! [ -z "$GWASrefgen" ]; then
+                    echo "Too many GWAS reference genomes given."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                GWASrefgen=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if ! [[ "$GWASrefgen" =~ ^hg17$|^hg18$|^hg19$|^hg38$ ]]; then
+                    echo -e "${LIGHTRED}$GWASrefgen ${NC}should be hg17, hg18, hg19, or hg38"
+                    echo "Check the value and try again."
+                    exit 1
+                fi;;
             [?])    usage
                     exit 1;;
         esac
@@ -565,6 +730,10 @@ calculatePRS () {
     if [ -z "$defaultSex" ]; then
         defaultSex="female"
     fi
+    # if no GWAS refgen is specified but a path to a gwas file is give, set GWASrefgen to the samples refgen
+    if [ -z "${GWASrefgen}" ] && ! [ -z "${GWASfilename}" ]; then
+        GWASrefgen=${refgen}
+    fi
 
     # preps variables for passing to python script
     export traits=${traitsForCalc[@]}
@@ -574,6 +743,9 @@ calculatePRS () {
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
+    if ! [ -z ${GWASfilename} ]; then
+        fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}" | cut -f 1 -d ' ')
+    fi
     requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
     # Create uniq ID for filtered file path
     TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
@@ -583,12 +755,27 @@ calculatePRS () {
         zipExtension="NULL"
     fi
     # if the zip extension is valid, set extension to the zip extension, 
-    # otherwise use Pyhton os.path.splitext to get the extension
+    # otherwise use python os.path.splitext to get the extension
     if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
         extension="$zipExtension"
     else
         extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
     fi
+
+    # if GWAS file is present and GWASzipExtension hasn't been instantiated yet, initialize it
+    if ! [ -z "${GWASfilename}" ]; then
+        if [ -z "$GWASzipExtension" ]; then
+            GWASzipExtension="NULL"
+        fi
+        # if the zip extension is valid, set extension to the zip extension, 
+        # otherwise use python os.path.splitext to get the extension
+        if [ $GWASzipExtension = ".tsv" ] || [ $GWASzipExtension = ".txt" ]; then
+            GWASextension="$GWASzipExtension"
+        else
+            GWASextension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$GWASfilename'); print(f_ext);")
+        fi
+    fi
+
     if [[ $step -eq 0 ]] || [[ $step -eq 1 ]]; then
         # check if pip is installed for the python call being used (REQUIRED)
         if ! $pyVer -m pip --version >/dev/null 2>&1; then
@@ -662,16 +849,29 @@ calculatePRS () {
         checkForNewVersion
         echo "Running PRSKB on $filename"
 
-        # Calls a python function to get a list of SNPs and clumps from our Database
-        # saves them to files
-        # associations --> either allAssociations.txt OR associations_{fileHash}.txt
-        # clumps --> {superPop}_clumps_{refGen}.txt
-        if $pyVer "$SCRIPT_DIR/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$superPop" "$fileHash" "$extension" "$defaultSex"; then
-            echo "Got SNPs and disease information from PRSKB"
-            echo "Got Clumping information from PRSKB"
-        else
-            echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
-            exit;
+        if ! [ -z "${GWASfilename}" ]; then 
+            # Calls a python function to format the given GWAS data and get the clumps from our database
+            # saves both to files
+            # GWAS data --> GWASassociations_{fileHash}.txt
+            # clumps --> {superPop}_clumps_{refGen}_{fileHash}.txt
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${fileHash}"; then
+                echo "Formatted GWAS data and retrieved clumping information from the PRSKB"
+            else
+                echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
+                exit;
+            fi
+        else 
+            # Calls a python function to get a list of SNPs and clumps from our Database
+            # saves them to files
+            # associations --> either allAssociations.txt OR associations_{fileHash}.txt
+            # clumps --> {superPop}_clumps_{refGen}.txt OR {superPop}_clumps_{refGen}_{fileHash}.txt
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$superPop" "$fileHash" "$extension" "$defaultSex"; then
+                echo "Got SNPs and disease information from PRSKB"
+                echo "Got Clumping information from PRSKB"
+            else
+                echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
+                exit;
+            fi
         fi
     fi
 
@@ -682,12 +882,15 @@ calculatePRS () {
 
         echo "Calculating prs on $filename"
         FILE="${SCRIPT_DIR}/.workingFiles/associations_${fileHash}.txt"
+        if ! [ -z "${GWASfilename}" ]; then 
+            FILE="${SCRIPT_DIR}/.workingFiles/GWASassociations_${fileHash}.txt"
+        fi
 
         # filter the input file so that it only includes the lines with variants that match the given filters
-        if $pyVer "$SCRIPT_DIR/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP"; then
+        if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "$SCRIPT_DIR/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else

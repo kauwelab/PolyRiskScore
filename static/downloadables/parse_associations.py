@@ -34,11 +34,16 @@ def parseAndCalculateFiles(params):
     return
 
 
-def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp):
+def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp, useGWASupload):
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
-    if (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
+    if useGWASupload:
+        associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
+        clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
+        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
+        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
+    elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associationsPath = os.path.join(basePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0]))
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = superPop, r = refGen))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
@@ -496,7 +501,7 @@ def getSamples(inputFilePath, header):
     header.extend(samples)
     return header
 
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, omitUnusedStudiesFile, timestamp, num_processes):
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, omitUnusedStudiesFile, timestamp, num_processes, useGWASupload):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -507,7 +512,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
 
     # Access the downloaded files and paths
-    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp)
+    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp, useGWASupload)
     
     # Determine whether the output format is condensed and either json or tsv
     if outputType == '.json':
@@ -574,5 +579,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
 
 if __name__ == "__main__":
-    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14])
+    useGWASupload = True if sys.argv[15] == "True" or sys.argv[15] == True else False
+    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], useGWASupload)
 

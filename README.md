@@ -11,14 +11,21 @@ Website Link: [https://prs.byu.edu](https://prs.byu.edu)
 ### Calculate
 The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across more than 2100 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, default biological sex, p-value cutoff, and selected studies polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file. 
 
-### Cite
-The Cite page of the PRSKB website includes a link to the published paper, information on citing the PRSKB, and the ability to search the database of GWAS studies procured from the [GWAS Catalog](https://www.ebi.ac.uk/gwas).
+#### Uploading GWAS Summary Statistic Data
+In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations. 
+
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
+
+If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used. Additonally, although we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your data is presented on the correct strand.
+
+### Studies
+The Studies page of the PRSKB website includes a link to the published paper, information on citing the PRSKB, and the ability to search the database of GWAS studies procured from the [GWAS Catalog](https://www.ebi.ac.uk/gwas).
 
 ### Download
 The Download page houses the link to download the command-line interface tool and additional videos of setting up and running the tool. 
 
-### UKBB
-The UKBB page allows users to view polygenic risk score distributions and statistics for 500,000 individuals from the UK Biobank. Since individual scores have no absolute meaning, this page allows for a very rough contextualization of scores recieved from the Calculate page.
+### Visualize
+The Visualize page allows users to view polygenic risk score distributions and statistics for 500,000 individuals from the UK Biobank, as well as from other cohorts including 1000 Genomes super populations and cohorts from the ADNI database. Since individual scores are only a relative metric to be understood in comparison to others within a population, this page allows for an approximate contextualization of scores received from the Calculate page.
 
 ## Command-Line Interface
 
@@ -34,11 +41,11 @@ Required installed programs: Bash and jq for bash, Python3 and the PyVCF, filelo
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ```
 
-More CLI examples can be found in the README.md file included in the CLI download or on the readthedocs page for the tool.
+More CLI examples can be found in the README.md file included in the CLI download or on the [readthedocs page](https://polyriskscore.rtfd.io) for the tool.
 
 ## Citing this work
 
-Please visit the [Cite](https://prs.byu.edu/cite.htm) page of the website for information on how to cite this tool and GWAS publications used. 
+Please visit the [Studies](https://prs.byu.edu/studies.htm) page of the website for information on how to cite this tool and GWAS publications used. 
 
 ## Acknowledgements
 

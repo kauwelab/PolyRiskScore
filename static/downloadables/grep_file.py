@@ -6,12 +6,14 @@ import json
 from sys import argv
 from io import TextIOWrapper
 
-def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp):
+def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp, useGWASupload):
+    useGWASupload = True if useGWASupload == "True" or useGWASupload == True else False
+
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
     
     # get the associations, clumps, study snps, and the paths to the filtered input file and the clump number file
-    tableObjDict, clumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp)
+    tableObjDict, clumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp, useGWASupload)
 
     # format the filters
     traits, studyTypes, studyIDs, ethnicities = formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities)
@@ -41,14 +43,20 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
     return
 
 
-def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp):
+def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp, useGWASupload):
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     # create path for filtered input file
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
     # create path for filtered associations
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile , study snps, and clumpsFile
-    if (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
+    if useGWASupload:
+        associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
+        clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
+        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
+        # create path for clump number dictionary
+        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
+    elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associationsPath = os.path.join(basePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0]))
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = superPop, r = refGen))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
@@ -264,7 +272,7 @@ def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, study
 
 # opens and returns an open file from the inputFile path, using zipfile, tarfile, gzip, or open depending on the file's type
 # assumes the file is valid (validated with getZippedFileExtension function)
-def openFileForParsing(inputFile):
+def openFileForParsing(inputFile, isGWAS=False):
     filename = ""
     if zipfile.is_zipfile(inputFile):
         # open the file
@@ -272,7 +280,7 @@ def openFileForParsing(inputFile):
         # get the vcf or txt file in the zip
         for filename in archive.namelist():
             extension = filename[-4:].lower()
-            if extension == ".txt" or extension == ".vcf":
+            if (not isGWAS and extension == ".txt" or extension == ".vcf") or (isGWAS and extension == ".txt" or extension == ".tsv"):
                 # TextIOWrapper converts bytes to strings and force_zip64 is for files potentially larger than 2GB
                 return TextIOWrapper(archive.open(filename, force_zip64=True))
     elif tarfile.is_tarfile(inputFile):
@@ -281,7 +289,7 @@ def openFileForParsing(inputFile):
         # get the vcf or txt file in the tar
         for tarInfo in archive:
             extension = tarInfo.name[-4:].lower()
-            if extension == ".txt" or extension == ".vcf":
+            if (not isGWAS and extension == ".txt" or extension == ".vcf") or (isGWAS and extension == ".txt" or extension == ".tsv"):
                 # TextIOWrapper converts bytes to strings
                 return TextIOWrapper(archive.extractfile(tarInfo))
     elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
@@ -328,7 +336,9 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, studyID, tra
 # returns and prints: ".vcf" or "txt" if the zipped file is valid and contains one of those files
                     # "False" if the file is not a zipped file
                     # error message if the file is a zipped file, but is not vaild
-def getZippedFileExtension(filePath, shouldPrint):
+def getZippedFileExtension(filePath, shouldPrint, isGWAS):
+    isGWAS = False if (isGWAS == "False" or isGWAS == False) else True
+
     # if the file is a zip file
     if zipfile.is_zipfile(filePath):
         # open the file
@@ -336,7 +346,7 @@ def getZippedFileExtension(filePath, shouldPrint):
         # get the number of vcf/txt files inside the file
         validArchive = []
         for filename in archive.namelist():
-            if filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt":
+            if (not isGWAS and filename[-4:].lower() == ".vcf" or filename[-4:].lower() == ".txt") or (isGWAS and filename[-4:].lower() == ".tsv" or filename[-4:].lower() == ".txt"):
                 validArchive.append(filename)
         # if the number of vcf/txt files is one, this file is valid and the extension is printed and returned
         if len(validArchive) == 1:
@@ -348,6 +358,8 @@ def getZippedFileExtension(filePath, shouldPrint):
         # else print and return an error message
         else:
             msg = "There must be 1 vcf/txt file in the zip file. Please check the input file and try again."
+            if isGWAS:
+                msg = "There must be 1 tsv/txt file in the GWAS zip file. Please check the input file and try again."
             printIfShould(shouldPrint, msg)
             return msg
     # if the file is a tar-like file (tar, tgz, tar.gz, etc.)
@@ -357,7 +369,7 @@ def getZippedFileExtension(filePath, shouldPrint):
         # get the number of vcf/txt files inside the file
         validArchive = []
         for tarInfo in archive.getmembers():
-            if tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt":
+            if (not isGWAS and tarInfo.name[-4:].lower() == ".vcf" or tarInfo.name[-4:].lower() == ".txt") or (isGWAS and tarInfo.name[-4:].lower() == ".tsv" or tarInfo.name[-4:].lower() == ".txt"):
                 validArchive.append(tarInfo.name)
         # if the number of vcf/txt files is one, this file is valid and the extension is printed and returned
         if len(validArchive) == 1:
@@ -369,12 +381,14 @@ def getZippedFileExtension(filePath, shouldPrint):
         # else print and return an error message
         else:
             msg = "There must be 1 vcf/txt file in the tar file. Please check the input file and try again."
+            if isGWAS:
+                msg = "There must be 1 tsv/txt file in the GWAS tar file. Please check the input file and try again."
             printIfShould(shouldPrint, msg)
             return msg
     # if the file is a gz file (checked last to not trigger for tar.gz)
     elif filePath.lower().endswith(".gz"):
         # if the gz file is a vcf/txt file, print and return the extension
-        if filePath.lower().endswith(".txt.gz") or filePath.lower().endswith(".vcf.gz"):
+        if (not isGWAS and filePath.lower().endswith(".txt.gz") or filePath.lower().endswith(".vcf.gz")) or (isGWAS and filePath.lower().endswith(".txt.gz") or filePath.lower().endswith(".tsv.gz")):
             new_file = filePath[:-3]
             _, extension = os.path.splitext(new_file)
             extension = extension.lower()
@@ -383,6 +397,8 @@ def getZippedFileExtension(filePath, shouldPrint):
         # else print and return an error message
         else:
             msg = "The gzipped file is not a txt or vcf file. Please check the input file and try again"
+            if isGWAS:
+                msg = "The gzipped GWAS file is not a txt or tsv file. Please check the input file and try again"
             printIfShould(shouldPrint, msg)
             return msg
     # if the file is not a zip, tar, or gz, print and return "False"
@@ -399,7 +415,7 @@ def printIfShould(should, msg):
 
 if __name__ == "__main__":
     if (argv[1]) == "zip":
-        getZippedFileExtension(argv[2], argv[3])
+        getZippedFileExtension(argv[2], argv[3], argv[4])
     else:
-        createFilteredFile(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11], argv[12], argv[13])
+        createFilteredFile(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11], argv[12], argv[13], argv[14])
 
