@@ -264,9 +264,9 @@ In addition to calculating polygenic risk scores using GWA studies from the GWAS
 Format
 ------
 
-The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, Rsid, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
 
-If more than one odds ratio exists for an Rsid in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your data is presented on the correct strand.
+If more than one odds ratio exists for an rsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your data is presented on the correct strand.
 
 *NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.*
 
@@ -278,13 +278,13 @@ Below is a brief overview of the required and optional columns for uploading GWA
 Required Columns
 ^^^^^^^^^^^^^^^^^^^
 
-1. **Study ID** - A unique study identifyer. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want.
+1. **Study ID** - A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want.
 2. **Trait** - The Experimental Factor Ontology (EFO) trait the GWAS deals with.
-3. **Rsid** - The Reference SNP cluster ID (Rsid) of the SNP.
+3. **RsID** - The Reference SNP cluster ID (RsID) of the SNP.
 4. **Chromosome** - The chromosome the SNP resides on.
 5. **Position** - The position of the SNP in the reference genome.
 6. **Risk Allele** - The allele that confers risk or protection.
-7. **Odds Ratio** - Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.
+7. **Odds Ratio** - Computed in the GWA study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.
 8. **P-value** - The probability that the risk allele confers the amount of risk stated.
 
 Optional Columns
