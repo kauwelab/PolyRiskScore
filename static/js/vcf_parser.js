@@ -12,7 +12,7 @@
                 // set number of samples in vcf file
                 if (line.match(/^#CHROM/)) {
                     //trim off the whitespace on the last sample's name
-                    line = sharedCode.trim(line);
+                    line = trim(line);
                     var sampleinfo = line.split('\t')
                     numSamples = sampleinfo.length - 9
 
@@ -47,10 +47,63 @@
                 var infoObject = parseVariantData(varInfo, info);
                 //TODO can we remove vcfAttrib here to make this faster?
                 var vcfLine = createVariantData(info, infoObject, sampleObject, vcfAttrib);
-                vcfObj = sharedCode.addLineToVcfObj(vcfObj, vcfLine)
+                vcfObj = addLineToVcfObj(vcfObj, vcfLine)
             }
         });
         return vcfObj;
+    }
+
+    //TODO comment
+    var addLineToVcfObj = function (vcfObj, vcfLine) {
+        //gets all possible alleles for the current id
+        var possibleAlleles = [];
+        possibleAlleles.push(vcfLine.ref);
+        var altAlleles = vcfLine.alt.split(/[,]+/);
+        for (var i = 0; i < altAlleles.length; i++) {
+            if (altAlleles[i] == ".") {
+                altAlleles.splice(i, 1);
+                --i;
+            }
+        }
+        if (altAlleles.length > 0) {
+            possibleAlleles = possibleAlleles.concat(altAlleles);
+        }
+
+        vcfLine.sampleinfo.forEach(function (sample) {
+            var vcfSNPObjs = vcfObj.get(sample.NAME);
+            //gets the allele indices
+            var alleles = sample.GT.trim().split(/[|/]+/, 2);
+            //gets the alleles from the allele indices and replaces the indices with the alleles.
+            for (var i = 0; i < alleles.length; i++) {
+                //if the allele is ".", ignore it (consider it as the non risk allele)
+                if (alleles[i] == ".") {
+                    //alleles[i] = possibleAlleles[0];
+                    alleles.splice(i, 1);
+                    --i;
+                }
+                else {
+                    alleles[i] = possibleAlleles[alleles[i]];
+                }
+            }
+            //event when alleles is empty, we still push it so that it can be included in 
+            //the totalVariants number of the output
+            var vcfSNPObj = {
+                pos: vcfLine.chr.concat(":", vcfLine.pos),
+                snp: vcfLine.id,
+                alleleArray: alleles
+            }
+            vcfSNPObjs.push(vcfSNPObj);
+            vcfObj.set(sample.NAME, vcfSNPObjs);
+        });
+        return vcfObj;
+    }
+
+    /**
+     * Trims the whitespace from both the begginning and the end of the string and returns it.
+     * @param {*} str 
+     */
+    var trim = function (str) {
+        return str.replace(/^\s+|\s+$/gm, '');
     }
 
     function defineVCFAttributes(vcfAttrib, line) {
