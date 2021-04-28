@@ -7,7 +7,7 @@ from sys import argv
 from io import TextIOWrapper
 
 def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp, useGWASupload):
-    useGWASupload = True if useGWASupload == "True" of useGWASupload == True else False
+    useGWASupload = True if useGWASupload == "True" or useGWASupload == True else False
 
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
