@@ -110,7 +110,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available subprocesses)"
     echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
-    echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see ___)"
+    echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about uploading GWAS data for calculations' or the CLI readme)"
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file" 
     echo ""
 }
@@ -373,13 +373,13 @@ correctly formatted for calculations to occur. "
     echo ""
     echo -e "The file must be a ${MYSTERYCOLOR}tab separated${NC} .tsv or .txt file. It must \
 include a header line with named columns. The required columns are: ${MYSTERYCOLOR}Study ID${NC}, \
-${MYSTERYCOLOR}Trait${NC}, ${MYSTERYCOLOR}Rsid${NC}, ${MYSTERYCOLOR}Chromosome${NC}, ${MYSTERYCOLOR}Position${NC}, \
+${MYSTERYCOLOR}Trait${NC}, ${MYSTERYCOLOR}RsID${NC}, ${MYSTERYCOLOR}Chromosome${NC}, ${MYSTERYCOLOR}Position${NC}, \
 ${MYSTERYCOLOR}Risk Allele${NC}, ${MYSTERYCOLOR}Odds Ratio${NC}, and ${MYSTERYCOLOR}P-value${NC}. \
 Optional column headers that will be included if present are: ${MYSTERYCOLOR}Citation${NC} and \
 ${MYSTERYCOLOR}Reported Trait${NC}. Column order does not matter and there may be extra columns \
 present in the file. Required and optional header names must be exact."
     echo ""
-    echo "If more than one odds ratio exists for an Rsid in a study, the odds ratio and corresponding risk allele \
+    echo "If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele \
 with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics \
 data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your \
 data is presented on the correct strand."
@@ -401,7 +401,7 @@ and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
         echo -e "|${LIGHTPURPLE}REQUIRED COLUMNS: ${NC}            |"
         echo -e "| ${LIGHTPURPLE}1${NC} - Study ID                 |"
         echo -e "| ${LIGHTPURPLE}2${NC} - Trait                    |"
-        echo -e "| ${LIGHTPURPLE}3${NC} - Rsid                     |"
+        echo -e "| ${LIGHTPURPLE}3${NC} - RsID                     |"
         echo -e "| ${LIGHTPURPLE}4${NC} - Chromosome               |"
         echo -e "| ${LIGHTPURPLE}5${NC} - Position                 |"
         echo -e "| ${LIGHTPURPLE}6${NC} - Risk Allele              |"
@@ -420,13 +420,13 @@ and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
 
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR} Study ID: ${NC}" 
-                echo "A unique study identifyer. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want."
+                echo "A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want."
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR} Trait: ${NC}" 
                 echo "The Experimental Factor Ontology (EFO) trait the GWAS deals with."
                 echo "" ;;
-            3 ) echo -e "${MYSTERYCOLOR} Rsid: ${NC}"
-                echo "The Reference SNP cluster ID (Rsid) of the SNP."
+            3 ) echo -e "${MYSTERYCOLOR} RsID: ${NC}"
+                echo "The Reference SNP cluster ID (RsID) of the SNP."
                 echo "" ;;
             4 ) echo -e "${MYSTERYCOLOR} Chromosome: ${NC}"
                 echo "The chromosome the SNP resides on."
@@ -755,7 +755,7 @@ calculatePRS () {
         zipExtension="NULL"
     fi
     # if the zip extension is valid, set extension to the zip extension, 
-    # otherwise use Pyhton os.path.splitext to get the extension
+    # otherwise use python os.path.splitext to get the extension
     if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
         extension="$zipExtension"
     else
@@ -768,7 +768,7 @@ calculatePRS () {
             GWASzipExtension="NULL"
         fi
         # if the zip extension is valid, set extension to the zip extension, 
-        # otherwise use Pyhton os.path.splitext to get the extension
+        # otherwise use python os.path.splitext to get the extension
         if [ $GWASzipExtension = ".tsv" ] || [ $GWASzipExtension = ".txt" ]; then
             GWASextension="$GWASzipExtension"
         else
