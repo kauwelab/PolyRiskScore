@@ -235,20 +235,20 @@
               similarly increase.
             </p>
             <p style="text-align: left">
-	      Although polygenic risk scores have become increasingly prevalent in genetic research, historically, only
-	      minimal guidelines have existed for performing polygenic risk score analyses. This limitation has led to an 
-	      inconsistency in the methodology of polygenic risk score calculations in different studies and the
-	      misinterpretation of results. In our efforts to overcome the variability in current polygenic risk score
-	      research, we follow the standards set forth by Choi, et al. (2020), including the implementation of the
-	      clumping and threshold (C+T) method.
+              Although polygenic risk scores have become increasingly prevalent in genetic research, historically, only
+              minimal guidelines have existed for performing polygenic risk score analyses. This limitation has led to an 
+              inconsistency in the methodology of polygenic risk score calculations in different studies and the
+              misinterpretation of results. In our efforts to overcome the variability in current polygenic risk score
+              research, we follow the standards set forth by Choi, et al. (2020), including the implementation of the
+              clumping and threshold (C+T) method.
 
-	      The Linkage disequilibrium (LD) clumping and threshold method reduces the inflation of polygenic risk scores
-	      by ensuring that no more than one genetic variant from each LD region is included in the risk score calculations.
-	      We calculated LD clumps for each population in the 1000 Genomes dataset using an r-squared value of 0.25 and a
-	      distance threshold of 500 kb. The clumping analysis results were used to assign each 1000 Genomes variant to an
-	      LD clump ID for each population. The clump IDs facilitate the dynamic retrieval of LD clumps from the PRSKB 
-	      database so that only the genetic variant with the most significant p-value in the GWA study of interest is 
-	      used in the polygenic risk score calculation.
+              The Linkage disequilibrium (LD) clumping and threshold method reduces the inflation of polygenic risk scores
+              by ensuring that no more than one genetic variant from each LD region is included in the risk score calculations.
+              We calculated LD clumps for each population in the 1000 Genomes dataset using an r-squared value of 0.25 and a
+              distance threshold of 500 kb. The clumping analysis results were used to assign each 1000 Genomes variant to an
+              LD clump ID for each population. The clump IDs facilitate the dynamic retrieval of LD clumps from the PRSKB 
+              database so that only the genetic variant with the most significant p-value in the GWA study of interest is 
+              used in the polygenic risk score calculation.
             </p>
           </div>
         </div>
@@ -274,6 +274,11 @@
   </div>
 
   <footer class="text-center" style="background-color: #343a40;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12" style="margin-top: 1rem;"></div>
+      </div>
+    </div>
   </footer>
   <!-- Making the top menu sticky -->
   <script>
