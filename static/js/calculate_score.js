@@ -179,8 +179,8 @@ function getStudies() {
 
 
 /**
- * called in calculatePolyScore function, 
- * queries the server for associations with the given studyIDs, pValue, and reference genome
+ * Called in calculatePolyScore function, 
+ * queries the server for associations with the given studyIDs, reference genome, and default sex
  * @param {*} studyList 
  * @param {*} refGen 
  * @param {*} sex 
