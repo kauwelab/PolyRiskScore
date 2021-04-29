@@ -8,7 +8,6 @@
     exports.getVCFObj = function (fileLines) {
         var numSamples = 0;
         var sampleIndex = {}
-        var vcfAttrib = {}
         var vcfObj = new Map();
         fileLines.forEach(function (line) {
             // check if line starts with hash and use them
@@ -26,9 +25,6 @@
                         //remove white space from sample names
                         vcfObj.set(sampleinfo[9 + i], []);
                     }
-                }
-                else {
-                    vcfAttrib = defineVCFAttributes(vcfAttrib, line); //Test to make sure this works!!
                 }
             } else { // go through remaining lines
                 // split line by tab character
@@ -50,8 +46,7 @@
                 var varInfo = info[7].split(';')
                 // parse the variant information
                 var infoObject = parseVariantData(varInfo, info);
-                //TODO can we remove vcfAttrib here to make this faster?
-                var vcfLine = createVariantData(info, infoObject, sampleObject, vcfAttrib);
+                var vcfLine = createVariantData(info, infoObject, sampleObject);
                 vcfObj = addLineToVcfObj(vcfObj, vcfLine)
             }
         });
@@ -114,31 +109,6 @@
      */
     var trim = function (str) {
         return str.replace(/^\s+|\s+$/gm, '');
-    }
-
-    /**
-     * Gets the VCF file's attributes, or sets them to default atributes if they are not present
-     * @param {*} vcfAttrib 
-     * @param {*} line 
-     * @returns vcfAttrib
-     */
-    function defineVCFAttributes(vcfAttrib, line) {
-        // ##fileformat=VCFv4.1
-        if (!vcfAttrib.vcf_v) {
-            vcfAttrib.vcf_v = line.match(/^##fileformat=/) ? line.split('=')[1] : null
-        }
-
-        // ##samtoolsVersion=0.1.19-44428cd
-        if (!vcfAttrib.samtools) {
-            vcfAttrib.samtools = line.match(/^##samtoolsVersion=/) ? line.split('=')[1] : null
-        }
-
-        // ##reference=file://../index/Chalara_fraxinea_TGAC_s1v1_scaffolds.fa
-        if (!vcfAttrib.refseq) {
-            vcfAttrib.refseq = line.match((/^##reference=file:/)) ? line.split('=')[1] : null
-        }
-
-        return vcfAttrib;
     }
 
     function parseSampleInfo(numSamples, sampleIndex, info) {
@@ -236,8 +206,7 @@
         return infoObject;
     }
 
-    function createVariantData(info, infoObject, sampleObject, vcfAttrib) {
-
+    function createVariantData(info, infoObject, sampleObject) {
         var varData = {
             chr: info[0],
             pos: info[1],
@@ -248,7 +217,6 @@
             filter: info[6],
             varinfo: infoObject,
             sampleinfo: sampleObject,
-            attributes: vcfAttrib
         }
 
         return varData;
