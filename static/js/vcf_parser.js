@@ -168,44 +168,6 @@
         return infoObject;
     }
 
-    function parseVariantData(varInfo, info) {
-        //Better to make varInfo again here?? 
-        var infoObject = {}
-
-        // check if the variant is INDEL or SNP
-        // and assign the specific type of variation identified
-        var type
-        var typeInfo
-        if (varInfo[0].match(/^INDEL$/)) {
-            type = 'INDEL'
-            varInfo.shift()
-            if (info[3].length > info[4].length) {
-                typeInfo = 'deletion'
-            } else if (info[3].length < info[4].length) {
-                typeInfo = 'insertion'
-            } else if (info[3].length === info[4].length) {
-                typeInfo = 'substitution - multi'
-            }
-        } else {
-            type = 'SNP'
-            if (info[3].length === 1) {
-                typeInfo = 'substitution'
-            } else if (info[3].length > 1) {
-                typeInfo = 'substitution - multi'
-            }
-        }
-        infoObject['VAR'] = type
-        infoObject['VARINFO'] = typeInfo
-
-        // variant info added to object
-        for (var l = 0; l < varInfo.length; l++) {
-            var pair = varInfo[l].split('=')
-            infoObject[pair[0]] = pair[1]
-        }
-
-        return infoObject;
-    }
-
     function createVariantData(info, infoObject, sampleObject) {
         var varData = {
             chr: info[0],
