@@ -1,15 +1,8 @@
-import distutils.core
 import mysql.connector
 from mysql.connector import errorcode
-from mysql.connector.constants import ClientFlag
 import os
-from os import listdir
-from os.path import isfile, join
 from sys import argv
 from time import sleep
-
-import datetime
-import time
 
 # This script uploads the associations_table.tsv and the study_table.tsv to the PRSKB database.
 #
