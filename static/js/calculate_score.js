@@ -1290,7 +1290,7 @@ function exampleGWASInput() {
             lastModified: new Date(0), // optional - default = now
             type: "overide/mimetype" // optional - default = ''
         });
-        document.getElementById("gwasFile").files = new FileListItem(file);
+        document.getElementById("gwasFile").files = new fileListItem(file);
     }
     xmlhttp.onabort = errorLoading
     xmlhttp.onerror = errorLoading
@@ -1345,14 +1345,14 @@ function clickFileUpload() {
 
 }
 
-//when the user updates the pvalue scalar or magnitude, update the display and reset the output
+// when the user updates the pvalue scalar, update the display and reset the output
 function changePValScalar() {
     $("#pvalScalar").html($("#pValScalarIn").val());
     resetOutput()
     updateResultBoxAndStoredValue("");
 }
 
-//TODO comment
+// when the user updates the pvalue magnitude, update the display and reset the output
 function changePValMagnitude() {
     $("#pvalMagnigtude").html(-1 * $("#pValMagIn").val());
     resetOutput()
