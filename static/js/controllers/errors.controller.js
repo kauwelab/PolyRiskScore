@@ -50,6 +50,7 @@ exports.downloadErrors = (req, res) => {
 
 function sendNotification() {
     //TODO this function should send a notification to the lab that we have accumulated 10 more reported errors
+    // This will be something that needs to be handled in the future
     return
 }
 
