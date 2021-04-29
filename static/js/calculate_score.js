@@ -277,8 +277,11 @@ function callClumpsEndpoint(superPop, refGen, positions) {
     }));
 }
 
-//called when the user clicks the "Calcuate Risk Scores" button on the calculation page
-//TODO comment
+/**
+ * Called when the user clicks the "Calcuate Risk Scores" button on the calculation page
+ * Collects the information the user has specified on the web page and passes it to the handleCalculateScore function
+ * to complete calculations 
+ */
 var calculatePolyScore = async () => {
     // get the values from the user's inputs/selections
     var vcfFile = document.getElementById("files").files[0];
@@ -580,8 +583,15 @@ function resetOutput() { //todo maybe should add this to when the traits/studies
     unusedTraitStudyArray = []
 }
 
-//TODO write comment
-//TODO rename function
+/**
+ * Greps the snpsInput using the associationsData obj, removing SNPs from the snpsInput object that are not in the
+ * associationData object. Returns a list containinig the greppedSNPs object and a number: the total number of variants
+ * in the original snpsInput object
+ * @param {*} snpsInput 
+ * @param {*} associationData 
+ * @param {*} isVCF 
+ * @returns 
+ */
 var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isVCF) => {
     //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
     var associMap = associationData['associations']
@@ -1132,7 +1142,9 @@ function getResultOutput(jsonObject) {
     }
 }
 
-//TODO comment
+/**
+ * Downloads the results of the calculations in a zip file named polyscore_<random int>.zip
+ */
 function downloadResults() {
     if (resultJSON == {} && unusedTraitStudyArray.length == 0) {
         $('#response').html("There are no files to download. Please try the calculator again");
@@ -1268,7 +1280,9 @@ function exampleInput() {
     xmlhttp.send();
 }
 
-//TODO comment
+/**
+ * Loads the sampleGWAS.tsv example file for later calculation usage
+ */
 function exampleGWASInput() {
     var result = null;
     var xmlhttp = new XMLHttpRequest();
