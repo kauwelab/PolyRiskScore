@@ -2,7 +2,6 @@ import requests
 import myvariant
 import sys
 from sys import argv
-import json
 import os
 
 # This script creates a test VCF using one SNP from every study in the database. The VCF has 3 samples, 
@@ -65,7 +64,7 @@ f.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMP001\tSAMP002
 for i in range(len(snpsData)):
     snp = snpsData[i]['snp']
     ref = snpRefAlleleDict[snp]['ref']
-    if  snpsData[i]['riskAllele'] == ref[0]:
+    if snpsData[i]['riskAllele'] == ref[0] and snpRefAlleleDict[snp]['alt'] != "":
         alt = snpRefAlleleDict[snp]['alt']
     else: 
         alt = snpsData[i]['riskAllele']
@@ -80,5 +79,4 @@ for i in range(len(snpsData)):
         
 f.close()
 
-
-
+print("Finished creating sample VCF")

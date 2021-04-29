@@ -143,6 +143,30 @@ Association.getAllSnps = (refGen, result) => {
     }
 }
 
+Association.getSnpsToChromPos = (snps, refGen, result) => {
+    try {
+        // returns the refgen if valid, else throws an error
+        refGen = validator.validateRefgen(refGen)
+        sqlQuestionMarks = []
+        for (i=0; i<snps.length; i++) {
+            sqlQuestionMarks.push("?")
+        }
+        sqlQuestionMarks = sqlQuestionMarks.join()
+
+        sql.query(`SELECT DISTINCT snp, ${refGen} as pos FROM associations_table WHERE snp in (${sqlQuestionMarks});`, snps, (err, data) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            result(null, data)
+        })
+    } catch (e) {
+        console.log("Error: ", e)
+        result(e, null)
+    }
+}
+
 Association.getAllSnpsToStudyIDs = (refGen, result) => {
     try {
         if (typeof(refGen) == "undefined") {

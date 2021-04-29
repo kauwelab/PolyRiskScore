@@ -44,8 +44,8 @@
 <div class="section" id="quick-start">
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
 <p>To download the PRSKB CLI tool, head over to the <a class="reference external" href="https://prs.byu.edu/cli_download.html">PRSKB website download page</a> or download the whole repository directly from <a class="reference external" href="https://github.com/kauwelab/PolyRiskScore">GitHub</a>.</p>
-<p>Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database (this needs to be worded better).</p>
-<p><em>NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF Python module installed.</em></p>
+<p>Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database.</p>
+<p><em>NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF, filelock, and requests Python modules installed.</em></p>
 <div class="section" id="required-parameters-example">
 <h3>Required Parameters Example<a class="headerlink" href="#required-parameters-example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.05 -r hg19 -p EUR
@@ -58,24 +58,24 @@
 <h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
 <p>The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI’s interactive menu. The menu includes the options to search the database and to learn more about the parameters involved in risk score calculations.
 To access the menu, run the script without parameters. You will be given the option to see the usage statement or start the interactive menu.</p>
-<img alt="CLI tool run without parameters" src="../../../images/RunCLIwithoutParams.png" />
-<img alt="CLI menu screen shot" src="../../../images/RunMenu.png" />
+<img alt="CLI tool run without parameters" src="_images/RunCLIwithoutParams.png" />
+<img alt="CLI menu screen shot" src="_images/RunMenu.png" />
 <div class="section" id="search-the-database">
 <h2>Search the Database<a class="headerlink" href="#search-the-database" title="Permalink to this headline">¶</a></h2>
 <p>Through the interactive menu, users can search the database for traits or studies. This can be helpful when filtering studies to run the calculator on.</p>
 <p>After selecting the menu option to search for studies or traits, you will be prompted to specify if you are searching for studies or traits. You can then enter the search term you wish to use.</p>
-<img alt="Screenshot example for searching traits about teeth" src="../../../images/SearchTraits.png" />
+<img alt="Screenshot example for searching traits about teeth" src="_images/SearchTraits.png" />
 <p>When the search is complete, the results will be printed to the console, and you will be returned to the menu.</p>
 </div>
 <div class="section" id="display-ethnicities">
 <h2>Display Ethnicities<a class="headerlink" href="#display-ethnicities" title="Permalink to this headline">¶</a></h2>
 <p>The menu has an option for displaying the available ethnicities to filter studies by.</p>
-<img alt="Screenshot showing displayed ethnicities" src="../../../images/displayEthnicities.png" />
+<img alt="Screenshot showing displayed ethnicities" src="_images/displayEthnicities.png" />
 </div>
 <div class="section" id="learn-about-parameters">
 <h2>Learn about Parameters<a class="headerlink" href="#learn-about-parameters" title="Permalink to this headline">¶</a></h2>
 <p>The menu also has an option for learning about the parameters involved in filtering studies and calculating scores.</p>
-<img alt="Screen shot of Parameters menu" src="../../../images/LearnAboutParams.png" />
+<img alt="Screen shot of Parameters menu" src="_images/LearnAboutParams.png" />
 <div class="section" id="required-parameters">
 <h3>Required Parameters<a class="headerlink" href="#required-parameters" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="file-path-f">
@@ -202,8 +202,29 @@ to select when both options (M/F) are present. The system default is Female.</p>
 </div>
 <div class="section" id="number-of-processes-n">
 <h4>Number Of Processes (-n)<a class="headerlink" href="#number-of-processes-n" title="Permalink to this headline">¶</a></h4>
-<p>&#64;Liz, write this section</p>
+<p>This parameter determines the number of subprocesses used by the Python multiprocessing module during the calculations. If no value is given by the user, all available cores will be utilized.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-n <span class="m">4</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="omit-unused-studies-file-m">
+<h4>Omit Unused Studies file (-m)<a class="headerlink" href="#omit-unused-studies-file-m" title="Permalink to this headline">¶</a></h4>
+<p>This flag will prevent the creation of an additional output file that lists the studies that no risk scores could be calculated for.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-m
+</pre></div>
+</div>
+</div>
+<div class="section" id="user-gwas-upload-file-u">
+<h4>User GWAS upload file (-u)<a class="headerlink" href="#user-gwas-upload-file-u" title="Permalink to this headline">¶</a></h4>
+<p>This parameter allows the user to upload a GWAS summary statistics file to be used in polygenic risk score calculations instead of GWAS Catalog data stored in our database. The file must be tab separated, use a .tsv or .txt extension (or be a zipped file with one of those extensions), and have the correct columns in order for calculations to occur. (see Uploading GWAS Summary Statistics for more directions on uploading GWAS data)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-u path/to/file/GWASsummaryStatistics.tsv
+</pre></div>
+</div>
+</div>
+<div class="section" id="gwas-reference-genome-a">
+<h4>GWAS reference genome (-a)<a class="headerlink" href="#gwas-reference-genome-a" title="Permalink to this headline">¶</a></h4>
+<p>Specifies the reference genome of the GWAS summary statistics data. If left off when a GWAS file is uploaded, the reference genome is assumed to be the same as the samples reference genome (-r).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-a hg19
 </pre></div>
 </div>
 </div>
@@ -212,6 +233,40 @@ to select when both options (M/F) are present. The system default is Female.</p>
 <div class="section" id="calculate-scores">
 <h2>Calculate Scores<a class="headerlink" href="#calculate-scores" title="Permalink to this headline">¶</a></h2>
 <p>Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in the database for each individual in the input file. Additional parameters will filter studies to be included in the calculation.</p>
+</div>
+</div>
+<div class="section" id="uploading-gwas-summary-statistics">
+<h1>Uploading GWAS Summary Statistics<a class="headerlink" href="#uploading-gwas-summary-statistics" title="Permalink to this headline">¶</a></h1>
+<p>In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations.</p>
+<div class="section" id="format">
+<h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
+<p>The GWAS summary statistics file to be uploaded <strong>must</strong> be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file’s header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact.</p>
+<p>If more than one odds ratio exists for an rsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your data is presented on the correct strand.</p>
+<p><em>NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.</em></p>
+</div>
+<div class="section" id="columns">
+<h2>Columns<a class="headerlink" href="#columns" title="Permalink to this headline">¶</a></h2>
+<p>Below is a brief overview of the required and optional columns for uploading GWAS summary statistics data.</p>
+<div class="section" id="required-columns">
+<h3>Required Columns<a class="headerlink" href="#required-columns" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Study ID</strong> - A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want.</p></li>
+<li><p><strong>Trait</strong> - The Experimental Factor Ontology (EFO) trait the GWAS deals with.</p></li>
+<li><p><strong>RsID</strong> - The Reference SNP cluster ID (RsID) of the SNP.</p></li>
+<li><p><strong>Chromosome</strong> - The chromosome the SNP resides on.</p></li>
+<li><p><strong>Position</strong> - The position of the SNP in the reference genome.</p></li>
+<li><p><strong>Risk Allele</strong> - The allele that confers risk or protection.</p></li>
+<li><p><strong>Odds Ratio</strong> - Computed in the GWA study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.</p></li>
+<li><p><strong>P-value</strong> - The probability that the risk allele confers the amount of risk stated.</p></li>
+</ol>
+</div>
+<div class="section" id="optional-columns">
+<h3>Optional Columns<a class="headerlink" href="#optional-columns" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Citation</strong> - The citation information for the study.</p></li>
+<li><p><strong>Reported Trait</strong> - Trait description for this study in the authors own words.</p></li>
+</ol>
+</div>
 </div>
 </div>
 <div class="section" id="examples">
@@ -240,6 +295,11 @@ to select when both options (M/F) are present. The system default is Female.</p>
 <p>Run the calculator on all studies about the trait ‘acne’, filtering studies from the allAssociations_hg19_f.txt working file:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS
 ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS -t acne -s <span class="m">2</span>
+</pre></div>
+</div>
+<p>Run the calculator using uploaded GWAS summary statistics:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv -a hg17
+./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv
 </pre></div>
 </div>
 <p>More examples can be found in the CLI download README.md</p>

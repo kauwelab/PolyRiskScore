@@ -24,7 +24,7 @@ To download the PRSKB CLI tool, head over to the `PRSKB website download page <h
 
 Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database. 
 
-*NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF Python module installed.*
+*NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF, filelock, and requests Python modules installed.*
 
 Required Parameters Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -40,10 +40,10 @@ Features
 The CLI polygenic risk score calculator can be run directly from the command-line or through the CLI's interactive menu. The menu includes the options to search the database and to learn more about the parameters involved in risk score calculations. 
 To access the menu, run the script without parameters. You will be given the option to see the usage statement or start the interactive menu. 
 
-.. image:: ../../../images/RunCLIwithoutParams.png
+.. image:: ../../images/RunCLIwithoutParams.png
   :alt: CLI tool run without parameters
 
-.. image:: ../../../images/RunMenu.png
+.. image:: ../../images/RunMenu.png
   :alt: CLI menu screen shot
 
 Search the Database
@@ -53,7 +53,7 @@ Through the interactive menu, users can search the database for traits or studie
 
 After selecting the menu option to search for studies or traits, you will be prompted to specify if you are searching for studies or traits. You can then enter the search term you wish to use. 
 
-.. image:: ../../../images/SearchTraits.png
+.. image:: ../../images/SearchTraits.png
   :alt: Screenshot example for searching traits about teeth
 
 When the search is complete, the results will be printed to the console, and you will be returned to the menu. 
@@ -63,7 +63,7 @@ Display Ethnicities
 
 The menu has an option for displaying the available ethnicities to filter studies by.
 
-.. image:: ../../../images/displayEthnicities.png
+.. image:: ../../images/displayEthnicities.png
   :alt: Screenshot showing displayed ethnicities
 
 Learn about Parameters 
@@ -71,7 +71,7 @@ Learn about Parameters
 
 The menu also has an option for learning about the parameters involved in filtering studies and calculating scores. 
 
-.. image:: ../../../images/LearnAboutParams.png
+.. image:: ../../images/LearnAboutParams.png
   :alt: Screen shot of Parameters menu
 
 Required Parameters
@@ -223,11 +223,75 @@ This parameter determines the number of subprocesses used by the Python multipro
 
    -n 4
 
+Omit Unused Studies file (-m)
+"""""""""""""""""""""""""""""
+
+This flag will prevent the creation of an additional output file that lists the studies that no risk scores could be calculated for. 
+
+.. code-block:: bash
+
+   -m
+
+User GWAS upload file (-u)
+"""""""""""""""""""""""""""
+
+This parameter allows the user to upload a GWAS summary statistics file to be used in polygenic risk score calculations instead of GWAS Catalog data stored in our database. The file must be tab separated, use a .tsv or .txt extension (or be a zipped file with one of those extensions), and have the correct columns in order for calculations to occur. (see Uploading GWAS Summary Statistics for more directions on uploading GWAS data)
+
+.. code-block:: bash
+
+   -u path/to/file/GWASsummaryStatistics.tsv
+
+GWAS reference genome (-a)
+"""""""""""""""""""""""""""""""
+
+Specifies the reference genome of the GWAS summary statistics data. If left off when a GWAS file is uploaded, the reference genome is assumed to be the same as the samples reference genome (-r).
+
+.. code-block:: bash
+
+   -a hg19
+
 
 Calculate Scores
 ----------------
 
 Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in the database for each individual in the input file. Additional parameters will filter studies to be included in the calculation. 
+
+Uploading GWAS Summary Statistics
+=================================
+
+In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations. 
+
+Format
+------
+
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
+
+If more than one odds ratio exists for an rsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your data is presented on the correct strand.
+
+*NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.*
+
+Columns
+-------
+
+Below is a brief overview of the required and optional columns for uploading GWAS summary statistics data.
+
+Required Columns
+^^^^^^^^^^^^^^^^^^^
+
+1. **Study ID** - A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want.
+2. **Trait** - The Experimental Factor Ontology (EFO) trait the GWAS deals with.
+3. **RsID** - The Reference SNP cluster ID (RsID) of the SNP.
+4. **Chromosome** - The chromosome the SNP resides on.
+5. **Position** - The position of the SNP in the reference genome.
+6. **Risk Allele** - The allele that confers risk or protection.
+7. **Odds Ratio** - Computed in the GWA study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.
+8. **P-value** - The probability that the risk allele confers the amount of risk stated.
+
+Optional Columns
+^^^^^^^^^^^^^^^^^
+
+1. **Citation** - The citation information for the study.
+2. **Reported Trait** - Trait description for this study in the authors own words.
 
 
 Examples
@@ -270,6 +334,13 @@ Run the calculator on all studies about the trait 'acne', filtering studies from
 
    ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS
    ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS -t acne -s 2 
+
+Run the calculator using uploaded GWAS summary statistics:
+
+.. code-block:: bash
+
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv -a hg17
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv
 
 More examples can be found in the CLI download README.md
 

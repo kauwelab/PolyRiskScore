@@ -1,8 +1,5 @@
 import myvariant
 import contextlib, io
-import os
-from os import listdir
-from os.path import isfile, join
 from sys import argv
 from Bio.Seq import Seq
 
@@ -57,7 +54,7 @@ def main():
         if riskAllele not in possibleAlleles:
             complement = riskAllele.reverse_complement()
             if complement in possibleAlleles:
-                line[9] = complement
+                line[9] = str(complement)
                 print("WE MADE A SWITCH", rsID, riskAllele, complement)
 
         content[i] = '\t'.join(line)
@@ -66,6 +63,8 @@ def main():
     associFile = open(associationTableFolderPath, 'w')
     associFile.write(''.join(content))
     associFile.close()
+
+    print("Finished strand flipping")
 
 
 if __name__ == "__main__":
