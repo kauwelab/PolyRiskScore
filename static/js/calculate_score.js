@@ -925,7 +925,7 @@ function getErrorMessage(err) { //TODO we are going to want to NOT give this inf
 }
 
 /**
- * Returns a simplified output using the given json. The json is truncated and converted to the correct format.
+ * Returns a simplified output using the given JSON. The JSOON is truncated and converted to the correct format.
  * Then, if a truncation occured, "Results preview:" is appended to the beginning and "..." is appended to the end.
  * @param {*} resultJsn
  */
@@ -1098,7 +1098,8 @@ function formatTSV(jsonObject, isCondensed) {
 }
 
 /**
- * Updates the output on the web page based on the format chosen (JSON or TSV)
+ * Updates the result output box on the web page. The full result JSON is truncated and then formatted based on the 
+ * file type (JSON or TSV) and format (condensed, uncondensed)
  */
 function changeFormat() {
     var formatDropdown = document.getElementById("fileType");
@@ -1119,7 +1120,11 @@ function changeFormat() {
     $('#response').html(outputVal);
 }
 
-//TODO comment
+/**
+ * Returns a string for the jsonObject formated based on the file type (JSON or TSV) and format (condensed, uncondensed)
+ * @param {*} jsonObject 
+ * @returns output string
+ */
 function getResultOutput(jsonObject) {
     if (jsonObject == undefined || jsonObject == "") {
         return "";
@@ -1212,21 +1217,6 @@ function download(filenameArray, extension, textArray) {
             saveAs(content, filenameArray[0] + ".zip");
             document.getElementById("download-bar").style.visibility = "hidden";
         });
-
-    /*
-    var element = document.createElement('a');
-
-    var dataBlob = new Blob([text], { type: "text/plain" });
-    var objUrl = URL.createObjectURL(dataBlob);
-
-    element.href = objUrl;
-    element.download = filename;
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-
-    document.body.removeChild(element);
-    */
 }
 
 // Used for creating a new FileList in a round-about way- found at https://stackoverflow.com/questions/52078853/is-it-possible-to-update-filelist/52079109
