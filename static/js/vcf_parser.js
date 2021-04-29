@@ -1,5 +1,10 @@
 (function (exports) {
 
+    /**
+     * Gets an object representing a VCF, given its file lines
+     * @param {*} fileLines 
+     * @returns vcfObj
+     */
     exports.getVCFObj = function (fileLines) {
         var numSamples = 0;
         var sampleIndex = {}
@@ -53,7 +58,12 @@
         return vcfObj;
     }
 
-    //TODO comment
+    /**
+     * Adds the contents of vcfLine to vcfObj
+     * @param {*} vcfObj 
+     * @param {*} vcfLine 
+     * @returns vcfObj
+     */
     var addLineToVcfObj = function (vcfObj, vcfLine) {
         //gets all possible alleles for the current id
         var possibleAlleles = [];
@@ -99,13 +109,19 @@
     }
 
     /**
-     * Trims the whitespace from both the begginning and the end of the string and returns it.
+     * Trims the whitespace from both the beginning and the end of the string and returns it.
      * @param {*} str 
      */
     var trim = function (str) {
         return str.replace(/^\s+|\s+$/gm, '');
     }
 
+    /**
+     * Gets the VCF file's attributes, or sets them to default atributes if they are not present
+     * @param {*} vcfAttrib 
+     * @param {*} line 
+     * @returns vcfAttrib
+     */
     function defineVCFAttributes(vcfAttrib, line) {
         // ##fileformat=VCFv4.1
         if (!vcfAttrib.vcf_v) {

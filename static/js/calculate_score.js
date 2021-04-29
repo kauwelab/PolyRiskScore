@@ -20,14 +20,19 @@ function updateResultBoxAndStoredValue(str) {
     resultJSON = str
 }
 
-//TODO comment
+/**
+ * Currently unused. Sets the the result box of the Calculate page to str and updates the resultJSON to the new text
+ * @param {*} str 
+ */
 function addToResultBox(str) {
     newText = document.getElementById('response').innerHTML.concat('\n', str);
     $('#response').html(newText);
     resultJSON = newText
 }
 
-//TODO comment
+/**
+ * Populates the trait drop down with traits from the PRSKB database
+ */
 function getTraits() {
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#traitSelect').replaceWith("<select id='traitSelect' multiple></select>");
@@ -53,7 +58,9 @@ function getTraits() {
     })
 }
 
-//TODO comment
+/**
+ * Populates the ethnicity drop down with ethnicities from the PRSKB database
+ */
 function getEthnicities() {
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#ethnicitySelect').replaceWith("<select id='ethnicitySelect' multiple></select>");
@@ -86,7 +93,12 @@ function getEthnicities() {
     })
 }
 
-//TODO comment
+/**
+ * Populates the studies drop down with studies from the PRSKB database using selected traits, types, and enthnicities as filters
+ * @param {*} selectedTraits 
+ * @param {*} selectedTypes 
+ * @param {*} selectedEthnicities 
+ */
 function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
     var studySelector = document.getElementById("studySelect");
 
@@ -140,7 +152,9 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
     })
 }
 
-//TODO comment
+/**
+ * Gets the selected selected traits, types, and enthnicities, then passes them to the callGetStudiesAPI function to populate the studies drop down
+ */
 function getStudies() {
     //get the users selected traits, ethnicities, and studty types as arrays of values
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
@@ -163,8 +177,15 @@ function getStudies() {
     callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities)
 }
 
-//called in calculatePolyScore below, 
-//queries the server for associations with the given studyIDs, pValue, and reference genome
+
+/**
+ * called in calculatePolyScore function, 
+ * queries the server for associations with the given studyIDs, pValue, and reference genome
+ * @param {*} studyList 
+ * @param {*} refGen 
+ * @param {*} sex 
+ * @returns 
+ */
 function getSelectStudyAssociations(studyList, refGen, sex) {
 
     return Promise.resolve($.ajax({
@@ -182,6 +203,9 @@ function getSelectStudyAssociations(studyList, refGen, sex) {
     }));
 }
 
+/**
+ *  changes the Calculate page based on the GWAS radio button selected
+ * */ 
 function changeGWASType() {
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
 
@@ -195,7 +219,7 @@ function changeGWASType() {
     }
 }
 
-//called in calculatePolyscore below
+//called in calculatePolyscore function
 //gets the clumping information using the positions from the associations object
 var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
     positions = []
@@ -230,7 +254,13 @@ var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
     return returnedResults
 }
 
-// TODO comment
+/**
+ * Returns clumping information based on the given super population, reference genome, and association positions
+ * @param {*} superPop 
+ * @param {*} refGen 
+ * @param {*} positions 
+ * @returns 
+ */
 function callClumpsEndpoint(superPop, refGen, positions) {
     return Promise.resolve($.ajax({
         type: "POST",
@@ -633,17 +663,19 @@ var handleCalculateScore = async (snpsInput, associationData, clumpsData, pValue
     }
 }
 
-// TODO fix comment
+
 /**
- * Calculates the polygenetic risk score using table rows from the database and the vcfObj.
- * If the vcfObj is undefined, throws an error message that can be printed to the user.
- * P-value is required so the result can also return information about the calculation.
- * @param {*} tableObj 
- * @param {*} vcfObj 
+ * Calculates the polygenic risk scores for the greppedSamples data using the associationData object, with clumpsData and
+ * pValue acting as filters. pValue and totalInputVariants are aditional statistics returned in the final json
+ * The complete json returned is composed of two objects: the result including risk scores for all samples, studies, and
+ * traits, and an unusedTraitStudyCombo object containing all trait-study combos that were not used in calculations
+ * @param {*} associationData 
+ * @param {*} clumpsData 
+ * @param {*} greppedSamples 
  * @param {*} pValue 
- * @return a string in JSON format of each idividual, their scores, and other information about their scores.
+ * @param {*} totalInputVariants 
+ * @returns 
  */
-//TODO fix function
 var calculateScore = async (associationData, clumpsData, greppedSamples, pValue, totalInputVariants) => {
     var resultObj = {};
     var indexSnpObj = {};
@@ -818,7 +850,16 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
     }
 }
 
-// TODO comment
+/**
+ * Calculates the combined odds ratio for the SNPs in the sampleObj (this process is the crux of the web PRSKB
+ * because it is the formula for calculating the PRS)
+ * Also sorts the SNPs from the sampleObj into 4 sets based on their contribution type to the combined OR
+ * @param {*} sampleObj 
+ * @param {*} trait 
+ * @param {*} studyID 
+ * @param {*} associationData 
+ * @returns list containing combinied OR and 4 sets of SNPs grouped by SNP type
+ */
 function calculateCombinedORandFormatSnps(sampleObj, trait, studyID, associationData) {
     var combinedOR = 0;
     var protective = new Set()
@@ -850,14 +891,18 @@ function calculateCombinedORandFormatSnps(sampleObj, trait, studyID, association
 }
 
 /**
- * Trims the whitespace from both the begginning and the end of the string and returns it.
+ * Trims the whitespace from both the beginning and the end of the string and returns it.
  * @param {*} str 
  */
 var trim = function (str) {
     return str.replace(/^\s+|\s+$/gm, '');
 }
 
-// TODO comment
+/**
+ * Returns a string beginning with a generic error message followed by the error's message and stack, if they are available
+ * @param {*} err 
+ * @returns 
+ */
 function getErrorMessage(err) { //TODO we are going to want to NOT give this information to the user in the final product. What we can and should do is create an endpoint to send errors to that can be saved for us to look over later
     var response = 'There was an error computing the risk score:'
     if (err != undefined) {
@@ -968,7 +1013,12 @@ function getSnpFromLine(line) {
     return match != null ? match[0] : null
 }
 
-//TODO comment
+/**
+ * Format the jsonObject into a TSV format. The header and subsequent columns are decided based on the isCondensed boolean
+ * @param {*} jsonObject 
+ * @param {*} isCondensed 
+ * @returns resultsString containing the finalized TSV file in string form
+ */
 function formatTSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
     //TODO: account for if the samples are not in the same order everytime
@@ -1037,7 +1087,9 @@ function formatTSV(jsonObject, isCondensed) {
     return resultsString;
 }
 
-//TODO comment
+/**
+ * Updates the output on the web page based on the format chosen (JSON or TSV)
+ */
 function changeFormat() {
     var formatDropdown = document.getElementById("fileType");
     var format = formatDropdown.options[formatDropdown.selectedIndex].value;
@@ -1112,7 +1164,11 @@ function downloadResults() {
     download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formattedUnusedTraitStudyArray]);
 }
 
-//TODO comment
+/**
+ * Gets a random positive integer up to, but not including max
+ * @param {*} max 
+ * @returns random number between 0 and max - 1
+ */
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
@@ -1171,7 +1227,9 @@ function fileListItem(a) {
     return b.files
 }
 
-//TODO comment
+/**
+ * Writes the contents of the sample.vcf to the file upload box and stores the file on the web page for later calculations
+ */
 function exampleInput() {
     document.getElementById('fileUploadButton').click();
     var result = null;
