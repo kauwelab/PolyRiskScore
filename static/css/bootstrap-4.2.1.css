@@ -6308,6 +6308,126 @@ dfn:hover::before {top: 20px;}
   /* font-size: 1.3em; */
   cursor: pointer;  
 }
+/* inline list added by user
+.qcList{
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.inlineListItems {
+  display: inline-block;
+  background-color: #5C5C5C;
+  border-radius: 25px;
+  border-style: solid;
+  border-color: #3D3D3D;
+  border-width: 1em;
+  box-shadow: .1em;
+  color: white;
+  cursor: pointer;
+  padding: 0.2em;
+  margin: 0.2em;
+  width: 40%;
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+
+
+/*.inlineListItems{
+  text-decoration: none;
+  color: #000;
+  -webkit-transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+  -moz-transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+  -o-transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+  -ms-transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+  transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+}
+
+.inlineListItems:hover {
+  background: #3D3D3D;
+  /* font-size: 1.3em; 
+  cursor: pointer;  
+}
+
+.inlineListItems:last-child {
+  border: none
+}*/
+
+.prstile1 {
+  width: 100%;
+  height: 50px;
+  transition: height 0.2s ease-in-out;
+  -webkit-transition: height 0.2s ease-in-out;
+  overflow: hidden;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: small;
+  background-color: #5C5C5C;
+  box-shadow: 8px 3px 15px black;
+  color: white;
+  padding-top: 10px;
+
+
+}
+
+.prstile2 {
+  width: 100%;
+  height: 60px;
+  transition: height 0.2s ease-in-out;
+  -webkit-transition: height 0.2s ease-in-out;
+  overflow: hidden;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: small;
+  background-color: #5C5C5C;
+  box-shadow: 8px 3px 15px black;
+  color: white;
+  padding-top: 10px;
+
+
+}
+
+.prstile3 {
+  width: 100%;
+  height: 50px;
+  transition: height 0.2s ease-in-out;
+  -webkit-transition: height 0.2s ease-in-out;
+  overflow: hidden;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: small;
+  background-color: #5C5C5C;
+  box-shadow: 8px 3px 15px black;
+  color: white;
+  padding-top: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+
+
+}
+
+
+#prstile1.expand {
+  height:550px;
+  cursor: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#prstile2.expand {
+  height:400px;
+  cursor: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#prstile3.expand {
+  height: 220px;
+  cursor: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
 
 .grow_text {
   -webkit-transition: font-size 0.3s ease;
