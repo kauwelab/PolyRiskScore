@@ -124,8 +124,7 @@
             the variability in current polygenic risk score research, we adhere to the following standard protocols set
             forth by <dfn data-info="Choi SW, Mak TS, O'Reilly PF. Tutorial: a guide to performing polygenic risk score analyses. Nat Protoc. 2020 Sep;15(9):2759-2772. doi: 10.1038/s41596-020-0353-1. Epub 2020 Jul 24. PMID: 32709988.">Choi, et al. (2020)</dfn>:
           </p><br>
-          <div style="display: inline-flex; gap:15px;">
-            <div style="flex: 70%;">
+          <div class="row" style="display: inline-flex; gap:1em;">
               <div id="prstile1" class="prstile1" onmouseover="" style="text-align: left;">
                 <h4 style="text-align: center;">Quality Control</h4>
                 <p style="text-align: left; padding-left: 60px; padding-right: 30px; padding-bottom:10px; padding-top:10px;">
@@ -147,30 +146,29 @@
                   </p>
                 </p>
               </div>
-            </div>
-            <div style="flex: 70%;">
               <div id="prstile2" class="prstile2" onmouseover="">
-                <h5 style="text-align: center;">Linkage Disequilibrium Adjustment</h5>
-                <p style="text-align: left;">
-                  Linkage disequilibrium (LD) clumping reduces the inflation of polygenic risk scores by ensuring that no more 
-                  than one genetic variant from each LD region is included in the risk score calculations. We calculated LD clumps 
-                  for each population in the 1000 Genomes dataset using an r-squared value of 0.25 and a distance threshold of 500 kb. 
-                  The clumping analysis results were used to assign each 1000 Genomes variant to an LD clump ID for each population. 
-                  The clump IDs facilitate the dynamic retrieval of LD clumps from the PRSKB database so that only the genetic variant 
-                  with the most significant p-value in the GWA study of interest is used in the polygenic risk score calculation.
-                </p>
+                <div>
+                  <h5 style="text-align: center;">Linkage Disequilibrium Adjustment</h5>
+                  <p style="text-align: left;">
+                    <br>
+                    Linkage disequilibrium (LD) clumping reduces the inflation of polygenic risk scores by ensuring that no more 
+                    than one genetic variant from each LD region is included in the risk score calculations. We calculated LD clumps 
+                    for each population in the 1000 Genomes dataset using an r-squared value of 0.25 and a distance threshold of 500 kb. 
+                    The clumping analysis results were used to assign each 1000 Genomes variant to an LD clump ID for each population. 
+                    The clump IDs facilitate the dynamic retrieval of LD clumps from the PRSKB database so that only the genetic variant 
+                    with the most significant p-value in the GWA study of interest is used in the polygenic risk score calculation.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div style="flex: 70%;">
               <div id="prstile3" class="prstile3" onmouseover="">
                 <h4 style="text-align: center;">P-value Thresholding</h4>
                 <p style="text-align: left;">
+                  <br>
                   We allow the user to determine the p-value threshold, which dictates which GWA study variants will be included in 
                   the PRS calculations. Additionally, we recommened that users who utilize the PRSKB to run bulk PRS analyses for 
                   post-hoc hypothesizing account for multiple testing when determining a significance threshold for those analyses.
                 </p>
               </div>
-            </div>
             
             <script>
               document.querySelector("#prstile1").addEventListener("click", function() {

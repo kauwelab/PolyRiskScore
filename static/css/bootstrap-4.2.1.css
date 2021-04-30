@@ -6355,78 +6355,125 @@ dfn:hover::before {top: 20px;}
 }*/
 
 .prstile1 {
-  width: 100%;
-  height: 50px;
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  width: 30.33%;
+  height: 65px;
   transition: height 0.2s ease-in-out;
   -webkit-transition: height 0.2s ease-in-out;
   overflow: hidden;
-  border-radius: 25px;
   cursor: pointer;
   font-size: small;
-  background-color: #5C5C5C;
-  box-shadow: 8px 3px 15px black;
-  color: white;
   padding-top: 10px;
-
-
 }
 
 .prstile2 {
-  width: 100%;
-  height: 60px;
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  width: 30.33%;
+  height: 65px;
   transition: height 0.2s ease-in-out;
   -webkit-transition: height 0.2s ease-in-out;
   overflow: hidden;
-  border-radius: 25px;
   cursor: pointer;
   font-size: small;
-  background-color: #5C5C5C;
-  box-shadow: 8px 3px 15px black;
-  color: white;
   padding-top: 10px;
-
-
 }
 
 .prstile3 {
-  width: 100%;
-  height: 50px;
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  width: 30.33%;
+  height: 65px;
   transition: height 0.2s ease-in-out;
   -webkit-transition: height 0.2s ease-in-out;
   overflow: hidden;
-  border-radius: 25px;
   cursor: pointer;
   font-size: small;
-  background-color: #5C5C5C;
-  box-shadow: 8px 3px 15px black;
-  color: white;
   padding-top: 10px;
   padding-left: 15px;
   padding-right: 15px;
-
-
 }
 
 
 #prstile1.expand {
-  height:550px;
-  cursor: auto;
+  height: 45em;
+  cursor: pointer;
   padding-left: 15px;
   padding-right: 15px;
 }
 
 #prstile2.expand {
-  height:400px;
-  cursor: auto;
+  height: 32em;
+  cursor: pointer;
   padding-left: 15px;
   padding-right: 15px;
 }
 
 #prstile3.expand {
-  height: 220px;
-  cursor: auto;
+  height: 20em;
+  cursor: pointer;
   padding-left: 15px;
   padding-right: 15px;
+}
+
+@media (max-width : 990px ){
+  #prstile1.expand {
+    height: 55em;
+  }
+  
+  #prstile2.expand {
+    height: 45em;
+  }
+  
+  #prstile3.expand {
+    height: 25em;
+  }
+}
+
+@media (max-width : 760px ){
+  .prstile1, .prstile2, .prstile3 {
+    width: 48%;
+  }
+
+  #prstile1.expand {
+    height: 45em;
+  }
+  
+  #prstile2.expand {
+    height: 37em;
+  }
+  
+  #prstile3.expand {
+    height: 22em;
+  }
+}
+
+@media (max-width : 550px ){
+  .prstile1, .prstile2, .prstile3 {
+    width: 100%;
+  }
+
+  #prstile1.expand {
+    height: 35em;
+  }
+  
+  #prstile2.expand {
+    height: 23em;
+  }
+  
+  #prstile3.expand {
+    height: 16em;
+  }
 }
 
 .grow_text {
