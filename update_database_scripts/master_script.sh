@@ -66,7 +66,18 @@ set -e
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
-trap 'echo "\"${last_command}\": exit code $?"' EXIT
+trap 'trapExit $? "${last_command}"' EXIT
+
+trapExit () {
+    if [[ $stashed == "true" ]]; then
+        echo "reaplying and popping last stash"
+        git stash pop
+    fi
+    if [ "$1" != "0" ]; then
+        echo "\"$2\": exit code:$1"
+    fi
+
+}
 
 #===============Python Version======================================================
 # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
@@ -221,6 +232,16 @@ if [ ! -d $sampleVCFFolderPath ]; then
     echo "Sample VCF folder created at" $sampleVCFFolderPath
 fi
 
+# TODO if a stash is saved, make sure that if a crash occurs, the stash is reapplied
+#===============Stash Current Server Changes======================================================
+if [ $github == "true" ]; then
+    # make stash message based on time
+    message=$(printf  $(date '+%H:%M:%S,%m-%d-%Y'))
+    # stash the current changes with the message
+    git stash save $message
+    stashed="true"
+fi
+
 #===============GWAS Database Unpacker======================================================
 # download a portion of the study data from the GWAS catalog and put it into tsv files
 # this makes it so each instance of the "unpackDatabaseCommandLine.R" doesn't need to download its own data
@@ -295,6 +316,9 @@ if [ $github == "true" ]; then
     if [ $operatingSystem == "Linux" ]; then
         # git pull before git pushing
         git pull origin master
+
+        # TODO
+        exit 3
 
         date=$(printf  $(date '+%m-%d-%Y'))
         message="database update: ${date}"
