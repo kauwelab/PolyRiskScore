@@ -11,7 +11,7 @@
 #   8. create example VCF and rsID files,
 #   9. and create association and clumps download files.
 # It usually takes 3-5ish hours to complete on the PRSKB server using 8 downloading nodes. Using the command below, it runs in the background, which means
-# you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the 
+# you can leave the server and it will keep running! To see the output, go to the "output.txt" file specified in the command below as well as the
 # console_files folder for outputs from the data download nodes (see the unpackDatabaseCommandLine.R script).
 #
 # How to run: sudo ./master_script.sh "password" "numNodes" &> output.txt &
@@ -21,10 +21,10 @@
 # See the usage and optUsage functions below for other optional arguments
 
 #===============Usage======================================================
-usage () { 
+usage () {
     echo ""
     echo "----Usage----"
-    echo "master_script.sh" 
+    echo "master_script.sh"
     echo "  [password or path to passwords file]"
     echo "  [optional: number of nodes to download data (default: 1)]"
     echo "  [optional: folder for console output files (default: \"./console_files\")]"
@@ -65,8 +65,22 @@ set -e
 
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
-# echo an error message before exiting
-trap 'echo "\"${last_command}\": exit code $?"' EXIT
+# run a function before exiting that has two parameters: the error code of the last command run, 
+# and the last command run in string form
+trap 'trapExit $? "${last_command}"' EXIT
+
+# the function to be run when the program quits
+trapExit () {
+    # if something was stashed in this run of the program, unstash it
+    if [[ $stashed == "true" ]]; then
+        echo "reaplying and popping last stash"
+        git stash pop
+    fi
+    # if the error code isn't 0, print the command that errored and its error code
+    if [ "$1" != "0" ]; then
+        echo "\"$2\": exit code:$1"
+    fi
+}
 
 #===============Python Version======================================================
 # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
@@ -107,7 +121,7 @@ for arg do
     # if the argument starts with dash, parse it as an option
     if [[ $arg == -* ]]; then
         # option handling
-        case $arg in 
+        case $arg in
             -d) downloadRawData="false"
                 echo "Downloading new raw data disabled";;
             -a) associationsTable="false"
@@ -189,7 +203,7 @@ fi
 
 # if the folder locations aren't populated, set them to default values
 consoleOutputFolder=${consoleOutputFolder:-"./console_files/"}
-associationTableFolderPath=${associationTableFolderPath:-"../tables/"} 
+associationTableFolderPath=${associationTableFolderPath:-"../tables/"}
 studyTableFolderPath=${studyTableFolderPath:-"../tables/"}
 cohortTablesFolderPath=${cohortTablesFolderPath:-"../tables/cohorts/"}
 sampleVCFFolderPath=${sampleVCFFolderPath:-"../static/"}
@@ -219,6 +233,15 @@ fi
 if [ ! -d $sampleVCFFolderPath ]; then
     mkdir $sampleVCFFolderPath
     echo "Sample VCF folder created at" $sampleVCFFolderPath
+fi
+
+#===============Stash Current Server Changes======================================================
+if [ $github == "true" ]; then
+    # make stash message based on time
+    message=$(printf  $(date '+%H:%M:%S,%m-%d-%Y'))
+    # stash the current changes with the message
+    git stash save $message
+    stashed="true"
 fi
 
 #===============GWAS Database Unpacker======================================================
@@ -277,7 +300,7 @@ fi
 if [ $exampleFiles == "true" ]; then
     echo "Creating sample vcf"
     python3 createSampleVCF.py "sample" $sampleVCFFolderPath
-    wait 
+    wait
     python3 create_rsID_file_from_vcf.py "sample" $sampleVCFFolderPath
     wait
 fi
@@ -293,6 +316,9 @@ fi
 if [ $github == "true" ]; then
     operatingSystem=$(printf  $(uname -s))
     if [ $operatingSystem == "Linux" ]; then
+        # git pull before git pushing
+        git pull origin master
+
         date=$(printf  $(date '+%m-%d-%Y'))
         message="database update: ${date}"
         git commit -a -m "$message"
@@ -305,7 +331,7 @@ if [ $github == "true" ]; then
         # TODO find way to git push on Windows
         echo "Skipping GitHub synchronization because not running on Linux"
     fi
-fi 
+fi
 
 end=$(date +%s)
 # gets the difference between start and end seeconds
