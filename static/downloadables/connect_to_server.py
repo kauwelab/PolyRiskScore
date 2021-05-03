@@ -149,8 +149,10 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
                 associationDict[line[si]]["traits"][line[ti]] = {}
             # if studyID not in associationDict[snp]["traits"][trait]
             if line[sii] not in associationDict[line[si]]["traits"][line[ti]]:
+                # perform strand flipping
+                riskAllele = runStrandFlipping(line[si], line[rai])
                 associationDict[line[si]]["traits"][line[ti]][line[sii]] = {
-                    "riskAllele": line[rai],
+                    "riskAllele": riskAllele,
                     "pValue": float(line[pvi]),
                     "oddsRatio": float(line[ori]),
                     "sex": "NA"
@@ -159,8 +161,10 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
                 # if the pvalue for the current association is more significant than the one in the associationsDict for this snp->trait->studyID
                 # replace the association data
                 if float(line[pvi]) < associationDict[line[si]]["traits"][line[ti]][line[sii]]["pValue"]:
+                    # perform strand flipping
+                    riskAllele = runStrandFlipping(line[si], line[rai])
                     associationDict[line[si]]["traits"][line[ti]][line[sii]] = {
-                    "riskAllele": line[rai],
+                    "riskAllele": riskAllele,
                     "pValue": float(line[pvi]),
                     "oddsRatio": float(line[ori]),
                     "sex": "NA"
@@ -389,6 +393,51 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
 
     associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
     return associationsReturnObj, finalStudyList
+
+
+def runStrandFlipping(snp, allele):
+    import myvariant
+    from Bio.Seq import Seq
+
+    mv = myvariant.MyVariantInfo()
+
+    possibleAlleles = getVariantAlleles(snp, mv)
+    riskAllele = Seq(allele)
+    if riskAllele not in possibleAlleles:
+        complement = riskAllele.reverse_complement()
+        if complement in possibleAlleles:
+            print("WE MADE A SWITCH", snp, riskAllele, complement)
+            riskAllele = complement
+    
+    return str(riskAllele)
+
+
+def getVariantAlleles(rsID, mv):
+    import contextlib, io
+
+    f=io.StringIO()
+    with contextlib.redirect_stdout(f):
+        queryResult = mv.query('dbsnp.rsid:{}'.format(rsID), fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref')
+    output = f.getvalue()
+
+    obj = queryResult['hits'][0] if len(queryResult['hits']) > 0 else None
+
+    alleles = set()
+    if obj is not None:
+        if ('alleles' in obj['dbsnp']):
+            for alleleObj in obj['dbsnp']['alleles']:
+                alleles.add(alleleObj['allele'])
+        if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
+            alleles.add(obj['dbsnp']['ref'])
+        if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
+            alleles.add(obj['dbsnp']['alt'])
+        if (len(alleles) == 0):
+            print(obj, "STILL NO ALLELES")
+    else:
+        # TODO maybe: try to find it with a merged snp?
+        pass
+
+    return alleles
 
 
 # for POST urls
