@@ -71,14 +71,19 @@ trap 'trapExit $? "${last_command}"' EXIT
 
 # the function to be run when the program quits
 trapExit () {
-    # if something was stashed in this run of the program, unstash it
-    if [[ $stashed == "true" ]]; then
-        echo "reaplying and popping last stash"
-        git stash pop
-    fi
+    unstash
     # if the error code isn't 0, print the command that errored and its error code
     if [ "$1" != "0" ]; then
         echo "\"$2\": exit code:$1"
+    fi
+}
+
+# if something was stashed in this run of the program, unstash it
+unstash () {
+    if [[ $stashed == "true" ]]; then
+        stashed="false"
+        echo "reaplying and popping last stash"
+        git stash pop
     fi
 }
 
@@ -317,15 +322,18 @@ if [ $github == "true" ]; then
     operatingSystem=$(printf  $(uname -s))
     if [ $operatingSystem == "Linux" ]; then
         # git pull before git pushing
+        echo "starting git pull"
         git pull origin master
+        echo "git pull finished"
 
         date=$(printf  $(date '+%m-%d-%Y'))
         message="database update: ${date}"
-        git commit -a -m "$message"
+        # git commit -a -m "$message"
         # get the GitHub username and password for the project using the passwordGetter.py file
         gitUsername=$($pyVer -c "import passwordGetter as p; username = p.getPassword('$passwordPath', 'getGitUsername'); print(username);")
         gitPassword=$($pyVer -c "import passwordGetter as p; password = p.getPassword('$passwordPath', 'getGitPassword'); print(password);")
-        ./gitPush.sh $gitUsername $gitPassword
+        echo "starting git push"
+        # ./gitPush.sh $gitUsername $gitPassword
         echo "Synchronized with GitHub"
     else
         # TODO find way to git push on Windows
@@ -340,4 +348,5 @@ diff=$(( ($end - $start) / 1 ))
 diffTime=$(printf '%02dh:%dm:%ds\n' $((diff/3600)) $((diff%3600/60)) $((diff%60)))
 echo "Total time taken: $diffTime"
 
+unstash
 read -p "Press [Enter] key to finish..."
