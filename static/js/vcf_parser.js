@@ -1,9 +1,13 @@
 (function (exports) {
 
+    /**
+     * Gets an object representing a VCF, given its file lines
+     * @param {*} fileLines 
+     * @returns vcfObj
+     */
     exports.getVCFObj = function (fileLines) {
         var numSamples = 0;
         var sampleIndex = {}
-        var vcfAttrib = {}
         var vcfObj = new Map();
         fileLines.forEach(function (line) {
             // check if line starts with hash and use them
@@ -12,7 +16,7 @@
                 // set number of samples in vcf file
                 if (line.match(/^#CHROM/)) {
                     //trim off the whitespace on the last sample's name
-                    line = sharedCode.trim(line);
+                    line = trim(line);
                     var sampleinfo = line.split('\t')
                     numSamples = sampleinfo.length - 9
 
@@ -21,9 +25,6 @@
                         //remove white space from sample names
                         vcfObj.set(sampleinfo[9 + i], []);
                     }
-                }
-                else {
-                    vcfAttrib = defineVCFAttributes(vcfAttrib, line); //Test to make sure this works!!
                 }
             } else { // go through remaining lines
                 // split line by tab character
@@ -45,31 +46,69 @@
                 var varInfo = info[7].split(';')
                 // parse the variant information
                 var infoObject = parseVariantData(varInfo, info);
-                //TODO can we remove vcfAttrib here to make this faster?
-                var vcfLine = createVariantData(info, infoObject, sampleObject, vcfAttrib);
-                vcfObj = sharedCode.addLineToVcfObj(vcfObj, vcfLine)
+                var vcfLine = createVariantData(info, infoObject, sampleObject);
+                vcfObj = addLineToVcfObj(vcfObj, vcfLine)
             }
         });
         return vcfObj;
     }
 
-    function defineVCFAttributes(vcfAttrib, line) {
-        // ##fileformat=VCFv4.1
-        if (!vcfAttrib.vcf_v) {
-            vcfAttrib.vcf_v = line.match(/^##fileformat=/) ? line.split('=')[1] : null
+    /**
+     * Adds the contents of vcfLine to vcfObj
+     * @param {*} vcfObj 
+     * @param {*} vcfLine 
+     * @returns vcfObj
+     */
+    var addLineToVcfObj = function (vcfObj, vcfLine) {
+        //gets all possible alleles for the current id
+        var possibleAlleles = [];
+        possibleAlleles.push(vcfLine.ref);
+        var altAlleles = vcfLine.alt.split(/[,]+/);
+        for (var i = 0; i < altAlleles.length; i++) {
+            if (altAlleles[i] == ".") {
+                altAlleles.splice(i, 1);
+                --i;
+            }
+        }
+        if (altAlleles.length > 0) {
+            possibleAlleles = possibleAlleles.concat(altAlleles);
         }
 
-        // ##samtoolsVersion=0.1.19-44428cd
-        if (!vcfAttrib.samtools) {
-            vcfAttrib.samtools = line.match(/^##samtoolsVersion=/) ? line.split('=')[1] : null
-        }
+        vcfLine.sampleinfo.forEach(function (sample) {
+            var vcfSNPObjs = vcfObj.get(sample.NAME);
+            //gets the allele indices
+            var alleles = sample.GT.trim().split(/[|/]+/, 2);
+            //gets the alleles from the allele indices and replaces the indices with the alleles.
+            for (var i = 0; i < alleles.length; i++) {
+                //if the allele is ".", ignore it (consider it as the non risk allele)
+                if (alleles[i] == ".") {
+                    //alleles[i] = possibleAlleles[0];
+                    alleles.splice(i, 1);
+                    --i;
+                }
+                else {
+                    alleles[i] = possibleAlleles[alleles[i]];
+                }
+            }
+            //event when alleles is empty, we still push it so that it can be included in 
+            //the totalVariants number of the output
+            var vcfSNPObj = {
+                pos: vcfLine.chr.concat(":", vcfLine.pos),
+                snp: vcfLine.id,
+                alleleArray: alleles
+            }
+            vcfSNPObjs.push(vcfSNPObj);
+            vcfObj.set(sample.NAME, vcfSNPObjs);
+        });
+        return vcfObj;
+    }
 
-        // ##reference=file://../index/Chalara_fraxinea_TGAC_s1v1_scaffolds.fa
-        if (!vcfAttrib.refseq) {
-            vcfAttrib.refseq = line.match((/^##reference=file:/)) ? line.split('=')[1] : null
-        }
-
-        return vcfAttrib;
+    /**
+     * Trims the whitespace from both the beginning and the end of the string and returns it.
+     * @param {*} str 
+     */
+    var trim = function (str) {
+        return str.replace(/^\s+|\s+$/gm, '');
     }
 
     function parseSampleInfo(numSamples, sampleIndex, info) {
@@ -129,46 +168,7 @@
         return infoObject;
     }
 
-    function parseVariantData(varInfo, info) {
-        //Better to make varInfo again here?? 
-        var infoObject = {}
-
-        // check if the variant is INDEL or SNP
-        // and assign the specific type of variation identified
-        var type
-        var typeInfo
-        if (varInfo[0].match(/^INDEL$/)) {
-            type = 'INDEL'
-            varInfo.shift()
-            if (info[3].length > info[4].length) {
-                typeInfo = 'deletion'
-            } else if (info[3].length < info[4].length) {
-                typeInfo = 'insertion'
-            } else if (info[3].length === info[4].length) {
-                typeInfo = 'substitution - multi'
-            }
-        } else {
-            type = 'SNP'
-            if (info[3].length === 1) {
-                typeInfo = 'substitution'
-            } else if (info[3].length > 1) {
-                typeInfo = 'substitution - multi'
-            }
-        }
-        infoObject['VAR'] = type
-        infoObject['VARINFO'] = typeInfo
-
-        // variant info added to object
-        for (var l = 0; l < varInfo.length; l++) {
-            var pair = varInfo[l].split('=')
-            infoObject[pair[0]] = pair[1]
-        }
-
-        return infoObject;
-    }
-
-    function createVariantData(info, infoObject, sampleObject, vcfAttrib) {
-
+    function createVariantData(info, infoObject, sampleObject) {
         var varData = {
             chr: info[0],
             pos: info[1],
@@ -179,7 +179,6 @@
             filter: info[6],
             varinfo: infoObject,
             sampleinfo: sampleObject,
-            attributes: vcfAttrib
         }
 
         return varData;
