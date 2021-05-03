@@ -65,8 +65,22 @@ set -e
 
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
-# echo an error message before exiting
-trap 'echo "\"${last_command}\": exit code $?"' EXIT
+# run a function before exiting that has two parameters: the error code of the last command run, 
+# and the last command run in string form
+trap 'trapExit $? "${last_command}"' EXIT
+
+# the function to be run when the program quits
+trapExit () {
+    # if something was stashed in this run of the program, unstash it
+    if [[ $stashed == "true" ]]; then
+        echo "reaplying and popping last stash"
+        git stash pop
+    fi
+    # if the error code isn't 0, print the command that errored and its error code
+    if [ "$1" != "0" ]; then
+        echo "\"$2\": exit code:$1"
+    fi
+}
 
 #===============Python Version======================================================
 # finds out which version of python is called using the 'python' command, uses the correct call to use python 3
@@ -219,6 +233,15 @@ fi
 if [ ! -d $sampleVCFFolderPath ]; then
     mkdir $sampleVCFFolderPath
     echo "Sample VCF folder created at" $sampleVCFFolderPath
+fi
+
+#===============Stash Current Server Changes======================================================
+if [ $github == "true" ]; then
+    # make stash message based on time
+    message=$(printf  $(date '+%H:%M:%S,%m-%d-%Y'))
+    # stash the current changes with the message
+    git stash save $message
+    stashed="true"
 fi
 
 #===============GWAS Database Unpacker======================================================
