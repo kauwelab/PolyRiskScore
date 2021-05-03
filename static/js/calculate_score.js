@@ -21,16 +21,6 @@ function updateResultBoxAndStoredValue(str) {
 }
 
 /**
- * Currently unused. Sets the the result box of the Calculate page to str and updates the resultJSON to the new text
- * @param {*} str 
- */
-function addToResultBox(str) {
-    newText = document.getElementById('response').innerHTML.concat('\n', str);
-    $('#response').html(newText);
-    resultJSON = newText
-}
-
-/**
  * Populates the trait drop down with traits from the PRSKB database
  */
 function getTraits() {
@@ -630,7 +620,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
 }
 
 /**
- * Calculates scores from the file input from the user
+ * Calculates score for the file input from the user
  * @param {*} snpsInput- the file or text input by the user (specifiying snps of interest)
  * @param {*} associationData- the associations from get_associations (specifying traits and studies for calculations)
  * @param {*} clumpsData - the clumping data needed to 
@@ -925,7 +915,7 @@ function getErrorMessage(err) { //TODO we are going to want to NOT give this inf
 }
 
 /**
- * Returns a simplified output using the given JSON. The JSOON is truncated and converted to the correct format.
+ * Returns a simplified output using the given JSON. The JSON is truncated and converted to the correct format.
  * Then, if a truncation occured, "Results preview:" is appended to the beginning and "..." is appended to the end.
  * @param {*} resultJsn
  */
