@@ -4,6 +4,7 @@ module.exports = app => {
     const clumps = require("../controllers/clumps.controller");
     const cli = require("../controllers/cli.controller");
     const cohortdata = require("../controllers/cohortdata.controller");
+    const errors = require("../controllers/errors.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -79,6 +80,10 @@ module.exports = app => {
     app.get("/cohort_full_results", cohortdata.getFullResults);
 
     app.get("/cohort_study_snps", cohortdata.getStudySnps);
+
+    app.post("/send_error", errors.sendError);
+
+    app.get("/download_errors", errors.downloadErrors);
 
     app.get("/join_test", associations.joinTest);
 }
