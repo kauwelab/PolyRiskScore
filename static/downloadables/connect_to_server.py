@@ -35,7 +35,8 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     # if the user didn't give anything to filter by, get all the associations
     if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
         # if we need to download a new all associations file, write to file
-        associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
+        associFileName = "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]) if defaultSex[0] != "e" else "allAssociations_{refGen}.txt".format(refGen=refGen)
+        associationsPath = os.path.join(workingFilesPath, associFileName)
         if (checkForAllAssociFile(refGen, defaultSex)):
             associationsReturnObj = getAllAssociations(refGen, defaultSex)
             studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
@@ -109,6 +110,8 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
     rti = -1 # reported trait index
 
     firstLine = True
+    duplicatesSet = set()
+
     for line in GWASfileOpen:
         if firstLine:
             firstLine = False
@@ -158,17 +161,8 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
                     "sex": "NA"
                 }
             else:
-                # if the pvalue for the current association is more significant than the one in the associationsDict for this snp->trait->studyID
-                # replace the association data
-                if float(line[pvi]) < associationDict[line[si]]["traits"][line[ti]][line[sii]]["pValue"]:
-                    # perform strand flipping
-                    riskAllele = runStrandFlipping(line[si], line[rai])
-                    associationDict[line[si]]["traits"][line[ti]][line[sii]] = {
-                    "riskAllele": riskAllele,
-                    "pValue": float(line[pvi]),
-                    "oddsRatio": float(line[ori]),
-                    "sex": "NA"
-                }
+                # if the snp is duplicated, add it to duplicated snps
+                duplicatesSet.add((line[si], line[ti], line[sii]))
 
             # create the metadata info dict
             # if the studyID is not in the studyIDsToMetaData
@@ -194,6 +188,14 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
             studySnpsData[traitStudyID].append(line[si])
 
     GWASfileOpen.close()
+
+    # remove duplicated associations
+    for (snp, trait, studyID) in duplicatesSet:
+        del associationDict[snp]["traits"][trait][studyID]
+        if associationDict[snp]["traits"][trait] == {}:
+            del associationDict[snp]["traits"][trait]
+            if associationDict[snp]["traits"] == {}:
+                del associationDict[snp]
 
     if GWASrefGen != refGen:
         snps = list(associationDict.keys())
@@ -255,7 +257,8 @@ def checkForAllAssociFile(refGen, defaultSex):
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
     # path to a file containing all the associations from the database
-    allAssociationsFile = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
+    associFileName = "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]) if defaultSex[0] != "e" else "allAssociations_{refGen}.txt".format(refGen=refGen)
+    allAssociationsFile = os.path.join(workingFilesPath, associFileName)
 
     # if the path exists, check if we don't need to download a new one
     if os.path.exists(allAssociationsFile):
