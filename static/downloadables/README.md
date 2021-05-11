@@ -4,12 +4,15 @@ The PRSKB CLI calculator is a conglomeration of python scripts directed by a bas
 
 ## Requirements
 
-In order to run the PRSKB CLI calculator, you must have ***python3*** and ***bash*** installed in the environment you will be running the tool in. Additionally, the Python modules ***PyVCF***, ***filelock***, and ***requests*** are required. The Python modules can be installed using pip:
+In order to run the PRSKB CLI calculator, you must have ***python3*** and ***bash*** installed in the environment you will be running the tool in. Additionally, the Python modules ***PyVCF***, ***filelock***, and ***requests*** are required. If uploading GWAS data, the Python modules **myvariant**, **biopython**, and **biothings_client** are required. The Python modules can be installed using pip:
 
 ```bash
 pip install PyVCF
 pip install filelock
 pip install requests
+pip install myvariant
+pip install biopython
+pip install biothings_client
 ```
 
 For certain tool functions accessed through the tool's menu, bash ***jq*** is required. To download on Ubuntu or Debian run:
@@ -97,7 +100,7 @@ In addition to calculating polygenic risk scores using GWA studies from the GWAS
 
 The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
 
-If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your data is presented on the correct strand.
+If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used.
 
 *NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.*
 

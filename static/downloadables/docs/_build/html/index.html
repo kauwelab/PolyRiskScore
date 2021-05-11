@@ -45,7 +45,7 @@
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
 <p>To download the PRSKB CLI tool, head over to the <a class="reference external" href="https://prs.byu.edu/cli_download.html">PRSKB website download page</a> or download the whole repository directly from <a class="reference external" href="https://github.com/kauwelab/PolyRiskScore">GitHub</a>.</p>
 <p>Given the required parameters, the tool will calculate risk scores for each individual sample for each study and trait combination in the database.</p>
-<p><em>NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF, filelock, and requests Python modules installed.</em></p>
+<p><em>NOTE: You MUST have bash and jq for bash, and python3 and the PyVCF, filelock, and requests Python modules installed. For GWAS uploading, you must also have the myvariant, biopython, and biothings_client Python modules installed.</em></p>
 <div class="section" id="required-parameters-example">
 <h3>Required Parameters Example<a class="headerlink" href="#required-parameters-example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.05 -r hg19 -p EUR
@@ -241,7 +241,7 @@ to select when both options (M/F) are present. The system default is Female.</p>
 <div class="section" id="format">
 <h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
 <p>The GWAS summary statistics file to be uploaded <strong>must</strong> be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file’s header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact.</p>
-<p>If more than one odds ratio exists for an rsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your data is presented on the correct strand.</p>
+<p>If more than one odds ratio exists for an rsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used.</p>
 <p><em>NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.</em></p>
 </div>
 <div class="section" id="columns">

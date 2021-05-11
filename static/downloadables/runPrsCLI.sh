@@ -380,9 +380,7 @@ ${MYSTERYCOLOR}Reported Trait${NC}. Column order does not matter and there may b
 present in the file. Required and optional header names must be exact."
     echo ""
     echo "If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele \
-with the most significant p-value will be used. Additonally, though we perform strand flipping on GWAS summary statistics \
-data we use from the GWAS Catalog, we do not perform strand flipping on uploaded data. Please ensure that your \
-data is presented on the correct strand."
+with the most significant p-value will be used."
     echo ""
     echo -e "${LIGHTRED}NOTE: If a GWAS data file is specified, risk scores will only be calculated on \
 that data. No association data from the PRSKB will be used. Additionally, the optional params \
@@ -843,6 +841,76 @@ calculatePRS () {
                     exit 1
                 }
             }
+            if ! [ -z ${GWASfilename} ]; then
+                echo -e "${LIGHTBLUE}Checking for required packages used for GWAS upload data strand flipping${NC}"
+                echo "Checking for myvariant package requirement"
+                {
+                    $pyVer -c "import myvariant" >/dev/null 2>&1
+                } && {
+                    echo -e "myvariant package requirement met\n"
+                } || {
+                    {
+                        echo "Missing package requirement: myvariant"
+                        echo "Attempting download"
+                    } && {
+                        $pyVer -m pip install myvariant
+                    } && {
+                        echo -e "Download successful, Package requirement met\n"
+                    } || {
+                        echo "Failed to download the required package."
+                        echo "Please manually download this package (myvariant) and try running the tool again."
+                        exit 1
+                    }
+                }
+
+                echo "Checking for biopython package requirement"
+                {
+                    $pyVer -c "import Bio" >/dev/null 2>&1
+                } && {
+                    echo -e "biopython package requirement met\n"
+                } || {
+                    {
+                        echo "Missing package requirement: biopython"
+                        echo "Attempting download"
+                    } && {
+                        $pyVer -m pip install biopython
+                    } && {
+                        echo -e "Download successful, Package requirement met\n"
+                    } || {
+                        echo "Failed to download the required package."
+                        echo "Please manually download this package (biopython) and try running the tool again."
+                        exit 1
+                    }
+                }
+
+                echo "Checking for biothings_client package requirement"
+                {
+                    $pyVer -c "import biothings_client" >/dev/null 2>&1
+                } && {
+                    {
+                        echo -e "updating biothings_client to the latest version\n"
+                        $pyVer -m pip install biothings_client -U
+                    } && {
+                        echo -e "biothings_client package requirement met\n"
+                    } || {
+                        echo "Failed to update the required package."
+                        echo "If this causes the tool to fail, please update the biothings_client package manually and try running the tool again"
+                    }
+                } || {
+                    {
+                        echo "Missing package requirement: biothings_client"
+                        echo "Attempting download"
+                    } && {
+                        $pyVer -m pip install biothings_client -U
+                    } && {
+                        echo -e "Download successful, Package requirement met\n"
+                    } || {
+                        echo "Failed to download the required package."
+                        echo "Please manually download this package (biothings_client) and try running the tool again."
+                        exit 1
+                    }
+                }
+            fi
             echo "All package requirements met"
         fi
 
