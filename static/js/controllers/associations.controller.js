@@ -8,9 +8,9 @@ exports.getFromTables = (req, res) => {
     var refGen = req.body.refGen;
     var defaultSex = req.body.sex;
 
-    // if not given a defaultSex, default to female
+    // if not given a defaultSex, default to exclude
     if (defaultSex == undefined){
-        defaultSex = "f"
+        defaultSex = "e"
     }
 
     Association.getFromTables(studyIDObjs, refGen, async (err, data) => {
@@ -34,9 +34,9 @@ exports.getAll = (req, res) => {
     var refGen = req.query.refGen;
     var defaultSex = req.query.sex;
 
-    // if not given a defaultSex, default to female
+    // if not given a defaultSex, default to exclude
     if (defaultSex == undefined){
-        defaultSex = "f"
+        defaultSex = "e"
     }
 
     Association.getAll(refGen, async (err, data) => {
@@ -245,7 +245,7 @@ exports.getAssociationsDownloadFile = (req, res) => {
     var options = { 
         root: downloadPath
     };
-    var fileName = `allAssociations_${refGen}_${sex}.txt`; 
+    var fileName = (sex[0].toLowerCase() == "e" ? `allAssociations_${refGen}.txt` : `allAssociations_${refGen}_${sex}.txt`); 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
             console.log(err); 
@@ -320,6 +320,11 @@ async function separateStudies(associations, traitData, refGen, sex) {
         var associations = [].concat.apply([], associations);
     }
 
+    // array of info for the snps that are duplicated
+    arrayOfDupliSnpsInfo = []
+    // array of info for snps that might be duplicated, but we don't know for certain at the time
+    potentialDupliSnpsInfo = []
+
     // format the associations with rsIDs (and positions) as keys
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
@@ -327,42 +332,86 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (association.snp in AssociationsBySnp){
             // if the trait already exists for the pos/snp
             if (association.trait in AssociationsBySnp[association.snp]['traits']){
-                // if the studyID already exists for the pos/snp - trait, check if we should replace the current allele/oddsRatio/pValue
+                // if the studyID already exists for the pos/snp - trait, check if we should replace the current allele/oddsRatio/pValue or if we should remove it
                 if (association.studyID in AssociationsBySnp[association.snp]['traits'][association.trait]){
-                    var replace = compareDuplicateAssociations(AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID], association, sex)
-                    if (replace) {
+                    // if not already included in the arrayOfDupliSnpsInfo, add it
+                    if (!arrayOfDupliSnpsInfo.includes([association.snp, association.trait, association.studyID].toString())) {
+                        arrayOfDupliSnpsInfo.push([association.snp, association.trait, association.studyID].toString())
+                    }
+
+                    // if association.sex and defaultSex match, replace the association
+                    if (association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
                         AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
                     }
-                    //Add an indication of which traits/studies have duplicated snps
-                    if (!('traitsWithDuplicateSnps' in studyIDsToMetaData[association.studyID])) {
-                        studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'] = [association.trait]
+                    // otherwise, delete the association entirely
+                    else {
+                        delete AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID]
                     }
-                    else if (!(studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].includes(association.trait))) {
-                        studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].push(association.trait)
+
+                    //Add an indication of which traits/studies have duplicated snps
+                    if (!('traitsWithExcludedSnps' in studyIDsToMetaData[association.studyID])) {
+                        studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'] = [association.trait]
+                    }
+                    else if (!(studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'].includes(association.trait))) {
+                        studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'].push(association.trait)
+                        // TODO we will need to put in the documentation that the symbol we use for duplicated snps should indicate that we have excluded those duplicated snps
+                        // and also point out if they chose M/F, then some of the duplicated snps were included
                     }
                 }
                 else {
-                    // add the studyID and data
-                    AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+                    // if the current allele/oddsRatio/pValue is not in the array of duplicate snps
+                    if (!arrayOfDupliSnpsInfo.includes([association.snp, association.trait, association.studyID].toString())) {
+                        // if the sex is nothing or it matches the asked for sex
+                        if (association.sex == "" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
+                            // if the current allele/oddsRatio/pValue is in the potentialDupliSnpsInfo, add it to the arrayOfDupliSnpsInfo
+                            if (potentialDupliSnpsInfo.includes([association.snp, association.trait, association.studyID].toString())) {
+                                arrayOfDupliSnpsInfo.push([association.snp, association.trait, association.studyID].toString())
+                            }
+                            // add the studyID and data
+                            AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+                        }
+                        // if the association is the wrong sex (or we are excluding all sex based associations)
+                        else {
+                            // add the current allele/oddsRatio/pValue to potentialDupliSnpsInfo
+                            potentialDupliSnpsInfo.push([association.snp, association.trait, association.studyID].toString())
+                            //Add an indication of which traits/studies have duplicated snps
+                            if (!('traitsWithExcludedSnps' in studyIDsToMetaData[association.studyID])) {
+                                studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'] = [association.trait]
+                            }
+                        }
+                    }
                 }
             }
             else {
                 // add the trait and studyID data
-                AssociationsBySnp[association.snp]['traits'][association.trait] = {}
-                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+                if (association.sex == "" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
+                    AssociationsBySnp[association.snp]['traits'][association.trait] = {}
+                    AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+                }
+                else {
+                    potentialDupliSnpsInfo.push([association.snp, association.trait, association.studyID])
+                }
             }
         }
         // else add the pos->trait->studyID 
         else if (association.studyID in studyIDsToMetaData){
-            AssociationsBySnp[association.snp] = {
-                pos: association[refGen],
-                traits: {}
+            //todo check if this is the right logic
+            // if there is no sex associated with the odds ratio or if the sex is the same as the requested sex (defaultSex)
+            if (association.sex == "" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
+                AssociationsBySnp[association.snp] = {
+                    pos: association[refGen],
+                    traits: {}
+                }
+                AssociationsBySnp[association.snp]['traits'][association.trait] = {}
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
+                //adds the position as a key to an rsID, if needed
+                if (association[refGen] != ""){
+                    AssociationsBySnp[association[refGen]] = association.snp
+                }
             }
-            AssociationsBySnp[association.snp]['traits'][association.trait] = {}
-            AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
-            //adds the position as a key to an rsID, if needed
-            if (association[refGen] != ""){
-                AssociationsBySnp[association[refGen]] = association.snp
+            // if it did not pass the sex comparison, then it might be a potentially duplicated snp
+            else {
+                potentialDupliSnpsInfo.push([association.snp, association.trait, association.studyID])
             }
         }
         else {
@@ -384,46 +433,5 @@ function createStudyIDObj(association){
         pValue: association.pValue,
         oddsRatio: association.oddsRatio,
         sex: association.sex,
-    }
-}
-
-// if returns true: replace oldAssoci with newAssoci, if returns false: keep the oldAssoci
-function compareDuplicateAssociations(oldAssoci, newAssoci, defaultSex) {
-    oldAssociScore = getSexScore(oldAssoci.sex, defaultSex)
-    newAssociScore = getSexScore(newAssoci.sex, defaultSex)
-
-    // if associ2 has a better score, replace associ1
-    if (oldAssociScore < newAssociScore){
-        return true
-    }
-    // if associ1 has a better score, keep associ1
-    else if (oldAssociScore > newAssociScore){
-        return false
-    }
-    // if the two have equal scores
-    else {
-        // compare their pValues. keep the one with the most significant (lowest) pValue
-        switch(oldAssoci.pValue <= newAssoci.pvalue){
-            // keep associ1
-            case true:
-                return false;
-            // replace associ1 with associ2
-            default:
-                return true;
-        }
-    }
-}
-
-// creates a way to compare associations by sex
-// if the association doesn't have anything in the sex column, we want to prefer that association so we give it a higher score
-// if the association sex matches the defaultSex, we prefer that over not matching but we prefer that less than the association being 'sex free'
-function getSexScore(sex, defaultSex) {
-    switch(sex[0]){
-        case "": 
-            return 3;
-        case defaultSex[0]:
-            return 2;
-        default:
-            return 1;
     }
 }
