@@ -884,7 +884,9 @@ function calculateCombinedORandFormatSnps(sampleObj, trait, studyID, association
         combinedOR = "NF"
     }
     else {
-        combinedOR = Math.exp(combinedOR);
+        combinedOR = Math.exp(combinedOR)
+        // round the answer to 3 decimal places
+        combinedOR = combinedOR.toFixed(3)
     }
 
     return [combinedOR, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
