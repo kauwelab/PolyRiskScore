@@ -127,9 +127,9 @@ def createServerDownloadFiles(params):
     rsIDKeys = set()
 
     # creating an AllAssociations file for both sexes for the refGen
-    for sex in ['male', 'female']:
+    for sex in ['male', 'female', 'exclude']:
         associationsObj = callAllAssociationsEndpoint(refGen, sex)
-        associationsFilePath = os.path.join(generalFilePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0]))
+        associationsFilePath = os.path.join(generalFilePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0])) if sex != 'exclude' else os.path.join(generalFilePath, "allAssociations_{refGen}.txt".format(refGen=refGen))
         print("Writing Association File:", (refGen, sex))
         rsIDKeys.update(associationsObj['associations'].keys())
         f = open(associationsFilePath, 'w')
