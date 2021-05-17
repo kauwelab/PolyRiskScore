@@ -276,7 +276,7 @@ exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
     });
 }
 
-async function separateStudies(associations, traitData, refGen, sex) {
+async function separateStudies(associations, traitData, refGen, defaultSex) {
 
     // store the citation and reported trait for each study
     var studyIDsToMetaData = {}
@@ -362,7 +362,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
                     // if the current allele/oddsRatio/pValue is not in the array of duplicate snps
                     if (!arrayOfDupliSnpsInfo.includes([association.snp, association.trait, association.studyID].toString())) {
                         // if the sex is nothing or it matches the asked for sex
-                        if (association.sex == "" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
+                        if (association.sex == "NA" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
                             // if the current allele/oddsRatio/pValue is in the potentialDupliSnpsInfo, add it to the arrayOfDupliSnpsInfo
                             if (potentialDupliSnpsInfo.includes([association.snp, association.trait, association.studyID].toString())) {
                                 arrayOfDupliSnpsInfo.push([association.snp, association.trait, association.studyID].toString())
@@ -384,7 +384,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
             }
             else {
                 // add the trait and studyID data
-                if (association.sex == "" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
+                if (association.sex == "NA" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
                     AssociationsBySnp[association.snp]['traits'][association.trait] = {}
                     AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
                 }
@@ -397,7 +397,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         else if (association.studyID in studyIDsToMetaData){
             //todo check if this is the right logic
             // if there is no sex associated with the odds ratio or if the sex is the same as the requested sex (defaultSex)
-            if (association.sex == "" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
+            if (association.sex == "NA" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
                 AssociationsBySnp[association.snp] = {
                     pos: association[refGen],
                     traits: {}
