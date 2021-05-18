@@ -130,10 +130,19 @@ Cohortdata.getCohorts = (studyID, trait, result) => {
     })
 }
 
-Cohortdata.getSummaryResults = (studyID, trait, cohort, result) => {
+Cohortdata.getSummaryResults = (studyID, trait, cohorts, result) => {
+    sqlStatement = ""
+    queryParams = []
+    if (!Array.isArray(cohorts)) {
+        cohorts = [cohorts]
+    }
 
-    sqlStatement = `SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM cohort_summary_data WHERE studyID = ? and trait = ? and cohort = ?`
-    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
+    cohorts.forEach(cohort => {
+        sqlStatement = sqlStatement.concat(`SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM cohort_summary_data WHERE studyID = ? and trait = ? and cohort = ? ; `)
+        queryParams.concat([studyID, trait, cohort])
+    });
+
+    sql.query(sqlStatement, queryParams, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -144,28 +153,53 @@ Cohortdata.getSummaryResults = (studyID, trait, cohort, result) => {
     })
 }
 
-Cohortdata.getFullResults = (studyID, trait, cohort, result) => {
+Cohortdata.getFullResults = (studyID, trait, cohorts, result) => {
+    sqlStatement = ""
+    snpsSqlStatement = ""
+    queryParams = []
+    snpsQueryParams = []
+    if (!Array.isArray(cohorts)) {
+        cohorts = [cohorts]
+    }
 
-    sqlStatement = `SELECT * FROM cohort_summary_data JOIN cohort_percentiles ON ( cohort_summary_data.studyID = cohort_percentiles.studyID AND cohort_summary_data.trait = cohort_percentiles.trait and cohort_summary_data.cohort = cohort_percentiles.cohort ) WHERE cohort_summary_data.studyID = ? and cohort_summary_data.trait = ? and cohort_summary_data.cohort = ?`
-    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
+    cohorts.forEach(cohort => {
+        sqlStatement = sqlStatement.concat(`SELECT * FROM cohort_summary_data JOIN cohort_percentiles ON ( cohort_summary_data.studyID = cohort_percentiles.studyID AND cohort_summary_data.trait = cohort_percentiles.trait and cohort_summary_data.cohort = cohort_percentiles.cohort ) WHERE cohort_summary_data.studyID = ? and cohort_summary_data.trait = ? and cohort_summary_data.cohort = ? ; `)
+        queryParams = queryParams.concat([studyID, trait, cohort])
+
+        snpsSqlStatement = snpsSqlStatement.concat("SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?; ")
+        snpsQueryParams.push(studyID)
+        snpsQueryParams.push(trait)
+        // the snps we have for ADNI cover MCI, AD, and controls
+        if (cohort.includes("adni")) {
+            snpsQueryParams.push("adni")
+        }
+        else {
+            snpsQueryParams.push(cohort)
+        }
+    });
+
+    sql.query(sqlStatement, queryParams, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-        // the snps we have for ADNI cover MCI, AD, and controls
-        if (cohort.includes("adni")) {
-            cohort = "adni"
-        }
 
-        sqlGetSnps = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?"
-        sql.query(sqlGetSnps, [studyID, trait, cohort], (err, res2) => {
+        sql.query(snpsSqlStatement, snpsQueryParams, (err, res2) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
                 return;
             }
-            res[0]["snps"] = res2[0]["snps"].split("|")
+
+            if (!Array.isArray(res[0])) {
+                res[0]["snps"] = res2[0]["snps"].split("|")
+            } else {
+                for (i = 0; i < res.length; i++) {
+                    res[i][0]["snps"] = res2[i][0]["snps"].split("|")
+                }
+            }
+            console.log(res)
             result(null, res);
         })
     })

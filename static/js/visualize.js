@@ -86,7 +86,22 @@ function getCohorts() {
     cohortSelector.disabled = false;
     cohortSelectorList = cohortSelector.options
 
-    // enable children that have the correct cohorts
+    cohortValueToText = {
+        ukbb: "UK Biobank",
+        afr: "1000 Genomes - AFR population",
+        amr: "1000 Genomes - AMR population",
+        eas: "1000 Genomes - EAS population",
+        eur: "1000 Genomes - EUR population",
+        sas: "1000 Genomes - SAS population",
+        adni_ad: "ADNI - Alzheimer's Disease",
+        adni_mci: "ADNI - Mild Cognitive Impairment",
+        adni_controls: "ADNI - Cognitively Normal"
+    }
+
+    //make sure the select is reset/empty so that the multiselect command will function properly
+    $('#cohort-Selector').replaceWith("<select id='cohort-Selector' name='cohortSelector' style='margin-top: 2em; margin-bottom: 2em;' multiple></select>")
+    var cohortSelector = document.getElementById("cohort-Selector");
+
     $.ajax({
         type: "GET",
         url: "cohort_get_cohorts",
@@ -94,16 +109,18 @@ function getCohorts() {
         success: async function (data) {
             cohortList = data;
             // ensure the correct cohort options are available
-            for (i = 0; i < cohortSelectorList.length; i++) {
-                if (cohortSelectorList[i].value != "default") {
-                    if (cohortList.includes(cohortSelectorList[i].value)) {
-                        cohortSelectorList[i].disabled = false
-                    }
-                    else {
-                        cohortSelectorList[i].disabled = true
-                    }
-                }
+            for (i = 0; i < cohortList.length; i++) {
+                var opt = document.createElement('option')
+                var displayString = cohortValueToText[cohortList[i]];
+                opt.appendChild(document.createTextNode(displayString));
+                opt.value = cohortList[i];
+                cohortSelector.appendChild(opt);
             }
+            // order the studies (trait -> citation -> studyID)
+            $("#cohort-Selector").html($("#cohort-Selector option").sort(function (a, b) {
+                return a.text == b.text ? 0 : a.text < b.text ? -1 : 1
+            }))
+            document.multiselect('#cohort-Selector');
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
@@ -120,7 +137,6 @@ function resetFilters() {
     studySelector.disabled = true;
 
     var cohortSelector = document.getElementById("cohort-Selector");
-    cohortSelector.value = 'default';
     cohortSelector.disabled = true;
 }
 
@@ -130,13 +146,13 @@ function displayGraphs() {
     studyID = studySelector.value;
     trait = selectedStudy.getAttribute("data-trait")
 
-    var cohortSelector = document.getElementById("cohort-Selector");
-    cohort = cohortSelector.value;
+    var cohortNodes = document.querySelectorAll('#cohort-Selector :checked');
+    var cohorts = [...cohortNodes].map(option => option.value)
 
     $.ajax({
         type: "GET",
         url: "/cohort_full_results",
-        data: { trait: trait, studyID: studyID, cohort: cohort },
+        data: { trait: trait, studyID: studyID, cohort: cohorts },
         success: async function (data) {
 
             if (data.length == 0) {
@@ -147,19 +163,30 @@ function displayGraphs() {
                 var studyName = document.getElementById("studyName")
                 studyName.innerText = selectedStudy.getAttribute("data-citation");
                 studyName.hidden = false;
-                displayDataObj = data[0]
+                displayDataObj = []
 
-                const keys = Object.keys(displayDataObj);
-                arrayOfValues = []
-
-                // iterate over keys and create datapoints
-                keys.forEach((key, index) => {
-                    if (/^p[0-9]{1,3}$/.test(key)) {
-                        arrayOfValues.push(data[0][key])
+                if (!Array.isArray(data[0])) {
+                    displayDataObj.push(data[0])
+                }
+                else {
+                    for (i=0; i<data.length; i++) {
+                        displayDataObj.push(data[i][0])
                     }
-                });
+                }
 
-                displayDataObj["arrayOfValues"] = arrayOfValues
+                for (i=0; i<displayDataObj.length; i++) {
+                    const keys = Object.keys(displayDataObj[i]);
+                    arrayOfValues = []
+
+                    // iterate over keys and create datapoints
+                    keys.forEach((key, index) => {
+                        if (/^p[0-9]{1,3}$/.test(key)) {
+                            arrayOfValues.push(displayDataObj[i][key])
+                        }
+                    });
+
+                    displayDataObj[i]["arrayOfValues"] = arrayOfValues
+                }
 
                 changePlot()
                 displayTable()
@@ -186,13 +213,19 @@ function displayTable() {
 
     var values = [
         ['Min', 'Max', 'Median', 'Range', 'Mean', 'Geometric Mean', 'Harmonic Mean', "Standard Deviation", "Geometric Standard Deviation"],
-        [displayDataObj["min"], displayDataObj["max"], displayDataObj["median"], displayDataObj["rng"], displayDataObj["mean"], displayDataObj["geomMean"], displayDataObj["harmMean"], displayDataObj["stdev"], displayDataObj["geomStdev"]]
     ]
+
+    var headers = [["<b>Summary Values</b>"]]
+
+    for (i=0; i<displayDataObj.length; i++) {
+        values.push([displayDataObj[i]["min"], displayDataObj[i]["max"], displayDataObj[i]["median"], displayDataObj[i]["rng"], displayDataObj[i]["mean"], displayDataObj[i]["geomMean"], displayDataObj[i]["harmMean"], displayDataObj[i]["stdev"], displayDataObj[i]["geomStdev"]])
+        headers.push(["<b>" + displayDataObj[i]["cohort"].toUpperCase() + "</b>"])
+    }
 
     var tableData = [{
         type: 'table',
         header: {
-            values: [["<b>Summary Values</b>"], ["<b>" + displayDataObj["studyID"] + "</b>"]],
+            values: headers,
             align: "center",
             line: {width: 1, color: 'black'},
             fill: {color: "grey"},
@@ -212,30 +245,31 @@ function displayTable() {
 function displayViolinPlot() {
     var violinPlot = document.getElementById("plotSpace");
 
-    var violinData = [{
-        type: 'violin',
-        y: displayDataObj["arrayOfValues"],
-        box: {
-            visible: true
-        },
-        boxpoints: false,
-        opacity: 0.6,
-        line: {
-            color: 'black'
-        },
-        fillcolor: 'rgba(141, 211, 199, 1)',
-        meanline: {
-            visible: true
-        },
-        x0: displayDataObj['studyID']
-    }]
+    var violinData = []
+    
+    for (i=0; i<displayDataObj.length; i++) {
+        violinData.push({
+            type: 'violin',
+            y: displayDataObj[i]["arrayOfValues"],
+            box: {
+                visible: true
+            },
+            boxpoints: false,
+            opacity: 0.6,
+            meanline: {
+                visible: true
+            },
+            x0: displayDataObj[i]['cohort'].toUpperCase()
+        })
+    }
 
     var violinLayout= {
-        title: "",
+        title: displayDataObj[0]['studyID'],
         yaxis: {
             zeroline: false,
             title: "Polygenic Risk Score"
-        }
+        },
+        showlegend: false
     }
 
     Plotly.newPlot(violinPlot, violinData, violinLayout)
@@ -244,26 +278,25 @@ function displayViolinPlot() {
 function displayBoxPlot() {
     var boxPlot = document.getElementById("plotSpace");
 
-    var data = [
-        {
-            y: displayDataObj["arrayOfValues"],
+    var data = []
+    
+    for (i=0; i<displayDataObj.length; i++) {
+        data.push({
+            y: displayDataObj[i]["arrayOfValues"],
             boxpoints: false,
             type: 'box',
-            name: displayDataObj['studyID'],
+            name: displayDataObj[i]['cohort'].toUpperCase(),
             opacity: 0.6,
-            line: {
-                color: 'black'
-            },
-            fillcolor: 'rgba(141, 211, 199, 1)'
-        }
-    ];
+        })
+    }
 
     var layout= {
-        title: "",
+        title: displayDataObj[0]["studyID"],
         yaxis: {
             zeroline: false,
             title: "Polygenic Risk Score"
-        }
+        },
+        showlegend: false
     }
 
     Plotly.newPlot(boxPlot, data, layout)
@@ -273,22 +306,20 @@ function displayLinePlot() {
     var linePlot = document.getElementById("plotSpace");
     ranks = [...Array(101).keys()]
 
-    var data = [{
-        x: ranks,
-        y: displayDataObj["arrayOfValues"],
-        mode: 'lines+markers',
-        line: {
-            color: 'rgba(141, 211, 199, 0.6)'
-        },
-        marker: {
-            color: 'rgba(141, 211, 199, 1)',
-            size: 3
-        },
-        name: displayDataObj['studyID']
-    }]
+    var data = []
+
+    for (i=0; i<displayDataObj.length; i++) {
+        data.push({
+            x: ranks,
+            y: displayDataObj[i]["arrayOfValues"],
+            mode: 'lines+markers',
+            opacity: 0.6,
+            name: displayDataObj[i]['cohort'].toUpperCase()
+        })
+    }
 
     var layout= {
-        title: displayDataObj['studyID'],
+        title: displayDataObj[0]['studyID'],
         xaxis: {
             title: "Percentile"
         },
