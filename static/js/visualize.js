@@ -174,6 +174,8 @@ function displayGraphs() {
                     }
                 }
 
+                snpsString = ""
+
                 for (i=0; i<displayDataObj.length; i++) {
                     const keys = Object.keys(displayDataObj[i]);
                     arrayOfValues = []
@@ -186,6 +188,7 @@ function displayGraphs() {
                     });
 
                     displayDataObj[i]["arrayOfValues"] = arrayOfValues
+                    snpsString = snpsString.concat(`<p><b>${displayDataObj[i]["cohort"].toUpperCase()} SNPs Used:</b> ${displayDataObj[i]["snps"].join(", ")}</p>`)
                 }
 
                 changePlot()
@@ -197,8 +200,8 @@ function displayGraphs() {
                 <p><b>Disease/Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p>
                 <p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p>
                 <p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p>
-                <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>
-                <p><b>Cohort SNPs Used:</b> ${displayDataObj["snps"].join(", ")}<br>`
+                <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>`
+                metadatastring = metadatastring.concat(snpsString)
                 studyMetadata.innerHTML = metadatastring
             }
         },
@@ -269,6 +272,9 @@ function displayViolinPlot() {
             zeroline: false,
             title: "Polygenic Risk Score"
         },
+        xaxis: {
+            title: "Cohort"
+        },
         showlegend: false
     }
 
@@ -295,6 +301,9 @@ function displayBoxPlot() {
         yaxis: {
             zeroline: false,
             title: "Polygenic Risk Score"
+        },
+        xaxis: {
+            title: "Cohort"
         },
         showlegend: false
     }
