@@ -89,109 +89,186 @@
       </div>
     </div>
 
-    <div class="jumbotron" style="background-color: whitesmoke;">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2 style="color: #416d9d;">Using a Polygenic Risk Score</h2><br>
-            <script src="js/displayPanel.js"></script>
-            <p class="text-center">
-            <ul class="prsList" style="text-align: left">
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')">
-                <i id="diseasePredictionPanel_sign" class="fa fa-angle-down" aria-hidden="true"
-                  style="margin-right:5px;"></i>
-                <a>Disease Prediction</a>
-              </li>
-              <div class="" id="diseasePredictionPanel"
-                style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
-                <p>Polygenic risk scores can be used to assess the risk of expressing a trait. An individual with a risk
-                  score that is higher than the population average is more likely to express that trait. Predicting late
-                  onset diseases with this method is particularly useful because preventative treatment can be applied
-                  sooner.
+  <div class="jumbotron" style="background-color: whitesmoke;">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mb-4 mt-2 text-center">
+          <h2 style="color: #416d9d;">Best Practices</h2><br>
+          <p class="text-center">
+            Although polygenic risk scores have become increasingly prevalent in genetic research, historically, only
+            minimal guidelines have existed for performing polygenic risk score analyses. In our efforts to overcome 
+            the variability in current polygenic risk score research, we adhere to the following standard protocols set
+            forth by <a href="https://www.nature.com/articles/s41596-020-0353-1">Choi, et al. (2020)</a>:
+          </p><br>
+          <div class="row" style="display: inline-flex; gap:1em;">
+              <div id="prstile1" class="prstile1" onmouseover="" style="text-align: left;">
+                <h4 style="text-align: center;">Quality Control</h4>
+                <p style="text-align: left; padding-left: 60px; padding-right: 30px; padding-bottom:10px; padding-top:10px;">
+                  <h6>Quality Control Performed by the PRSKB</h6>
+                  <p>  
+                    <ul>
+                      <li>Any allele that has been reported on the reverse strand is automatically detected and flipped to the forward strand.</li>
+                      <li>We ensure that summary data and query data are from the same reference genome.</li>
+                    </ul>
+                  </p>
+                  <h6>Quality Control Recommendations for the User</h6>
+                  <p>  
+                    <ul>
+                      <li>Ensure that GWA summary data and query samples are from the same population.</li>
+                      <li>Avoid overlap or highly related samples between summary data and query samples.</li>
+                      <li>Aim for a target query sample size of at least 100.</li>
+                      <li>Seek to use GWA study data with a SNP heritability > 0.05.</li>
+                    </ul>
+                  </p>
                 </p>
               </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')">
-                <i id="screeningPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
-                <a>Clinical Trial Screening</a>
-              </li>
-              <div id="screeningPanel"
-                style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
-                <p>Clinical trials, such as drug testing, rely on removing confounding factors. Selecting individuals
-                  with similar risk scores for many traits eliminates potential confounding factors between these
-                  traits.<br>
+              <div id="prstile2" class="prstile2" onmouseover="">
+                <div>
+                  <h5 style="text-align: center;">Linkage Disequilibrium Adjustment</h5>
+                  <p style="text-align: left;">
+                    <br>
+                    Linkage disequilibrium (LD) clumping reduces the inflation of polygenic risk scores by ensuring that no more 
+                    than one genetic variant from each LD region is included in the risk score calculations. We calculated LD clumps 
+                    for each population in the 1000 Genomes dataset using an r-squared value of 0.25 and a distance threshold of 500 kb. 
+                    The clumping analysis results were used to assign each 1000 Genomes variant to an LD clump ID for each population. 
+                    The clump IDs facilitate the dynamic retrieval of LD clumps from the PRSKB database so that only the genetic variant 
+                    with the most significant p-value in the GWA study of interest is used in the polygenic risk score calculation.
+                  </p>
+                </div>
+              </div>
+              <div id="prstile3" class="prstile3" onmouseover="">
+                <h4 style="text-align: center;">P-value Thresholding</h4>
+                <p style="text-align: left;">
+                  <br>
+                  We allow the user to determine the p-value threshold, which dictates which GWA study variants will be included in 
+                  the PRS calculations. Additionally, we recommened that users who utilize the PRSKB to run bulk PRS analyses for 
+                  post-hoc hypothesizing account for multiple testing when determining a significance threshold for those analyses.
                 </p>
               </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')">
-                <i id="filterPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
-                <a>Additional Filtering in Genome-wide Association Studies</a>
-              </li>
-              <div id="filterPanel"
-                style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
-                <p>Polygenic risk scores can act as an additional filter for novel loci associated with a trait. If an
-                  indiviudal has a trait, but has a low risk score, or does not have a trait, but has a high risk score,
-                  the individual likely has novel genetic polymorphisms that need futher study.<br>
-                </p>
-              </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')">
-                <i id="mdsPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
-                <a>Mendelian Randomization Studies</a>
-              </li>
-              <div id="mdsPanel"
-                style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
-                <p>Mendelian randomization studies use polygenic risk scores to predict the effect a particular
-                  treatment or exposure will have on an indiviual.<br>
-                </p>
-              </div>
-              <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')">
-                <i id="inferPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
-                <a>Infer Disease Status in Cohorts Lacking Phenotypic Data</a>
-              </li>
-              <div id="inferPanel"
-                style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
-                <p>An individual's phenotype can be infered by comparing their risk scores to other individuals in their
-                  population or ethnicity.<br>
-                </p>
-              </div>
-            </ul>
-            </p>
+            
+            <script>
+              document.querySelector("#prstile1").addEventListener("click", function() {
+                document.querySelector("#prstile1").classList.toggle("expand");
+              });
+  
+              document.querySelector("#prstile2").addEventListener("click", function() {
+                document.querySelector("#prstile2").classList.toggle("expand");
+              });
+  
+              document.querySelector("#prstile3").addEventListener("click", function() {
+                document.querySelector("#prstile3").classList.toggle("expand");
+              });
+            </script>
           </div>
+          
+          
         </div>
       </div>
     </div>
+  </div>
 
-    <style>
-      .slideUp {
-        animation-name: slideUp;
-        -webkit-animation-name: slideUp;
-        animation-duration: 1s;
-        -webkit-animation-duration: 1s;
-        visibility: visible !important;
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 mb-4 mt-2 text-center">
+        <h2 style="color: #416d9d;">Using a Polygenic Risk Score</h2><br>
+        <script src="js/displayPanel.js"></script>
+        <p class="text-center">
+        <ul class="prsList" style="text-align: left">
+          <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('diseasePredictionPanel')">
+            <i id="diseasePredictionPanel_sign" class="fa fa-angle-down" aria-hidden="true"
+              style="margin-right:5px;"></i>
+            <a>Disease Prediction</a>
+          </li>
+          <div class="" id="diseasePredictionPanel"
+            style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+            <p>Polygenic risk scores can be used to assess the risk of expressing a trait. An individual with a risk
+              score that is higher than the population average is more likely to express that trait. Predicting late
+              onset diseases with this method is particularly useful because preventative treatment can be applied
+              sooner.
+            </p>
+          </div>
+          <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('screeningPanel')">
+            <i id="screeningPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+            <a>Clinical Trial Screening</a>
+          </li>
+          <div id="screeningPanel"
+            style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+            <p>Clinical trials, such as drug testing, rely on removing confounding factors. Selecting individuals
+              with similar risk scores for many traits eliminates potential confounding factors between these
+              traits.<br>
+            </p>
+          </div>
+          <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('filterPanel')">
+            <i id="filterPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+            <a>Additional Filtering in Genome-wide Association Studies</a>
+          </li>
+          <div id="filterPanel"
+            style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+            <p>Polygenic risk scores can act as an additional filter for novel loci associated with a trait. If an
+              indiviudal has a trait, but has a low risk score, or does not have a trait, but has a high risk score,
+              the individual likely has novel genetic polymorphisms that need futher study.<br>
+            </p>
+          </div>
+          <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('mdsPanel')">
+            <i id="mdsPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+            <a>Mendelian Randomization Studies</a>
+          </li>
+          <div id="mdsPanel"
+            style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+            <p>Mendelian randomization studies use polygenic risk scores to predict the effect a particular
+              treatment or exposure will have on an indiviual.<br>
+            </p>
+          </div>
+          <li class="listItems" style="font-size: 1.5em" onclick="displayPanel('inferPanel')">
+            <i id="inferPanel_sign" class="fa fa-angle-down" aria-hidden="true" style="margin-right:5px;"></i>
+            <a>Infer Disease Status in Cohorts Lacking Phenotypic Data</a>
+          </li>
+          <div id="inferPanel"
+            style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s;">
+            <p>An individual's phenotype can be infered by comparing their risk scores to other individuals in their
+              population or ethnicity.<br>
+            </p>
+          </div>
+        </ul>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .slideUp {
+      animation-name: slideUp;
+      -webkit-animation-name: slideUp;
+      animation-duration: 1s;
+      -webkit-animation-duration: 1s;
+      visibility: visible !important;
+    }
+
+    @keyframes slideUp {
+      0% {
+        opacity: 0;
+        -webkit-transform: translateX(70%);
       }
 
-      @keyframes slideUp {
-        0% {
-          opacity: 0;
-          -webkit-transform: translateX(70%);
-        }
+      100% {
+        opacity: 1;
+        -webkit-transform: translateX(0%);
+      }
+    }
 
-        100% {
-          opacity: 1;
-          -webkit-transform: translateX(0%);
-        }
+    @-webkit-keyframes slideUp {
+      0% {
+        opacity: 0;
+        -webkit-transform: translateX(70%);
       }
 
-      @-webkit-keyframes slideUp {
-        0% {
-          opacity: 0;
-          -webkit-transform: translateX(70%);
-        }
-
-        100% {
-          opacity: 1;
-          -webkit-transform: translateX(0%);
-        }
+      100% {
+        opacity: 1;
+        -webkit-transform: translateX(0%);
       }
-    </style>
+    }
+  </style>
+  <div class="jumbotron" style="background-color: whitesmoke;">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
@@ -209,52 +286,48 @@
                 they are added to the PRSKB database.</p>
             </div>
             <div id="box3" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
-              <h5>UK Biobank</h5>
-              <p>We provide graphs and percentiles of the UK Biobank data after it has been run through our calculator.
-                Each study has its own graph and percentile chart. <!--TODO THIS NEEDS TO BE UPDATED, we don't currently have a percentile chart-->
-              </p>
+              <h5>Contextualization</h5>
+              <p>We present polygenic risk score distributions and summary statistics for each of the studies in
+        the PRSKB database, generated from individual genetic data in the 1000 Genomes, UK Biobank, and ADNI
+        datasets. Users can utilize this data as an approximate contextualization for their own reported risk
+        scores.</p>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-
-    <div class="jumbotron" style="background-color: whitesmoke;">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12 mb-4 mt-2 text-center">
-            <h2 style="color: #416d9d;">Additional Comments</h2><br>
-            <p style="text-align: left">The power of a polygenic risk score is contingent on the power and scope of
-              the corresponding genome-wide association study data. One significant problem is the lack of diversity in
-              the current genetic studies. 79% of all genome-wide association study data participants are of European
-              descent. Scores for an individual are most accurate when computed from data of the same ethnicity. As
-              such, the PRS Knowledge Base is currently more robust for studying subjects of European ancestry. As
-              future studies begin incorporating greater diversity, the holistic accuracy of our Knowledge Base will
-              similarly increase.
-            </p>
-            <p style="text-align: left">
-              There are other environmental and genetic factors not measured in a polygenic risk score that can
-              contribute to disease risk. Lifestyle factors, non-additive loci, epistasis, and gene by environment
-              interactions play a role in actual disease phenotype.
-            </p>
-          </div>
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 mb-4 mt-2 text-center">
+        <h2 style="color: #416d9d;">Additional Comments</h2><br>
+        <p style="text-align: left">The power of a polygenic risk score is contingent on the power and scope of
+          the corresponding genome-wide association study data. One significant problem is the lack of diversity in
+          the current genetic studies. 79% of all genome-wide association study data participants are of European
+          descent. Scores for an individual are most accurate when computed from data of the same ethnicity. As
+          such, the PRS Knowledge Base is currently more robust for studying subjects of European ancestry. As
+          future studies begin incorporating greater diversity, the holistic accuracy of our Knowledge Base will
+          similarly increase.
+        </p>
       </div>
     </div>
+  </div>   
   </section>
 
   <!--Questions or comments section-->
-  <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
-    <div class="row">
-      <div class="col-12 col-md-8 mx-auto">
-        <div class="row text-center">
-          <div class="text-center col-12">
-            <h1 class="font-weight-bold">
-              Questions or Comments?</h1><br>
-            <p class="lead">Email us at <a class="email" href="#"
-                onclick="javascript:window.location='mailto:kauwelab19@gmail.com';return false;">kauwelab19@gmail.com</a>
-            </p>
+  <div class="jumbotron" style="background-color: whitesmoke;">
+    <div class="container" style="margin-bottom: 2rem; margin-top: 2rem;">
+      <div class="row">
+        <div class="col-12 col-md-8 mx-auto">
+          <div class="row text-center">
+            <div class="text-center col-12">
+              <h1 class="font-weight-bold">
+                Questions or Comments?</h1><br>
+              <p class="lead">Email us at <a class="email" href="#"
+                  onclick="javascript:window.location='mailto:kauwe@gmail.com';return false;">kauwe@gmail.com</a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -264,9 +337,7 @@
   <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
       <div class="row">
-        <div class="col-12 text-white" style="margin-top: 1rem;">
-          <p>Copyright © Miller et al. (2020) All rights reserved.</p>
-        </div>
+        <div class="col-12" style="margin-top: 1rem;"></div>
       </div>
     </div>
   </footer>
@@ -295,6 +366,7 @@
       }
     }
   </script>
+  
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->
