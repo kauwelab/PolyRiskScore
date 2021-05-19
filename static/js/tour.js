@@ -42,7 +42,7 @@ function startTour() {
             {
                 element: "#feedbackForm",
                 title: "Input your data",
-                content: "Data can be input either by typing SNP IDs and alleles directly on the page using the \"Text Input\" button \
+                content: "Data can be input either by typing dbSNP reference SNP IDs (rsIDs) and alleles directly on the page using the \"Text Input\" button \
                 (see examples in the text box) or by uploading a VCF file using the \"File Upload\" button. Note: zipped files are only \
                 supported on the CLI version of PRSKB."
             },
@@ -63,7 +63,7 @@ function startTour() {
             {
                 element: "#superPopSelect",
                 title: "Select super population of individual(s) in your VCF file.",
-                content: "This will be used to perform LD clumping on your data (see the learn more \
+                content: "This will be used to perform LD clumping on your data (see the About \
                 page). If you are unsure about the super population of the individual(s) in your file, \
                 choose the one you believe to be the most accurate.",
                 template: templateWithoutNext
@@ -72,7 +72,7 @@ function startTour() {
                 element: "#sex",
                 title: "Select the sex of the individuals in your VCF file.",
                 content: "This will be used to select odds ratios and p-values to use when there \
-                are multiple odds ratios available for the same snp due to them being associated \
+                are multiple odds ratios available for the same SNP due to them being associated \
                 with biological sex. This is not a common occurence. Our system defaults to \
                 female. When you are done, press the \"next\" button to continue the tour."
             },
@@ -120,13 +120,13 @@ function startTour() {
             {
                 element: "#gwasRefGenome",
                 title: "Select the reference genome of the uploaded GWAS data",
-                content: "Select the reference genome corresponding to the GWAS data you have uploaded.",
+                content: "Select the reference genome corresponding to the GWAS data you have uploaded. For the example GWAS file, select the 'GRCh38/hg38' option.",
                 template: templateWithoutNext
             },
             {
                 element: "#pvalInput",
-                title: "Enter p value cutoff",
-                content: "Enter the p value cutoff for odds ratios you wish to include in your polygenic risk score \
+                title: "Enter p-value cutoff",
+                content: "Enter the p-value cutoff for odds ratios you wish to include in your polygenic risk score \
                 using the two text boxes."
             },
             {
@@ -139,7 +139,7 @@ function startTour() {
                 title: "Select output format (pt 2)",
                 content: "Choose either a condensed results version or a full results version. The condensed version displays \
                 the polygenic risk scores for each sample for each trait/study combination. The full version additionally gives \
-                information for each sample on which snps contribute to the trait, which are protective against the trait, and \
+                information for each sample on which SNPs contribute to the trait, which are protective against the trait, and \
                 which are neutral or have unknown contributions."
             },
             {
@@ -162,7 +162,7 @@ function startTour() {
             {
                 element: "#startTour",
                 title: "You're all set!",
-                content: "Now give it a try with your own data! If you have any questions, contact us at kauwelab19@gmail.com",
+                content: "Now give it a try with your own data! If you have any questions, contact us at kauwe@gmail.com",
                 template: templateWithoutNext
             }
         ]

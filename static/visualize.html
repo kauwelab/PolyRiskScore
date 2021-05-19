@@ -12,8 +12,10 @@
   <link href="css/tile.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <link href="css/multiselect.css" rel="stylesheet">
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
+<script src="js/multiselect.min.js"></script>
 
 <body onload="getTraits();" onbeforeunload="resetFilters()">
   <div id="topnav" class='topnav'>
@@ -91,6 +93,7 @@
             <option selected="selected" value="default">Select a Disease/Trait</option>
           </select>
           <!--Select 1 study type-->
+          <br>
           <label for="studyTypeSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a study type or all study types to filter studies by before selecting the study you want to display contextualization data for. NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database.">Study Type<sup>?</sup>:</span></label>
           <select name="studyTypeSelector" id='studyType-Selector' style="margin-right: 2em; margin-top: 2em; margin-bottom: 2em;" onchange="getStudies()">
             <option selected="selected" value="default">Select a Study Type</option>
@@ -108,18 +111,7 @@
           <!--Select 1 cohort-->
           <br>
           <label for="cohortSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a Cohort to view graphs and summary values. Each of these Cohorts were run on all the studies in the database and percentiles computed.">Cohort<sup>?</sup>:</span></label>
-          <select name="cohortSelector" id='cohort-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled>
-            <option selected="selected" value="default">Select a Cohort</option>
-            <option value="ukbb" disabled>UK Biobank</option> 
-            <option value="afr" disabled>1000 Genomes - AFR population</option>
-            <option value="amr" disabled>1000 Genomes - AMR population</option>
-            <option value="eas" disabled>1000 Genomes - EAS population</option>
-            <option value="eur" disabled>1000 Genomes - EUR population</option>
-            <option value="sas" disabled>1000 Genomes - SAS population</option>
-            <option value="adni_ad" disabled>ADNI - Alzheimer's Disease</option>
-            <option value="adni_mci" disabled>ADNI - Mild Cognitive Impairment</option>
-            <option value="adni_controls" disabled>ADNI - Controls</option>
-          </select>
+          <select name="cohortSelector" id='cohort-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled multiple></select>
           <br>
           <button id='viewData' class="btn btn-primary btn-sm" style="margin-left: 1rem;" onClick="displayGraphs()">
             View Score Distribution
@@ -133,7 +125,7 @@
         </div>
       </div>
       <div class="row" id="plotAndTable" style="visibility: hidden;">
-        <div id="plotAndButtons" class="column" style="width: 100%; max-width: 29em; margin-bottom: 3em; margin-right: 2em;">
+        <div id="plotAndButtons" class="column" style="width: 100%;  margin-bottom: 3em;">
           <div id="plotSpace"></div>
           <div class="text-center" style="margin-top: 1em;">
             <form name="plotTypeRadio">
@@ -146,7 +138,7 @@
             </form>
           </div>
         </div>
-        <div id="tablePlot" style="max-width: 29em; margin-bottom: 6em;"></div>
+        <div id="tablePlot" style="width: 100%; margin-bottom: 6em;"></div>
         <div id="studymetadata" style="margin-bottom: 2em;">
           <!-- Put meta data here (studyName, citation, altmetric score, ect) -->
         </div>
@@ -157,9 +149,7 @@
   <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
       <div class="row">
-        <div class="col-12 text-white" style="margin-top: 1rem;">
-          <p>Copyright © Miller et al. (2020) All rights reserved.</p>
-        </div>
+        <div class="col-12" style="margin-top: 1rem;"></div>
       </div>
     </div>
   </footer>
@@ -186,6 +176,10 @@
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
   <script src="js/displayPanel.js"></script>
+  <script src="js/multiselect.min.js"></script>
+  <script>
+    document.multiselect('#cohort-Selector')
+  </script>
 </body>
 
 </html>

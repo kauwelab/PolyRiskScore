@@ -447,7 +447,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen) {
 
     for (i=0; i<fileLines.length; i++) {
         if (i==0) {
-            cols = fileLines[i].toLowerCase().replace(/\r$/, '').split('\t')
+            cols = fileLines[i].toLowerCase().replace(/\n/,'').replace(/\r$/, '').split('\t')
             sii = cols.indexOf("study id")
             ti = cols.indexOf("trait")
             si = cols.indexOf("rsid")
@@ -466,7 +466,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen) {
             }
         }
         else {
-            cols = fileLines[i].replace(/\r$/, '').split('\t')
+            cols = fileLines[i].replace(/\n/,'').replace(/\r$/, '').split('\t')
             // create the chrom:pos to snp dict
             // if the chrom:pos not in the chromSnpDict
             if (!(`${cols[ci]}:${cols[pi]}` in chromSnpDict)) {
@@ -694,17 +694,19 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
         }
         //if the input data has at least one individual
         if (greppedSamples.size > 0) {
+            studyIDs = Object.keys(associationData['studyIDsToMetaData'])
+            studyIDs.sort()
             //for each individual, get a map containing all studies to the oddsRatios, snps and pos associated to each study and individual
             //then convert this map into the right format for results
             //for each individual and their snp info in the vcf object
             for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
-                for (studyID in associationData['studyIDsToMetaData']) {
-                    for (trait in associationData['studyIDsToMetaData'][studyID]['traits']) {
-                        if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID] && associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
-                            printStudyID = studyID.concat('†')
+                for (i=0; i < studyIDs.length; i++) {
+                    for (trait in associationData['studyIDsToMetaData'][studyIDs[i]]['traits']) {
+                        if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithDuplicateSnps'].includes(trait)) {
+                            printStudyID = studyIDs[i].concat('†')
                         }
                         else {
-                            printStudyID = studyID
+                            printStudyID = studyIDs[i]
                         }
 
                         if (!(printStudyID in resultObj)) {
@@ -720,8 +722,8 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                                 variantsInHighLD: []
                             }
                         }
-                        if (!([trait, studyID, individualName].join("|") in indexSnpObj)) {
-                            indexSnpObj[[trait, studyID, individualName].join("|")] = {}
+                        if (!([trait, studyIDs[i], individualName].join("|") in indexSnpObj)) {
+                            indexSnpObj[[trait, studyIDs[i], individualName].join("|")] = {}
                         }
                     }
                 }
@@ -884,7 +886,9 @@ function calculateCombinedORandFormatSnps(sampleObj, trait, studyID, association
         combinedOR = "NF"
     }
     else {
-        combinedOR = Math.exp(combinedOR);
+        combinedOR = Math.exp(combinedOR)
+        // round the answer to 3 decimal places
+        combinedOR = combinedOR.toFixed(3)
     }
 
     return [combinedOR, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
