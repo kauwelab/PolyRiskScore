@@ -133,6 +133,10 @@ Cohortdata.getCohorts = (studyID, trait, result) => {
 Cohortdata.getSummaryResults = (studyID, trait, cohorts, result) => {
     sqlStatement = ""
     queryParams = []
+
+    if (cohorts == null || cohorts == "") {
+        result({message: "missing cohorts input"}, null)
+    }
     if (!Array.isArray(cohorts)) {
         cohorts = [cohorts]
     }
@@ -158,6 +162,10 @@ Cohortdata.getFullResults = (studyID, trait, cohorts, result) => {
     snpsSqlStatement = ""
     queryParams = []
     snpsQueryParams = []
+
+    if (cohorts == null || cohorts == "") {
+        result({message: "missing cohorts input"}, null)
+    }
     if (!Array.isArray(cohorts)) {
         cohorts = [cohorts]
     }
