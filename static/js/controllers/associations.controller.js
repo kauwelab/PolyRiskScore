@@ -353,9 +353,6 @@ async function separateStudies(associations, traitData, refGen, defaultSex) {
                         studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'] = [association.trait]
                     }
                     else if (!(studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'].includes(association.trait))) {
-                        studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'].push(association.trait)
-                        // TODO we will need to put in the documentation that the symbol we use for duplicated snps should indicate that we have excluded those duplicated snps
-                        // and also point out if they chose M/F, then some of the duplicated snps were included
                     }
                 }
                 else {
@@ -395,7 +392,6 @@ async function separateStudies(associations, traitData, refGen, defaultSex) {
         }
         // else add the pos->trait->studyID 
         else if (association.studyID in studyIDsToMetaData){
-            //todo check if this is the right logic
             // if there is no sex associated with the odds ratio or if the sex is the same as the requested sex (defaultSex)
             if (association.sex == "NA" || association.sex[0].toLowerCase() == defaultSex[0].toLowerCase()) {
                 AssociationsBySnp[association.snp] = {
