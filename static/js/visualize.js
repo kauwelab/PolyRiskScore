@@ -188,7 +188,7 @@ function displayGraphs() {
                     });
 
                     displayDataObj[i]["arrayOfValues"] = arrayOfValues
-                    snpsString = snpsString.concat(`<p><b>${displayDataObj[i]["cohort"].toUpperCase()} SNPs Used:</b> ${displayDataObj[i]["snps"].join(", ")}</p>`)
+                    snpsString = snpsString.concat(`<p><b>${displayDataObj[i]["cohort"].toUpperCase()} SNPs Used:</b> ${displayDataObj[i]["snps"].sort().join(", ")}</p>`)
                 }
 
                 changePlot()
