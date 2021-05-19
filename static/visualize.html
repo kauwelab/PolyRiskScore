@@ -12,8 +12,10 @@
   <link href="css/tile.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
+  <link href="css/multiselect.css" rel="stylesheet">
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
+<script src="js/multiselect.min.js"></script>
 
 <body onload="getTraits();" onbeforeunload="resetFilters()">
   <div id="topnav" class='topnav'>
@@ -108,18 +110,7 @@
           <!--Select 1 cohort-->
           <br>
           <label for="cohortSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a Cohort to view graphs and summary values. Each of these Cohorts were run on all the studies in the database and percentiles computed.">Cohort<sup>?</sup>:</span></label>
-          <select name="cohortSelector" id='cohort-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled>
-            <option selected="selected" value="default">Select a Cohort</option>
-            <option value="ukbb" disabled>UK Biobank</option> 
-            <option value="afr" disabled>1000 Genomes - AFR population</option>
-            <option value="amr" disabled>1000 Genomes - AMR population</option>
-            <option value="eas" disabled>1000 Genomes - EAS population</option>
-            <option value="eur" disabled>1000 Genomes - EUR population</option>
-            <option value="sas" disabled>1000 Genomes - SAS population</option>
-            <option value="adni_ad" disabled>ADNI - Alzheimer's Disease</option>
-            <option value="adni_mci" disabled>ADNI - Mild Cognitive Impairment</option>
-            <option value="adni_controls" disabled>ADNI - Controls</option>
-          </select>
+          <select name="cohortSelector" id='cohort-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled multiple></select>
           <br>
           <button id='viewData' class="btn btn-primary btn-sm" style="margin-left: 1rem;" onClick="displayGraphs()">
             View Score Distribution
@@ -184,6 +175,10 @@
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap-4.2.1.js"></script>
   <script src="js/displayPanel.js"></script>
+  <script src="js/multiselect.min.js"></script>
+  <script>
+    document.multiselect('#cohort-Selector')
+  </script>
 </body>
 
 </html>
