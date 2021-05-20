@@ -80,7 +80,7 @@ def formatClumps(clumpsUnformatted):
 
 
 # get the trait/study to snps from the database:
-def getTraitStudyToSnp(password, sex):
+def getTraitStudyToSnp(password):
     config = {
         'user': 'polyscore',
         'password': password,
@@ -95,17 +95,16 @@ def getTraitStudyToSnp(password, sex):
 
     if (checkTableExists(connection.cursor(), "associations_table")):
         cursor = connection.cursor()
-        sql = "SELECT snp, trait, studyID FROM associations_table WHERE sex = 'NA' "
-        sql = sql+"OR sex = '{}';".format(sex) if sex[0] != "e" else sql+";"
+        sql = "SELECT snp, trait, studyID FROM associations_table; "
         cursor.execute(sql)
         returnedAssociations = cursor.fetchall()
         cursor.close()
     else:
-        raise NameError('Table does not exist in database associations_table')
+        raise NameError('Table does not exist in database {refGen}_chr{i}_clumps'.format(refGen=refGen, i=i))
     return returnedAssociations
 
 
-def formatAndSaveTraitStudyToSnp(associLines, sex, generalFilePath):
+def formatAndSaveTraitStudyToSnp(associLines, generalFilePath):
     formattedTraitStudyToSnps = {}
     for snp, trait, studyID in associLines:
         key = "|".join([trait, studyID])
@@ -113,7 +112,7 @@ def formatAndSaveTraitStudyToSnp(associLines, sex, generalFilePath):
             formattedTraitStudyToSnps[key] = []
         formattedTraitStudyToSnps[key].append(snp)
 
-    traitStudyToSnpPath = os.path.join(generalFilePath, "traitStudyIDToSnps_{}.txt".format(sex[0])) if sex[0] != "e" else os.path.join(generalFilePath, "traitStudyIDToSnps.txt")
+    traitStudyToSnpPath = os.path.join(generalFilePath, "traitStudyIDToSnps.txt")
     f = open(traitStudyToSnpPath, 'w')
     f.write(json.dumps(formattedTraitStudyToSnps))
     f.close()
@@ -162,9 +161,8 @@ def main():
     generalFilePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../static/downloadables/associationsAndClumpsFiles")
 
     # creating the trait/studyID to snps file
-    for sex in ['female', 'male', 'exclude']:
-        returnedAssociations = getTraitStudyToSnp(password, sex)
-        formatAndSaveTraitStudyToSnp(returnedAssociations, sex, generalFilePath)
+    returnedAssociations = getTraitStudyToSnp(password)
+    formatAndSaveTraitStudyToSnp(returnedAssociations, generalFilePath)
 
     # we create params for each refGen so that we can run them on multiple processes
     for refGen in ['hg17', 'hg18', 'hg19', 'hg38']:
