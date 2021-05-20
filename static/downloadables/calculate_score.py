@@ -16,6 +16,9 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omi
 
     # if this trait/study had no snps in the input file, print the trait/study to the output list
     if unusedTraitStudy and not omitUnusedStudiesFile:
+        # if has traitWithDuplicateSnps, add the sign to the studyID
+        if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
+            studyID = studyID + '†'
         printUnusedTraitStudyPairs(trait, studyID, outputFile, False)
 
     else:
@@ -28,7 +31,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omi
             protectiveVariants = set()
             riskVariants = set()
             # Certain studies have duplicate snps with varying p-value annotations. We make mark of that in the output
-            if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys():
+            if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
                 mark = True
             else:
                 mark = False
@@ -101,6 +104,9 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
 
     # if the trait/study has no snps in the input file, write out the trait/study to the output list of unused traits/studies
     if unusedTraitStudy and not omitUnusedStudiesFile:
+        # if has traitWithDuplicateSnps, add the sign to the studyID
+        if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
+            studyID = studyID + '†'
         # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
         printUnusedTraitStudyPairs(trait, studyID, outputFile, False)
 
@@ -126,7 +132,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
                 protectiveVariants = set()
                 riskVariants = set()
                 # some studies have duplicate snps with varying pvalue annotations. we keep track of that here.
-                mark = True if 'traitsWithDuplicateSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() else False
+                mark = True if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps'] else False
                 # Create a mark for the studies that have SNPs that aren't present in the input file
                 asterisk = True if len(snpSet) != snpCount else False
                 # Loop through each snp associated with this disease/study/sample
@@ -219,7 +225,7 @@ def formatJson(studyInfo, outputFile):
     json_output=[]
     json_output.append(studyInfo)
     # if this is the first object to be added, write it to the output file
-    if not path.exists(outputFile):
+    if not os.path.exists(outputFile):
         with FileLock(outputFile + ".lock"):
             with open(outputFile, 'w', newline='') as f:
                 json.dump(json_output, f, indent=4)
@@ -260,11 +266,11 @@ def printUnusedTraitStudyPairs(trait, study, outputFile, isFirst):
     # if this is the first trait/study to be added, write the header as well
     if isFirst:
         with FileLock(completeOutputFileName + ".lock"):
-            with open(completeOutputFileName, 'w') as openFile:
+            with open(completeOutputFileName, 'w', encoding="utf-8") as openFile:
                 openFile.write("Trait/Study combinations with no matching snps in the input file:")
     else:
         with FileLock(completeOutputFileName + ".lock"):
-            with open(completeOutputFileName, 'a') as openFile:
+            with open(completeOutputFileName, 'a', encoding="utf-8") as openFile:
                 openFile.write('\n')
                 openFile.write(str(trait))
                 openFile.write(', ')
