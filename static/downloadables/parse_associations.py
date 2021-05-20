@@ -237,46 +237,49 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     for snp in studyLines:
         alleles = studyLines[snp]
         if alleles != [] and snp != "":
-            # grab the corresponding pvalue and risk allele
-            pValue = tableObjDict['associations'][snp]['traits'][trait][study]['pValue']
-            riskAllele = tableObjDict['associations'][snp]['traits'][trait][study]['riskAllele']
+            # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this snp
+            # this is necessary due to excluded snps
+            if trait in tableObjDict['associations'][snp]['traits'] and study in tableObjDict['associations'][snp]['traits'][trait]:
+                # grab the corresponding pvalue and risk allele
+                pValue = tableObjDict['associations'][snp]['traits'][trait][study]['pValue']
+                riskAllele = tableObjDict['associations'][snp]['traits'][trait][study]['riskAllele']
 
-            #compare the pvalue to the threshold
-            if pValue <= float(p_cutOff):
+                #compare the pvalue to the threshold
+                if pValue <= float(p_cutOff):
 
-                if riskAllele in alleles:
-                    # Check to see if the snp position from this line in the file exists in the clump table
-                    if snp in clumpsObjDict:
-                        # Grab the clump number associated with this snp 
-                        clumpNum = str(clumpsObjDict[snp]['clumpNum'])
-                        # check to see the number of variants in this ld clump. If the snp is the only one in the clump, we skip the clumping checks
-                        clumpNumTotal = clumpNumDict[clumpNum]
+                    if riskAllele in alleles:
+                        # Check to see if the snp position from this line in the file exists in the clump table
+                        if snp in clumpsObjDict:
+                            # Grab the clump number associated with this snp 
+                            clumpNum = str(clumpsObjDict[snp]['clumpNum'])
+                            # check to see the number of variants in this ld clump. If the snp is the only one in the clump, we skip the clumping checks
+                            clumpNumTotal = clumpNumDict[clumpNum]
 
-                        if clumpNumTotal > 0:
-                            # If this snp is in LD with any other snps, check whether the existing index snp or current snp have a lower pvalue 
-                            if clumpNum in index_snp_map:
-                                index_snp, index_alleles = index_snp_map[clumpNum]
-                                index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
+                            if clumpNumTotal > 0:
+                                # If this snp is in LD with any other snps, check whether the existing index snp or current snp have a lower pvalue 
+                                if clumpNum in index_snp_map:
+                                    index_snp, index_alleles = index_snp_map[clumpNum]
+                                    index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
 
-                                if pValue < index_pvalue:
-                                    index_snp_map[clumpNum] = snp, alleles
-                                    # The snps that aren't index snps will be considered neutral snps
-                                    clumpedVariants.add(index_snp)
+                                    if pValue < index_pvalue:
+                                        index_snp_map[clumpNum] = snp, alleles
+                                        # The snps that aren't index snps will be considered neutral snps
+                                        clumpedVariants.add(index_snp)
+                                    else:
+                                        clumpedVariants.add(snp)
                                 else:
-                                    clumpedVariants.add(snp)
+                                    # Since the clump number for this snp position and studyID
+                                    # doesn't already exist, add it to the index map
+                                    index_snp_map[clumpNum] = snp, alleles
                             else:
-                                # Since the clump number for this snp position and studyID
-                                # doesn't already exist, add it to the index map
-                                index_snp_map[clumpNum] = snp, alleles
+                                # the variant is the only one in the ld clump
+                                sample_map[snp] = alleles
+                        # The snp wasn't in the clump map (meaning it wasn't in 1000 Genomes), so add it
                         else:
-                            # the variant is the only one in the ld clump
                             sample_map[snp] = alleles
-                    # The snp wasn't in the clump map (meaning it wasn't in 1000 Genomes), so add it
                     else:
-                        sample_map[snp] = alleles
-                else:
-                    # the risk allele wasn't in the listed alleles
-                    unmatchedAlleleVariants.add(snp)
+                        # the risk allele wasn't in the listed alleles
+                        unmatchedAlleleVariants.add(snp)
         # loop through each LD clump and add the index snp to the final sample map
     for clumpNum in index_snp_map:
         snp, alleles = index_snp_map[clumpNum]
@@ -396,77 +399,80 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
             # check to see if the snp is in this particular trait/study
             if rsID in snpSet:
-                snpCount += 1
-                ALT = record.ALT
-                REF = record.REF 
+                # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this rsID
+                # this is necessary due to excluded snps
+                if trait in tableObjDict['associations'][rsID]['traits'] and study in tableObjDict['associations'][rsID]['traits'][trait]:
+                    snpCount += 1
+                    ALT = record.ALT
+                    REF = record.REF 
 
-                #grab the corresponding pvalue and risk allele
-                pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
-                riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study]['riskAllele']
+                    #grab the corresponding pvalue and risk allele
+                    pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
+                    riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study]['riskAllele']
 
-                # compare the pvalue to the pvalue cutoff
-                if pValue <= float(p_cutOff):
-                    # loop through each sample of the vcf file
-                    for call in record.samples:
-                        sample = call.sample
-                        genotype = record.genotype(sample)['GT']
-                        alleles = formatAndReturnGenotype(genotype, REF, ALT)
+                    # compare the pvalue to the pvalue cutoff
+                    if pValue <= float(p_cutOff):
+                        # loop through each sample of the vcf file
+                        for call in record.samples:
+                            sample = call.sample
+                            genotype = record.genotype(sample)['GT']
+                            alleles = formatAndReturnGenotype(genotype, REF, ALT)
 
-                        # Grab or create maps that hold sets of unused variants for this sample
-                        clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
-                        unmatchedAlleleVariants = neutral_snps_map[sample] if sample in neutral_snps_map else set()
+                            # Grab or create maps that hold sets of unused variants for this sample
+                            clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
+                            unmatchedAlleleVariants = neutral_snps_map[sample] if sample in neutral_snps_map else set()
 
-                        if riskAllele in alleles:
-                            # keep track of whether this sample has any viable snps for this study
-                            if sample in no_viable_snp_counter:
-                                no_viable_snp_counter.remove(sample)
-                            viable_snp_counter.add(sample)
+                            if riskAllele in alleles:
+                                # keep track of whether this sample has any viable snps for this study
+                                if sample in no_viable_snp_counter:
+                                    no_viable_snp_counter.remove(sample)
+                                viable_snp_counter.add(sample)
 
-                            if rsID in clumpsObjDict:
-                                # Grab the clump number associated with this study and snp position
-                                clumpNum = str(clumpsObjDict[rsID]['clumpNum'])
-                                # Check to see how many variants are in this clump. If there's only one, we can skip the clumping checks.
-                                clumpNumTotal = clumpNumDict[clumpNum]
+                                if rsID in clumpsObjDict:
+                                    # Grab the clump number associated with this study and snp position
+                                    clumpNum = str(clumpsObjDict[rsID]['clumpNum'])
+                                    # Check to see how many variants are in this clump. If there's only one, we can skip the clumping checks.
+                                    clumpNumTotal = clumpNumDict[clumpNum]
 
-                                if clumpNumTotal > 0:
-                                    if sample in index_snp_map:
-                                        # if the clump number for this snp position and study/name is already in the index map, move forward
-                                        if clumpNum in index_snp_map[sample]:
-                                            index_snp, index_alleles = index_snp_map[sample][clumpNum]
-                                            index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
+                                    if clumpNumTotal > 0:
+                                        if sample in index_snp_map:
+                                            # if the clump number for this snp position and study/name is already in the index map, move forward
+                                            if clumpNum in index_snp_map[sample]:
+                                                index_snp, index_alleles = index_snp_map[sample][clumpNum]
+                                                index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
 
-                                            # Check whether the existing index snp or current snp have a lower pvalue for this study
-                                            # and switch out the data accordingly
-                                            if pValue < index_pvalue:
-                                                index_snp_map[sample][clumpNum] = rsID, alleles
-                                                clumpedVariants.add(index_snp)
-                                            else:
-                                                if index_alleles == "":
+                                                # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                                # and switch out the data accordingly
+                                                if pValue < index_pvalue:
                                                     index_snp_map[sample][clumpNum] = rsID, alleles
                                                     clumpedVariants.add(index_snp)
                                                 else:
-                                                    clumpedVariants.add(rsID)
+                                                    if index_alleles == "":
+                                                        index_snp_map[sample][clumpNum] = rsID, alleles
+                                                        clumpedVariants.add(index_snp)
+                                                    else:
+                                                        clumpedVariants.add(rsID)
+                                            else:
+                                                # Since the clump number for this snp position and study/name
+                                                # doesn't already exist, add it to the index map and the sample map
+                                                index_snp_map[sample][clumpNum] = rsID, alleles
                                         else:
-                                            # Since the clump number for this snp position and study/name
-                                            # doesn't already exist, add it to the index map and the sample map
+                                            # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
                                             index_snp_map[sample][clumpNum] = rsID, alleles
+                                    # the variant is the only one in the ld clump
                                     else:
-                                        # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
-                                        index_snp_map[sample][clumpNum] = rsID, alleles
-                                # the variant is the only one in the ld clump
+                                        sample_map[sample][rsID] = alleles
+                                # the variant isn't in the clump tables
                                 else:
                                     sample_map[sample][rsID] = alleles
-                            # the variant isn't in the clump tables
+                            # the sample's alleles don't include the risk allele
                             else:
-                                sample_map[sample][rsID] = alleles
-                        # the sample's alleles don't include the risk allele
-                        else:
-                            if sample not in viable_snp_counter:
-                                no_viable_snp_counter.add(sample)
-                            unmatchedAlleleVariants.add(rsID)
+                                if sample not in viable_snp_counter:
+                                    no_viable_snp_counter.add(sample)
+                                unmatchedAlleleVariants.add(rsID)
 
-                        clumped_snps_map[sample] = clumpedVariants
-                        neutral_snps_map[sample] = unmatchedAlleleVariants
+                            clumped_snps_map[sample] = clumpedVariants
+                            neutral_snps_map[sample] = unmatchedAlleleVariants
 
         # Check to see which study/sample combos didn't have any viable snps
         # and create blank entries for the sample map for those that didn't
