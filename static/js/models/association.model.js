@@ -191,16 +191,7 @@ Association.getAllSnpsToStudyIDs = (refGen, result) => {
     }
 }
 
-Association.getSnpsToTraitStudyID = (studyIDObjs, sex, result) => {
-    if (sex[0].toLowerCase() == "m"){
-        sex = "male"
-    }
-    else if (sex[0].toLowerCase() == "f"){
-        sex = 'female'
-    }
-    else {
-        sex = 'exclude'
-    }
+Association.getSnpsToTraitStudyID = (studyIDObjs, result) => {
     // [{trait: "", studyID: ""}, {trait: "", studyID: ""}]
     try {
         queryString = ""
@@ -214,8 +205,7 @@ Association.getSnpsToTraitStudyID = (studyIDObjs, sex, result) => {
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
                 studyObj = JSON.parse(studyObj)
             }
-            queryString = queryString.concat(`SELECT snp, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ? AND (sex = "NA" `)
-            queryString = sex[0].toLowerCase() != "e" ? queryString.concat(`OR sex = '${sex}');`) : queryString.concat(`);`)
+            queryString = queryString.concat(`SELECT snp, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ?; `)
             queryParams = queryParams.concat([studyObj.studyID, studyObj.trait])
         })
         console.log('about to query table')
