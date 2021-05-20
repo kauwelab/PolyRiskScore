@@ -128,10 +128,11 @@ exports.getAllSnpsToStudyIDs = (req, res) => {
 
 exports.getSnpsToTraitStudyID = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
+    var sex = req.body.sex
 
     studyIDTraitsToSnps = {}
 
-    Association.getSnpsToTraitStudyID(studyIDObjs, async (err, data) => {
+    Association.getSnpsToTraitStudyID(studyIDObjs, sex, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
