@@ -433,7 +433,7 @@ if (is_ebi_reachable()) {
       # so the traits table length is >= the length of assicationsTibble
       associationsTibble <- dplyr::left_join(associationsTibble, traits, by = 'association_id')
       
-      master_associations <- left_join(riskAlleles, associationsTibble, by = "association_id")
+      master_associations <- inner_join(riskAlleles, associationsTibble, by = "association_id")
       # check if master_associations has enough snps
       if (is.null(checkIfValidDataObj(master_associations))) {next}
 
