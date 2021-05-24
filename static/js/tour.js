@@ -69,14 +69,6 @@ function startTour() {
                 template: templateWithoutNext
             },
             {
-                element: "#sex",
-                title: "Select the sex of the individuals in your VCF file.",
-                content: "This will be used to select odds ratios and p-values to use when there \
-                are multiple odds ratios available for the same SNP due to them being associated \
-                with biological sex. This is not a common occurence. Our system defaults to \
-                female. When you are done, press the \"next\" button to continue the tour."
-            },
-            {
                 element: "#GWAStypeSelector",
                 title: "GWAS",
                 content: "Users have the option of either calculating polygenic risk scores from \
@@ -141,6 +133,14 @@ function startTour() {
                 the polygenic risk scores for each sample for each trait/study combination. The full version additionally gives \
                 information for each sample on which SNPs contribute to the trait, which are protective against the trait, and \
                 which are neutral or have unknown contributions."
+            },
+            {
+                element: "#sex",
+                title: "Include or exclude sex dependent SNPs",
+                content: "Occasionally, studies will include SNPs that have odds ratios which \
+                are dependent upon biological sex. By default, we exclude any SNPs that are depenent on \
+                biological sex. If you choose, you can include either female or male dependent SNPs. \
+                When you are done, press the \"next\" button to continue the tour."
             },
             {
                 element: "#feedbackSubmit",

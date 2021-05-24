@@ -202,10 +202,12 @@ function changeGWASType() {
     if (gwasType === "Database") {
         document.getElementById("gwasDatabase").style.display = "initial";
         document.getElementById("gwasUpload").style.display = "none";
+        document.getElementById("SexSpecificSnps").style.display = "initial";
     }
     else {
         document.getElementById("gwasDatabase").style.display = "none";
         document.getElementById("gwasUpload").style.display = "initial";
+        document.getElementById("SexSpecificSnps").style.display = "none";
     }
 }
 
