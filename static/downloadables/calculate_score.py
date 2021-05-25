@@ -166,9 +166,9 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
 
                 if not omitUnusedStudiesFile and len(oddsRatios) == 0 and len(protectiveVariants) == 0 and len(riskVariants) == 0 and len(unmatchedAlleleVariants) == 0 and len(clumpedVariants) == 0:
                     if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
-                        studyID = studyID + '†'
+                        printStudyID = studyID + '†'
                     # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
-                    printUnusedTraitStudyPairs(trait, studyID, outputFile, False)
+                    printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
 
                 # if the output format is verbose
                 elif not isCondensedFormat and not isJson:
