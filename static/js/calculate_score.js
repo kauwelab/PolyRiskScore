@@ -281,8 +281,6 @@ var calculatePolyScore = async () => {
     var refGen = refGenElement.options[refGenElement.selectedIndex].value
     var superPopElement = document.getElementById("superPopSelect");
     var superPop = superPopElement.options[superPopElement.selectedIndex].value
-    var sexElement = document.getElementById("sex");
-    var sex = sexElement.options[sexElement.selectedIndex].value
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
@@ -297,12 +295,6 @@ var calculatePolyScore = async () => {
         updateResultBoxAndStoredValue('Please select the super population corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
-    }
-    if (sex == "default") {
-        sex = "f"
-        if (!confirm("Female is the default for default sex. Since no default sex was selected, we will use female as the default sex. Continue?")) {
-            return
-        }
     }
 
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
@@ -320,6 +312,8 @@ var calculatePolyScore = async () => {
 
     }
     else {
+        var sexElement = document.getElementById("sex");
+        var sex = sexElement.options[sexElement.selectedIndex].value
         var studyNodes = document.querySelectorAll('#studySelect :checked');
         var studies = [...studyNodes].map(option => [option.value, option.dataset.trait]);
 
