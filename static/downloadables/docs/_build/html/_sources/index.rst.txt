@@ -192,11 +192,12 @@ If the output file is in JSON format, the results will, by default, be in verbos
 
    -v
 
-Default Sex (-g)
-""""""""""""""""
-Though a rare occurence, some studies have duplicates of the same snp that differ by which
-biological sex the p-value is associated with. You can indicate which sex you would like snps
-to select when both options (M/F) are present. The system default is Female.
+Sex dependent associations (-g)
+"""""""""""""""""""""""""""""""
+Though a rare occurence, some studies have duplicates of the same SNP that differ by which biological sex 
+the p-value and odds ratio is associated with or SNPs that are not duplicated, but are dependent on biological sex. 
+The system default is to exclude sex dependent SNPs from calculations. You can include sex dependent associations 
+by selecting either male (M) or female (F).
 
 .. code-block:: bash
 

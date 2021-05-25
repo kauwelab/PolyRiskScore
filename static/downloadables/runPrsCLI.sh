@@ -272,9 +272,10 @@ learnAboutParameters () {
                 echo -e "${LIGHTRED}**NOTE:${NC} There is no condensed version of JSON output."
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}"
-                echo "Though a rare occurence, some studies have duplicates of the same snp that differ by which"
-                echo "biological sex the p-value and odds ratio is associated with. You can indicate which sex you would like snps"
-                echo "to select when both options (M/F) are present. The system default is to exclude the snp from calculations."
+                echo "Though a rare occurence, some studies have duplicates of the same SNP that differ by which"
+                echo "biological sex the p-value and odds ratio is associated with or SNPs that are not duplicated, "
+                echo "but are dependent on biological sex. The system default is to exclude sex dependent SNPs from calculations. " 
+                echo "You can include sex dependent associations by selecting either male (M) or female (F)."
                 echo "" ;;
             12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo -e "Either ${GREEN}-s 1${NC} or ${GREEN}-s 2${NC}"
