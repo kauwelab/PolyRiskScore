@@ -232,7 +232,7 @@ exports.getLastAssociationsUpdate = (req, res) => {
     refGen = req.query.refGen
     sex = req.query.defaultSex
 
-    associationsPath = path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allAssociations_${refGen}_${sex}.txt`)
+    associationsPath = sex[0].toLowerCase() == "e" ? path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allAssociations_${refGen}.txt`) : path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allAssociations_${refGen}_${sex}.txt`)
     statsObj = fs.statSync(associationsPath)
     updateTime = statsObj.mtime
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
