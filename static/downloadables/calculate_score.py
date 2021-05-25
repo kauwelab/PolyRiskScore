@@ -18,8 +18,8 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omi
     if unusedTraitStudy and not omitUnusedStudiesFile:
         # if has traitWithDuplicateSnps, add the sign to the studyID
         if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
-            studyID = studyID + '†'
-        printUnusedTraitStudyPairs(trait, studyID, outputFile, False)
+            printStudyID = studyID + '†'
+        printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
 
     else:
         if studyID in tableObjDict['studyIDsToMetaData'].keys():
