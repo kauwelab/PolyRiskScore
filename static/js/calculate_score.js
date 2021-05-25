@@ -698,7 +698,7 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
             for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
                 for (i=0; i < studyIDs.length; i++) {
                     for (trait in associationData['studyIDsToMetaData'][studyIDs[i]]['traits']) {
-                        if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithDuplicateSnps'].includes(trait)) {
+                        if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithExcludedSnps'].includes(trait)) {
                             printStudyID = studyIDs[i].concat('†')
                         }
                         else {
@@ -744,8 +744,8 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                                 printStudyID = studyID
                                 traitStudySamp = [trait, studyID, individualName].join("|")
                                 associationObj = associationData['associations'][key]['traits'][trait][studyID]
-                                if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
-                                    if (associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
+                                if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyID]) {
+                                    if (associationData['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps'].includes(trait)) {
                                         printStudyID = studyID.concat('†')
                                     }
                                 }
@@ -829,7 +829,7 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                     }
                     else {
                         tmpStudyObj['traits'][trait] = {}
-                        unusedTraitStudyCombo.add([trait, studyID_og])
+                        unusedTraitStudyCombo.add([trait, studyID])
                         delete tmpStudyObj['traits'][trait]
                     }
                 }
@@ -1162,7 +1162,7 @@ function downloadResults() {
         extension = ".txt";
     }
     if (unusedTraitStudyArray.length != 0) {
-        formattedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+        formattedUnusedTraitStudyArray = "Trait/Study combinations with no matching snps in the input file:\n" + unusedTraitStudyArray.join("\n")
     }
     else {
         formattedUnusedTraitStudyArray = null
