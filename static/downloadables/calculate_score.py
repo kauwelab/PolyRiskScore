@@ -112,9 +112,9 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
     if unusedTraitStudy and not omitUnusedStudiesFile:
         # if has traitWithDuplicateSnps, add the sign to the studyID
         if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
-            studyID = studyID + '†'
+            printStudyID = studyID + '†'
         # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
-        printUnusedTraitStudyPairs(trait, studyID, outputFile, False)
+        printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
 
     else:
         # keep track of the samples that have had their scores calculated so we know when to write out the condensed format line and json output
