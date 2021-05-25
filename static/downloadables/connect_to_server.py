@@ -14,7 +14,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     # Format variables used for getting associations
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
-        traits = [sub.replace('_', ' ') for sub in traits]
+        traits = [sub.replace('_', ' ').replace("\\'", "\'") for sub in traits]
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
@@ -354,6 +354,7 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
             "studyTypes": studyTypes,
             "ethnicities": ethnicity,
         }
+        print(body)
         traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
 
         # select the studyIDs of the studies
