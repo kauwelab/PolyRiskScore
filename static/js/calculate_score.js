@@ -678,6 +678,9 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
     var resultJsons = {};
     var unusedTraitStudyCombo = new Set()
 
+    var traitNodes = document.querySelectorAll('#traitSelect :checked');
+    var selectedTraits = [...traitNodes].map(option => option.value);
+
     if (greppedSamples == undefined) {
         throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
     }
@@ -698,28 +701,31 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
             for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
                 for (i=0; i < studyIDs.length; i++) {
                     for (trait in associationData['studyIDsToMetaData'][studyIDs[i]]['traits']) {
-                        if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithExcludedSnps'].includes(trait)) {
-                            printStudyID = studyIDs[i].concat('†')
-                        }
-                        else {
-                            printStudyID = studyIDs[i]
-                        }
-
-                        if (!(printStudyID in resultObj)) {
-                            resultObj[printStudyID] = {}
-                        }
-                        if (!(trait in resultObj[printStudyID])) {
-                            resultObj[printStudyID][trait] = {}
-                        }
-                        if (!(individualName in resultObj[printStudyID][trait])) {
-                            resultObj[printStudyID][trait][individualName] = {
-                                snps: {},
-                                variantsWithUnmatchedAlleles: [],
-                                variantsInHighLD: []
+                        // ensure that the right studies/traits are being used and that this matches the CLI
+                        if (selectedTraits.includes(trait) || selectedTraits.includes(associationData['studyIDsToMetaData'][studyIDs[i]]["reportedTrait"])) {
+                            if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithExcludedSnps'].includes(trait)) {
+                                printStudyID = studyIDs[i].concat('†')
                             }
-                        }
-                        if (!([trait, studyIDs[i], individualName].join("|") in indexSnpObj)) {
-                            indexSnpObj[[trait, studyIDs[i], individualName].join("|")] = {}
+                            else {
+                                printStudyID = studyIDs[i]
+                            }
+    
+                            if (!(printStudyID in resultObj)) {
+                                resultObj[printStudyID] = {}
+                            }
+                            if (!(trait in resultObj[printStudyID])) {
+                                resultObj[printStudyID][trait] = {}
+                            }
+                            if (!(individualName in resultObj[printStudyID][trait])) {
+                                resultObj[printStudyID][trait][individualName] = {
+                                    snps: {},
+                                    variantsWithUnmatchedAlleles: [],
+                                    variantsInHighLD: []
+                                }
+                            }
+                            if (!([trait, studyIDs[i], individualName].join("|") in indexSnpObj)) {
+                                indexSnpObj[[trait, studyIDs[i], individualName].join("|")] = {}
+                            }
                         }
                     }
                 }
