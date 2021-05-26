@@ -51,14 +51,14 @@ function startTour() {
                 title: "Let's try it!",
                 content: "For now, press the \"Example\" button to preload the website with an example VCF.",
                 reflex: true,
-                template: templateWithoutNext
+                // template: templateWithoutNext
             },
             {
                 element: "#refGenome",
                 title: "Select reference genome",
                 content: "Select the reference genome corresponding to the VCF you have uploaded. \
                 Choose the \"GRCh37/hg19\" option for the example VCF.",
-                template: templateWithoutNext
+                // template: templateWithoutNext
             },
             {
                 element: "#superPopSelect",
@@ -66,7 +66,7 @@ function startTour() {
                 content: "This will be used to perform LD clumping on your data (see the About \
                 page). If you are unsure about the super population of the individual(s) in your file, \
                 choose the one you believe to be the most accurate.",
-                template: templateWithoutNext
+                // template: templateWithoutNext
             },
             {
                 element: "#GWAStypeSelector",
@@ -93,7 +93,7 @@ function startTour() {
                 replication sample size. Once you have \ finished selecting your filters, press the \
                 \"Apply Filters\" button to update the studies list.",
                 reflex: true,
-                template: templateWithoutNext
+                // template: templateWithoutNext
             },
             {
                 element: "#studySelectContainer",
@@ -107,13 +107,13 @@ function startTour() {
                 title: "Upload a GWAS file",
                 content: "See the above paragraph for the requirements for uploading GWAS data. For this tour, select the example file.",
                 reflex: true,
-                template: templateWithoutNext
+                // template: templateWithoutNext
             },
             {
                 element: "#gwasRefGenome",
                 title: "Select the reference genome of the uploaded GWAS data",
                 content: "Select the reference genome corresponding to the GWAS data you have uploaded. For the example GWAS file, select the 'GRCh38/hg38' option.",
-                template: templateWithoutNext
+                // template: templateWithoutNext
             },
             {
                 element: "#pvalInput",
@@ -147,7 +147,7 @@ function startTour() {
                 title: "Click the calculate button",
                 content: "It's a simple as that!",
                 reflex: true,
-                template: templateWithoutNext
+                // template: templateWithoutNext
             },
             {
                 element: "#responseBox",
