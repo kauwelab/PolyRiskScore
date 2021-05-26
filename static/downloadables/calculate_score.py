@@ -124,6 +124,8 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
         # json output objects
         json_study_results = {}
         json_samp_list = []
+        # keep track of the unusedtraitstudies added to the supplement file
+        unusedTraitStudySet = set()
 
         # For every sample in the vcf nested dictionary
         for samp in sampleOrder:
@@ -172,8 +174,11 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
                         printStudyID = studyID + '†'
                     else:
                         printStudyID = studyID
-                    # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
-                    printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
+                    # check if the study/trait has already been printed to the unusedtraitstudy file. if it hasn't, print it to the file
+                    if (trait, printStudyID) not in unusedTraitStudySet:
+                        # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
+                        printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
+                        unusedTraitStudySet.add((trait, printStudyID))
 
                 # if the output format is verbose
                 elif not isCondensedFormat and not isJson:
