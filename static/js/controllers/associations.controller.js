@@ -353,6 +353,7 @@ async function separateStudies(associations, traitData, refGen, defaultSex) {
                         studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'] = [association.trait]
                     }
                     else if (!(studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'].includes(association.trait))) {
+                        studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'].push(association.trait)
                     }
                 }
                 else {
@@ -374,6 +375,9 @@ async function separateStudies(associations, traitData, refGen, defaultSex) {
                             //Add an indication of which traits/studies have duplicated snps
                             if (!('traitsWithExcludedSnps' in studyIDsToMetaData[association.studyID])) {
                                 studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'] = [association.trait]
+                            }
+                            else if (!(studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'].includes(association.trait))) {
+                                studyIDsToMetaData[association.studyID]['traitsWithExcludedSnps'].push(association.trait)
                             }
                         }
                     }
