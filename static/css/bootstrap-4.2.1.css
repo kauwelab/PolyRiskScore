@@ -6536,11 +6536,6 @@ dfn:hover::before {top: 20px;}
   width: 100%;
   padding-right: 15px;
   padding-left: 15px;
-
-  -ms-flex: 0 0 25%;
-    flex: 0 0 25%;
-    max-width: 25%;
-    
 }
 
 .flex-item:hover {
