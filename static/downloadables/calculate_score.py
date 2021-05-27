@@ -169,7 +169,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
                                             unmatchedAlleleVariants.add(rsID)
 
                 if not omitUnusedStudiesFile and len(oddsRatios) == 0 and len(protectiveVariants) == 0 and len(riskVariants) == 0 and len(unmatchedAlleleVariants) == 0 and len(clumpedVariants) == 0:
-                    samp_count -= 1
+                    #samp_count -= 1
                     if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
                         printStudyID = studyID + '†'
                     else:
@@ -181,7 +181,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
                         unusedTraitStudySet.add((trait, printStudyID))
 
                 # if the output format is verbose
-                elif not isCondensedFormat and not isJson:
+                if not isCondensedFormat and not isJson:
                     # add necessary marks to study/score
                     prs, printStudyID = createMarks(oddsRatios, studyID, asterisk, mark)
                     #grab variant sets
