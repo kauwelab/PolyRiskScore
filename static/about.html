@@ -101,50 +101,50 @@
             forth by <a href="https://www.nature.com/articles/s41596-020-0353-1">Choi, et al. (2020)</a>:
           </p><br>
           <div class="row" style="display: inline-flex; gap:1em;">
-              <div id="prstile1" class="prstile1" onmouseover="" style="text-align: left;">
-                <h4 style="text-align: center;">Quality Control</h4>
-                <p style="text-align: left; padding-left: 60px; padding-right: 30px; padding-bottom:10px; padding-top:10px;">
-                  <h6>Quality Control Performed by the PRSKB</h6>
-                  <p>  
-                    <ul>
-                      <li>Any allele that has been reported on the reverse strand is automatically detected and flipped to the forward strand.</li>
-                      <li>We ensure that summary data and query data are from the same reference genome.</li>
-                    </ul>
-                  </p>
-                  <h6>Quality Control Recommendations for the User</h6>
-                  <p>  
-                    <ul>
-                      <li>Ensure that GWA summary data and query samples are from the same population.</li>
-                      <li>Avoid overlap or highly related samples between summary data and query samples.</li>
-                      <li>Aim for a target query sample size of at least 100.</li>
-                      <li>Seek to use GWA study data with a SNP heritability > 0.05.</li>
-                    </ul>
-                  </p>
+            <div id="prstile1" class="prstile1" onmouseover="" style="text-align: left;">
+              <h4 style="text-align: center;">Quality Control</h4>
+              <p style="text-align: left; padding-left: 60px; padding-right: 30px; padding-bottom:10px; padding-top:10px;">
+                <h6>Quality Control Performed by the PRSKB</h6>
+                <p>  
+                  <ul>
+                    <li>Any allele that has been reported on the reverse strand is automatically detected and flipped to the forward strand.</li>
+                    <li>We ensure that summary data and query data are from the same reference genome.</li>
+                  </ul>
                 </p>
-              </div>
-              <div id="prstile2" class="prstile2" onmouseover="">
-                <div>
-                  <h5 style="text-align: center;">Linkage Disequilibrium Adjustment</h5>
-                  <p style="text-align: left;">
-                    <br>
-                    Linkage disequilibrium (LD) clumping reduces the inflation of polygenic risk scores by ensuring that no more 
-                    than one genetic variant from each LD region is included in the risk score calculations. We calculated LD clumps 
-                    for each population in the 1000 Genomes dataset using an r-squared value of 0.25 and a distance threshold of 500 kb. 
-                    The clumping analysis results were used to assign each 1000 Genomes variant to an LD clump ID for each population. 
-                    The clump IDs facilitate the dynamic retrieval of LD clumps from the PRSKB database so that only the genetic variant 
-                    with the most significant p-value in the GWA study of interest is used in the polygenic risk score calculation.
-                  </p>
-                </div>
-              </div>
-              <div id="prstile3" class="prstile3" onmouseover="">
-                <h4 style="text-align: center;">P-value Thresholding</h4>
+                <h6>Quality Control Recommendations for the User</h6>
+                <p>  
+                  <ul>
+                    <li>Ensure that GWA summary data and query samples are from the same population.</li>
+                    <li>Avoid overlap or highly related samples between summary data and query samples.</li>
+                    <li>Aim for a target query sample size of at least 100.</li>
+                    <li>Seek to use GWA study data with a SNP heritability > 0.05.</li>
+                  </ul>
+                </p>
+              </p>
+            </div>
+            <div id="prstile2" class="prstile2" onmouseover="">
+              <div>
+                <h5 style="text-align: center;">Linkage Disequilibrium Adjustment</h5>
                 <p style="text-align: left;">
                   <br>
-                  We allow the user to determine the p-value threshold, which dictates which GWA study variants will be included in 
-                  the PRS calculations. Additionally, we recommened that users who utilize the PRSKB to run bulk PRS analyses for 
-                  post-hoc hypothesizing account for multiple testing when determining a significance threshold for those analyses.
+                  Linkage disequilibrium (LD) clumping reduces the inflation of polygenic risk scores by ensuring that no more 
+                  than one genetic variant from each LD region is included in the risk score calculations. We calculated LD clumps 
+                  for each population in the 1000 Genomes dataset using an r-squared value of 0.25 and a distance threshold of 500 kb. 
+                  The clumping analysis results were used to assign each 1000 Genomes variant to an LD clump ID for each population. 
+                  The clump IDs facilitate the dynamic retrieval of LD clumps from the PRSKB database so that only the genetic variant 
+                  with the most significant p-value in the GWA study of interest is used in the polygenic risk score calculation.
                 </p>
               </div>
+            </div>
+            <div id="prstile3" class="prstile3" onmouseover="">
+              <h4 style="text-align: center;">P-value Thresholding</h4>
+              <p style="text-align: left;">
+                <br>
+                We allow the user to determine the p-value threshold, which dictates which GWA study variants will be included in 
+                the PRS calculations. Additionally, we recommened that users who utilize the PRSKB to run bulk PRS analyses for 
+                post-hoc hypothesizing account for multiple testing when determining a significance threshold for those analyses.
+              </p>
+            </div>
             
             <script>
               document.querySelector("#prstile1").addEventListener("click", function() {
@@ -160,8 +160,6 @@
               });
             </script>
           </div>
-          
-          
         </div>
       </div>
     </div>
@@ -270,29 +268,25 @@
   </style>
   <div class="jumbotron" style="background-color: whitesmoke;">
     <div class="container">
-      <div class="row">
-        <div class="col-lg-12 mb-4 mt-2 text-center">
-          <h2 id="test_title" style="margin-top: 2rem;">Benefits of the PRS Knowledge Base</h2><br>
-          <div id="flex-container">
-            <div id="box1" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
-              <h5>User-Friendly</h5>
-              <p>Until now, the only tools available for calculating polygenic risk scores were on the command-line.
-                Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
-            </div>
-            <div id="box2" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
-              <h5>Centralized Database</h5>
-              <p>The PRSKB has a centralized database for all of the genome-wide association studies used
-                to compute the scores. As new studies are performed and added to the NHGRI-EBI GWAS Catalog, 
-                they are added to the PRSKB database.</p>
-            </div>
-            <div id="box3" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
-              <h5>Contextualization</h5>
-              <p>We present polygenic risk score distributions and summary statistics for each of the studies in
-        the PRSKB database, generated from individual genetic data in the 1000 Genomes, UK Biobank, and ADNI
-        datasets. Users can utilize this data as an approximate contextualization for their own reported risk
-        scores.</p>
-            </div>
-          </div>
+      <h2 id="test_title" class="text-center" style="margin-top: 2rem;">Benefits of the PRS Knowledge Base</h2><br>
+      <div class="row" style="display: inline-flex;">
+        <div id="box1" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
+          <h5>User&#8209;Friendly</h5>
+          <p>Until now, the only tools available for calculating polygenic risk scores were on the command-line.
+            Our Knowledge Base offers a more user-friendly medium for computing and outputting these scores.</p>
+        </div>
+        <div id="box2" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
+          <h5>Centralized&nbsp;Database</h5>
+          <p>The PRSKB has a centralized database for all of the genome-wide association studies used
+            to compute the scores. As new studies are performed and added to the NHGRI-EBI GWAS Catalog, 
+            they are added to the PRSKB database.</p>
+        </div>
+        <div id="box3" class="box flex-item col-md-3 align-self-top" style="margin: 4%; visibility:hidden;">
+          <h5>Contextualization</h5>
+          <p>We present polygenic risk score distributions and summary statistics for each of the studies in
+            the PRSKB database, generated from individual genetic data in the 1000 Genomes, UK Biobank, and ADNI
+            datasets. Users can utilize this data as an approximate contextualization for their own reported risk
+            scores.</p>
         </div>
       </div>
     </div>
@@ -366,7 +360,7 @@
       }
     }
   </script>
-  
+
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->

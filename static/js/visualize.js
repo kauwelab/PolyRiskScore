@@ -195,13 +195,25 @@ function displayGraphs() {
                 displayTable()
 
                 var studyMetadata = document.getElementById("studymetadata")
-                metadatastring = `<p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p>
+                metadatastring = `<script src="js/displayPanel.js"></script>
+                <p><b>Title:</b> ${selectedStudy.getAttribute("data-title")}</p>
                 <p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p>
                 <p><b>Disease/Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p>
                 <p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p>
                 <p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p>
-                <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>`
-                metadatastring = metadatastring.concat(snpsString)
+                <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>
+                <ul class="prsList" style="text-align: left">
+                    <li onclick="displayPanel('snpsPanel')">
+                        <a><b>SNPs Used:</b></a>
+                        <i id="snpsPanel_sign" class="fa fa-angle-down" aria-hidden="true"
+                        style="margin-right:5px;"></i>
+                    </li>
+                    <div class="" id="snpsPanel"
+                        style="height: 0px; display: block; overflow: hidden; transition: height 0.5s; -webkit-transition: height 0.5s; margin-left:1em;">
+                        ${snpsString}
+                    </div>
+                </ul>`
+                // metadatastring = metadatastring.concat(snpsString)
                 studyMetadata.innerHTML = metadatastring
             }
         },
