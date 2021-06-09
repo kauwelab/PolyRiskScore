@@ -202,10 +202,12 @@ function changeGWASType() {
     if (gwasType === "Database") {
         document.getElementById("gwasDatabase").style.display = "initial";
         document.getElementById("gwasUpload").style.display = "none";
+        document.getElementById("SexSpecificSnps").style.display = "initial";
     }
     else {
         document.getElementById("gwasDatabase").style.display = "none";
         document.getElementById("gwasUpload").style.display = "initial";
+        document.getElementById("SexSpecificSnps").style.display = "none";
     }
 }
 
@@ -279,8 +281,6 @@ var calculatePolyScore = async () => {
     var refGen = refGenElement.options[refGenElement.selectedIndex].value
     var superPopElement = document.getElementById("superPopSelect");
     var superPop = superPopElement.options[superPopElement.selectedIndex].value
-    var sexElement = document.getElementById("sex");
-    var sex = sexElement.options[sexElement.selectedIndex].value
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
@@ -295,12 +295,6 @@ var calculatePolyScore = async () => {
         updateResultBoxAndStoredValue('Please select the super population corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
-    }
-    if (sex == "default") {
-        sex = "f"
-        if (!confirm("Female is the default for default sex. Since no default sex was selected, we will use female as the default sex. Continue?")) {
-            return
-        }
     }
 
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
@@ -318,6 +312,8 @@ var calculatePolyScore = async () => {
 
     }
     else {
+        var sexElement = document.getElementById("sex");
+        var sex = sexElement.options[sexElement.selectedIndex].value
         var studyNodes = document.querySelectorAll('#studySelect :checked');
         var studies = [...studyNodes].map(option => [option.value, option.dataset.trait]);
 
@@ -682,6 +678,9 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
     var resultJsons = {};
     var unusedTraitStudyCombo = new Set()
 
+    var traitNodes = document.querySelectorAll('#traitSelect :checked');
+    var selectedTraits = [...traitNodes].map(option => option.value);
+
     if (greppedSamples == undefined) {
         throw "The input was undefined when calculating the score. Please check your input file or text or reload the page and try again."
     }
@@ -702,28 +701,31 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
             for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
                 for (i=0; i < studyIDs.length; i++) {
                     for (trait in associationData['studyIDsToMetaData'][studyIDs[i]]['traits']) {
-                        if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithDuplicateSnps'].includes(trait)) {
-                            printStudyID = studyIDs[i].concat('†')
-                        }
-                        else {
-                            printStudyID = studyIDs[i]
-                        }
-
-                        if (!(printStudyID in resultObj)) {
-                            resultObj[printStudyID] = {}
-                        }
-                        if (!(trait in resultObj[printStudyID])) {
-                            resultObj[printStudyID][trait] = {}
-                        }
-                        if (!(individualName in resultObj[printStudyID][trait])) {
-                            resultObj[printStudyID][trait][individualName] = {
-                                snps: {},
-                                variantsWithUnmatchedAlleles: [],
-                                variantsInHighLD: []
+                        // ensure that the right studies/traits are being used and that this matches the CLI
+                        if (selectedTraits.includes(trait) || selectedTraits.includes(associationData['studyIDsToMetaData'][studyIDs[i]]["reportedTrait"])) {
+                            if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithExcludedSnps'].includes(trait)) {
+                                printStudyID = studyIDs[i].concat('†')
                             }
-                        }
-                        if (!([trait, studyIDs[i], individualName].join("|") in indexSnpObj)) {
-                            indexSnpObj[[trait, studyIDs[i], individualName].join("|")] = {}
+                            else {
+                                printStudyID = studyIDs[i]
+                            }
+    
+                            if (!(printStudyID in resultObj)) {
+                                resultObj[printStudyID] = {}
+                            }
+                            if (!(trait in resultObj[printStudyID])) {
+                                resultObj[printStudyID][trait] = {}
+                            }
+                            if (!(individualName in resultObj[printStudyID][trait])) {
+                                resultObj[printStudyID][trait][individualName] = {
+                                    snps: {},
+                                    variantsWithUnmatchedAlleles: [],
+                                    variantsInHighLD: []
+                                }
+                            }
+                            if (!([trait, studyIDs[i], individualName].join("|") in indexSnpObj)) {
+                                indexSnpObj[[trait, studyIDs[i], individualName].join("|")] = {}
+                            }
                         }
                     }
                 }
@@ -748,8 +750,8 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                                 printStudyID = studyID
                                 traitStudySamp = [trait, studyID, individualName].join("|")
                                 associationObj = associationData['associations'][key]['traits'][trait][studyID]
-                                if ('traitsWithDuplicateSnps' in associationData['studyIDsToMetaData'][studyID]) {
-                                    if (associationData['studyIDsToMetaData'][studyID]['traitsWithDuplicateSnps'].includes(trait)) {
+                                if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyID]) {
+                                    if (associationData['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps'].includes(trait)) {
                                         printStudyID = studyID.concat('†')
                                     }
                                 }
@@ -833,7 +835,7 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                     }
                     else {
                         tmpStudyObj['traits'][trait] = {}
-                        unusedTraitStudyCombo.add([trait, studyID_og])
+                        unusedTraitStudyCombo.add([trait, studyID])
                         delete tmpStudyObj['traits'][trait]
                     }
                 }
@@ -1166,7 +1168,7 @@ function downloadResults() {
         extension = ".txt";
     }
     if (unusedTraitStudyArray.length != 0) {
-        formattedUnusedTraitStudyArray = unusedTraitStudyArray.join("\n")
+        formattedUnusedTraitStudyArray = "Trait/Study combinations with no matching snps in the input file:\n" + unusedTraitStudyArray.join("\n")
     }
     else {
         formattedUnusedTraitStudyArray = null

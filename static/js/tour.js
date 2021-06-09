@@ -50,31 +50,20 @@ function startTour() {
                 element: "#exampleInput",
                 title: "Let's try it!",
                 content: "For now, press the \"Example\" button to preload the website with an example VCF.",
-                reflex: true,
-                template: templateWithoutNext
+                reflex: true
             },
             {
                 element: "#refGenome",
                 title: "Select reference genome",
                 content: "Select the reference genome corresponding to the VCF you have uploaded. \
-                Choose the \"GRCh37/hg19\" option for the example VCF.",
-                template: templateWithoutNext
+                Choose the \"GRCh37/hg19\" option for the example VCF."
             },
             {
                 element: "#superPopSelect",
                 title: "Select super population of individual(s) in your VCF file.",
                 content: "This will be used to perform LD clumping on your data (see the About \
                 page). If you are unsure about the super population of the individual(s) in your file, \
-                choose the one you believe to be the most accurate.",
-                template: templateWithoutNext
-            },
-            {
-                element: "#sex",
-                title: "Select the sex of the individuals in your VCF file.",
-                content: "This will be used to select odds ratios and p-values to use when there \
-                are multiple odds ratios available for the same SNP due to them being associated \
-                with biological sex. This is not a common occurence. Our system defaults to \
-                female. When you are done, press the \"next\" button to continue the tour."
+                choose the one you believe to be the most accurate."
             },
             {
                 element: "#GWAStypeSelector",
@@ -100,8 +89,7 @@ function startTour() {
                 \"large cohort\" is measured \ by the size of a study's initial sample size plus its \
                 replication sample size. Once you have \ finished selecting your filters, press the \
                 \"Apply Filters\" button to update the studies list.",
-                reflex: true,
-                template: templateWithoutNext
+                reflex: true
             },
             {
                 element: "#studySelectContainer",
@@ -114,14 +102,12 @@ function startTour() {
                 element: "#exampleGWASInput",
                 title: "Upload a GWAS file",
                 content: "See the above paragraph for the requirements for uploading GWAS data. For this tour, select the example file.",
-                reflex: true,
-                template: templateWithoutNext
+                reflex: true
             },
             {
                 element: "#gwasRefGenome",
                 title: "Select the reference genome of the uploaded GWAS data",
-                content: "Select the reference genome corresponding to the GWAS data you have uploaded. For the example GWAS file, select the 'GRCh38/hg38' option.",
-                template: templateWithoutNext
+                content: "Select the reference genome corresponding to the GWAS data you have uploaded. For the example GWAS file, select the 'GRCh38/hg38' option."
             },
             {
                 element: "#pvalInput",
@@ -143,11 +129,18 @@ function startTour() {
                 which are neutral or have unknown contributions."
             },
             {
+                element: "#sex",
+                title: "Include or exclude sex dependent SNPs",
+                content: "Occasionally, studies will include SNPs that have odds ratios which \
+                are dependent upon biological sex. By default, we exclude any SNPs that are depenent on \
+                biological sex. If you choose, you can include either female or male dependent SNPs. \
+                When you are done, press the \"next\" button to continue the tour."
+            },
+            {
                 element: "#feedbackSubmit",
                 title: "Click the calculate button",
                 content: "It's a simple as that!",
-                reflex: true,
-                template: templateWithoutNext
+                reflex: true
             },
             {
                 element: "#responseBox",
