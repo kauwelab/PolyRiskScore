@@ -354,7 +354,6 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
             "studyTypes": studyTypes,
             "ethnicities": ethnicity,
         }
-        print(body)
         traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
 
         # select the studyIDs of the studies
