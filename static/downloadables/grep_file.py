@@ -57,7 +57,8 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, sex, isRSid
         # create path for clump number dictionary
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
-        associationsPath = os.path.join(basePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0]))
+        associFileName = "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0]) if sex[0] != "e" else "allAssociations_{refGen}.txt".format(refGen=refGen)
+        associationsPath = os.path.join(basePath, associFileName)
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = superPop, r = refGen))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         # create path for clump number dictionary

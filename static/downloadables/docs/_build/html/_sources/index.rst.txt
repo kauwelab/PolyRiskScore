@@ -192,11 +192,12 @@ If the output file is in JSON format, the results will, by default, be in verbos
 
    -v
 
-Default Sex (-g)
-""""""""""""""""
-Though a rare occurence, some studies have duplicates of the same snp that differ by which
-biological sex the p-value is associated with. You can indicate which sex you would like snps
-to select when both options (M/F) are present. The system default is Female.
+Sex dependent associations (-g)
+"""""""""""""""""""""""""""""""
+Though a rare occurence, some studies have duplicates of the same SNP that differ by which biological sex 
+the p-value and odds ratio is associated with or SNPs that are not duplicated, but are dependent on biological sex. 
+The system default is to exclude sex dependent SNPs from calculations. You can include sex dependent associations 
+by selecting either male (M) or female (F).
 
 .. code-block:: bash
 
@@ -255,6 +256,8 @@ Calculate Scores
 ----------------
 
 Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in the database for each individual in the input file. Additional parameters will filter studies to be included in the calculation. 
+
+Some trait/study combination have multiple odds ratios and p-values for the same SNP. This could be due to many reasons, including differences in association between males and females. By default, we exclude all SNPs that have multiple odds ratios/p-values from calculations or are reported for only a single sex. Users are given the option to add in SNP associations that are annotated for males or females. Studies where snps have been excluded for these reasons are denoted by a † symbol. 
 
 Uploading GWAS Summary Statistics
 =================================

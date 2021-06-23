@@ -106,7 +106,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
-    echo -e "   ${MYSTERYCOLOR}-g${NC} defaultSex ex. -g male -g female"
+    echo -e "   ${MYSTERYCOLOR}-g${NC} sex dependent associations ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available subprocesses)"
     echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
@@ -177,7 +177,7 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}8${NC} - -i studyID                              |"
         echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
         echo -e "| ${LIGHTPURPLE}10${NC} - -v verbose result file                 |"
-        echo -e "| ${LIGHTPURPLE}11${NC} - -g defaultSex                          |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - -g sex dependent associations          |"
         echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
         echo -e "| ${LIGHTPURPLE}13${NC} - -n number of subprocesses              |"
         echo -e "| ${LIGHTPURPLE}14${NC} - -m omit *_studiesNotIncluded.txt       |"
@@ -271,10 +271,11 @@ learnAboutParameters () {
                 echo "If the output file is in JSON format, the results will, by default, be in verbose format."
                 echo -e "${LIGHTRED}**NOTE:${NC} There is no condensed version of JSON output."
                 echo "" ;;
-            11 ) echo -e "${MYSTERYCOLOR} -g defaultSex: ${NC}"
-                echo "Though a rare occurence, some studies have duplicates of the same snp that differ by which"
-                echo "biological sex the p-value is associated with. You can indicate which sex you would like snps"
-                echo "to select when both options (M/F) are present. The system default is Female."
+            11 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}"
+                echo "Though a rare occurence, some studies have duplicates of the same SNP that differ by which"
+                echo "biological sex the p-value and odds ratio is associated with or SNPs that are not duplicated, "
+                echo "but are dependent on biological sex. The system default is to exclude sex dependent SNPs from calculations. " 
+                echo "You can include sex dependent associations by selecting either male (M) or female (F)."
                 echo "" ;;
             12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo -e "Either ${GREEN}-s 1${NC} or ${GREEN}-s 2${NC}"
@@ -379,8 +380,7 @@ Optional column headers that will be included if present are: ${MYSTERYCOLOR}Cit
 ${MYSTERYCOLOR}Reported Trait${NC}. Column order does not matter and there may be extra columns \
 present in the file. Required and optional header names must be exact."
     echo ""
-    echo "If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele \
-with the most significant p-value will be used."
+    echo "If more than one odds ratio exists for an RsID in a study/trait combination, the snp will be excluded."
     echo ""
     echo -e "${LIGHTRED}NOTE: If a GWAS data file is specified, risk scores will only be calculated on \
 that data. No association data from the PRSKB will be used. Additionally, the optional params \
@@ -629,7 +629,7 @@ calculatePRS () {
             v)  isCondensedFormat=0
                 ;;
             g)  if ! [ -z "$defaultSex" ]; then
-                    echo "Too many default sexes requested at once."
+                    echo "Too many sexes requested for sex dependent associations at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
@@ -724,9 +724,9 @@ calculatePRS () {
     if [ -z "$step" ]; then
         step=0
     fi
-    # if no sex is specified, set to female
+    # if no sex is specified, set to exclude
     if [ -z "$defaultSex" ]; then
-        defaultSex="female"
+        defaultSex="exclude"
     fi
     # if no GWAS refgen is specified but a path to a gwas file is give, set GWASrefgen to the samples refgen
     if [ -z "${GWASrefgen}" ] && ! [ -z "${GWASfilename}" ]; then
