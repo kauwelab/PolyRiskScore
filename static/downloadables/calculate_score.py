@@ -19,6 +19,8 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omi
         # if has traitWithDuplicateSnps, add the sign to the studyID
         if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
             printStudyID = studyID + '†'
+        else:
+            printStudyID = studyID
         printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
 
     else:
@@ -48,7 +50,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omi
                             # Compare the individual's snp and allele to the study row's snp and risk allele
                             riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                             oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
-                            if allele == riskAllele:
+                            if allele == riskAllele and oddsRatio != 0:
                                 oddsRatios.append(oddsRatio)
                                 if oddsRatio < 1:
                                     protectiveVariants.add(snp)
