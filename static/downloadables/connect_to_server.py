@@ -78,7 +78,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f.write(json.dumps(clumpsData))
         f.close()
 
-    # check to see if studySnpsDat is instantiated in the local variables
+    # check to see if studySnpsData is instantiated in the local variables
     if 'studySnpsData' in locals():
         f = open(studySnpsPath, 'w', encoding="utf-8")
         f.write(json.dumps(studySnpsData))
