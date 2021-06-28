@@ -197,6 +197,7 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
             if associationDict[snp]["traits"] == {}:
                 del associationDict[snp]
 
+    # if the samples reference genome does not equal the gwas reference genome, get a dictionary with the correct positions
     if GWASrefGen != refGen:
         snps = list(associationDict.keys())
         chromSnpDict = getUrlWithParams("https://prs.byu.edu/snps_to_chrom_pos", { "snps": snps, "refGen": refGen })
