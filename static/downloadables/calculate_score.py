@@ -5,6 +5,7 @@ import os
 from filelock import FileLock
 
 def calculateScore(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sampleOrder):
+    # check if the input file is a txt or vcf file and then run the calculations on that file
     if isRSids:
         txtcalculations(snpSet, parsedObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, unusedTraitStudy, trait, study, snpCount)
     else:
@@ -19,6 +20,8 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omi
         # if has traitWithDuplicateSnps, add the sign to the studyID
         if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
             printStudyID = studyID + '†'
+        else:
+            printStudyID = studyID
         printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
 
     else:
@@ -45,18 +48,23 @@ def txtcalculations(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omi
                     for allele in txtObj[snp]:
                         # Then compare to the gwa study
                         if allele != "":
-                            # Compare the individual's snp and allele to the study row's snp and risk allele
+                            # Compare the individual's snp and allele to the study's snp and risk allele
                             riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID]['riskAllele']
                             oddsRatio = tableObjDict['associations'][snp]['traits'][trait][studyID]['oddsRatio']
-                            if allele == riskAllele:
+			    # if the individual's snp and allele match those of the study, add the corresponding GWA odds ratio to the 
+			    # individual's list of odds ratios for this study
+                            if allele == riskAllele and oddsRatio != 0:
                                 oddsRatios.append(oddsRatio)
                                 if oddsRatio < 1:
                                     protectiveVariants.add(snp)
                                 elif oddsRatio > 1:
                                     riskVariants.add(snp)
                             else:
+				# this set keeps track of an individual's SNPs that have alleles that differ from the GWAS risk allele
                                 unmatchedAlleleVariants.add(snp)
 
+	    # unless the user indicates they don't want the extra output file..
+	    # if the sample did not have any matching snps with the gwa study, write the study out to the unused studies file
             if not omitUnusedStudiesFile and len(oddsRatios) == 0 and len(protectiveVariants) == 0 and len(riskVariants) == 0 and len(unmatchedAlleleVariants) == 0 and len(clumpedVariants) == 0:
                 if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
                     printStudyID = studyID + '†'
@@ -158,7 +166,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
                                 for allele in alleles:
                                     allele = str(allele)
                                     if allele != "":
-                                        # check if the risk allele is in the listed alleles
+                                        # check if the risk allele matches one of the sample's alleles for this SNP
                                         if allele == riskAllele and oddsRatio != 0:
                                             oddsRatios.append(oddsRatio) # add the odds ratio to the list of odds ratios used to calculate the score
                                             if oddsRatio < 1:
@@ -169,7 +177,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omi
                                             unmatchedAlleleVariants.add(rsID)
 
                 if not omitUnusedStudiesFile and len(oddsRatios) == 0 and len(protectiveVariants) == 0 and len(riskVariants) == 0 and len(unmatchedAlleleVariants) == 0 and len(clumpedVariants) == 0:
-                    #samp_count -= 1
                     if 'traitsWithExcludedSnps' in tableObjDict['studyIDsToMetaData'][studyID].keys() and trait in tableObjDict['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps']:
                         printStudyID = studyID + '†'
                     else:
@@ -303,18 +310,21 @@ def printUnusedTraitStudyPairs(trait, study, outputFile, isFirst):
 
 
 def getPRSFromArray(oddsRatios):
+# calculate the PRS from the list of odds ratios
     combinedOR = 0
     for oratio in oddsRatios:
         oratio = float(oratio)
         combinedOR += math.log(oratio)
     combinedOR = math.exp(combinedOR)
     combinedOR = round(combinedOR, 3)
+    # if the odds ratios list is empty, indicate with 'NF'
     if not oddsRatios:
         combinedOR = "NF"
     return(str(combinedOR))
 
 
 def formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants):
+# Format the sets of variants for the output file
     protectiveVariants = "." if str(protectiveVariants) == "set()" else "|".join(protectiveVariants)
     riskVariants = "." if str(riskVariants) == "set()" else "|".join(riskVariants)
     unmatchedAlleleVariants = "." if str(unmatchedAlleleVariants) == "set()" else "|".join(unmatchedAlleleVariants)
@@ -328,6 +338,7 @@ def formatTSV(isFirst, newLine, header, outputFile):
     if "/" in outputFile:
         os.makedirs(os.path.dirname(outputFile), exist_ok=True)
 
+    # check if this is the first line
     if isFirst:
         with FileLock(outputFile + ".lock"):
             with open(outputFile, 'w', newline='', encoding="utf-8") as f:

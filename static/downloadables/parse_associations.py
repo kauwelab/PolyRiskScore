@@ -9,6 +9,7 @@ import os.path
 from collections import defaultdict
 
 def parseAndCalculateFiles(params):
+    # initialize the parameters used in multiprocessing
     inputFilePath = params[0]
     clumpsObjDict = params[1]
     tableObjDict  = params[2]
@@ -24,6 +25,8 @@ def parseAndCalculateFiles(params):
     isRSids = params[12]
     timestamp = params[13]
 
+    # check if the input file is a txt or vcf file
+    # parse the file to get the necessary genotype information for each sample and then run the calculations
     if isRSids: 
         txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
         cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, snpCount, isRSids, None)
@@ -58,6 +61,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRS
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
 
     try:
+	# open the files that were previously created
         with open(associationsPath, 'r') as tableObjFile:
             tableObjDict = json.load(tableObjFile)
         with open(clumpsPath, 'r') as clumpsObjFile:
@@ -75,6 +79,8 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRS
 
 def formatAndReturnGenotype(genotype, REF, ALT):
     try:
+    	# read and interpret the genotype column from the VCF
+	# if the genotype is not completely null
         if genotype != "./." and genotype != ".|." and genotype !=".." and genotype != '.':
             count = 0
             alleles = []

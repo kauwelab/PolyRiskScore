@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.6.0"
+version="1.7.0"
 #
 # 
 # 
@@ -66,6 +66,12 @@ version="1.6.0"
 #   Added option to upload GWAS data:
 #       -u path to GWAS upload file
 #       -a refGen of GWAS upload file
+#
+#
+#   6/28/21 - v1.7.0
+#
+#   Exclude duplicated snps and sex-based snps unless sex-based snps are requested (-g parameter)
+#
 #
 # ########################################################################
 
@@ -187,6 +193,7 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}17${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
+        # gets the inputted number from the user
         read -p "#? " option
         echo ""
 
@@ -308,6 +315,7 @@ learnAboutParameters () {
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
+            # ask if the user wants to look at more of the params
             read -p "Return to Parameters? (y/n) " returnToParams
             echo ""
             case $returnToParams in 

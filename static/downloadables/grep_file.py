@@ -6,6 +6,7 @@ import json
 from sys import argv
 from io import TextIOWrapper
 
+# filter the input vcf or txt file so that it only include SNPs that exist in the PRSKB database
 def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp, useGWASupload):
     useGWASupload = True if useGWASupload == "True" or useGWASupload == True else False
 
@@ -70,6 +71,7 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, sex, isRSid
         # create path for clump number dictionary
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
     try:
+	# write the files
         with open(associationsPath, 'r') as tableObjFile:
             tableObjDict = json.load(tableObjFile)
         with open(clumpsPath, 'r') as clumpsObjFile:
@@ -148,7 +150,7 @@ def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
         snpInFilters = isSnpInFilters(snp, None, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, p_cutOff)
         if snpInFilters:
             # We use the clumpNumDict later in the parse_files functions to determine which variants are in an LD clump by themselves
-            # increase count of the ld clump this snp is in
+            # if the snp is part of an ld clump that has already been noted, increase the count of the ld clump this snp is in
             if snp in clumpsObjDict:
                 clumpNum = clumpsObjDict[snp]['clumpNum']
                 clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1

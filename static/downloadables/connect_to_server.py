@@ -78,7 +78,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f.write(json.dumps(clumpsData))
         f.close()
 
-    # check to see if studySnpsDat is instantiated in the local variables
+    # check to see if studySnpsData is instantiated in the local variables
     if 'studySnpsData' in locals():
         f = open(studySnpsPath, 'w', encoding="utf-8")
         f.write(json.dumps(studySnpsData))
@@ -197,6 +197,7 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
             if associationDict[snp]["traits"] == {}:
                 del associationDict[snp]
 
+    # if the samples reference genome does not equal the gwas reference genome, get a dictionary with the correct positions
     if GWASrefGen != refGen:
         snps = list(associationDict.keys())
         chromSnpDict = getUrlWithParams("https://prs.byu.edu/snps_to_chrom_pos", { "snps": snps, "refGen": refGen })
