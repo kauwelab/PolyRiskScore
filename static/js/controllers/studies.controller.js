@@ -41,7 +41,7 @@ exports.getEthnicities = (req, res) => {
                 ethnicityList = ethnicityString.split("|")
                 for (j=0; j<ethnicityList.length; j++){
                     if (ethnicityList[j].toLowerCase() != "na" && ethnicityList[j] != "" && !(ethnicities.includes(ethnicityList[j]))) {
-                        ethnicities.push(ethnicityList[j])
+                        ethnicities.push(ethnicityList[j].toLowerCase())
                     }
                 }
             }
