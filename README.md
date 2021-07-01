@@ -11,7 +11,7 @@ Website Link: [https://prs.byu.edu](https://prs.byu.edu)
 ### Calculate
 The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across more than 2100 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, p-value cutoff, and selected studies, polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file. 
 
-Some trait/study combination have multiple odds ratios and p-values for the same SNP. This could be due to many reasons, including differences in association between males and females. By default, we exclude all SNPs that have multiple odds ratios/p-values from calculations or are reported for only a single sex. Users are given the option to add in SNP associations that are annotated for males or females. Studies where snps have been excluded for these reasons are denoted by a † symbol. 
+Some trait/study combination have multiple odds ratios and p-values for the same SNP. This could be due to many reasons, including differences in association between males and females. By default, we exclude all SNPs that have multiple odds ratios/p-values from calculations or are reported for only a single sex. Users are given the option to add in SNP associations that are annotated for males or females. Studies where SNPs have been excluded for these reasons are denoted by a † symbol. 
 
 #### Uploading GWAS Summary Statistic Data
 In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations. 
