@@ -207,7 +207,6 @@ Cohortdata.getFullResults = (studyID, trait, cohorts, result) => {
                     res[i][0]["snps"] = res2[i][0]["snps"].split("|")
                 }
             }
-            console.log(res)
             result(null, res);
         })
     })

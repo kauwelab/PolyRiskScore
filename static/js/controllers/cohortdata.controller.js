@@ -110,7 +110,6 @@ exports.getStudySnps = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            console.log(data)
             snps = data[0]['snps'].split("|")
             res.send(snps);
         }
