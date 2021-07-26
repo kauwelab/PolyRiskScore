@@ -320,6 +320,8 @@ def getPRSFromArray(oddsRatios):
     # if the odds ratios list is empty, indicate with 'NF'
     if not oddsRatios:
         combinedOR = "NF"
+    elif combinedOR == 0.0:
+        combinedOR = 0.001
     return(str(combinedOR))
 
 
