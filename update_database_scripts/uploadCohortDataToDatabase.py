@@ -112,7 +112,9 @@ def main():
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_snps", "cohort_snps")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_snps", "cohort_snps")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_snps", "cohort_snps")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "adni_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_snps", "cohort_snps")
 
     print("Finished uploading cohort data to the PRSKB database!")
 

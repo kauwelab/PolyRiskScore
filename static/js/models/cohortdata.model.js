@@ -177,13 +177,14 @@ Cohortdata.getFullResults = (studyID, trait, cohorts, result) => {
         snpsSqlStatement = snpsSqlStatement.concat("SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?; ")
         snpsQueryParams.push(studyID)
         snpsQueryParams.push(trait)
+        snpsQueryParams.push(cohort)
         // the snps we have for ADNI cover MCI, AD, and controls
-        if (cohort.includes("adni")) {
-            snpsQueryParams.push("adni")
-        }
-        else {
-            snpsQueryParams.push(cohort)
-        }
+        // if (cohort.includes("adni")) {
+        //     snpsQueryParams.push("adni")
+        // }
+        // else {
+        //     snpsQueryParams.push(cohort)
+        // }
     });
 
     sql.query(sqlStatement, queryParams, (err, res) => {
@@ -214,9 +215,9 @@ Cohortdata.getFullResults = (studyID, trait, cohorts, result) => {
 
 Cohortdata.getStudySnps = (studyID, trait, cohort, result) => {
     // the snps we have for ADNI cover MCI, AD, and controls
-    if (cohort.includes("adni")) {
-        cohort = "adni"
-    }
+    // if (cohort.includes("adni")) {
+    //     cohort = "adni"
+    // }
     sqlStatement = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?"
     sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
         if (err) {

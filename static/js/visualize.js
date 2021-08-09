@@ -93,9 +93,9 @@ function getCohorts() {
         eas: "1000 Genomes - EAS population",
         eur: "1000 Genomes - EUR population",
         sas: "1000 Genomes - SAS population",
-        adni_ad: "ADNI - Alzheimer's Disease",
-        adni_mci: "ADNI - Mild Cognitive Impairment",
-        adni_controls: "ADNI - Cognitively Normal"
+        ad_adni: "ADNI - Alzheimer's Disease",
+        mci_adni: "ADNI - Mild Cognitive Impairment",
+        control_adni: "ADNI - Cognitively Normal"
     }
 
     //make sure the select is reset/empty so that the multiselect command will function properly
