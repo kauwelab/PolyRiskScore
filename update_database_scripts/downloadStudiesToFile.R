@@ -66,6 +66,12 @@ if (is_ebi_reachable()) {
     studies_time <- Sys.time()
     studies <- get_studies(interactive = FALSE)
     studiesTibble <- studies@studies
+    # remove newline characters
+    studiesTibble <- mutate(studiesTibble, initial_sample_size = str_replace_all(initial_sample_size, "\n", ""))
+    studiesTibble <- mutate(studiesTibble, initial_sample_size = str_replace_all(initial_sample_size, "\t", ""))
+    studiesTibble <- mutate(studiesTibble, replication_sample_size = str_replace_all(replication_sample_size, "\n", ""))
+    studiesTibble <- mutate(studiesTibble, replication_sample_size = str_replace_all(replication_sample_size, "\t", " "))
+    studiesTibble <- mutate(studiesTibble, study_design_comment = str_replace_all(study_design_comment, "\n", ""))
     # get publication data for all the studies
     publications <- studies@publications
     # get publication data for all the studies
