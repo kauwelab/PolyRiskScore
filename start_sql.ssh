@@ -1,3 +1,0 @@
-#!/bin/bash
-
-docker start fd9c55b6c049
