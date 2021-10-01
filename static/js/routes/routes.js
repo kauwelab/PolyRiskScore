@@ -55,11 +55,8 @@ module.exports = app => {
     app.get("/get_traitStudyID_to_snp", associations.getTraitStudyIDToSnpsDownloadFile)
 
     // Gets the clumping numbers for studies and ethnicities
-    app.get("/ld_clumping", clumps.getClumping);
 
     app.post("/ld_clumping_by_pos", clumps.getClumpingByPos);
-
-    app.post("/ld_clumping_by_snp", clumps.getClumpingBySnp);
 
     app.get("/get_clumps_download_file", clumps.getClumpsDownloadFile)
 
