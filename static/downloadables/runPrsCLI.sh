@@ -103,7 +103,7 @@ prskbMenu () {
 # the usage statement of the tool
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [GWAS super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}-t${NC} traitList ex. -t acne -t insomnia -t \"Alzheimer's disease\""
@@ -218,9 +218,9 @@ learnAboutParameters () {
                 echo "This parameter tells us which reference genome was used to identify the variants " 
                 echo -e "in the input VCF file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
                 echo "" ;;
-            5 ) echo -e "${MYSTERYCOLOR}-p Subject Super Population: ${NC}"
+            5 ) echo -e "${MYSTERYCOLOR}-p GWAS Super Population: ${NC}"
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
-                echo "SNPs for PRS calculation. We use the five super populations from the " 
+                echo "SNPs for PRS calculation. The population selected should match the population of the GWA study sample. We use the five super populations from the " 
                 echo "1000 Genomes as the available options. Below are the acceptable codes. " # this will need some re-work on the language
                 echo "" #AFR, AMR, EAS, EUR, SAS
                 echo -e "   ${GREEN}AFR${NC} - African population " 
