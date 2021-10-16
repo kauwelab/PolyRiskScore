@@ -118,6 +118,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
     echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about uploading GWAS data for calculations' or the CLI readme)"
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file" 
+    echo -e "   ${MYSTERYCOLOR}-l${NC} sample-wide LD clumping ex. -l" 
     echo ""
 }
 
@@ -189,8 +190,9 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}14${NC} - -m omit *_studiesNotIncluded.txt       |"
         echo -e "| ${LIGHTPURPLE}15${NC} - -u tab separated GWAS data file        |"
         echo -e "| ${LIGHTPURPLE}16${NC} - -a reference genome of GWAS data file  |"
+        echo -e "| ${LIGHTPURPLE}17${NC} - -l sample-wide LD clumping             |"
         echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}17${NC} - Done                                   |"
+        echo -e "| ${LIGHTPURPLE}18${NC} - Done                                   |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         # gets the inputted number from the user
@@ -311,7 +313,17 @@ learnAboutParameters () {
                 echo "If a GWAS data file is specified without this reference genome being specified, we assume the"
                 echo "reference genome is the same as the one for the input VCF or TXT."
                 echo "" ;;
-            17 ) cont=0 ;;
+            17 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
+                echo "To perform linkage disequilbrium clumping on a sample-wide level, include the -l parameter." 
+                echo -e "By default, LD clumping is performed per individual, where only the variants that contain"
+		echo "the corresponding GWA study risk allele are included in the clumping algorithm."
+		echo "Individual-wide LD clumping is beneficial because it allows for a greater number of variants"
+		echo "to be included for each individual's polygenic risk score."
+		echo "In contrast, sample-wide LD clumping performs clumping on all variants that are shared between"
+		echo "the query data and the GWA study. Sample-wide LD clumping allows for sample-wide"
+		echo "PRS comparisons because each individual risk score is calculated using the same variants."
+                echo "" ;;
+            18 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -506,6 +518,7 @@ calculatePRS () {
     ethnicityForCalc=()
     isCondensedFormat=1
     omitUnusedStudiesFile=0
+    isSampleClump=0
 
     single="'"
     escaped="\'"
@@ -535,7 +548,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:ls' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -718,6 +731,8 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
+            l)  isSampleClump=1
+                ;;
             [?])    usage
                     exit 1;;
         esac
@@ -966,7 +981,7 @@ calculatePRS () {
         if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
