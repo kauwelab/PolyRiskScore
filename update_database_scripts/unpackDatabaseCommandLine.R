@@ -34,7 +34,7 @@
 #        "betaAnnotation" is the description assoicated with the given beta vale
 #        "ogValueTypes" is a | delimited string containing the value type ("OR", "beta", or "OR|beta")
 #        "sex" is the sex associated with the snp p-value
-#        "numRSFiltered" is the number of SNPS filtered out of the study (not in the associations table)
+#        "numAssociationsFiltered" is the number of associations filtered out of the study (not in the associations table)
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
 
@@ -133,7 +133,7 @@ if (is_ebi_reachable()) {
   numGroups <- as.numeric(args[5])
   dir.create(file.path(outPath), showWarnings = FALSE)
   # remove the old associations_table.tsv and create a new blank one with column names "columnNames" and no data yet
-  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "trait", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "betaValue", "betaUnit", "betaAnnotation", "ogValueTypes", "sex", "numRSFiltered", "citation", "studyID")
+  columnNames <- c("snp", "hg38", "hg19", "hg18", "hg17", "trait", "gene", "raf", "riskAllele", "pValue", "pValueAnnotation", "oddsRatio", "lowerCI", "upperCI", "betaValue", "betaUnit", "betaAnnotation", "ogValueTypes", "sex", "numAssociationsFiltered", "citation", "studyID")
   writeLines(paste(columnNames, collapse = "\t"), file.path(outPath, "associations_table.tsv"))
 
   # remove the old lastUpdated.tsv and create a new blank one with column names "lastUpdatedColumnNames" and no data yet
@@ -256,7 +256,7 @@ if (is_ebi_reachable()) {
       associationsTable <- ungroup(associationsTable) %>%
         dplyr::rename(snp = variant_id, raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number, betaAnnotation = beta_description, betaUnit = beta_unit)
       # selects specific columns to keep. also arranges the association table by citation, then studyID, then snp
-      associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, numRSFiltered, citation, studyID)) %>%
+      associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, numAssociationsFiltered, citation, studyID)) %>%
         arrange(citation, studyID, snp)
       
       # gets hg19, hg18, hg17 for the traits
@@ -462,6 +462,7 @@ if (is_ebi_reachable()) {
       # gets the association data associated with the study ID
       associations <- get_associations(study_id = studyID)
       associationsTibble <- associations@associations
+      numTotatAssociations <- nrow(associationsTibble)
       # filter out SNPs associated with other SNPs
       associationsTibble <- filter(associationsTibble, !grepl("condition", pvalue_description, ignore.case = TRUE)&!grepl("adjusted for rs", pvalue_description, ignore.case = TRUE))
       associationsTibble <- filter(associationsTibble, !grepl("conditon", pvalue_description, ignore.case = TRUE)) # GCST001969 has this improper spelling
@@ -469,12 +470,11 @@ if (is_ebi_reachable()) {
       # check if associationsTibble has enough snps
       if (is.null(checkIfValidDataObj(associationsTibble))) {next}
 
-      # gets single snps not part of haplotypes (remove group_by and filter to get all study snps)
+      # gets single snps not part of haplotypes (to get haplotype SNPs again, remove "group_by" and "filter")
       riskAlleles <- associations@risk_alleles %>%
         group_by(association_id) %>%
         filter(dplyr::n()==1)
       # filter out empty risk alleles, and snp ids that don't start with rs
-      numTotalSNPs <- nrow(riskAlleles)
       riskAlleles <- filter(riskAlleles, !is.na(risk_allele)&startsWith(variant_id, "rs"))
       
       # check if riskAlleles has enough snps
@@ -540,9 +540,9 @@ if (is_ebi_reachable()) {
       if (is.null(checkIfValidDataObj(studyData))) {next}
       
       # calculate the total number of SNPS that have been filtered out for the study and add it as a column      
-      numFinalSNPs <- length(unique(studyData[["variant_id"]]))
-      numRSFiltered <- numTotalSNPs - numFinalSNPs
-      studyData <- add_column(studyData, numRSFiltered = numRSFiltered, .after = "sex")
+      numFinalAssociations <- length(unique(studyData[["variant_id"]]))
+      numAssociationsFiltered <- numTotatAssociations - numFinalAssociations
+      studyData <- add_column(studyData, numAssociationsFiltered = numAssociationsFiltered, .after = "sex")
 
       associationsTable <- bind_rows(studyData, associationsTable)
       
