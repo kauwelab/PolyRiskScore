@@ -13,10 +13,16 @@
 #        "trait" is the name of the trait assigned the study by the GWAS catalog
 #        "reportedTrait" is the name of the trait that the authors listed for their study
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
-#        "studyScore" is the Altmetric score given to the study- it is a measure of the popularity of the study (see altmetric.com for more info)
-#        "ethnicity" is a pipe (|) separated list of ethnicities involved in the study
+#        "altmetricScore" is the Altmetric score given to the study- it is a measure of the popularity of the study (see altmetric.com for more info)
+#        "ethnicity" is a pipe (|) separated string of ethnicities involved in the study
+#        "superPopulation" is a pipe (|) separated string of super populations involved in the study (based on the 5 populations from 1000 genomes)
 #        "initialSampleSize" is the intitial sample size of the study
 #        "replicationSampleSize" is the replication sample size of the study
+#        "sexes" is a pipe (|) deliminated string containing the sexes listed in the study ("male", "female", or "male|female")
+#        "pValueAnnotations" is a pipe (|) deliminated string containing all the pValueAnnotations in the study
+#        "betaAnnotations" is a pipe (|) deliminated string containing all the betaAnnotations in the study
+#        "ogValueTypes" is a pipe (|) deliminated string containing the study's value types ("OR", "beta", or "OR|beta")
+#        "numRSFiltered" is the number of SNPs filtered from the study (not in the associations table)
 #        "title" is the the title of the study
 #        "lastUpdated" is the date the study was last updated in the GWAS database
 
@@ -141,6 +147,39 @@ getDatabaseTraitName <- function(traitName) {
   return(dbTraitName)
 }
 
+getSuperPop <- function(ethnicity) {
+  if (is.na(ethnicity)) {
+    return(NA_character_)
+  } else {
+    superPopulation <- c()
+    if (str_detect(ethnicity, regex("african", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "African")
+    }
+    if (str_detect(ethnicity, regex("american", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "American")
+    }
+    if (str_detect(ethnicity, regex("european", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "European")
+    }
+    if (str_detect(ethnicity, regex("south asian", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "South Asian")
+    }
+    # TODO what about South East Asian?
+    if (str_detect(ethnicity, regex("east asian", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "East Asian")
+    }
+    
+    # if a super population could not be determined from the ethnicity, return NA, otherwise return a 
+    # string with all super populations separated by the "|"
+    if (length(superPopulation) == 0) {
+      return(NA_character_)
+    }
+    else {
+      return(paste0(superPopulation, collapse = "|"))
+    }
+  }
+}
+
 ## code body---------------------------------------------------------------------------------------------------
 
 # if the GWAS catalog is available
@@ -155,7 +194,23 @@ if (is_ebi_reachable()) {
   }
   else {
     # initialize table
-    studyTable <- tibble("studyID" = character(0), "pubMedID" = double(0), "trait" = character(0), reportedTrait = character(0), "citation" = character(0), "altmetricScore" = double(0), "ethnicity" = character(0), "initialSampleSize" = numeric(0), "replicationSampleSize" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
+    studyTable <- tibble("studyID" = character(0), 
+                         "pubMedID" = double(0), 
+                         "trait" = character(0), 
+                         "reportedTrait" = character(0), 
+                         "citation" = character(0), 
+                         "altmetricScore" = double(0), 
+                         "ethnicity" = character(0),
+                         "superPopulation" = character(0),
+                         "initialSampleSize" = numeric(0), 
+                         "replicationSampleSize" = numeric(0), 
+                         "sexes" = character(0), 
+                         "pValueAnnotations" = character(0), 
+                         "betaAnnotations" = character(0), 
+                         "ogValueTypes" = character(0),
+                         "numRSFiltered" = numeric(0),
+                         "title" = character(0), 
+                         "lastUpdated" = character(0))
 
     DevPrint(paste0("Startup took ", format(Sys.time() - start_time)))
     DevPrint("Creating Study Table")
@@ -174,8 +229,13 @@ if (is_ebi_reachable()) {
     # keeping traits keeps only valid traits from a study (ex: if a study reports 10 traits, but only 2 have valid snps, the study_table will 
     # only have 2 traits).
     studyIDRows <- group_by(associationsTibble, studyID) %>%
-      mutate(trait = paste0(unique(trait[!is.na(trait)]), collapse = "|"))
-    studyIDRows <- select(arrange(distinct(studyIDRows, studyID, .keep_all = TRUE), studyID), studyID, citation, trait)
+      mutate(trait = paste0(unique(trait[!is.na(trait)]), collapse = "|")) %>%
+      mutate(sexes = paste0(unique(sex[!is.na(sex)]), collapse = "|")) %>%
+      mutate(ogValueTypes = paste0(unique(ogValueTypes[!is.na(ogValueTypes)]), collapse = "|")) %>%
+      mutate(pValueAnnotations = paste0(unique(pValueAnnotation[!is.na(pValueAnnotation)]), collapse = "|")) %>%
+      mutate(betaAnnotations = paste0(unique(betaAnnotation[!is.na(betaAnnotation)]), collapse = "|")) %>%
+      mutate(numRSFiltered = paste0(unique(numRSFiltered[!is.na(numRSFiltered)]), collapse = "|"))
+    studyIDRows <- select(arrange(distinct(studyIDRows, studyID, .keep_all = TRUE), studyID), studyID, citation, trait, sexes, pValueAnnotations, betaAnnotations, ogValueTypes, numRSFiltered)
     
     for (i in 1:nrow(studyIDRows)) {
       tryCatch({
@@ -209,15 +269,23 @@ if (is_ebi_reachable()) {
           ungroup() %>%
           select(-study_id)
         ethnicity <- ethnicity[["ethnicity"]]
-        if (is_empty(ethnicity)) {
-          ethnicity <- NA
+        if (ethnicity == "" || is_empty(ethnicity)) {
+          ethnicity <- NA_character_
         }
+        
+        superPopulation <- getSuperPop(ethnicity)
 
         # get the last time the study was updated from the lastUpdatedTibble
         lastUpdated <- as.character(lastUpdatedTibble[lastUpdatedTibble$studyID == studyID,]$lastUpdated)
         
         initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
         replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])
+        
+        sexes <- studyIDRow[["sexes"]]
+        pValueAnnotations <- studyIDRow[["pValueAnnotations"]]
+        betaAnnotations <- studyIDRow[["betaAnnotations"]]
+        ogValueTypes <- studyIDRow[["ogValueTypes"]]
+        numRSFiltered <- strtoi(studyIDRow[["numRSFiltered"]])
         
         title <- publication[["title"]]
 
@@ -230,8 +298,14 @@ if (is_ebi_reachable()) {
                               citation = citation,
                               altmetricScore = altmetricScore,
                               ethnicity = ethnicity,
+                              superPopulation = superPopulation,
                               initialSampleSize = initialSampleSize,
                               replicationSampleSize = replicationSampleSize,
+                              sexes = sexes,
+                              pValueAnnotations = pValueAnnotations,
+                              betaAnnotations = betaAnnotations,
+                              ogValueTypes = ogValueTypes,
+                              numRSFiltered = numRSFiltered,
                               title = title, 
                               lastUpdated = lastUpdated)
         
