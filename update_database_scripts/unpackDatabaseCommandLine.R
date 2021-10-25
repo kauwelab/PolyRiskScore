@@ -534,8 +534,8 @@ if (is_ebi_reachable()) {
         add_column(betaValue = getBeta(master_associations[["beta_number"]], master_associations[["beta_direction"]]), .after = "upperCI") %>%
         add_column(ogValueTypes = getOGValueTypes(master_associations[["or_per_copy_number"]], master_associations[["beta_number"]]), .after = "betaValue") %>%
         mutate(pvalue_description = tolower(pvalue_description))
-      # filter out SNPs on the X or Y chromosome
-      studyData <- filter(studyData, !startsWith(hg38, "X")&!startsWith(hg38, "Y"))
+      # filter out SNPs on the X or Y chromosome (keeping NAs)
+      studyData <- filter(studyData, !startsWith(hg38, "X")&!startsWith(hg38, "Y")|is.na(hg38))
       # check if studyData has enough snps
       if (is.null(checkIfValidDataObj(studyData))) {next}
       
