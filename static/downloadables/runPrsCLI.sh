@@ -548,7 +548,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:ls' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:l' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -731,8 +731,7 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
-            l)  isSampleClump=1
-                ;;
+            l)  isSampleClump=1;;
             [?])    usage
                     exit 1;;
         esac
