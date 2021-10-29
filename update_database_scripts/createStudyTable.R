@@ -154,8 +154,8 @@ getSuperPop <- function(ethnicity) {
     superPopulation <- c()
     if (str_detect(ethnicity, regex("african", ignore_case = TRUE))) {
       superPopulation <- c(superPopulation, "African")
-    }
-    if (str_detect(ethnicity, regex("american", ignore_case = TRUE))) {
+    } 
+    if (str_detect(ethnicity, regex("(?<!african )american", ignore_case = TRUE))) { # match american, but not african american (negatve lookbehind)
       superPopulation <- c(superPopulation, "American")
     }
     if (str_detect(ethnicity, regex("european", ignore_case = TRUE))) {
@@ -164,8 +164,7 @@ getSuperPop <- function(ethnicity) {
     if (str_detect(ethnicity, regex("south asian", ignore_case = TRUE))) {
       superPopulation <- c(superPopulation, "South Asian")
     }
-    # TODO what about South East Asian?
-    if (str_detect(ethnicity, regex("east asian", ignore_case = TRUE))) {
+    if (str_detect(ethnicity, regex("east asian", ignore_case = TRUE)) || str_detect(ethnicity, regex("asian unspecified", ignore_case = TRUE)) || str_detect(ethnicity, regex("oceanian", ignore_case = TRUE)) || str_detect(ethnicity, regex("central asian", ignore_case = TRUE))) {
       superPopulation <- c(superPopulation, "East Asian")
     }
     
