@@ -207,7 +207,7 @@ if (is_ebi_reachable()) {
     secondHgTibble <- suppressWarnings(as_tibble(results)) %>%
       unite(!!(secondHgStr), seqnames:start, sep = ":")
     secondHgTibble <- mutate(secondHgTibble, !!(secondHgStr) := str_extract(secondHgTibble[[3]], "\\d+:\\d+")) %>%
-      select(!!(secondHgStr))
+      dplyr::select(!!(secondHgStr))
     
     #TODO there has to be a better way to do this... can the as_tibble function keep empty GRanges?
     # fills in rows that weren't able to be converted 
@@ -256,7 +256,7 @@ if (is_ebi_reachable()) {
       associationsTable <- ungroup(associationsTable) %>%
         dplyr::rename(snp = variant_id, raf = risk_frequency, riskAllele = risk_allele, pValue = pvalue, pValueAnnotation = pvalue_description, oddsRatio = or_per_copy_number, betaAnnotation = beta_description, betaUnit = beta_unit)
       # selects specific columns to keep. also arranges the association table by citation, then studyID, then snp
-      associationsTable <- select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, numAssociationsFiltered, citation, studyID)) %>%
+      associationsTable <- dplyr::select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, numAssociationsFiltered, citation, studyID)) %>%
         arrange(citation, studyID, snp)
       
       # gets hg19, hg18, hg17 for the traits
@@ -524,7 +524,7 @@ if (is_ebi_reachable()) {
       if (is.null(checkIfValidDataObj(master_associations))) {next}
 
       studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
-        unite("hg38", chromosome_name.x:chromosome_position.x, sep = ":", na.rm = FALSE) %>%
+        unite("hg38", c(chromosome_name.y, chromosome_position.y), sep = ":", na.rm = FALSE) %>%
         mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
         mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
         tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
