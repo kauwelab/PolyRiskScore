@@ -22,7 +22,7 @@
 #        "pValueAnnotations" is a pipe (|) deliminated string containing all the pValueAnnotations in the study
 #        "betaAnnotations" is a pipe (|) deliminated string containing all the betaAnnotations in the study
 #        "ogValueTypes" is a pipe (|) deliminated string containing the study's value types ("OR", "beta", or "OR|beta")
-#        "numRSFiltered" is the number of SNPs filtered from the study (not in the associations table)
+#        "numAssociationsFiltered" is the number of SNPs filtered from the study (not in the associations table)
 #        "title" is the the title of the study
 #        "lastUpdated" is the date the study was last updated in the GWAS database
 
@@ -207,7 +207,7 @@ if (is_ebi_reachable()) {
                          "pValueAnnotations" = character(0), 
                          "betaAnnotations" = character(0), 
                          "ogValueTypes" = character(0),
-                         "numRSFiltered" = numeric(0),
+                         "numAssociationsFiltered" = numeric(0),
                          "title" = character(0), 
                          "lastUpdated" = character(0))
 
@@ -233,8 +233,8 @@ if (is_ebi_reachable()) {
       mutate(ogValueTypes = paste0(unique(ogValueTypes[!is.na(ogValueTypes)]), collapse = "|")) %>%
       mutate(pValueAnnotations = paste0(unique(pValueAnnotation[!is.na(pValueAnnotation)]), collapse = "|")) %>%
       mutate(betaAnnotations = paste0(unique(betaAnnotation[!is.na(betaAnnotation)]), collapse = "|")) %>%
-      mutate(numRSFiltered = paste0(unique(numRSFiltered[!is.na(numRSFiltered)]), collapse = "|"))
-    studyIDRows <- select(arrange(distinct(studyIDRows, studyID, .keep_all = TRUE), studyID), studyID, citation, trait, sexes, pValueAnnotations, betaAnnotations, ogValueTypes, numRSFiltered)
+      mutate(numAssociationsFiltered = paste0(unique(numAssociationsFiltered[!is.na(numAssociationsFiltered)]), collapse = "|"))
+    studyIDRows <- select(arrange(distinct(studyIDRows, studyID, .keep_all = TRUE), studyID), studyID, citation, trait, sexes, pValueAnnotations, betaAnnotations, ogValueTypes, numAssociationsFiltered)
     
     for (i in 1:nrow(studyIDRows)) {
       tryCatch({
@@ -284,7 +284,7 @@ if (is_ebi_reachable()) {
         pValueAnnotations <- studyIDRow[["pValueAnnotations"]]
         betaAnnotations <- studyIDRow[["betaAnnotations"]]
         ogValueTypes <- studyIDRow[["ogValueTypes"]]
-        numRSFiltered <- strtoi(studyIDRow[["numRSFiltered"]])
+        numAssociationsFiltered <- strtoi(studyIDRow[["numAssociationsFiltered"]])
         
         title <- publication[["title"]]
 
@@ -304,7 +304,7 @@ if (is_ebi_reachable()) {
                               pValueAnnotations = pValueAnnotations,
                               betaAnnotations = betaAnnotations,
                               ogValueTypes = ogValueTypes,
-                              numRSFiltered = numRSFiltered,
+                              numAssociationsFiltered = numAssociationsFiltered,
                               title = title, 
                               lastUpdated = lastUpdated)
         
