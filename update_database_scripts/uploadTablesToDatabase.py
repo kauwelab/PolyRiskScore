@@ -200,7 +200,7 @@ def main():
     tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), \
         trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, \
         lowerCI float, upperCI float, betaValue float, betaUnit varchar(50), betaAnnotation varchar(255), ogValueTypes varchar(20), sex varchar(20), \
-        numRSFiltered int unsigned, citation varchar(50), studyID varchar(20), INDEX (trait, studyID) )"
+        numAssociationsFiltered int unsigned, citation varchar(50), studyID varchar(20), INDEX (trait, studyID) )"
     createFreshTable(config, "associations_table", tableColumns)
     addDataToTableCatch( config, associationTableFolderPath, "associations_table", "associations_table")
 
