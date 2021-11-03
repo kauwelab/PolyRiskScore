@@ -8,9 +8,15 @@ const Study = function (mstudy) {
     this.citation = mstudy.citation,
     this.altmetricScore = mstudy.altmetricScore,
     this.ethnicity = mstudy.ethnicity,
+    this.superPopulation = study.superPopulation,
     this.initialSampleSize = mstudy.initialSampleSize,
     this.replicationsSampleSize = mstudy.replicationSampleSize,
-    this.title = mstudy.title,
+    this.sexes = mstudy.sexes, // set of sexes that we have associations for in the study separated by |
+    this.pValueAnnotations = mstudy.pValueAnnotations, // set of the pValueAnnotations from the study, separated by |
+    this.betaAnnotations = mstudy.betaAnnotations, //set of betaAnnotations from the study, separated by |
+    this.ogValueTypes = mstudy.ogValueTypes, // beta and/or OR, separated by |
+    this.numAssociationsFiltered = mstudy.numAssociationsFiltered,
+    this.title = mstudy.title, 
     this.lastUpdated = mstudy.lastUpdated,
     this.studyType = mstudy.studyType
 }
@@ -68,7 +74,7 @@ Study.getAll = result => {
     });
 };
 
-Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
+Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, result) => {
     // use for adding the correct number of ? for using parameterization for the traits
     sqlQuestionMarks = ""
 
@@ -155,6 +161,27 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                     subQueryString = subQueryString.concat(") ")
                 }
             }
+
+            //append sql conditional filters for sexes
+            if (sexes) {
+                appendor = "AND (";
+                for (j=0; j < sexes.length; j++) {
+                    subQueryString = subQueryString.concat(appendor).concat(` sexes LIKE ? `);
+                    sqlQueryParams.push(`%${sexes[j]}%`)
+                    appendor = "OR";
+                }
+
+                if (appendor !== "AND (") {
+                    subQueryString = subQueryString.concat(") ")
+                }
+            }
+
+            //append sql conditional filters for ogValueTypes
+            if (ogValueTypes) {
+                subQueryString = subQueryString.concat(`AND ( ogValueTypes LIKE ? ) `);
+                sqlQueryParams.push(`%${ogValueTypes}%`)
+            }
+
             subQueryString = subQueryString.concat("; ")
             sqlQueryString = sqlQueryString.concat(subQueryString);
         }
@@ -199,7 +226,7 @@ Study.getByID = (studyIDs, result) => {
 Study.findStudy = (searchStr, result) => {
     // search by citation, title, or pubMedID
     searchString = `%${searchStr}%`
-    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? OR studyID LIKE ? OR trait LIKE ? OR reportedTrait LIKE ? ;`, [searchString, searchString, searchString, searchString, searchString, searchString],  (err, res) => {
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? OR studyID LIKE ? OR trait LIKE ? OR reportedTrait LIKE ? OR pValueAnnotations LIKE ? ;`, [searchString, searchString, searchString, searchString, searchString, searchString, searchString],  (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
