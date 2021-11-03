@@ -20,7 +20,7 @@
 #        "hg19" is hg19 mapped location
 #        "hg18" is hg18 mapped location
 #        "hg17" is hg17 mapped location
-#        "trait is the name of the trait associated with the snp
+#        "trait" is the name of the trait associated with the snp
 #        "gene" is a is a pipe (|) separated list of gene:distanceToGene strings (ex: C1orf140:107304|AL360013.2:64825)
 #        "raf" is the risk allele frequency
 #        "riskAllele" is the risk allele
@@ -37,24 +37,6 @@
 #        "numAssociationsFiltered" is the number of associations filtered out of the study (not in the associations table)
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
 #        "studyID" is the unique ID assigned by the GWAS database to the study associated with the given SNP
-
-# TODO add population column
-  # "population" is the population associated with the snp p-value 
-  # possible population mappings
-  # africanAmericanAfroCaribbean <- c()
-  # africanUnspecified <- c()
-  # asianUnspecified <- c()
-  # eastAsian <- c()
-  # european <- c()
-  # greaterMiddleEastern <- c()
-  # hispanicLatinAmericam <- c()
-  # nativeAmerican <- c()
-  # oceanian <- c()
-  # southAsian <- c()
-  # southEastAsian <- c()
-  # subSaharanAfrican <- c()
-  # african <- c(africanAmericanAfroCaribbean, africanUnspecified, subSaharanAfrican)
-  # american <- c()
 
 # causes warning messages to print as soon as they occur
 options(warn=1)
@@ -87,7 +69,7 @@ print("Initializing script!")
 start_time <- Sys.time()
 
 ## imports and import downloads----------------------------------------------------------------------------------------------------------------------
-my_packages <- c("BiocManager", "rtracklayer", "remotes", "gwasrapidd", "tidyverse", "rAltmetric", "magrittr", "purrr")                                  # Specify your packages
+my_packages <- c("BiocManager", "rtracklayer", "myvariant", "remotes", "gwasrapidd", "tidyverse", "rAltmetric", "magrittr", "purrr")                                  # Specify your packages
 not_installed <- my_packages[!(my_packages %in% installed.packages()[ , "Package"])]              # Extract not installed packages
 if(length(not_installed)) {
   print("Installing the following required packages:")
@@ -98,6 +80,9 @@ if(length(not_installed)) {
   }
   if ("rtracklayer" %in% not_installed) {
     BiocManager::install("rtracklayer")
+  }
+  if ("myvariant" %in% not_installed) {
+    BiocManager::install("myvariant")
   }
   if ("remotes" %in% not_installed) {
     install.packages("remotes", repos = "http://cran.us.r-project.org")
@@ -119,6 +104,7 @@ suppressMessages(library(dplyr))
 suppressMessages(library(tidyverse))
 suppressMessages(library(gwasrapidd))
 suppressMessages(library(rtracklayer))
+suppressMessages(library(myvariant))
 suppressMessages(library(rAltmetric))
 suppressMessages(library(magrittr))
 suppressMessages(library(purrr))
@@ -149,6 +135,9 @@ if (is_ebi_reachable()) {
   path38To19 = file.path(chainFilePath, "hg38ToHg19.over.chain")
   showConnections(all=TRUE)
   closeAllConnections()
+  path19To38 = file.path(chainFilePath, "hg19ToHg38.over.chain")
+  showConnections(all=TRUE)
+  closeAllConnections()
   path19To18 = file.path(chainFilePath, "hg19ToHg18.over.chain")
   showConnections(all=TRUE)
   closeAllConnections()
@@ -156,6 +145,9 @@ if (is_ebi_reachable()) {
   showConnections(all=TRUE)
   closeAllConnections()
   ch38To19 = import.chain(path38To19)
+  showConnections(all=TRUE)
+  closeAllConnections()
+  ch19To38 = import.chain(path19To38)
   showConnections(all=TRUE)
   closeAllConnections()
   ch19To18 = import.chain(path19To18)
@@ -195,6 +187,8 @@ if (is_ebi_reachable()) {
     hgChain <- NA
     if (firstHgName == "hg38") {
       hgChain <- ch38To19
+    }else if (firstHgName == "hg19" && secondHgStr == "hg38") {
+      hgChain <- ch19To38
     }else if (firstHgName == "hg19" && secondHgStr == "hg18") {
       hgChain <- ch19To18
     }else if (firstHgName == "hg19" && secondHgStr == "hg17") {
@@ -249,6 +243,37 @@ if (is_ebi_reachable()) {
     }
   }
   
+  addPosColumns <- function(associationsTable) {
+    # if any positions are missing from hg38, use myvariant to get hg19, then get hg38, else get hg19
+    unknownSNPPosIDs <- unique(studyData[is.na(studyData$hg38),]["variant_id"]) # get the unknown pos SNP IDs
+    if (nrow(unknownSNPPosIDs) > 0) {
+      # get the positions of SNPs that don't have their positions listed in the GWAS catalog
+      unknownSNPPosObjs <- suppressWarnings(getVariants(unknownSNPPosIDs)) # get the SNP info objects using myvariant (it gets hg19 positions)
+      snpPosTable <- tibble(snp = unknownSNPPosObjs@listData[["dbsnp.rsid"]], hg19 = paste0(unknownSNPPosObjs@listData[["dbsnp.chrom"]], ":", unknownSNPPosObjs@listData[["dbsnp.hg19.start"]]))
+      snpPosTable <- snpPosTable[!duplicated(snpPosTable), ] # remove duplicate SNPs from snpPosTable
+      snpPosTable <- add_column(snpPosTable, hg38 = hgToHg(snpPosTable["hg19"], "hg38"), .after = "snp") # get hg38 from hg19
+      associationsTable <- left_join(associationsTable, snpPosTable, by = "snp") %>% # fill in the new hg38 positions for the associations table
+        mutate(hg38 = coalesce(hg38.x, hg38.y)) %>%
+        dplyr::select(-hg38.x, -hg38.y) %>%
+        relocate(hg38, .after = snp)
+      hg19Col <- tibble(associationsTable["snp"], hg19 = hgToHg(associationsTable["hg38"], "hg19"))
+      hg19Col <- suppressWarnings(mutate(hg19Col, hg19 = hg19))
+      hg19Col <- hg19Col[!duplicated(hg19Col), ] # remove duplicate SNPs from hg19Col table
+      associationsTable <- left_join(associationsTable, hg19Col, by = "snp") %>% # fill in the new hg19 positions to the existing hg19 values from myvariant
+        mutate(hg19 = coalesce(hg19.x, hg19.y)) %>%
+        dplyr::select(-hg19.x, -hg19.y) %>%
+        relocate(hg19, .after = hg38)
+    } else {
+      # gets hg19 for the snps
+      associationsTable <- add_column(associationsTable, hg19 = hgToHg(associationsTable["hg38"], "hg19"), .after = "hg38")
+    }
+    
+    # gets hg18 and hg17 for the snps
+    associationsTable <- add_column(associationsTable, hg18 = hgToHg(associationsTable["hg19"], "hg18"), .after = "hg19")
+    associationsTable <- add_column(associationsTable, hg17 = hgToHg(associationsTable["hg19"], "hg17"), .after = "hg18")
+    return (associationsTable)
+  }
+  
   # formats the associationsTable for output by removing unneeded rows, renaming the remaining rows, and adding hg columns
   formatAssociationsTable <- function(associationsTable) {
     if (nrow(associationsTable) > 0) {
@@ -259,10 +284,9 @@ if (is_ebi_reachable()) {
       associationsTable <- dplyr::select(associationsTable, c(snp, hg38, trait, gene, raf, riskAllele, pValue, pValueAnnotation, oddsRatio, lowerCI, upperCI, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, numAssociationsFiltered, citation, studyID)) %>%
         arrange(citation, studyID, snp)
       
-      # gets hg19, hg18, hg17 for the traits
-      associationsTable <- add_column(associationsTable, hg19 = hgToHg(associationsTable["hg38"], "hg19"), .after = "hg38")
-      associationsTable <- add_column(associationsTable, hg18 = hgToHg(associationsTable["hg19"], "hg18"), .after = "hg19")
-      associationsTable <- add_column(associationsTable, hg17 = hgToHg(associationsTable["hg19"], "hg17"), .after = "hg18")
+      # adds the position columns to the table (hg38, hg19, hg18, and hg17)
+      associationsTable <- addPosColumns(associationsTable)
+      
       # removes the NAs from the data
       # the as.data.frame function puts out a warning message that isn't important, so suppressWarnings is used
       associationsTable <- suppressWarnings(as.data.frame(associationsTable)) %>% replace(., is.na(.), "")
@@ -493,8 +517,8 @@ if (is_ebi_reachable()) {
       if (is.null(checkIfValidDataObj(genomicContexts))) {next}
 
       # merge data together
-      master_variants <- full_join(genomicContexts, variantsTibble, by = "variant_id") %>%
-      dplyr::filter(!grepl('CHR_H', chromosome_name.x, ignore.case = TRUE)) %>% # removes rows that contain "CHR_H" so that only numerical chromosome names remain (these tend to be duplicates of numerically named chromosome anyway)
+      master_variants <- full_join(genomicContexts, variantsTibble, by = c("variant_id", "chromosome_name", "chromosome_position")) %>%
+      dplyr::filter(!grepl('CHR_H', chromosome_name, ignore.case = TRUE)) %>% # removes rows that contain "CHR_H" so that only numerical chromosome names remain (these tend to be duplicates of numerically named chromosome anyway)
         unite("gene", gene_name, distance, sep = ":") %>%
         mutate_if(is.character, str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # removes NA:NA from columns that don't have a gene or distance
         group_by(variant_id) %>%
@@ -524,7 +548,7 @@ if (is_ebi_reachable()) {
       if (is.null(checkIfValidDataObj(master_associations))) {next}
 
       studyData <- left_join(master_associations, master_variants, by = "variant_id") %>%
-        unite("hg38", c(chromosome_name.y, chromosome_position.y), sep = ":", na.rm = FALSE) %>%
+        unite("hg38", c(chromosome_name, chromosome_position), sep = ":", na.rm = FALSE) %>%
         mutate_at('hg38', str_replace_all, pattern = "NA:NA", replacement = NA_character_) %>% # if any chrom:pos are empty, puts NA instead
         mutate_at("range", str_replace_all, pattern = ",", replacement = ".") %>% # replaces the comma in the upperCI of study GCST002685 SNP rs1366200
         tidyr::extract(range, into = c("lowerCI", "upperCI"),regex = "(\\d+.\\d+)-(\\d+.\\d+)") %>%
