@@ -91,17 +91,41 @@ exports.getAll = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(data);
+            traitsList = {}
+            for (i=0; i<data.length; i++) {
+                if (Array.isArray(data[i])){
+                    for (j=0; j<data[i].length; j++) {
+                        if (data[i][j].trait in traitsList) {
+                            traitsList[data[i][j].trait].push(data[i][j])
+                        }
+                        else {
+                            traitsList[data[i][j].trait] = [data[i][j]]
+                        }
+                    }
+                }
+                else {
+                    if (data[i].trait in traitsList) {
+                        traitsList[data[i].trait].push(data[i])
+                    }
+                    else {
+                        traitsList[data[i].trait] = [data[i]]
+                    }
+                }
+            }
+            res.send(traitsList);
         }
     });
 };
 
 exports.getFiltered = (req, res) => {
+    //TODO - need to also separate by pValueAnnotation
     traits = req.body.traits
     studyTypes = req.body.studyTypes
     ethnicities = req.body.ethnicities
+    sexes = req.body.sexes
+    ogValueTypes = req.body.ogValueTypes
     console.log("getting studies");
-    Study.getFiltered(traits, studyTypes, ethnicities, (err, data) => {
+    Study.getFiltered(traits, studyTypes, ethnicities, sexes, ogValueTypes, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"
@@ -117,7 +141,7 @@ exports.getFiltered = (req, res) => {
             }
 
             traitsList = {}
-            
+
             for (i=0; i<data.length; i++) {
                 if (Array.isArray(data[i])){
                     for (j=0; j<data[i].length; j++) {
