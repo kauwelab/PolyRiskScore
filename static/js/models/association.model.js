@@ -124,7 +124,7 @@ Association.getAll = (refGen, result) => {
 
             console.log("associations (first): ", res[0]);
 
-            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, pValueAnnotations"+
+            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, pValueAnnotations, "+
              "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, "+
              "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, "+
              "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, "+
