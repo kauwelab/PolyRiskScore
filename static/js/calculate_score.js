@@ -175,6 +175,10 @@ function getStudies() {
     var selectedEthnicities = [...ethnicityNodes].map(option => option.value);
     var typeNodes = document.querySelectorAll('#studyTypeSelect :checked');
     var selectedTypes = [...typeNodes].map(option => option.value);
+    var sexElement = document.getElementById("sex");
+    var sex = sexElement.options[sexElement.selectedIndex].value;
+    var valueTypeElement = document.getElementById("valueType");
+    var valueType = valueTypeElement.options[valueTypeElement.selectedIndex].value;
 
     if (selectedTraits.length == 0) {
         console.log("NO TRAIT SELECTED")
@@ -186,7 +190,7 @@ function getStudies() {
     $('#studySelect').replaceWith("<select id='studySelect' multiple></select>")    
 
     //call the API and populate the study dropdown/multiselect with the results
-    callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities)
+    callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, sex, valueType)
 }
 
 
@@ -198,12 +202,25 @@ function getStudies() {
  * @param {*} sex 
  * @returns 
  */
-function getSelectStudyAssociations(studyList, refGen, sex) {
+function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
+    if (sex == "both") {
+        sex = undefined
+    }
+    else if (sex == "exclude") {
+        sex = ["NA"]
+    }
+    else {
+        sex = [sex, "NA"]
+    }
+
+    if (valueType == "both") {
+        valueType = undefined
+    }
 
     return Promise.resolve($.ajax({
         type: "POST",
         url: "/get_associations",
-        data: { studyIDObjs: studyList, refGen: refGen, isVCF: true, sex: sex },
+        data: { studyIDObjs: studyList, refGen: refGen, isVCF: true, sexes: sex, ogValueTypes: valueType },
         success: async function (data) {
             return data;
         },
@@ -224,17 +241,31 @@ function changeGWASType() {
     if (gwasType === "Database") {
         document.getElementById("gwasDatabase").style.display = "initial";
         document.getElementById("gwasUpload").style.display = "none";
-        document.getElementById("SexSpecificSnps").style.display = "initial";
     }
     else {
         document.getElementById("gwasDatabase").style.display = "none";
         document.getElementById("gwasUpload").style.display = "initial";
-        document.getElementById("SexSpecificSnps").style.display = "none";
+    }
+}
+
+/**
+ * changes the Calculate page based on the GWAS value type radio button selected
+ */
+ function changeGWASValueType() {
+    var gwasType = document.querySelector('input[name="gwas_value_type"]:checked').value;
+
+    if (gwasType === "or") {
+        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn" title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Odds&nbsp;Ratio<sup>?</sup></span>')
+    }
+    else {
+        //todo update this description!!!!!
+        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn" title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Beta&nbsp;Coefficent<sup>?</sup></span>')
     }
 }
 
 //called in calculatePolyscore function
 //gets the clumping information using the positions from the associations object
+//TODO will need to update this for the new way of clumping
 var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
     positions = []
 
