@@ -287,6 +287,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         }
         ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
         pValueAnnotations = studyObj.pValueAnnotations.split("|")
+        superPopulations = studyObj.superPopulation.split("|")
         if (!(studyObj.studyID in studyIDsToMetaData)) {
             studyTypes = []
             if (studyObj.rthi != ""){
@@ -301,14 +302,16 @@ async function separateStudies(associations, traitData, refGen, sex) {
             studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, studyTypes: studyTypes, traits: {}, ethnicity: ethnicities != "" ? ethnicities : []}
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
                 studyTypes: traitStudyTypes,
-                pValueAnnotations: pValueAnnotations
+                pValueAnnotations: pValueAnnotations,
+                superPopulations: superPopulations
             }
         }
         else {
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
                 //TODO check this, I don't know how the data will actually work with this. 
                 studyTypes: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes])),
-                pValueAnnotations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValueAnnotations'], ...pValueAnnotations]))
+                pValueAnnotations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValueAnnotations'], ...pValueAnnotations])),
+                superPopulations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations]))
             }
         }
     }
