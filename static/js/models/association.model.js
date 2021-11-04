@@ -83,8 +83,9 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
                 return;
             }
             console.log(`Got ${res.length} studies with associations from table`)
+            console.log(res)
             console.log("Getting the metaData associated with the studies") 
-            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, pValueAnnotations `+
+            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, pValueAnnotations, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, `+
              `IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, `+
