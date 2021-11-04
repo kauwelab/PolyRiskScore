@@ -12,6 +12,7 @@ function pageReset() {
     document.getElementById("database").checked = true;
     document.getElementById("gwasDatabase").style.display = "initial";
     document.getElementById("gwasUpload").style.display = "none";
+    document.getElementById("orValueType").checked = true;
 }
 
 //updates the output box and resultJSON string with the new string
@@ -89,13 +90,27 @@ function getEthnicities() {
  * @param {*} selectedTypes 
  * @param {*} selectedEthnicities 
  */
-function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
+function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, sex, valueType) {
     var studySelector = document.getElementById("studySelect");
+
+    if (sex == "both") {
+        sex = undefined
+    }
+    else if (sex == "exclude") {
+        sex = ["NA"]
+    }
+    else {
+        sex = [sex, "NA"]
+    }
+
+    if (valueType == "both") {
+        valueType = undefined
+    }
 
     $.ajax({
         type: "POST",
         url: "/get_studies",
-        data: { studyTypes: selectedTypes, traits: selectedTraits, ethnicities: selectedEthnicities },
+        data: { studyTypes: selectedTypes, traits: selectedTraits, ethnicities: selectedEthnicities, sexes: sex, ogValueTypes: valueType },
         success: async function (data) {
             //data ~ {traitName:[{study},{study},{study}], traitName:[{study},{study}],...}
             var studyLists = data;
@@ -105,27 +120,34 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities) {
                 alert(`No results were found using the specified filters. Try using different filters.`)
             }
 
+            console.log(studyLists)
+
             for (i = 0; i < traits.length; i++) {
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
                     var study = studyLists[trait][j];
-                    createOpt = true
-                    var hasOption = $(`#studySelect option[value='${study.studyID}']`);
-                    if (hasOption.length > 0) {
-                        for (k=0; k < hasOption.length; k++) {
-                            data_trait = hasOption[k].getAttribute('data-trait')
-                            if (data_trait == trait) {
-                                createOpt = false
+                    pValueAnnotations = study.pValueAnnotations.split("|")
+                    for (p = 0; p < pValueAnnotations.length; p++) {
+                        createOpt = true
+                        var hasOption = $(`#studySelect option[value='${study.studyID}']`);
+                        if (hasOption.length > 0) {
+                            for (k=0; k < hasOption.length; k++) {
+                                data_trait = hasOption[k].getAttribute('data-trait')
+                                data_pValueAnno = hasOption[k].getAttribute('data-pvalueannotation')
+                                if (data_trait == trait && data_pValueAnno == study.pValueAnnotation) {
+                                    createOpt = false
+                                }
                             }
                         }
-                    }
-                    if (createOpt) {
-                        var opt = document.createElement('option');
-                        var displayString = formatHelper.formatForWebsite(trait + ' | ' + study.citation + ' | ' + study.studyID);
-                        opt.appendChild(document.createTextNode(displayString));
-                        opt.value = study.studyID;
-                        opt.setAttribute('data-trait', trait);
-                        studySelector.appendChild(opt);
+                        if (createOpt) {
+                            var opt = document.createElement('option');
+                            var displayString = formatHelper.formatForWebsite(trait + ' | ' + pValueAnnotations[p] + ' | ' + study.citation + ' | ' + study.studyID);
+                            opt.appendChild(document.createTextNode(displayString));
+                            opt.value = study.studyID;
+                            opt.setAttribute('data-trait', trait);
+                            opt.setAttribute('data-pvalueannotation', pValueAnnotations[p]);
+                            studySelector.appendChild(opt);
+                        }
                     }
                 }
             }
