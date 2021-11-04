@@ -166,16 +166,37 @@
 
                 <div class='child'>
                   <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
-                    <h5>2. Filter Studies by <span title="NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database (the first of every month).">Type<sup>?</sup></span> or Ethnicity&nbsp;</h5>
-                    <select id='studyTypeSelect' multiple>
-                      <option value="HI" selected="selected">High Impact Studies</option>
-                      <option value="LC" selected="selected">Large Cohort Studies</option>
-                      <option value="O" selected="selected">All Other Studies</option>
-                    </select>
-                    <select id='ethnicitySelect' multiple></select> 
-                    <button id='applyFilters' class="btn btn-primary btn-sm" style="margin-left: 1rem;" onClick="getStudies()">
-                      Apply Filters
-                    </button>
+                    <h5>2. Additional Filters: </h5>
+                    <div style="margin-left: 1.5em;">
+                      <label for="studyTypeSelect"><span title="NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database (the first of every month).">Study Type<sup>?</sup></span>:</label>
+                      <!-- Filter Studies by  or Ethnicity&nbsp;</h5> -->
+                      <select id='studyTypeSelect' multiple>
+                        <option value="HI" selected="selected">High Impact Studies</option>
+                        <option value="LC" selected="selected">Large Cohort Studies</option>
+                        <option value="O" selected="selected">All Other Studies</option>
+                      </select>
+                      <label for="ethnicitySelect" style="margin-left: .5em;">Ethnicity:</label>
+                      <select id='ethnicitySelect' multiple></select>
+                      <br>
+                      <!-- TODO: add explination/ fix it up -->
+                      <label for="sex"><span title ="Occasionally, studies will include SNPs that have odds ratios which are dependent upon biological sex. By default, we exclude any SNPs that are depenent on biological sex. If you choose, you can include either female or male dependent SNPs.">Sex&nbsp;Specific&nbsp;SNPs<sup>?</sup></span>:</label>
+                      <select id="sex" onchange="moveToNextTourIndex('sex')">
+                        <option selected="selected" value="both">Both</option>
+                        <option value="exclude">Exclude</option>
+                        <option value="f">Female</option>
+                        <option value="m">Male</option>
+                      </select>
+                      <label for="valueType" style="margin-top: 1em; margin-left: .5em;">Value Type:</label>
+                      <select id='valueType'>
+                        <option value="both" selected="selected">Both</option>
+                        <option value="or">Odds Ratios</option>
+                        <option value="beta">Beta Coefficents</option>
+                      </select>
+                      <br>
+                      <button id='applyFilters' class="btn btn-primary btn-sm" onClick="getStudies()">
+                        Apply Filters
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -200,11 +221,12 @@
                     <span title="The chromosome the SNP resides on.">Chromosome<sup>?</sup></span>, 
                     <span title="The position of the SNP in the reference genome.">Position<sup>?</sup></span>, 
                     <span title="The allele that confers risk or protection.">Risk&nbsp;Allele<sup>?</sup></span>, 
-                    <span title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Odds&nbsp;Ratio<sup>?</sup></span>, and 
+                    <span id="ogValueTypeColumn" title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Odds&nbsp;Ratio<sup>?</sup></span>, and
                     <span title="The probability that the risk associated with the allele of interest is observed by chance.">P-value<sup>?</sup></span>. 
                     Optional column headers that will be included if present are:
                     <span title="The citation information for the study.">Citation<sup>?</sup></span>
                     and <span title ="Trait description for this study in the author's own words.">Reported&nbsp;Trait<sup>?</sup></span>.
+                    <!-- Change the last sentence about more than one odds ratio TODO!!!!!!!!! -->
                     All other columns in the file will be ignored. If more than one odds ratio exists for an rsID, the odds ratio and corresponding risk allele with the most significant p-value will be used.</p>
                 </div>
                 <div class="file-field" style="padding: .5em;">
@@ -215,8 +237,17 @@
                   <div class="text-black-50 float-right">
                     <button class="btn1 example" id="exampleGWASInput" onclick="exampleGWASInput()">Example</button>
                   </div>
+                  <br>
+                  <div id="GWASValueTypeSelector">
+                    <form name="valueTypeRadio" class="text-center" style="padding: .5em;">
+                      <label for="valueTypeRadio" ><b>Value Type: </b></label>
+                      <input type="radio" name="gwas_value_type" style="margin-left: 1em;" value="or" id="orValueType" checked onchange="changeGWASValueType()">
+                      <label for="orValueType" style="margin-right: 1em;">Odds Ratios</label>
+                      <input type="radio" name="gwas_value_type" value="beta" id="betaValueType" onchange="changeGWASValueType()">
+                      <label for="betaValueType" style="margin-right: 1em;">Beta Coefficents</label>
+                    </form>
+                  </div>
                 </div>
-                <p>&nbsp;</p>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
                   <h5>2. Specify GWAS Reference Genome</h5>
                   <select id="gwasRefGenome" onchange="moveToNextTourIndex('gwasRefGenome')">
@@ -279,7 +310,7 @@
                 </div>
               </div>
 
-              <div class='child' id="SexSpecificSnps">
+              <!-- <div class='child' id="SexSpecificSnps">
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
                   <h5>3: <span title ="Occasionally, studies will include SNPs that have odds ratios which are dependent upon biological sex. By default, we exclude any SNPs that are depenent on biological sex. If you choose, you can include either female or male dependent SNPs.">Sex&nbsp;Specific&nbsp;SNPs<sup>?</sup></span></h5>
                   <select id="sex" onchange="moveToNextTourIndex('sex')">
@@ -288,7 +319,7 @@
                     <option value="m">Male</option>
                   </select>
                 </div>
-              </div>
+              </div> -->
               <!--uses "js/calculate_score.js"-->
               <button type="button" id="feedbackSubmit" onclick="calculatePolyScore();"
                 class="btn btn-primary btn-lg" style="margin-top: .5em; padding: .5em;">Calculate Risk Scores</button>
