@@ -361,6 +361,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         }
         // else add the pos->trait->studyID 
         else if (association.studyID in studyIDsToMetaData){
+            AssociationsBySnp[association[refGen]] = association.snp // adds the pos to 
             AssociationsBySnp[association.snp] = {
                 pos: association[refGen],
                 traits: {}
