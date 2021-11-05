@@ -357,18 +357,21 @@ var calculatePolyScore = async () => {
         var gwasDataFile = document.getElementById("gwasFile").files[0];
         var gwasRefGenElement = document.getElementById("gwasRefGenome");
         var gwasRefGen = gwasRefGenElement.options[gwasRefGenElement.selectedIndex].value
+        var gwasValueType = document.querySelector('input[name="gwas_value_type"]:checked').value;
 
         document.getElementById('resultsDisplay').style.display = 'block';
         updateResultBoxAndStoredValue("Calculating. Please wait...")
 
-        associationData = await getGWASUploadData(gwasDataFile, gwasRefGen, refGen)
+        associationData = await getGWASUploadData(gwasDataFile, gwasRefGen, refGen, gwasValueType)
 
     }
     else {
         var sexElement = document.getElementById("sex");
         var sex = sexElement.options[sexElement.selectedIndex].value
+        var valueTypeElement = document.getElementById("valueType");
+        var valueType = valueTypeElement.options[valueTypeElement.selectedIndex].value;
         var studyNodes = document.querySelectorAll('#studySelect :checked');
-        var studies = [...studyNodes].map(option => [option.value, option.dataset.trait]);
+        var studies = [...studyNodes].map(option => [option.value, option.dataset.trait, option.dataset.pvalueannotation]);
 
         if (studies.length === 0) {
             updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
@@ -379,17 +382,18 @@ var calculatePolyScore = async () => {
         document.getElementById('resultsDisplay').style.display = 'block';
         updateResultBoxAndStoredValue("Calculating. Please wait...")
     
-        //convert the studies into a list of studyIDs/traits
+        //convert the studies into a list of studyIDs/traits/pValueAnnotation
         var studyList = [];
         for (i = 0; i < studies.length; i++) {
             studyList.push({
                 trait: studies[i][1],
-                studyID: studies[i][0]
+                studyID: studies[i][0],
+                pValueAnnotation: studyies[i][0]
             });
         }
     
         //send a get request to the server with the specified traits and studies
-        associationData = await getSelectStudyAssociations(studyList, refGen, sex);
+        associationData = await getSelectStudyAssociations(studyList, refGen, sex, valueType);
     }
 
     clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
@@ -426,20 +430,19 @@ var calculatePolyScore = async () => {
                 var alleleArray = snpArray[1].split(",");
                 //if more than 2 alleles, return error
                 if (alleleArray.length > 2) {
-                    
                     updateResultBoxAndStoredValue("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
                     return;
                 }
                 for (var j = 0; j < alleleArray.length; ++j) {
                     //if any allele is not  A, T, G, or C, return error
-                    if (["A", "T", "G", "C"].indexOf(alleleArray[j].toUpperCase()) < 0) {
-                        updateResultBoxAndStoredValue("Allele \"" + alleleArray[j] + "\" is invalid. Must be A, T, G, or C.");
+                    if (!/^[GTAC]+$/.test(alleleArray[j])) {
+                        updateResultBoxAndStoredValue("Allele \"" + alleleArray[j] + "\" is invalid. Must contain only A, T, G, and C's.");
                         return;
                     }
                 }
             }
             snpObj = {
-                pos: snpArray[0],
+                snp: snpArray[0],
                 alleleArray: alleleArray
             }
             snpObjs.set(snpArray[0], snpObj);
@@ -473,9 +476,10 @@ var calculatePolyScore = async () => {
  * @param {*} gwasUploadFile the uploaded tab separated GWAS data file
  * @param {*} gwasRefGen the reference genome of the GWAS upload data
  * @param {*} refGen the reference genome of the samples
+ * @param {*} gwasValueType the type of values reported (beta or odds ratios(or))
  * @returns the associations data object used in calculating polygenic risk scores
  */
-async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen) {
+async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueType) {
     var fileContents = await readFile(gwasUploadFile);
     fileLines = fileContents.split("\n")
 
@@ -490,6 +494,8 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen) {
     pi = -1 //position index
     rai = -1 //risk allele index
     ori = -1 //odds ratio index
+    bvi = -1 //beta value index
+    bui = -1 //beta units index
     pvi = -1 //p value index
     cti = -1 // optional citation index
     rti = -1 // optional reported trait index
@@ -504,18 +510,24 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen) {
             pi = cols.indexOf("position")
             rai = cols.indexOf("risk allele")
             ori = cols.indexOf("odds ratio")
+            bvi = cols.indexOf("beta value")
+            bui = cols.indexOf("beta units")
             pvi = cols.indexOf("p-value")
             cti = cols.indexOf("citation")
             rti = cols.indexOf("reported trait")
 
-            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1 || pvi == -1) {
-                console.log(sii, ti, si, ci, pi, rai, ori, pvi)
+            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1) {
+                console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi)
                 alert("The format of your GWAS upload is incorrect. Please fix it and try again.")
                 return
             }
         }
         else {
             cols = fileLines[i].replace(/\n/,'').replace(/\r$/, '').split('\t')
+
+            //TODO working here... need to change the equation for beta and or 
+            // 11/4/2021
+
             // create the chrom:pos to snp dict
             // if the chrom:pos not in the chromSnpDict
             if (!(`${cols[ci]}:${cols[pi]}` in chromSnpDict)) {
