@@ -45,7 +45,7 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
                 studyObj = JSON.parse(studyObj)
             }
-            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, pValueAnnotation, oddsRatio, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ?; `)
+            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, pValueAnnotation, oddsRatio, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? `)
             queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation])
 
             //might not need this one, since sex should be in the pValueAnnotation
