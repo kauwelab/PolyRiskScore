@@ -257,7 +257,7 @@ function changeGWASType() {
     }
     else {
         //todo update this description!!!!!
-        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn" title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Beta&nbsp;Coefficent<sup>?</sup></span>')
+        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn" title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Beta&nbsp;Coefficient<sup>?</sup></span>')
     }
 }
 
@@ -481,6 +481,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
     var fileContents = await readFile(gwasUploadFile);
     fileLines = fileContents.split("\n")
 
+
     associationsDict = {}
     chromSnpDict = {}
     studyIDsToMetaData = {}
@@ -499,7 +500,11 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
     rti = -1 // optional reported trait index
 
     for (i=0; i<fileLines.length; i++) {
-        if (i==0) {
+        if (fileLines[i].toLowerCase().replace(/\n/,'').replace(/\r$/, '') == "") {
+            // console.log("BLANK LINE IN GWAS UPLOAD -- SKIPPING")
+            continue
+        }
+        else if (i==0) {
             cols = fileLines[i].toLowerCase().replace(/\n/,'').replace(/\r$/, '').split('\t')
             sii = cols.indexOf("study id")
             ti = cols.indexOf("trait")
@@ -508,11 +513,12 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             pi = cols.indexOf("position")
             rai = cols.indexOf("risk allele")
             ori = cols.indexOf("odds ratio")
-            bvi = cols.indexOf("beta value")
+            bvi = cols.indexOf("beta coefficient")
             bui = cols.indexOf("beta units")
             pvi = cols.indexOf("p-value")
             cti = cols.indexOf("citation")
             rti = cols.indexOf("reported trait")
+            pvai = cols.indexOf('p-value annotation') //TODO add this to the optional columns 
 
             if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1) {
                 console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi)
@@ -522,7 +528,6 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
         }
         else {
             cols = fileLines[i].replace(/\n/,'').replace(/\r$/, '').split('\t')
-
             // create the chrom:pos to snp dict
             // if the chrom:pos not in the chromSnpDict
             if (!(`${cols[ci]}:${cols[pi]}` in chromSnpDict)) {
@@ -545,38 +550,28 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             }
             // if studyID not in associationsDict[snp]["traits"][trait]
             if (!(cols[sii] in associationsDict[cols[si]]["traits"][cols[ti]])) {
-                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {
+                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {}
+            }
+
+            pValueAnnotation = (pvai != -1 ? cols[pvai] : "")
+            if (!(pValueAnnotation in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]])) {
+                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValueAnnotation] = {
                     riskAllele: cols[rai],
                     pValue: parseFloat(cols[pvi]),
                     sex: "NA",
-                    ogValueTypes: gwasValueType
+                    ogValueTypes: gwasValueType,
                 }
                 if (gwasValueType == 'or') {
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]['oddsRatio'] = parseFloat(cols[ori])
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValueAnnotation]['oddsRatio'] = parseFloat(cols[ori])
                 }
                 else {
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]['betaValue'] = parseFloat(cols[bvi]),
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]['betaUnit'] = cols[bui]
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValueAnnotation]['betaValue'] = parseFloat(cols[bvi]),
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValueAnnotation]['betaUnit'] = cols[bui]
                 }
             }
             else {
-                // if the pvalue for the current association is more significant than the one in the associations dict for this snp->trait->studyID
-                // replace the association data
-                if (parseFloat(cols[pvi]) < associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]["pValue"]) {
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {
-                        riskAllele: cols[rai],
-                        pValue: parseFloat(cols[pvi]),
-                        sex: "NA",
-                        ogValueTypes: gwasValueType
-                    }
-                    if (gwasValueType == 'or') {
-                        associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]['oddsRatio'] = parseFloat(cols[ori])
-                    }
-                    else {
-                        associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]['betaValue'] = parseFloat(cols[bvi]),
-                        associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]]['betaUnit'] = cols[bui]
-                    }
-                }
+                alert("You have more than one association for the same Trait/study/(pValueAnnotation) combination. Please fix this before attempting to run the PRSKB calculator.")
+                return
             }
 
             // create the metadata info dict
@@ -595,7 +590,16 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             // if the trait is not in studyIDsToMetaData[studyID]["traits"]
             if (!(cols[ti] in studyIDsToMetaData[cols[sii]]["traits"])) {
                 // add the trait
-                studyIDsToMetaData[cols[sii]]["traits"][cols[ti]] = []
+                studyIDsToMetaData[cols[sii]]["traits"][cols[ti]] = {
+                    studyTypes: [],
+                    pValueAnnotations: (pvai != -1 ? [pValueAnnotation] : [""]), //TODO if there are pValueAnnotations, Add them
+                    superPopulations: []
+                }
+            }
+            else {
+                if (!(studyIDsToMetaData[cols[sii]]["traits"][cols[ti]]['pValueAnnotations'].includes(pValueAnnotation))) {
+                    studyIDsToMetaData[cols[sii]]["traits"][cols[ti]]['pValueAnnotations'].push(pValueAnnotation)
+                }
             }
         }
     }
@@ -779,7 +783,7 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                         for (j=0; j < associationData['studyIDsToMetaData'][studyIDs[i]]['traits'][trait]['pValueAnnotations'].length; j++) {
                             pValueAnnotation = associationData['studyIDsToMetaData'][studyIDs[i]]['traits'][trait]['pValueAnnotations'][j]
                             // ensure that the right studies/traits are being used and that this matches the CLI
-                            if (selectedTraits.includes(trait) || selectedTraits.includes(associationData['studyIDsToMetaData'][studyIDs[i]]["reportedTrait"])) {
+                            if (selectedTraits.length == 0 || selectedTraits.includes(trait) || selectedTraits.includes(associationData['studyIDsToMetaData'][studyIDs[i]]["reportedTrait"])) {
                                 //TODO this should probably be changed to be the numAssociaitonsFiltered
                                 if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithExcludedSnps'].includes(trait)) {
                                     printStudyID = studyIDs[i].concat('†')
@@ -787,7 +791,6 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                                 else {
                                     printStudyID = studyIDs[i]
                                 }
-        
                                 if (!(printStudyID in resultObj)) {
                                     resultObj[printStudyID] = {}
                                 }
