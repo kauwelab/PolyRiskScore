@@ -223,18 +223,12 @@ if (is_ebi_reachable()) {
 
     print("Study data read!")
     
-    # gets distint studyIDs from associationsTibble, keeping the citation as well as a bar ("|") deliminated list of traits for that studyID
+    # gets the rows from the associations table that are distinct for (studyID, trait, sex, pValueAnnotation, betaAnnotations, and ogValueTypes)
     # studyIDRows is looped through to get study data for each study found in the associationsTibble, which is formated and written to file
-    # keeping traits keeps only valid traits from a study (ex: if a study reports 10 traits, but only 2 have valid snps, the study_table will 
-    # only have 2 traits).
     studyIDRows <- group_by(associationsTibble, studyID) %>%
-      mutate(trait = paste0(unique(trait[!is.na(trait)]), collapse = "|")) %>%
-      mutate(sexes = paste0(unique(sex[!is.na(sex)]), collapse = "|")) %>%
-      mutate(ogValueTypes = paste0(unique(ogValueTypes[!is.na(ogValueTypes)]), collapse = "|")) %>%
-      mutate(pValueAnnotations = paste0(unique(pValueAnnotation[!is.na(pValueAnnotation)]), collapse = "|")) %>%
-      mutate(betaAnnotations = paste0(unique(betaAnnotation[!is.na(betaAnnotation)]), collapse = "|")) %>%
+      separate_rows(ogValueTypes,sep = "\\|") %>%
       mutate(numAssociationsFiltered = paste0(unique(numAssociationsFiltered[!is.na(numAssociationsFiltered)]), collapse = "|"))
-    studyIDRows <- select(arrange(distinct(studyIDRows, studyID, .keep_all = TRUE), studyID), studyID, citation, trait, sexes, pValueAnnotations, betaAnnotations, ogValueTypes, numAssociationsFiltered)
+    studyIDRows <- dplyr::select(arrange(distinct(studyIDRows, studyID, trait, sex, pValueAnnotation, betaAnnotation, ogValueTypes, .keep_all = TRUE), studyID), studyID, citation, trait, sex, pValueAnnotation, betaAnnotation, ogValueTypes, numAssociationsFiltered)
     
     for (i in 1:nrow(studyIDRows)) {
       tryCatch({
@@ -260,13 +254,13 @@ if (is_ebi_reachable()) {
         # gets the enthnicities for the specified studyID by combining all the ethnicities found in the ancestries tibble returning a 
         #list of all unique ethnicities separated by "|"
         ethnicity <- filter(ancestries, study_id == studyID) %>%
-          select(-ancestry_id) %>%
+          dplyr::select(-ancestry_id) %>%
           group_by(study_id) %>%
           mutate(ethnicity = str_replace_all(paste0(unique(ancestral_group[!is.na(ancestral_group)]), collapse = "|"), ",", "")) %>%
           distinct(study_id, .keep_all = TRUE) %>%
-          select(-ancestral_group) %>%
+          dplyr::select(-ancestral_group) %>%
           ungroup() %>%
-          select(-study_id)
+          dplyr::select(-study_id)
         ethnicity <- ethnicity[["ethnicity"]]
         if (ethnicity == "" || is_empty(ethnicity)) {
           ethnicity <- NA_character_
