@@ -1153,10 +1153,10 @@ function formatTSV(jsonObject, isCondensed) {
     sampleKeys = []
 
     if (isCondensed) {
-        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation', 'Citation']
+        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation', 'Citation', 'Score Type', 'Units (if applicable)']
     }
     else {
-        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation', 'Citation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
     }
 
     resultsString = ''
@@ -1195,8 +1195,15 @@ function formatTSV(jsonObject, isCondensed) {
                     for (var k = 0; k < sampleKeys.length; k++) {
                         sample = sampleKeys[k]
                         oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['oddsRatio']
+                        betaValue = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['betaValue']
+                        betaUnit = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['betaUnit']
+                        scoreType = (betaValue !== undefined ? "beta coefficients" : "odds ratios")
+                        score = (betaValue !== undefined ? betaValue : oddsRatio)
                         if (isCondensed) {
-                            lineInfo.push(oddsRatio)
+                            //TODO we will want to use the valuetype from the study to actually do this
+                            lineInfo.push(scoreType)
+                            lineInfo.push(betaUnit)
+                            lineInfo.push(score)
                         }
                         else {
                             protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['protectiveVariants']
@@ -1212,7 +1219,7 @@ function formatTSV(jsonObject, isCondensed) {
                             unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
                             clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
     
-                            lineResult = `${sample}\t${lineInfo.join('\t')}\t${oddsRatio}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
+                            lineResult = `${sample}\t${lineInfo.join('\t')}\t${scoreType}\t${betaUnit}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
                             resultsString = resultsString.concat("\n", lineResult)
                         }
                     }
