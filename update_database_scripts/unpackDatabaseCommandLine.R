@@ -470,8 +470,12 @@ if (is_ebi_reachable()) {
       # gets the study ID
       studyID <- pull(studiesTibble[i, "study_id"])
       
-      # get citation data (author + year published)
-      citation <- paste(sub(" .*", "", pull(publications[i, "author_fullname"])), "et al.",  str_sub(pull(publications[i, "publication_date"]), 0, 4))
+      # get citation data (author + year published) 
+      # get author last name, remove iii, jr, and 3rd, remove initials of first and middle names, add et al. on the end, and add study published year on end
+      lastName <- str_remove_all(pull(publications[i, "author_fullname"]), " Ii{1,2}")
+      lastName <- str_remove_all(lastName, " [Jj]r\\.?")
+      lastName <- str_remove_all(lastName, " 3rd")
+      citation <- paste(sub("(.*)( .{1,3})$", "\\1", lastName), "et al.",  str_sub(pull(publications[i, "publication_date"]), 0, 4))
       # get pubmed ID for the study
       pubmedID <- pull(publications[i, "pubmed_id"])
       
@@ -486,7 +490,7 @@ if (is_ebi_reachable()) {
       # gets the association data associated with the study ID
       associations <- get_associations(study_id = studyID)
       associationsTibble <- associations@associations
-      numTotatAssociations <- nrow(associationsTibble)
+      numTotalAssociations <- nrow(associationsTibble)
       # filter out SNPs associated with other SNPs
       associationsTibble <- filter(associationsTibble, !grepl("condition", pvalue_description, ignore.case = TRUE)&!grepl("adjusted for rs", pvalue_description, ignore.case = TRUE))
       associationsTibble <- filter(associationsTibble, !grepl("conditon", pvalue_description, ignore.case = TRUE)) # GCST001969 has this improper spelling
@@ -557,7 +561,8 @@ if (is_ebi_reachable()) {
         add_column(sex = getSexesFromDescriptions(master_associations[["pvalue_description"]], master_associations[["beta_description"]])) %>%
         add_column(betaValue = getBeta(master_associations[["beta_number"]], master_associations[["beta_direction"]]), .after = "upperCI") %>%
         add_column(ogValueTypes = getOGValueTypes(master_associations[["or_per_copy_number"]], master_associations[["beta_number"]]), .after = "betaValue") %>%
-        mutate(pvalue_description = tolower(pvalue_description))
+        mutate(pvalue_description = tolower(pvalue_description)) %>%
+        replace_na(list(pvalue_description = "NA")) # replace NA character with NA string for p-value description
       # filter out SNPs on the X or Y chromosome (keeping NAs)
       studyData <- filter(studyData, !startsWith(hg38, "X")&!startsWith(hg38, "Y")|is.na(hg38))
       # check if studyData has enough snps
@@ -565,7 +570,7 @@ if (is_ebi_reachable()) {
       
       # calculate the total number of SNPS that have been filtered out for the study and add it as a column      
       numFinalAssociations <- length(unique(studyData[["variant_id"]]))
-      numAssociationsFiltered <- numTotatAssociations - numFinalAssociations
+      numAssociationsFiltered <- numTotalAssociations - numFinalAssociations
       studyData <- add_column(studyData, numAssociationsFiltered = numAssociationsFiltered, .after = "sex")
 
       associationsTable <- bind_rows(studyData, associationsTable)
