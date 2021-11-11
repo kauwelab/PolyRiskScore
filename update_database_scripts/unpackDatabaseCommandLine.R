@@ -377,11 +377,11 @@ if (is_ebi_reachable()) {
           # ((wo)?m[ae]n|(fe)?male) match woman, women, female, man, men, and male
           # ([^a-zA-Z]|$) match end or not alphabetical character
         # female
-        if (str_detect(descs, regex("(^|[^a-zA-Z])(wom[ae]n|female)([^a-zA-Z]|$)", ignore_case = TRUE))) {
+        if (str_detect(descs, regex("(^|[^a-zA-Z])(wom[ae]n|females?)([^a-zA-Z]|$)", ignore_case = TRUE))) {
           sex <- femaleIndicator
         }
         # male
-        if (str_detect(descs, regex("(^|[^a-zA-Z])(m[ae]n|male)([^a-zA-Z]|$)", ignore_case = TRUE))){
+        if (str_detect(descs, regex("(^|[^a-zA-Z])(m[ae]n|males?)([^a-zA-Z]|$)", ignore_case = TRUE))){
           if (is.na(sex)) {
             sex <- maleIndicator
           } else { # if sex is already female, set to NA
