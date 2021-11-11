@@ -207,7 +207,7 @@ def main():
     # add the study_table to the database
     tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), \
         altmetricScore decimal(15,5), ethnicity varchar(255), superPopulation varchar(255), initialSampleSize int unsigned, \
-        replicationSampleSize int unsigned, sexes varchar(20), pValueAnnotations varchar(255), betaAnnotations varchar(255), ogValueTypes varchar(20), \
+        replicationSampleSize int unsigned, sex varchar(20), pValueAnnotation varchar(255), betaAnnotation varchar(255), ogValueTypes varchar(20), \
         numAssociationsFiltered int unsigned, title varchar(255), lastUpdated varchar(15) )"
     createFreshTable(config, "study_table", tableColumns)
     addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")

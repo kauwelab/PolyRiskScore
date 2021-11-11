@@ -7,7 +7,7 @@
 #       "rawStudyTSVFolderPath" is the path to the folder where the raw GWAS study TSVs are stored (default: "./")
 #
 # The format of the study table is as follows:
-# studyID pubMedID  trait reportedTrait citation  altmetricScore  ethnicity initialSampleSize replicationSampleSize title lastUpdated
+# studyID pubMedID  trait reportedTrait citation  altmetricScore  ethnicity superPopulation initialSampleSize replicationSampleSize sex pValueAnnotation  betaAnnotation  ogValueTypes  numAssociationsFiltered title lastUpdated
 # where: "studyID" is the unique ID assigned by the GWAS database
 #        "pubMedID" is the PubMed ID of the study
 #        "trait" is the name of the trait assigned the study by the GWAS catalog
@@ -18,9 +18,9 @@
 #        "superPopulation" is a pipe (|) separated string of super populations involved in the study (based on the 5 populations from 1000 genomes)
 #        "initialSampleSize" is the intitial sample size of the study
 #        "replicationSampleSize" is the replication sample size of the study
-#        "sexes" is a pipe (|) deliminated string containing the sexes listed in the study ("male", "female", or "male|female")
-#        "pValueAnnotations" is a pipe (|) deliminated string containing all the pValueAnnotations in the study
-#        "betaAnnotations" is a pipe (|) deliminated string containing all the betaAnnotations in the study
+#        "sex" is a string ("male" or "female") representing the study's sub study sex (default NA)
+#        "pValueAnnotation" is a string containing one pValueAnnotation of the study
+#        "betaAnnotation" is a string containing one betaAnnotation of the study
 #        "ogValueTypes" is a pipe (|) deliminated string containing the study's value types ("OR", "beta", or "OR|beta")
 #        "numAssociationsFiltered" is the number of SNPs filtered from the study (not in the associations table)
 #        "title" is the the title of the study
@@ -203,9 +203,9 @@ if (is_ebi_reachable()) {
                          "superPopulation" = character(0),
                          "initialSampleSize" = numeric(0), 
                          "replicationSampleSize" = numeric(0), 
-                         "sexes" = character(0), 
-                         "pValueAnnotations" = character(0), 
-                         "betaAnnotations" = character(0), 
+                         "sex" = character(0), 
+                         "pValueAnnotation" = character(0), 
+                         "betaAnnotation" = character(0), 
                          "ogValueTypes" = character(0),
                          "numAssociationsFiltered" = numeric(0),
                          "title" = character(0), 
@@ -223,7 +223,7 @@ if (is_ebi_reachable()) {
 
     print("Study data read!")
     
-    # gets the rows from the associations table that are distinct for (studyID, trait, sex, pValueAnnotation, betaAnnotations, and ogValueTypes)
+    # gets the rows from the associations table that are distinct for (studyID, trait, sex, pValueAnnotation, betaAnnotation, and ogValueTypes)
     # studyIDRows is looped through to get study data for each study found in the associationsTibble, which is formated and written to file
     studyIDRows <- group_by(associationsTibble, studyID) %>%
       separate_rows(ogValueTypes,sep = "\\|") %>%
@@ -274,9 +274,9 @@ if (is_ebi_reachable()) {
         initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
         replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])
         
-        sexes <- studyIDRow[["sexes"]]
-        pValueAnnotations <- studyIDRow[["pValueAnnotations"]]
-        betaAnnotations <- studyIDRow[["betaAnnotations"]]
+        sex <- studyIDRow[["sex"]]
+        pValueAnnotation <- studyIDRow[["pValueAnnotation"]]
+        betaAnnotation <- studyIDRow[["betaAnnotation"]]
         ogValueTypes <- studyIDRow[["ogValueTypes"]]
         numAssociationsFiltered <- strtoi(studyIDRow[["numAssociationsFiltered"]])
         
@@ -294,9 +294,9 @@ if (is_ebi_reachable()) {
                               superPopulation = superPopulation,
                               initialSampleSize = initialSampleSize,
                               replicationSampleSize = replicationSampleSize,
-                              sexes = sexes,
-                              pValueAnnotations = pValueAnnotations,
-                              betaAnnotations = betaAnnotations,
+                              sex = sex,
+                              pValueAnnotation = pValueAnnotation,
+                              betaAnnotation = betaAnnotation,
                               ogValueTypes = ogValueTypes,
                               numAssociationsFiltered = numAssociationsFiltered,
                               title = title, 
