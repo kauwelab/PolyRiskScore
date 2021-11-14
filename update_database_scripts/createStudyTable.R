@@ -7,16 +7,22 @@
 #       "rawStudyTSVFolderPath" is the path to the folder where the raw GWAS study TSVs are stored (default: "./")
 #
 # The format of the study table is as follows:
-# studyID pubMedID  trait reportedTrait citation  altmetricScore  ethnicity initialSampleSize replicationSampleSize title lastUpdated
+# studyID pubMedID  trait reportedTrait citation  altmetricScore  ethnicity superPopulation initialSampleSize replicationSampleSize sex pValueAnnotation  betaAnnotation  ogValueTypes  numAssociationsFiltered title lastUpdated
 # where: "studyID" is the unique ID assigned by the GWAS database
 #        "pubMedID" is the PubMed ID of the study
 #        "trait" is the name of the trait assigned the study by the GWAS catalog
 #        "reportedTrait" is the name of the trait that the authors listed for their study
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
-#        "studyScore" is the Altmetric score given to the study- it is a measure of the popularity of the study (see altmetric.com for more info)
-#        "ethnicity" is a pipe (|) separated list of ethnicities involved in the study
+#        "altmetricScore" is the Altmetric score given to the study- it is a measure of the popularity of the study (see altmetric.com for more info)
+#        "ethnicity" is a pipe (|) separated string of ethnicities involved in the study
+#        "superPopulation" is a pipe (|) separated string of super populations involved in the study (based on the 5 populations from 1000 genomes)
 #        "initialSampleSize" is the intitial sample size of the study
 #        "replicationSampleSize" is the replication sample size of the study
+#        "sex" is a string ("male" or "female") representing the study's sub study sex (default NA)
+#        "pValueAnnotation" is a string containing one pValueAnnotation of the study
+#        "betaAnnotation" is a string containing one betaAnnotation of the study
+#        "ogValueTypes" is a pipe (|) deliminated string containing the study's value types ("OR", "beta", or "OR|beta")
+#        "numAssociationsFiltered" is the number of SNPs filtered from the study (not in the associations table)
 #        "title" is the the title of the study
 #        "lastUpdated" is the date the study was last updated in the GWAS database
 
@@ -141,6 +147,38 @@ getDatabaseTraitName <- function(traitName) {
   return(dbTraitName)
 }
 
+getSuperPop <- function(ethnicity) {
+  if (is.na(ethnicity)) {
+    return(NA_character_)
+  } else {
+    superPopulation <- c()
+    if (str_detect(ethnicity, regex("african", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "African")
+    } 
+    if (str_detect(ethnicity, regex("(?<!african )american", ignore_case = TRUE))) { # match american, but not african american (negatve lookbehind)
+      superPopulation <- c(superPopulation, "American")
+    }
+    if (str_detect(ethnicity, regex("european", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "European")
+    }
+    if (str_detect(ethnicity, regex("south asian", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "South Asian")
+    }
+    if (str_detect(ethnicity, regex("east asian", ignore_case = TRUE)) || str_detect(ethnicity, regex("asian unspecified", ignore_case = TRUE)) || str_detect(ethnicity, regex("oceanian", ignore_case = TRUE)) || str_detect(ethnicity, regex("central asian", ignore_case = TRUE))) {
+      superPopulation <- c(superPopulation, "East Asian")
+    }
+    
+    # if a super population could not be determined from the ethnicity, return NA, otherwise return a 
+    # string with all super populations separated by the "|"
+    if (length(superPopulation) == 0) {
+      return(NA_character_)
+    }
+    else {
+      return(paste0(superPopulation, collapse = "|"))
+    }
+  }
+}
+
 ## code body---------------------------------------------------------------------------------------------------
 
 # if the GWAS catalog is available
@@ -155,7 +193,23 @@ if (is_ebi_reachable()) {
   }
   else {
     # initialize table
-    studyTable <- tibble("studyID" = character(0), "pubMedID" = double(0), "trait" = character(0), reportedTrait = character(0), "citation" = character(0), "altmetricScore" = double(0), "ethnicity" = character(0), "initialSampleSize" = numeric(0), "replicationSampleSize" = numeric(0), "title" = character(0), "lastUpdated" = character(0))
+    studyTable <- tibble("studyID" = character(0), 
+                         "pubMedID" = double(0), 
+                         "trait" = character(0), 
+                         "reportedTrait" = character(0), 
+                         "citation" = character(0), 
+                         "altmetricScore" = double(0), 
+                         "ethnicity" = character(0),
+                         "superPopulation" = character(0),
+                         "initialSampleSize" = numeric(0), 
+                         "replicationSampleSize" = numeric(0), 
+                         "sex" = character(0), 
+                         "pValueAnnotation" = character(0), 
+                         "betaAnnotation" = character(0), 
+                         "ogValueTypes" = character(0),
+                         "numAssociationsFiltered" = numeric(0),
+                         "title" = character(0), 
+                         "lastUpdated" = character(0))
 
     DevPrint(paste0("Startup took ", format(Sys.time() - start_time)))
     DevPrint("Creating Study Table")
@@ -169,13 +223,12 @@ if (is_ebi_reachable()) {
 
     print("Study data read!")
     
-    # gets distint studyIDs from associationsTibble, keeping the citation as well as a bar ("|") deliminated list of traits for that studyID
+    # gets the rows from the associations table that are distinct for (studyID, trait, sex, pValueAnnotation, betaAnnotation, and ogValueTypes)
     # studyIDRows is looped through to get study data for each study found in the associationsTibble, which is formated and written to file
-    # keeping traits keeps only valid traits from a study (ex: if a study reports 10 traits, but only 2 have valid snps, the study_table will 
-    # only have 2 traits).
     studyIDRows <- group_by(associationsTibble, studyID) %>%
-      mutate(trait = paste0(unique(trait[!is.na(trait)]), collapse = "|"))
-    studyIDRows <- select(arrange(distinct(studyIDRows, studyID, .keep_all = TRUE), studyID), studyID, citation, trait)
+      separate_rows(ogValueTypes,sep = "\\|") %>%
+      mutate(numAssociationsFiltered = paste0(unique(numAssociationsFiltered[!is.na(numAssociationsFiltered)]), collapse = "|"))
+    studyIDRows <- dplyr::select(arrange(distinct(studyIDRows, studyID, trait, sex, pValueAnnotation, betaAnnotation, ogValueTypes, .keep_all = TRUE), studyID), studyID, citation, trait, sex, pValueAnnotation, betaAnnotation, ogValueTypes, numAssociationsFiltered)
     
     for (i in 1:nrow(studyIDRows)) {
       tryCatch({
@@ -201,23 +254,31 @@ if (is_ebi_reachable()) {
         # gets the enthnicities for the specified studyID by combining all the ethnicities found in the ancestries tibble returning a 
         #list of all unique ethnicities separated by "|"
         ethnicity <- filter(ancestries, study_id == studyID) %>%
-          select(-ancestry_id) %>%
+          dplyr::select(-ancestry_id) %>%
           group_by(study_id) %>%
           mutate(ethnicity = str_replace_all(paste0(unique(ancestral_group[!is.na(ancestral_group)]), collapse = "|"), ",", "")) %>%
           distinct(study_id, .keep_all = TRUE) %>%
-          select(-ancestral_group) %>%
+          dplyr::select(-ancestral_group) %>%
           ungroup() %>%
-          select(-study_id)
+          dplyr::select(-study_id)
         ethnicity <- ethnicity[["ethnicity"]]
-        if (is_empty(ethnicity)) {
-          ethnicity <- NA
+        if (ethnicity == "" || is_empty(ethnicity)) {
+          ethnicity <- NA_character_
         }
+        
+        superPopulation <- getSuperPop(ethnicity)
 
         # get the last time the study was updated from the lastUpdatedTibble
         lastUpdated <- as.character(lastUpdatedTibble[lastUpdatedTibble$studyID == studyID,]$lastUpdated)
         
         initialSampleSize <- SumNumsFromString(rawStudyData[["initial_sample_size"]])
         replicationSampleSize <- SumNumsFromString(rawStudyData[["replication_sample_size"]])
+        
+        sex <- studyIDRow[["sex"]]
+        pValueAnnotation <- studyIDRow[["pValueAnnotation"]]
+        betaAnnotation <- studyIDRow[["betaAnnotation"]]
+        ogValueTypes <- studyIDRow[["ogValueTypes"]]
+        numAssociationsFiltered <- strtoi(studyIDRow[["numAssociationsFiltered"]])
         
         title <- publication[["title"]]
 
@@ -230,8 +291,14 @@ if (is_ebi_reachable()) {
                               citation = citation,
                               altmetricScore = altmetricScore,
                               ethnicity = ethnicity,
+                              superPopulation = superPopulation,
                               initialSampleSize = initialSampleSize,
                               replicationSampleSize = replicationSampleSize,
+                              sex = sex,
+                              pValueAnnotation = pValueAnnotation,
+                              betaAnnotation = betaAnnotation,
+                              ogValueTypes = ogValueTypes,
+                              numAssociationsFiltered = numAssociationsFiltered,
                               title = title, 
                               lastUpdated = lastUpdated)
         
