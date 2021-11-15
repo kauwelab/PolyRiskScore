@@ -45,8 +45,8 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
                 studyObj = JSON.parse(studyObj)
             }
-            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, pValueAnnotation, oddsRatio, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? `)
-            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation])
+            queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, pValueAnnotation, oddsRatio, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? AND betaAnnotation = ? `)
+            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation, studyObj.betaAnnotation])
 
             //might not need this one, since sex should be in the pValueAnnotation
             // if the user wants both, sexes should be null and we skip this filtering step
@@ -84,7 +84,7 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
             }
             console.log(`Got ${res.length} studies with associations from table`)
             console.log("Getting the metaData associated with the studies") 
-            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotations, `+
+            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, `+
              `IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, `+
@@ -123,7 +123,7 @@ Association.getAll = (refGen, result) => {
 
             console.log("associations (first): ", res[0]);
 
-            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotations, "+
+            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, "+
              "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, "+
              "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, "+
              "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, "+
@@ -233,8 +233,8 @@ Association.getSnpsToTraitStudyID = (studyIDObjs, result) => {
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
                 studyObj = JSON.parse(studyObj)
             }
-            queryString = queryString.concat(`SELECT snp, studyID, trait, pValueAnnotation FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ?; `)
-            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation])
+            queryString = queryString.concat(`SELECT snp, studyID, trait, pValueAnnotation, betaAnnotation FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? AND betaAnnotation = ?; `)
+            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation, studyObj.betaAnnotation])
         })
         console.log('about to query table')
 
@@ -262,7 +262,7 @@ Association.getSingleSnpFromEachStudy = (refGen, result) => {
             refGen = validator.validateRefgen(refGen)
         }
     
-        sql.query(`SELECT snp, riskAllele, ${refGen}, studyID, pValueAnnotation FROM associations_table WHERE id IN ( SELECT min(id) FROM associations_table GROUP BY studyID, pValueAnnotation ); `, (err, data) => {
+        sql.query(`SELECT snp, riskAllele, ${refGen}, studyID, pValueAnnotation, betaAnnotation FROM associations_table WHERE id IN ( SELECT min(id) FROM associations_table GROUP BY studyID, pValueAnnotation, betaAnnotation ); `, (err, data) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -323,16 +323,26 @@ Association.snpsByEthnicity = (ethnicities, result) => {
             for (i = 0; i < res.length; i++) {
                 //if there is more than one ethnicity in the selector, select the SNPs for each study
                 if(Array.isArray(ethnicities)) {
+                    queryString = queryString.concat(`SELECT snp FROM associations_table WHERE studyID IN ( `)
                     for (j = 0; j < res[i].length; j++) {
                         //TODO clean to remove duplicate code
-                        queryString = queryString.concat(`SELECT snp FROM associations_table WHERE studyID = ? ; `)
+                        queryString = (j < res[i].length - 1 ? queryString.concat(`?, `) : queryString.concat(`?`))
                         queryParams.push(res[i][j].studyID)
                     }
+                    queryString = queryString.concat(` ) ; `)
                 }
                 //if there is only one ethnicity in the selector, only select SNPs for the studies in that ethnicity
                 else {
                     //TODO clean to remove duplicate code
-                    queryString = queryString.concat(`SELECT snp FROM associations_table WHERE studyID = ? ; `)
+                    if (i == 0){
+                        queryString = queryString.concat(`SELECT snp FROM associations_table WHERE studyID IN ( ?, `)
+                    }
+                    else if (i < res.length - 1) {
+                        queryString = queryString.concat(`?, `)
+                    }
+                    else {
+                        queryString = queryString.concat(`? ) ;`)
+                    }
                     queryParams.push(res[i].studyID)
                 }
             }
@@ -357,12 +367,12 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                         //for each study
                         snps = []
                         for (j = 0; j < res[i].length; j++) {
-                            snpIndex = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
+                            // = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
 
                             //for each row in the study
-                            for (k = 0; k < data[snpIndex].length; k++) {
-                                snps.push(data[snpIndex][k].snp)
-                            }
+                            //for (k = 0; k < data[snpIndex].length; k++) {
+                            snps.push(data[i][j].snp)
+                            //}
         
                         }
                         ethnicityObj = {
@@ -375,14 +385,9 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 //handling for a single ethnicity
                 else {
                     //TODO clean to remove duplicate code
-                    console.log(res.length)
                     snps = []
-                    //for each study
                     for (i = 0; i < res.length; i++) {
-                        //for each row in the study
-                        for (k = 0; k < data[i].length; k++) {
-                            snps.push(data[i][k].snp)
-                        }
+                        snps.push(data[i].snp)
                     }
                     ethnicityObj = {
                         "ethnicity": ethnicities,
