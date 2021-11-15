@@ -11,9 +11,9 @@ const Study = function (mstudy) {
     this.superPopulation = study.superPopulation,
     this.initialSampleSize = mstudy.initialSampleSize,
     this.replicationsSampleSize = mstudy.replicationSampleSize,
-    this.sexes = mstudy.sexes, // set of sexes that we have associations for in the study separated by |
-    this.pValueAnnotations = mstudy.pValueAnnotations, // set of the pValueAnnotations from the study, separated by |
-    this.betaAnnotations = mstudy.betaAnnotations, //set of betaAnnotations from the study, separated by |
+    this.sex = mstudy.sex, // set of sexes that we have associations for in the study separated by |
+    this.pValueAnnotation = mstudy.pValueAnnotation, // set of the pValueAnnotations from the study, separated by |
+    this.betaAnnotation = mstudy.betaAnnotation, //set of betaAnnotations from the study, separated by |
     this.ogValueTypes = mstudy.ogValueTypes, // beta and/or OR, separated by |
     this.numAssociationsFiltered = mstudy.numAssociationsFiltered,
     this.title = mstudy.title, 
@@ -226,7 +226,7 @@ Study.getByID = (studyIDs, result) => {
 Study.findStudy = (searchStr, result) => {
     // search by citation, title, or pubMedID
     searchString = `%${searchStr}%`
-    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? OR studyID LIKE ? OR trait LIKE ? OR reportedTrait LIKE ? OR pValueAnnotations LIKE ? ;`, [searchString, searchString, searchString, searchString, searchString, searchString, searchString],  (err, res) => {
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? OR studyID LIKE ? OR trait LIKE ? OR reportedTrait LIKE ? OR pValueAnnotation LIKE ? OR betaAnnotation LIKE ? ;`, [searchString, searchString, searchString, searchString, searchString, searchString, searchString, searchString],  (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);

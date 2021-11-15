@@ -132,17 +132,19 @@ exports.getSnpsToTraitStudyID = (req, res) => {
             for (i=0; i<data.length; i++) {
                 if (Array.isArray(data[i])) {
                     for (j=0; j<data[i].length; j++) {
-                        if (!(Object.keys(studyIDTraitsToSnps).includes([data[i][j].trait, data[i][j].studyID, data[i][j].pValueAnnotation].join("|")))) {
-                            studyIDTraitsToSnps[[data[i][j].trait, data[i][j].studyID, data[i][j].pValueAnnotation].join("|")] = []
+                        key = [data[i][j].trait, data[i][j].studyID, data[i][j].pValueAnnotation, data[i][j].betaAnnotation].join("|")
+                        if (!(Object.keys(studyIDTraitsToSnps).includes(key))) {
+                            studyIDTraitsToSnps[key] = []
                         }
-                        studyIDTraitsToSnps[[data[i][j].trait, data[i][j].studyID, data[i][j].pValueAnnotation].join("|")].push(data[i][j].snp)
+                        studyIDTraitsToSnps[key].push(data[i][j].snp)
                     }
                 }
                 else {
-                    if (!(Object.keys(studyIDTraitsToSnps).includes([data[i].trait, data[i].studyID, data[i].pValueAnnotation].join("|")))) {
-                        studyIDTraitsToSnps[[data[i].trait, data[i].studyID, data[i].pValueAnnotation].join("|")] = []
+                    key=[data[i].trait, data[i].studyID, data[i].pValueAnnotation, data[i].betaAnnotation].join("|")
+                    if (!(Object.keys(studyIDTraitsToSnps).includes(key))) {
+                        studyIDTraitsToSnps[key] = []
                     }
-                    studyIDTraitsToSnps[[data[i].trait, data[i].studyID, data[i].pValueAnnotation].join("|")].push(data[i].snp)
+                    studyIDTraitsToSnps[key].push(data[i].snp)
                 }
             }
             res.send(studyIDTraitsToSnps);
@@ -286,8 +288,9 @@ async function separateStudies(associations, traitData, refGen, sex) {
             traitStudyTypes.push("O")
         }
         ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
-        pValueAnnotations = studyObj.pValueAnnotations.split("|")
+        pValueAnnotations = [studyObj.pValueAnnotation]
         superPopulations = studyObj.superPopulation.split("|")
+        betaAnnotations = [studyObj.betaAnnotation]
         if (!(studyObj.studyID in studyIDsToMetaData)) {
             studyTypes = []
             if (studyObj.rthi != ""){
@@ -300,18 +303,24 @@ async function separateStudies(associations, traitData, refGen, sex) {
                 studyTypes.push("O")
             }
             studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, studyTypes: studyTypes, traits: {}, ethnicity: ethnicities != "" ? ethnicities : []}
+            
+        }
+        if (!(studyObj.trait in studyIDsToMetaData[studyObj.studyID]['traits'])) {
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
                 studyTypes: traitStudyTypes,
                 pValueAnnotations: pValueAnnotations,
-                superPopulations: superPopulations
+                superPopulations: superPopulations,
+                betaAnnotations: betaAnnotations
             }
         }
-        else {
+        else { //todo add a condition here that if the trait hasn't been added we can add it back 
+            // also change so that pValueAnno is an identifyier? and betaAnno??
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
                 //TODO check this, I don't know how the data will actually work with this. 
                 studyTypes: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes])),
                 pValueAnnotations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValueAnnotations'], ...pValueAnnotations])),
-                superPopulations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations]))
+                superPopulations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations])),
+                betaAnnotations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['betaAnnotations'], ...betaAnnotations])),
             }
         }
     }
@@ -331,44 +340,36 @@ async function separateStudies(associations, traitData, refGen, sex) {
     // format the associations with rsIDs (and positions) as keys
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
-        // if the pos/snp already exists in our map
-        if (association.snp in AssociationsBySnp){
-            // if the trait already exists for the pos/snp
-            if (association.trait in AssociationsBySnp[association.snp]['traits']){
-                // if the studyID already exists for the pos/snp - trait, check if we should replace the current allele/oddsRatio/pValue or if we should remove it
-                if (association.studyID in AssociationsBySnp[association.snp]['traits'][association.trait]){
-
-                    // if the pValueAnnotation already exists
-                    if (association.pValueAnnotation in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID]) {
-                        console.log("Okay, we need to add in another level for ogValueType")
-                        console.log(association.snp, association.trait, association.studyID, association.pValueAnnotation)
-                    }
-                    else {
-                        AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][association.pValueAnnotation] = createStudyIDObj(association)
-                    }
+        if (association.studyID in studyIDsToMetaData){
+            // if the pos/snp does not exist in our map and the studyID is in the associations
+            if (!(association.snp in AssociationsBySnp)){
+                AssociationsBySnp[association[refGen]] = association.snp // adds the pos to 
+                AssociationsBySnp[association.snp] = {
+                    pos: association[refGen],
+                    traits: {}
                 }
-                else {
-                    AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = {}
-                    AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][association.pValueAnnotation] = createStudyIDObj(association)
-                }
+            }
+            // if the trait is not in the object for the snp
+            if (!(association.trait in AssociationsBySnp[association.snp]['traits'])){
+                AssociationsBySnp[association.snp]['traits'][association.trait] = {}
+            }
+            // if the studyID is not in the snp/trait obj
+            if (!(association.studyID in AssociationsBySnp[association.snp]['traits'][association.trait])){
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = {}
+            }
+            // if the pValBetaAnno not in the snp/trait/studyID obj
+            pValBetaAnno = association.pValueAnnotation + "|" + association.betaAnnotation
+            if (!(pValBetaAnno in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID])){
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnno] = {}
+            }
+            // if the valueType not in the snp/trait/studyID/pValBetaAnno obj
+            if (!(association.ogValueTypes in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnno])){
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnno][association.ogValueTypes] = createStudyIDObj(association)
             }
             else {
-                // add the trait, add the studyID, add the pValueAnnotation to the information
-                AssociationsBySnp[association.snp]['traits'][association.trait] = {}
-                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = {}
-                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][association.pValueAnnotation] = createStudyIDObj(association)
+                console.log("Okay, we have a serious problem...")
+                // console.log(association, AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnno])
             }
-        }
-        // else add the pos->trait->studyID 
-        else if (association.studyID in studyIDsToMetaData){
-            AssociationsBySnp[association[refGen]] = association.snp // adds the pos to 
-            AssociationsBySnp[association.snp] = {
-                pos: association[refGen],
-                traits: {}
-            }
-            AssociationsBySnp[association.snp]['traits'][association.trait] = {}
-            AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = {}
-            AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][association.pValueAnnotation] = createStudyIDObj(association)
         }
         else {
             console.log("Not in studyIDsToMetaData", association.studyID)
@@ -390,7 +391,6 @@ function createStudyIDObj(association){
         oddsRatio: association.oddsRatio,
         betaValue: association.betaValue,
         betaUnit: association.betaUnit,
-        betaAnnotation: association.betaAnnotation,
         sex: association.sex,
         ogValueTypes: association.ogValueTypes,
     }
