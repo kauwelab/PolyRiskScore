@@ -240,7 +240,8 @@ if (is_ebi_reachable()) {
         # get trait and reported trait in title case (tolower, then title case)
         # trait is obtained from the associations table, but reportedTrait is obtained from the GWAS catalog
         traitName <- str_to_title(tolower(unlist(strsplit(studyIDRow[["trait"]], split="\\|"))))
-        reportedTrait <- str_to_title(tolower(rawStudyData[["reported_trait"]]))
+        reportedTrait <- str_to_title(tolower(rawStudyData[["reported_trait"]])) %>%
+          str_replace_all("&([a-zA-Z]*);", "\\1") # replace Greek html characters with their name
         
         publication <- filter(publications, study_id == studyID)
         
