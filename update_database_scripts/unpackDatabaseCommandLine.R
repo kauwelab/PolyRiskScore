@@ -495,7 +495,7 @@ if (is_ebi_reachable()) {
       associationsTibble <- filter(associationsTibble, !grepl("condition", pvalue_description, ignore.case = TRUE)&!grepl("adjusted for rs", pvalue_description, ignore.case = TRUE))
       associationsTibble <- filter(associationsTibble, !grepl("conditon", pvalue_description, ignore.case = TRUE)) # GCST001969 has this improper spelling
       associationsTibble <- filter(associationsTibble, !is.na(or_per_copy_number)&(or_per_copy_number > 0)|!is.na(beta_number))
-      associationsTibble <- filter(associationsTibble, (is.na(or_per_copy_number)|or_per_copy_number!=0)) %>% # remove the 0 OR in GCST90000621
+      associationsTibble <- filter(associationsTibble, (is.na(or_per_copy_number)|or_per_copy_number != 0)) %>% # remove the 0 OR in GCST90000621
         dplyr::select(-last_mapping_date, -last_update_date) # remove dates to later filter out rows that are unique for all other columns
 
       # check if associationsTibble has enough snps
