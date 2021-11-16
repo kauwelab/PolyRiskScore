@@ -495,7 +495,9 @@ if (is_ebi_reachable()) {
       associationsTibble <- filter(associationsTibble, !grepl("condition", pvalue_description, ignore.case = TRUE)&!grepl("adjusted for rs", pvalue_description, ignore.case = TRUE))
       associationsTibble <- filter(associationsTibble, !grepl("conditon", pvalue_description, ignore.case = TRUE)) # GCST001969 has this improper spelling
       associationsTibble <- filter(associationsTibble, !is.na(or_per_copy_number)&(or_per_copy_number > 0)|!is.na(beta_number))
-      associationsTibble <- filter(associationsTibble, (is.na(or_per_copy_number)|or_per_copy_number!=0)) # remove the 0 OR in GCST90000621
+      associationsTibble <- filter(associationsTibble, (is.na(or_per_copy_number)|or_per_copy_number!=0)) %>% # remove the 0 OR in GCST90000621
+        dplyr::select(-last_mapping_date,	-last_update_date) # remove dates to later filter out rows that are unique for all other columns
+
       # check if associationsTibble has enough snps
       if (is.null(checkIfValidDataObj(associationsTibble))) {next}
 
@@ -566,11 +568,14 @@ if (is_ebi_reachable()) {
         replace_na(list(pvalue_description = "NA")) # replace NA character with NA string for p-value description
       # filter out SNPs on the X or Y chromosome (keeping NAs)
       studyData <- filter(studyData, !startsWith(hg38, "X")&!startsWith(hg38, "Y")|is.na(hg38))
+      # filter out duplicate rows that are the same for all columns except for association_id
+      studyData <- distinct(studyData[, -which(names(studyData) == "association_id")])
+      
       # check if studyData has enough snps
       if (is.null(checkIfValidDataObj(studyData))) {next}
       
       # calculate the total number of SNPS that have been filtered out for the study and add it as a column      
-      numFinalAssociations <- length(unique(studyData[["variant_id"]]))
+      numFinalAssociations <- length(studyData[["variant_id"]])
       numAssociationsFiltered <- numTotalAssociations - numFinalAssociations
       studyData <- add_column(studyData, numAssociationsFiltered = numAssociationsFiltered, .after = "sex")
 
