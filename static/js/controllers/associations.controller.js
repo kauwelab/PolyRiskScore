@@ -288,9 +288,8 @@ async function separateStudies(associations, traitData, refGen, sex) {
             traitStudyTypes.push("O")
         }
         ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
-        pValueAnnotations = [studyObj.pValueAnnotation]
+        pvalBetaAnno = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation
         superPopulations = studyObj.superPopulation.split("|")
-        betaAnnotations = [studyObj.betaAnnotation]
         if (!(studyObj.studyID in studyIDsToMetaData)) {
             studyTypes = []
             if (studyObj.rthi != ""){
@@ -308,20 +307,15 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (!(studyObj.trait in studyIDsToMetaData[studyObj.studyID]['traits'])) {
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
                 studyTypes: traitStudyTypes,
-                pValueAnnotations: pValueAnnotations,
-                superPopulations: superPopulations,
-                betaAnnotations: betaAnnotations
+                pValBetaAnnotations: [pvalBetaAnno],
+                superPopulations: superPopulations
             }
         }
         else { //todo add a condition here that if the trait hasn't been added we can add it back 
             // also change so that pValueAnno is an identifyier? and betaAnno??
-            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
-                //TODO check this, I don't know how the data will actually work with this. 
-                studyTypes: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes])),
-                pValueAnnotations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValueAnnotations'], ...pValueAnnotations])),
-                superPopulations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations])),
-                betaAnnotations: Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['betaAnnotations'], ...betaAnnotations])),
-            }
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes]))
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValBetaAnnotations'].push(pvalBetaAnno)
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations]))
         }
     }
 

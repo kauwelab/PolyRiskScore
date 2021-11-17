@@ -53,7 +53,7 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
             if (sexes) {
                 appendor = "AND ("
                 for (i=0; i<sexes.length; i++) {
-                    queryString = queryString.concat(appendor).concat(` sexes LIKE ? `)
+                    queryString = queryString.concat(appendor).concat(` sex LIKE ? `)
                     queryParams = queryParams.concat(sexes[i])
                     appendor = "OR"
                 }
