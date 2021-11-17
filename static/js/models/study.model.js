@@ -1,4 +1,5 @@
 const sql = require('./database')
+var async = require( 'async' );
 
 const Study = function (mstudy) {
     this.studyID = mstudy.studyID,
@@ -95,6 +96,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
         studyMaxQuery = `SELECT * FROM studyMaxes`
     }
 
+    console.log("before studyMaxes")
     // the query, the array of items to fill in the question marks, the callback function
     sql.query(studyMaxQuery, traits, (err, res) => {
         if (err) {
@@ -106,14 +108,23 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
             result(null, null);
             return;
         }
-        var sqlQueryString = "";
-        sqlQueryParams = []
-        for (i = 0; i < res.length; i++) {
 
+        inner_callback = function(err) {
+            console.log("in inner callback")
+            // console.log(err)
+        }
+
+        console.log(`traits queried, ${res.length} result(s)`);
+
+        final_studies = []
+
+        async.forEachOf(res, function (dataElement, i, inner_callback){
+            var sqlQueryString = "";
+            sqlQueryParams = []
             //subQueryString is the string that we append query constraints to from the HTTP request
             var subQueryString = `SELECT * FROM study_table WHERE ( trait = ? OR reportedTrait = ? ) `;
-            sqlQueryParams.push(res[i].trait)
-            sqlQueryParams.push(res[i].trait)
+            sqlQueryParams.push(dataElement.trait)
+            sqlQueryParams.push(dataElement.trait)
             var appendor = "";
 
             //append sql conditional filters for studyType
@@ -121,18 +132,18 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
                 appendor = "AND (";
                 if (studyTypes.includes("LC")) {
                     subQueryString = subQueryString.concat(appendor).concat(` initialSampleSize+replicationSampleSize = ? `);
-                    sqlQueryParams.push(res[i].cohort)
+                    sqlQueryParams.push(dataElement.cohort)
                     appendor = "OR";
                 }
                 if (studyTypes.includes("HI")) {
                     subQueryString = subQueryString.concat(appendor).concat(` altmetricScore = ? `);
-                    sqlQueryParams.push(res[i].altmetricScore)
+                    sqlQueryParams.push(dataElement.altmetricScore)
                     appendor = "OR";
                 }
                 if (studyTypes.includes("O")) {
                     subQueryString = subQueryString.concat(appendor).concat(` altmetricScore <> ? AND  initialSampleSize+replicationSampleSize <> ? `);
-                    sqlQueryParams.push(res[i].altmetricScore)
-                    sqlQueryParams.push(res[i].cohort)
+                    sqlQueryParams.push(dataElement.altmetricScore)
+                    sqlQueryParams.push(dataElement.cohort)
                     appendor = "OR";
                 }
                 //if the appendor has been updated, then close the parenthesis
@@ -166,7 +177,7 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
             if (sexes) {
                 appendor = "AND (";
                 for (j=0; j < sexes.length; j++) {
-                    subQueryString = subQueryString.concat(appendor).concat(` sexes LIKE ? `);
+                    subQueryString = subQueryString.concat(appendor).concat(` sex LIKE ? `);
                     sqlQueryParams.push(`%${sexes[j]}%`)
                     appendor = "OR";
                 }
@@ -184,18 +195,32 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
 
             subQueryString = subQueryString.concat("; ")
             sqlQueryString = sqlQueryString.concat(subQueryString);
-        }
-        console.log(`traits queried, ${res.length} result(s)`);
 
-        sql.query(sqlQueryString, sqlQueryParams, (err, data) => {
+            sql.query(sqlQueryString, sqlQueryParams, function(err, rows){
+                if (err) {
+                    console.log(err)
+                    console.log("Honestly, we probably want it to fail here")
+                    result(err, null)
+                    return
+                }
+                else {
+                    final_studies = final_studies.concat(rows)
+                    inner_callback(null)
+                }
+            })
+
+        }, function(err){
             if (err) {
-                console.log("error: ", err);
-                result(err, null);
-                return;
+                console.log(err)
+                result(err, null)
+                return
             }
-            console.log(`studies queried, ${data.length} result(s)`)
-            result(null, data)
-        });
+            else {
+                console.log("what to do now?")
+                result(null, final_studies);
+                return
+            }
+        })
     });
 };
 
