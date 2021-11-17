@@ -9,19 +9,21 @@ var dbConfig = {
     user: 'client',
     password: passwords.getMySQLClientPassword(),
     database: 'polyscore', 
-    multipleStatements: true
+    multipleStatements: true,
+    packetSize: 16384 ,
+    connectionLimit: 10
 }
 
 var connection;
 
 function handleDisconnect() {
-    connection = mysql.createConnection(dbConfig);
+    connection = mysql.createPool(dbConfig);
 
     console.log("We ran handleDisconnect...")
-    connection.connect(function(err) {
+    connection.getConnection(function(err) {
         if (err) {
             console.log('error when connecting to db: ', err);
-            setTimeout(handleDisconnect, 2000);
+            setTimeout(handleDisconnect, 20000);
         }
     });
 
