@@ -127,7 +127,7 @@
                       <option value="hg17">NCBI35/hg17</option>
                     </select>
                     <br>
-                    <label for="superPopSelect">Super Population:</label>
+                    <label for="superPopSelect">Preferred Super Population:</label>
                     <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
                       <option selected="selected" value="default">--Super Population--</option>
                       <option>African</option>
@@ -310,14 +310,36 @@
                 </div>
               </div>
 
-              <!-- <div class='child' id="SexSpecificSnps">
+              <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
-                  <h5>3: <span title ="Occasionally, studies will include SNPs that have odds ratios which are dependent upon biological sex. By default, we exclude any SNPs that are depenent on biological sex. If you choose, you can include either female or male dependent SNPs.">Sex&nbsp;Specific&nbsp;SNPs<sup>?</sup></span></h5>
-                  <select id="sex" onchange="moveToNextTourIndex('sex')">
-                    <option selected="selected" value="exclude">Exclude</option>
-                    <option value="f">Female</option>
-                    <option value="m">Male</option>
-                  </select>
+                  <h5>3: MAF&nbsp;Population</h5>
+                  <div class="MAFoption">
+                    <select id="mafCohort" , onchange="">
+                      <option value="ukbb">UK Biobank</option>
+                      <option value="afr">1000 Genomes - AFR population</option>
+                      <option value="amr">1000 Genomes - AMR population</option>
+                      <option value="eas">1000 Genomes - EAS population</option>
+                      <option value="eur">1000 Genomes - EUR population</option>
+                      <option value="sas">1000 Genomes - SAS population</option>
+                      <option value="adni">ADNI</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
+                  <h5>4: Preferred Super Population</h5>
+                  <div class="superPop">
+                    <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
+                      <option selected="selected" value="default">--Super Population--</option>
+                      <option>African</option>
+                      <option>American</option>
+                      <option>East Asian</option>
+                      <option>European</option>
+                      <option>South Asian</option>
+                    </select>
+                  </div>
                 </div>
               </div> -->
               <!--uses "js/calculate_score.js"-->

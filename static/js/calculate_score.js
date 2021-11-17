@@ -107,6 +107,8 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
         valueType = undefined
     }
 
+    //TODO add a screen overlay that tells the user we are loading the studies. 
+
     $.ajax({
         type: "POST",
         url: "/get_studies",
@@ -124,28 +126,27 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
                 var trait = traits[i];
                 for (j = 0; j < studyLists[trait].length; j++) {
                     var study = studyLists[trait][j];
-                    pValueAnnotations = study.pValueAnnotations.split("|")
-                    for (p = 0; p < pValueAnnotations.length; p++) {
-                        createOpt = true
-                        var hasOption = $(`#studySelect option[value='${study.studyID}']`);
-                        if (hasOption.length > 0) {
-                            for (k=0; k < hasOption.length; k++) {
-                                data_trait = hasOption[k].getAttribute('data-trait')
-                                data_pValueAnno = hasOption[k].getAttribute('data-pvalueannotation')
-                                if (data_trait == trait && data_pValueAnno == study.pValueAnnotation) {
-                                    createOpt = false
-                                }
+                    createOpt = true
+                    var hasOption = $(`#studySelect option[value='${study.studyID}']`);
+                    if (hasOption.length > 0) {
+                        for (k=0; k < hasOption.length; k++) {
+                            data_trait = hasOption[k].getAttribute('data-trait')
+                            data_pValueAnno = hasOption[k].getAttribute('data-pvalueannotation')
+                            data_betaAnno = hasOption[k].getAttribute('data-betaannotation')
+                            if (data_trait == trait && data_pValueAnno == study.pValueAnnotation && data_betaAnno == study.betaAnnotation) {
+                                createOpt = false
                             }
                         }
-                        if (createOpt) {
-                            var opt = document.createElement('option');
-                            var displayString = formatHelper.formatForWebsite(trait + ' | ' + pValueAnnotations[p] + ' | ' + study.citation + ' | ' + study.studyID);
-                            opt.appendChild(document.createTextNode(displayString));
-                            opt.value = study.studyID;
-                            opt.setAttribute('data-trait', trait);
-                            opt.setAttribute('data-pvalueannotation', pValueAnnotations[p]);
-                            studySelector.appendChild(opt);
-                        }
+                    }
+                    if (createOpt) {
+                        var opt = document.createElement('option');
+                        var displayString = formatHelper.formatForWebsite(trait + ' | ' + study.pValueAnnotation + ' | ' + study.betaAnnotation + ' | ' + study.citation + ' | ' + study.studyID);
+                        opt.appendChild(document.createTextNode(displayString));
+                        opt.value = study.studyID;
+                        opt.setAttribute('data-trait', trait);
+                        opt.setAttribute('data-pvalueannotation', study.pValueAnnotation);
+                        opt.setAttribute('data-betaannotation', study.betaAnnotation);
+                        studySelector.appendChild(opt);
                     }
                 }
             }
@@ -259,36 +260,30 @@ function changeGWASType() {
         //todo update this description!!!!!
         $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn" title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Beta&nbsp;Coefficient<sup>?</sup></span>')
     }
+
+    //TODO add additional optional columns
 }
 
 //called in calculatePolyscore function
 //gets the clumping information using the positions from the associations object
 //TODO will need to update this for the new way of clumping
 var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
-    positions = []
+    posMap = {}
 
     for (key in associationsObj) {
         if (key.includes(":")) {
-            positions.push(key)
-        }
-    }
-
-    posMap = {}
-
-    for (i=0; i < positions.length; i++) {
-        if (positions[i].includes(":")) {
-            position = positions[i]
-            chromPos = position.split(":")
-            if (!(chromPos[0] in posMap)) {
+            chromPos = key.split(":")
+            if (!(chromPos[0] in posMap)){
                 posMap[chromPos[0]] = []
             }
-            posMap[chromPos[0]].push(position)
+            posMap[chromPos[0]].push(key)
         }
     }
 
     returnedResults = {}
 
-    if (positions.length > 0) {
+    chromosomes = Object.keys(posMap)
+    if (chromosomes.length > 0) {
         for (chrom in posMap) {
             returnedResults = Object.assign(await callClumpsEndpoint(superPop, refGen, posMap[chrom]), returnedResults)
         }
@@ -338,11 +333,13 @@ var calculatePolyScore = async () => {
 
     //if the user doesn't specify a refgen, super pop, or default sex, prompt them to do so
     if (refGen == "default") {
+        //TODO change to an alert instead
         updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
     }
     if (superPop == "default") {
+        //TODO change to an alert instead
         updateResultBoxAndStoredValue('Please select the super population corresponding to your file (step 2).');
         document.getElementById('resultsDisplay').style.display = 'block';
         return;
@@ -357,6 +354,13 @@ var calculatePolyScore = async () => {
         var gwasRefGen = gwasRefGenElement.options[gwasRefGenElement.selectedIndex].value
         var gwasValueType = document.querySelector('input[name="gwas_value_type"]:checked').value;
 
+        if (gwasRefGen == "default") {
+            //TODO change to an alert instead
+            updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
+            document.getElementById('resultsDisplay').style.display = 'block';
+            return;
+        }
+
         document.getElementById('resultsDisplay').style.display = 'block';
         updateResultBoxAndStoredValue("Calculating. Please wait...")
 
@@ -369,9 +373,10 @@ var calculatePolyScore = async () => {
         var valueTypeElement = document.getElementById("valueType");
         var valueType = valueTypeElement.options[valueTypeElement.selectedIndex].value;
         var studyNodes = document.querySelectorAll('#studySelect :checked');
-        var studies = [...studyNodes].map(option => [option.value, option.dataset.trait, option.dataset.pvalueannotation]);
+        var studies = [...studyNodes].map(option => [option.value, option.dataset.trait, option.dataset.pvalueannotation, option.dataset.betaannotation]);
 
         if (studies.length === 0) {
+            // TODO change to an alert instead
             updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
             document.getElementById('resultsDisplay').style.display = 'block';
             return;
@@ -386,7 +391,8 @@ var calculatePolyScore = async () => {
             studyList.push({
                 trait: studies[i][1],
                 studyID: studies[i][0],
-                pValueAnnotation: studies[i][2]
+                pValueAnnotation: studies[i][2],
+                betaAnnotation: studies[i][3]
             });
         }
     
@@ -498,6 +504,8 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
     pvi = -1 //p value index
     cti = -1 // optional citation index
     rti = -1 // optional reported trait index
+    pvai = -1 // optional p-value annotation index
+    bai = -1 // optional beta annotation index
 
     for (i=0; i<fileLines.length; i++) {
         if (fileLines[i].toLowerCase().replace(/\n/,'').replace(/\r$/, '') == "") {
@@ -519,6 +527,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             cti = cols.indexOf("citation")
             rti = cols.indexOf("reported trait")
             pvai = cols.indexOf('p-value annotation') //TODO add this to the optional columns 
+            bai = cols.indexOf('beta annotation') //TODO add this to the optional columns
 
             if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1) {
                 console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi)
@@ -553,9 +562,11 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]] = {}
             }
 
-            pValueAnnotation = (pvai != -1 ? cols[pvai] : "")
-            if (!(pValueAnnotation in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]])) {
-                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValueAnnotation] = {
+            pValueAnnotation = (pvai != -1 ? cols[pvai] : "NA")
+            betaAnnotation = (bai != -1 ? cols[bai] : "NA")
+            pvalBetaAnno = pValueAnnotation + "|" + betaAnnotation
+            if (!(pvalBetaAnno in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]])) {
+                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pvalBetaAnno] = {
                     riskAllele: cols[rai],
                     pValue: parseFloat(cols[pvi]),
                     sex: "NA",
@@ -570,7 +581,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 }
             }
             else {
-                alert("You have more than one association for the same Trait/study/(pValueAnnotation) combination. Please fix this before attempting to run the PRSKB calculator.")
+                alert("You have more than one association for the same Trait/study/(pValueAnnotation|betaAnnotation) combination. Please fix this before attempting to run the PRSKB calculator.")
                 return
             }
 
