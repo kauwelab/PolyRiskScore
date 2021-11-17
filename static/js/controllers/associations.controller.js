@@ -288,7 +288,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
             traitStudyTypes.push("O")
         }
         ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
-        pvalBetaAnno = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation
+        pvalBetaAnnoValType = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation + "|" + studyObj.ogValueTypes
         superPopulations = studyObj.superPopulation.split("|")
         if (!(studyObj.studyID in studyIDsToMetaData)) {
             studyTypes = []
@@ -307,14 +307,14 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (!(studyObj.trait in studyIDsToMetaData[studyObj.studyID]['traits'])) {
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
                 studyTypes: traitStudyTypes,
-                pValBetaAnnotations: [pvalBetaAnno],
+                pValBetaAnnoValType: [pvalBetaAnnoValType],
                 superPopulations: superPopulations
             }
         }
-        else { //todo add a condition here that if the trait hasn't been added we can add it back 
+        else {
             // also change so that pValueAnno is an identifyier? and betaAnno??
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes]))
-            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValBetaAnnotations'].push(pvalBetaAnno)
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pvalBetaAnnoValType'].push(pvalBetaAnnoValType)
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations]))
         }
     }
