@@ -970,7 +970,7 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
         //if the input data doesn't have an individual in it (we can assume this is a text input query with no matching SNPs)
         //TODO fill this out
         if (Object.keys(resultJsons['studyResults']).length == 0) {
-            resultJsons['studyResults']["Trait/Study/P-Value Annotation combinations with no matching snps in the input file: "] = Array.from(unusedTraitStudyPValueAnnoCombo)
+            resultJsons['studyResults']["Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: "] = Array.from(unusedTraitStudyPValueAnnoCombo)
         }
         //convert the result JSON list to a string, the unusedTraitStudyPValueAnnoCombo to array and return
         return [JSON.stringify(resultJsons), Array.from(unusedTraitStudyPValueAnnoCombo)];
@@ -1178,15 +1178,16 @@ function formatTSV(jsonObject, isCondensed) {
 
     resultsString = ''
 
+    console.log(jsonObject)
     studyIDKeys = Object.keys(jsonObject['studyResults'])
 
     first = true
-    if (studyIDKeys.includes("Trait/Study/P-Value Annotation combinations with no matching snps in the input file: ")) {
+    if (studyIDKeys.includes("Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: ")) {
         //todo wewant to print this out and not go through everything else:
         //todo add a ? to results and explain about the different files for download.
 
-        resultsString = "Trait/Study/P-Value Annotation combinations with no matching snps in the input file: \n"
-        resultsString += jsonObject['studyResults']['Trait/Study/P-Value Annotation combinations with no matching snps in the input file: '].join('\n')
+        resultsString = "Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: \n"
+        resultsString += jsonObject['studyResults']['Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: '].join('\n')
     }
     else {
         for (var i = 0; i < studyIDKeys.length; i++) {
@@ -1325,7 +1326,7 @@ function downloadResults() {
         extension = ".txt";
     }
     if (unusedTraitStudyArray.length != 0) {
-        formattedUnusedTraitStudyArray = "Trait/Study/P-Value Annotation combinations with no matching snps in the input file:\n" + unusedTraitStudyArray.join("\n")
+        formattedUnusedTraitStudyArray = "Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: \n" + unusedTraitStudyArray.join("\n")
     }
     else {
         formattedUnusedTraitStudyArray = null
