@@ -133,7 +133,8 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
                             data_trait = hasOption[k].getAttribute('data-trait')
                             data_pValueAnno = hasOption[k].getAttribute('data-pvalueannotation')
                             data_betaAnno = hasOption[k].getAttribute('data-betaannotation')
-                            if (data_trait == trait && data_pValueAnno == study.pValueAnnotation && data_betaAnno == study.betaAnnotation) {
+                            data_valType = hasOption[k].getAttribute('data-valtype')
+                            if (data_trait == trait && data_pValueAnno == study.pValueAnnotation && data_betaAnno == study.betaAnnotation && data_valType == study.ogValueType) {
                                 createOpt = false
                             }
                         }
@@ -146,6 +147,7 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
                         opt.setAttribute('data-trait', trait);
                         opt.setAttribute('data-pvalueannotation', study.pValueAnnotation);
                         opt.setAttribute('data-betaannotation', study.betaAnnotation);
+                        opt.setAttribute('data-valtype', study.ogValueTypes)
                         studySelector.appendChild(opt);
                     }
                 }
@@ -348,6 +350,7 @@ var calculatePolyScore = async () => {
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
 
     // if the user is uploading GWAS data, grab it and format it correctly
+    //todo update this for updated format
     if (gwasType == "Upload") {
         var gwasDataFile = document.getElementById("gwasFile").files[0];
         var gwasRefGenElement = document.getElementById("gwasRefGenome");
@@ -373,7 +376,7 @@ var calculatePolyScore = async () => {
         var valueTypeElement = document.getElementById("valueType");
         var valueType = valueTypeElement.options[valueTypeElement.selectedIndex].value;
         var studyNodes = document.querySelectorAll('#studySelect :checked');
-        var studies = [...studyNodes].map(option => [option.value, option.dataset.trait, option.dataset.pvalueannotation, option.dataset.betaannotation]);
+        var studies = [...studyNodes].map(option => [option.value, option.dataset.trait, option.dataset.pvalueannotation, option.dataset.betaannotation, option.dataset.valtype]);
 
         if (studies.length === 0) {
             // TODO change to an alert instead
@@ -392,10 +395,10 @@ var calculatePolyScore = async () => {
                 trait: studies[i][1],
                 studyID: studies[i][0],
                 pValueAnnotation: studies[i][2],
-                betaAnnotation: studies[i][3]
+                betaAnnotation: studies[i][3],
+                ogValueType: studies[i][4]
             });
         }
-    
         //send a get request to the server with the specified traits and studies
         associationData = await getSelectStudyAssociations(studyList, refGen, sex, valueType);
     }
@@ -791,8 +794,8 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
             for (const [individualName, individualSNPObjs] of greppedSamples.entries()) {
                 for (i=0; i < studyIDs.length; i++) {
                     for (trait in associationData['studyIDsToMetaData'][studyIDs[i]]['traits']) {
-                        for (j=0; j < associationData['studyIDsToMetaData'][studyIDs[i]]['traits'][trait]['pValueAnnotations'].length; j++) {
-                            pValueAnnotation = associationData['studyIDsToMetaData'][studyIDs[i]]['traits'][trait]['pValueAnnotations'][j]
+                        for (j=0; j < associationData['studyIDsToMetaData'][studyIDs[i]]['traits'][trait]['pValBetaAnnoValType'].length; j++) {
+                            pValBetaAnnoValType = associationData['studyIDsToMetaData'][studyIDs[i]]['traits'][trait]['pValBetaAnnoValType'][j]
                             // ensure that the right studies/traits are being used and that this matches the CLI
                             if (selectedTraits.length == 0 || selectedTraits.includes(trait) || selectedTraits.includes(associationData['studyIDsToMetaData'][studyIDs[i]]["reportedTrait"])) {
                                 //TODO this should probably be changed to be the numAssociaitonsFiltered
@@ -808,18 +811,18 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                                 if (!(trait in resultObj[printStudyID])) {
                                     resultObj[printStudyID][trait] = {}
                                 }
-                                if (!(pValueAnnotation in resultObj[printStudyID][trait])) {
-                                    resultObj[printStudyID][trait][pValueAnnotation] = {}
+                                if (!(pValBetaAnnoValType in resultObj[printStudyID][trait])) {
+                                    resultObj[printStudyID][trait][pValBetaAnnoValType] = {}
                                 }
-                                if (!(individualName in resultObj[printStudyID][trait])) {
-                                    resultObj[printStudyID][trait][pValueAnnotation][individualName] = {
+                                if (!(individualName in resultObj[printStudyID][trait][pValBetaAnnoValType])) {
+                                    resultObj[printStudyID][trait][pValBetaAnnoValType][individualName] = {
                                         snps: {},
                                         variantsWithUnmatchedAlleles: [],
                                         variantsInHighLD: []
                                     }
                                 }
-                                if (!([trait, studyIDs[i], pValueAnnotation, individualName].join("|") in indexSnpObj)) {
-                                    indexSnpObj[[trait, studyIDs[i], pValueAnnotation, individualName].join("|")] = {}
+                                if (!([trait, studyIDs[i], pValBetaAnnoValType, individualName].join("|") in indexSnpObj)) {
+                                    indexSnpObj[[trait, studyIDs[i], pValBetaAnnoValType, individualName].join("|")] = {}
                                 }
                             }
                         }
@@ -844,9 +847,9 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                         for (trait in associationData['associations'][key]['traits']) {
                             for (studyID in associationData['associations'][key]['traits'][trait]) {
                                 printStudyID = studyID
-                                for (pValueAnnotation in associationData['associations'][key]['traits'][trait][studyID]) {
-                                    traitStudypValueAnnoSamp = [trait, studyID, pValueAnnotation, individualName].join("|")
-                                    associationObj = associationData['associations'][key]['traits'][trait][studyID][pValueAnnotation]
+                                for (pValBetaAnnoValType in associationData['associations'][key]['traits'][trait][studyID]) {
+                                    traitStudypValueAnnoValTypeSamp = [trait, studyID, pValBetaAnnoValType, individualName].join("|")
+                                    associationObj = associationData['associations'][key]['traits'][trait][studyID][pValBetaAnnoValType]
                                     //TODO update this with the numAssociationsFiltered instead
                                     if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyID]) {
                                         if (associationData['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps'].includes(trait)) {
@@ -862,20 +865,20 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                                                 numAllelesMatch++;
                                             }
                                             else {
-                                                resultObj[printStudyID][trait][pValueAnnotation][individualName]['variantsWithUnmatchedAlleles'].push(key)
+                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsWithUnmatchedAlleles'].push(key)
                                             }
                                         }
                                         if (numAllelesMatch > 0) {
                                             if (clumpsData !== undefined && key in clumpsData) {
                                                 clumpNum = clumpsData[key]['clumpNum']
-                                                if (clumpNum in indexSnpObj[traitStudypValueAnnoSamp]) {
-                                                    indexClumpSnp = indexSnpObj[traitStudypValueAnnoSamp][clumpNum]
-                                                    indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID]['pValue']
+                                                if (clumpNum in indexSnpObj[traitStudypValueAnnoValTypeSamp]) {
+                                                    indexClumpSnp = indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum]
+                                                    indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID][pValBetaAnnoValType]['pValue']
                                                     if (associationObj.pValue < indexPvalue) {
-                                                        delete resultObj[printStudyID][trait][pValueAnnotation][individualName]['snps'][indexClumpSnp] //TODO test that this worked
-                                                        resultObj[printStudyID][trait][pValueAnnotation][individualName]['variantsInHighLD'].push(indexClumpSnp)
-                                                        resultObj[printStudyID][trait][pValueAnnotation][individualName]['snps'][key] = numAllelesMatch
-                                                        indexSnpObj[traitStudypValueAnnoSamp][clumpNum] = key
+                                                        delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                        resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(indexClumpSnp)
+                                                        resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = numAllelesMatch
+                                                        indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = key
                                                     }
                                                     else {
                                                         // add the current snp to neutral snps
@@ -884,12 +887,12 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                                                 }
                                                 else {
                                                     // add the clumpNum/key to the indexSnpObj
-                                                    indexSnpObj[traitStudypValueAnnoSamp][clumpNum] = key
-                                                    resultObj[printStudyID][trait][pValueAnnotation][individualName]['snps'][key] = numAllelesMatch
+                                                    indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = key
+                                                    resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = numAllelesMatch
                                                 }
                                             } else {
                                                 // just add the snp to calculations
-                                                resultObj[printStudyID][trait][pValueAnnotation][individualName]['snps'][key] = numAllelesMatch
+                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = numAllelesMatch
                                             }
                                         }
                                     }
@@ -918,11 +921,11 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                 for (trait in resultObj[studyID]) {
                     tmpTraitObj = {}
                     atLeastOneGoodPValueAnno = false
-                    for (pValueAnnotation in resultObj[studyID][trait]) {
+                    for (pValBetaAnnoValType in resultObj[studyID][trait]) {
                         tmpPValueAnnoObj = {}
                         atLeastOneGoodSamp = false
-                        for (sample in resultObj[studyID][trait][pValueAnnotation]) {
-                            scoreAndSnps = calculateCombinedScoreAndFormatSnps(resultObj[studyID][trait][pValueAnnotation][sample], trait, studyID_og, pValueAnnotation, associationData)
+                        for (sample in resultObj[studyID][trait][pValBetaAnnoValType]) {
+                            scoreAndSnps = calculateCombinedScoreAndFormatSnps(resultObj[studyID][trait][pValBetaAnnoValType][sample], trait, studyID_og, pValBetaAnnoValType, associationData)
                             tmpSampleObj = {
                                 protectiveVariants: scoreAndSnps[4],
                                 riskVariants: scoreAndSnps[3],
@@ -943,11 +946,11 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                             }
                         }
                         if (atLeastOneGoodSamp) {
-                            tmpTraitObj[pValueAnnotation] = tmpPValueAnnoObj
+                            tmpTraitObj[pValBetaAnnoValType] = tmpPValueAnnoObj
                             atLeastOneGoodPValueAnno = true
                         }
                         else {
-                            unusedTraitStudyPValueAnnoCombo.add([trait, studyID, pValueAnnotation])
+                            unusedTraitStudyPValueAnnoCombo.add([trait, studyID, pValBetaAnnoValType])
                         }
                     }
                     if (atLeastOneGoodPValueAnno) {
@@ -955,7 +958,7 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
                     }
                     else {
                         tmpStudyObj['traits'][trait] = {}
-                        // unusedTraitStudyPValueAnnoCombo.add([trait, studyID, pValueAnnotation])
+                        // unusedTraitStudyPValueAnnoCombo.add([trait, studyID, pValBetaAnnoValType])
                         delete tmpStudyObj['traits'][trait]
                     }
                 }
@@ -984,7 +987,7 @@ var calculateScore = async (associationData, clumpsData, greppedSamples, pValue,
  * @param {*} associationData 
  * @returns list containing combinied OR and 4 sets of SNPs grouped by SNP type
  */
-function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValueAnnotation, associationData) {
+function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValBetaAnnoValType, associationData) {
     var combinedScore = 0;
     var protective = new Set()
     var risk = new Set()
@@ -1001,13 +1004,13 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValueAn
 
     //calculate the odds ratio and determine which alleles are protective, risk, and neutral
     for (snp in sampleObj['snps']) {
-        if (associationData['associations'][snp]['traits'][trait][studyID][pValueAnnotation]['ogValueTypes'] == 'or' && valueType == 'betaValue') {
+        if (associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['ogValueTypes'] == 'or' && valueType == 'betaValue') {
             valueType = 'oddsRatio'
             changed += 1
         }
         if (valueType == 'oddsRatio' && changed > 1) {console.log("THIS SHOULDN'T BE HAPPENING!! NEED TO ADD ANOTHER LEVEL TO THE ASSOCIATIONS OBJECT")}
         snpDosage = sampleObj['snps'][snp]
-        snpBeta = (valueType == 'betaValue' ? associationData['associations'][snp]['traits'][trait][studyID][pValueAnnotation][valueType] : Math.log(associationData['associations'][snp]['traits'][trait][studyID][pValueAnnotation][valueType]))
+        snpBeta = (valueType == 'betaValue' ? associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][valueType] : Math.log(associationData['associations'][snp]['traits'][trait][studyID][pValueAnnotation][valueType]))
         combinedScore += (snpBeta * snpDosage)
         if (snpDosage != 0) {nonMissingSnps += 1} //TODO double check this 
         if (snpBeta > 0) {
@@ -1016,7 +1019,7 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValueAn
         else if (snpBeta < 0) {
             protective.add(snp)
         }
-        betaUnits = associationData['associations'][snp]['traits'][trait][studyID][pValueAnnotation]['betaUnit']
+        betaUnits = associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['betaUnit']
     }
 
     if (combinedScore === 0) {
@@ -1167,10 +1170,10 @@ function formatTSV(jsonObject, isCondensed) {
     sampleKeys = []
 
     if (isCondensed) {
-        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation', 'Citation', 'Score Type', 'Units (if applicable)']
+        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation|Beta Annotation|Score Type', 'Citation', 'Units (if applicable)']
     }
     else {
-        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation', 'Citation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation|Beta Annotation|Score Type', 'Citation', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
     }
 
     resultsString = ''
@@ -1191,13 +1194,13 @@ function formatTSV(jsonObject, isCondensed) {
             traitKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'])
             for (var j = 0; j < traitKeys.length; j++) {
                 trait = traitKeys[j]
-                pValueAnnotationKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
-                for (var p = 0; p < pValueAnnotationKeys.length; p++) {
-                    pValueAnnotation = pValueAnnotationKeys[p]
-                    lineInfo = [studyID, jsonObject['studyResults'][studyID]['reportedTrait'], trait, pValueAnnotation, jsonObject['studyResults'][studyID]['citation']]
+                pValBetaAnnoValTypeKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
+                for (var p = 0; p < pValBetaAnnoValTypeKeys.length; p++) {
+                    pValBetaAnnoValType = pValBetaAnnoValTypeKeys[p]
+                    lineInfo = [studyID, jsonObject['studyResults'][studyID]['reportedTrait'], trait, pValBetaAnnoValType, jsonObject['studyResults'][studyID]['citation']]
                     if (first) {
                         first = false
-                        sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation])
+                        sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType])
                         if (isCondensed) {
                             resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
                         }
@@ -1208,24 +1211,24 @@ function formatTSV(jsonObject, isCondensed) {
     
                     for (var k = 0; k < sampleKeys.length; k++) {
                         sample = sampleKeys[k]
-                        oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['oddsRatio']
-                        betaValue = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['betaValue']
-                        betaUnit = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['betaUnit']
-                        scoreType = (betaValue !== undefined ? "beta coefficients" : "odds ratios")
+                        oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['oddsRatio']
+                        betaValue = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaValue']
+                        betaUnit = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaUnit']
+                        if (k==0) {
+                            lineInfo.push(betaUnit)
+                        }
                         score = (betaValue !== undefined ? betaValue : oddsRatio)
                         if (isCondensed) {
                             //TODO we will want to use the valuetype from the study to actually do this
-                            lineInfo.push(scoreType)
-                            lineInfo.push(betaUnit)
                             lineInfo.push(score)
                         }
                         else {
-                            protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['protectiveVariants']
-                            riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['riskVariants']
+                            protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['protectiveVariants']
+                            riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['riskVariants']
                             // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
-                            unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['unmatchedVariants']
+                            unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['unmatchedVariants']
                             // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
-                            clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValueAnnotation][sample]['clumpedVariants']
+                            clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['clumpedVariants']
     
                             // set the arrays to "." if they are empty, otherwise join them on bar ("|")
                             protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
@@ -1233,7 +1236,7 @@ function formatTSV(jsonObject, isCondensed) {
                             unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
                             clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
     
-                            lineResult = `${sample}\t${lineInfo.join('\t')}\t${scoreType}\t${betaUnit}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
+                            lineResult = `${sample}\t${lineInfo.join('\t')}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
                             resultsString = resultsString.concat("\n", lineResult)
                         }
                     }
