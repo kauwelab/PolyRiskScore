@@ -314,7 +314,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         else {
             // also change so that pValueAnno is an identifyier? and betaAnno??
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes]))
-            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pvalBetaAnnoValType'].push(pvalBetaAnnoValType)
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValBetaAnnoValType'].push(pvalBetaAnnoValType)
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations]))
         }
     }
@@ -352,13 +352,9 @@ async function separateStudies(associations, traitData, refGen, sex) {
                 AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = {}
             }
             // if the pValBetaAnno not in the snp/trait/studyID obj
-            pValBetaAnno = association.pValueAnnotation + "|" + association.betaAnnotation
-            if (!(pValBetaAnno in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID])){
-                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnno] = {}
-            }
-            // if the valueType not in the snp/trait/studyID/pValBetaAnno obj
-            if (!(association.ogValueTypes in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnno])){
-                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnno][association.ogValueTypes] = createStudyIDObj(association)
+            pValBetaAnnoValType = association.pValueAnnotation + "|" + association.betaAnnotation + "|" + association.ogValueTypes
+            if (!(pValBetaAnnoValType in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID])){
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType] = createStudyIDObj(association)
             }
             else {
                 console.log("Okay, we have a serious problem...")
