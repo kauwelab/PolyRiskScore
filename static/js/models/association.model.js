@@ -48,7 +48,6 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
             queryString = queryString.concat(`SELECT snp, ${refGen}, riskAllele, pValue, pValueAnnotation, oddsRatio, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, studyID, trait FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? AND betaAnnotation = ? `)
             queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation, studyObj.betaAnnotation])
 
-            //might not need this one, since sex should be in the pValueAnnotation
             // if the user wants both, sexes should be null and we skip this filtering step
             if (sexes) {
                 appendor = "AND ("
@@ -367,13 +366,7 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                         //for each study
                         snps = []
                         for (j = 0; j < res[i].length; j++) {
-                            // = i*2+j // gives the correct index of the snps corresponding to the trait/study combo
-
-                            //for each row in the study
-                            //for (k = 0; k < data[snpIndex].length; k++) {
-                            snps.push(data[i][j].snp)
-                            //}
-        
+                            snps.push(data[i][j].snp)        
                         }
                         ethnicityObj = {
                             "ethnicity": ethnicity,

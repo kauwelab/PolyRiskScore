@@ -219,27 +219,24 @@ exports.joinTest = (req, res) => {
     })
 }
 
-//TODO update these last ones!
+//TODO DON'T FORGET TO UPDATE THE FILES THAT CREATE THESE!
 // gets the last time the allAssociations file was updated. Used for the cli to check if the user needs to re-download association data
 exports.getLastAssociationsUpdate = (req, res) => {
     refGen = req.query.refGen
-    sex = req.query.sex
 
-    associationsPath = sex[0].toLowerCase() == "e" ? path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allAssociations_${refGen}.txt`) : path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allAssociations_${refGen}_${sex}.txt`)
+    associationsPath = path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allAssociations_${refGen}.txt`)
     statsObj = fs.statSync(associationsPath)
     updateTime = statsObj.mtime
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
 }
 
-//ToDo should probably update this for pvalueAnnotations, and also get rid of sex?
 exports.getAssociationsDownloadFile = (req, res) => {
-    sex = req.query.sex
     refGen = req.query.refGen
     downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
     var options = { 
         root: downloadPath
     };
-    var fileName = (sex[0].toLowerCase() == "e" ? `allAssociations_${refGen}.txt` : `allAssociations_${refGen}_${sex}.txt`); 
+    var fileName = `allAssociations_${refGen}.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
             console.log(err); 
@@ -252,7 +249,6 @@ exports.getAssociationsDownloadFile = (req, res) => {
     }); 
 }
 
-//TODO should probably update this for pValueAnnotation!!!!!!!
 exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
     downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
     var options = { 
@@ -312,7 +308,6 @@ async function separateStudies(associations, traitData, refGen, sex) {
             }
         }
         else {
-            // also change so that pValueAnno is an identifyier? and betaAnno??
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes]))
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValBetaAnnoValType'].push(pvalBetaAnnoValType)
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations]))
@@ -337,7 +332,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (association.studyID in studyIDsToMetaData){
             // if the pos/snp does not exist in our map and the studyID is in the associations
             if (!(association.snp in AssociationsBySnp)){
-                AssociationsBySnp[association[refGen]] = association.snp // adds the pos to 
+                AssociationsBySnp[association[refGen]] = association.snp // adds the pos to the object as a key to the snp
                 AssociationsBySnp[association.snp] = {
                     pos: association[refGen],
                     traits: {}
@@ -358,7 +353,6 @@ async function separateStudies(associations, traitData, refGen, sex) {
             }
             else {
                 console.log("Okay, we have a serious problem...")
-                // console.log(association, AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnno])
             }
         }
         else {

@@ -118,7 +118,6 @@ exports.getAll = (req, res) => {
 };
 
 exports.getFiltered = (req, res) => {
-    //TODO - need to also separate by pValueAnnotation
     traits = req.body.traits
     studyTypes = req.body.studyTypes
     ethnicities = req.body.ethnicities
