@@ -5,6 +5,7 @@ module.exports = app => {
     const cli = require("../controllers/cli.controller");
     const cohortdata = require("../controllers/cohortdata.controller");
     const errors = require("../controllers/errors.controller");
+    const maf = require("../controllers/maf.controller");
 
     // Retrieve all traits 
     // returns a list of trait objects -> see trait.model.js for format
@@ -77,6 +78,8 @@ module.exports = app => {
     app.get("/cohort_full_results", cohortdata.getFullResults);
 
     app.get("/cohort_study_snps", cohortdata.getStudySnps);
+
+    app.get("/get_maf", maf.getMaf);
 
     app.post("/send_error", errors.sendError);
 
