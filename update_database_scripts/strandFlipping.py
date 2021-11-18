@@ -45,20 +45,24 @@ def main():
     mv = myvariant.MyVariantInfo()
     associFile = open(associationTableFolderPath, 'r')
     content = associFile.readlines()
+    flippedAssoci = open("../tables/flippedAssociations.tsv", 'w')
 
     for i in range(1,len(content)):
         line = content[i].split('\t')
         rsID = line[1]
+        studyID = line[-1]
         possibleAlleles = getVariantAlleles(rsID, mv)
         riskAllele = Seq(line[9])
         if riskAllele not in possibleAlleles:
             complement = riskAllele.reverse_complement()
             if complement in possibleAlleles:
                 line[9] = str(complement)
+                flippedAssoci.write("{0}\t{1}\t{2}\t{3}\n".format(studyID, rsID, riskAllele, complement))
                 print("WE MADE A SWITCH", rsID, riskAllele, complement)
 
         content[i] = '\t'.join(line)
 
+    flippedAssoci.close()
     associFile.close()
     associFile = open(associationTableFolderPath, 'w')
     associFile.write(''.join(content))
