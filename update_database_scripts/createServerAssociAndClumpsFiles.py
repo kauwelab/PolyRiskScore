@@ -11,6 +11,9 @@ from uploadTablesToDatabase import checkTableExists, getConnection
 # How to run: python3 createServerAssociAndClumpsFiles.py "password"
 # where "password" is the password to the PRSKB database
 
+
+#TODO: This needs to be updated to reflect the new format. We should have one associations file per reference geneome
+
 # gets the associationsObj from the all_associations endpoint
 def callAllAssociationsEndpoint(refGen, sex):
     params = {
@@ -31,6 +34,7 @@ def getUrlWithParams(url, params):
 
 
 # gets the clumps from the database
+# TODO this will need to be updated for new clumping procedure
 def getClumps(refGen, pop, rsIDs, password):
     # set other default variables
     config = {
