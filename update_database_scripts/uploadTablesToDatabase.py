@@ -197,12 +197,18 @@ def main():
     connection.close()
 
     # add the associations_table to the database
-    tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20), INDEX (trait, studyID) )"
+    tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), \
+        trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, \
+        lowerCI float, upperCI float, betaValue float, betaUnit varchar(50), betaAnnotation varchar(255), ogValueTypes varchar(20), sex varchar(20), \
+        numAssociationsFiltered int unsigned, citation varchar(50), studyID varchar(20), INDEX (trait, studyID) )"
     createFreshTable(config, "associations_table", tableColumns)
     addDataToTableCatch( config, associationTableFolderPath, "associations_table", "associations_table")
 
     # add the study_table to the database
-    tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore decimal(15,5), ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )"
+    tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), \
+        altmetricScore decimal(15,5), ethnicity varchar(255), superPopulation varchar(255), initialSampleSize int unsigned, \
+        replicationSampleSize int unsigned, sex varchar(20), pValueAnnotation varchar(255), betaAnnotation varchar(255), ogValueTypes varchar(20), \
+        numAssociationsFiltered int unsigned, title varchar(255), lastUpdated varchar(15) )"
     createFreshTable(config, "study_table", tableColumns)
     addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
 
