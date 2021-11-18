@@ -96,7 +96,6 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
         studyMaxQuery = `SELECT * FROM studyMaxes`
     }
 
-    console.log("before studyMaxes")
     // the query, the array of items to fill in the question marks, the callback function
     sql.query(studyMaxQuery, traits, (err, res) => {
         if (err) {
@@ -216,7 +215,6 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
                 return
             }
             else {
-                console.log("what to do now?")
                 result(null, final_studies);
                 return
             }
