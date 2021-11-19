@@ -46,8 +46,11 @@ for line in queryResults:
                 'alt': '.',
             }
         else:
+            ref = line['dbsnp']['ref']
+            if ref == "":
+                ref = "."
             snpRefAlleleDict[line['query']] = {
-                'ref': line['dbsnp']['ref'],
+                'ref': ref,
                 'pos': line['dbsnp']['hg19']['start'] if 'hg19' in line['dbsnp'].keys() else "",
                 'chrom': line['dbsnp']['chrom'],
                 'alt': line['dbsnp']['alt']
