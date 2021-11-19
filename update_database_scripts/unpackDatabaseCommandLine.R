@@ -14,7 +14,7 @@
 #        "numGroups" is the integer number of times the database will be split. This particular instance will run on the "groupNum" section (default: 1).
 #
 # The format of the association table is as follows:
-# snp hg38  hg19  hg18  hg17  gene  raf riskAllele  pValue  pValueAnnotation  oddsRatio lowerCI upperCI citation  studyID
+# snp	hg38	hg19	hg18	hg17	trait	gene	raf	riskAllele	pValue	pValueAnnotation	oddsRatio	lowerCI	upperCI	betaValue	betaUnit	betaAnnotation	ogValueTypes	sex	numAssociationsFiltered	citation	studyID	
 # where: "snp" is the rs id for the given SNP
 #        "hg38" is hg38 mapped location
 #        "hg19" is hg19 mapped location
@@ -31,7 +31,7 @@
 #        "upperCI" is the upper confidence interval of the odds ratio
 #        "betaValue" is the beta value
 #        "betaUnit" is the unit of the beta value
-#        "betaAnnotation" is the description assoicated with the given beta vale
+#        "betaAnnotation" is the description assoicated with the given beta value
 #        "ogValueTypes" is a | delimited string containing the value type ("OR", "beta", or "OR|beta")
 #        "sex" is the sex associated with the snp p-value
 #        "numAssociationsFiltered" is the number of associations filtered out of the study (not in the associations table)
