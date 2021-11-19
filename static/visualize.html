@@ -47,7 +47,7 @@
     <div class="banner">
       <img src="/images/dnaCalcBanner.jpg" width="100%" style="overflow: hidden;">
       <div class="centered-title-button">Visualize PRS Distributions</div>
-      <div class="centered-subtitle-button">Coming Soon!</div>
+      <div class="centered-subtitle-button">Still under construction, showing examples of the types of visualizations available</div>
     </div>
   </header>
 
@@ -85,19 +85,19 @@
     </div>
   </section>
 
-  <!-- <section style="background-color: whitesmoke;">
+  <section style="background-color: whitesmoke;">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mb-4 mt-2 text-center">
-           -->
+          
           <!--Select 1 trait-->
-          <!-- <label for="traitSelector"><span title="Select a disease/trait to filter studies by before selecting the study you want to display contextualization data for.">Disease/Trait<sup>?</sup>:</span></label>
+          <label for="traitSelector"><span title="Select a disease/trait to filter studies by before selecting the study you want to display contextualization data for.">Disease/Trait<sup>?</sup>:</span></label>
           <select name="traitSelector" id='trait-Selector' style="margin-top: 2em; margin-bottom: 2em;" onchange="resetFilters()">
             <option selected="selected" value="default">Select a Disease/Trait</option>
           </select>
-           -->
+          
           <!--Select 1 study type-->
-          <!-- <br>
+          <br>
           <label for="studyTypeSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a study type or all study types to filter studies by before selecting the study you want to display contextualization data for. NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database.">Study Type<sup>?</sup>:</span></label>
           <select name="studyTypeSelector" id='studyType-Selector' style="margin-right: 2em; margin-top: 2em; margin-bottom: 2em;" onchange="getStudies()">
             <option selected="selected" value="default">Select a Study Type</option>
@@ -106,16 +106,16 @@
             <option value="LC">Large Cohort Studies</option>
             <option value="O">All Other Studies</option>
           </select>
-           -->
+          
           <!--Select 1 study-->
-          <!-- <br>
+          <br>
           <label for="studySelector"><span title="Select a study to display contextualization data for. Studies are shown in a disease/trait|citation|studyID format.">Study<sup>?</sup>:</span></label>
           <select name="studySelector" id='study-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled onchange="getCohorts()">
             <option selected="selected" value="default">Select a Study</option>
           </select>
-           -->
+          
           <!--Select 1 cohort-->
-          <!-- <br>
+          <br>
           <label for="cohortSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a Cohort to view graphs and summary values. Each of these Cohorts were run on all the studies in the database and percentiles computed.">Cohort<sup>?</sup>:</span></label>
           <select name="cohortSelector" id='cohort-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled multiple></select>
           <br>
@@ -127,9 +127,9 @@
       <div class="col-lg-12 mb-4 mt-2 text-center">
         <h2 style="color: #416d9d;" id="studyName" hidden></h2>
         <div class="row" style="margin-right: 0em; margin-left: 0em;">
-           -->
+          
           <!-- code here for the select boxes, the name, and the graph and table -->
-        <!-- </div>
+        </div>
       </div>
       <div class="row" id="plotAndTable" style="visibility: hidden;">
         <div id="plotAndButtons" class="column" style="width: 100%;  margin-bottom: 3em;">
@@ -145,12 +145,12 @@
             </form>
           </div>
         </div>
-         -->
-        <!-- <div id="tablePlot" style="width: 100%; margin-bottom: 6em;"></div>
+        
+        <div id="tablePlot" style="width: 100%; margin-bottom: 6em;"></div>
         <div id="studymetadata" style="margin-bottom: 2em;">
-           -->
+          
           <!-- Put meta data here (studyName, citation, altmetric score, ect) -->
-        <!-- </div>
+        </div>
       </div>
     </div>
   </section>
@@ -162,7 +162,7 @@
       </div>
     </div>
   </footer>
-   -->
+  
   <!-- Making the top menu sticky -->
   <script>
     window.onscroll = function () { myFunction() };
