@@ -10,7 +10,7 @@ const Maf = function(mmaf) {
     this.alleleFrequency = mmaf.alleleFrequency
 }
 
-Maf.getMAF = (cohort, chrom, snps, result) => {
+Maf.getMAF = (cohort, chrom, pos, result) => {
     try {
         sqlQuestionMarks = ""
         for (i=0; i < positions.length - 1; i++) {
@@ -18,7 +18,7 @@ Maf.getMAF = (cohort, chrom, snps, result) => {
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
-        sqlQueryString = `SELECT * FROM ADNI_chr${chrom}_maf WHERE snp != "None" AND snp IN (${sqlQuestionMarks});`
+        sqlQueryString = `SELECT * FROM ADNI_chr${chrom}_maf WHERE snp != "None" AND pos IN (${sqlQuestionMarks});`
         sql.query(sqlQueryString, snps, function(err, rows){
             if (err) {
                 console.log(err)
