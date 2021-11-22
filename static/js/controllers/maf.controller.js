@@ -3,8 +3,10 @@ const MAF = require("../models/maf.model.js");
 
 exports.getMaf = (req, res) => {
     var cohort = req.query.cohort
+    var chrom = req.query.chrom
+    var snps = req.query.snps
 
-    MAF.getMAF(cohort, async (err, data) => {
+    MAF.getMAF(cohort, chrom, snps, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving MAF: ${err}`
