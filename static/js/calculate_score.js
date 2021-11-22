@@ -238,7 +238,7 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
  * @param {*} mafCohort 
  * @returns 
  */
-var getMafData = async (mafCohort, posMap) => {
+var getMafData = async (mafCohort, associationsObj) => {
     posMap = {}
 
     for (key in associationsObj) {
