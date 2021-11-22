@@ -64,12 +64,6 @@
         var possibleAlleles = [];
         possibleAlleles.push(vcfLine.ref);
         var altAlleles = vcfLine.alt.split(/[,]+/);
-        for (var i = 0; i < altAlleles.length; i++) {
-            if (altAlleles[i] == ".") {
-                altAlleles.splice(i, 1);
-                --i;
-            }
-        }
         if (altAlleles.length > 0) {
             possibleAlleles = possibleAlleles.concat(altAlleles);
         }
@@ -80,15 +74,7 @@
             var alleles = sample.GT.trim().split(/[|/]+/, 2);
             //gets the alleles from the allele indices and replaces the indices with the alleles.
             for (var i = 0; i < alleles.length; i++) {
-                //if the allele is ".", ignore it (consider it as the non risk allele)
-                if (alleles[i] == ".") {
-                    //alleles[i] = possibleAlleles[0];
-                    alleles.splice(i, 1);
-                    --i;
-                }
-                else {
-                    alleles[i] = possibleAlleles[alleles[i]];
-                }
+                alleles[i] = possibleAlleles[alleles[i]];
             }
             //event when alleles is empty, we still push it so that it can be included in 
             //the totalVariants number of the output
