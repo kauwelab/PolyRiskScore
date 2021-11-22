@@ -127,7 +127,7 @@
                       <option value="hg17">NCBI35/hg17</option>
                     </select>
                     <br>
-                    <label for="superPopSelect">Preferred Super Population:</label>
+                    <label for="superPopSelect">Super Population:</label>
                     <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
                       <option selected="selected" value="default">--Super Population--</option>
                       <option>African</option>
@@ -213,6 +213,7 @@
 
               <div id="gwasUpload" style="display: none;">
                 <div style="background-color: whitesmoke; padding: .5em;">
+                  <p style="color: #dc3545;">Coming Soon!</p> 
                   <p class="text-left">Instead of using GWAS data from our database, you are welcome to upload your own GWAS data. 
                     Your file <span title="It is very important that the file be in the correct format. If it is not tab deliminated and does not have the columns specified and have a header line with the EXACT names of the columns, this option WILL NOT work. "><b>must</b><sup>*</sup></span> be tab separated (either .tsv or .txt), and have the following columns: 
                     <span title="A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want.">Study&nbsp;ID<sup>?</sup></span>, 
@@ -312,21 +313,23 @@
 
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
-                  <h5>3: MAF&nbsp;Population</h5>
+                  <h5><span title="The equation we use handles missing genotypes in the VCF by multiplying the allele frequency of the risk allele by the number of missing genotypes present in the sample.">3: MAF&nbsp;Population<sup>?</sup></span></h5>
                   <div class="MAFoption">
                     <select id="mafCohort" , onchange="">
-                      <option value="ukbb">UK Biobank</option>
+                      <!-- <option value="ukbb">UK Biobank</option>
                       <option value="afr">1000 Genomes - AFR population</option>
                       <option value="amr">1000 Genomes - AMR population</option>
                       <option value="eas">1000 Genomes - EAS population</option>
                       <option value="eur">1000 Genomes - EUR population</option>
-                      <option value="sas">1000 Genomes - SAS population</option>
-                      <option value="adni">ADNI</option>
+                      <option value="sas">1000 Genomes - SAS population</option> -->
+                      <option value="adni" selected='selected'>ADNI</option>
+                      <option value="default">More coming soon!</option>
                     </select>
                   </div>
                 </div>
               </div>
 
+              <!--TODO update with CLUMPING-->
               <!-- <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
                   <h5>4: Preferred Super Population</h5>
