@@ -10,36 +10,24 @@ const Maf = function(mmaf) {
     this.alleleFrequency = mmaf.alleleFrequency
 }
 
-Maf.getMAF = (cohort, result) => {
+Maf.getMAF = (cohort, chrom, pos, result) => {
     try {
-        chromosomes = Array.from({length: 22}, (_, i) => i + 1)
+        sqlQuestionMarks = ""
+        for (i=0; i < positions.length - 1; i++) {
+            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+        }
+        sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
-        MAF_list = []
-
-        async.forEachOf(chromosomes, function (dataElement, i, inner_callback){
-
-            sqlQueryString = `SELECT * FROM ADNI_chr${dataElement}_maf WHERE snp != "None";`
-            sql.query(sqlQueryString, function(err, rows){
-                if (err) {
-                    console.log(err)
-                    console.log("Honestly, we probably want it to fail here")
-                    result(err, null)
-                    return
-                }
-                else {
-                    MAF_list = MAF_list.concat(rows)
-                    inner_callback(null)
-                }
-            })
-
-        }, function(err){
+        sqlQueryString = `SELECT * FROM ADNI_chr${chrom}_maf WHERE snp != "None" AND pos IN (${sqlQuestionMarks});`
+        sql.query(sqlQueryString, snps, function(err, rows){
             if (err) {
                 console.log(err)
+                console.log("Honestly, we probably want it to fail here")
                 result(err, null)
                 return
             }
             else {
-                result(null, MAF_list);
+                result(null, rows)
                 return
             }
         })
