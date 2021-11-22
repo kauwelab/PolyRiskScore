@@ -85,12 +85,20 @@ function startTour() {
                 element: "#applyFilters",
                 title: "Select additional study filters",
                 content: "Studies about the traits you selected can be further filtered by choosing \
-                study type or study ethnicity. \"High impact\" is measured by Altmetric score while \
+                study type, study ethnicity, original value type, or sex. \"High impact\" is measured by Altmetric score while \
                 \"large cohort\" is measured \ by the size of a study's initial sample size plus its \
                 replication sample size. Once you have \ finished selecting your filters, press the \
                 \"Apply Filters\" button to update the studies list.",
                 reflex: true
             },
+            // {
+            //     element: "#sex",
+            //     title: "Include or exclude sex dependent SNPs",
+            //     content: "Occasionally, studies will include SNPs that have odds ratios which \
+            //     are dependent upon biological sex. By default, we exclude any SNPs that are depenent on \
+            //     biological sex. If you choose, you can include either female or male dependent SNPs. \
+            //     When you are done, press the \"next\" button to continue the tour."
+            // },
             {
                 element: "#studySelectContainer",
                 title: "Select studies",
@@ -129,12 +137,10 @@ function startTour() {
                 which are neutral or have unknown contributions."
             },
             {
-                element: "#sex",
-                title: "Include or exclude sex dependent SNPs",
-                content: "Occasionally, studies will include SNPs that have odds ratios which \
-                are dependent upon biological sex. By default, we exclude any SNPs that are depenent on \
-                biological sex. If you choose, you can include either female or male dependent SNPs. \
-                When you are done, press the \"next\" button to continue the tour."
+                element: "#mafCohort",
+                title: "Select population for MAF",
+                content: "Select the population to use allele frequencies from."
+
             },
             {
                 element: "#feedbackSubmit",
