@@ -79,7 +79,7 @@ module.exports = app => {
 
     app.get("/cohort_study_snps", cohortdata.getStudySnps);
 
-    app.get("/get_maf", maf.getMaf);
+    app.post("/get_maf", maf.getMaf);
 
     app.post("/send_error", errors.sendError);
 

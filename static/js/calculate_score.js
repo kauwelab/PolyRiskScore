@@ -238,20 +238,45 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
  * @param {*} mafCohort 
  * @returns 
  */
-function getMafData(mafCohort) {
+var getMafData = async (mafCohort, posMap) => {
+    posMap = {}
+
+    for (key in associationsObj) {
+        if (key.includes(":")) {
+            chromPos = key.split(":")
+            if (!(chromPos[0] in posMap)){
+                posMap[chromPos[0]] = []
+            }
+            posMap[chromPos[0]].push(chromsPos[1])
+        }
+    }
+
+    returnedResults = {}
+
+    chromosomes = Object.keys(posMap)
+    if (chromosomes.length > 0) {
+        for (chrom in posMap) {
+            returnedResults = Object.assign(await callMAFAPI(mafCohort, chrom, posMap[chrom]), returnedResults)
+        }
+    }
+
+    return returnedResults
+}
+
+function callMAFAPI(mafCohort, chrom, snps){
     return Promise.resolve($.ajax({
-        type: "GET",
+        type: "POST",
         url: "/get_maf",
-        data: { cohort: mafCohort },
+        data: { cohort: mafCohort, chrom: chrom, snps: snps },
         success: async function (data) {
-            return data
+            return data;
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving the required MAF data: ${XMLHttpRequest.responseText}`
+            var errMsg = `There was an error retrieving required maf data: ${XMLHttpRequest.responseText}`
             updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg)
+            alert(errMsg);
         }
-    }))
+    }));
 }
 
 /**
@@ -435,6 +460,7 @@ var calculatePolyScore = async () => {
     }
 
     clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
+    mafData = await getMafData(associationData['associations'], mafCohort)
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
