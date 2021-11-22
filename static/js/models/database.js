@@ -9,23 +9,25 @@ var dbConfig = {
     user: 'client',
     password: passwords.getMySQLClientPassword(),
     database: 'polyscore', 
-    multipleStatements: true
+    multipleStatements: true,
+    packetSize: 16384 ,
+    connectionLimit: 10
 }
 
-var connection;
+var pool;
 
 function handleDisconnect() {
-    connection = mysql.createConnection(dbConfig);
+    pool = mysql.createPool(dbConfig);
 
-    console.log("We ran handleDisconnect...")
-    connection.connect(function(err) {
-        if (err) {
-            console.log('error when connecting to db: ', err);
-            setTimeout(handleDisconnect, 2000);
-        }
-    });
+    // console.log("We ran handleDisconnect...")
+    // connection.getConnection(function(err) {
+    //     if (err) {
+    //         console.log('error when connecting to db: ', err);
+    //         setTimeout(handleDisconnect, 20000);
+    //     }
+    // });
 
-    connection.on('error', function(err) {
+    pool.on('error', function(err) {
         console.log('db error', err);
         if (err.code === 'PROTOCOL_CONNECTION_LOST') {
             handleDisconnect();
@@ -38,4 +40,4 @@ function handleDisconnect() {
 
 handleDisconnect();
 
-module.exports = connection;
+module.exports = pool;
