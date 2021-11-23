@@ -46,8 +46,11 @@ for line in queryResults:
                 'alt': '.',
             }
         else:
+            ref = line['dbsnp']['ref']
+            if ref == "":
+                ref = "."
             snpRefAlleleDict[line['query']] = {
-                'ref': line['dbsnp']['ref'],
+                'ref': ref,
                 'pos': line['dbsnp']['hg19']['start'] if 'hg19' in line['dbsnp'].keys() else "",
                 'chrom': line['dbsnp']['chrom'],
                 'alt': line['dbsnp']['alt']
@@ -72,7 +75,7 @@ for i in range(len(snpsData)):
     if (hg19 != "NA"):
         chrom, pos = hg19.split(":")
         f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
-    elif snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "":
+    elif snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "" and snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "NA":
         chrom = snpRefAlleleDict[snpsData[i]['snp']]['chrom']
         pos = snpRefAlleleDict[snpsData[i]['snp']]['pos']
         f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
