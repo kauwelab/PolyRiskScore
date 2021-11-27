@@ -288,7 +288,7 @@ fi
 #==============Perform Strand Flipping=================================================================
 if [ $strandFlipping == "true" ]; then
     echo "Performing strand flipping on the associations"
-    python3 strandFlipping.py $associationTableFolderPath
+    python3 strandFlipping.py $associationTableFolderPath 'w'
     wait
 fi
 
