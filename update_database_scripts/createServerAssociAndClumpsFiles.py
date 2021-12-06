@@ -11,15 +11,11 @@ from uploadTablesToDatabase import checkTableExists, getConnection
 # How to run: python3 createServerAssociAndClumpsFiles.py "password"
 # where "password" is the password to the PRSKB database
 
-
-#TODO: This needs to be updated to reflect the new format. We should have one associations file per reference geneome
-
 # gets the associationsObj from the all_associations endpoint
 def callAllAssociationsEndpoint(refGen, sex):
     params = {
         'pValue': 1,
         'refGen': refGen,
-        'sex': sex
     }
     associations = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
     return associations
@@ -99,19 +95,19 @@ def getTraitStudyToSnp(password):
 
     if (checkTableExists(connection.cursor(), "associations_table")):
         cursor = connection.cursor()
-        sql = "SELECT snp, trait, studyID FROM associations_table; "
+        sql = "SELECT snp, trait, pValueAnnotation, betaAnnotation, ogValueTypes, studyID FROM associations_table; "
         cursor.execute(sql)
         returnedAssociations = cursor.fetchall()
         cursor.close()
     else:
-        raise NameError('Table does not exist in database {refGen}_chr{i}_clumps'.format(refGen=refGen, i=i))
+        raise NameError('Table does not exist in database associations_table')
     return returnedAssociations
 
 
 def formatAndSaveTraitStudyToSnp(associLines, generalFilePath):
     formattedTraitStudyToSnps = {}
-    for snp, trait, studyID in associLines:
-        key = "|".join([trait, studyID])
+    for snp, trait, pValueAnnotation, betaAnnotation, ogValueTypes, studyID in associLines:
+        key = "|".join([trait, pValueAnnotation, betaAnnotation, ogValueTypes, studyID])
         if (key not in formattedTraitStudyToSnps):
             formattedTraitStudyToSnps[key] = []
         formattedTraitStudyToSnps[key].append(snp)
@@ -130,15 +126,14 @@ def createServerDownloadFiles(params):
 
     rsIDKeys = set()
 
-    # creating an AllAssociations file for both sexes for the refGen
-    for sex in ['male', 'female', 'exclude']:
-        associationsObj = callAllAssociationsEndpoint(refGen, sex)
-        associationsFilePath = os.path.join(generalFilePath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0])) if sex != 'exclude' else os.path.join(generalFilePath, "allAssociations_{refGen}.txt".format(refGen=refGen))
-        print("Writing Association File:", (refGen, sex))
-        rsIDKeys.update(associationsObj['associations'].keys())
-        f = open(associationsFilePath, 'w')
-        f.write(json.dumps(associationsObj))
-        f.close()
+    # creating an AllAssociations file
+    associationsObj = callAllAssociationsEndpoint(refGen)
+    associationsFilePath = os.path.join(generalFilePath, "allAssociations_{refGen}.txt".format(refGen=refGen))
+    print("Writing Association File:", (refGen))
+    rsIDKeys.update(associationsObj['associations'].keys())
+    f = open(associationsFilePath, 'w')
+    f.write(json.dumps(associationsObj))
+    f.close()
 
     #grabing the rsIDs for use in getting the clumps
     rsIDKeys = ("\"{0}\"".format(x) for x in rsIDKeys if "rs" in x)
