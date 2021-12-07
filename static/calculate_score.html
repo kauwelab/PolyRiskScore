@@ -315,15 +315,14 @@
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
                   <h5><span title="The equation we use handles missing genotypes in the VCF by multiplying the allele frequency of the risk allele by the number of missing genotypes present in the sample.">3: MAF&nbsp;Population<sup>?</sup></span></h5>
                   <div class="MAFoption">
-                    <select id="mafCohort" , onchange="">
-                      <!-- <option value="ukbb">UK Biobank</option>
+                    <select id="mafCohort" , onchange="changeMAF();">
                       <option value="afr">1000 Genomes - AFR population</option>
                       <option value="amr">1000 Genomes - AMR population</option>
                       <option value="eas">1000 Genomes - EAS population</option>
                       <option value="eur">1000 Genomes - EUR population</option>
-                      <option value="sas">1000 Genomes - SAS population</option> -->
-                      <option value="adni" selected='selected'>ADNI</option>
-                      <option value="default">More coming soon!</option>
+                      <option value="sas">1000 Genomes - SAS population</option>
+                      <option value="adni">ADNI</option>
+                      <option value="ukbb">UK Biobank</option>
                     </select>
                   </div>
                 </div>
@@ -370,7 +369,7 @@
               <form id="responseBox" class="text-center">
                 <div class="form-text font-weight-bold">
                   <textarea readonly rows="10" cols="100" class="form-control nowrap" id="response" name="response"
-                    placeholder="If your results don't pop up, try downloading the results. Firefox doesn't seem to want to display the results preview." aria-describedby="response to query"></textarea>
+                    placeholder="Results..." aria-describedby="response to query"></textarea>
                 </div>
               </form>
               <p>&nbsp;</p>

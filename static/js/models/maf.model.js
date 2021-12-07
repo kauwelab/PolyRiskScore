@@ -12,14 +12,15 @@ const Maf = function(mmaf) {
 
 Maf.getMAF = (cohort, chrom, pos, result) => {
     try {
+        tableName = `${cohort.toLowerCase()}_maf_chr${chrom}`
         sqlQuestionMarks = ""
-        for (i=0; i < positions.length - 1; i++) {
+        for (i=0; i < pos.length - 1; i++) {
             sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
-        sqlQueryString = `SELECT * FROM ADNI_chr${chrom}_maf WHERE snp != "None" AND pos IN (${sqlQuestionMarks});`
-        sql.query(sqlQueryString, snps, function(err, rows){
+        sqlQueryString = `SELECT * FROM ${tableName} WHERE snp != "None" AND pos IN (${sqlQuestionMarks});`
+        sql.query(sqlQueryString, pos, function(err, rows){
             if (err) {
                 console.log(err)
                 console.log("Honestly, we probably want it to fail here")
