@@ -1603,3 +1603,8 @@ function changePValMagnitude() {
     resetOutput()
     updateResultBoxAndStoredValue("");
 }
+
+function changeMAF() {
+    resetOutput()
+    updateResultBoxAndStoredValue("");
+}
