@@ -2,9 +2,9 @@ const MAF = require("../models/maf.model.js");
 
 
 exports.getMaf = (req, res) => {
-    var cohort = req.query.cohort
-    var chrom = req.query.chrom
-    var pos = req.query.pos
+    var cohort = req.body.cohort
+    var chrom = req.body.chrom
+    var pos = req.body.pos
 
     MAF.getMAF(cohort, chrom, pos, async (err, data) => {
         if (err) {
