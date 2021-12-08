@@ -62,7 +62,7 @@
                         pos: vcfLine.pos,
                         alleles: {}
                     }
-                    af = vcfLine.varinfo.AF.split(',')
+                    af = vcfLine.varinfo.AF.split(',') //todo watch this, could end up causing an error if we don't check for it
                     refAF = 1 - af.reduce(function(a,b){return parseFloat(a)+parseFloat(b);})
 
                     mafData[vcfLine.id]['alleles'][vcfLine.ref] = refAF
