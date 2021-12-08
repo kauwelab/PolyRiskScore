@@ -5,10 +5,12 @@
      * @param {*} fileLines 
      * @returns vcfObj
      */
-    exports.getVCFObj = function (fileLines) {
+    exports.getVCFObj = function (fileLines, userMAF) {
         var numSamples = 0;
         var sampleIndex = {}
         var vcfObj = new Map();
+        var mafData = {}
+        containsAF = false
         fileLines.forEach(function (line) {
             // check if line starts with hash and use them
             if (line.indexOf('#') === 0) {
@@ -25,9 +27,14 @@
                         //remove white space from sample names
                         vcfObj.set(sampleinfo[9 + i], []);
                     }
+                } else if (line.includes("ID=AF") || line.includes('Description="Allele Frequency"')) {
+                    containsAF = true
                 }
             } else { // go through remaining lines
                 // split line by tab character
+                if (!containsAF && userMAF){
+                    //TODO we want to exit and tell them to use a differenct maf cohort
+                }
                 var info = line.split('\t')
                 if (info.length < 9) {
                     //Throw an error if vcfObj is empty.
@@ -48,9 +55,25 @@
                 var infoObject = parseVariantData(varInfo, info);
                 var vcfLine = createVariantData(info, infoObject, sampleObject);
                 vcfObj = addLineToVcfObj(vcfObj, vcfLine)
+                //if userMAF is true, create the maf for this line. If the VCF doesnt have AF (allele frequency) we need to throw an error
+                if (userMAF) {
+                    mafData[vcfLine.id] = {
+                        chrom: vcfLine.chr,
+                        pos: vcfLine.pos,
+                        alleles: {}
+                    }
+                    af = vcfLine.varinfo.AF.split(',')
+                    refAF = 1 - af.reduce(function(a,b){return parseFloat(a)+parseFloat(b);})
+
+                    mafData[vcfLine.id]['alleles'][vcfLine.ref] = refAF
+                    altAlleles = vcfLine.alt.split(',')
+                    for (i=0; i<altAlleles.length; i++) {
+                        mafData[vcfLine.id]['alleles'][altAlleles[i]] = parseFloat(af[i])
+                    }
+                }
             }
         });
-        return vcfObj;
+        return [vcfObj, mafData];
     }
 
     /**
