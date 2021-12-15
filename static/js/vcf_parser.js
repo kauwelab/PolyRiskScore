@@ -31,10 +31,10 @@
                     containsAF = true
                 }
             } else { // go through remaining lines
-                // split line by tab character
                 if (!containsAF && userMAF){
-                    //TODO we want to exit and tell them to use a differenct maf cohort
+                    throw "The uploaded file does not contain the required information for minor allele frequency. Please select a different cohort for maf or upload a different file."
                 }
+                // split line by tab character
                 var info = line.split('\t')
                 if (info.length < 9) {
                     //Throw an error if vcfObj is empty.
