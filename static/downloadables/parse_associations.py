@@ -24,6 +24,7 @@ def parseAndCalculateFiles(params):
     outputFilePath = params[11]
     isRSids = params[12]
     timestamp = params[13]
+    isSampleClump = params[14]
 
     # check if the input file is a txt or vcf file
     # parse the file to get the necessary genotype information for each sample and then run the calculations
@@ -31,7 +32,7 @@ def parseAndCalculateFiles(params):
         txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
         cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, snpCount, isRSids, None)
     else:
-        vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
+        vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp, isSampleClump)
         cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sample_order)
 
     return
@@ -295,7 +296,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     return final_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount
 
 
-def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, timestamp):
+def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, timestamp, isSampleClump):
     # variable to keep track of the number of samples in the input file
     sampleNum=0
     # variable to keep track of the number of snps in the study found in the input file
@@ -427,8 +428,8 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             # Grab or create maps that hold sets of unused variants for this sample
                             clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
                             unmatchedAlleleVariants = neutral_snps_map[sample] if sample in neutral_snps_map else set()
-
-                            if riskAllele in alleles:
+                            atRisk = True if riskAllele in alleles else False
+                            if atRisk:
                                 # keep track of whether this sample has any viable snps for this study
                                 if sample in no_viable_snp_counter:
                                     no_viable_snp_counter.remove(sample)
@@ -453,7 +454,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                                     index_snp_map[sample][clumpNum] = rsID, alleles
                                                     clumpedVariants.add(index_snp)
                                                 else:
-                                                    if index_alleles == "":
+                                                    if index_alleles == "" and not isSampleClump:
                                                         index_snp_map[sample][clumpNum] = rsID, alleles
                                                         clumpedVariants.add(index_snp)
                                                     else:
@@ -471,7 +472,39 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                 # the variant isn't in the clump tables
                                 else:
                                     sample_map[sample][rsID] = alleles
-                            # the sample's alleles don't include the risk allele
+
+			    # the user requested early clumping so that sample-wide comparisons can be made
+			    # as such, clumping will be performed on all variants in the filtered file
+                            elif isSampleClump:
+                                if rsID in clumpsObjDict:
+                                    # Grab the clump number associated with this study and snp position
+                                    clumpNum = str(clumpsObjDict[rsID]['clumpNum'])
+                                    # Check to see how many variants are in this clump. If there's only one, we can skip the clumping checks.
+                                    clumpNumTotal = clumpNumDict[clumpNum]
+
+                                    if clumpNumTotal > 0:
+                                        if sample in index_snp_map:
+                                            # if the clump number for this snp position and study/name is already in the index map, move forward
+                                            if clumpNum in index_snp_map[sample]:
+                                                index_snp, index_alleles = index_snp_map[sample][clumpNum]
+                                                index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
+
+                                                # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                                # and switch out the data accordingly
+                                                if pValue < index_pvalue:
+                                                    index_snp_map[sample][clumpNum] = rsID, alleles
+                                                    clumpedVariants.add(index_snp)
+                                                else:
+                                                    clumpedVariants.add(rsID)
+                                            else:
+                                                # Since the clump number for this snp position and study/name
+                                                # doesn't already exist, add it to the index map and the sample map
+                                                index_snp_map[sample][clumpNum] = rsID, alleles
+                                        else:
+                                            # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
+                                            index_snp_map[sample][clumpNum] = rsID, alleles
+
+                            # the sample's alleles don't include the risk allele and early clumping is not requested
                             else:
                                 if sample not in viable_snp_counter:
                                     no_viable_snp_counter.add(sample)
@@ -514,7 +547,7 @@ def getSamples(inputFilePath, header):
     header.extend(samples)
     return header
 
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, omitUnusedStudiesFile, timestamp, num_processes, useGWASupload):
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, omitUnusedStudiesFile, timestamp, num_processes, isSampleClump, useGWASupload):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -551,7 +584,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         trait = key.split("|")[0]
         study = key.split("|")[1]
         snpSet = studySnpsDict[key]
-        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp)
+        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump)
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
@@ -581,10 +614,10 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         study = keyString.split('|')[1]
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
@@ -592,6 +625,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
 
 if __name__ == "__main__":
-    useGWASupload = True if sys.argv[15] == "True" or sys.argv[15] == True else False
-    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], useGWASupload)
+    useGWASupload = True if sys.argv[16] == "True" or sys.argv[16] == True else False
+    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], useGWASupload)
 
