@@ -238,7 +238,7 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
  * @param {*} mafCohort 
  * @returns 
  */
-var getMafData = async (associationsObj, mafCohort) => {
+var getMafData = async (associationsObj, mafCohort, refGen) => {
     posMap = {}
 
     for (key in associationsObj) {
@@ -256,18 +256,18 @@ var getMafData = async (associationsObj, mafCohort) => {
     chromosomes = Object.keys(posMap)
     if (chromosomes.length > 0) {
         for (chrom in posMap) {
-            returnedResults = Object.assign(await callMAFAPI(mafCohort, chrom, posMap[chrom]), returnedResults)
+            returnedResults = Object.assign(await callMAFAPI(mafCohort, chrom, posMap[chrom], refGen), returnedResults)
         }
     }
 
     return returnedResults
 }
 
-function callMAFAPI(mafCohort, chrom, pos){
+function callMAFAPI(mafCohort, chrom, pos, refGen){
     return Promise.resolve($.ajax({
         type: "POST",
         url: "/get_maf",
-        data: { cohort: mafCohort, chrom: chrom, pos: pos },
+        data: { cohort: mafCohort, chrom: chrom, pos: pos, refGen: refGen },
         success: async function (data) {
             return data;
         },
@@ -402,8 +402,6 @@ var calculatePolyScore = async () => {
         return;
     }
 
-    mafData = await getMafData(mafCohort);
-
     // if the user is uploading GWAS data, grab it and format it correctly
     //todo update this for updated format
     if (gwasType == "Upload") {
@@ -460,7 +458,7 @@ var calculatePolyScore = async () => {
     }
 
     clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
-    mafData = (mafCohort == 'user' ? {} : await getMafData(associationData['associations'], mafCohort))
+    mafData = (mafCohort == 'user' ? {} : await getMafData(associationData['associations'], mafCohort, refGen))
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
