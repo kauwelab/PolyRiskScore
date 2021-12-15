@@ -782,7 +782,9 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
         mafData = userMAFData
     }
     if (Object.keys(mafData).length === 0) {
-        //LET THE USRE KNOW THERE WAS AN ISSUE WITH MAF AND WE HAD TO EXIT
+        //TODO LET THE USER KNOW THERE WAS AN ISSUE WITH MAF AND WE HAD TO EXIT
+        alert("There was an issue either retrieving or creating the MAF object. Please try again.")
+        return
     }
 
     try {
