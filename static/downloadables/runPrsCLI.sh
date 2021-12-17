@@ -73,6 +73,13 @@ version="1.7.0"
 #   Exclude duplicated snps and sex-based snps unless sex-based snps are requested (-g parameter)
 #
 #
+#   11/10/2021
+#
+#   adding in handling for pvalue annotationa and beta values
+#   switching how the sex (-g) param functions
+#   adding in maf handling (-q)
+#
+#
 # ########################################################################
 
 # colors for text printing
@@ -110,14 +117,17 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-k${NC} studyType ex. -k HI -k LC -k O (High Impact, Large Cohort, Other studies)"
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
+    echo -e "   ${MYSTERYCOLOR}-y${NC} value type ex. -y beta -y \"Odds Ratio\""
+    echo -e "   ${MYSTERYCOLOR}-g${NC} sex in study ex. -g male -g female"
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
-    echo -e "   ${MYSTERYCOLOR}-g${NC} sex dependent associations ex. -g male -g female"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available subprocesses)"
     echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
     echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about uploading GWAS data for calculations' or the CLI readme)"
-    echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file" 
+    echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file"
+    echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user uploaded GWAS data uses beta coefficent values instead of odds ratios" 
+    echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used ex. -q adni-ad (see the menu to learn more about the cohorts available)" 
     echo ""
 }
 
@@ -168,35 +178,39 @@ learnAboutParameters () {
 
     while [[ "$cont" != "0" ]]
     do 
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
-        echo    "|                                             |"
-        echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                            |"
-        echo -e "| ${LIGHTPURPLE}1${NC} - -f VCF File or rsIDs:genotypes file     |"
-        echo -e "| ${LIGHTPURPLE}2${NC} - -o Output file                          |"
-        echo -e "| ${LIGHTPURPLE}3${NC} - -c P-value Cutoff                       |"
-        echo -e "| ${LIGHTPURPLE}4${NC} - -r RefGen                               |"
-        echo -e "| ${LIGHTPURPLE}5${NC} - -p Subject Super Population             |"
-        echo    "|                                             |"
-        echo -e "|${LIGHTPURPLE}OPTIONAL PARAMS: ${NC}                            |"
-        echo -e "| ${LIGHTPURPLE}6${NC} - -t trait                                |"
-        echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                            |"
-        echo -e "| ${LIGHTPURPLE}8${NC} - -i studyID                              |"
-        echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                            |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - -v verbose result file                 |"
-        echo -e "| ${LIGHTPURPLE}11${NC} - -g sex dependent associations          |"
-        echo -e "| ${LIGHTPURPLE}12${NC} - -s stepNumber                          |"
-        echo -e "| ${LIGHTPURPLE}13${NC} - -n number of subprocesses              |"
-        echo -e "| ${LIGHTPURPLE}14${NC} - -m omit *_studiesNotIncluded.txt       |"
-        echo -e "| ${LIGHTPURPLE}15${NC} - -u tab separated GWAS data file        |"
-        echo -e "| ${LIGHTPURPLE}16${NC} - -a reference genome of GWAS data file  |"
-        echo -e "|                                             |"
-        echo -e "| ${LIGHTPURPLE}17${NC} - Done                                   |"
-        echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
+        echo    "|                                                                 |"
+        echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                                                |"
+        echo -e "| ${LIGHTPURPLE}1${NC} - -f VCF File or rsIDs:genotypes file                         |"
+        echo -e "| ${LIGHTPURPLE}2${NC} - -o Output file                                              |"
+        echo -e "| ${LIGHTPURPLE}3${NC} - -c P-value Cutoff                                           |"
+        echo -e "| ${LIGHTPURPLE}4${NC} - -r RefGen                                                   |"
+        echo -e "| ${LIGHTPURPLE}5${NC} - -p Subject Super Population                                 |"
+        echo    "|                                                                 |"
+        echo -e "|${LIGHTPURPLE}OPTIONAL PARAMS: ${NC}                                                |"
+        echo -e "| ${LIGHTPURPLE}6${NC} - -t trait                                                    |"
+        echo -e "| ${LIGHTPURPLE}7${NC} - -k studyType                                                |"
+        echo -e "| ${LIGHTPURPLE}8${NC} - -i studyID                                                  |"
+        echo -e "| ${LIGHTPURPLE}9${NC} - -e ethnicity                                                |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - -y value type                                              |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - -g sex dependent associations                              |"
+        echo -e "| ${LIGHTPURPLE}12${NC} - -v verbose result file                                     |"
+        echo -e "| ${LIGHTPURPLE}13${NC} - -s stepNumber                                              |"
+        echo -e "| ${LIGHTPURPLE}14${NC} - -n number of subprocesses                                  |"
+        echo -e "| ${LIGHTPURPLE}15${NC} - -m omit *_studiesNotIncluded.txt                           |"
+        echo -e "| ${LIGHTPURPLE}16${NC} - -u tab separated GWAS data file                            |"
+        echo -e "| ${LIGHTPURPLE}17${NC} - -a reference genome of GWAS data file                      |"
+        echo -e "| ${LIGHTPURPLE}18${NC} - -b flag indicates beta values used for uploaded GWAS data  |"
+        echo -e "| ${LIGHTPURPLE}19${NC} - -q minor allele frequency cohort                           |"
+        echo -e "|                                                                 |"
+        echo -e "| ${LIGHTPURPLE}20${NC} - Done                                                       |"
+        echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         # gets the inputted number from the user
         read -p "#? " option
         echo ""
 
+# TODO: !! Update these options, add the new ones and fix the numbering
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR}-f VCF File path or rsIDs:genotypes file path: ${NC}" 
                 echo "The path to the VCF file that contains the samples for which you would like " 
@@ -261,8 +275,14 @@ learnAboutParameters () {
                 echo "by the authors. A list can be printed from the corresponding menu option."
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
-                echo -e "For a more detailed TSV result file, include the ${GREEN}-v${NC} parameter."
+            10 ) echo -e "${MYSTERYCOLOR} -y value type: ${NC}" #TODO fix wording
+                echo "This parameter allows you to filter studies to use by the ethnicity "
+                echo "of the subjects used in the study. These correspond to those listed " 
+                echo "by the authors. A list can be printed from the corresponding menu option."
+                echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
+                echo "" ;;
+            11 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
+                echo -e "For a more detailed TSV result file, include the ${GREEN}-v${NC} flag."
                 echo "The verbose output file will include the following for each corresponding sample, study, and trait combination: "
                 echo ""
                 echo "    - reported trait"
@@ -278,40 +298,61 @@ learnAboutParameters () {
                 echo "If the output file is in JSON format, the results will, by default, be in verbose format."
                 echo -e "${LIGHTRED}**NOTE:${NC} There is no condensed version of JSON output."
                 echo "" ;;
-            11 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}"
+            12 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}" # fix wording
                 echo "Though a rare occurence, some studies have duplicates of the same SNP that differ by which"
                 echo "biological sex the p-value and odds ratio is associated with or SNPs that are not duplicated, "
                 echo "but are dependent on biological sex. The system default is to exclude sex dependent SNPs from calculations. " 
                 echo "You can include sex dependent associations by selecting either male (M) or female (F)."
                 echo "" ;;
-            12 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
+            13 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo -e "Either ${GREEN}-s 1${NC} or ${GREEN}-s 2${NC}"
                 echo "This parameter allows you to split up the running of the tool into two steps."
                 echo "The advantage of this is that the first step, which requires internet, can be"
                 echo "run separately from step 2, which does not require an internet connection."
                 echo "" ;;
-            13 ) echo -e "${MYSTERYCOLOR} -n number of subprocesses: ${NC}"
+            14 ) echo -e "${MYSTERYCOLOR} -n number of subprocesses: ${NC}"
                 echo "This parameter allows you to choose the number of processes used to run the tool."
                 echo "By default, the Python script will run the calculations using all available nodes."
                 echo "" ;;
-            14 ) echo -e "${MYSTERYCOLOR} -m omit *_studiesNotIncluded.txt: ${NC}"
-                echo -e "To omit the *_studiesNotIncluded.txt file, include the ${GREEN}-m${NC} parameter."
+            15 ) echo -e "${MYSTERYCOLOR} -m omit *_studiesNotIncluded.txt: ${NC}"
+                echo -e "To omit the *_studiesNotIncluded.txt file, include the ${GREEN}-m${NC} flag."
                 echo "The *_studiesNotIncluded.txt file details study and trait combinations that no scores were"
                 echo "calculated for, due to none of the study snps being present in the samples. "
                 echo "" ;;
-            15 ) echo -e "${MYSTERYCOLOR} -u tab separated GWAS data file path: ${NC}"
+            16 ) echo -e "${MYSTERYCOLOR} -u tab separated GWAS data file path: ${NC}"
                 echo "If you wish to calculate polygenic risk scores using your own GWAS data, use this"
                 echo "parameter to specifiy the GWAS data file path. It must be a tab separated file."
                 echo "For more information about file format, see the 'Learn about uploading GWAS data for calculations'"
                 echo "option from the main menu."
                 echo "" ;;
-            16 ) echo -e "${MYSTERYCOLOR} -a reference genome of uploaded GWAS data: ${NC}"
+            17 ) echo -e "${MYSTERYCOLOR} -a reference genome of uploaded GWAS data: ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
                 echo -e "in the GWAS data file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
                 echo "If a GWAS data file is specified without this reference genome being specified, we assume the"
                 echo "reference genome is the same as the one for the input VCF or TXT."
                 echo "" ;;
-            17 ) cont=0 ;;
+            18 ) echo -e "${MYSTERYCOLOR} -b beta values used for uploaded GWAS data: ${NC}"
+                echo "This flag indicates that beta coefficents were used in the uploaded GWAS data" 
+                echo "file instead of odds ratios. The beta values will first be converted to odds ratios and then"
+                echo "those values will be used to calculate polygenic risk scores."
+                echo "" ;;
+            19 ) echo -e "${MYSTERYCOLOR} -q minor allele frequency cohort: ${NC}"
+                echo "This parameter allows the user to select the cohort to use minor allele frequencies from and " 
+                echo "also indicates the cohort to use for reporting percentile rank. Available options are:"
+                echo -e "${GREEN}ukbb${NC} (UK Biobank, default)"
+                echo -e "${GREEN}adni-ad${NC} (ADNI Alzheimer's disease)"
+                echo -e "${GREEN}adni-mci${NC} (ADNI Mild cognitive impairment)"
+                echo -e "${GREEN}adni-cn${NC} (ADNI Cognitively normal)"
+                echo -e "${GREEN}afr${NC} (1000 Genomes African)"
+                echo -e "${GREEN}amr${NC} (1000 Genomes American)"
+                echo -e "${GREEN}eas${NC} (1000 Genomes East Asian)"
+                echo -e "${GREEN}eur${NC} (1000 Genomes European)"
+                echo -e "${GREEN}sas${NC} (1000 Genomes South Asian)"
+                echo ""
+                echo -e "To use the minor allele frequencies from the user vcf, use ${GREEN}-q user ${NC}."
+                echo "Note that this option will not report percentile rank."
+                echo "" ;;
+            20 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -341,9 +382,9 @@ searchTraitsAndStudies () {
                 if [[ "$searchTerm" = *"'"* ]]; then
                     searchTerm=${searchTerm//${sub}/${backslash}${sub}}
                 fi
-                echo "" # might need to do something to combine results with the same studyID?
-                echo -e "${LIGHTPURPLE}First Author and Year | GWAS Catalog Study ID | Reported Trait | Trait | Title${NC}"
-                if curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .title + "\n"'; then
+                echo "" 
+                echo -e "${LIGHTPURPLE}First Author and Year | GWAS Catalog Study ID | Reported Trait | Trait | Original Value Type | Title${NC}"
+                if curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .ogValueType + " | " + .title + "\n"'; then
                     echo ""
                 else 
                     jqError "STUDIES"
@@ -384,16 +425,20 @@ correctly formatted for calculations to occur. "
 include a header line with named columns. The required columns are: ${MYSTERYCOLOR}Study ID${NC}, \
 ${MYSTERYCOLOR}Trait${NC}, ${MYSTERYCOLOR}RsID${NC}, ${MYSTERYCOLOR}Chromosome${NC}, ${MYSTERYCOLOR}Position${NC}, \
 ${MYSTERYCOLOR}Risk Allele${NC}, ${MYSTERYCOLOR}Odds Ratio${NC}, and ${MYSTERYCOLOR}P-value${NC}. \
-Optional column headers that will be included if present are: ${MYSTERYCOLOR}Citation${NC} and \
-${MYSTERYCOLOR}Reported Trait${NC}. Column order does not matter and there may be extra columns \
-present in the file. Required and optional header names must be exact."
-    echo ""
-    echo "If more than one odds ratio exists for an RsID in a study/trait combination, the snp will be excluded."
+If the ${GREEN}-b${NC} flag is present, then instead of an ${MYSTERYCOLOR}Odds Ratio${NC} column, \
+the user should include a ${MYSTERYCOLOR}Beta Coefficient${NC} column and a ${MYSTERYCOLOR}Beta Unit${NC} column. \
+Optional column headers that will be included if present are: ${MYSTERYCOLOR}Citation${NC}, ${MYSTERYCOLOR}P-value Annotation${NC}, \
+${MYSTERYCOLOR}Beta Annotation${NC}, and ${MYSTERYCOLOR}Reported Trait${NC}. Column order does not matter and there may be extra columns \
+present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation \
+are present, then the calculator will separate calculations by those columns. If you do not wish for this to \
+happen, do not include those optional columns."
+    # echo ""
+    # echo "If more than one odds ratio exists for an RsID in a study/trait combination, the snp will be excluded."
     echo ""
     echo -e "${LIGHTRED}NOTE: If a GWAS data file is specified, risk scores will only be calculated on \
 that data. No association data from the PRSKB will be used. Additionally, the optional params \
 ${MYSTERYCOLOR}-t${LIGHTRED}, ${MYSTERYCOLOR}-k${LIGHTRED}, ${MYSTERYCOLOR}-i${LIGHTRED}, ${MYSTERYCOLOR}-e${LIGHTRED}, \
-and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
+${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}" #TODO double check that these are the only params that will be igonred
     echo ""
     echo "Choose a column header below to learn more about it or select 'Return To Main Menu'."
     echo ""
@@ -412,18 +457,23 @@ and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
         echo -e "| ${LIGHTPURPLE}5${NC} - Position                 |"
         echo -e "| ${LIGHTPURPLE}6${NC} - Risk Allele              |"
         echo -e "| ${LIGHTPURPLE}7${NC} - Odds Ratio               |"
-        echo -e "| ${LIGHTPURPLE}8${NC} - P-value                  |"
+        echo -e "| ${LIGHTPURPLE}8${NC} - Beta Coefficient         |"
+        echo -e "| ${LIGHTPURPLE}9${NC} - Beta Unit                |"
+        echo -e "| ${LIGHTPURPLE}10${NC} - P-value                 |"
         echo    "|                              |"
         echo -e "|${LIGHTPURPLE}OPTIONAL COLUMNS: ${NC}            |"
-        echo -e "| ${LIGHTPURPLE}9${NC} - Citation                 |"
-        echo -e "| ${LIGHTPURPLE}10${NC} - Reported Trait          |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - Citation                |"
+        echo -e "| ${LIGHTPURPLE}12${NC} - Reported Trait          |"
+        echo -e "| ${LIGHTPURPLE}13${NC} - P-Value Annotation      |" #TODO: We will need to include in our documentation that we separated for scores on pvalueannotation
+        echo -e "| ${LIGHTPURPLE}14${NC} - Beta Annotation         |" #TODO and beta annotation
         echo -e "|                              |"
-        echo -e "| ${LIGHTPURPLE}11${NC} - Return To Main Menu     |"
+        echo -e "| ${LIGHTPURPLE}15${NC} - Return To Main Menu     |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |"
 
         read -p "#? " option
         echo ""
 
+    #TODO update these options/numbers
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR} Study ID: ${NC}" 
                 echo "A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want."
@@ -446,16 +496,28 @@ and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
             7 ) echo -e "${MYSTERYCOLOR} Odds Ratio: ${NC}"
                 echo "Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest."
                 echo "" ;;
-            8 ) echo -e "${MYSTERYCOLOR} P-value: ${NC}"
+            8 ) echo -e "${MYSTERYCOLOR} Beta Coefficient: ${NC}" # TODO:!! explain what the Beta Coefficient is.
+                echo "Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest."
+                echo "" ;;
+            9 ) echo -e "${MYSTERYCOLOR} Beta Unit: ${NC}" #TODO: !! explain this
+                echo "STILL NEED TO EXPLAIN THIS"
+                echo "" ;;
+            10 ) echo -e "${MYSTERYCOLOR} P-value: ${NC}"
                 echo "The probability that the risk allele confers the amount of risk stated."
                 echo "" ;;
-            9 ) echo -e "${MYSTERYCOLOR} Citation: ${NC}"
+            11 ) echo -e "${MYSTERYCOLOR} Citation: ${NC}"
                 echo "The citation information for the study."
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} Reported Trait: ${NC}"
+            12 ) echo -e "${MYSTERYCOLOR} Reported Trait: ${NC}"
                 echo "Trait description for this study in the authors own words."
                 echo "" ;;
-            11 ) cont=0 ;;
+            13 ) echo -e "${MYSTERYCOLOR} P-Value Annotation: ${NC}" #TODO: !! explain this
+                echo "STILL NEED TO EXPLAIN THIS. "
+                echo "" ;;
+            14 ) echo -e "${MYSTERYCOLOR} Beta Annotation: ${NC}" #TODO: !! explain this
+                echo "STILL NEED TO EXPLAIN THIS. "
+                echo "" ;;
+            15 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -504,6 +566,8 @@ calculatePRS () {
     studyTypesForCalc=()
     studyIDsForCalc=()
     ethnicityForCalc=()
+    valueTypesForCalc=()
+    sexForCalc=()
     isCondensedFormat=1
     omitUnusedStudiesFile=0
 
@@ -535,7 +599,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:by:q:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -634,18 +698,15 @@ calculatePRS () {
             i)  studyIDsForCalc+=("$OPTARG");;
             e)  ethnicity="${OPTARG//$space/$underscore}"
                 ethnicityForCalc+=("$ethnicity");;
-            v)  isCondensedFormat=0
-                ;;
-            g)  if ! [ -z "$defaultSex" ]; then
-                    echo "Too many sexes requested for sex dependent associations at once."
+            v)  isCondensedFormat=0;;
+            g)  sex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $sex != 'f' ] && [ $sex != 'm' ] && [ $sex != 'female' ] && [ $sex != 'male' ] && [ $sex != 'e' ] && [ $sex != 'exclude']; then
+                    echo "Invalid argument for -g. Use a combination of f, m, female, male, or e or exclude "
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
-                fi
-                defaultSex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $defaultSex != 'f' ] && [ $defaultSex != 'm' ] && [ $defaultSex != 'female' ] && [ $defaultSex != 'male' ] ; then
-                    echo "Invalid argument for -g. Use f, m, female, or male."
-                    echo -e "${LIGHTRED}Quitting...${NC}"
-                    exit 1
+                else
+                    #todo maybe say somewhere that if exclude is there, we will exclude calculations that use sex specific snps and that will trump any other inputs for the param
+                    sexForCalc+=("$sex")
                 fi;;
             s)  if ! [ -z "$step" ]; then 
                     echo "Too many steps requested at once."
@@ -718,12 +779,36 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
+            b)  userGwasBeta=1
+                ;;
+            y)  valueType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if [ $valueType != 'beta' ] && [ $valueType != 'odds' ]; then
+                    echo "Invalid argument for -y. Use 'beta' and/or 'odds"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                else
+                    #todo maybe say somewhere that if exclude is there, we will exclude calculations that use sex specific snps and that will trump any other inputs for the param
+                    valueTypesForCalc+=("$valueType")
+                fi;;
+            q)  if ! [ -z "$maf" ]; then
+                    echo "Too many minor allele frequency cohorts given."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                maf=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if ! [[ "$maf" =~ ^adni-ad$|^adni-mci$|^adni-cn$|^ukbb$|^afr$|^amr$|^eas$|^eur$|^sas$|^user$ ]]; then
+                    echo -e "${LIGHTRED}$maf ${NC}should be adni-ad, adni-mci, adni-cn, ukbb, afr, amr, eas, eur, sas, or user"
+                    echo "The default when this parameter is not present is ukbb."
+                    echo "Check the value and try again."
+                    exit 1
+                fi;;
             [?])    usage
                     exit 1;;
         esac
     done
 
     # if missing a required parameter, show menu/usage option
+    #TODO: decide if we want to take out SuperPop from the required params
     if [ -z "$filename" ] || [ -z "$output" ] || [ -z "$cutoff" ] || [ -z "$refgen" ] || [ -z "$superPop" ]; then
         askToStartMenu
     fi
@@ -732,13 +817,13 @@ calculatePRS () {
     if [ -z "$step" ]; then
         step=0
     fi
-    # if no sex is specified, set to exclude
-    if [ -z "$defaultSex" ]; then
-        defaultSex="exclude"
-    fi
     # if no GWAS refgen is specified but a path to a gwas file is give, set GWASrefgen to the samples refgen
     if [ -z "${GWASrefgen}" ] && ! [ -z "${GWASfilename}" ]; then
         GWASrefgen=${refgen}
+    fi
+
+    if [ -z "${maf}" ]; then
+        maf='ukbb'
     fi
 
     # preps variables for passing to python script
@@ -746,13 +831,15 @@ calculatePRS () {
     export studyTypes=${studyTypesForCalc[@]}
     export studyIDs=${studyIDsForCalc[@]}
     export ethnicities=${ethnicityForCalc[@]}
+    export valueTypes=${valueTypesForCalc[@]}
+    export sexes=${sexForCalc[@]}
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
-    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${defaultSex}" | cut -f 1 -d ' ')
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${maf}" | cut -f 1 -d ' ')
     if ! [ -z ${GWASfilename} ]; then
-        fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}" | cut -f 1 -d ' ')
+        fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}${userGwasBeta}" | cut -f 1 -d ' ')
     fi
-    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${defaultSex}" | cut -f 1 -d ' ')
+    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
     # Create uniq ID for filtered file path
     TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
     
@@ -930,7 +1017,7 @@ calculatePRS () {
             # saves both to files
             # GWAS data --> GWASassociations_{fileHash}.txt
             # clumps --> {superPop}_clumps_{refGen}_{fileHash}.txt
-            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${fileHash}"; then
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${userGwasBeta}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${mafCohort}" "${fileHash}"; then
                 echo "Formatted GWAS data and retrieved clumping information from the PRSKB"
             else
                 echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
@@ -941,7 +1028,7 @@ calculatePRS () {
             # saves them to files
             # associations --> either allAssociations.txt OR associations_{fileHash}.txt
             # clumps --> {superPop}_clumps_{refGen}.txt OR {superPop}_clumps_{refGen}_{fileHash}.txt
-            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$superPop" "$fileHash" "$extension" "$defaultSex"; then
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "${ethnicities}" "${valueTypes}" "${sexes}" "$superPop" "$fileHash" "$extension" "${mafCohort}"; then
                 echo "Got SNPs and disease information from PRSKB"
                 echo "Got Clumping information from PRSKB"
             else
