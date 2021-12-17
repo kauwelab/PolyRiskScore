@@ -238,7 +238,7 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
  * @param {*} mafCohort 
  * @returns 
  */
-var getMafData = async (mafCohort, associationsObj) => {
+var getMafData = async (associationsObj, mafCohort, refGen) => {
     posMap = {}
 
     for (key in associationsObj) {
@@ -247,7 +247,7 @@ var getMafData = async (mafCohort, associationsObj) => {
             if (!(chromPos[0] in posMap)){
                 posMap[chromPos[0]] = []
             }
-            posMap[chromPos[0]].push(chromsPos[1])
+            posMap[chromPos[0]].push(chromPos[1])
         }
     }
 
@@ -256,18 +256,18 @@ var getMafData = async (mafCohort, associationsObj) => {
     chromosomes = Object.keys(posMap)
     if (chromosomes.length > 0) {
         for (chrom in posMap) {
-            returnedResults = Object.assign(await callMAFAPI(mafCohort, chrom, posMap[chrom]), returnedResults)
+            returnedResults = Object.assign(await callMAFAPI(mafCohort, chrom, posMap[chrom], refGen), returnedResults)
         }
     }
 
     return returnedResults
 }
 
-function callMAFAPI(mafCohort, chrom, snps){
+function callMAFAPI(mafCohort, chrom, pos, refGen){
     return Promise.resolve($.ajax({
         type: "POST",
         url: "/get_maf",
-        data: { cohort: mafCohort, chrom: chrom, snps: snps },
+        data: { cohort: mafCohort, chrom: chrom, pos: pos, refGen: refGen },
         success: async function (data) {
             return data;
         },
@@ -302,14 +302,17 @@ function changeGWASType() {
     var gwasType = document.querySelector('input[name="gwas_value_type"]:checked').value;
 
     if (gwasType === "or") {
-        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn" title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Odds&nbsp;Ratio<sup>?</sup></span>')
+        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn"><span title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Odds&nbsp;Ratio<sup>?</sup></span></span>')
+        $('#optionalPValAnno').replaceWith('<span id="optionalPValAnno" title="Annotation for P-values. Note that when this is present, calculations are split by p-value annotation."> P-Value&nbsp;Annotation<sup>?</sup>,</span>')
+        $('#optionalHeaderBeta').replaceWith('<span id="optionalHeaderBeta"></span>')
+
     }
     else {
         //todo update this description!!!!!
-        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn" title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Beta&nbsp;Coefficient<sup>?</sup></span>')
+        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn"><span title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Beta&nbsp;Coefficient<sup>?</sup></span>, <span id="ogValueTypeColumn" title="The units of the beta coefficient">Beta&nbsp;Units<sup>?</sup></span></span>')
+        $('#optionalPValAnno').replaceWith('<span id="optionalPValAnno" title="Annotation for P-values. Note that when this is present, calculations are split by p-value annotation and beta annotation."> P-Value&nbsp;Annotation<sup>?</sup>,</span>')
+        $('#optionalHeaderBeta').replaceWith('<span id="optionalHeaderBeta" title="Annotation for the Beta Coefficients. Note that when this is present, calculations are split by p-value annotation and beta annotation.">Beta&nbsp;Annotation<sup>?</sup>,</span>')
     }
-
-    //TODO add additional optional columns
 }
 
 //called in calculatePolyscore function
@@ -382,12 +385,6 @@ var calculatePolyScore = async () => {
     var mafCohort = mafElement.options[mafElement.selectedIndex].value;
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
 
-    //TODO: REMOVE THIS
-    if (gwasType == "Upload") {
-        alert("Uploading GWAS data is a feature that is coming, but not currently available. Please try using data from our curated database.")
-        return;
-    }
-
     //if the user doesn't specify a refgen, super pop, or default sex, prompt them to do so
     if (refGen == "default") {
         //TODO change to an alert instead
@@ -402,12 +399,8 @@ var calculatePolyScore = async () => {
         return;
     }
 
-    mafData = await getMafData(mafCohort);
-
     // if the user is uploading GWAS data, grab it and format it correctly
-    //todo update this for updated format
     if (gwasType == "Upload") {
-        //TODO add in MAF !!!!
         var gwasDataFile = document.getElementById("gwasFile").files[0];
         var gwasRefGenElement = document.getElementById("gwasRefGenome");
         var gwasRefGen = gwasRefGenElement.options[gwasRefGenElement.selectedIndex].value
@@ -424,7 +417,6 @@ var calculatePolyScore = async () => {
         updateResultBoxAndStoredValue("Calculating. Please wait...")
 
         associationData = await getGWASUploadData(gwasDataFile, gwasRefGen, refGen, gwasValueType)
-
     }
     else {
         var sexElement = document.getElementById("sex");
@@ -460,7 +452,7 @@ var calculatePolyScore = async () => {
     }
 
     clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
-    mafData = await getMafData(associationData['associations'], mafCohort)
+    mafData = (mafCohort == 'user' ? {} : await getMafData(associationData['associations'], mafCohort, refGen))
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
@@ -511,7 +503,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        handleCalculateScore(snpObjs, associationData, mafData, clumpsData, pValue, false);
+        handleCalculateScore(snpObjs, associationData, mafData, clumpsData, pValue, false, false);
     }
     else {
         //if text input is empty, return error
@@ -530,7 +522,7 @@ var calculatePolyScore = async () => {
                                                 
                 return;
             }
-            handleCalculateScore(vcfFile, associationData, mafData, clumpsData, pValue, true);
+            handleCalculateScore(vcfFile, associationData, mafData, clumpsData, pValue, true, (mafCohort == 'user' ? true : false));
         }
     }
 }
@@ -586,8 +578,8 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             pvi = cols.indexOf("p-value")
             cti = cols.indexOf("citation")
             rti = cols.indexOf("reported trait")
-            pvai = cols.indexOf('p-value annotation') //TODO add this to the optional columns 
-            bai = cols.indexOf('beta annotation') //TODO add this to the optional columns
+            pvai = cols.indexOf('p-value annotation')
+            bai = cols.indexOf('beta annotation')
 
             if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1) {
                 console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi)
@@ -597,6 +589,9 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
         }
         else {
             cols = fileLines[i].replace(/\n/,'').replace(/\r$/, '').split('\t')
+            const studyIDregex = /GCST[0-9]*/
+            //ensuring that the studyID doesn't have any weird characters at the end
+            cols[sii] = cols[sii].match(studyIDregex)[0]
             // create the chrom:pos to snp dict
             // if the chrom:pos not in the chromSnpDict
             if (!(`${cols[ci]}:${cols[pi]}` in chromSnpDict)) {
@@ -624,20 +619,20 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
 
             pValueAnnotation = (pvai != -1 ? cols[pvai] : "NA")
             betaAnnotation = (bai != -1 ? cols[bai] : "NA")
-            pvalBetaAnno = pValueAnnotation + "|" + betaAnnotation
-            if (!(pvalBetaAnno in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]])) {
-                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pvalBetaAnno] = {
+            pValBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + gwasValueType
+            if (!(pValBetaAnnoValType in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]])) {
+                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType] = {
                     riskAllele: cols[rai],
                     pValue: parseFloat(cols[pvi]),
                     sex: "NA",
                     ogValueTypes: gwasValueType,
                 }
                 if (gwasValueType == 'or') {
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValueAnnotation]['oddsRatio'] = parseFloat(cols[ori])
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType]['oddsRatio'] = parseFloat(cols[ori])
                 }
                 else {
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValueAnnotation]['betaValue'] = parseFloat(cols[bvi]),
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValueAnnotation]['betaUnit'] = cols[bui]
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType]['betaValue'] = parseFloat(cols[bvi]),
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType]['betaUnit'] = cols[bui]
                 }
             }
             else {
@@ -663,13 +658,13 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 // add the trait
                 studyIDsToMetaData[cols[sii]]["traits"][cols[ti]] = {
                     studyTypes: [],
-                    pValueAnnotations: (pvai != -1 ? [pValueAnnotation] : [""]), //TODO if there are pValueAnnotations, Add them
+                    pValBetaAnnoValType: [pValBetaAnnoValType],
                     superPopulations: []
                 }
             }
             else {
-                if (!(studyIDsToMetaData[cols[sii]]["traits"][cols[ti]]['pValueAnnotations'].includes(pValueAnnotation))) {
-                    studyIDsToMetaData[cols[sii]]["traits"][cols[ti]]['pValueAnnotations'].push(pValueAnnotation)
+                if (!(studyIDsToMetaData[cols[sii]]["traits"][cols[ti]]['pValBetaAnnoValType'].includes(pValBetaAnnoValType))) {
+                    studyIDsToMetaData[cols[sii]]["traits"][cols[ti]]['pValBetaAnnoValType'].push(pValBetaAnnoValType)
                 }
             }
         }
@@ -728,7 +723,7 @@ function resetOutput() { //todo maybe should add this to when the traits/studies
  * @param {*} isVCF 
  * @returns 
  */
-var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isVCF) => {
+var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isVCF, userMAF) => {
     //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
     var associMap = associationData['associations']
     
@@ -743,8 +738,8 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
             var reducedVCFLines = await getGreppedFileLines(vcfLines, associMap);
 
             //converts the vcf lines into an object that can be parsed
-            greppedSNPs = vcf_parser.getVCFObj(reducedVCFLines);
-            return [greppedSNPs, totalInputVariants]
+            greppedSNPsAndMAF = vcf_parser.getVCFObj(reducedVCFLines, userMAF);
+            return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], totalInputVariants]
         }
         catch (err) {
             updateResultBoxAndStoredValue(getErrorMessage(err));
@@ -761,7 +756,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
         }
         var greppedSNPs = new Map();
         greppedSNPs.set("TextInput", greppedSNPsList);
-        return [greppedSNPs, totalInputVariants]
+        return [greppedSNPs, {}, totalInputVariants]
     }
 }
 
@@ -774,10 +769,21 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsData, pValue, isVCF) => {
-    var greppedSNPsAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF)
-    var greppedSNPs = greppedSNPsAndtotalInputVariants[0]
-    var totalInputVariants = greppedSNPsAndtotalInputVariants[1]
+var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsData, pValue, isVCF, userMAF) => {
+    var greppedSNPsMAFAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF, userMAF)
+    var greppedSNPs = greppedSNPsMAFAndtotalInputVariants[0]
+    var userMAFData = greppedSNPsMAFAndtotalInputVariants[1]
+    var totalInputVariants = greppedSNPsMAFAndtotalInputVariants[2]
+    
+    if (!(Object.keys(userMAFData).length === 0) && userMAF) {
+        mafData = userMAFData
+    }
+    if (Object.keys(mafData).length === 0) {
+        //TODO LET THE USER KNOW THERE WAS AN ISSUE WITH MAF AND WE HAD TO EXIT
+        alert("There was an issue either retrieving or creating the MAF object. Please try again.")
+        return
+    }
+
     try {
         var result = await calculateScore(associationData, mafData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
@@ -1561,6 +1567,8 @@ function clickTextInput() {
         if (previousText.value !== "") {
             document.getElementById('input').value = previousText.value;
         }
+
+        $("#mafCohort option[value=user]").remove()
     }
 }
 
@@ -1586,6 +1594,13 @@ function clickFileUpload() {
         if (previousFileText.value !== "") {
             document.getElementById('input').value = previousFileText.value;
         }
+
+        var mafSelector = document.getElementById("mafCohort");
+        var opt = document.createElement('option');
+        var displayString = "User VCF maf";
+        opt.appendChild(document.createTextNode(displayString));
+        opt.value = "user";
+        mafSelector.appendChild(opt);
     }
 
 }

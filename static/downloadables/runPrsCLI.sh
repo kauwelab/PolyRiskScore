@@ -127,7 +127,8 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about uploading GWAS data for calculations' or the CLI readme)"
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file"
     echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user uploaded GWAS data uses beta coefficent values instead of odds ratios" 
-    echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used ex. -q adni-ad (see the menu to learn more about the cohorts available)" 
+    echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used ex. -q adni-ad (see the menu to learn more about the cohorts available)"
+    echo -e "   ${MYSTERYCOLOR}-l${NC} sample-wide LD clumping ex. -l" 
     echo ""
 }
 
@@ -202,8 +203,9 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}17${NC} - -a reference genome of GWAS data file                      |"
         echo -e "| ${LIGHTPURPLE}18${NC} - -b flag indicates beta values used for uploaded GWAS data  |"
         echo -e "| ${LIGHTPURPLE}19${NC} - -q minor allele frequency cohort                           |"
+        echo -e "| ${LIGHTPURPLE}20${NC} - -l sample-wide LD clumping                                 |"
         echo -e "|                                                                 |"
-        echo -e "| ${LIGHTPURPLE}20${NC} - Done                                                       |"
+        echo -e "| ${LIGHTPURPLE}21${NC} - Done                                                       |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         # gets the inputted number from the user
@@ -352,7 +354,17 @@ learnAboutParameters () {
                 echo -e "To use the minor allele frequencies from the user vcf, use ${GREEN}-q user ${NC}."
                 echo "Note that this option will not report percentile rank."
                 echo "" ;;
-            20 ) cont=0 ;;
+            20 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
+                echo "To perform linkage disequilbrium clumping on a sample-wide level, include the -l parameter." 
+                echo -e "By default, LD clumping is performed per individual, where only the variants that contain"
+                echo "the corresponding GWA study risk allele are included in the clumping algorithm."
+                echo "Individual-wide LD clumping is beneficial because it allows for a greater number of variants"
+                echo "to be included for each individual's polygenic risk score."
+                echo "In contrast, sample-wide LD clumping performs clumping on all variants that are shared between"
+                echo "the query data and the GWA study. Sample-wide LD clumping allows for sample-wide"
+                echo "PRS comparisons because each individual risk score is calculated using the same variants."
+                echo "" ;;
+            21 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -570,6 +582,7 @@ calculatePRS () {
     sexForCalc=()
     isCondensedFormat=1
     omitUnusedStudiesFile=0
+    isSampleClump=0
 
     single="'"
     escaped="\'"
@@ -599,7 +612,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:by:q:' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:l' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -779,8 +792,7 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
-            b)  userGwasBeta=1
-                ;;
+            b)  userGwasBeta=1 ;;
             y)  valueType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
                 if [ $valueType != 'beta' ] && [ $valueType != 'odds' ]; then
                     echo "Invalid argument for -y. Use 'beta' and/or 'odds"
@@ -802,6 +814,7 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
+            l)  isSampleClump=1;;
             [?])    usage
                     exit 1;;
         esac
@@ -1053,7 +1066,7 @@ calculatePRS () {
         if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
