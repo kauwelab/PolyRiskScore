@@ -5,8 +5,28 @@ exports.getMaf = (req, res) => {
     var cohort = req.body.cohort
     var chrom = req.body.chrom
     var pos = req.body.pos
+    var refGen = req.body.refGen
 
-    MAF.getMAF(cohort, chrom, pos, async (err, data) => {
+    MAF.getMAF(cohort, chrom, pos, refGen, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: `Error retrieving MAF: ${err}`
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            returnData = await formatMAFobj(data)
+            res.send(returnData);
+        }
+    });
+};
+
+exports.getAllMaf = (req, res) => {
+    var cohort = req.query.cohort
+    var chrom = req.query.chrom
+    var refGen = req.query.refGen
+
+    MAF.getAllMAF(cohort, chrom, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving MAF: ${err}`
