@@ -67,7 +67,7 @@ def main():
             complement = riskAllele.reverse_complement()
             if complement in possibleAlleles:
                 line[9] = str(complement)
-                strandFlipped.writable("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(rsID, riskAllele, complement, trait, pValAnno, betaAnno, ogValueType, studyID))
+                strandFlipped.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(rsID, riskAllele, complement, trait, pValAnno, betaAnno, ogValueType, studyID))
                 print("WE MADE A SWITCH", rsID, riskAllele, complement)
 
         content[i] = '\t'.join(line)
