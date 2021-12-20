@@ -238,7 +238,7 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
  * @param {*} mafCohort 
  * @returns 
  */
-var getMafData = async (mafCohort, associationsObj) => {
+var getMafData = async (associationsObj, mafCohort, refGen) => {
     posMap = {}
 
     for (key in associationsObj) {
@@ -247,7 +247,7 @@ var getMafData = async (mafCohort, associationsObj) => {
             if (!(chromPos[0] in posMap)){
                 posMap[chromPos[0]] = []
             }
-            posMap[chromPos[0]].push(chromsPos[1])
+            posMap[chromPos[0]].push(chromPos[1])
         }
     }
 
@@ -256,18 +256,18 @@ var getMafData = async (mafCohort, associationsObj) => {
     chromosomes = Object.keys(posMap)
     if (chromosomes.length > 0) {
         for (chrom in posMap) {
-            returnedResults = Object.assign(await callMAFAPI(mafCohort, chrom, posMap[chrom]), returnedResults)
+            returnedResults = Object.assign(await callMAFAPI(mafCohort, chrom, posMap[chrom], refGen), returnedResults)
         }
     }
 
     return returnedResults
 }
 
-function callMAFAPI(mafCohort, chrom, snps){
+function callMAFAPI(mafCohort, chrom, pos, refGen){
     return Promise.resolve($.ajax({
         type: "POST",
         url: "/get_maf",
-        data: { cohort: mafCohort, chrom: chrom, snps: snps },
+        data: { cohort: mafCohort, chrom: chrom, pos: pos, refGen: refGen },
         success: async function (data) {
             return data;
         },
@@ -452,7 +452,7 @@ var calculatePolyScore = async () => {
     }
 
     clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
-    mafData = await getMafData(associationData['associations'], mafCohort)
+    mafData = (mafCohort == 'user' ? {} : await getMafData(associationData['associations'], mafCohort, refGen))
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
@@ -503,7 +503,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        handleCalculateScore(snpObjs, associationData, mafData, clumpsData, pValue, false);
+        handleCalculateScore(snpObjs, associationData, mafData, clumpsData, pValue, false, false);
     }
     else {
         //if text input is empty, return error
@@ -522,7 +522,7 @@ var calculatePolyScore = async () => {
                                                 
                 return;
             }
-            handleCalculateScore(vcfFile, associationData, mafData, clumpsData, pValue, true);
+            handleCalculateScore(vcfFile, associationData, mafData, clumpsData, pValue, true, (mafCohort == 'user' ? true : false));
         }
     }
 }
@@ -723,7 +723,7 @@ function resetOutput() { //todo maybe should add this to when the traits/studies
  * @param {*} isVCF 
  * @returns 
  */
-var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isVCF) => {
+var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isVCF, userMAF) => {
     //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
     var associMap = associationData['associations']
     
@@ -738,8 +738,8 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
             var reducedVCFLines = await getGreppedFileLines(vcfLines, associMap);
 
             //converts the vcf lines into an object that can be parsed
-            greppedSNPs = vcf_parser.getVCFObj(reducedVCFLines);
-            return [greppedSNPs, totalInputVariants]
+            greppedSNPsAndMAF = vcf_parser.getVCFObj(reducedVCFLines, userMAF);
+            return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], totalInputVariants]
         }
         catch (err) {
             updateResultBoxAndStoredValue(getErrorMessage(err));
@@ -756,7 +756,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
         }
         var greppedSNPs = new Map();
         greppedSNPs.set("TextInput", greppedSNPsList);
-        return [greppedSNPs, totalInputVariants]
+        return [greppedSNPs, {}, totalInputVariants]
     }
 }
 
@@ -769,10 +769,21 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsData, pValue, isVCF) => {
-    var greppedSNPsAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF)
-    var greppedSNPs = greppedSNPsAndtotalInputVariants[0]
-    var totalInputVariants = greppedSNPsAndtotalInputVariants[1]
+var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsData, pValue, isVCF, userMAF) => {
+    var greppedSNPsMAFAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF, userMAF)
+    var greppedSNPs = greppedSNPsMAFAndtotalInputVariants[0]
+    var userMAFData = greppedSNPsMAFAndtotalInputVariants[1]
+    var totalInputVariants = greppedSNPsMAFAndtotalInputVariants[2]
+    
+    if (!(Object.keys(userMAFData).length === 0) && userMAF) {
+        mafData = userMAFData
+    }
+    if (Object.keys(mafData).length === 0) {
+        //TODO LET THE USER KNOW THERE WAS AN ISSUE WITH MAF AND WE HAD TO EXIT
+        alert("There was an issue either retrieving or creating the MAF object. Please try again.")
+        return
+    }
+
     try {
         var result = await calculateScore(associationData, mafData, clumpsData, greppedSNPs, pValue, totalInputVariants);
         try {
@@ -1556,6 +1567,8 @@ function clickTextInput() {
         if (previousText.value !== "") {
             document.getElementById('input').value = previousText.value;
         }
+
+        $("#mafCohort option[value=user]").remove()
     }
 }
 
@@ -1581,6 +1594,13 @@ function clickFileUpload() {
         if (previousFileText.value !== "") {
             document.getElementById('input').value = previousFileText.value;
         }
+
+        var mafSelector = document.getElementById("mafCohort");
+        var opt = document.createElement('option');
+        var displayString = "User VCF maf";
+        opt.appendChild(document.createTextNode(displayString));
+        opt.value = "user";
+        mafSelector.appendChild(opt);
     }
 
 }
