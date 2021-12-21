@@ -12,7 +12,7 @@ from uploadTablesToDatabase import checkTableExists, getConnection
 # where "password" is the password to the PRSKB database
 
 # gets the associationsObj from the all_associations endpoint
-def callAllAssociationsEndpoint(refGen, sex):
+def callAllAssociationsEndpoint(refGen):
     params = {
         'pValue': 1,
         'refGen': refGen,
