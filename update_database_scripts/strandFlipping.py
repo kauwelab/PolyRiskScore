@@ -53,7 +53,7 @@ def main():
     strandFlipped = open("flipped.tsv", fileView)
 
     for i in range(1,len(content)):
-        line = content[i].strip('\n').split('\t')
+        line = content[i].strip().split('\t')
         rsID = line[1]
         studyID = line[-1]
         trait = line[6]
@@ -75,7 +75,7 @@ def main():
     associFile.close()
     strandFlipped.close()
     associFile = open(associationTableFolderPath, 'w')
-    associFile.write(''.join(content))
+    associFile.write(''.join(content) + "\n")
     associFile.close()
 
     print("Finished strand flipping")
