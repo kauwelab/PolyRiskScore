@@ -50,8 +50,8 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
             clumpsData = getAllClumps(refGen, superPop)
         
-        if (checkForAllMAFFiles(mafCohort)):
-            mafPath = os.path.join(workingFilesPath, "{m}_maf.txt".format(m=mafCohort))
+        if (checkForAllMAFFiles(mafCohort, refGen)):
+            mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
             mafData = getAllMaf(mafCohort, refGen)
         
     # else get the associations using the given filters
@@ -367,14 +367,14 @@ def checkForAllClumps(pop, refGen):
     return dnldNewClumps
 
 
-def checkForAllMAFFiles(mafCohort):
+def checkForAllMAFFiles(mafCohort, refGen):
     dnldNewMaf = True
     # check to see if the workingFiles directory is there, if not make the directory
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
 
     # path to a file containing all maf for the cohort from the database
-    allMAFfile = os.path.join(workingFilesPath, "{0}_maf.txt".format(mafCohort))
+    allMAFfile = os.path.join(workingFilesPath, "{0}_maf_{1}.txt".format(mafCohort, refGen))
 
     # if the path exists, check if we don't need to download a new one
     if os.path.exists(allMAFfile):
