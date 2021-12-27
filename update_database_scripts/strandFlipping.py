@@ -53,7 +53,7 @@ def main():
     strandFlipped = open("flipped.tsv", fileView)
 
     for i in range(1,len(content)):
-        line = content[i].strip('\n').split('\t')
+        line = content[i].strip().split('\t')
         rsID = line[1]
         studyID = line[-1]
         trait = line[6]
@@ -67,7 +67,7 @@ def main():
             complement = riskAllele.reverse_complement()
             if complement in possibleAlleles:
                 line[9] = str(complement)
-                strandFlipped.writable("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(rsID, riskAllele, complement, trait, pValAnno, betaAnno, ogValueType, studyID))
+                strandFlipped.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(rsID, riskAllele, complement, trait, pValAnno, betaAnno, ogValueType, studyID))
                 print("WE MADE A SWITCH", rsID, riskAllele, complement)
 
         content[i] = '\t'.join(line)
@@ -75,7 +75,7 @@ def main():
     associFile.close()
     strandFlipped.close()
     associFile = open(associationTableFolderPath, 'w')
-    associFile.write(''.join(content))
+    associFile.write(''.join(content) + "\n")
     associFile.close()
 
     print("Finished strand flipping")
