@@ -83,7 +83,7 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
             }
             console.log(`Got ${res.length} studies with associations from table`)
             console.log("Getting the metaData associated with the studies") 
-            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, ogValueTypes, `+
+            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, ogValueTypes, sex, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, `+
              `IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, `+
@@ -122,7 +122,7 @@ Association.getAll = (refGen, result) => {
 
             console.log("associations (first): ", res[0]);
 
-            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, "+
+            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, ogValueTypes, sex,"+
              "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, "+
              "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, "+
              "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, "+
