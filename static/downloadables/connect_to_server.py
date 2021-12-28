@@ -21,6 +21,8 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         traits = [sub.replace('_', ' ').replace("\\'", "\'") for sub in traits]
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
+    sexes = sexes.split(" ") if sexes != "" else None
+    valueTypes = valueTypes.split(" ") if valueTypes != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
     if (ethnicity is not None):
@@ -37,7 +39,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         os.mkdir(workingFilesPath)
 
     # if the user didn't give anything to filter by, get all the associations
-    if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
+    if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None and sexes is None and valueTypes is None):
         # if we need to download a new all associations file, write to file
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(workingFilesPath, associFileName)
@@ -106,8 +108,12 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
 
 
 # format the uploaded GWAS data and get the clumps from the server
-def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGen, refGen, superPop, mafCohort, fileHash):
+def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGen, refGen, superPop, mafCohort, fileHash, extension):
     checkInternetConnection()
+
+    # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
+    if extension == '.txt' and mafCohort == 'user':
+        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must have uploaded a vcf. Please select a different maf cohort option. \n\n')
 
     GWASfileOpen = openFileForParsing(GWASfile, True)
 
@@ -275,6 +281,11 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     # get clumps using the refGen and superpopulation
     clumpsData = getClumps(refGen, superPop, chromPos)
 
+    #get maf data using the refgen and mafcohort
+    fileName = "{m}_maf_{ahash}.txt".format(n=mafCohort, ahash=fileHash)
+    mafPath = os.path.join(workingFilesPath, fileName)
+    mafData = getMaf(mafCohort, refGen, chromPos)
+
     # get the study:snps info
     fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
     studySnpsPath = os.path.join(workingFilesPath, fileName)
@@ -289,6 +300,11 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     if 'clumpsData' in locals():
         f = open(clumpsPath, 'w', encoding="utf-8")
         f.write(json.dumps(clumpsData))
+        f.close()
+
+    if 'mafData' in locals():
+        f = open(mafPath, 'w', encoding='utf-8')
+        f.write(json.dumps(mafData))
         f.close()
 
     # check to see if studySnpsDat is instantiated in the local variables
@@ -393,9 +409,9 @@ def checkForAllMAFFiles(mafCohort, refGen):
         fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
         # if the file is newer than the database update, we don't need to download a new file
         if (lastMafUpdate <= fileModDate):
-            dnldNewClumps = False
+            dnldNewMaf = False
 
-    return dnldNewClumps
+    return dnldNewMaf
 
 
 # gets associations obj download from the Server
@@ -589,7 +605,9 @@ def getClumps(refGen, superPop, snpsFromAssociations):
 
 # get maf using the maf cohort
 def getMaf(mafCohort, refGen, snpsFromAssociations):
+    # if the cohort is user, return empty, we will use the user maf
     if (mafCohort == 'user'): return {}
+
     body = {
         "cohort": mafCohort,
         "refGen": refGen
