@@ -70,12 +70,12 @@ def main():
                 strandFlipped.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(rsID, riskAllele, complement, trait, pValAnno, betaAnno, ogValueType, studyID))
                 print("WE MADE A SWITCH", rsID, riskAllele, complement)
 
-        content[i] = '\t'.join(line)
+        content[i] = '\t'.join(line) + "\n"
 
     associFile.close()
     strandFlipped.close()
     associFile = open(associationTableFolderPath, 'w')
-    associFile.write(''.join(content) + "\n")
+    associFile.write(''.join(content))
     associFile.close()
 
     print("Finished strand flipping")
