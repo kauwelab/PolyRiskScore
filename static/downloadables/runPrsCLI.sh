@@ -127,7 +127,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about uploading GWAS data for calculations' or the CLI readme)"
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file"
     echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user uploaded GWAS data uses beta coefficent values instead of odds ratios" 
-    echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used ex. -q adni-ad (see the menu to learn more about the cohorts available)"
+    echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used (also is the cohort used for reporting percentiles) ex. -q adni-ad (see the menu to learn more about the cohorts available)"
     echo -e "   ${MYSTERYCOLOR}-l${NC} sample-wide LD clumping ex. -l" 
     echo ""
 }
@@ -339,7 +339,7 @@ learnAboutParameters () {
                 echo "those values will be used to calculate polygenic risk scores."
                 echo "" ;;
             19 ) echo -e "${MYSTERYCOLOR} -q minor allele frequency cohort: ${NC}"
-                echo "This parameter allows the user to select the cohort to use minor allele frequencies from and " 
+                echo "This parameter allows the user to select the cohort to use for minor allele frequencies and " 
                 echo "also indicates the cohort to use for reporting percentile rank. Available options are:"
                 echo -e "${GREEN}ukbb${NC} (UK Biobank, default)"
                 echo -e "${GREEN}adni-ad${NC} (ADNI Alzheimer's disease)"
@@ -1063,10 +1063,10 @@ calculatePRS () {
         fi
 
         # filter the input file so that it only includes the lines with variants that match the given filters
-        if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
+        if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "${sexes}" "${valueTypes}" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "$defaultSex" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
