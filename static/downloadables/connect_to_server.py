@@ -97,6 +97,8 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f = open(mafPath, 'w', encoding="utf-8")
         f.write(json.dumps(mafData))
         f.close()
+    elif mafCohort != 'user':
+        raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
 
     # check to see if studySnpsData is instantiated in the local variables
     if 'studySnpsData' in locals():
