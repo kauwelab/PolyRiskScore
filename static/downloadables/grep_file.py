@@ -29,7 +29,7 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
     # create a new filtered file that only includes associations in the user-specified studies
     if isRSids:
-        clumpNumDict = filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff) #TODO HERE!! working on this part/looking at this function (12/27)
+        clumpNumDict = filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff)
     else:
         clumpNumDict = filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff)
 
