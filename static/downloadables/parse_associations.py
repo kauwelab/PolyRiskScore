@@ -1,6 +1,7 @@
 from multiprocessing import Pool
 from io import StringIO
 import json
+from Bio.Seq import reverse_complement
 import vcf
 import calculate_score as cs
 import sys
@@ -15,30 +16,33 @@ def parseAndCalculateFiles(params):
     tableObjDict  = params[2]
     snpSet = params[3]
     clumpNumDict = params[4]
-    pValue = params[5]
-    trait = params[6]
-    study = params[7]
-    isJson = params[8]
-    isCondensedFormat = params[9]
-    omitUnusedStudiesFile = params[10]
-    outputFilePath = params[11]
-    isRSids = params[12]
-    timestamp = params[13]
-    isSampleClump = params[14]
+    mafDict = params[5]
+    pValue = params[6]
+    trait = params[7]
+    study = params[8]
+    pValueAnno = params[9]
+    betaAnnotation = params[10]
+    valueType = params[11]
+    isJson = params[12]
+    isCondensedFormat = params[13]
+    omitUnusedStudiesFile = params[14]
+    outputFilePath = params[15]
+    isRSids = params[16]
+    timestamp = params[17]
+    isSampleClump = params[18]
 
     # check if the input file is a txt or vcf file
     # parse the file to get the necessary genotype information for each sample and then run the calculations
     if isRSids: 
-        txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp)
-        cs.calculateScore(snpSet, txtObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, snpCount, isRSids, None)
+        txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp)
+        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, omitUnusedStudiesFile, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, None)
     else:
-        vcfObj, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, timestamp, isSampleClump)
-        cs.calculateScore(snpSet, vcfObj, tableObjDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, snpCount, isRSids, sample_order)
-
+        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump)
+        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, sample_order)
     return
 
 
-def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRSids, timestamp, useGWASupload):
+def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload):
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
@@ -47,17 +51,20 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRS
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
+        mafCohort = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
-        associFileName = "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=sex[0]) if sex[0] != "e" else "allAssociations_{refGen}.txt".format(refGen=refGen)
+        associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = superPop, r = refGen))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
+        mafCohort = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
     else:
         associationsPath = specificAssociPath
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r = refGen, ahash = fileHash))
+        mafCohort = os.path.join(basePath, "{m}_maf_{ahash}}.txt".format(m=mafCohort, ahash=fileHash))
 
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
 
@@ -71,118 +78,38 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, sex, isRS
             clumpNumDict = json.load(clumpNumFile)
         with open(studySnpsPath, 'r') as studySnpsFile:
             studySnpsDict = json.load(studySnpsFile)
+        with open(mafCohort, 'r') as mafFile:
+            mafDict = json.load(mafFile)
     
     except FileNotFoundError:
         raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}\n{3}".format(associationsPath, clumpsPath, clumpNumPath, studySnpsPath))
 
-    return tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, filteredInputPath
+    return tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, filteredInputPath
 
 
 def formatAndReturnGenotype(genotype, REF, ALT):
     try:
-    	# read and interpret the genotype column from the VCF
-	# if the genotype is not completely null
+        # read and interpret the genotype column from the VCF
+        # if the genotype is not completely null
         if genotype != "./." and genotype != ".|." and genotype !=".." and genotype != '.':
-            count = 0
             alleles = []
             if "|" in genotype:
                 gt_nums = genotype.split('|')
-                if gt_nums[0] == ".":
-                    count = 1
-                elif gt_nums[1] == ".":
-                    count = 2
-                if count == 0:
-                    if gt_nums[0] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[0]) - 1
-                        alleles.append(ALT[gt_num])
-                    if gt_nums[1] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[1]) - 1
-                        alleles.append(ALT[gt_num])
-                elif count == 1:
-                    alleles.append("")
-                    if gt_nums[1] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[1]) - 1
-                        alleles.append(ALT[gt_num])
-                elif count == 2:
-                    if gt_nums[0] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[0]) - 1
-                        alleles.append(ALT[gt_num])
-                    alleles.append("")
-                    
             elif "/" in genotype:
                 gt_nums = genotype.split('/')
-                if gt_nums[0] == ".":
-                    count = 1
-                elif gt_nums[1] == ".":
-                    count = 2
-                if count == 0:
-                    if gt_nums[0] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[0]) - 1
-                        alleles.append(ALT[gt_num])
-                    if gt_nums[1] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[1]) - 1
-                        alleles.append(ALT[gt_num])
-                elif count == 1:
-                    alleles.append("")
-                    if gt_nums[1] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[1]) - 1
-                        alleles.append(ALT[gt_num])
-                elif count == 2:
-                    if gt_nums[0] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[0]) - 1
-                        alleles.append(ALT[gt_num])
-                    alleles.append("")
-
             else:
                 gt_nums = list(genotype)
-                if gt_nums[0] == ".":
-                    count = 1
-                elif gt_nums[1] == ".":
-                    count = 2
-                if count == 0:
-                    if gt_nums[0] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[0]) - 1
-                        alleles.append(ALT[gt_num])
-                    if gt_nums[1] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[1]) - 1
-                        alleles.append(ALT[gt_num])
-                elif count == 1:
-                    alleles.append("")
-                    if gt_nums[1] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[1]) - 1
-                        alleles.append(ALT[gt_num])
-                elif count == 2:
-                    if gt_nums[0] == '0':
-                        alleles.append(REF)
-                    else:
-                        gt_num = int(gt_nums[0]) - 1
-                        alleles.append(ALT[gt_num])
-                    alleles.append("")
-                
+
+            for alleleNum in gt_nums:
+                if alleleNum == '0':
+                    alleles.append(REF)
+                elif alleleNum == '.':
+                    alleles.append('.')
+                else:
+                    gt_num = int(alleleNum) - 1
+                    alleles.append(ALT[gt_num])
         else:
-            alleles = ""
+            alleles = [".", "."]
 
     except ValueError:
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
@@ -190,7 +117,7 @@ def formatAndReturnGenotype(genotype, REF, ALT):
     return alleles
 
 
-def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, timestamp):
+def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp):
     # keep track of the number of snps from the study found in the input file
     snpCount = 0
     #create set to hold  the lines with a snp in this study
@@ -236,7 +163,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
     if snpCount == 0:
         unusedTraitStudy = True
-        return sample_map, clumpedVariants, unmatchedAlleleVariants,unusedTraitStudy, snpCount  
+        return sample_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount  
     else:
         unusedTraitStudy = False
 
@@ -244,16 +171,17 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     for snp in studyLines:
         alleles = studyLines[snp]
         if alleles != [] and snp != "":
+            pValBetaAnnoValType = [pValueAnno, betaAnnotation, valueType].join("|")
             # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this snp
             # this is necessary due to excluded snps
-            if trait in tableObjDict['associations'][snp]['traits'] and study in tableObjDict['associations'][snp]['traits'][trait]:
+            if trait in tableObjDict['associations'][snp]['traits'] and study in tableObjDict['associations'][snp]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][snp]['traits'][trait][study]:
                 # grab the corresponding pvalue and risk allele
-                pValue = tableObjDict['associations'][snp]['traits'][trait][study]['pValue']
-                riskAllele = tableObjDict['associations'][snp]['traits'][trait][study]['riskAllele']
+                pValue = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+                riskAllele = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['riskAllele']
 
+                # not going to do strand flipping for txt files/snp input from user
                 #compare the pvalue to the threshold
                 if pValue <= float(p_cutOff):
-
                     if riskAllele in alleles:
                         # Check to see if the snp position from this line in the file exists in the clump table
                         if snp in clumpsObjDict:
@@ -266,7 +194,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                 # If this snp is in LD with any other snps, check whether the existing index snp or current snp have a lower pvalue 
                                 if clumpNum in index_snp_map:
                                     index_snp, index_alleles = index_snp_map[clumpNum]
-                                    index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
+                                    index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
 
                                     if pValue < index_pvalue:
                                         index_snp_map[clumpNum] = snp, alleles
@@ -296,11 +224,15 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     return final_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount
 
 
-def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, timestamp, isSampleClump):
+def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump):
     # variable to keep track of the number of samples in the input file
     sampleNum=0
     # variable to keep track of the number of snps in the study found in the input file
     snpCount = 0
+    createMaf = False
+
+    if mafDict is None:
+        createMaf = True
 
     # loop through the input file and once you get to the CHROM line, count the samples and break
     with open(filteredFilePath, 'r') as f:
@@ -406,16 +338,34 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
             # check to see if the snp is in this particular trait/study
             if rsID in snpSet:
+                pValBetaAnnoValType = [pValueAnno, betaAnnotation, valueType].join("|")
                 # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this rsID
                 # this is necessary due to excluded snps
-                if trait in tableObjDict['associations'][rsID]['traits'] and study in tableObjDict['associations'][rsID]['traits'][trait]:
+                if trait in tableObjDict['associations'][rsID]['traits'] and study in tableObjDict['associations'][rsID]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
                     snpCount += 1
                     ALT = record.ALT
                     REF = record.REF 
 
+                    # if we need to create the maf, do it here
+                    if createMaf:
+                        lineInfo = record.INFO["AF"]
+                        if rsID not in mafDict:
+                            mafDict[rsID] = {
+                                "chrom": record.CHROM,
+                                "pos": record.POS,
+                                "alleles": {}
+                            }
+                        for i in len(ALT):
+                            allele = ALT[i]
+                            if allele not in mafDict[rsID]["alleles"]:
+                                mafDict[rsID]["alleles"][allele] = lineInfo[i]
+
+                        if REF not in mafDict[rsID]["alleles"]:
+                            mafDict[rsID]["alleles"][REF] = 1 - sum(lineInfo)
+
                     #grab the corresponding pvalue and risk allele
-                    pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
-                    riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study]['riskAllele']
+                    pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+                    riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['riskAllele']
 
                     # compare the pvalue to the pvalue cutoff
                     if pValue <= float(p_cutOff):
@@ -424,11 +374,13 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             sample = call.sample
                             genotype = record.genotype(sample)['GT']
                             alleles = formatAndReturnGenotype(genotype, REF, ALT)
+                            complements = takeComplement(alleles, REF, ALT)
 
                             # Grab or create maps that hold sets of unused variants for this sample
                             clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
                             unmatchedAlleleVariants = neutral_snps_map[sample] if sample in neutral_snps_map else set()
-                            atRisk = True if riskAllele in alleles else False
+
+                            atRisk = True if riskAllele in alleles or (complements is not None and riskAllele in complements) else False
                             if atRisk:
                                 # keep track of whether this sample has any viable snps for this study
                                 if sample in no_viable_snp_counter:
@@ -446,35 +398,35 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                             # if the clump number for this snp position and study/name is already in the index map, move forward
                                             if clumpNum in index_snp_map[sample]:
                                                 index_snp, index_alleles = index_snp_map[sample][clumpNum]
-                                                index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
+                                                index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
 
                                                 # Check whether the existing index snp or current snp have a lower pvalue for this study
                                                 # and switch out the data accordingly
                                                 if pValue < index_pvalue:
-                                                    index_snp_map[sample][clumpNum] = rsID, alleles
+                                                    index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
                                                     clumpedVariants.add(index_snp)
                                                 else:
                                                     if index_alleles == "" and not isSampleClump:
-                                                        index_snp_map[sample][clumpNum] = rsID, alleles
+                                                        index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
                                                         clumpedVariants.add(index_snp)
                                                     else:
                                                         clumpedVariants.add(rsID)
                                             else:
                                                 # Since the clump number for this snp position and study/name
                                                 # doesn't already exist, add it to the index map and the sample map
-                                                index_snp_map[sample][clumpNum] = rsID, alleles
+                                                index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
                                         else:
                                             # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
-                                            index_snp_map[sample][clumpNum] = rsID, alleles
+                                            index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
                                     # the variant is the only one in the ld clump
                                     else:
-                                        sample_map[sample][rsID] = alleles
+                                        sample_map[sample][rsID] = alleles if complements is None else complements
                                 # the variant isn't in the clump tables
                                 else:
-                                    sample_map[sample][rsID] = alleles
+                                    sample_map[sample][rsID] = alleles if complements is None else complements
 
-			    # the user requested early clumping so that sample-wide comparisons can be made
-			    # as such, clumping will be performed on all variants in the filtered file
+                            # the user requested early clumping so that sample-wide comparisons can be made
+                            # as such, clumping will be performed on all variants in the filtered file
                             elif isSampleClump:
                                 if rsID in clumpsObjDict:
                                     # Grab the clump number associated with this study and snp position
@@ -487,22 +439,22 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                             # if the clump number for this snp position and study/name is already in the index map, move forward
                                             if clumpNum in index_snp_map[sample]:
                                                 index_snp, index_alleles = index_snp_map[sample][clumpNum]
-                                                index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study]['pValue']
+                                                index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
 
                                                 # Check whether the existing index snp or current snp have a lower pvalue for this study
                                                 # and switch out the data accordingly
                                                 if pValue < index_pvalue:
-                                                    index_snp_map[sample][clumpNum] = rsID, alleles
+                                                    index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
                                                     clumpedVariants.add(index_snp)
                                                 else:
                                                     clumpedVariants.add(rsID)
                                             else:
                                                 # Since the clump number for this snp position and study/name
                                                 # doesn't already exist, add it to the index map and the sample map
-                                                index_snp_map[sample][clumpNum] = rsID, alleles
+                                                index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
                                         else:
                                             # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
-                                            index_snp_map[sample][clumpNum] = rsID, alleles
+                                            index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
 
                             # the sample's alleles don't include the risk allele and early clumping is not requested
                             else:
@@ -537,7 +489,19 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         if os.path.exists(tempFilePath):
             os.remove(tempFilePath)
 
-    return final_map, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder, snpCount
+    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder, snpCount
+
+
+def takeComplement(alleles, REF, ALT):
+    possibleAlleles = [REF] + ALT
+    complements = [reverse_complement(x) for x in alleles]
+
+    # just trying to make sure we are as accurate as possible in our strand flipping --
+    # if all the complements are in the possible alleles and none of the original alleles are in the possible alleles, then flip it
+    if (all(x in possibleAlleles for x in complements) and not all(x in possibleAlleles for x in alleles)):
+        return complements
+    else:
+        return None
 
 
 def getSamples(inputFilePath, header):
@@ -547,7 +511,8 @@ def getSamples(inputFilePath, header):
     header.extend(samples)
     return header
 
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, defaultSex, pValue, extension, outputFilePath, outputType, isCondensedFormat, omitUnusedStudiesFile, timestamp, num_processes, isSampleClump, useGWASupload):
+
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, extension, outputFilePath, outputType, isCondensedFormat, omitUnusedStudiesFile, timestamp, num_processes, isSampleClump, useGWASupload):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -558,7 +523,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
 
     # Access the downloaded files and paths
-    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, refGen, defaultSex, isRSids, timestamp, useGWASupload)
+    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload)
     
     # Determine whether the output format is condensed and either json or tsv
     if outputType == '.json':
@@ -581,10 +546,9 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     if isJson: #json and verbose
         # we need to run through one iteration here so that we know the first json result has the opening list bracket
         key = next(iter(studySnpsDict))
-        trait = key.split("|")[0]
-        study = key.split("|")[1]
+        trait, study, pValueAnno, betaAnnotation, valueType = key.split("|")
         snpSet = studySnpsDict[key]
-        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump)
+        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump)
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
@@ -595,29 +559,28 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to write out the header depending on the output type
         header = []
         if isCondensedFormat and isRSids: # condensed and txt input
-            header = ['Study ID', 'Citation', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Units (if applicable)', 'Polygenic Risk Score']
         elif isCondensedFormat: # condensed and vcf input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Units (if applicable)']
             # loop through each sample and add to the header
             header = getSamples(filteredInputPath, header)
         elif not isCondensedFormat  and isRSids: # verbose and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD'] #TODO circle back to update these headers
         else: # verbose and vcf input
-            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)
         if not omitUnusedStudiesFile:
             cs.printUnusedTraitStudyPairs(None, None, outputFilePath, True)
 
     # we create params for each study so that we can run them on separate processes
     for keyString in studySnpsDict:
-        trait = keyString.split('|')[0]
-        study = keyString.split('|')[1]
+        trait, study, pValueAnno, betaAnnotation, valueType = keyString.split('|')
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
