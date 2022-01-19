@@ -69,7 +69,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
 
     try:
-	# open the files that were previously created
+        # open the files that were previously created
         with open(associationsPath, 'r') as tableObjFile:
             tableObjDict = json.load(tableObjFile)
         with open(clumpsPath, 'r') as clumpsObjFile:
