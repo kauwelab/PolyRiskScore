@@ -546,7 +546,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     if isJson: #json and verbose
         # we need to run through one iteration here so that we know the first json result has the opening list bracket
         key = next(iter(studySnpsDict))
-        trait, study, pValueAnno, betaAnnotation, valueType = key.split("|")
+        trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
         snpSet = studySnpsDict[key]
         params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump)
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
@@ -574,7 +574,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
     # we create params for each study so that we can run them on separate processes
     for keyString in studySnpsDict:
-        trait, study, pValueAnno, betaAnnotation, valueType = keyString.split('|')
+        trait, pValueAnno, betaAnnotation, valueType, study = keyString.split('|')
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
         paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
