@@ -40,6 +40,26 @@ exports.getAllMaf = (req, res) => {
     });
 };
 
+exports.getDownloadMaf = (req, res) => {
+    refGen = req.query.refGen
+    cohort = req.query.cohort
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `${cohort}_maf_${refGen}.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
+}
+
 async function formatMAFobj(data) {
     MAF_obj = {}
     for (i=0; i<data.length; i++) {
