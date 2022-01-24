@@ -80,7 +80,7 @@ def formatClumps(clumpsUnformatted):
 
 
     # grab MAF data from the database to put into a txt file for download
-def getMAF(tablePrefix, config, snps):
+def getMAF(tablePrefix, config): #, snps):
 
     connection = getConnection(config)
 
@@ -89,7 +89,7 @@ def getMAF(tablePrefix, config, snps):
         tableName = tablePrefix + "_chr{i}".format_map(i=i)
         if (checkTableExists(connection.cursor(), tableName)):
             cursor = connection.cursor()
-            sql = "SELECT * FROM {table} WHERE snp in ${snps}; ".format(tablePrefix, snps)
+            sql = "SELECT * FROM {table} WHERE snp != 'None'; ".format(tablePrefix) #, snps)
             cursor.execute(sql)
             returnedMaf = cursor.fetchall()
             cursor.close()
@@ -189,24 +189,26 @@ def createMAFDownloadFiles(params):
         'auth_plugin': 'mysql_native_password',
     }
 
-    # get viable snps to pass to the getMAF function
-    # we grab these so that we can make sure we only have maf for snps in our database
-    connection = getConnection(config)
-    snps={}
-    if (checkTableExists(connection.cursor(), "associations_table")):
-        cursor = connection.cursor()
-        sql = "SELECT DISTINCT snp from associations_table; "
-        cursor.execute(sql)
-        viableSnps = cursor.fetchall()
-        cursor.close()
-        for snp in viableSnps:
-            snps.add(snp)
-        snps = ", ".join(list(snps))
+    # This would be a good thing to do, but currently we just filter the snps by whether the have an rsID
+    # # get viable snps to pass to the getMAF function
+    # # we grab these so that we can make sure we only have maf for snps in our database
+    # # connection = getConnection(config)
+    # # snps={}
+    # # if (checkTableExists(connection.cursor(), "associations_table")):
+    # #     cursor = connection.cursor()
+    # #     sql = "SELECT DISTINCT snp from associations_table; "
+    # #     cursor.execute(sql)
+    # #     viableSnps = cursor.fetchall()
+    # #     cursor.close()
+    # #     for snp in viableSnps:
+    # #         snps.add(snp)
+    # #     snps = ", ".join(list(snps))
 
-    else:
-        raise NameError('Table does not exist in database: associations_table')
+    # # else:
+    # #     raise NameError('Table does not exist in database: associations_table')
 
-    unformattedMaf = getMAF(tablePrefix, config, snps)
+    # unformattedMaf = getMAF(tablePrefix, config, snps)
+    unformattedMaf = getMAF(tablePrefix, config)
     mafhg17, mafhg18, mafhg19, mafhg38 = formatMAF(unformattedMaf)
 
     hg17 = open(os.path.join(generalFilePath, "{tablePrefix}_hg17.txt".format(tablePrefix=tablePrefix)), "w")
