@@ -75,7 +75,7 @@ def main():
     connection.close()
 
     tableColumns = "( ID int AUTO_INCREMENT PRIMARY KEY, chrom tinyint, pos int unsigned, snp varchar(50), allele text, alleleFrequency double )"
-    tableColumnsWOid = "( chrom, pos, snp, allele, alleleFrequency )"
+    tableColumnsWOid = "( chrom, hg38, hg19, hg18, hg17, snp, allele, alleleFrequency )"
 
     # create the cohort tables
     # then fill them
