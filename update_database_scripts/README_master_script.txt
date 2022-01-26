@@ -87,4 +87,8 @@ createServerAssociAndClumpsFiles.py- A Python script that generates association 
 
 gitPush.sh- A shell script running "except" instead of bash that pushes the currently committed files to GitHub. It uses "except" to automatically input the 
     user name and password for GitHub when they are requested.
-    
+
+hg38ToHg19.over.chain, hg19ToHg38.over.chain, hg19ToHg18.over.chain, hg19ToHg17.over.chain- Four chain files used by liftover to convert genomic positions
+    from different reference genomes in the unpackDatabaseCommandLine.R script. The files were downloaded from the following two websites:
+    http://hgdownload.cse.ucsc.edu/goldenpath/hg38/liftOver/
+    https://hgdownload.cse.ucsc.edu/goldenpath/hg19/liftOver/
