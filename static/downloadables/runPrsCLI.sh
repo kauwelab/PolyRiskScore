@@ -802,14 +802,14 @@ calculatePRS () {
                     #todo maybe say somewhere that if exclude is there, we will exclude calculations that use sex specific snps and that will trump any other inputs for the param
                     valueTypesForCalc+=("$valueType")
                 fi;;
-            q)  if ! [ -z "$maf" ]; then
+            q)  if ! [ -z "$mafCohort" ]; then
                     echo "Too many minor allele frequency cohorts given."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                maf=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if ! [[ "$maf" =~ ^adni-ad$|^adni-mci$|^adni-cn$|^ukbb$|^afr$|^amr$|^eas$|^eur$|^sas$|^user$ ]]; then
-                    echo -e "${LIGHTRED}$maf ${NC}should be adni-ad, adni-mci, adni-cn, ukbb, afr, amr, eas, eur, sas, or user"
+                mafCohort=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
+                if ! [[ "$mafCohort" =~ ^adni-ad$|^adni-mci$|^adni-cn$|^ukbb$|^afr$|^amr$|^eas$|^eur$|^sas$|^user$ ]]; then
+                    echo -e "${LIGHTRED}$mafCohort ${NC}should be adni-ad, adni-mci, adni-cn, ukbb, afr, amr, eas, eur, sas, or user"
                     echo "The default when this parameter is not present is ukbb."
                     echo "Check the value and try again."
                     exit 1
@@ -835,8 +835,8 @@ calculatePRS () {
         GWASrefgen=${refgen}
     fi
 
-    if [ -z "${maf}" ]; then
-        maf='ukbb'
+    if [ -z "${mafCohort}" ]; then
+        mafCohort='ukbb'
     fi
 
     # preps variables for passing to python script
@@ -848,7 +848,7 @@ calculatePRS () {
     export sexes=${sexForCalc[@]}
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
-    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${maf}" | cut -f 1 -d ' ')
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}" | cut -f 1 -d ' ')
     if ! [ -z ${GWASfilename} ]; then
         fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}${userGwasBeta}" | cut -f 1 -d ' ')
     fi

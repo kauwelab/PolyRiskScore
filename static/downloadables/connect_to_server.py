@@ -439,7 +439,7 @@ def getAllClumps(refGen, superPop):
 def getAllMaf(mafCohort, refGen):
     if (mafCohort == 'user'): return {}
     params = {
-        "mafCohort": mafCohort,
+        "cohort": mafCohort,
         "refGen": refGen
     }
     mafReturnedObj = getUrlWithParams("https://prs.byu.edu/get_maf_download_file", params=params)
