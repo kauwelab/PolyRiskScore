@@ -12,3 +12,8 @@ core
 /.vscode/settings.json
 /update_database_scripts/lastUpdated.tsv
 /update_database_scripts/__pycache__
+/update_database_scripts/calculate_MAF.py
+/update_database_scripts/calculate_MAF_1000g.py
+/update_database_scripts/uploadTablesToDatabase.pyc
+/tables/maf/
+/tables/cohorts/

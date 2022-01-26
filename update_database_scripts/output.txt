@@ -1,3 +1,15 @@
-Start time: Wed 05 May 2021 02:09:01 PM MDT
+Start time: Sat 01 Jan 2022 12:00:01 AM MST
 getting password from file path specified
-Console output folder created at ./console_files/
+Uploading new data to GitHub disabled
+[1] "Initializing download script!"
+[1] "All required packages already installed."
+[1] "Downloading study data!"
+Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies?page=1592&size=20 failed: response code was 500.
+Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies?page=1594&size=20 failed: response code was 500.
+Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies?page=1595&size=20 failed: response code was 500.
+Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies?page=1597&size=20 failed: response code was 500.
+Error in gc_request_all(resource_url = resource_url, base_url = base_url,  : 
+  Failed to get all pages of /studies!
+Calls: get_studies ... get_studies_all -> <Anonymous> -> .f -> gc_request_all
+Execution halted
+"Rscript downloadStudiesToFile.R $studyAndPubTSVFolderPath": exit code:1

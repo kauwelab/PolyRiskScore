@@ -81,6 +81,10 @@ module.exports = app => {
 
     app.post("/get_maf", maf.getMaf);
 
+    app.get("/get_all_maf", maf.getAllMaf);
+
+    app.get("/get_maf_download_file", maf.getDownloadMaf);
+
     app.post("/send_error", errors.sendError);
 
     app.get("/download_errors", errors.downloadErrors);

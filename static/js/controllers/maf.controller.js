@@ -1,12 +1,14 @@
 const MAF = require("../models/maf.model.js");
+const path = require("path")
 
 
 exports.getMaf = (req, res) => {
     var cohort = req.body.cohort
     var chrom = req.body.chrom
     var pos = req.body.pos
+    var refGen = req.body.refGen
 
-    MAF.getMAF(cohort, chrom, pos, async (err, data) => {
+    MAF.getMAF(cohort, chrom, pos, refGen, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving MAF: ${err}`
@@ -19,6 +21,45 @@ exports.getMaf = (req, res) => {
         }
     });
 };
+
+exports.getAllMaf = (req, res) => {
+    var cohort = req.query.cohort
+    var chrom = req.query.chrom
+    var refGen = req.query.refGen
+
+    MAF.getAllMAF(cohort, chrom, refGen, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: `Error retrieving MAF: ${err}`
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            returnData = await formatMAFobj(data)
+            res.send(returnData);
+        }
+    });
+};
+
+exports.getDownloadMaf = (req, res) => {
+    refGen = req.query.refGen
+    cohort = req.query.cohort
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `${cohort}_maf_${refGen}.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
+}
 
 async function formatMAFobj(data) {
     MAF_obj = {}
