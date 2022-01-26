@@ -17,3 +17,4 @@ core
 /update_database_scripts/uploadTablesToDatabase.pyc
 /tables/maf/
 /tables/cohorts/
+/tables/clumping/CHROM_CLUMPED_FILES/
