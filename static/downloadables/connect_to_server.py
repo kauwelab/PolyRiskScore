@@ -15,6 +15,9 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     if extension == '.txt' and mafCohort == 'user':
         raise SystemExit('\nIn order to use the "user" option for maf cohort, you must have uploaded a vcf. Please select a different maf cohort option. \n\n')
 
+    if mafCohort.startswith("adni"):
+        mafCohort = "adni"
+
     # Format variables used for getting associations
     traits = traits.split(" ") if traits != "" else None
     if traits is not None:
