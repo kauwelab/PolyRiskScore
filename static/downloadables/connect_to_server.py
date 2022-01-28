@@ -293,7 +293,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 
     # get the study:snps info
     fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
-    studySnpsPath = os.path.join(workingFilesPath, fileName)
+    studySnpsPath = os.path.join(workingFilesPath, fileName) #TODO do we need to do something for creating this?
 
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():

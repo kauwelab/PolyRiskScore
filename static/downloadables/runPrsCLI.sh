@@ -612,7 +612,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:q:l' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:q:by:l' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
