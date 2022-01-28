@@ -476,7 +476,9 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
                 else:
                     finalStudyList.append(json.dumps({
                         "trait": trait,
-                        "studyID": study['studyID']
+                        "studyID": study['studyID'],
+                        "pValueAnnotation": study['pValueAnnotation'],
+                        "betaAnnotation": study['betaAnnotation']
                     }))
 
     # get the data for the specified studyIDs
@@ -492,7 +494,9 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
             # add the specified studyIDs to the set of studyIDObjs
             finalStudyList.append(json.dumps({
                 "trait": studyIDDataList[i]['trait'],
-                "studyID": studyIDDataList[i]['studyID']
+                "studyID": studyIDDataList[i]['studyID'],
+                "pValueAnnotation": studyIDDataList[i]['pValueAnnotation'],
+                "betaAnnotation": studyIDDataList[i]['betaAnnotation']
             }))
 
     if finalStudyList == []:
