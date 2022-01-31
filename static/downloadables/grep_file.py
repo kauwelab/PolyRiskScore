@@ -29,9 +29,9 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
     # create a new filtered file that only includes associations in the user-specified studies
     if isRSids:
-        clumpNumDict = filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
     else:
-        clumpNumDict = filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
 
     # write the clumpNumDict to a file for future use
     # the clumpNumDict is used to determine which variants aren't in LD with any of the other variants in the study
@@ -235,7 +235,10 @@ def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, stud
     # Loop through each trait/study
     for keyString in studySnpsDict:
         trait = keyString.split('|')[0]
-        study = keyString.split('|')[1]
+        pValueAnnotation = keyString.split('|')[1]
+        betaAnnotation = keyString.split('|')[2]
+        valueType = keyString.split('|')[3]
+        study = keyString.split('|')[4]
         
         # if there are traits to filter by and the trait for this snp is in the list, use this trait
         if traits is not None and trait.lower() in traits:
@@ -435,5 +438,5 @@ if __name__ == "__main__":
     if (argv[1]) == "zip":
         getZippedFileExtension(argv[2], argv[3], argv[4])
     else:
-        createFilteredFile(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11], argv[12], argv[13], argv[14])
+        createFilteredFile(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11], argv[12], argv[13], argv[14], argv[15])
 
