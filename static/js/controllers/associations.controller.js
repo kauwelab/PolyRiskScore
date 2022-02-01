@@ -355,7 +355,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
                 AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType] = createStudyIDObj(association)
             }
             else {
-                console.log("Okay, we have a serious problem...")
+                console.log("Okay, we have a duplicate or a serious problem...")
             }
         }
         else {
