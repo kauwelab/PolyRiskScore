@@ -455,9 +455,45 @@ def getAllStudySnps():
     # Organized with study as the Keys and snps as values
     return studySnpsReturnObj
 
+
+def combineJson(old, new):
+    studyMeta = new["studyIDsToMetaData"]
+    associations = new["associations"]
+
+    for studyID in studyMeta:
+        if studyID not in old["studyIDsToMetaData"]:
+            old["studyIDsToMetaData"][studyID] = studyMeta[studyID]
+        else:
+            for trait in studyMeta[studyID]["traits"]:
+                if trait not in old["studyIDsToMetaData"][studyID]["traits"]:
+                    old["studyIDsToMetaData"][studyID]["traits"][trait] = studyMeta[studyID]["traits"][trait]
+
+    for snp in associations:
+        if snp not in old["associations"]:
+            old["associations"][snp] = associations[snp]
+        elif snp.startswith("rs"):
+            for trait in associations[snp]["traits"]:
+                if trait not in old["associations"][snp]["traits"]:
+                    old["associations"][snp]["traits"][trait] = associations[snp]["traits"][trait]
+                else:
+                    for studyID in associations[snp]["traits"][trait]:
+                        if studyID not in old["associations"][snp]["traits"][trait]:
+                            old["associations"][snp]["traits"][trait][studyID] = associations[snp]["traits"][trait][studyID]
+                        else:
+                            for pValBetaAnnoValType in associations[snp]["traits"][trait][studyID]:
+                                if pValBetaAnnoValType not in old["associations"][snp]["traits"][trait][studyID]:
+                                    old["associations"][snp]["traits"][trait][studyID][pValBetaAnnoValType] = associations[snp]["traits"][trait][studyID][pValBetaAnnoValType]
+    new = {}
+    return old
+
+
 # gets associationReturnObj using the given filters
 def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes):
     finalStudyList = []
+    associationData = {
+        "studyIDsToMetaData" : {},
+        "associations": {}
+    }
 
     if (traits is not None or studyTypes is not None or ethnicity is not None or valueTypes is not None or sexes is not None):
         # get the studies matching the parameters
@@ -505,16 +541,33 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
     if finalStudyList == []:
         raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
 
-    # get the associations based on the studyIDs
-    body = {
-        "refGen": refGen,
-        "studyIDObjs": finalStudyList,
-        "sexes": sexes,
-        "ogValueType": valueTypes
-    }
-
-    associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
-    return associationsReturnObj, finalStudyList
+    # Breaking up the calls to the get_associations endpoint so that we don't got over the Request size limit
+    try:
+        print(finalStudyList, file=open('finalStudyList.txt', 'w'))
+        lengthOfList = len(finalStudyList)
+        i = 0
+        j = 1000 if lengthOfList > 1000 else lengthOfList - 1
+        print("Total number of studies: {}". format(lengthOfList))
+        runLoop = True
+        while runLoop:
+            if j == lengthOfList - 1:
+                runLoop = False
+            # get the associations based on the studyIDs
+            print("{}...".format(j), end = "", flush=True)
+            body = {
+                "refGen": refGen,
+                "studyIDObjs": finalStudyList[i:j],
+                "sexes": sexes,
+                "ogValueType": valueTypes
+            }
+            tmpAssociationsData = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
+            associationData = combineJson(associationData, tmpAssociationsData)
+            i = j
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList - 1
+        print('Done\n')
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+    return associationData, finalStudyList
 
 
 def runStrandFlipping(snp, allele):
@@ -649,12 +702,28 @@ def getMaf(mafCohort, refGen, snpsFromAssociations):
 # gets associationReturnObj using the given filters
 def getSpecificStudySnps(finalStudyList):
     # get the studies matching the parameters
-    body = {
-        "studyIDObjs":finalStudyList
-    }
-    
+    studySnps = {}
+    lengthOfList = len(finalStudyList)
+    i = 0
+    j = 1000 if lengthOfList > 1000 else lengthOfList - 1
+    print("Total number of studies: {}". format(lengthOfList))
+    runLoop = True
     try:
-        studySnps = postUrlWithBody("https://prs.byu.edu/snps_to_trait_studyID", body)
+        while runLoop:
+            if j == lengthOfList - 1:
+                runLoop = False
+            # get the associations based on the studyIDs
+            print("{}...".format(j), end = "", flush=True)
+            body = {
+                "studyIDObjs":finalStudyList[i:j]
+            }
+            tmpStudySnps = postUrlWithBody("https://prs.byu.edu/snps_to_trait_studyID", body)
+            for key in tmpStudySnps:
+                if key not in studySnps:
+                    studySnps[key] = tmpStudySnps[key]
+            i = j
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList - 1
+
     except AssertionError:
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
     
