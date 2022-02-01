@@ -7,6 +7,7 @@ exports.getMaf = (req, res) => {
     var chrom = req.body.chrom
     var pos = req.body.pos
     var refGen = req.body.refGen
+    cohort = formatCohort(cohort)
 
     MAF.getMAF(cohort, chrom, pos, refGen, async (err, data) => {
         if (err) {
@@ -26,6 +27,7 @@ exports.getAllMaf = (req, res) => {
     var cohort = req.query.cohort
     var chrom = req.query.chrom
     var refGen = req.query.refGen
+    cohort = formatCohort(cohort)
 
     MAF.getAllMAF(cohort, chrom, refGen, async (err, data) => {
         if (err) {
@@ -44,6 +46,7 @@ exports.getAllMaf = (req, res) => {
 exports.getDownloadMaf = (req, res) => {
     refGen = req.query.refGen
     cohort = req.query.cohort
+    cohort = formatCohort(cohort)
     downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
     var options = { 
         root: downloadPath
@@ -59,6 +62,14 @@ exports.getDownloadMaf = (req, res) => {
             console.log('Sent:', fileName); 
         } 
     }); 
+}
+
+function formatCohort(mafCohort) {
+    if (mafCohort.startsWith("adni")) {
+	return "adni";
+    } else {
+	return mafCohort
+    }
 }
 
 async function formatMAFobj(data) {
