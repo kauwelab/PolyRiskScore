@@ -105,12 +105,12 @@ def formatAndReturnGenotype(genotype, REF, ALT):
 
             for alleleNum in gt_nums:
                 if alleleNum == '0':
-                    alleles.append(REF)
+                    alleles.append(str(REF))
                 elif alleleNum == '.':
                     alleles.append('.')
                 else:
                     gt_num = int(alleleNum) - 1
-                    alleles.append(ALT[gt_num])
+                    alleles.append(str(ALT[gt_num]))
         else:
             alleles = [".", "."]
 
@@ -496,7 +496,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
 
 def takeComplement(alleles, REF, ALT):
-    possibleAlleles = [REF] + ALT
+    possibleAlleles = [REF] + [str(x) for x in ALT]
     complements = [reverse_complement(x) for x in alleles]
 
     # just trying to make sure we are as accurate as possible in our strand flipping --
