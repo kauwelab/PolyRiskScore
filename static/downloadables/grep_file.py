@@ -270,15 +270,16 @@ def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, study
             for study in tableObjDict['associations'][rsID]['traits'][trait].keys():
                 # if we aren't going to use all the associations, decide if this is one that we will use
                 # check if the pValue is less than the given threshold
-                pValue = tableObjDict['associations'][rsID]['traits'][trait][study]['pValue']
-                if pValue <= float(p_cutOff):
-                    # if there were filters specified for the studies, check if this study should be used
-                    if not isAllFiltersNone:
-                        studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
-                        useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, study, trait, studyMetaData, useTrait)
-                    if useStudy or isAllFiltersNone:
-                        snpInFilters = True
-                        return snpInFilters
+                for pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
+                    pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+                    if pValue <= float(p_cutOff):
+                        # if there were filters specified for the studies, check if this study should be used
+                        if not isAllFiltersNone:
+                            studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                            useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, study, trait, studyMetaData, useTrait)
+                        if useStudy or isAllFiltersNone:
+                            snpInFilters = True
+                            return snpInFilters
 
     return snpInFilters
 
