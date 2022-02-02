@@ -43,6 +43,9 @@ def parseAndCalculateFiles(params):
 
 
 def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload):
+    if mafCohort.startswith("adni"):
+        mafCohort = "adni"
+    
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
@@ -51,20 +54,20 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
-        mafCohort = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
+        mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = superPop, r = refGen))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
-        mafCohort = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
+        mafCohortPath = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
     else:
         associationsPath = specificAssociPath
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r = refGen, ahash = fileHash))
-        mafCohort = os.path.join(basePath, "{m}_maf_{ahash}}.txt".format(m=mafCohort, ahash=fileHash))
+        mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
 
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
 
@@ -78,11 +81,11 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
             clumpNumDict = json.load(clumpNumFile)
         with open(studySnpsPath, 'r') as studySnpsFile:
             studySnpsDict = json.load(studySnpsFile)
-        with open(mafCohort, 'r') as mafFile:
+        with open(mafCohortPath, 'r') as mafFile:
             mafDict = json.load(mafFile)
     
     except FileNotFoundError:
-        raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}\n{3}".format(associationsPath, clumpsPath, clumpNumPath, studySnpsPath))
+        raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}\n{3}\n{4}".format(associationsPath, clumpsPath, clumpNumPath, studySnpsPath, mafCohortPath))
 
     return tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, filteredInputPath
 
@@ -171,7 +174,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     for snp in studyLines:
         alleles = studyLines[snp]
         if alleles != [] and snp != "":
-            pValBetaAnnoValType = [pValueAnno, betaAnnotation, valueType].join("|")
+            pValBetaAnnoValType = "|".join([pValueAnno, betaAnnotation, valueType])
             # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this snp
             # this is necessary due to excluded snps
             if trait in tableObjDict['associations'][snp]['traits'] and study in tableObjDict['associations'][snp]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][snp]['traits'][trait][study]:
@@ -338,7 +341,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
             # check to see if the snp is in this particular trait/study
             if rsID in snpSet:
-                pValBetaAnnoValType = [pValueAnno, betaAnnotation, valueType].join("|")
+                pValBetaAnnoValType = "|".join([pValueAnno, betaAnnotation, valueType]) #TODO this is not working because of the valueType variable. looking into this upstream 2/1/2022
                 # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this rsID
                 # this is necessary due to excluded snps
                 if trait in tableObjDict['associations'][rsID]['traits'] and study in tableObjDict['associations'][rsID]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
