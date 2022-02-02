@@ -517,7 +517,8 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
                         "trait": trait,
                         "studyID": study['studyID'],
                         "pValueAnnotation": study['pValueAnnotation'],
-                        "betaAnnotation": study['betaAnnotation']
+                        "betaAnnotation": study['betaAnnotation'],
+                        "ogValueTypes" : study['ogValueTypes']
                     }))
 
     # get the data for the specified studyIDs
@@ -535,7 +536,8 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
                 "trait": studyIDDataList[i]['trait'],
                 "studyID": studyIDDataList[i]['studyID'],
                 "pValueAnnotation": studyIDDataList[i]['pValueAnnotation'],
-                "betaAnnotation": studyIDDataList[i]['betaAnnotation']
+                "betaAnnotation": studyIDDataList[i]['betaAnnotation'],
+                "ogValueTypes" : studyIDDataList[i]['ogValueTypes']
             }))
 
     if finalStudyList == []:
