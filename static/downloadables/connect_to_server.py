@@ -545,10 +545,10 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
 
     # Breaking up the calls to the get_associations endpoint so that we don't got over the Request size limit
     try:
-        print(finalStudyList, file=open('finalStudyList.txt', 'w'))
         lengthOfList = len(finalStudyList)
         i = 0
         j = 1000 if lengthOfList > 1000 else lengthOfList - 1
+        print("Getting associations and studies")
         print("Total number of studies: {}". format(lengthOfList))
         runLoop = True
         while runLoop:
@@ -708,6 +708,7 @@ def getSpecificStudySnps(finalStudyList):
     lengthOfList = len(finalStudyList)
     i = 0
     j = 1000 if lengthOfList > 1000 else lengthOfList - 1
+    print("Getting snps to studies map")
     print("Total number of studies: {}". format(lengthOfList))
     runLoop = True
     try:
@@ -725,6 +726,7 @@ def getSpecificStudySnps(finalStudyList):
                     studySnps[key] = tmpStudySnps[key]
             i = j
             j = j + 1000 if lengthOfList > j + 1000 else lengthOfList - 1
+        print("Done\n")
 
     except AssertionError:
         raise SystemExit("ERROR: 504 - Connection to the server timed out")

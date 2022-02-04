@@ -325,7 +325,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
             if os.path.exists(tempFilePath):
                 vcf_reader = None
                 os.remove(tempFilePath)
-        return sample_map,neutral_snps_map,clumped_snps_map,sample_num,unusedTraitStudy,sampleOrder, snpCount
+        return sample_map, mafDict, neutral_snps_map,clumped_snps_map,sample_num,unusedTraitStudy,sampleOrder, snpCount
     else:
         unusedTraitStudy = False
 
@@ -359,7 +359,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                 "alleles": {}
                             }
                         for i in len(ALT):
-                            allele = ALT[i]
+                            allele = str(ALT[i])
                             if allele not in mafDict[rsID]["alleles"]:
                                 mafDict[rsID]["alleles"][allele] = lineInfo[i]
 
@@ -562,18 +562,18 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to write out the header depending on the output type
         header = []
         if isCondensedFormat and isRSids: # condensed and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Units (if applicable)', 'Polygenic Risk Score']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation|Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score']
         elif isCondensedFormat: # condensed and vcf input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Units (if applicable)']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation|Beta Annotation', 'Score Type', 'Units (if applicable)']
             # loop through each sample and add to the header
             header = getSamples(filteredInputPath, header)
         elif not isCondensedFormat  and isRSids: # verbose and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD'] #TODO circle back to update these headers
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation|Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD'] #TODO circle back to update these headers
         else: # verbose and vcf input
-            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation|Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)
         if not omitUnusedStudiesFile:
-            cs.printUnusedTraitStudyPairs(None, None, outputFilePath, True)
+            cs.printUnusedTraitStudyPairs(None, None, None, None, None, outputFilePath, True)
 
     # we create params for each study so that we can run them on separate processes
     for keyString in studySnpsDict:

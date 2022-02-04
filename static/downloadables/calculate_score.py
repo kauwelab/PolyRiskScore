@@ -18,7 +18,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
     # if this trait/study had no snps in the input file, print the trait/study to the output list
     if unusedTraitStudy and not omitUnusedStudiesFile:
         printStudyID = studyID
-        printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
+        printUnusedTraitStudyPairs(trait, printStudyID, pValueAnno, betaAnnotation, valueType, outputFile, False)
 
     else:
         if studyID in tableObjDict['studyIDsToMetaData'].keys():
@@ -42,7 +42,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                 if snp in snpSet:
                     nonMissingSnps += 1
                     riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['riskAllele']
-                    units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnits']
+                    units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnit']
                     # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
                     snpBeta = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['oddsRatio'])
                     for allele in txtObj[snp]:
@@ -56,7 +56,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                                 elif snpBeta > 0:
                                     riskVariants.add(snp)
                             elif allele == ".":
-                                betas.append(snpBeta*mafDict['snps'][snp]['alleles'][riskAllele])
+                                betas.append(snpBeta*mafDict[snp]['alleles'][riskAllele])
                                 betaUnits.append(units)
                                 if snpBeta < 0:
                                     protectiveVariants.add(snp)
@@ -71,7 +71,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             # if the sample did not have any matching snps with the gwa study, write the study out to the unused studies file
             if not omitUnusedStudiesFile and len(betas) == 0 and len(protectiveVariants) == 0 and len(riskVariants) == 0 and len(unmatchedAlleleVariants) == 0 and len(clumpedVariants) == 0:
                 printStudyID = studyID
-                printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
+                printUnusedTraitStudyPairs(trait, printStudyID, pValueAnno, betaAnnotation, valueType, outputFile, False)
 
             elif not isCondensedFormat and not isJson:
                 # add needed markings to scores/studies
@@ -79,7 +79,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                 # Grab variant sets
                 protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 # new line to add to tsv file
-                newLine = [printStudyID, reportedTrait, trait, citation, units, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+                newLine = [printStudyID, reportedTrait, trait, citation, "|".join([pValueAnno, betaAnnotation]), valueType, units, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                 # add new ine to tsv file
                 formatTSV(False, newLine, [], outputFile)
                 
@@ -89,10 +89,12 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
 
                 json_study_results = {
                     'studyID': printStudyID,
-                    'citation': citation,
-                    'units (if applicable)': units,
                     'reportedTrait': reportedTrait,
                     'trait': trait,
+                    'citation': citation,
+                    "pValueAnnotation|BetaAnnotation": "|".join([pValueAnno, betaAnnotation]),
+                    'scoreType': valueType,
+                    'units (if applicable)': units,
                     'polygenicRiskScore': prs,
                     'protectiveVariants': "|".join(protectiveVariants),
                     'riskVariants': "|".join(riskVariants),
@@ -107,7 +109,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             elif isCondensedFormat:
                 #add necessary study/score markings
                 prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, asterisk, mark, valueType)
-                newLine = [printStudyID, reportedTrait, trait, citation, units, prs]
+                newLine = [printStudyID, reportedTrait, trait, citation, "|".join([pValueAnno, betaAnnotation]), valueType, units, prs]
                 # write new line to tsv file
                 formatTSV(False, newLine, [], outputFile)
         else:
@@ -123,7 +125,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
     if unusedTraitStudy and not omitUnusedStudiesFile:
         printStudyID = studyID
         # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
-        printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
+        printUnusedTraitStudyPairs(trait, printStudyID, pValueAnno, betaAnnotation, valueType, outputFile, False)
 
     else:
         # keep track of the samples that have had their scores calculated so we know when to write out the condensed format line and json output
@@ -140,7 +142,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
             # check if the study exists in the studyMetaData
             if studyID in tableObjDict['studyIDsToMetaData'].keys():
                 betas = [] # For storing the betas used in calculation
-                betaUnits = [] # holds the units for the betas
+                betaUnits = set() # holds the units for the betas
                 # study info
                 citation = tableObjDict['studyIDsToMetaData'][studyID]['citation']
                 reportedTrait = tableObjDict['studyIDsToMetaData'][studyID]['reportedTrait']
@@ -162,24 +164,23 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                         if rsID in snpSet:
                             nonMissingSnps += 1
                             riskAllele = tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['riskAllele']
-                            units = tableObjDict['associations'][rsID]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnits']
+                            units = tableObjDict['associations'][rsID]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnit']
                             alleles = vcfObj[samp][rsID]
                             if alleles != "" and alleles is not None:
                                 snpBeta = tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['oddsRatio'])
                                 for allele in alleles:
                                     allele = str(allele)
                                     if allele != "":
+                                        betaUnits.add(units)
                                         # check if the risk allele matches one of the sample's alleles for this SNP
                                         if allele == riskAllele:
                                             betas.append(snpBeta) # add the odds ratio to the list of odds ratios used to calculate the score
-                                            betaUnits.append(units)
                                             if snpBeta < 0:
                                                 protectiveVariants.add(rsID)
                                             elif snpBeta > 0:
                                                 riskVariants.add(rsID)
                                         elif allele == ".":
-                                            betas.append(snpBeta*mafDict['snps'][rsID]['alleles'][riskAllele])
-                                            betaUnits.append(units)
+                                            betas.append(snpBeta*mafDict[rsID]['alleles'][riskAllele])
                                             if snpBeta < 0:
                                                 protectiveVariants.add(rsID)
                                             elif snpBeta > 0:
@@ -187,14 +188,14 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                                         else:
                                             unmatchedAlleleVariants.add(rsID)
 
-                units = betaUnits.pop() if len(betaUnits) == 1 else "" #TODO might need to come up with a better way
+                studyUnits = betaUnits.pop() if len(betaUnits) == 1 else "" #TODO might need to come up with a better way!!!!!!!!!!!!!!!!!!!!!
 
                 if not omitUnusedStudiesFile and len(betas) == 0 and len(protectiveVariants) == 0 and len(riskVariants) == 0 and len(unmatchedAlleleVariants) == 0 and len(clumpedVariants) == 0:
                     printStudyID = studyID
                     # check if the study/trait has already been printed to the unusedtraitstudy file. if it hasn't, print it to the file
                     if (trait, printStudyID) not in unusedTraitStudySet:
                         # this boolean variable will ensure that subsequent unused traits/studies are appended, not written, to the output file
-                        printUnusedTraitStudyPairs(trait, printStudyID, outputFile, False)
+                        printUnusedTraitStudyPairs(trait, printStudyID, pValueAnno, betaAnnotation, valueType, outputFile, False)
                         unusedTraitStudySet.add((trait, printStudyID))
 
                 # if the output format is verbose
@@ -204,7 +205,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                     #grab variant sets
                     protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                     # add new line to tsv file
-                    newLine = [samp, printStudyID, reportedTrait, trait, citation, units, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+                    newLine = [samp, printStudyID, reportedTrait, trait, citation, "|".join([pValueAnno, betaAnnotation]), valueType, studyUnits, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                     formatTSV(False, newLine, [], outputFile)
 
                 elif isJson:
@@ -215,10 +216,12 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                     if samp_count == 1:
                         json_study_results.update({
                             'studyID': printStudyID,
-                            'citation': citation,
                             'reportedTrait': reportedTrait,
                             'trait': trait,
-                            'units (if applicable)': units
+                            'citation': citation,
+                            'pValueAnnotation|BetaAnnotation': "|".join([pValueAnno, betaAnnotation]),
+                            'scoreType': valueType,
+                            'units (if applicable)': studyUnits
                         })
 
                     # add the sample score and variant information
@@ -248,7 +251,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
 
                     # if this is the first sample, initiate the new line with the first four columns
                     if samp_count == 1:
-                        newLine = [printStudyID, reportedTrait, trait, citation, units]
+                        newLine = [printStudyID, reportedTrait, trait, citation, "|".join([pValueAnno, betaAnnotation]), valueType, studyUnits]
                     newLine.append(prs) # append this sample's score to the row
                     
                     # if we've calculated a score for each sample, write the line to the output file
@@ -293,7 +296,7 @@ def createMarks(betas, nonMissingSnps, studyID, asterisk, mark, valueType):
 
 
 # prints the study/trait combos that don't have matching snps to one in the input file
-def printUnusedTraitStudyPairs(trait, study, outputFile, isFirst):
+def printUnusedTraitStudyPairs(trait, study, pValueAnno, betaAnnotation, valueType, outputFile, isFirst):
     fileBasename = os.path.basename(outputFile)
     fileDirname = os.path.dirname(outputFile)
     fileName, ext = os.path.splitext(fileBasename)
@@ -308,7 +311,7 @@ def printUnusedTraitStudyPairs(trait, study, outputFile, isFirst):
     if isFirst:
         with FileLock(completeOutputFileName + ".lock"):
             with open(completeOutputFileName, 'w', encoding="utf-8") as openFile:
-                openFile.write("Trait/Study combinations with no matching snps in the input file:")
+                openFile.write("Trait/Study/P-Value Annotation|Beta Annotation/Value Type combinations with no matching snps in the input file:")
     else:
         with FileLock(completeOutputFileName + ".lock"):
             with open(completeOutputFileName, 'a', encoding="utf-8") as openFile:
@@ -316,6 +319,10 @@ def printUnusedTraitStudyPairs(trait, study, outputFile, isFirst):
                 openFile.write(str(trait))
                 openFile.write(', ')
                 openFile.write(str(study))
+                openFile.write(', ')
+                openFile.write(str("|".join([pValueAnno, betaAnnotation])))
+                openFile.write(', ')
+                openFile.write(valueType)
 
     return 
 
