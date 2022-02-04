@@ -567,6 +567,8 @@ if (is_ebi_reachable()) {
         mutate(pvalue_description = tolower(pvalue_description)) %>%
         mutate_at('pvalue_description', str_replace_all, pattern = "\\|", replacement = "¦") %>% # if the bar is in the annotation, replaces it with a broken vertical bar
         mutate_at('beta_description', str_replace_all, pattern = "\\|", replacement = "¦") %>% # if the bar is in the annotation, replaces it with a broken vertical bar
+        mutate_at('trait', str_replace_all, pattern = "\\|", replacement = "¦") %>%
+        mutate_at('ogValueTypes', str_replace_all, pattern = "\\|", replacement = "¦") %>%
         replace_na(list(pvalue_description = "NA")) # replace NA character with NA string for p-value description
       # filter out SNPs on the X or Y chromosome (keeping NAs)
       studyData <- filter(studyData, !startsWith(hg38, "X")&!startsWith(hg38, "Y")|is.na(hg38))
