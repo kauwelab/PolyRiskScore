@@ -32,7 +32,7 @@
 #        "betaValue" is the beta value
 #        "betaUnit" is the unit of the beta value
 #        "betaAnnotation" is the description assoicated with the given beta value
-#        "ogValueTypes" is a | delimited string containing the value type ("OR", "beta", or "OR|beta")
+#        "ogValueTypes" is a ¦ delimited string containing the value type ("OR", "beta", or "OR¦beta")
 #        "sex" is the sex associated with the snp p-value
 #        "numAssociationsFiltered" is the number of associations filtered out of the study (not in the associations table)
 #        "citation" is the first author, followed by the year the study was published (ex: "Miller 2020")
@@ -431,7 +431,7 @@ if (is_ebi_reachable()) {
       if (!is.na(beta)) {
         type <- c(type, "beta")
       }
-      type <- paste(type, sep="|", collapse="|")
+      type <- paste(type, sep="¦", collapse="¦")
       valTypes <- c(valTypes, type)
     }
     return (valTypes)
@@ -568,7 +568,6 @@ if (is_ebi_reachable()) {
         mutate_at('pvalue_description', str_replace_all, pattern = "\\|", replacement = "¦") %>% # if the bar is in the annotation, replaces it with a broken vertical bar
         mutate_at('beta_description', str_replace_all, pattern = "\\|", replacement = "¦") %>% # if the bar is in the annotation, replaces it with a broken vertical bar
         mutate_at('trait', str_replace_all, pattern = "\\|", replacement = "¦") %>%
-        mutate_at('ogValueTypes', str_replace_all, pattern = "\\|", replacement = "¦") %>%
         replace_na(list(pvalue_description = "NA")) # replace NA character with NA string for p-value description
       # filter out SNPs on the X or Y chromosome (keeping NAs)
       studyData <- filter(studyData, !startsWith(hg38, "X")&!startsWith(hg38, "Y")|is.na(hg38))
