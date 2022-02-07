@@ -55,8 +55,9 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                                     protectiveVariants.add(snp)
                                 elif snpBeta > 0:
                                     riskVariants.add(snp)
-                            elif allele == ".":
-                                betas.append(snpBeta*mafDict[snp]['alleles'][riskAllele])
+                            elif allele == "." :
+                                mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict else 0
+                                betas.append(snpBeta*mafVal)
                                 betaUnits.append(units)
                                 if snpBeta < 0:
                                     protectiveVariants.add(snp)
@@ -180,7 +181,8 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                                             elif snpBeta > 0:
                                                 riskVariants.add(rsID)
                                         elif allele == ".":
-                                            betas.append(snpBeta*mafDict[rsID]['alleles'][riskAllele])
+                                            mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict else 0
+                                            betas.append(snpBeta*mafVal)
                                             if snpBeta < 0:
                                                 protectiveVariants.add(rsID)
                                             elif snpBeta > 0:
