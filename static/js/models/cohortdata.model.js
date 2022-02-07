@@ -4,6 +4,10 @@ const Cohortdata = function (mCohortData) {
     this.studyID = mCohortData.studyID,
     this.reportedTrait = mCohortData.reportedTrait,
     this.trait = mCohortData.trait,
+    this.citation = mCohortData.citation,
+    this.pValueAnnotation = mCohortData.pValueAnnotation,
+    this.betaAnnotation = mCohortData.betaAnnotation,
+    this.ogValTypes = mCohortData.ogValTypes,
     this.min = mCohortData.min,
     this.max = mCohortData.max,
     this.rng = mCohortData.rng,
@@ -105,7 +109,7 @@ Cohortdata.getStudies = (trait, studyTypes, result) => {
             }
 
             // grab trait/studyID combos that are in the cohort table
-            sql.query(`SELECT trait, studyID FROM cohort_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
+            sql.query(`SELECT trait, studyID, pValueAnnotation, betaAnnotation, ogValueTypes, FROM cohort_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
@@ -117,9 +121,9 @@ Cohortdata.getStudies = (trait, studyTypes, result) => {
     })
 }
 
-Cohortdata.getCohorts = (studyID, trait, result) => {
-    sqlStatement = `SELECT DISTINCT cohort FROM cohort_summary_data WHERE studyID = ? and trait = ?`
-    sql.query(sqlStatement, [studyID, trait], (err, res) => {
+Cohortdata.getCohorts = (studyID, trait, pValueAnnotation, betaAnnotation, ogValueTypes, result) => {
+    sqlStatement = `SELECT DISTINCT cohort FROM cohort_summary_data WHERE studyID = ? and trait = ? and pValueAnnotation = ? and betaAnnotation = ? and ogValueTypes = ?`
+    sql.query(sqlStatement, [studyID, trait, pValueAnnotation, betaAnnotation, ogValueTypes], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -130,7 +134,7 @@ Cohortdata.getCohorts = (studyID, trait, result) => {
     })
 }
 
-Cohortdata.getSummaryResults = (studyID, trait, cohorts, result) => {
+Cohortdata.getSummaryResults = (studyID, trait, cohorts, pValueAnnotation, betaAnnotation, ogValueTypes, result) => {
     sqlStatement = ""
     queryParams = []
 
@@ -142,8 +146,8 @@ Cohortdata.getSummaryResults = (studyID, trait, cohorts, result) => {
     }
 
     cohorts.forEach(cohort => {
-        sqlStatement = sqlStatement.concat(`SELECT studyID, trait, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM cohort_summary_data WHERE studyID = ? and trait = ? and cohort = ? ; `)
-        queryParams.concat([studyID, trait, cohort])
+        sqlStatement = sqlStatement.concat(`SELECT studyID, trait, pValueAnnotation, betaAnnotation, ogValueTypes, min, max, median, rng, mean, geomMean, harmMean, stdev, geomStdev FROM cohort_summary_data WHERE studyID = ? and trait = ? and cohort = ? and pValueAnnotation = ? and betaAnnotation = ? and ogValueTypes = ? ; `)
+        queryParams.concat([studyID, trait, cohort, pValueAnnotation, betaAnnotation, ogValueTypes])
     });
 
     sql.query(sqlStatement, queryParams, (err, res) => {
@@ -157,7 +161,7 @@ Cohortdata.getSummaryResults = (studyID, trait, cohorts, result) => {
     })
 }
 
-Cohortdata.getFullResults = (studyID, trait, cohorts, result) => {
+Cohortdata.getFullResults = (studyID, trait, cohorts, pValueAnnotation, betaAnnotation, ogValueTypes, result) => {
     sqlStatement = ""
     snpsSqlStatement = ""
     queryParams = []
@@ -174,10 +178,13 @@ Cohortdata.getFullResults = (studyID, trait, cohorts, result) => {
         sqlStatement = sqlStatement.concat(`SELECT * FROM cohort_summary_data JOIN cohort_percentiles ON ( cohort_summary_data.studyID = cohort_percentiles.studyID AND cohort_summary_data.trait = cohort_percentiles.trait and cohort_summary_data.cohort = cohort_percentiles.cohort ) WHERE cohort_summary_data.studyID = ? and cohort_summary_data.trait = ? and cohort_summary_data.cohort = ? ; `)
         queryParams = queryParams.concat([studyID, trait, cohort])
 
-        snpsSqlStatement = snpsSqlStatement.concat("SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?; ")
+        snpsSqlStatement = snpsSqlStatement.concat("SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ? AND pValueAnnotation = ? AND betaAnnotation = ? AND ogValueTypes = ?; ")
         snpsQueryParams.push(studyID)
         snpsQueryParams.push(trait)
         snpsQueryParams.push(cohort)
+        snpsQueryParams.push(pValueAnnotation)
+        snpsQueryParams.push(betaAnnotation)
+        snpsQueryParams.push(ogValueTypes)
         // the snps we have for ADNI cover MCI, AD, and controls
         // if (cohort.includes("adni")) {
         //     snpsQueryParams.push("adni")
@@ -213,13 +220,13 @@ Cohortdata.getFullResults = (studyID, trait, cohorts, result) => {
     })
 }
 
-Cohortdata.getStudySnps = (studyID, trait, cohort, result) => {
+Cohortdata.getStudySnps = (studyID, trait, cohort, pValueAnnotation, betaAnnotation, ogValueTypes, result) => {
     // the snps we have for ADNI cover MCI, AD, and controls
     // if (cohort.includes("adni")) {
     //     cohort = "adni"
     // }
-    sqlStatement = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ?"
-    sql.query(sqlStatement, [studyID, trait, cohort], (err, res) => {
+    sqlStatement = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ? AND pValueAnnotation = ? AND betaAnnotation = ? AND ogValueTypes = ? "
+    sql.query(sqlStatement, [studyID, trait, cohort, pValueAnnotation, betaAnnotation, ogValueTypes], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
