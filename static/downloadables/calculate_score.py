@@ -80,7 +80,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                 # Grab variant sets
                 protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 # new line to add to tsv file
-                newLine = [printStudyID, reportedTrait, trait, citation, "|".join([pValueAnno, betaAnnotation]), valueType, units, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+                newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                 # add new ine to tsv file
                 formatTSV(False, newLine, [], outputFile)
                 
@@ -93,7 +93,8 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                     'reportedTrait': reportedTrait,
                     'trait': trait,
                     'citation': citation,
-                    "pValueAnnotation|BetaAnnotation": "|".join([pValueAnno, betaAnnotation]),
+                    "pValueAnnotation": pValueAnno,
+                    'BetaAnnotation': betaAnnotation,
                     'scoreType': valueType,
                     'units (if applicable)': units,
                     'polygenicRiskScore': prs,
@@ -110,7 +111,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             elif isCondensedFormat:
                 #add necessary study/score markings
                 prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, asterisk, mark, valueType)
-                newLine = [printStudyID, reportedTrait, trait, citation, "|".join([pValueAnno, betaAnnotation]), valueType, units, prs]
+                newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs]
                 # write new line to tsv file
                 formatTSV(False, newLine, [], outputFile)
         else:
@@ -207,7 +208,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                     #grab variant sets
                     protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                     # add new line to tsv file
-                    newLine = [samp, printStudyID, reportedTrait, trait, citation, "|".join([pValueAnno, betaAnnotation]), valueType, studyUnits, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+                    newLine = [samp, printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                     formatTSV(False, newLine, [], outputFile)
 
                 elif isJson:
@@ -221,7 +222,8 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                             'reportedTrait': reportedTrait,
                             'trait': trait,
                             'citation': citation,
-                            'pValueAnnotation|BetaAnnotation': "|".join([pValueAnno, betaAnnotation]),
+                            'pValueAnnotation': pValueAnno,
+                            'BetaAnnotation' : betaAnnotation,
                             'scoreType': valueType,
                             'units (if applicable)': studyUnits
                         })
@@ -253,7 +255,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
 
                     # if this is the first sample, initiate the new line with the first four columns
                     if samp_count == 1:
-                        newLine = [printStudyID, reportedTrait, trait, citation, "|".join([pValueAnno, betaAnnotation]), valueType, studyUnits]
+                        newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits]
                     newLine.append(prs) # append this sample's score to the row
                     
                     # if we've calculated a score for each sample, write the line to the output file
