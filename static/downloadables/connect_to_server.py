@@ -15,6 +15,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     if extension == '.txt' and mafCohort == 'user':
         raise SystemExit('\nIn order to use the "user" option for maf cohort, you must have uploaded a vcf. Please select a different maf cohort option. \n\n')
 
+    percentilesCohort = mafCohort
     if mafCohort.startswith("adni"):
         mafCohort = "adni"
 
@@ -58,6 +59,10 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         if (checkForAllMAFFiles(mafCohort, refGen)):
             mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
             mafData = getAllMaf(mafCohort, refGen)
+
+        if (checkForAllPercentilesFiles(percentilesCohort)):
+            percentilesPath = os.path.join(workingFilesPath, "allPercentiles_{c}.txt".format(c=percentilesCohort))
+            percentileData = getAllPercentiles(percentilesCohort)
         
     # else get the associations using the given filters
     else:
@@ -78,6 +83,10 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         fileName = "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash = fileHash)
         mafPath = os.path.join(workingFilesPath, fileName)
         mafData = getMaf(mafCohort, refGen, snpsFromAssociations)
+
+        fileName = "allPercentiles_{c}_{ahash}.txt".format(c=percentilesCohort, ahash=fileHash)
+        percentilesPath = os.path.join(workingFilesPath, fileName)
+        percentileData = getPercentiles(refGen, finalStudyList)
         
         # get the study:snps info
         fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
@@ -102,6 +111,11 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f.close()
     elif mafCohort != 'user':
         raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
+
+    if 'percentilesData' in locals():
+        f = open(percentilesPath, 'w', encoding='utf-8')
+        f.write(json.dumps(percentileData))
+        f.close()
 
     # check to see if studySnpsData is instantiated in the local variables
     if 'studySnpsData' in locals():
@@ -419,6 +433,36 @@ def checkForAllMAFFiles(mafCohort, refGen):
     return dnldNewMaf
 
 
+def checkForAllPercentilesFiles(percentilesCohort):
+    dnldNewPercentiles = True
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+    # path to a file containing all maf for the cohort from the database
+    allPercentilesfile = os.path.join(workingFilesPath, "allPercentiles_{}.txt".format(percentilesCohort))
+
+     # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allPercentilesfile):
+        params = {
+            "percentilesCohort": percentilesCohort
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_percentiles_update", params=params)
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
+        lastPercentilesUpdate = response.text
+        lastPercentilesUpdate = lastPercentilesUpdate.split('-')
+        lastPercentilesUpdate = datetime.date(int(lastPercentilesUpdate[0]), int(lastPercentilesUpdate[1]), int(lastPercentilesUpdate[2]))
+
+        fileModDateObj = time.localtime(os.path.getmtime(allPercentilesfile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastPercentilesUpdate <= fileModDate):
+            dnldNewPercentiles = False
+
+    return dnldNewPercentiles
+
+
 # gets associations obj download from the Server
 def getAllAssociations(refGen): 
     params = {
@@ -447,6 +491,15 @@ def getAllMaf(mafCohort, refGen):
     }
     mafReturnedObj = getUrlWithParams("https://prs.byu.edu/get_maf_download_file", params=params)
     return mafReturnedObj
+
+
+def getAllPercentiles(percentilesCohort):
+    if (percentilesCohort == 'user'): return {}
+    params = {
+        "cohort": percentilesCohort
+    }
+    percentilesReturnedObj = getUrlWithParams("https://prs.byu.edu/get_percentiles_download_file", params=params)
+    return percentilesReturnedObj
 
 
 # gets study snps file download from the Server
@@ -699,6 +752,43 @@ def getMaf(mafCohort, refGen, snpsFromAssociations):
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
 
     return maf
+
+
+def getPercentiles(percentilesCohort, finalStudyList):
+    # if the cohort is user, return empty, we will use the user maf
+    if (percentilesCohort == 'user'): return {}
+
+    body = {
+        "cohort": percentilesCohort
+    }
+    print("Retrieving Percentile information for studies")
+
+    percentiles = {}
+
+    lengthOfList = len(finalStudyList)
+    i = 0
+    j = 1000 if lengthOfList > 1000 else lengthOfList - 1
+    runLoop = True
+    try:
+        while runLoop:
+            if j == lengthOfList - 1:
+                runLoop = False
+            # get the associations based on the studyIDs
+            print("{}...".format(j), end = "", flush=True)
+            body = {
+                "studyIDObjs":finalStudyList[i:j]
+            }
+            tmpPercentiles = postUrlWithBody("https://prs.byu.edu/get_percentiles", body)       # TODO WORKING HERE END OF DAY (2/7/2022)
+            for key in tmpPercentiles:
+                if key not in percentiles:
+                    percentiles[key] = tmpPercentiles[key]
+            i = j
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList - 1
+        print("Done\n")
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+
+    return percentiles
 
 
 # gets associationReturnObj using the given filters
