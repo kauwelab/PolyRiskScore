@@ -40,6 +40,16 @@ exports.getAllMaf = (req, res) => {
     });
 };
 
+exports.getLastMafUpdate = (req, res) => {
+    refGen = req.query.refGen
+    cohort = req.query.cohort
+
+    associationsPath = path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/${cohort}_maf_${refGen}.txt`)
+    statsObj = fs.statSync(associationsPath)
+    updateTime = statsObj.mtime
+    res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
+}
+
 exports.getDownloadMaf = (req, res) => {
     refGen = req.query.refGen
     cohort = req.query.cohort

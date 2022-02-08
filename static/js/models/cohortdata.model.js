@@ -236,4 +236,37 @@ Cohortdata.getStudySnps = (studyID, trait, cohort, pValueAnnotation, betaAnnotat
     })
 }
 
+Cohortdata.getPercentiles = (studyIDObjs, result) => {
+    try {
+        queryString = ""
+        queryParams = []
+
+        if (!Array.isArray(studyIDObjs)) {
+            studyIDObjs = [studyIDObjs]
+        }
+
+        studyIDObjs.forEach(studyObj => {
+            if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
+                studyObj = JSON.parse(studyObj)
+            }
+            queryString = queryString.concat(`SELECT * FROM cohort_percentiles WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? AND betaAnnotation = ? AND ogValueTypes = ?; `)
+            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation, studyObj.betaAnnotation, studyObj.ogValueTypes])
+        })
+        console.log('about to query table')
+
+        sql.query(queryString, queryParams, (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            result(null, res);
+        });
+    } catch (e) {
+        console.log("Error: ", e)
+        result(e, null)
+    }
+
+}
+
 module.exports = Cohortdata;
