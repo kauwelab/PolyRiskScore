@@ -13,7 +13,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
 
     # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
     if extension == '.txt' and mafCohort == 'user':
-        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must have uploaded a vcf. Please select a different maf cohort option. \n\n')
+        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
 
     if mafCohort.startswith("adni"):
         mafCohort = "adni"
