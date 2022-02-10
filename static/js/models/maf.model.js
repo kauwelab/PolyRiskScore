@@ -14,12 +14,14 @@ Maf.getMAF = (cohort, chrom, pos, refGen, result) => {
     try {
         tableName = `${cohort.toLowerCase()}_maf_chr${chrom}`
         sqlQuestionMarks = ""
-        for (i=0; i < pos.length - 1; i++) {
-            sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+        if (Array.isArray(pos)){
+            for (i=0; i < pos.length - 1; i++) {
+                sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
+            }
         }
         sqlQuestionMarks = sqlQuestionMarks.concat("?")
 
-        sqlQueryString = `SELECT chrom, ${refGen}, snp, allele, alleleFrequency FROM ${tableName} WHERE snp != "None" AND pos IN (${sqlQuestionMarks});`
+        sqlQueryString = `SELECT chrom, ${refGen}, snp, allele, alleleFrequency FROM ${tableName} WHERE snp != "None" AND ${refGen} IN (${sqlQuestionMarks});`
         sql.query(sqlQueryString, pos, function(err, rows){
             if (err) {
                 console.log(err)
@@ -64,3 +66,4 @@ Maf.getAllMAF = (cohort, chrom, refGen, result) => {
 }
 
 module.exports = Maf;
+

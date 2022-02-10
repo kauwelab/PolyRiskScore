@@ -51,7 +51,7 @@ def main():
     associFile = open(associationTableFolderPath, 'r', encoding='utf-8')
     content = associFile.readlines()
     strandFlipped = open("flipped.tsv", fileView)
-
+    
     for i in range(1,len(content)):
         line = content[i].strip().split('\t')
         rsID = line[1]
