@@ -4,16 +4,21 @@ import csv
 import os
 from filelock import FileLock
 
-def calculateScore(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, sampleOrder):
+def calculateScore(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, isRSids, sampleOrder):
     # check if the input file is a txt or vcf file and then run the calculations on that file
     if isRSids:
-        txtcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, trait, studyID, pValueAnno, betaAnnotation, valueType, snpCount)
+        txtcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, trait, studyID, pValueAnno, betaAnnotation, valueType)
     else:
-        vcfcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder, snpCount)
+        vcfcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder)
     return
 
 
-def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, trait, studyID, pValueAnno, betaAnnotation, valueType, snpCount):
+def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, trait, studyID, pValueAnno, betaAnnotation, valueType):
+    # this variable is used as a key in various dictionaries. Due to the nature of the studies in our database, 
+    # we separate calculations by trait, studyID, pValueAnnotation, betaAnnotation, and valueType. 
+    # pValueAnnotation - comes from the GWAS catalog, gives annotation to the pvalue
+    # betaAnnotation - comes from the GWAS catalog, gives annotation to the beta value
+    # valueType - denotes if the values are originally beta values or odds ratios
     pValBetaAnnoValType = "|".join((pValueAnno, betaAnnotation, valueType))
 
     if studyID in tableObjDict['studyIDsToMetaData'].keys():
@@ -30,13 +35,13 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
 
         nonMissingSnps = 0
         for snp in txtObj:
-            # Also iterate through each of the alleles
             if snp in snpSet:
                 nonMissingSnps += 1
                 riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['riskAllele']
                 units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnit']
                 # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
                 snpBeta = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['oddsRatio'])
+                # Also iterate through each of the alleles
                 for allele in txtObj[snp]:
                     # Then compare to the gwa study
                     if allele != "":
@@ -60,19 +65,18 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
 
         units = betaUnits.pop() if len(betaUnits) == 1 else "NA" #TODO might need to come up with a better way
 
+        # add needed markings to scores/studies
+        prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
         if not isCondensedFormat and not isJson:
-            # add needed markings to scores/studies
-            prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
+            
             # Grab variant sets
             protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
             # new line to add to tsv file
             newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
-            # add new ine to tsv file
+            # add new line to tsv file
             formatTSV(False, newLine, [], outputFile)
             
         elif isJson:
-            # Add needed markings to scores/studies
-            prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
 
             json_study_results = {
                 'studyID': printStudyID,
@@ -95,8 +99,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             json_study_results = {}
 
         elif isCondensedFormat:
-            #add necessary study/score markings
-            prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
             newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs]
             # write new line to tsv file
             formatTSV(False, newLine, [], outputFile)
@@ -106,8 +108,9 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
     return
 
 
-def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder, snpCount):
-    header = []
+def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder):
+    # this variable is used as a key in various dictionaries. Due to the nature of the studies in our database, 
+    # we separate calculations by trait, studyID, pValueAnnotation, betaAnnotation, and valueType. 
     pValBetaAnnoValType = "|".join((pValueAnno, betaAnnotation, valueType))
 
     # keep track of the samples that have had their scores calculated so we know when to write out the condensed format line and json output
@@ -167,10 +170,10 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
 
             studyUnits = betaUnits.pop() if len(betaUnits) == 1 else "NA" #TODO might need to come up with a better way!!!!!!!!!!!!!!!!!!!!!
 
+            # add necessary marks to study/score
+            prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
             # if the output format is verbose
             if not isCondensedFormat and not isJson:
-                # add necessary marks to study/score
-                prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
                 #grab variant sets
                 protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 # add new line to tsv file
@@ -178,9 +181,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                 formatTSV(False, newLine, [], outputFile)
 
             elif isJson:
-                # Add needed markings to score and study
-                prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
-                
                 # if this is the first sample for this study/trait combo, add the study information first
                 if samp_count == 1:
                     json_study_results.update({
@@ -216,9 +216,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                     json_samp_list = []
             
             elif isCondensedFormat:
-                # add needed markings to study/score
-                prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
-
                 # if this is the first sample, initiate the new line with the first four columns
                 if samp_count == 1:
                     newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits]

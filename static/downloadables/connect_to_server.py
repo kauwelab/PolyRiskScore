@@ -13,7 +13,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
 
     # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
     if extension == '.txt' and mafCohort == 'user':
-        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must have uploaded a vcf. Please select a different maf cohort option. \n\n')
+        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
 
     percentilesCohort = mafCohort
     if mafCohort.startswith("adni"):
@@ -132,7 +132,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 
     # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
     if extension == '.txt' and mafCohort == 'user':
-        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must have uploaded a vcf. Please select a different maf cohort option. \n\n')
+        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
 
     GWASfileOpen = openFileForParsing(GWASfile, True)
 
@@ -503,6 +503,7 @@ def getAllPercentiles(percentilesCohort):
 
 
 # gets study snps file download from the Server
+# gets a list of snps for all of the unique trait/pValueAnnotation/betaAnnotation/valueType/studyID combinations
 def getAllStudySnps(): 
     studySnpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_traitStudyID_to_snp", params={})
     # Organized with study as the Keys and snps as values
