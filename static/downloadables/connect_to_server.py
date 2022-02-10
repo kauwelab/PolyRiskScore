@@ -450,6 +450,7 @@ def getAllMaf(mafCohort, refGen):
 
 
 # gets study snps file download from the Server
+# gets a list of snps for all of the unique trait/pValueAnnotation/betaAnnotation/valueType/studyID combinations
 def getAllStudySnps(): 
     studySnpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_traitStudyID_to_snp", params={})
     # Organized with study as the Keys and snps as values

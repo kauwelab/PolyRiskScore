@@ -33,11 +33,11 @@ def parseAndCalculateFiles(params):
     # check if the input file is a txt or vcf file
     # parse the file to get the necessary genotype information for each sample and then run the calculations
     if isRSids: 
-        txtObj, clumpedVariants, unmatchedAlleleVariants, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp)
-        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, None)
+        txtObj, clumpedVariants, unmatchedAlleleVariants = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp)
+        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, None)
     else:
-        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump)
-        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, sample_order)
+        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump)
+        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, sample_order)
     return
 
 
@@ -120,8 +120,6 @@ def formatAndReturnGenotype(genotype, REF, ALT):
 
 
 def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp):
-    # keep track of the number of snps from the study found in the input file
-    snpCount = 0
     #create set to hold  the lines with a snp in this study
     studyLines = {}
 
@@ -150,7 +148,6 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     "Offending line:\n" + line)
             # if the snp is in the study, add the line to the final file like object
             if snp in snpSet:
-                snpCount += 1
                 studyLines[snp]=alleles
 
     # Create a default dictionary (nested dictionary)
@@ -259,14 +256,12 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         sample_map[snp] = alleles
 
     final_map = dict(sample_map)
-    return final_map, clumpedVariants, unmatchedAlleleVariants, snpCount
+    return final_map, clumpedVariants, unmatchedAlleleVariants
 
 
 def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump):
     # variable to keep track of the number of samples in the input file
     sampleNum=0
-    # variable to keep track of the number of snps in the study found in the input file
-    snpCount = 0
     createMaf = False
 
     if mafDict is None:
@@ -305,7 +300,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                         # if the rsid is in the study/trait, write the line to the temp file
                         if rsID in snpSet:
                             w.write(line)
-                            snpCount += 1
 
     else:
         with open(filteredFilePath, 'r') as f:
@@ -326,7 +320,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     # if the rsid is in the study/trait, write the line to the memory file
                     if rsID in snpSet:
                         string += line
-                        snpCount += 1
             useFilePath = StringIO(string)
 
     # Create a dictionary to keep track of the variants in each study
@@ -367,7 +360,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                 # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this rsID
                 # this is necessary due to excluded snps
                 if trait in tableObjDict['associations'][rsID]['traits'] and study in tableObjDict['associations'][rsID]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
-                    snpCount += 1
                     ALT = record.ALT
                     REF = record.REF 
 
@@ -561,7 +553,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         if os.path.exists(tempFilePath):
             os.remove(tempFilePath)
 
-    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sampleOrder, snpCount
+    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sampleOrder
 
 
 def takeComplement(alleles, REF, ALT):
