@@ -3,6 +3,7 @@ import myvariant
 import sys
 from sys import argv
 import os
+import math
 
 # This script creates a test VCF using one SNP from every study in the database. The VCF has 3 samples, 
 # one that is homozygous for the reference allele, one that is homozygous for the alternate allele and
@@ -74,12 +75,15 @@ for i in range(len(snpsData)):
     hg19 = snpsData[i].pop('hg19')
     if (hg19 != "NA"):
         chrom, pos = hg19.split(":")
+        print("here0", chrom, pos, snp, ref, alt)
         f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
     elif snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "" and snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "NA":
         chrom = snpRefAlleleDict[snpsData[i]['snp']]['chrom']
         pos = snpRefAlleleDict[snpsData[i]['snp']]['pos']
+        if chrom == "NA":
+            chrom = 25
+            pos = 0
         f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
-        
 f.close()
 
 print("Finished creating sample VCF")

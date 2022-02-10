@@ -140,7 +140,7 @@ exports.getSnpsToTraitStudyID = (req, res) => {
                     }
                 }
                 else {
-                    key=[data[i].trait, data[i].pValueAnnotation, data[i].betaAnnotation, data[i].ogValueTypes, data[i].studyID].join("|") //TODO: This line is useful in stuff
+                    key=[data[i].trait, data[i].pValueAnnotation, data[i].betaAnnotation, data[i].ogValueTypes, data[i].studyID].join("|")
                     if (!(Object.keys(studyIDTraitsToSnps).includes(key))) {
                         studyIDTraitsToSnps[key] = []
                     }

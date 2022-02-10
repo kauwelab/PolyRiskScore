@@ -21,7 +21,7 @@
 #        "sex" is a string ("male" or "female") representing the study's sub study sex (default NA)
 #        "pValueAnnotation" is a string containing one pValueAnnotation of the study
 #        "betaAnnotation" is a string containing one betaAnnotation of the study
-#        "ogValueTypes" is a pipe (|) deliminated string containing the study's value types ("OR", "beta", or "OR|beta")
+#        "ogValueTypes" is a ¦ deliminated string containing the study's value types ("OR", "beta", or "OR¦beta")
 #        "numAssociationsFiltered" is the number of SNPs filtered from the study (not in the associations table)
 #        "title" is the the title of the study
 #        "lastUpdated" is the date the study was last updated in the GWAS database

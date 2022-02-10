@@ -232,8 +232,8 @@ Association.getSnpsToTraitStudyID = (studyIDObjs, result) => {
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
                 studyObj = JSON.parse(studyObj)
             }
-            queryString = queryString.concat(`SELECT snp, studyID, trait, pValueAnnotation, betaAnnotation, ogValueTypes FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? AND betaAnnotation = ?; `)
-            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation, studyObj.betaAnnotation])
+            queryString = queryString.concat(`SELECT snp, studyID, trait, pValueAnnotation, betaAnnotation, ogValueTypes FROM associations_table WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? AND betaAnnotation = ? AND ogValueTypes = ?; `)
+            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation, studyObj.betaAnnotation, studyObj.ogValueTypes])
         })
         console.log('about to query table')
 
