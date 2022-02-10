@@ -25,20 +25,19 @@ def parseAndCalculateFiles(params):
     valueType = params[11]
     isJson = params[12]
     isCondensedFormat = params[13]
-    omitUnusedStudiesFile = params[14]
-    outputFilePath = params[15]
-    isRSids = params[16]
-    timestamp = params[17]
-    isSampleClump = params[18]
+    outputFilePath = params[14]
+    isRSids = params[15]
+    timestamp = params[16]
+    isSampleClump = params[17]
 
     # check if the input file is a txt or vcf file
     # parse the file to get the necessary genotype information for each sample and then run the calculations
     if isRSids: 
-        txtObj, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp)
-        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, omitUnusedStudiesFile, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, unusedTraitStudy, trait, study, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, None)
+        txtObj, clumpedVariants, unmatchedAlleleVariants, snpCount = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp)
+        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, None)
     else:
-        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump)
-        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, omitUnusedStudiesFile, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, unusedTraitStudy, trait, study, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, sample_order)
+        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order, snpCount = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump)
+        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, snpCount, isRSids, sample_order)
     return
 
 
@@ -164,17 +163,13 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     clumpedVariants= set()
     unmatchedAlleleVariants = set()
 
-    if snpCount == 0:
-        unusedTraitStudy = True
-        return sample_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount  
-    else:
-        unusedTraitStudy = False
-
+    pValBetaAnnoValType = "|".join([pValueAnno, betaAnnotation, valueType])
     # iterate through each snp/alleles for this study
+    usedSnps = set()
     for snp in studyLines:
+        usedSnps.add(snp)
         alleles = studyLines[snp]
         if alleles != [] and snp != "":
-            pValBetaAnnoValType = "|".join([pValueAnno, betaAnnotation, valueType])
             # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this snp
             # this is necessary due to excluded snps
             if trait in tableObjDict['associations'][snp]['traits'] and study in tableObjDict['associations'][snp]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][snp]['traits'][trait][study]:
@@ -218,13 +213,53 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     else:
                         # the risk allele wasn't in the listed alleles
                         unmatchedAlleleVariants.add(snp)
-        # loop through each LD clump and add the index snp to the final sample map
+
+    # This next code accounts for snps that are in the study but are not reported in the sample. Instead of assuming the reference allele, we 
+    # assume that the allele is unknown and thus will use MAF for calculations of these snps
+    snpsLeftToImpute = set(snpSet).difference(usedSnps)
+    for snp in snpsLeftToImpute:
+        if trait in tableObjDict['associations'][snp]['traits'] and study in tableObjDict['associations'][snp]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][snp]['traits'][trait][study]:
+            # grab the corresponding pvalue
+            pValue = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+            # not going to do strand flipping for txt files/snp input from user
+            #compare the pvalue to the threshold
+            if pValue <= float(p_cutOff):
+                if snp in clumpsObjDict:
+                    # Grab the clump number associated with this snp 
+                    clumpNum = str(clumpsObjDict[snp]['clumpNum'])
+                    # check to see the number of variants in this ld clump. If the snp is the only one in the clump, we skip the clumping checks
+                    clumpNumTotal = clumpNumDict[clumpNum]
+
+                    if clumpNumTotal > 0:
+                        # If this snp is in LD with any other snps, check whether the existing index snp or current snp have a lower pvalue 
+                        if clumpNum in index_snp_map:
+                            index_snp, index_alleles = index_snp_map[clumpNum]
+                            index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+
+                            if pValue < index_pvalue:
+                                index_snp_map[clumpNum] = snp, [".", "."]
+                                # The snps that aren't index snps will be considered neutral snps
+                                clumpedVariants.add(index_snp)
+                            else:
+                                clumpedVariants.add(snp)
+                        else:
+                            # Since the clump number for this snp position and studyID
+                            # doesn't already exist, add it to the index map
+                            index_snp_map[clumpNum] = snp, [".", "."]
+                    else:
+                        # the variant is the only one in the ld clump
+                        sample_map[snp] = [".", "."]
+                # The snp wasn't in the clump map (meaning it wasn't in 1000 Genomes), so add it
+                else:
+                    sample_map[snp] = [".", "."]
+
+    # loop through each LD clump and add the index snp to the final sample map
     for clumpNum in index_snp_map:
         snp, alleles = index_snp_map[clumpNum]
         sample_map[snp] = alleles
 
     final_map = dict(sample_map)
-    return final_map, clumpedVariants, unmatchedAlleleVariants, unusedTraitStudy, snpCount
+    return final_map, clumpedVariants, unmatchedAlleleVariants, snpCount
 
 
 def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump):
@@ -314,24 +349,11 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     sampleOrder = vcf_reader.samples
     sample_num = len(sampleOrder)
 
-    # Create sets to keep track of which samples have a viable snp for this trait/study
-    no_viable_snp_counter = set()
-    viable_snp_counter = set()
-
-    # check if any snps in the study existed in the input file
-    if snpCount == 0:
-        unusedTraitStudy = True
-        if sampleNum > 50:
-            if os.path.exists(tempFilePath):
-                vcf_reader = None
-                os.remove(tempFilePath)
-        return sample_map, mafDict, neutral_snps_map,clumped_snps_map,sample_num,unusedTraitStudy,sampleOrder, snpCount
-    else:
-        unusedTraitStudy = False
-
 
     try:
         # Iterate through each line in the vcf file
+        usedSnps = set()
+        pValBetaAnnoValType = "|".join([pValueAnno, betaAnnotation, valueType])
         for record in vcf_reader:
             string_format = str(record.FORMAT)
             rsID = record.ID
@@ -341,7 +363,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
             # check to see if the snp is in this particular trait/study
             if rsID in snpSet:
-                pValBetaAnnoValType = "|".join([pValueAnno, betaAnnotation, valueType]) #TODO this is not working because of the valueType variable. looking into this upstream 2/1/2022
+                usedSnps.add(rsID)
                 # this if statement ensures that the trait/study combo actually exists in the tableObjDict for this rsID
                 # this is necessary due to excluded snps
                 if trait in tableObjDict['associations'][rsID]['traits'] and study in tableObjDict['associations'][rsID]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
@@ -383,12 +405,8 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
                             unmatchedAlleleVariants = neutral_snps_map[sample] if sample in neutral_snps_map else set()
 
-                            atRisk = True if riskAllele in alleles or (complements is not None and riskAllele in complements) else False
+                            atRisk = True if riskAllele in alleles or (complements is not None and riskAllele in complements) or "." in alleles else False #TODO this is an important line that needs to be looked at
                             if atRisk:
-                                # keep track of whether this sample has any viable snps for this study
-                                if sample in no_viable_snp_counter:
-                                    no_viable_snp_counter.remove(sample)
-                                viable_snp_counter.add(sample)
 
                                 if rsID in clumpsObjDict:
                                     # Grab the clump number associated with this study and snp position
@@ -459,19 +477,72 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                             # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
                                             index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
 
+                            #TODO: LOOK AT THIS
                             # the sample's alleles don't include the risk allele and early clumping is not requested
                             else:
-                                if sample not in viable_snp_counter:
-                                    no_viable_snp_counter.add(sample)
                                 unmatchedAlleleVariants.add(rsID)
 
                             clumped_snps_map[sample] = clumpedVariants
                             neutral_snps_map[sample] = unmatchedAlleleVariants
 
-        # Check to see which study/sample combos didn't have any viable snps
-        # and create blank entries for the sample map for those that didn't
-        for sample in no_viable_snp_counter:
-            sample_map[sample][""] = ""
+        # This next code accounts for snps that are in the study but are not reported in the sample. Instead of assuming the reference allele, we 
+        # assume that the allele is unknown and thus will use MAF for calculations of these snps
+        snpsLeftToImpute = set(snpSet).difference(usedSnps)
+        for sample in sampleOrder:
+            # Grab or create maps that hold sets of unused variants for this sample
+            clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
+            for rsID in snpsLeftToImpute:
+                if trait in tableObjDict['associations'][rsID]['traits'] and study in tableObjDict['associations'][rsID]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
+                    pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+                    # compare the pvalue to the pvalue cutoff
+                    if pValue <= float(p_cutOff):
+                        if rsID in clumpsObjDict:
+                            # Grab the clump number associated with this study and snp position
+                            clumpNum = str(clumpsObjDict[rsID]['clumpNum'])
+                            # Check to see how many variants are in this clump. If there's only one, we can skip the clumping checks.
+                            clumpNumTotal = clumpNumDict[clumpNum]
+
+                            if clumpNumTotal > 0: #TODO shouldn't this be > 1?
+                                if sample in index_snp_map:
+                                    # if the clump number for this snp position and study/name is already in the index map, move forward
+                                    if clumpNum in index_snp_map[sample]:
+                                        index_snp, index_alleles = index_snp_map[sample][clumpNum]
+                                        index_pvalue = tableObjDict['associations'][index_snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+
+                                        if isSampleClump:
+                                            # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                            # and switch out the data accordingly
+                                            if pValue < index_pvalue:
+                                                index_snp_map[sample][clumpNum] = rsID, [".", "."]
+                                                clumpedVariants.add(index_snp)
+                                            else:
+                                                clumpedVariants.add(rsID)
+                                        else:
+                                            # Check whether the existing index snp or current snp have a lower pvalue for this study
+                                            # and switch out the data accordingly
+                                            if pValue < index_pvalue:
+                                                index_snp_map[sample][clumpNum] = rsID, [".", "."]
+                                                clumpedVariants.add(index_snp)
+                                            else:
+                                                if index_alleles == "" and not isSampleClump:
+                                                    index_snp_map[sample][clumpNum] = rsID, [".", "."]
+                                                    clumpedVariants.add(index_snp)
+                                                else:
+                                                    clumpedVariants.add(rsID)
+                                    else:
+                                        # Since the clump number for this snp position and study/name
+                                        # doesn't already exist, add it to the index map and the sample map
+                                        index_snp_map[sample][clumpNum] = rsID, [".", "."]
+                                else:
+                                    # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
+                                    index_snp_map[sample][clumpNum] = rsID, [".", "."]
+                            # the variant isn't in the clump tables
+                            else:
+                                sample_map[sample][rsID] = [".", "."]
+                        # the variant isn't in the clump tables
+                        else:
+                            sample_map[sample][rsID] = [".", "."]
+            clumped_snps_map[sample] = clumpedVariants
 
         # Add the index snp for each sample's ld clump to the sample map
         for sample in index_snp_map:
@@ -483,8 +554,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     final_map = dict(sample_map)
-    no_viable_snp_counter = set()
-    viable_snp_counter = set()
     vcf_reader = None
 
     #remove temp file
@@ -492,7 +561,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         if os.path.exists(tempFilePath):
             os.remove(tempFilePath)
 
-    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, unusedTraitStudy, sampleOrder, snpCount
+    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sampleOrder, snpCount
 
 
 def takeComplement(alleles, REF, ALT):
@@ -515,7 +584,7 @@ def getSamples(inputFilePath, header):
     return header
 
 
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, extension, outputFilePath, outputType, isCondensedFormat, omitUnusedStudiesFile, timestamp, num_processes, isSampleClump, useGWASupload):
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp, num_processes, isSampleClump, useGWASupload):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -538,12 +607,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             isCondensedFormat = False
         else:
             isCondensedFormat = True
-
-    # Determine whether the unusedStudiesFile should be made
-    if omitUnusedStudiesFile == '0':
-        omitUnusedStudiesFile = False
-    else:
-        omitUnusedStudiesFile = True
 
     
     if isJson: #json and verbose
@@ -572,18 +635,16 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         else: # verbose and vcf input
             header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation, Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)
-        if not omitUnusedStudiesFile:
-            cs.printUnusedTraitStudyPairs(None, None, None, None, None, outputFilePath, True)
 
     # we create params for each study so that we can run them on separate processes
     for keyString in studySnpsDict:
         trait, pValueAnno, betaAnnotation, valueType, study = keyString.split('|')
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitUnusedStudiesFile, outputFilePath, isRSids, timestamp, isSampleClump))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
@@ -591,6 +652,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
 
 if __name__ == "__main__":
-    useGWASupload = True if sys.argv[16] == "True" or sys.argv[16] == True else False
-    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], useGWASupload)
+    useGWASupload = True if sys.argv[15] == "True" or sys.argv[15] == True else False
+    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], useGWASupload)
 

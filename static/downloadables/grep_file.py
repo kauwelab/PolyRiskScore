@@ -29,9 +29,9 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
     # create a new filtered file that only includes associations in the user-specified studies
     if isRSids:
-        clumpNumDict = filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
     else:
-        clumpNumDict = filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterVCF(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
 
     # write the clumpNumDict to a file for future use
     # the clumpNumDict is used to determine which variants aren't in LD with any of the other variants in the study
@@ -117,7 +117,7 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valu
     return traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes
 
 
-def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
+def filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff): #TODO problem in here showing up downstreem --> we need to make sure we are creating this clumps stuff for all snps in the study
     txt_file = openFileForParsing(inputFilePath)
     filteredOutput = open(filteredFilePath, 'w')
 
@@ -164,6 +164,13 @@ def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
             # write the line to the filtered txt file
             filteredOutput.write(line)
             inputInFilters = True
+
+    #here we add in the other snps that are not in the sample but are in the study
+    for key in studySnpsDict:
+        for snp in studySnpsDict[key]:
+            if snp in clumpsObjDict:
+                clumpNum = clumpsObjDict[snp]['clumpNum']
+                clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
         
     if fileEmpty:
         raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
@@ -174,7 +181,7 @@ def filterTXT(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
     return clumpNumDict
 
 
-def filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
+def filterVCF(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
     # open the input file path for opening
     inputVCF = openFileForParsing(inputFilePath)
 
@@ -215,6 +222,13 @@ def filterVCF(tableObjDict, clumpsObjDict, inputFilePath, filteredFilePath, trai
                         # write the line to the filtered VCF
                         w.write(line)
                         inputInFilters = True
+
+            #TODO here we add in the other snps that are not in the sample but are in the study
+            for key in studySnpsDict:
+                for snp in studySnpsDict[key]:
+                    if snp in clumpsObjDict:
+                        clumpNum = clumpsObjDict[snp]['clumpNum']
+                        clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
 
             if fileEmpty:
                 raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
