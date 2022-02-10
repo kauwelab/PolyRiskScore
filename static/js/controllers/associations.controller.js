@@ -132,7 +132,7 @@ exports.getSnpsToTraitStudyID = (req, res) => {
             for (i=0; i<data.length; i++) {
                 if (Array.isArray(data[i])) {
                     for (j=0; j<data[i].length; j++) {
-                        key = [data[i][j].trait, data[i][j].studyID, data[i][j].pValueAnnotation, data[i][j].betaAnnotation].join("|")
+                        key = [data[i][j].trait, data[i][j].pValueAnnotation, data[i][j].betaAnnotation, data[i][j].ogValueTypes, data[i][j].studyID].join("|")
                         if (!(Object.keys(studyIDTraitsToSnps).includes(key))) {
                             studyIDTraitsToSnps[key] = []
                         }
@@ -140,7 +140,7 @@ exports.getSnpsToTraitStudyID = (req, res) => {
                     }
                 }
                 else {
-                    key=[data[i].trait, data[i].studyID, data[i].pValueAnnotation, data[i].betaAnnotation].join("|")
+                    key=[data[i].trait, data[i].pValueAnnotation, data[i].betaAnnotation, data[i].ogValueTypes, data[i].studyID].join("|")
                     if (!(Object.keys(studyIDTraitsToSnps).includes(key))) {
                         studyIDTraitsToSnps[key] = []
                     }
