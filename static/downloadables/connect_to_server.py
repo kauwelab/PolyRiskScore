@@ -547,12 +547,12 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
     try:
         lengthOfList = len(finalStudyList)
         i = 0
-        j = 1000 if lengthOfList > 1000 else lengthOfList - 1
+        j = 1000 if lengthOfList > 1000 else lengthOfList
         print("Getting associations and studies")
         print("Total number of studies: {}". format(lengthOfList))
         runLoop = True
         while runLoop:
-            if j == lengthOfList - 1:
+            if j == lengthOfList:
                 runLoop = False
             # get the associations based on the studyIDs
             print("{}...".format(j), end = "", flush=True)
@@ -565,7 +565,7 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
             tmpAssociationsData = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
             associationData = combineJson(associationData, tmpAssociationsData)
             i = j
-            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList - 1
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList
         print('Done\n')
     except AssertionError:
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
@@ -707,13 +707,13 @@ def getSpecificStudySnps(finalStudyList):
     studySnps = {}
     lengthOfList = len(finalStudyList)
     i = 0
-    j = 1000 if lengthOfList > 1000 else lengthOfList - 1
+    j = 1000 if lengthOfList > 1000 else lengthOfList
     print("Getting snps to studies map")
     print("Total number of studies: {}". format(lengthOfList))
     runLoop = True
     try:
         while runLoop:
-            if j == lengthOfList - 1:
+            if j == lengthOfList:
                 runLoop = False
             # get the associations based on the studyIDs
             print("{}...".format(j), end = "", flush=True)
@@ -725,7 +725,7 @@ def getSpecificStudySnps(finalStudyList):
                 if key not in studySnps:
                     studySnps[key] = tmpStudySnps[key]
             i = j
-            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList - 1
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList
         print("Done\n")
 
     except AssertionError:

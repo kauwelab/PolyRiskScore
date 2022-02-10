@@ -50,7 +50,6 @@ version="1.7.0"
 #   Added optional param:
 #       -g biological sex prefered for snp selection
 #       -n number of processes
-#       -m omit *_studiesNotIncluded.txt file
 #
 # * 1/29/21 - v1.4.0
 #   
@@ -123,7 +122,6 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available subprocesses)"
-    echo -e "   ${MYSTERYCOLOR}-m${NC} omit *_studiesNotIncluded.txt file ex. -m (Indicates that the *_studiesNotIncluded.txt file should not be created)" 
     echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about uploading GWAS data for calculations' or the CLI readme)"
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file"
     echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user uploaded GWAS data uses beta coefficent values instead of odds ratios" 
@@ -198,14 +196,13 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}12${NC} - -v verbose result file                                     |"
         echo -e "| ${LIGHTPURPLE}13${NC} - -s stepNumber                                              |"
         echo -e "| ${LIGHTPURPLE}14${NC} - -n number of subprocesses                                  |"
-        echo -e "| ${LIGHTPURPLE}15${NC} - -m omit *_studiesNotIncluded.txt                           |"
-        echo -e "| ${LIGHTPURPLE}16${NC} - -u tab separated GWAS data file                            |"
-        echo -e "| ${LIGHTPURPLE}17${NC} - -a reference genome of GWAS data file                      |"
-        echo -e "| ${LIGHTPURPLE}18${NC} - -b flag indicates beta values used for uploaded GWAS data  |"
-        echo -e "| ${LIGHTPURPLE}19${NC} - -q minor allele frequency cohort                           |"
-        echo -e "| ${LIGHTPURPLE}20${NC} - -l sample-wide LD clumping                                 |"
+        echo -e "| ${LIGHTPURPLE}15${NC} - -u tab separated GWAS data file                            |"
+        echo -e "| ${LIGHTPURPLE}16${NC} - -a reference genome of GWAS data file                      |"
+        echo -e "| ${LIGHTPURPLE}17${NC} - -b flag indicates beta values used for uploaded GWAS data  |"
+        echo -e "| ${LIGHTPURPLE}18${NC} - -q minor allele frequency cohort                           |"
+        echo -e "| ${LIGHTPURPLE}19${NC} - -l sample-wide LD clumping                                 |"
         echo -e "|                                                                 |"
-        echo -e "| ${LIGHTPURPLE}21${NC} - Done                                                       |"
+        echo -e "| ${LIGHTPURPLE}20${NC} - Done                                                       |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         # gets the inputted number from the user
@@ -316,29 +313,24 @@ learnAboutParameters () {
                 echo "This parameter allows you to choose the number of processes used to run the tool."
                 echo "By default, the Python script will run the calculations using all available nodes."
                 echo "" ;;
-            15 ) echo -e "${MYSTERYCOLOR} -m omit *_studiesNotIncluded.txt: ${NC}"
-                echo -e "To omit the *_studiesNotIncluded.txt file, include the ${GREEN}-m${NC} flag."
-                echo "The *_studiesNotIncluded.txt file details study and trait combinations that no scores were"
-                echo "calculated for, due to none of the study snps being present in the samples. "
-                echo "" ;;
-            16 ) echo -e "${MYSTERYCOLOR} -u tab separated GWAS data file path: ${NC}"
+            15 ) echo -e "${MYSTERYCOLOR} -u tab separated GWAS data file path: ${NC}"
                 echo "If you wish to calculate polygenic risk scores using your own GWAS data, use this"
                 echo "parameter to specifiy the GWAS data file path. It must be a tab separated file."
                 echo "For more information about file format, see the 'Learn about uploading GWAS data for calculations'"
                 echo "option from the main menu."
                 echo "" ;;
-            17 ) echo -e "${MYSTERYCOLOR} -a reference genome of uploaded GWAS data: ${NC}"
+            16 ) echo -e "${MYSTERYCOLOR} -a reference genome of uploaded GWAS data: ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
                 echo -e "in the GWAS data file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
                 echo "If a GWAS data file is specified without this reference genome being specified, we assume the"
                 echo "reference genome is the same as the one for the input VCF or TXT."
                 echo "" ;;
-            18 ) echo -e "${MYSTERYCOLOR} -b beta values used for uploaded GWAS data: ${NC}"
+            17 ) echo -e "${MYSTERYCOLOR} -b beta values used for uploaded GWAS data: ${NC}"
                 echo "This flag indicates that beta coefficents were used in the uploaded GWAS data" 
                 echo "file instead of odds ratios. The beta values will first be converted to odds ratios and then"
                 echo "those values will be used to calculate polygenic risk scores."
                 echo "" ;;
-            19 ) echo -e "${MYSTERYCOLOR} -q minor allele frequency cohort: ${NC}"
+            18 ) echo -e "${MYSTERYCOLOR} -q minor allele frequency cohort: ${NC}"
                 echo "This parameter allows the user to select the cohort to use for minor allele frequencies and " 
                 echo "also indicates the cohort to use for reporting percentile rank. Available options are:"
                 echo -e "${GREEN}ukbb${NC} (UK Biobank, default)"
@@ -354,7 +346,7 @@ learnAboutParameters () {
                 echo -e "To use the minor allele frequencies from the user vcf, use ${GREEN}-q user ${NC}."
                 echo "Note that this option will not report percentile rank."
                 echo "" ;;
-            20 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
+            19 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
                 echo "To perform linkage disequilbrium clumping on a sample-wide level, include the -l parameter." 
                 echo -e "By default, LD clumping is performed per individual, where only the variants that contain"
                 echo "the corresponding GWA study risk allele are included in the clumping algorithm."
@@ -364,7 +356,7 @@ learnAboutParameters () {
                 echo "the query data and the GWA study. Sample-wide LD clumping allows for sample-wide"
                 echo "PRS comparisons because each individual risk score is calculated using the same variants."
                 echo "" ;;
-            21 ) cont=0 ;;
+            20 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -581,7 +573,6 @@ calculatePRS () {
     valueTypesForCalc=()
     sexForCalc=()
     isCondensedFormat=1
-    omitUnusedStudiesFile=0
     isSampleClump=0
 
     single="'"
@@ -612,7 +603,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:mu:a:q:by:l' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:u:a:q:by:l' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -747,8 +738,6 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi;;
-            m)  omitUnusedStudiesFile=1
-                ;;
             u)  if ! [ -z "$GWASfilename" ]; then
                     echo "Too many GWAS filenames given at once."
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -1066,7 +1055,7 @@ calculatePRS () {
         if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "${sexes}" "${valueTypes}" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitUnusedStudiesFile" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
@@ -1076,17 +1065,17 @@ calculatePRS () {
             echo -e "${LIGHTRED}ERROR DURING CREATION OF FILTERED INPUT FILE... Quitting${NC}"
         fi
 
-        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-            rm "$FILE"
-            rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-            rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
-            rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
-        fi
+        #TODO and an option for users to remove these files if they want
+        # if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+        #     rm "$FILE"
+        #     rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+        #     rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
+        #     rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+        # fi
         
         [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
-        [ -e "${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock" ] && rm -- "${SCRIPT_DIR}/${outputName}_studiesNotIncluded.txt.lock"
         echo "Cleaned up intermediate files"
         echo -e "Finished. Exiting...\n\n"
         exit;
