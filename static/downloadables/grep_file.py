@@ -117,7 +117,7 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valu
     return traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes
 
 
-def filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff): #TODO problem in here showing up downstreem --> we need to make sure we are creating this clumps stuff for all snps in the study
+def filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
     txt_file = openFileForParsing(inputFilePath)
     filteredOutput = open(filteredFilePath, 'w')
 
@@ -223,7 +223,7 @@ def filterVCF(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filtere
                         w.write(line)
                         inputInFilters = True
 
-            #TODO here we add in the other snps that are not in the sample but are in the study
+            # here we add in the other snps that are not in the sample but are in the study
             for key in studySnpsDict:
                 for snp in studySnpsDict[key]:
                     if snp in clumpsObjDict:
@@ -361,7 +361,8 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, value
         useStudyType = True
     if ((valueTypes is None) or (len(set(valueTypes).intersection(set(studyValueTypes))) > 0)):
         useValueType = True
-    if ((sexes is None) or (len(set(sexes).intersection(set(studyMetaData['traits'][trait]['sexes']))) > 0)): #TODO: might need to do this a different way
+    # if no sexes were specified, or if the sexes that are in the study overlap with the requested sexes, set useSex to true
+    if ((sexes is None) or (len(set(sexes).intersection(set(studyMetaData['traits'][trait]['sexes']))) > 0)): #TODO: might need different logic for this if statement
         useSex = True
     # we either want to use this study because of the studyID or because filtering trait, ethnicity, and studyTypes give us this study
     return useStudyID or (useEthnicity and useStudyType and useValueType and useSex)

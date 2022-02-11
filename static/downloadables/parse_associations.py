@@ -174,7 +174,9 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                 pValue = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
                 riskAllele = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['riskAllele']
 
-                # not going to do strand flipping for txt files/snp input from user
+                # REMINDER: in parse_vcf we can perform strand flipping because the reference and alternate alleles are reported
+                # for txt, we are not going to do strand flipping since we don't have access to anything except the allele reported for the person
+
                 #compare the pvalue to the threshold
                 if pValue <= float(p_cutOff):
                     if riskAllele in alleles:
@@ -218,7 +220,6 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         if trait in tableObjDict['associations'][snp]['traits'] and study in tableObjDict['associations'][snp]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][snp]['traits'][trait][study]:
             # grab the corresponding pvalue
             pValue = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
-            # not going to do strand flipping for txt files/snp input from user
             #compare the pvalue to the threshold
             if pValue <= float(p_cutOff):
                 if snp in clumpsObjDict:
@@ -397,7 +398,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
                             unmatchedAlleleVariants = neutral_snps_map[sample] if sample in neutral_snps_map else set()
 
-                            atRisk = True if riskAllele in alleles or (complements is not None and riskAllele in complements) or "." in alleles else False #TODO this is an important line that needs to be looked at
+                            atRisk = True if riskAllele in alleles or (complements is not None and riskAllele in complements) or "." in alleles else False
                             if atRisk:
 
                                 if rsID in clumpsObjDict:
@@ -469,7 +470,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                             # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
                                             index_snp_map[sample][clumpNum] = rsID, alleles if complements is None else complements
 
-                            #TODO: LOOK AT THIS
                             # the sample's alleles don't include the risk allele and early clumping is not requested
                             else:
                                 unmatchedAlleleVariants.add(rsID)
@@ -623,7 +623,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             # loop through each sample and add to the header
             header = getSamples(filteredInputPath, header)
         elif not isCondensedFormat  and isRSids: # verbose and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation, Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD'] #TODO circle back to update these headers
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation, Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         else: # verbose and vcf input
             header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation, Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)

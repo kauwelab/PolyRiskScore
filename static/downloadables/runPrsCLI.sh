@@ -74,7 +74,7 @@ version="1.7.0"
 #
 #   11/10/2021
 #
-#   adding in handling for pvalue annotationa and beta values
+#   added in handling for pvalue annotations and beta values
 #   switching how the sex (-g) param functions
 #   adding in maf handling (-q)
 #
@@ -274,10 +274,9 @@ learnAboutParameters () {
                 echo "by the authors. A list can be printed from the corresponding menu option."
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} -y value type: ${NC}" #TODO fix wording
-                echo "This parameter allows you to filter studies to use by the ethnicity "
-                echo "of the subjects used in the study. These correspond to those listed " 
-                echo "by the authors. A list can be printed from the corresponding menu option."
+            10 ) echo -e "${MYSTERYCOLOR} -y value type: ${NC}"
+                echo "This parameter allows you to filter studies by the value type reported"
+                echo "by the study's authors (beta values or odds ratios)." 
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
@@ -783,13 +782,16 @@ calculatePRS () {
                 fi;;
             b)  userGwasBeta=1 ;;
             y)  valueType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $valueType != 'beta' ] && [ $valueType != 'odds' ]; then
-                    echo "Invalid argument for -y. Use 'beta' and/or 'odds"
+                if [ $valueType != 'beta' ] && [ $valueType != 'odds' ] && [ $valueType != 'beta values' ] && [ $valueType != 'odds ratios' ] ; then
+                    echo "Invalid argument for -y. Use 'beta' or 'beta values' and/or 'odds' or 'odds ratios'"
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 else
-                    #todo maybe say somewhere that if exclude is there, we will exclude calculations that use sex specific snps and that will trump any other inputs for the param
-                    valueTypesForCalc+=("$valueType")
+                    if [ $valueType != 'beta' ] || [ $valueType != 'beta values' ] ; then
+                        valueTypesForCalc+=("beta")
+                    else
+                        valueTypesForCalc+=("odds")
+                    fi
                 fi;;
             q)  if ! [ -z "$mafCohort" ]; then
                     echo "Too many minor allele frequency cohorts given."

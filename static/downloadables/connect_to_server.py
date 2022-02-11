@@ -216,7 +216,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             else:
                 # if the snp is duplicated, add it to duplicated snps
                 # duplicatesSet.add((line[si], line[ti], line[sii]))
-                raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format())
+                raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format(line[si], line[ti], line[sii], pvalBetaAnnoValType))
                 continue
 
             # create the metadata info dict
@@ -293,7 +293,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 
     # get the study:snps info
     fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
-    studySnpsPath = os.path.join(workingFilesPath, fileName) #TODO do we need to do something for creating this?
+    studySnpsPath = os.path.join(workingFilesPath, fileName)
 
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():

@@ -263,6 +263,7 @@ def getPRSFromArray(betas, nonMissingSnps, valueType):
 # calculate the PRS from the list of betas
     ploidy = 2
     combinedBetas = 0
+    # if there are no values in the betas array, set combinedBetas to 'NF'
     if not betas:
         combinedBetas = "NF"
     else:
