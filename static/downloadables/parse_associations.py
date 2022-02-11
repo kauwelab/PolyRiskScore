@@ -187,7 +187,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             # check to see the number of variants in this ld clump. If the snp is the only one in the clump, we skip the clumping checks
                             clumpNumTotal = clumpNumDict[clumpNum]
 
-                            if clumpNumTotal > 0:
+                            if clumpNumTotal > 1:
                                 # If this snp is in LD with any other snps, check whether the existing index snp or current snp have a lower pvalue 
                                 if clumpNum in index_snp_map:
                                     index_snp, index_alleles = index_snp_map[clumpNum]
@@ -228,7 +228,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     # check to see the number of variants in this ld clump. If the snp is the only one in the clump, we skip the clumping checks
                     clumpNumTotal = clumpNumDict[clumpNum]
 
-                    if clumpNumTotal > 0:
+                    if clumpNumTotal > 1:
                         # If this snp is in LD with any other snps, check whether the existing index snp or current snp have a lower pvalue 
                         if clumpNum in index_snp_map:
                             index_snp, index_alleles = index_snp_map[clumpNum]
@@ -407,7 +407,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                     # Check to see how many variants are in this clump. If there's only one, we can skip the clumping checks.
                                     clumpNumTotal = clumpNumDict[clumpNum]
 
-                                    if clumpNumTotal > 0:
+                                    if clumpNumTotal > 1:
                                         if sample in index_snp_map:
                                             # if the clump number for this snp position and study/name is already in the index map, move forward
                                             if clumpNum in index_snp_map[sample]:
@@ -448,7 +448,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                     # Check to see how many variants are in this clump. If there's only one, we can skip the clumping checks.
                                     clumpNumTotal = clumpNumDict[clumpNum]
 
-                                    if clumpNumTotal > 0:
+                                    if clumpNumTotal > 1:
                                         if sample in index_snp_map:
                                             # if the clump number for this snp position and study/name is already in the index map, move forward
                                             if clumpNum in index_snp_map[sample]:
@@ -494,7 +494,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             # Check to see how many variants are in this clump. If there's only one, we can skip the clumping checks.
                             clumpNumTotal = clumpNumDict[clumpNum]
 
-                            if clumpNumTotal > 0: #TODO shouldn't this be > 1?
+                            if clumpNumTotal > 1:
                                 if sample in index_snp_map:
                                     # if the clump number for this snp position and study/name is already in the index map, move forward
                                     if clumpNum in index_snp_map[sample]:
