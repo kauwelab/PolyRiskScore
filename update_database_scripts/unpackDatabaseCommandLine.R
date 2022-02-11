@@ -581,13 +581,21 @@ if (is_ebi_reachable()) {
       studyData$variant_id <- gsub("(rs\\d*).*","\\1",as.character(studyData$variant_id))
       
       # if the ogValueTypes is beta and the beta unit is "NA", sets the beta unit to "unit"
-      testData <- mutate(studyData, beta_unit = case_when(ogValueTypes != "beta" ~ beta_unit,
+      studyData <- mutate(studyData, beta_unit = case_when(ogValueTypes != "beta" ~ beta_unit,
                                                           ogValueTypes == "beta" & beta_unit != "NA" & !is.na(beta_unit) ~ beta_unit,
                                                           ogValueTypes == "beta" & beta_unit == "NA" | is.na(beta_unit) ~ "unit"))
+      
+      # filter out snps that have multiple beta units for a unique combinations of trait, pValueAnnotation, betaAnnotation, ogValueType, and studyID (many of these beta units should be the same, but aren't due to typos)
+      studyData <- studyData %>%
+        group_by(trait, pvalue_description, beta_description, ogValueTypes, studyID) %>%
+        mutate(unique_beta_units = n_distinct(beta_unit)) %>% # create column counting number of unique beta units per group
+        filter(unique_beta_units==1) %>% # remove all groups with more than 1 unique beta unit
+        dplyr::select(-unique_beta_units) # remove the unique beta units column
 
       # check if studyData has enough snps
       if (is.null(checkIfValidDataObj(studyData))) {next}
       
+      studyData <- ungroup(studyData)
       # calculate the total number of SNPS that have been filtered out for the study and add it as a column      
       numFinalAssociations <- length(studyData[["variant_id"]])
       numAssociationsFiltered <- numTotalAssociations - numFinalAssociations
