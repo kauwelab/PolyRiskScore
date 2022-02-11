@@ -42,6 +42,7 @@ def parseAndCalculateFiles(params):
 
 
 def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload):
+    percentileCohort = mafCohort
     if mafCohort.startswith("adni"):
         mafCohort = "adni"
     
@@ -54,6 +55,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
+        percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
@@ -61,12 +63,14 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
+        percentilePath = os.path.join(basePath, "allPercentiles_${m}.txt".format(m=percentileCohort)) 
     else:
         associationsPath = specificAssociPath
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r = refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
+        percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
 
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
 
@@ -82,11 +86,13 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
             studySnpsDict = json.load(studySnpsFile)
         with open(mafCohortPath, 'r') as mafFile:
             mafDict = json.load(mafFile)
+        with open(percentilePath, 'r') as percentileFile:
+            percentileDict = json.load(percentileFile)
     
     except FileNotFoundError:
         raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}\n{3}\n{4}".format(associationsPath, clumpsPath, clumpNumPath, studySnpsPath, mafCohortPath))
 
-    return tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, filteredInputPath
+    return tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, percentileDict, filteredInputPath
 
 
 def formatAndReturnGenotype(genotype, REF, ALT):
@@ -587,7 +593,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
 
     # Access the downloaded files and paths
-    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload)
+    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, percentileDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload)
     
     # Determine whether the output format is condensed and either json or tsv
     if outputType == '.json':
@@ -606,7 +612,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         key = next(iter(studySnpsDict))
         trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
         snpSet = studySnpsDict[key]
-        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump)
+        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump)
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
@@ -623,9 +629,9 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             # loop through each sample and add to the header
             header = getSamples(filteredInputPath, header)
         elif not isCondensedFormat  and isRSids: # verbose and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation, Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD'] #TODO circle back to update these headers
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation, Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD'] #TODO circle back to update these headers
         else: # verbose and vcf input
-            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation, Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation, Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)
 
     # we create params for each study so that we can run them on separate processes
@@ -633,10 +639,10 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         trait, pValueAnno, betaAnnotation, valueType, study = keyString.split('|')
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:

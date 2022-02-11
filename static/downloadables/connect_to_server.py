@@ -84,7 +84,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         mafPath = os.path.join(workingFilesPath, fileName)
         mafData = getMaf(mafCohort, refGen, snpsFromAssociations)
 
-        fileName = "allPercentiles_{c}_{ahash}.txt".format(c=percentilesCohort, ahash=fileHash)
+        fileName = "percentiles_{c}_{ahash}.txt".format(c=percentilesCohort, ahash=fileHash)
         percentilesPath = os.path.join(workingFilesPath, fileName)
         percentileData = getPercentiles(refGen, finalStudyList)
         

@@ -13,7 +13,7 @@ def calculateScore(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensed
     return
 
 
-def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, trait, studyID, pValueAnno, betaAnnotation, valueType):
+def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, trait, studyID, pValueAnno, betaAnnotation, valueType):
     # this variable is used as a key in various dictionaries. Due to the nature of the studies in our database, 
     # we separate calculations by trait, studyID, pValueAnnotation, betaAnnotation, and valueType. 
     # pValueAnnotation - comes from the GWAS catalog, gives annotation to the pvalue
@@ -67,12 +67,13 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
 
         # add needed markings to scores/studies
         prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
+        percentileRank = getPercentile(prs, percentileDict)
         if not isCondensedFormat and not isJson:
             
             # Grab variant sets
             protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
             # new line to add to tsv file
-            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs, percentileRank, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
             # add new line to tsv file
             formatTSV(False, newLine, [], outputFile)
             
@@ -88,6 +89,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                 'scoreType': valueType,
                 'units (if applicable)': units,
                 'polygenicRiskScore': prs,
+                "percentile": percentileRank, 
                 'protectiveVariants': "|".join(protectiveVariants),
                 'riskVariants': "|".join(riskVariants),
                 'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
@@ -99,7 +101,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             json_study_results = {}
 
         elif isCondensedFormat:
-            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs]
+            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs, percentileRank]
             # write new line to tsv file
             formatTSV(False, newLine, [], outputFile)
     else:
@@ -108,7 +110,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
     return
 
 
-def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder):
+def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder):
     # this variable is used as a key in various dictionaries. Due to the nature of the studies in our database, 
     # we separate calculations by trait, studyID, pValueAnnotation, betaAnnotation, and valueType. 
     pValBetaAnnoValType = "|".join((pValueAnno, betaAnnotation, valueType))
@@ -172,12 +174,13 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
 
             # add necessary marks to study/score
             prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
+            percentileRank = getPercentile(prs, percentileDict)
             # if the output format is verbose
             if not isCondensedFormat and not isJson:
                 #grab variant sets
                 protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 # add new line to tsv file
-                newLine = [samp, printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+                newLine = [samp, printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, prs, percentileRank, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                 formatTSV(False, newLine, [], outputFile)
 
             elif isJson:
@@ -198,6 +201,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                 json_sample_results = {
                     'sample': samp,
                     'polygenicRiskScore': prs,
+                    'percentile': percentileRank,
                     'protectiveAlleles': "|".join(protectiveVariants),
                     'riskAlleles': "|".join(riskVariants),
                     'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
@@ -280,6 +284,33 @@ def getPRSFromArray(betas, nonMissingSnps, valueType):
         combinedBetas = round(combinedBetas, 3)
 
     return(str(combinedBetas))
+
+
+# This function determines the percentile (or percentile range) of the prs score
+def getPercentile(prs, percentileDict):
+    lb = 0 # keeps track of the lower bound percentile
+    ub = 0 # keeps track of the upper bound percentile
+    for i in range(1, 101):
+        key = "p{}".format(i)
+        # if the prs is greater than the score at the i-th percentile, set the lower bound to i
+        if prs > percentileDict[key]:
+            lb = i
+        # else if the prs is equal to the score at the i-th percentile and the score at the lower bound is not equal to the score at the i-th percentile, set the lower bound to i
+        elif prs == percentileDict[key] and percentileDict[key] != percentileDict["p{}".format(lb)]:
+            lb = i
+        # else if the prs is equal to the score at the i-th percentile, we will be working with a range of percentiles that all have the same value, so set the upper bound to i
+        elif prs == percentileDict[key]:
+            ub = i
+        # else the prs is less than the score at the i-th percentile and we are done
+        else:
+            break
+
+    # if the lower bound is less than the upper bound, send back the range of percentiles
+    if lb < ub:
+        return "{}-{}".format(lb,ub)
+    # else return just the lower bound
+    else: 
+        return str(lb)
 
 
 def formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants):

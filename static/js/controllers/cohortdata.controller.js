@@ -134,17 +134,15 @@ exports.getPercentiles = (req, res) => {
                     for (j=0; j<data[i].length; j++) {
                         key = [data[i][j].trait, data[i][j].pValueAnnotation, data[i][j].betaAnnotation, data[i][j].ogValueTypes, data[i][j].studyID].join("|")
                         if (!(Object.keys(percentiles).includes(key))) {
-                            percentiles[key] = []
+                            percentiles[key] = data[i][j]
                         }
-                        percentiles[key].push(data[i][j].snp)
                     }
                 }
                 else {
                     key=[data[i].trait, data[i].pValueAnnotation, data[i].betaAnnotation, data[i].ogValueTypes, data[i].studyID].join("|")
                     if (!(Object.keys(percentiles).includes(key))) {
-                        percentiles[key] = []
+                        percentiles[key] = data[i]
                     }
-                    percentiles[key].push(data[i].snp)
                 }
             }
             res.send(percentiles);
