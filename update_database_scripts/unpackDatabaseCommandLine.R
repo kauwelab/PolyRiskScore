@@ -579,6 +579,11 @@ if (is_ebi_reachable()) {
       
       # validate rsids by removing faulty characters (letters, asterisks, or crosses etc. after the ID)
       studyData$variant_id <- gsub("(rs\\d*).*","\\1",as.character(studyData$variant_id))
+      
+      # if the ogValueTypes is beta and the beta unit is "NA", sets the beta unit to "unit"
+      testData <- mutate(studyData, beta_unit = case_when(ogValueTypes != "beta" ~ beta_unit,
+                                                          ogValueTypes == "beta" & beta_unit != "NA" & !is.na(beta_unit) ~ beta_unit,
+                                                          ogValueTypes == "beta" & beta_unit == "NA" | is.na(beta_unit) ~ "unit"))
 
       # check if studyData has enough snps
       if (is.null(checkIfValidDataObj(studyData))) {next}
