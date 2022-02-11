@@ -457,6 +457,8 @@ def getAllStudySnps():
     return studySnpsReturnObj
 
 
+# This function is used to combine json from all the separate calls into one json object. Due to the amount of nesting in the json
+# this is the neccesary way to properly combine
 def combineJson(old, new):
     studyMeta = new["studyIDsToMetaData"]
     associations = new["associations"]
