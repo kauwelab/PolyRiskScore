@@ -214,10 +214,8 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 else:
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]['oddsRatio'] = float(line[ori])
             else:
-                # if the snp is duplicated, add it to duplicated snps
-                # duplicatesSet.add((line[si], line[ti], line[sii]))
+                # if the snp is duplicated, notify the user and exit
                 raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format(line[si], line[ti], line[sii], pvalBetaAnnoValType))
-                continue
 
             # create the metadata info dict
             # if the studyID is not in the studyIDsToMetaData

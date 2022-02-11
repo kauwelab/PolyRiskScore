@@ -296,11 +296,9 @@ learnAboutParameters () {
                 echo "If the output file is in JSON format, the results will, by default, be in verbose format."
                 echo -e "${LIGHTRED}**NOTE:${NC} There is no condensed version of JSON output."
                 echo "" ;;
-            12 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}" # fix wording
-                echo "Though a rare occurence, some studies have duplicates of the same SNP that differ by which"
-                echo "biological sex the p-value and odds ratio is associated with or SNPs that are not duplicated, "
-                echo "but are dependent on biological sex. The system default is to exclude sex dependent SNPs from calculations. " 
-                echo "You can include sex dependent associations by selecting either male (M) or female (F)."
+            12 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}"
+                echo "A rare handful of studies report beta values or odds ratios dependent on biological sex."
+                echo "Users can filter studies that contain these associations by selecting either male (M) or female (F)."
                 echo "" ;;
             13 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo -e "Either ${GREEN}-s 1${NC} or ${GREEN}-s 2${NC}"
@@ -435,13 +433,14 @@ ${MYSTERYCOLOR}Beta Annotation${NC}, and ${MYSTERYCOLOR}Reported Trait${NC}. Col
 present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation \
 are present, then the calculator will separate calculations by those columns. If you do not wish for this to \
 happen, do not include those optional columns."
-    # echo ""
-    # echo "If more than one odds ratio exists for an RsID in a study/trait combination, the snp will be excluded."
+    echo ""
+    echo "If more than one odds ratio exists for an RsID in a study/trait combination, the program will notify the user and stop running. \ 
+To avoid this, please ensure that you do not have any duplicated snps."
     echo ""
     echo -e "${LIGHTRED}NOTE: If a GWAS data file is specified, risk scores will only be calculated on \
 that data. No association data from the PRSKB will be used. Additionally, the optional params \
 ${MYSTERYCOLOR}-t${LIGHTRED}, ${MYSTERYCOLOR}-k${LIGHTRED}, ${MYSTERYCOLOR}-i${LIGHTRED}, ${MYSTERYCOLOR}-e${LIGHTRED}, \
-${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}" #TODO double check that these are the only params that will be igonred
+${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
     echo ""
     echo "Choose a column header below to learn more about it or select 'Return To Main Menu'."
     echo ""
