@@ -588,7 +588,7 @@ if (is_ebi_reachable()) {
       # filter out snps that have multiple beta units for a unique combinations of trait, pValueAnnotation, betaAnnotation, ogValueType, and studyID (many of these beta units should be the same, but aren't due to typos)
       studyData <- studyData %>%
         group_by(trait, pvalue_description, beta_description, ogValueTypes, studyID) %>%
-        mutate(unique_beta_units = n_distinct(beta_unit)) %>% # create column counting number of unique beta units per group
+        mutate(unique_beta_units = n_distinct(tolower(beta_unit))) %>% # create column counting number of unique beta units per group
         filter(unique_beta_units==1) %>% # remove all groups with more than 1 unique beta unit
         dplyr::select(-unique_beta_units) # remove the unique beta units column
 
