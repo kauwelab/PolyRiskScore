@@ -209,7 +209,6 @@ learnAboutParameters () {
         read -p "#? " option
         echo ""
 
-# TODO: !! Update these options, add the new ones and fix the numbering
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR}-f VCF File path or rsIDs:genotypes file path: ${NC}" 
                 echo "The path to the VCF file that contains the samples for which you would like " 
@@ -299,6 +298,7 @@ learnAboutParameters () {
             12 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}"
                 echo "A rare handful of studies report beta values or odds ratios dependent on biological sex."
                 echo "Users can filter studies that contain these associations by selecting either male (M) or female (F)."
+                echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             13 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo -e "Either ${GREEN}-s 1${NC} or ${GREEN}-s 2${NC}"
@@ -345,7 +345,7 @@ learnAboutParameters () {
                 echo "" ;;
             19 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
                 echo "To perform linkage disequilbrium clumping on a sample-wide level, include the -l parameter." 
-                echo -e "By default, LD clumping is performed per individual, where only the variants that contain"
+                echo "By default, LD clumping is performed per individual, where only the variants that contain"
                 echo "the corresponding GWA study risk allele are included in the clumping algorithm."
                 echo "Individual-wide LD clumping is beneficial because it allows for a greater number of variants"
                 echo "to be included for each individual's polygenic risk score."
@@ -475,7 +475,6 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
         read -p "#? " option
         echo ""
 
-    #TODO update these options/numbers
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR} Study ID: ${NC}" 
                 echo "A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want."
@@ -498,11 +497,11 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
             7 ) echo -e "${MYSTERYCOLOR} Odds Ratio: ${NC}"
                 echo "Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest."
                 echo "" ;;
-            8 ) echo -e "${MYSTERYCOLOR} Beta Coefficient: ${NC}" # TODO:!! explain what the Beta Coefficient is.
-                echo "Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest."
+            8 ) echo -e "${MYSTERYCOLOR} Beta Coefficient: ${NC}"
+                echo "Computed in the GWAS study, a numerical value that indicates the increase or decrease in the genetic risk per unit. "
                 echo "" ;;
-            9 ) echo -e "${MYSTERYCOLOR} Beta Unit: ${NC}" #TODO: !! explain this
-                echo "STILL NEED TO EXPLAIN THIS"
+            9 ) echo -e "${MYSTERYCOLOR} Beta Unit: ${NC}"
+                echo "The units associated with the beta coefficient. e.g. cm, beats per min "
                 echo "" ;;
             10 ) echo -e "${MYSTERYCOLOR} P-value: ${NC}"
                 echo "The probability that the risk allele confers the amount of risk stated."
@@ -513,11 +512,11 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
             12 ) echo -e "${MYSTERYCOLOR} Reported Trait: ${NC}"
                 echo "Trait description for this study in the authors own words."
                 echo "" ;;
-            13 ) echo -e "${MYSTERYCOLOR} P-Value Annotation: ${NC}" #TODO: !! explain this
-                echo "STILL NEED TO EXPLAIN THIS. "
+            13 ) echo -e "${MYSTERYCOLOR} P-Value Annotation: ${NC}"
+                echo "Provides additional information for the p-value, i.e. if the p-value computed only included women"
                 echo "" ;;
-            14 ) echo -e "${MYSTERYCOLOR} Beta Annotation: ${NC}" #TODO: !! explain this
-                echo "STILL NEED TO EXPLAIN THIS. "
+            14 ) echo -e "${MYSTERYCOLOR} Beta Annotation: ${NC}"
+                echo "Provides additional information for the beta value"
                 echo "" ;;
             15 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
