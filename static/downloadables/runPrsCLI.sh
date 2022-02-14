@@ -466,8 +466,8 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
         echo -e "|${LIGHTPURPLE}OPTIONAL COLUMNS: ${NC}            |"
         echo -e "| ${LIGHTPURPLE}11${NC} - Citation                |"
         echo -e "| ${LIGHTPURPLE}12${NC} - Reported Trait          |"
-        echo -e "| ${LIGHTPURPLE}13${NC} - P-Value Annotation      |" #TODO: We will need to include in our documentation that we separated for scores on pvalueannotation
-        echo -e "| ${LIGHTPURPLE}14${NC} - Beta Annotation         |" #TODO and beta annotation
+        echo -e "| ${LIGHTPURPLE}13${NC} - P-Value Annotation      |"
+        echo -e "| ${LIGHTPURPLE}14${NC} - Beta Annotation         |"
         echo -e "|                              |"
         echo -e "| ${LIGHTPURPLE}15${NC} - Return To Main Menu     |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |"
@@ -701,7 +701,7 @@ calculatePRS () {
                 ethnicityForCalc+=("$ethnicity");;
             v)  isCondensedFormat=0;;
             g)  sex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $sex != 'f' ] && [ $sex != 'm' ] && [ $sex != 'female' ] && [ $sex != 'male' ] && [ $sex != 'e' ] && [ $sex != 'exclude']; then
+                if [ $sex != 'f' ] && [ $sex != 'm' ] && [ $sex != 'female' ] && [ $sex != 'male' ] && [ $sex != 'e' ] && [ $sex != 'exclude' ]; then
                     echo "Invalid argument for -g. Use a combination of f, m, female, male, or e or exclude "
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1

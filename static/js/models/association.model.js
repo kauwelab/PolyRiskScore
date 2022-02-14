@@ -35,6 +35,11 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
         studyIDs = []
         questionMarks = []
 
+        // if sexes includes exclude, ignore any other options and exclude studies that have sex associations
+        if (sexes.includes("exclude") || sexes.includes('e')) {
+            sexes = ["NA"]
+        }
+
         if (!Array.isArray(studyIDObjs)) {
             studyIDObjs = [studyIDObjs]
         }
