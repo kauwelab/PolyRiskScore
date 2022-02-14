@@ -117,7 +117,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "   ${MYSTERYCOLOR}-y${NC} value type ex. -y beta -y \"Odds Ratio\""
-    echo -e "   ${MYSTERYCOLOR}-g${NC} sex in study ex. -g male -g female"
+    echo -e "   ${MYSTERYCOLOR}-g${NC} sex in study ex. -g male -g female -g exclude"
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
@@ -298,6 +298,7 @@ learnAboutParameters () {
             12 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}"
                 echo "A rare handful of studies report beta values or odds ratios dependent on biological sex."
                 echo "Users can filter studies that contain these associations by selecting either male (M) or female (F)."
+                echo "To exclude studies that contain values associated with sex, users can use exclude (e)."
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             13 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
@@ -706,8 +707,12 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 else
-                    #todo maybe say somewhere that if exclude is there, we will exclude calculations that use sex specific snps and that will trump any other inputs for the param
-                    sexForCalc+=("$sex")
+                    if [ $sex == 'm' ]; then
+                        sexForCalc+=("male")
+                    elif [ $sex == 'f' ]; then
+                        sexForCalc+=("female")
+                    else 
+                        sexForCalc+=("$sex")
                 fi;;
             s)  if ! [ -z "$step" ]; then 
                     echo "Too many steps requested at once."
