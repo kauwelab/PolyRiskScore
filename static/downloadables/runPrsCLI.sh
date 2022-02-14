@@ -714,6 +714,7 @@ calculatePRS () {
                     else
                         echo "'e' or 'exclude' present. Other sex parameters will be ignored."
                         sexForCalc+=("$sex")
+                    fi
                 fi;;
             s)  if ! [ -z "$step" ]; then 
                     echo "Too many steps requested at once."
