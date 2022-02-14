@@ -707,11 +707,12 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 else
-                    if [ $sex == 'm' ]; then
+                    if [ $sex == 'm' ] || [ $sex == 'male' ]; then
                         sexForCalc+=("male")
-                    elif [ $sex == 'f' ]; then
+                    elif [ $sex == 'f' ] || [ $sex == 'female' ]; then
                         sexForCalc+=("female")
-                    else 
+                    else
+                        echo "'e' or 'exclude' present. Other sex parameters will be ignored."
                         sexForCalc+=("$sex")
                 fi;;
             s)  if ! [ -z "$step" ]; then 
