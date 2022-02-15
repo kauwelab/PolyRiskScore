@@ -286,6 +286,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
         pvalBetaAnnoValType = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation + "|" + studyObj.ogValueTypes
         superPopulations = studyObj.superPopulation.split("|")
+        sex = studyObj.sex
         if (!(studyObj.studyID in studyIDsToMetaData)) {
             studyTypes = []
             if (studyObj.rthi != ""){
@@ -304,13 +305,15 @@ async function separateStudies(associations, traitData, refGen, sex) {
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
                 studyTypes: traitStudyTypes,
                 pValBetaAnnoValType: [pvalBetaAnnoValType],
-                superPopulations: superPopulations
+                superPopulations: superPopulations,
+                sexes: [sex]
             }
         }
         else {
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes]))
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValBetaAnnoValType'].push(pvalBetaAnnoValType)
             studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations]))
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['sexes'].push(sex)
         }
     }
 
@@ -352,7 +355,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
                 AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType] = createStudyIDObj(association)
             }
             else {
-                console.log("Okay, we have a serious problem...")
+                console.log("Okay, we have a duplicate or a serious problem...")
             }
         }
         else {

@@ -8,8 +8,15 @@ from sys import argv
 from grep_file import openFileForParsing
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
+def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes, superPop, fileHash, extension, mafCohort):
     checkInternetConnection()
+
+    # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
+    if extension == '.txt' and mafCohort == 'user':
+        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
+
+    if mafCohort.startswith("adni"):
+        mafCohort = "adni"
 
     # Format variables used for getting associations
     traits = traits.split(" ") if traits != "" else None
@@ -17,6 +24,8 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         traits = [sub.replace('_', ' ').replace("\\'", "\'") for sub in traits]
     studyTypes = studyTypes.split(" ") if studyTypes != "" else None
     studyIDs = studyIDs.split(" ") if studyIDs != "" else None
+    sexes = sexes.split(" ") if sexes != "" else None
+    valueTypes = valueTypes.split(" ") if valueTypes != "" else None
     ethnicity = ethnicity.split(" ") if ethnicity != "" else None
 
     if (ethnicity is not None):
@@ -33,12 +42,12 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         os.mkdir(workingFilesPath)
 
     # if the user didn't give anything to filter by, get all the associations
-    if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
+    if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None and sexes is None and valueTypes is None):
         # if we need to download a new all associations file, write to file
-        associFileName = "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]) if defaultSex[0] != "e" else "allAssociations_{refGen}.txt".format(refGen=refGen)
+        associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(workingFilesPath, associFileName)
-        if (checkForAllAssociFile(refGen, defaultSex)):
-            associationsReturnObj = getAllAssociations(refGen, defaultSex)
+        if (checkForAllAssociFile(refGen)):
+            associationsReturnObj = getAllAssociations(refGen)
             studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
             studySnpsData = getAllStudySnps()
 
@@ -46,11 +55,15 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
             clumpsData = getAllClumps(refGen, superPop)
         
+        if (checkForAllMAFFiles(mafCohort, refGen)):
+            mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
+            mafData = getAllMaf(mafCohort, refGen)
+        
     # else get the associations using the given filters
     else:
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj, finalStudyList = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex)
+        associationsReturnObj, finalStudyList = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes)
 
         # grab all the snps or positions to use for getting the clumps
         snpsFromAssociations = list(associationsReturnObj['associations'].keys())
@@ -60,6 +73,11 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         clumpsPath = os.path.join(workingFilesPath, fileName)
         # get clumps using the refGen and superpopulation
         clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
+
+        #download the maf from database
+        fileName = "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash = fileHash)
+        mafPath = os.path.join(workingFilesPath, fileName)
+        mafData = getMaf(mafCohort, refGen, snpsFromAssociations)
         
         # get the study:snps info
         fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
@@ -78,6 +96,13 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f.write(json.dumps(clumpsData))
         f.close()
 
+    if 'mafData' in locals():
+        f = open(mafPath, 'w', encoding="utf-8")
+        f.write(json.dumps(mafData))
+        f.close()
+    elif mafCohort != 'user':
+        raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
+
     # check to see if studySnpsData is instantiated in the local variables
     if 'studySnpsData' in locals():
         f = open(studySnpsPath, 'w', encoding="utf-8")
@@ -88,8 +113,12 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
 
 
 # format the uploaded GWAS data and get the clumps from the server
-def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, superPop, fileHash):
+def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGen, refGen, superPop, mafCohort, fileHash, extension):
     checkInternetConnection()
+
+    # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
+    if extension == '.txt' and mafCohort == 'user':
+        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
 
     GWASfileOpen = openFileForParsing(GWASfile, True)
 
@@ -105,9 +134,13 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
     pi = -1 # position index
     rai = -1 # risk allele index
     ori = -1 # odds ratio index
+    bvi = -1 # beta value index
+    bui = -1 # beta unit index
     pvi = -1 # p-value index
     cti = -1 # citation index
     rti = -1 # reported trait index
+    pvai = -1 # pvalue annotation index
+    bai = -1 # beta annotation index
 
     firstLine = True
     duplicatesSet = set()
@@ -125,12 +158,20 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
                 pi = headers.index("position")
                 rai = headers.index("risk allele")
                 ori = headers.index("odds ratio")
+                if userGwasBeta:
+                    bvi = headers.index("beta coefficient")
+                    bui = headers.index("beta units")
+                else:
+                    ori = headers.index("odds ratio")
                 pvi = headers.index("p-value")
             except ValueError:
                 raise SystemExit("ERROR: The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format.")
 
             cti = headers.index("citation") if "citation" in headers else -1
             rti = headers.index("reported trait") if "reported trait" in headers else -1
+            pvai = headers.index("p-value annotation") if "p-value annotation" in headers else -1
+            bai = headers.index("beta annotation") if "beta annotation" in headers else -1
+
         else:
             line = line.rstrip("\r").rstrip("\n").split("\t")
             # create the chrom:pos to snp dict
@@ -152,17 +193,29 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
                 associationDict[line[si]]["traits"][line[ti]] = {}
             # if studyID not in associationDict[snp]["traits"][trait]
             if line[sii] not in associationDict[line[si]]["traits"][line[ti]]:
-                # perform strand flipping
+                associationDict[line[si]]["traits"][line[ti]][line[sii]] = {}
+            # if pvalannotation not in associationDict[line[si]]["traits"][line[ti]][line[sii]]
+            pValueAnnotation = line[pvai] if pvai != -1 else "NA"
+            betaAnnotation = line[bai] if bai != -1 else "NA"
+            valueType = "beta" if userGwasBeta else "OR"
+            pvalBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + valueType
+            if pvalBetaAnnoValType not in associationDict[line[si]]["traits"][line[ti]][line[sii]]:
+                # perform strand flipping TODO THIS MIGHT BE SOMETHING THAT NEEDS TO CHANGE
                 riskAllele = runStrandFlipping(line[si], line[rai])
-                associationDict[line[si]]["traits"][line[ti]][line[sii]] = {
+                associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType] = {
                     "riskAllele": riskAllele,
                     "pValue": float(line[pvi]),
-                    "oddsRatio": float(line[ori]),
-                    "sex": "NA"
+                    "sex": "NA",
+                    "ogValueTypes": 'beta' if userGwasBeta else 'or'
                 }
+                if userGwasBeta:
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]['betaValue'] = float(line[bvi])
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]['betaUnit'] = line[bui]
+                else:
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]['oddsRatio'] = float(line[ori])
             else:
-                # if the snp is duplicated, add it to duplicated snps
-                duplicatesSet.add((line[si], line[ti], line[sii]))
+                # if the snp is duplicated, notify the user and exit
+                raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format(line[si], line[ti], line[sii], pvalBetaAnnoValType))
 
             # create the metadata info dict
             # if the studyID is not in the studyIDsToMetaData
@@ -177,15 +230,20 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
             # if the trait is not in the studyIDsToMetaData[studyID]["traits"]
             if line[ti] not in studyIDsToMetaData[line[sii]]["traits"]:
                 # add the trait
-                studyIDsToMetaData[line[sii]]["traits"][line[ti]] = []
-            
-            # create studyID/trait to snps
-            # if trait|studyID not in the studySnpsData
-            traitStudyID = "|".join([line[ti], line[sii]])
-            if traitStudyID not in studySnpsData:
-                studySnpsData[traitStudyID] = []
+                studyIDsToMetaData[line[sii]]["traits"][line[ti]] = {
+                    "studyTypes": [],
+                    "pValBetaAnnoValType": [pvalBetaAnnoValType],
+                    "superPopulations": []
+                }
+            else:
+                studyIDsToMetaData[line[sii]]["traits"][line[ti]]['pValBetaAnnoValType'].append(pvalBetaAnnoValType)
+            # create studyID/trait/pValueAnnotation to snps
+            # if trait|studyID|pValueAnnotation not in the studySnpsData
+            traitStudyIDPValAnno = "|".join([line[ti], line[sii]], pvalBetaAnnoValType)
+            if traitStudyIDPValAnno not in studySnpsData:
+                studySnpsData[traitStudyIDPValAnno] = []
             # add snp to the traitStudyIDToSnp
-            studySnpsData[traitStudyID].append(line[si])
+            studySnpsData[traitStudyIDPValAnno].append(line[si])
 
     GWASfileOpen.close()
 
@@ -226,6 +284,11 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
     # get clumps using the refGen and superpopulation
     clumpsData = getClumps(refGen, superPop, chromPos)
 
+    #get maf data using the refgen and mafcohort
+    fileName = "{m}_maf_{ahash}.txt".format(n=mafCohort, ahash=fileHash)
+    mafPath = os.path.join(workingFilesPath, fileName)
+    mafData = getMaf(mafCohort, refGen, chromPos)
+
     # get the study:snps info
     fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
     studySnpsPath = os.path.join(workingFilesPath, fileName)
@@ -242,6 +305,11 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
         f.write(json.dumps(clumpsData))
         f.close()
 
+    if 'mafData' in locals():
+        f = open(mafPath, 'w', encoding='utf-8')
+        f.write(json.dumps(mafData))
+        f.close()
+
     # check to see if studySnpsDat is instantiated in the local variables
     if 'studySnpsData' in locals():
         f = open(studySnpsPath, 'w', encoding="utf-8")
@@ -251,14 +319,14 @@ def formatGWASAndRetrieveClumps(GWASfile, GWASextension, GWASrefGen, refGen, sup
     return
 
 
-def checkForAllAssociFile(refGen, defaultSex):
+def checkForAllAssociFile(refGen):
     # assume we will need to download new files
     dnldNewAllAssociFile = True
     # check to see if the workingFiles directory is there, if not make the directory
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
     # path to a file containing all the associations from the database
-    associFileName = "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]) if defaultSex[0] != "e" else "allAssociations_{refGen}.txt".format(refGen=refGen)
+    associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
     allAssociationsFile = os.path.join(workingFilesPath, associFileName)
 
     # if the path exists, check if we don't need to download a new one
@@ -266,8 +334,7 @@ def checkForAllAssociFile(refGen, defaultSex):
 
         # get date the database was last updated
         params = {
-            "refGen": refGen,
-            "defaultSex": defaultSex[0]
+            "refGen": refGen
         }
 
         response = requests.get(url="https://prs.byu.edu/last_database_update", params=params)
@@ -293,7 +360,7 @@ def checkForAllClumps(pop, refGen):
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
 
-     # path to a file containing all the clumps from the database
+    # path to a file containing all the clumps from the database
     allClumpsFile = os.path.join(workingFilesPath, "{0}_clumps_{1}.txt".format(pop, refGen))
 
     # if the path exists, check if we don't need to download a new one
@@ -318,11 +385,42 @@ def checkForAllClumps(pop, refGen):
 
     return dnldNewClumps
 
+
+def checkForAllMAFFiles(mafCohort, refGen):
+    dnldNewMaf = True
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+
+    # path to a file containing all maf for the cohort from the database
+    allMAFfile = os.path.join(workingFilesPath, "{0}_maf_{1}.txt".format(mafCohort, refGen))
+
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allMAFfile):
+        params = {
+            "mafCohort": mafCohort
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_maf_update", params=params)
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
+        lastMafUpdate = response.text
+        lastMafUpdate = lastMafUpdate.split('-')
+        lastMafUpdate = datetime.date(int(lastMafUpdate[0]), int(lastMafUpdate[1]), int(lastMafUpdate[2]))
+
+        fileModDateObj = time.localtime(os.path.getmtime(allMAFfile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastMafUpdate <= fileModDate):
+            dnldNewMaf = False
+
+    return dnldNewMaf
+
+
 # gets associations obj download from the Server
-def getAllAssociations(refGen, defaultSex): 
+def getAllAssociations(refGen): 
     params = {
         "refGen": refGen,
-        "defaultSex": defaultSex[0],
     }
     associationsReturnObj = getUrlWithParams("https://prs.byu.edu/get_associations_download_file", params = params)
     # Organized with pos/snp as the Keys
@@ -338,22 +436,74 @@ def getAllClumps(refGen, superPop):
     clumpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_clumps_download_file", params=params)
     return clumpsReturnObj
 
+
+def getAllMaf(mafCohort, refGen):
+    if (mafCohort == 'user'): return {}
+    params = {
+        "cohort": mafCohort,
+        "refGen": refGen
+    }
+    mafReturnedObj = getUrlWithParams("https://prs.byu.edu/get_maf_download_file", params=params)
+    return mafReturnedObj
+
+
 # gets study snps file download from the Server
+# gets a list of snps for all of the unique trait/pValueAnnotation/betaAnnotation/valueType/studyID combinations
 def getAllStudySnps(): 
     studySnpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_traitStudyID_to_snp", params={})
     # Organized with study as the Keys and snps as values
     return studySnpsReturnObj
 
-# gets associationReturnObj using the given filters
-def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex):
-    finalStudyList = []
 
-    if (traits is not None or studyTypes is not None or ethnicity is not None):
+# This function is used to combine json from all the separate calls into one json object. Due to the amount of nesting in the json
+# this is the neccesary way to properly combine
+def combineJson(old, new):
+    studyMeta = new["studyIDsToMetaData"]
+    associations = new["associations"]
+
+    for studyID in studyMeta:
+        if studyID not in old["studyIDsToMetaData"]:
+            old["studyIDsToMetaData"][studyID] = studyMeta[studyID]
+        else:
+            for trait in studyMeta[studyID]["traits"]:
+                if trait not in old["studyIDsToMetaData"][studyID]["traits"]:
+                    old["studyIDsToMetaData"][studyID]["traits"][trait] = studyMeta[studyID]["traits"][trait]
+
+    for snp in associations:
+        if snp not in old["associations"]:
+            old["associations"][snp] = associations[snp]
+        elif snp.startswith("rs"):
+            for trait in associations[snp]["traits"]:
+                if trait not in old["associations"][snp]["traits"]:
+                    old["associations"][snp]["traits"][trait] = associations[snp]["traits"][trait]
+                else:
+                    for studyID in associations[snp]["traits"][trait]:
+                        if studyID not in old["associations"][snp]["traits"][trait]:
+                            old["associations"][snp]["traits"][trait][studyID] = associations[snp]["traits"][trait][studyID]
+                        else:
+                            for pValBetaAnnoValType in associations[snp]["traits"][trait][studyID]:
+                                if pValBetaAnnoValType not in old["associations"][snp]["traits"][trait][studyID]:
+                                    old["associations"][snp]["traits"][trait][studyID][pValBetaAnnoValType] = associations[snp]["traits"][trait][studyID][pValBetaAnnoValType]
+    new = {}
+    return old
+
+
+# gets associationReturnObj using the given filters
+def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes):
+    finalStudyList = []
+    associationData = {
+        "studyIDsToMetaData" : {},
+        "associations": {}
+    }
+
+    if (traits is not None or studyTypes is not None or ethnicity is not None or valueTypes is not None or sexes is not None):
         # get the studies matching the parameters
         body = {
             "traits": traits, 
             "studyTypes": studyTypes,
             "ethnicities": ethnicity,
+            "sexes": sexes,
+            "ogValueTypes": valueTypes
         }
         traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
 
@@ -366,7 +516,10 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
                 else:
                     finalStudyList.append(json.dumps({
                         "trait": trait,
-                        "studyID": study['studyID']
+                        "studyID": study['studyID'],
+                        "pValueAnnotation": study['pValueAnnotation'],
+                        "betaAnnotation": study['betaAnnotation'],
+                        "ogValueTypes" : study['ogValueTypes']
                     }))
 
     # get the data for the specified studyIDs
@@ -382,21 +535,42 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
             # add the specified studyIDs to the set of studyIDObjs
             finalStudyList.append(json.dumps({
                 "trait": studyIDDataList[i]['trait'],
-                "studyID": studyIDDataList[i]['studyID']
+                "studyID": studyIDDataList[i]['studyID'],
+                "pValueAnnotation": studyIDDataList[i]['pValueAnnotation'],
+                "betaAnnotation": studyIDDataList[i]['betaAnnotation'],
+                "ogValueTypes" : studyIDDataList[i]['ogValueTypes']
             }))
 
     if finalStudyList == []:
         raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
 
-    # get the associations based on the studyIDs
-    body = {
-        "refGen": refGen,
-        "studyIDObjs": finalStudyList,
-        "sex": defaultSex,
-    }
-
-    associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
-    return associationsReturnObj, finalStudyList
+    # Breaking up the calls to the get_associations endpoint so that we don't got over the Request size limit
+    try:
+        lengthOfList = len(finalStudyList)
+        i = 0
+        j = 1000 if lengthOfList > 1000 else lengthOfList
+        print("Getting associations and studies")
+        print("Total number of studies: {}". format(lengthOfList))
+        runLoop = True
+        while runLoop:
+            if j == lengthOfList:
+                runLoop = False
+            # get the associations based on the studyIDs
+            print("{}...".format(j), end = "", flush=True)
+            body = {
+                "refGen": refGen,
+                "studyIDObjs": finalStudyList[i:j],
+                "sexes": sexes,
+                "ogValueType": valueTypes
+            }
+            tmpAssociationsData = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
+            associationData = combineJson(associationData, tmpAssociationsData)
+            i = j
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList
+        print('Done\n')
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+    return associationData, finalStudyList
 
 
 def runStrandFlipping(snp, allele):
@@ -424,19 +598,20 @@ def getVariantAlleles(rsID, mv):
         queryResult = mv.query('dbsnp.rsid:{}'.format(rsID), fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref')
     output = f.getvalue()
 
-    obj = queryResult['hits'][0] if len(queryResult['hits']) > 0 else None
+    objs = queryResult['hits'][0] if len(queryResult['hits']) > 0 else None
 
     alleles = set()
-    if obj is not None:
-        if ('alleles' in obj['dbsnp']):
-            for alleleObj in obj['dbsnp']['alleles']:
-                alleles.add(alleleObj['allele'])
-        if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
-            alleles.add(obj['dbsnp']['ref'])
-        if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
-            alleles.add(obj['dbsnp']['alt'])
-        if (len(alleles) == 0):
-            print(obj, "STILL NO ALLELES")
+    if objs is not None:
+        for obj in objs:
+            if ('alleles' in obj['dbsnp']):
+                for alleleObj in obj['dbsnp']['alleles']:
+                    alleles.add(alleleObj['allele'])
+            if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
+                alleles.add(obj['dbsnp']['ref'])
+            if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
+                alleles.add(obj['dbsnp']['alt'])
+            if (len(alleles) == 0):
+                print(obj, "STILL NO ALLELES")
     else:
         # TODO maybe: try to find it with a merged snp?
         pass
@@ -493,15 +668,67 @@ def getClumps(refGen, superPop, snpsFromAssociations):
     return clumps
 
 
+# get maf using the maf cohort
+def getMaf(mafCohort, refGen, snpsFromAssociations):
+    # if the cohort is user, return empty, we will use the user maf
+    if (mafCohort == 'user'): return {}
+
+    body = {
+        "cohort": mafCohort,
+        "refGen": refGen
+    }
+    print("Retrieving maf information")
+    
+    try:
+        chromToPosMap = {}
+        maf = {}
+        for pos in snpsFromAssociations:
+            if (len(pos.split(":")) > 1):
+                chrom,posit = pos.split(":")
+                if (chrom not in chromToPosMap.keys()):
+                    chromToPosMap[chrom] = [posit]
+                else:
+                    chromToPosMap[chrom].append(posit)
+
+        for chrom in chromToPosMap:
+            print("{0}...".format(chrom), end="", flush=True)
+            body['chrom'] = chrom
+            body['pos'] = chromToPosMap[chrom]
+            maf = {**postUrlWithBody("https://prs.byu.edu/get_maf", body), **maf}
+        print('\n')
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+
+    return maf
+
+
 # gets associationReturnObj using the given filters
 def getSpecificStudySnps(finalStudyList):
     # get the studies matching the parameters
-    body = {
-        "studyIDObjs":finalStudyList
-    }
-    
+    studySnps = {}
+    lengthOfList = len(finalStudyList)
+    i = 0
+    j = 1000 if lengthOfList > 1000 else lengthOfList
+    print("Getting snps to studies map")
+    print("Total number of studies: {}". format(lengthOfList))
+    runLoop = True
     try:
-        studySnps = postUrlWithBody("https://prs.byu.edu/snps_to_trait_studyID", body)
+        while runLoop:
+            if j == lengthOfList:
+                runLoop = False
+            # get the associations based on the studyIDs
+            print("{}...".format(j), end = "", flush=True)
+            body = {
+                "studyIDObjs":finalStudyList[i:j]
+            }
+            tmpStudySnps = postUrlWithBody("https://prs.byu.edu/snps_to_trait_studyID", body)
+            for key in tmpStudySnps:
+                if key not in studySnps:
+                    studySnps[key] = tmpStudySnps[key]
+            i = j
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList
+        print("Done\n")
+
     except AssertionError:
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
     
@@ -520,8 +747,6 @@ def checkInternetConnection():
 
 if __name__ == "__main__":
     if argv[1] == "GWAS":
-        formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7])
+        formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8])
     else:
-        retrieveAssociationsAndClumps(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9])
-
-    
+        retrieveAssociationsAndClumps(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11])

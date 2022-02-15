@@ -78,6 +78,10 @@ Study.getAll = result => {
 Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, result) => {
     // use for adding the correct number of ? for using parameterization for the traits
     sqlQuestionMarks = ""
+    // if sexes includes exclude, ignore any other options and exclude studies that have sex associations
+    if (sexes.includes("exclude") || sexes.includes('e')) {
+        sexes = ["NA"]
+    }
 
     // potentially change the output format??
     //if traits is null, assume they want all 
@@ -128,6 +132,9 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
 
             //append sql conditional filters for studyType
             if(studyTypes){
+                if (!Array.isArray(studyTypes)){
+                    studyTypes = [studyTypes]
+                }
                 appendor = "AND (";
                 if (studyTypes.includes("LC")) {
                     subQueryString = subQueryString.concat(appendor).concat(` initialSampleSize+replicationSampleSize = ? `);
@@ -153,6 +160,9 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
 
             //append sql conditional filters for ethnicity
             if (ethnicities) {
+                if (!Array.isArray(ethnicities)){
+                    ethnicities = [ethnicities]
+                }
                 appendor = "AND (";
                 for(j=0; j < ethnicities.length; j++){
                     //TODO check for "unspecified/blank" ethnicity studies
@@ -174,10 +184,13 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
 
             //append sql conditional filters for sexes
             if (sexes) {
+                if (!Array.isArray(sexes)){
+                    sexes = [sexes]
+                }
                 appendor = "AND (";
                 for (j=0; j < sexes.length; j++) {
                     subQueryString = subQueryString.concat(appendor).concat(` sex LIKE ? `);
-                    sqlQueryParams.push(`%${sexes[j]}%`)
+                    sqlQueryParams.push(`${sexes[j]}`)
                     appendor = "OR";
                 }
 

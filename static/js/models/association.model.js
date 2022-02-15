@@ -35,6 +35,11 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
         studyIDs = []
         questionMarks = []
 
+        // if sexes includes exclude, ignore any other options and exclude studies that have sex associations
+        if (sexes.includes("exclude") || sexes.includes('e')) {
+            sexes = ["NA"]
+        }
+
         if (!Array.isArray(studyIDObjs)) {
             studyIDObjs = [studyIDObjs]
         }
@@ -50,6 +55,9 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
 
             // if the user wants both, sexes should be null and we skip this filtering step
             if (sexes) {
+                if (!Array.isArray(sexes)){
+                    sexes = [sexes]
+                }
                 appendor = "AND ("
                 for (i=0; i<sexes.length; i++) {
                     queryString = queryString.concat(appendor).concat(` sex LIKE ? `)
@@ -83,7 +91,7 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
             }
             console.log(`Got ${res.length} studies with associations from table`)
             console.log("Getting the metaData associated with the studies") 
-            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, ogValueTypes, `+
+            sql.query(`SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, ogValueTypes, sex, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, `+
              `IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, `+
              `IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, `+
@@ -122,7 +130,7 @@ Association.getAll = (refGen, result) => {
 
             console.log("associations (first): ", res[0]);
 
-            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, "+
+            qStr = "SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, ogValueTypes, sex,"+
              "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, "+
              "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait)=initialSampleSize+replicationSampleSize, 'LC', '') as lc, "+
              "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, "+
@@ -175,6 +183,9 @@ Association.getSnpsToChromPos = (snps, refGen, result) => {
         // returns the refgen if valid, else throws an error
         refGen = validator.validateRefgen(refGen)
         sqlQuestionMarks = []
+        if (!Array.isArray(snps)){
+            snps = [snps]
+        }
         for (i=0; i<snps.length; i++) {
             sqlQuestionMarks.push("?")
         }
@@ -296,15 +307,12 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         //select traits and studyIDs from the study table associated with the given ethnicities
         queryString = ""
         queryParams = []
-        if (Array.isArray(ethnicities)) {
-            for (i = 0; i < ethnicities.length; i++) {
-                queryString = queryString.concat(`SELECT studyID FROM study_table WHERE ethnicity LIKE ? ; `)
-                queryParams.push(`%${ethnicities[i]}%`)
-            }
+        if (!Array.isArray(ethnicities)){
+            ethnicities = [ethnicities]
         }
-        else {
+        for (i = 0; i < ethnicities.length; i++) {
             queryString = queryString.concat(`SELECT studyID FROM study_table WHERE ethnicity LIKE ? ; `)
-            queryParams.push(`%${ethnicities}%`)
+            queryParams.push(`%${ethnicities[i]}%`)
         }
         
         console.log(queryString)
