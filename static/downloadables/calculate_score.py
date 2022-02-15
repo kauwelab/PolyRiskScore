@@ -63,7 +63,16 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                         else:
                             unmatchedAlleleVariants.add(snp)
 
-        units = betaUnits.pop() if len(betaUnits) == 1 else "NA" #TODO might need to come up with a better way
+        if len(betaUnits) > 1:
+            lowercaseB = [x.lower() for x in betaUnits]
+            if len(set(lowercaseB)) == 1:
+                studyUnits = lowercaseB.pop()
+            else:
+                print("ERROR: The following had too many betaUnits: {} {} {}".format(trait, studyID, pValBetaAnnoValType))
+                print("Output file will list 'Error - too many units' as the betaUnits")
+                studyUnits = 'Error - too many units'
+        else:
+            studyUnits = betaUnits.pop()
 
         # add needed markings to scores/studies
         prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
@@ -72,7 +81,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             # Grab variant sets
             protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
             # new line to add to tsv file
-            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
             # add new line to tsv file
             formatTSV(False, newLine, [], outputFile)
             
@@ -86,7 +95,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                 "pValueAnnotation": pValueAnno,
                 'betaAnnotation': betaAnnotation,
                 'scoreType': valueType,
-                'units (if applicable)': units,
+                'units (if applicable)': studyUnits,
                 'polygenicRiskScore': prs,
                 'protectiveVariants': "|".join(protectiveVariants),
                 'riskVariants': "|".join(riskVariants),
@@ -99,7 +108,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             json_study_results = {}
 
         elif isCondensedFormat:
-            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, units, prs]
+            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, prs]
             # write new line to tsv file
             formatTSV(False, newLine, [], outputFile)
     else:
@@ -118,6 +127,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
     # json output objects
     json_study_results = {}
     json_samp_list = []
+    nonMissingSnps = 0
 
     # For every sample in the vcf nested dictionary
     for samp in sampleOrder:
@@ -168,7 +178,16 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                                     else:
                                         unmatchedAlleleVariants.add(rsID)
 
-            studyUnits = betaUnits.pop() if len(betaUnits) == 1 else "NA" #TODO might need to come up with a better way!!!!!!!!!!!!!!!!!!!!!
+            if len(betaUnits) > 1:
+                lowercaseB = [x.lower() for x in betaUnits]
+                if len(set(lowercaseB)) == 1:
+                    studyUnits = lowercaseB.pop()
+                else:
+                    print("ERROR: The following had too many betaUnits: {} {} {} {}".format(samp, trait, studyID, pValBetaAnnoValType))
+                    print("Output file will list 'Error - too many units' as the betaUnits")
+                    studyUnits = 'Error - too many units'
+            else:
+                studyUnits = betaUnits.pop()
 
             # add necessary marks to study/score
             prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
