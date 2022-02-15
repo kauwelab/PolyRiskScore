@@ -132,6 +132,9 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
 
             //append sql conditional filters for studyType
             if(studyTypes){
+                if (!Array.isArray(studyTypes)){
+                    studyTypes = [studyTypes]
+                }
                 appendor = "AND (";
                 if (studyTypes.includes("LC")) {
                     subQueryString = subQueryString.concat(appendor).concat(` initialSampleSize+replicationSampleSize = ? `);
@@ -157,6 +160,9 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
 
             //append sql conditional filters for ethnicity
             if (ethnicities) {
+                if (!Array.isArray(ethnicities)){
+                    ethnicities = [ethnicities]
+                }
                 appendor = "AND (";
                 for(j=0; j < ethnicities.length; j++){
                     //TODO check for "unspecified/blank" ethnicity studies
@@ -178,6 +184,9 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
 
             //append sql conditional filters for sexes
             if (sexes) {
+                if (!Array.isArray(sexes)){
+                    sexes = [sexes]
+                }
                 appendor = "AND (";
                 for (j=0; j < sexes.length; j++) {
                     subQueryString = subQueryString.concat(appendor).concat(` sex LIKE ? `);

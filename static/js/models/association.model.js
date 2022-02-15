@@ -55,6 +55,9 @@ Association.getFromTables = (studyIDObjs, refGen, sexes, ogValueType, result) =>
 
             // if the user wants both, sexes should be null and we skip this filtering step
             if (sexes) {
+                if (!Array.isArray(sexes)){
+                    sexes = [sexes]
+                }
                 appendor = "AND ("
                 for (i=0; i<sexes.length; i++) {
                     queryString = queryString.concat(appendor).concat(` sex LIKE ? `)
@@ -180,6 +183,9 @@ Association.getSnpsToChromPos = (snps, refGen, result) => {
         // returns the refgen if valid, else throws an error
         refGen = validator.validateRefgen(refGen)
         sqlQuestionMarks = []
+        if (!Array.isArray(snps)){
+            snps = [snps]
+        }
         for (i=0; i<snps.length; i++) {
             sqlQuestionMarks.push("?")
         }
@@ -301,15 +307,12 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         //select traits and studyIDs from the study table associated with the given ethnicities
         queryString = ""
         queryParams = []
-        if (Array.isArray(ethnicities)) {
-            for (i = 0; i < ethnicities.length; i++) {
-                queryString = queryString.concat(`SELECT studyID FROM study_table WHERE ethnicity LIKE ? ; `)
-                queryParams.push(`%${ethnicities[i]}%`)
-            }
+        if (!Array.isArray(ethnicities)){
+            ethnicities = [ethnicities]
         }
-        else {
+        for (i = 0; i < ethnicities.length; i++) {
             queryString = queryString.concat(`SELECT studyID FROM study_table WHERE ethnicity LIKE ? ; `)
-            queryParams.push(`%${ethnicities}%`)
+            queryParams.push(`%${ethnicities[i]}%`)
         }
         
         console.log(queryString)
