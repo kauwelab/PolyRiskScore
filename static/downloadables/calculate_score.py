@@ -71,8 +71,10 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                 print("ERROR: The following had too many betaUnits: {} {} {}".format(trait, studyID, pValBetaAnnoValType))
                 print("Output file will list 'Error - too many units' as the betaUnits")
                 studyUnits = 'Error - too many units'
-        else:
+        elif len(betaUnits) == 1:
             studyUnits = betaUnits.pop()
+        else:
+            studyUnits = "NA"
 
         # add needed markings to scores/studies
         prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
@@ -186,8 +188,10 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                     print("ERROR: The following had too many betaUnits: {} {} {} {}".format(samp, trait, studyID, pValBetaAnnoValType))
                     print("Output file will list 'Error - too many units' as the betaUnits")
                     studyUnits = 'Error - too many units'
-            else:
+            elif len(betaUnits) == 1:
                 studyUnits = betaUnits.pop()
+            else:
+                studyUnits = "NA"
 
             # add necessary marks to study/score
             prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)

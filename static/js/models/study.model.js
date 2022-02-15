@@ -78,10 +78,6 @@ Study.getAll = result => {
 Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, result) => {
     // use for adding the correct number of ? for using parameterization for the traits
     sqlQuestionMarks = ""
-    // if sexes includes exclude, ignore any other options and exclude studies that have sex associations
-    if (sexes.includes("exclude") || sexes.includes('e')) {
-        sexes = ["NA"]
-    }
 
     // potentially change the output format??
     //if traits is null, assume they want all 
@@ -186,6 +182,10 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
             if (sexes) {
                 if (!Array.isArray(sexes)){
                     sexes = [sexes]
+                }
+                // if sexes includes exclude, ignore any other options and exclude studies that have sex associations
+                if (sexes.includes("exclude") || sexes.includes('e')) {
+                    sexes = ["NA"]
                 }
                 appendor = "AND (";
                 for (j=0; j < sexes.length; j++) {
