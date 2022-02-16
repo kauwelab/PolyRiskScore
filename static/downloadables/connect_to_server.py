@@ -228,10 +228,8 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 else:
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]['oddsRatio'] = float(line[ori])
             else:
-                # if the snp is duplicated, add it to duplicated snps
-                # duplicatesSet.add((line[si], line[ti], line[sii]))
-                raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format())
-                continue
+                # if the snp is duplicated, notify the user and exit
+                raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format(line[si], line[ti], line[sii], pvalBetaAnnoValType))
 
             # create the metadata info dict
             # if the studyID is not in the studyIDsToMetaData
@@ -307,7 +305,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 
     # get the study:snps info
     fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
-    studySnpsPath = os.path.join(workingFilesPath, fileName) #TODO do we need to do something for creating this?
+    studySnpsPath = os.path.join(workingFilesPath, fileName)
 
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
@@ -510,6 +508,8 @@ def getAllStudySnps():
     return studySnpsReturnObj
 
 
+# This function is used to combine json from all the separate calls into one json object. Due to the amount of nesting in the json
+# this is the neccesary way to properly combine
 def combineJson(old, new):
     studyMeta = new["studyIDsToMetaData"]
     associations = new["associations"]

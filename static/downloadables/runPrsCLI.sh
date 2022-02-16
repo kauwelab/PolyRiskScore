@@ -74,7 +74,7 @@ version="1.7.0"
 #
 #   11/10/2021
 #
-#   adding in handling for pvalue annotationa and beta values
+#   added in handling for pvalue annotations and beta values
 #   switching how the sex (-g) param functions
 #   adding in maf handling (-q)
 #
@@ -117,7 +117,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-i${NC} studyIDs ex. -i GCST000727 -i GCST009496"
     echo -e "   ${MYSTERYCOLOR}-e${NC} ethnicity ex. -e European -e \"East Asian\"" 
     echo -e "   ${MYSTERYCOLOR}-y${NC} value type ex. -y beta -y \"Odds Ratio\""
-    echo -e "   ${MYSTERYCOLOR}-g${NC} sex in study ex. -g male -g female"
+    echo -e "   ${MYSTERYCOLOR}-g${NC} sex in study ex. -g male -g female -g exclude"
     echo -e "${MYSTERYCOLOR}Additional Optional parameters: "
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
@@ -209,7 +209,6 @@ learnAboutParameters () {
         read -p "#? " option
         echo ""
 
-# TODO: !! Update these options, add the new ones and fix the numbering
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR}-f VCF File path or rsIDs:genotypes file path: ${NC}" 
                 echo "The path to the VCF file that contains the samples for which you would like " 
@@ -274,10 +273,9 @@ learnAboutParameters () {
                 echo "by the authors. A list can be printed from the corresponding menu option."
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
-            10 ) echo -e "${MYSTERYCOLOR} -y value type: ${NC}" #TODO fix wording
-                echo "This parameter allows you to filter studies to use by the ethnicity "
-                echo "of the subjects used in the study. These correspond to those listed " 
-                echo "by the authors. A list can be printed from the corresponding menu option."
+            10 ) echo -e "${MYSTERYCOLOR} -y value type: ${NC}"
+                echo "This parameter allows you to filter studies by the value type reported"
+                echo "by the study's authors (beta values or odds ratios)." 
                 echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} -v verbose: ${NC}"
@@ -297,11 +295,11 @@ learnAboutParameters () {
                 echo "If the output file is in JSON format, the results will, by default, be in verbose format."
                 echo -e "${LIGHTRED}**NOTE:${NC} There is no condensed version of JSON output."
                 echo "" ;;
-            12 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}" # fix wording
-                echo "Though a rare occurence, some studies have duplicates of the same SNP that differ by which"
-                echo "biological sex the p-value and odds ratio is associated with or SNPs that are not duplicated, "
-                echo "but are dependent on biological sex. The system default is to exclude sex dependent SNPs from calculations. " 
-                echo "You can include sex dependent associations by selecting either male (M) or female (F)."
+            12 ) echo -e "${MYSTERYCOLOR} -g sex dependent associations: ${NC}"
+                echo "A rare handful of studies report beta values or odds ratios dependent on biological sex."
+                echo "Users can filter studies that contain these associations by selecting either male (M) or female (F)."
+                echo "To exclude studies that contain values associated with sex, users can use exclude (e)."
+                echo -e "${LIGHTRED}**NOTE:${NC} This does not affect studies selected by studyID." 
                 echo "" ;;
             13 ) echo -e "${MYSTERYCOLOR} -s stepNumber: ${NC}"
                 echo -e "Either ${GREEN}-s 1${NC} or ${GREEN}-s 2${NC}"
@@ -348,7 +346,7 @@ learnAboutParameters () {
                 echo "" ;;
             19 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
                 echo "To perform linkage disequilbrium clumping on a sample-wide level, include the -l parameter." 
-                echo -e "By default, LD clumping is performed per individual, where only the variants that contain"
+                echo "By default, LD clumping is performed per individual, where only the variants that contain"
                 echo "the corresponding GWA study risk allele are included in the clumping algorithm."
                 echo "Individual-wide LD clumping is beneficial because it allows for a greater number of variants"
                 echo "to be included for each individual's polygenic risk score."
@@ -436,13 +434,14 @@ ${MYSTERYCOLOR}Beta Annotation${NC}, and ${MYSTERYCOLOR}Reported Trait${NC}. Col
 present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation \
 are present, then the calculator will separate calculations by those columns. If you do not wish for this to \
 happen, do not include those optional columns."
-    # echo ""
-    # echo "If more than one odds ratio exists for an RsID in a study/trait combination, the snp will be excluded."
+    echo ""
+    echo "If more than one odds ratio exists for an RsID in a study/trait combination, the program will notify the user and stop running. \ 
+To avoid this, please ensure that you do not have any duplicated snps."
     echo ""
     echo -e "${LIGHTRED}NOTE: If a GWAS data file is specified, risk scores will only be calculated on \
 that data. No association data from the PRSKB will be used. Additionally, the optional params \
 ${MYSTERYCOLOR}-t${LIGHTRED}, ${MYSTERYCOLOR}-k${LIGHTRED}, ${MYSTERYCOLOR}-i${LIGHTRED}, ${MYSTERYCOLOR}-e${LIGHTRED}, \
-${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}" #TODO double check that these are the only params that will be igonred
+${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.${NC}"
     echo ""
     echo "Choose a column header below to learn more about it or select 'Return To Main Menu'."
     echo ""
@@ -468,8 +467,8 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
         echo -e "|${LIGHTPURPLE}OPTIONAL COLUMNS: ${NC}            |"
         echo -e "| ${LIGHTPURPLE}11${NC} - Citation                |"
         echo -e "| ${LIGHTPURPLE}12${NC} - Reported Trait          |"
-        echo -e "| ${LIGHTPURPLE}13${NC} - P-Value Annotation      |" #TODO: We will need to include in our documentation that we separated for scores on pvalueannotation
-        echo -e "| ${LIGHTPURPLE}14${NC} - Beta Annotation         |" #TODO and beta annotation
+        echo -e "| ${LIGHTPURPLE}13${NC} - P-Value Annotation      |"
+        echo -e "| ${LIGHTPURPLE}14${NC} - Beta Annotation         |"
         echo -e "|                              |"
         echo -e "| ${LIGHTPURPLE}15${NC} - Return To Main Menu     |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |"
@@ -477,7 +476,6 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
         read -p "#? " option
         echo ""
 
-    #TODO update these options/numbers
         case $option in 
             1 ) echo -e "${MYSTERYCOLOR} Study ID: ${NC}" 
                 echo "A unique study identifier. In our database, we use GWAS Catalog study identifiers. As long as this is unique for each study, it can be whatever you want."
@@ -500,11 +498,11 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
             7 ) echo -e "${MYSTERYCOLOR} Odds Ratio: ${NC}"
                 echo "Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest."
                 echo "" ;;
-            8 ) echo -e "${MYSTERYCOLOR} Beta Coefficient: ${NC}" # TODO:!! explain what the Beta Coefficient is.
-                echo "Computed in the GWAS study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest."
+            8 ) echo -e "${MYSTERYCOLOR} Beta Coefficient: ${NC}"
+                echo "Computed in the GWAS study, a numerical value that indicates the increase or decrease in the genetic risk per unit. "
                 echo "" ;;
-            9 ) echo -e "${MYSTERYCOLOR} Beta Unit: ${NC}" #TODO: !! explain this
-                echo "STILL NEED TO EXPLAIN THIS"
+            9 ) echo -e "${MYSTERYCOLOR} Beta Unit: ${NC}"
+                echo "The units associated with the beta coefficient. e.g. cm, beats per min "
                 echo "" ;;
             10 ) echo -e "${MYSTERYCOLOR} P-value: ${NC}"
                 echo "The probability that the risk allele confers the amount of risk stated."
@@ -515,11 +513,11 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
             12 ) echo -e "${MYSTERYCOLOR} Reported Trait: ${NC}"
                 echo "Trait description for this study in the authors own words."
                 echo "" ;;
-            13 ) echo -e "${MYSTERYCOLOR} P-Value Annotation: ${NC}" #TODO: !! explain this
-                echo "STILL NEED TO EXPLAIN THIS. "
+            13 ) echo -e "${MYSTERYCOLOR} P-Value Annotation: ${NC}"
+                echo "Provides additional information for the p-value, i.e. if the p-value computed only included women"
                 echo "" ;;
-            14 ) echo -e "${MYSTERYCOLOR} Beta Annotation: ${NC}" #TODO: !! explain this
-                echo "STILL NEED TO EXPLAIN THIS. "
+            14 ) echo -e "${MYSTERYCOLOR} Beta Annotation: ${NC}"
+                echo "Provides additional information for the beta value"
                 echo "" ;;
             15 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
@@ -704,13 +702,19 @@ calculatePRS () {
                 ethnicityForCalc+=("$ethnicity");;
             v)  isCondensedFormat=0;;
             g)  sex=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $sex != 'f' ] && [ $sex != 'm' ] && [ $sex != 'female' ] && [ $sex != 'male' ] && [ $sex != 'e' ] && [ $sex != 'exclude']; then
+                if [ $sex != 'f' ] && [ $sex != 'm' ] && [ $sex != 'female' ] && [ $sex != 'male' ] && [ $sex != 'e' ] && [ $sex != 'exclude' ]; then
                     echo "Invalid argument for -g. Use a combination of f, m, female, male, or e or exclude "
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 else
-                    #todo maybe say somewhere that if exclude is there, we will exclude calculations that use sex specific snps and that will trump any other inputs for the param
-                    sexForCalc+=("$sex")
+                    if [ $sex == 'm' ] || [ $sex == 'male' ]; then
+                        sexForCalc+=("male")
+                    elif [ $sex == 'f' ] || [ $sex == 'female' ]; then
+                        sexForCalc+=("female")
+                    else
+                        echo "'e' or 'exclude' present. Other sex parameters will be ignored."
+                        sexForCalc+=("$sex")
+                    fi
                 fi;;
             s)  if ! [ -z "$step" ]; then 
                     echo "Too many steps requested at once."
@@ -783,13 +787,16 @@ calculatePRS () {
                 fi;;
             b)  userGwasBeta=1 ;;
             y)  valueType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
-                if [ $valueType != 'beta' ] && [ $valueType != 'odds' ]; then
-                    echo "Invalid argument for -y. Use 'beta' and/or 'odds"
+                if [ $valueType != 'beta' ] && [ $valueType != 'odds' ] && [ $valueType != 'beta values' ] && [ $valueType != 'odds ratios' ] ; then
+                    echo "Invalid argument for -y. Use 'beta' or 'beta values' and/or 'odds' or 'odds ratios'"
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 else
-                    #todo maybe say somewhere that if exclude is there, we will exclude calculations that use sex specific snps and that will trump any other inputs for the param
-                    valueTypesForCalc+=("$valueType")
+                    if [ $valueType != 'beta' ] || [ $valueType != 'beta values' ] ; then
+                        valueTypesForCalc+=("beta")
+                    else
+                        valueTypesForCalc+=("odds")
+                    fi
                 fi;;
             q)  if ! [ -z "$mafCohort" ]; then
                     echo "Too many minor allele frequency cohorts given."
