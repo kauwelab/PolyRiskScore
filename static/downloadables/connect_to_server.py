@@ -61,18 +61,35 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         
     # else get the associations using the given filters
     else:
+	# Create the set that will include all the user-preferred super populations that correspond to the associations
+	allSuperPops = set()
+
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
         associationsPath = os.path.join(workingFilesPath, fileName)
         associationsReturnObj, finalStudyList = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes)
 
+	# get the set of super populations that correspond to the associations
+	for study in associationsReturnObj['studyIDsToMetaData']:
+	    superPopList = associationsReturnObj['studyIDsToMetaData'][study]['superPopulations']
+	    preferredPop = getPreferredPop(superPopList, superPop)
+	    allSuperPops.add(preferredPop)
+
         # grab all the snps or positions to use for getting the clumps
         snpsFromAssociations = list(associationsReturnObj['associations'].keys())
 
-        #download clumps from database
-        fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
-        clumpsPath = os.path.join(workingFilesPath, fileName)
-        # get clumps using the refGen and superpopulation
-        clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
+	for pop in allSuperPops:
+            #download clumps from database
+            fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = pop, r = refGen, ahash = fileHash)
+            clumpsPath = os.path.join(workingFilesPath, fileName)
+
+            # get clumps using the refGen and superpopulation
+            clumpsData = getClumps(refGen, pop, snpsFromAssociations)
+
+            # check to see if clumpsData is instantiated in the local variables
+            if 'clumpsData' in locals():
+                f = open(clumpsPath, 'w', encoding="utf-8")
+                f.write(json.dumps(clumpsData))
+                f.close()
 
         #download the maf from database
         fileName = "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash = fileHash)
@@ -90,11 +107,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f.write(json.dumps(associationsReturnObj))
         f.close()
 
-    # check to see if clumpsData is instantiated in the local variables
-    if 'clumpsData' in locals():
-        f = open(clumpsPath, 'w', encoding="utf-8")
-        f.write(json.dumps(clumpsData))
-        f.close()
 
     if 'mafData' in locals():
         f = open(mafPath, 'w', encoding="utf-8")
@@ -129,6 +141,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 
     sii = -1 # studyID index
     ti = -1 # trait index
+    spi = -1 # super population index
     si = -1 # snp index
     ci = -1 # chromosome index
     pi = -1 # position index
@@ -153,6 +166,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             try:
                 sii = headers.index("study id")
                 ti = headers.index("trait")
+		spi = headers.index("super population")
                 si = headers.index("rsid")
                 ci = headers.index("chromosome")
                 pi = headers.index("position")
@@ -173,6 +187,10 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             bai = headers.index("beta annotation") if "beta annotation" in headers else -1
 
         else:
+	    # Add super population to the super population set
+	    preferredPop = getPreferredPop(list(line[spi].split(,)), superPop)
+	    allSuperPops.add(preferredPop)
+
             line = line.rstrip("\r").rstrip("\n").split("\t")
             # create the chrom:pos to snp dict
             # if the chrom:pos not in the chromSnpDict
@@ -233,10 +251,11 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 studyIDsToMetaData[line[sii]]["traits"][line[ti]] = {
                     "studyTypes": [],
                     "pValBetaAnnoValType": [pvalBetaAnnoValType],
-                    "superPopulations": []
+                    "superPopulations": preferredPop
                 }
             else:
                 studyIDsToMetaData[line[sii]]["traits"][line[ti]]['pValBetaAnnoValType'].append(pvalBetaAnnoValType)
+		
             # create studyID/trait/pValueAnnotation to snps
             # if trait|studyID|pValueAnnotation not in the studySnpsData
             traitStudyIDPValAnno = "|".join([line[ti], line[sii]], pvalBetaAnnoValType)
@@ -278,11 +297,20 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     fileName = "GWASassociations_{fileHash}.txt".format(fileHash=fileHash)
     associationsPath = os.path.join(workingFilesPath, fileName)
 
-    fileName = "{superPop}_clumps_{refGen}_{fileHash}.txt".format(superPop=superPop, refGen=refGen, fileHash=fileHash)
-    clumpsPath = os.path.join(workingFilesPath, fileName)
 
-    # get clumps using the refGen and superpopulation
-    clumpsData = getClumps(refGen, superPop, chromPos)
+    # Access and write the clumps file for each of the super populations preferred in the GWAS file
+    for pop in allSuperPops:
+        fileName = "{pop}_clumps_{refGen}_{fileHash}.txt".format(pop=pop, refGen=refGen, fileHash=fileHash)
+        clumpsPath = os.path.join(workingFilesPath, fileName)
+
+        # get clumps using the refGen and superpopulation
+        clumpsData = getClumps(refGen, pop, chromPos)
+
+        # check to see if clumpsData is instantiated in the local variables
+        if 'clumpsData' in locals():
+            f = open(clumpsPath, 'w', encoding="utf-8")
+            f.write(json.dumps(clumpsData))
+            f.close()
 
     #get maf data using the refgen and mafcohort
     fileName = "{m}_maf_{ahash}.txt".format(n=mafCohort, ahash=fileHash)
@@ -297,12 +325,6 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     if 'associationsReturnObj' in locals():
         f = open(associationsPath, 'w', encoding="utf-8")
         f.write(json.dumps(associationsReturnObj))
-        f.close()
-
-    # check to see if clumpsData is instantiated in the local variables
-    if 'clumpsData' in locals():
-        f = open(clumpsPath, 'w', encoding="utf-8")
-        f.write(json.dumps(clumpsData))
         f.close()
 
     if 'mafData' in locals():
