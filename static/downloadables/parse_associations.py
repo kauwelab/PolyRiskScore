@@ -17,31 +17,34 @@ def parseAndCalculateFiles(params):
     snpSet = params[3]
     clumpNumDict = params[4]
     mafDict = params[5]
-    pValue = params[6]
-    trait = params[7]
-    study = params[8]
-    pValueAnno = params[9]
-    betaAnnotation = params[10]
-    valueType = params[11]
-    isJson = params[12]
-    isCondensedFormat = params[13]
-    outputFilePath = params[14]
-    isRSids = params[15]
-    timestamp = params[16]
-    isSampleClump = params[17]
+    percentileDict = params[6]
+    pValue = params[7]
+    mafCutoff = params[8]
+    trait = params[9]
+    study = params[10]
+    pValueAnno = params[11]
+    betaAnnotation = params[12]
+    valueType = params[13]
+    isJson = params[14]
+    isCondensedFormat = params[15]
+    omitPercentiles = params[16]
+    outputFilePath = params[17]
+    isRSids = params[18]
+    timestamp = params[19]
+    isSampleClump = params[20]
 
     # check if the input file is a txt or vcf file
     # parse the file to get the necessary genotype information for each sample and then run the calculations
     if isRSids: 
-        txtObj, clumpedVariants, unmatchedAlleleVariants = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp)
-        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, None)
+        txtObj, clumpedVariants, unmatchedAlleleVariants = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp)
+        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, None)
     else:
-        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump)
-        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, sample_order)
+        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump)
+        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, sample_order)
     return
 
 
-def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload):
+def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, omitPercentiles, timestamp, useGWASupload):
     percentileCohort = mafCohort
     if mafCohort.startswith("adni"):
         mafCohort = "adni"
@@ -55,7 +58,8 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
-        percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
+        if not omitPercentiles:
+            percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
@@ -63,14 +67,16 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
-        percentilePath = os.path.join(basePath, "allPercentiles_${m}.txt".format(m=percentileCohort)) 
+        if not omitPercentiles:
+            percentilePath = os.path.join(basePath, "allPercentiles_${m}.txt".format(m=percentileCohort)) 
     else:
         associationsPath = specificAssociPath
         clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r = refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
-        percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
+        if not omitPercentiles:
+            percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
 
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
 
@@ -86,8 +92,11 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
             studySnpsDict = json.load(studySnpsFile)
         with open(mafCohortPath, 'r') as mafFile:
             mafDict = json.load(mafFile)
-        with open(percentilePath, 'r') as percentileFile:
-            percentileDict = json.load(percentileFile)
+        if not omitPercentiles:
+            with open(percentilePath, 'r') as percentileFile:
+                percentileDict = json.load(percentileFile)
+        else:
+            percentileDict = {}
     
     except FileNotFoundError:
         raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}\n{3}\n{4}".format(associationsPath, clumpsPath, clumpNumPath, studySnpsPath, mafCohortPath))
@@ -125,7 +134,7 @@ def formatAndReturnGenotype(genotype, REF, ALT):
     return alleles
 
 
-def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp):
+def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp):
     #create set to hold  the lines with a snp in this study
     studyLines = {}
 
@@ -179,12 +188,13 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                 # grab the corresponding pvalue and risk allele
                 pValue = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
                 riskAllele = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['riskAllele']
+                mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict and riskAllele in mafDict[snp]["alleles"] else 0
 
                 # REMINDER: in parse_vcf we can perform strand flipping because the reference and alternate alleles are reported
                 # for txt, we are not going to do strand flipping since we don't have access to anything except the allele reported for the person
 
                 #compare the pvalue to the threshold
-                if pValue <= float(p_cutOff):
+                if pValue <= float(p_cutOff) and mafVal >= mafCutoff:
                     if riskAllele in alleles:
                         # Check to see if the snp position from this line in the file exists in the clump table
                         if snp in clumpsObjDict:
@@ -226,8 +236,10 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         if trait in tableObjDict['associations'][snp]['traits'] and study in tableObjDict['associations'][snp]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][snp]['traits'][trait][study]:
             # grab the corresponding pvalue
             pValue = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+            riskAllele = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType]['riskAllele']
+            mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict and riskAllele in mafDict[snp]["alleles"] else 0
             #compare the pvalue to the threshold
-            if pValue <= float(p_cutOff):
+            if pValue <= float(p_cutOff) and mafVal >= mafCutoff:
                 if snp in clumpsObjDict:
                     # Grab the clump number associated with this snp 
                     clumpNum = str(clumpsObjDict[snp]['clumpNum'])
@@ -266,7 +278,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     return final_map, clumpedVariants, unmatchedAlleleVariants
 
 
-def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump):
+def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isSampleClump):
     # variable to keep track of the number of samples in the input file
     sampleNum=0
     createMaf = False
@@ -390,9 +402,10 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     #grab the corresponding pvalue and risk allele
                     pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['pValue']
                     riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['riskAllele']
+                    mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict and riskAllele in mafDict[rsID]["alleles"] else 0
 
-                    # compare the pvalue to the pvalue cutoff
-                    if pValue <= float(p_cutOff):
+                    # compare the pvalue to the pvalue cutoff and the maf to the mafCutoff
+                    if pValue <= float(p_cutOff) and mafVal >= mafCutoff:
                         # loop through each sample of the vcf file
                         for call in record.samples:
                             sample = call.sample
@@ -492,8 +505,11 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
             for rsID in snpsLeftToImpute:
                 if trait in tableObjDict['associations'][rsID]['traits'] and study in tableObjDict['associations'][rsID]['traits'][trait] and pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
                     pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['pValue']
+                    riskAllele = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['riskAllele']
+                    mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict and riskAllele in mafDict[rsID]["alleles"] else 0
+
                     # compare the pvalue to the pvalue cutoff
-                    if pValue <= float(p_cutOff):
+                    if pValue <= float(p_cutOff) and mafVal >= mafCutoff:
                         if rsID in clumpsObjDict:
                             # Grab the clump number associated with this study and snp position
                             clumpNum = str(clumpsObjDict[rsID]['clumpNum'])
@@ -582,7 +598,7 @@ def getSamples(inputFilePath, header):
     return header
 
 
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, extension, outputFilePath, outputType, isCondensedFormat, timestamp, num_processes, isSampleClump, useGWASupload):
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, mafCutoff, extension, outputFilePath, outputType, isCondensedFormat, omitPercentiles, timestamp, num_processes, isSampleClump, useGWASupload):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -593,7 +609,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
 
     # Access the downloaded files and paths
-    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, percentileDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload)
+    tableObjDict, clumpsObjDict, clumpNumDict, studySnpsDict, mafDict, percentileDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, omitPercentiles, timestamp, useGWASupload)
     
     # Determine whether the output format is condensed and either json or tsv
     if outputType == '.json':
@@ -612,7 +628,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         key = next(iter(studySnpsDict))
         trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
         snpSet = studySnpsDict[key]
-        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump)
+        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isSampleClump)
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
@@ -639,10 +655,10 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         trait, pValueAnno, betaAnnotation, valueType, study = keyString.split('|')
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isSampleClump))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isSampleClump))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, percentileDict[key], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isSampleClump))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
@@ -650,6 +666,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
 
 if __name__ == "__main__":
-    useGWASupload = True if sys.argv[15] == "True" or sys.argv[15] == True else False
-    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], useGWASupload)
+    useGWASupload = True if sys.argv[17] == "True" or sys.argv[17] == True else False
+    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], sys.argv[16], useGWASupload)
 

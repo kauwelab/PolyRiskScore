@@ -79,6 +79,12 @@ version="1.7.0"
 #   adding in maf handling (-q)
 #
 #
+#   2/16/2022
+#
+#   added in a flag to omit percentiles from the output (-m)
+#   added a parameter to set a cutoff value for minor allele frequencies (-x)
+#
+#
 # ########################################################################
 
 # colors for text printing
@@ -126,6 +132,8 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file"
     echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user uploaded GWAS data uses beta coefficent values instead of odds ratios" 
     echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used (also is the cohort used for reporting percentiles) ex. -q adni-ad (see the menu to learn more about the cohorts available)"
+    echo -e "   ${MYSTERYCOLOR}-m${NC} omits reporting percentiles"
+    echo -e "   ${MYSTERYCOLOR}-x${NC} sets the cutoff minor allele frequency value"
     echo -e "   ${MYSTERYCOLOR}-l${NC} sample-wide LD clumping ex. -l" 
     echo ""
 }
@@ -200,9 +208,11 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}16${NC} - -a reference genome of GWAS data file                      |"
         echo -e "| ${LIGHTPURPLE}17${NC} - -b flag indicates beta values used for uploaded GWAS data  |"
         echo -e "| ${LIGHTPURPLE}18${NC} - -q minor allele frequency cohort                           |"
-        echo -e "| ${LIGHTPURPLE}19${NC} - -l sample-wide LD clumping                                 |"
+        echo -e "| ${LIGHTPURPLE}19${NC} - -m omit percentiles from output                            |"
+        echo -e "| ${LIGHTPURPLE}20${NC} - -x cutoff value for minor allele frequency                 |"
+        echo -e "| ${LIGHTPURPLE}21${NC} - -l sample-wide LD clumping                                 |"
         echo -e "|                                                                 |"
-        echo -e "| ${LIGHTPURPLE}20${NC} - Done                                                       |"
+        echo -e "| ${LIGHTPURPLE}22${NC} - Done                                                       |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         # gets the inputted number from the user
@@ -229,6 +239,8 @@ learnAboutParameters () {
             4 ) echo -e "${MYSTERYCOLOR}-r RefGen (Reference Genome): ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
                 echo -e "in the input VCF file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
+                echo ""
+                echo -e "${LIGHTRED}**NOTE:${NC} This parameter is not required for .txt files and will be defaulted to ${GREEN}hg38${NC} in that case if the user does not select a refGen." 
                 echo "" ;;
             5 ) echo -e "${MYSTERYCOLOR}-p Subject Super Population: ${NC}"
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
@@ -344,7 +356,16 @@ learnAboutParameters () {
                 echo -e "To use the minor allele frequencies from the user vcf, use ${GREEN}-q user ${NC}."
                 echo "Note that this option will not report percentile rank."
                 echo "" ;;
-            19 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
+            19 ) echo -e "${MYSTERYCOLOR} -m omit percentiles from output: ${NC}"
+                echo "This flag allows the user to remove the Percentile column/property from the verbose output file."
+                echo ""
+                echo -e "${LIGHTRED}**NOTE:${NC} Percentiles will automatically be omitted from outputs using the GWAS upload option."
+                echo "" ;;
+            20 ) echo -e "${MYSTERYCOLOR} -x cutoff for minor allele frequency: ${NC}"
+                echo "This parameter allows the user to select a cutoff for minor allele frequencies."
+                echo "Risk alleles with a frequency below the threshold will not be used in calculations."
+                echo "" ;;
+            21 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
                 echo "To perform linkage disequilbrium clumping on a sample-wide level, include the -l parameter." 
                 echo "By default, LD clumping is performed per individual, where only the variants that contain"
                 echo "the corresponding GWA study risk allele are included in the clumping algorithm."
@@ -354,7 +375,7 @@ learnAboutParameters () {
                 echo "the query data and the GWA study. Sample-wide LD clumping allows for sample-wide"
                 echo "PRS comparisons because each individual risk score is calculated using the same variants."
                 echo "" ;;
-            20 ) cont=0 ;;
+            22 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -571,6 +592,7 @@ calculatePRS () {
     valueTypesForCalc=()
     sexForCalc=()
     isCondensedFormat=1
+    omitPercentiles=0
     isSampleClump=0
 
     single="'"
@@ -601,7 +623,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:u:a:q:by:l' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:u:a:by:q:mx:l' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -773,7 +795,8 @@ calculatePRS () {
                         exit 1
                     fi
                 fi
-                useGWAS="True";;
+                useGWAS="True"
+                omitPercentiles=1;;
             a)  if ! [ -z "$GWASrefgen" ]; then
                     echo "Too many GWAS reference genomes given."
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -810,14 +833,35 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
+            m)  omitPercentiles=1;;
+            c)  if ! [ -z "$mafCutoff" ]; then
+                    echo "Too many maf cutoffs given"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                mafCutoff=$OPTARG
+                if ! [[ "$mafCutoff" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
+                    echo -e "${LIGHTRED}$mafCutoff ${NC}is your maf cutoff value, but it is not a number."
+                    echo "Check the value and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi;;
             l)  isSampleClump=1;;
             [?])    usage
                     exit 1;;
         esac
     done
 
+    # if the user is using a txt file and forgot to set the refgen, we are going to default it to hg38
+    if [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .txt$ ]] && [ -z "$refgen" ] ; then
+        echo "No refGen selected, defaulting to hg38"
+        refgen='hg38'
+    elif ! [ -z "$zipExtension" ] && [ "$zipExtension" = ".txt" ] && [ -z "$refgen" ] ; then
+        echo "No refGen selected, defaulting to hg38"
+        refgen='hg38'
+    fi
+
     # if missing a required parameter, show menu/usage option
-    #TODO: decide if we want to take out SuperPop from the required params
     if [ -z "$filename" ] || [ -z "$output" ] || [ -z "$cutoff" ] || [ -z "$refgen" ] || [ -z "$superPop" ]; then
         askToStartMenu
     fi
@@ -831,8 +875,14 @@ calculatePRS () {
         GWASrefgen=${refgen}
     fi
 
+    # default the mafCohort to UKBB
     if [ -z "${mafCohort}" ]; then
         mafCohort='ukbb'
+    fi
+
+    # default the maf cutoff to zero
+    if [ -z "${mafCutoff}" ]; then
+        mafCutoff=0
     fi
 
     # preps variables for passing to python script
@@ -844,9 +894,9 @@ calculatePRS () {
     export sexes=${sexForCalc[@]}
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
-    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}" | cut -f 1 -d ' ')
+    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}${omitPercentiles}" | cut -f 1 -d ' ')
     if ! [ -z ${GWASfilename} ]; then
-        fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}${userGwasBeta}" | cut -f 1 -d ' ')
+        fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}${userGwasBeta}${omitPercentiles}" | cut -f 1 -d ' ')
     fi
     requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
     # Create uniq ID for filtered file path
@@ -1037,7 +1087,7 @@ calculatePRS () {
             # saves them to files
             # associations --> either allAssociations.txt OR associations_{fileHash}.txt
             # clumps --> {superPop}_clumps_{refGen}.txt OR {superPop}_clumps_{refGen}_{fileHash}.txt
-            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "${ethnicities}" "${valueTypes}" "${sexes}" "$superPop" "$fileHash" "$extension" "${mafCohort}"; then
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "${ethnicities}" "${valueTypes}" "${sexes}" "$superPop" "$fileHash" "$extension" "${mafCohort}" "${omitPercentiles}"; then
                 echo "Got SNPs and disease information from PRSKB"
                 echo "Got Clumping information from PRSKB"
             else
@@ -1062,7 +1112,7 @@ calculatePRS () {
         if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "${sexes}" "${valueTypes}" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$mafCutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitPercentiles" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else

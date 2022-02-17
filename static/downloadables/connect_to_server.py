@@ -8,13 +8,17 @@ from sys import argv
 from grep_file import openFileForParsing
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes, superPop, fileHash, extension, mafCohort):
+def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes, superPop, fileHash, extension, mafCohort, omitPercentiles):
     checkInternetConnection()
 
     # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
     if extension == '.txt' and mafCohort == 'user':
         raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
 
+    if omitPercentiles == '0':
+        omitPercentiles = False
+    else:
+        omitPercentiles = True
     percentilesCohort = mafCohort
     if mafCohort.startswith("adni"):
         mafCohort = "adni"
@@ -60,7 +64,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
             mafData = getAllMaf(mafCohort, refGen)
 
-        if (checkForAllPercentilesFiles(percentilesCohort)):
+        if (checkForAllPercentilesFiles(percentilesCohort) and not omitPercentiles):
             percentilesPath = os.path.join(workingFilesPath, "allPercentiles_{c}.txt".format(c=percentilesCohort))
             percentileData = getAllPercentiles(percentilesCohort)
         
@@ -84,9 +88,10 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         mafPath = os.path.join(workingFilesPath, fileName)
         mafData = getMaf(mafCohort, refGen, snpsFromAssociations)
 
-        fileName = "percentiles_{c}_{ahash}.txt".format(c=percentilesCohort, ahash=fileHash)
-        percentilesPath = os.path.join(workingFilesPath, fileName)
-        percentileData = getPercentiles(refGen, finalStudyList)
+        if not omitPercentiles:
+            fileName = "percentiles_{c}_{ahash}.txt".format(c=percentilesCohort, ahash=fileHash)
+            percentilesPath = os.path.join(workingFilesPath, fileName)
+            percentileData = getPercentiles(refGen, finalStudyList)
         
         # get the study:snps info
         fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)

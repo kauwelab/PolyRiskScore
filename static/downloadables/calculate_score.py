@@ -4,16 +4,16 @@ import csv
 import os
 from filelock import FileLock
 
-def calculateScore(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, isRSids, sampleOrder):
+def calculateScore(snpSet, parsedObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, isRSids, sampleOrder):
     # check if the input file is a txt or vcf file and then run the calculations on that file
     if isRSids:
-        txtcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, trait, studyID, pValueAnno, betaAnnotation, valueType)
+        txtcalculations(snpSet, parsedObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, neutral_snps_map, clumped_snps_map, outputFilePath, trait, studyID, pValueAnno, betaAnnotation, valueType)
     else:
-        vcfcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder)
+        vcfcalculations(snpSet, parsedObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder)
     return
 
 
-def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, trait, studyID, pValueAnno, betaAnnotation, valueType):
+def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, unmatchedAlleleVariants, clumpedVariants, outputFile, trait, studyID, pValueAnno, betaAnnotation, valueType):
     # this variable is used as a key in various dictionaries. Due to the nature of the studies in our database, 
     # we separate calculations by trait, studyID, pValueAnnotation, betaAnnotation, and valueType. 
     # pValueAnnotation - comes from the GWAS catalog, gives annotation to the pvalue
@@ -78,7 +78,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJso
 
         # add needed markings to scores/studies
         prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
-        percentileRank = getPercentile(prs, percentileDict)
+        percentileRank = getPercentile(prs, percentileDict, omitPercentiles)
         if not isCondensedFormat and not isJson:
             
             # Grab variant sets
@@ -121,7 +121,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJso
     return
 
 
-def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder):
+def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, neutral_snps_map, clumped_snps_map, outputFile, samp_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder):
     # this variable is used as a key in various dictionaries. Due to the nature of the studies in our database, 
     # we separate calculations by trait, studyID, pValueAnnotation, betaAnnotation, and valueType. 
     pValBetaAnnoValType = "|".join((pValueAnno, betaAnnotation, valueType))
@@ -197,7 +197,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJso
 
             # add necessary marks to study/score
             prs, printStudyID = createMarks(betas, nonMissingSnps, studyID, mark, valueType)
-            percentileRank = getPercentile(prs, percentileDict)
+            percentileRank = getPercentile(prs, percentileDict, omitPercentiles)
             # if the output format is verbose
             if not isCondensedFormat and not isJson:
                 #grab variant sets
@@ -311,7 +311,9 @@ def getPRSFromArray(betas, nonMissingSnps, valueType):
 
 
 # This function determines the percentile (or percentile range) of the prs score
-def getPercentile(prs, percentileDict):
+def getPercentile(prs, percentileDict, omitPercentiles):
+    if omitPercentiles:
+        return "NA"
     lb = 0 # keeps track of the lower bound percentile
     ub = 0 # keeps track of the upper bound percentile
     for i in range(1, 101):
