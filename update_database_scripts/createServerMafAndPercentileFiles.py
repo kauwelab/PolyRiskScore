@@ -51,7 +51,7 @@ def createPercentileDownloadFile(params):
     unformattedPercentiles = getPercentiles(cohort, config)
     percentiles = formatPercentiles(unformattedPercentiles)
 
-    percentileFile = open(os.path.join(generalFilePath, "{cohort}_percentiles.txt".format(cohort=cohort)), "w")
+    percentileFile = open(os.path.join(generalFilePath, "allPercentiles_{cohort}.txt".format(cohort=cohort)), "w")
     percentileFile.write(json.dumps(percentiles))
     percentileFile.close()
 
