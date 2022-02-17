@@ -313,7 +313,7 @@ fi
 #============Create Association and Clumps download files============================================
 if [ $clumpAssociationDownloadFiles == "true" ]; then
     echo "Creating Association and Clumps download files"
-    python3 createServerAssociAndClumpsFiles.py "$password"
+    python3 createServerAssociClumpsAndTraitStudyToSnpFiles.py "$password"
     wait
 fi
 
