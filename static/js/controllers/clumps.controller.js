@@ -60,7 +60,7 @@ exports.getClumpsDownloadFile = (req, res) => {
     refGen = req.query.refGen
     pop = req.query.superPop
 
-    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
     var options = { 
         root: downloadPath
     };
@@ -82,7 +82,7 @@ exports.getLastClumpsUpdate = (req, res) => {
     refGen = req.query.refGen
     pop = req.query.superPop
 
-    clumpsPath = path.join(path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/${pop}_clumps_${refGen}.txt`))
+    clumpsPath = path.join(path.join(__dirname, '../..', `downloadables/preppedServerFiles/${pop}_clumps_${refGen}.txt`))
     statsObj = fs.statSync(clumpsPath)
     updateTime = statsObj.mtime
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)

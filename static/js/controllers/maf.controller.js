@@ -57,7 +57,7 @@ exports.getDownloadMaf = (req, res) => {
     refGen = req.query.refGen
     cohort = req.query.cohort
     cohort = formatCohort(cohort)
-    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
     var options = { 
         root: downloadPath
     };
