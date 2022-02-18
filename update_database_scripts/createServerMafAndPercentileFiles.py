@@ -71,7 +71,7 @@ def formatPercentiles(percentilesUnformatted):
     return percentiles
 
 
- # grab MAF data from the database to put into a txt file for download
+# grab MAF data from the database to put into a txt file for download
 def getMAF(tablePrefix, config): #, snps):
 
     connection = getConnection(config)
@@ -141,7 +141,7 @@ def createMAFDownloadFiles(params):
         'auth_plugin': 'mysql_native_password',
     }
 
-    # This would be a good thing to do, but currently we just filter the snps by whether the have an rsID
+    # This would be a good thing to do, but currently we just filter the snps by whether they have an rsID
     # # get viable snps to pass to the getMAF function
     # # we grab these so that we can make sure we only have maf for snps in our database
     # # connection = getConnection(config)
@@ -212,7 +212,7 @@ def main():
     # with Pool(processes=5) as pool2:
     #     pool2.map(createPercentileDownloadFile, paramOpts)
 
-    print("Finished creating server download association and clumps files")
+    print("Finished creating server download percentile and maf files")
 
 
 if __name__ == "__main__":
