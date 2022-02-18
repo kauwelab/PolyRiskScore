@@ -224,7 +224,7 @@ exports.joinTest = (req, res) => {
 exports.getLastAssociationsUpdate = (req, res) => {
     refGen = req.query.refGen
 
-    associationsPath = path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allAssociations_${refGen}.txt`)
+    associationsPath = path.join(__dirname, '../..', `downloadables/preppedServerFiles/allAssociations_${refGen}.txt`)
     statsObj = fs.statSync(associationsPath)
     updateTime = statsObj.mtime
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
@@ -232,7 +232,7 @@ exports.getLastAssociationsUpdate = (req, res) => {
 
 exports.getAssociationsDownloadFile = (req, res) => {
     refGen = req.query.refGen
-    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
     var options = { 
         root: downloadPath
     };
@@ -250,7 +250,7 @@ exports.getAssociationsDownloadFile = (req, res) => {
 }
 
 exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
-    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
     var options = { 
         root: downloadPath
     };
