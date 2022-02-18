@@ -100,7 +100,7 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
         sex = ["NA"]
     }
     else {
-        sex = [sex, "NA"]
+        sex = [sex]
     }
 
     if (valueType == "both") {
@@ -1569,6 +1569,7 @@ function clickTextInput() {
         }
 
         $("#mafCohort option[value=user]").remove()
+        document.getElementById("sample-info").style.display = "none";
     }
 }
 
@@ -1601,6 +1602,7 @@ function clickFileUpload() {
         opt.appendChild(document.createTextNode(displayString));
         opt.value = "user";
         mafSelector.appendChild(opt);
+        document.getElementById("sample-info").style.display = "initial";
     }
 
 }
