@@ -14,7 +14,7 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
     
     # get the associations, clumps, study snps, and the paths to the filtered input file and the clump number file
-    tableObjDict, clumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload)
+    tableObjDict, allClumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload)
 
     # format the filters
     traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes = formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes)
@@ -29,9 +29,9 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
     # create a new filtered file that only includes associations in the user-specified studies
     if isRSids:
-        clumpNumDict = filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
     else:
-        clumpNumDict = filterVCF(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
 
     # write the clumpNumDict to a file for future use
     # the clumpNumDict is used to determine which variants aren't in LD with any of the other variants in the study
@@ -45,6 +45,7 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
 
 def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload):
+    isFiltered = False
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     # create path for filtered input file
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
@@ -52,8 +53,8 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile , study snps, and clumpsFile
     if useGWASupload:
+        isFilters=True
         associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
-        clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
 
         # create path for clump number dictionary
@@ -61,13 +62,12 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
-        clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = superPop, r = refGen))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         # create path for clump number dictionary
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
     else:
+        isFilters=True
         associationsPath = specificAssociPath
-        clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         # create path for clump number dictionary
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
@@ -75,17 +75,41 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
 	# write the files
         with open(associationsPath, 'r') as tableObjFile:
             tableObjDict = json.load(tableObjFile)
-        with open(clumpsPath, 'r') as clumpsObjFile:
-            clumpsObjDict = json.load(clumpsObjFile)
         with open(studySnpsPath, 'r') as studySnpsFile:
             studySnpsDict = json.load(studySnpsFile)
+
+	# Get super populations from studyIDMetaData
+        allSuperPops = set()
+        for study in tableObjDict['studyIDsToMetaData']:
+            for trait in tableObjDict['studyIDsToMetaData'][study]['traits'].keys():
+                superPopList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+                preferredPop = getPreferredPop(superPopList, superPop)
+                allSuperPops.add(preferredPop)
+	
+	# loop through each population and get the corresponding clumps file
+        allClumps = {}
+        for pop in allSuperPops:
+            if isFilters:
+                clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = pop, r = refGen, ahash = fileHash))
+                with open(clumpsPath, 'r') as clumpsObjFile:
+                    clumpsObjDict = json.load(clumpsObjFile)
+                    allClumps[pop] = clumpsObjDict
+                    clumpsObjFile = {}
+            else:
+                clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = pop, r = refGen))
+                with open(clumpsPath, 'r') as clumpsObjFile:
+                    clumpsObjDict = json.load(clumpsObjFile)
+                    allClumps[pop] = clumpsObjDict
+                    clumpsObjFile = {}
+	    
+
+	
         tableObjFile = {}
-        clumpsObjFile = {}
         studySnpsFile = {}
     except FileNotFoundError: 
         raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}".format(associationsPath, clumpsPath, studySnpsPath))
 
-    return tableObjDict, clumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath
+    return tableObjDict, allClumps, studySnpsDict, filteredInputPath, clumpNumPath
 
 
 def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes):
@@ -116,8 +140,45 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valu
 
     return traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes
 
+def getPreferredPop(popList, superPop):
+    if str(popList[0]) == 'NA' and len(popList) == 1:
+        return (superPop)
+    elif superPop in popList:
+        return (superPop)
+    else:
+        filteredKeys = []
+        if superPop == 'EUR':
+            keys=['EUR', 'AMR', 'SAS', 'EAS', 'AFR']
+        elif superPop == 'AMR':
+            keys=['AMR', 'EUR', 'SAS', 'EAS', 'AFR']
+        elif superPop == 'SAS':
+            keys=['SAS', 'EAS', 'EUR', 'AMR', 'AFR']
+        elif superPop == 'EAS':
+            keys=['EAS', 'SAS', 'EUR', 'AMR', 'AFR']
+	#TODO: check with justin if these heirarchies are correct
+        elif superPop == 'AFR':
+            keys=['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
+        for pop in keys:
+            if pop == 'EUR':
+                tryPop = 'European'
+            elif pop == 'AMR':
+                tryPop = 'American'
+            elif pop == 'AFR':
+                tryPop = 'African'
+            elif pop == 'EAS':
+                tryPop = 'East Asian'
+            elif pop == 'SAS':
+                tryPop = 'South Asian'
 
-def filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
+            if tryPop in popList:
+                filteredKeys.append(pop)
+        values = list(range(0,len(filteredKeys)))
+        heirarchy = dict(zip(filteredKeys, values))
+        preferredPop = min(heirarchy, key=heirarchy.get)
+
+    return preferredPop
+
+def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
     txt_file = openFileForParsing(inputFilePath)
     filteredOutput = open(filteredFilePath, 'w')
 
@@ -158,9 +219,10 @@ def filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filtere
         if snpInFilters:
             # We use the clumpNumDict later in the parse_files functions to determine which variants are in an LD clump by themselves
             # if the snp is part of an ld clump that has already been noted, increase the count of the ld clump this snp is in
-            if snp in clumpsObjDict:
-                clumpNum = clumpsObjDict[snp]['clumpNum']
-                clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
+            for pop in allClumpsObjDict.keys():
+                if snp in allClumpsObjDict[pop].keys():
+                    clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
+                    clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
             # write the line to the filtered txt file
             filteredOutput.write(line)
             inputInFilters = True
@@ -168,9 +230,10 @@ def filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filtere
     #here we add in the other snps that are not in the sample but are in the study
     for key in studySnpsDict:
         for snp in studySnpsDict[key]:
-            if snp in clumpsObjDict:
-                clumpNum = clumpsObjDict[snp]['clumpNum']
-                clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
+            for pop in allClumpsObjDict.keys():
+                if snp in allClumpsObjDict[pop].keys():
+                    clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
+                    clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
         
     if fileEmpty:
         raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
@@ -181,7 +244,7 @@ def filterTXT(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filtere
     return clumpNumDict
 
 
-def filterVCF(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
+def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
     # open the input file path for opening
     inputVCF = openFileForParsing(inputFilePath)
 
@@ -215,9 +278,10 @@ def filterVCF(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filtere
                     if snpInFilters:
                         # increase count of the ld clump this snp is in
                         # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
-                        if rsID in clumpsObjDict:
-                            clumpNum = clumpsObjDict[rsID]['clumpNum']
-                            clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
+                        for pop in allClumpsObjDict.keys():
+                            if rsID in allClumpsObjDict[pop].keys():
+                                clumpNum = allClumpsObjDict[pop][rsID]['clumpNum']
+                                clumpNumDict[str((pop, clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
 
                         # write the line to the filtered VCF
                         w.write(line)
@@ -226,9 +290,10 @@ def filterVCF(tableObjDict, clumpsObjDict, studySnpsDict, inputFilePath, filtere
             # here we add in the other snps that are not in the sample but are in the study
             for key in studySnpsDict:
                 for snp in studySnpsDict[key]:
-                    if snp in clumpsObjDict:
-                        clumpNum = clumpsObjDict[snp]['clumpNum']
-                        clumpNumDict[clumpNum] = clumpNumDict.get(clumpNum, 0) + 1
+                    for pop in allClumpsObjDict.keys():
+                        if snp in allClumpsObjDict[pop]:
+                            clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
+                            clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
 
             if fileEmpty:
                 raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")

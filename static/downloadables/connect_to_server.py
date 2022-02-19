@@ -51,7 +51,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(workingFilesPath, associFileName)
 
-	allSuperPops |= set(['AFR', 'AMR', 'EAS', 'EUR', 'SAS'])
+        allSuperPops |= set(['AFR', 'AMR', 'EAS', 'EUR', 'SAS'])
 
         if (checkForAllAssociFile(refGen)):
             associationsReturnObj = getAllAssociations(refGen)
@@ -71,10 +71,11 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         associationsReturnObj, finalStudyList = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes)
 
 	# get the set of super populations that correspond to the associations
-	for study in associationsReturnObj['studyIDsToMetaData']:
-	    superPopList = associationsReturnObj['studyIDsToMetaData'][study]['superPopulations']
-	    preferredPop = getPreferredPop(superPopList, superPop)
-	    allSuperPops.add(preferredPop)
+        for study in associationsReturnObj['studyIDsToMetaData'].keys():
+            for trait in associationsReturnObj['studyIDsToMetaData'][study]['traits'].keys():
+                superPopList = associationsReturnObj['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+                preferredPop = getPreferredPop(superPopList, superPop)
+                allSuperPops.add(preferredPop)
 
         # grab all the snps or positions to use for getting the clumps
         snpsFromAssociations = list(associationsReturnObj['associations'].keys())
@@ -115,10 +116,11 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             clumpsPath = os.path.join(workingFilesPath, fileName)
             # get clumps using the refGen and superpopulation
             clumpsData = getClumps(refGen, pop, snpsFromAssociations)
-	else:
-	    if (checkForAllClumps(pop, refGen)):
-	        clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
-		clumpsData = getAllClumps(refGen, pop)
+        else:
+            if (checkForAllClumps(pop, refGen)):
+                clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
+                print(pop)
+                clumpsData = getAllClumps(refGen, pop)
 	    
         # check to see if clumpsData is instantiated in the local variables
         if 'clumpsData' in locals():
@@ -173,7 +175,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             try:
                 sii = headers.index("study id")
                 ti = headers.index("trait")
-		spi = headers.index("super population")
+                spi = headers.index("super population")
                 si = headers.index("rsid")
                 ci = headers.index("chromosome")
                 pi = headers.index("position")
@@ -195,8 +197,8 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 
         else:
 	    # Add super population to the super population set
-	    preferredPop = getPreferredPop(list(line[spi].split(,)), superPop)
-	    allSuperPops.add(preferredPop)
+            preferredPop = getPreferredPop(line[spi], superPop)
+            allSuperPops.add(preferredPop)
 
             line = line.rstrip("\r").rstrip("\n").split("\t")
             # create the chrom:pos to snp dict
@@ -311,6 +313,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
         clumpsPath = os.path.join(workingFilesPath, fileName)
 
         # get clumps using the refGen and superpopulation
+        print(pop)
         clumpsData = getClumps(refGen, pop, chromPos)
 
         # check to see if clumpsData is instantiated in the local variables
@@ -775,28 +778,40 @@ def checkInternetConnection():
 
 
 def getPreferredPop(popList, superPop):
-    if len(popList) == 1:
-        return str(popList)
+    if len(popList) == 1 and str(popList[0]) == 'NA':
+        return(superPop)
     elif superPop in popList:
         return (superPop)
     else:
+        filteredKeys = []
         if superPop == 'EUR':
-	    keys=['EUR', 'AMR', 'SAS', 'EAS', 'AFR']
+            keys=['EUR', 'AMR', 'SAS', 'EAS', 'AFR']
         elif superPop == 'AMR':
-	    keys=['AMR', 'EUR', 'SAS', 'EAS', 'AFR']
+            keys=['AMR', 'EUR', 'SAS', 'EAS', 'AFR']
         elif superPop == 'SAS':
-	    keys=['SAS', 'EAS', 'EUR', 'AMR', 'AFR']
+            keys=['SAS', 'EAS', 'EUR', 'AMR', 'AFR']
         elif superPop == 'EAS':
-	    keys=['EAS', 'SAS', 'EUR', 'AMR', 'AFR']
+            keys=['EAS', 'SAS', 'EUR', 'AMR', 'AFR']
 	#TODO: check with justin if these heirarchies are correct
         elif superPop == 'AFR':
-	    keys=['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
+            keys=['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
         for pop in keys:
-	    if pop in popList:
-	        filteredKeys.append(pop)
-	values = list(range(0,len(filteredKeys)+1))
-	heirarchy = dict(zip(filteredKeys, values))
-	preferredPop = min(heirarchy, key=heirarchy.get)
+            if pop == 'EUR':
+                tryPop = 'European'
+            elif pop == 'AMR':
+                tryPop = 'American'
+            elif pop == 'AFR':
+                tryPop = 'African'
+            elif pop == 'EAS':
+                tryPop = 'East Asian'
+            elif pop == 'SAS':
+                tryPop = 'South Asian'
+
+            if tryPop in popList:
+                filteredKeys.append(pop)
+        values = list(range(0,len(filteredKeys)))
+        heirarchy = dict(zip(filteredKeys, values))
+        preferredPop = min(heirarchy, key=heirarchy.get)
 
     return preferredPop
 	
