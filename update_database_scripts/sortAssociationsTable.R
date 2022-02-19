@@ -19,7 +19,7 @@ associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default =
 
 # if the id column already exists, remove it for sorting purposes
 if (names(associationsTibble)[1] == "id") {
-  associationsTibble <- select(associationsTibble, -id)
+  associationsTibble <- dplyr::select(associationsTibble, -id)
 }
 
 # sort the table by trait, then citation, then snp
