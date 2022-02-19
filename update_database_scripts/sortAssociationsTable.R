@@ -5,8 +5,8 @@
 # where "associationTableFolderPath" is the path to the folder where the association table TSV is stored (default: "../tables/")
 
 # get args from the commandline
-args = commandArgs(trailingOnly=TRUE)
-if (length(args)==0) {
+args = commandArgs(trailingOnly = TRUE)
+if (length(args) == 0) {
   args[1] <- "../tables/"
 }
 
@@ -23,7 +23,7 @@ if (names(associationsTibble)[1] == "id") {
 }
 
 # sort the table by trait, then citation, then snp
-associationsTibble <- arrange(associationsTibble, trait, citation, snp) %>%
+associationsTibble <- arrange(associationsTibble, trait, citation, studyID, pValueAnnotation, betaAnnotation, ogValueTypes, snp) %>%
   tibble::rowid_to_column("id")
 
 write_tsv(associationsTibble, associationTablePath, append = FALSE)
