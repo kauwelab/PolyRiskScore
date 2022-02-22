@@ -105,8 +105,9 @@ def formatAssociations(associationsUnformatted, metaDataUnformatted):
                 associationsBySnp[snp]["traits"][trait][studyID] = {}
             pValBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + ogValueTypes
             if not pValBetaAnnoValType in associationsBySnp[snp]["traits"][trait][studyID]:
-                associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType] = {
-                        "riskAllele": riskAllele,
+                associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType] = {}
+            if not riskAllele in associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType]:
+                associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele] = {
                         "pValue": pValue,
                         "oddsRatio": oddsRatio,
                         "betaValue": betaValue,
@@ -115,7 +116,7 @@ def formatAssociations(associationsUnformatted, metaDataUnformatted):
                         "ogValueTypes": ogValueTypes
                     }
             else:
-                print("we have a duplicate or a serious problem..")
+                print("we have a serious problem..")
                 print(studyID, trait, pValBetaAnnoValType, snp, riskAllele, associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType])
         else:
             print("Not in studyIDsToMetaData", studyID)
