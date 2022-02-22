@@ -37,31 +37,53 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
         for snp in txtObj:
             if snp in snpSet:
                 nonMissingSnps += 1
-                riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['riskAllele']
-                units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnit']
-                # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
-                snpBeta = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['oddsRatio'])
-                # Also iterate through each of the alleles
-                for allele in txtObj[snp]:
-                    # Then compare to the gwa study
-                    if allele != "":
-                        if allele == riskAllele:
-                            betas.append(snpBeta)
-                            betaUnits.add(units)
-                            if snpBeta < 0:
-                                protectiveVariants.add(snp)
-                            elif snpBeta > 0:
-                                riskVariants.add(snp)
-                        elif allele == "." :
-                            mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict and riskAllele in mafDict[snp]["alleles"] else 0
-                            betas.append(snpBeta*mafVal)
-                            betaUnits.add(units)
-                            if snpBeta < 0:
-                                protectiveVariants.add(snp)
-                            elif snpBeta > 0:
-                                riskVariants.add(snp)
-                        else:
-                            unmatchedAlleleVariants.add(snp)
+                tmpMafDeciderObj = {}
+                for riskAllele in tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]:
+                    units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
+                    # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
+                    snpBeta = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['oddsRatio'])
+                    # Also iterate through each of the alleles
+                    for allele in txtObj[snp]:
+                        # Then compare to the gwa study
+                        if allele != "":
+                            if allele == riskAllele:
+                                betas.append(snpBeta)
+                                betaUnits.add(units)
+                                if snpBeta < 0:
+                                    protectiveVariants.add(snp)
+                                elif snpBeta > 0:
+                                    riskVariants.add(snp)
+                            elif allele == "." :
+                                mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict and riskAllele in mafDict[snp]["alleles"] else 0
+                                mafKey = "{}|{}".format(mafVal, riskAllele)
+                                # We can't put this into the betas yet, because if there are multiple reported risk alleles (uncommon, but possible) we need to be able to chose the allele with the most common allele frequency
+                                if mafKey not in tmpMafDeciderObj:
+                                    tmpMafDeciderObj[mafKey] = {
+                                        "snpBeta": snpBeta,
+                                        "numAlleles": 1
+                                    }
+                                else:
+                                    tmpMafDeciderObj[mafKey]["numAlleles"] += 1
+                            else:
+                                unmatchedAlleleVariants.add(snp)
+                
+                # here is where we find the allele with the greatest allele frequency, which indicates that the allele is more prevelant in the population and should thus be the one we choose to use (note, most of the time, there is only a single allele being considered here)
+                tmpMAFmostCommonKey = ""
+                tmpMAFmostCommonVal = 0
+                tmpMAFmostCommonBeta = 0
+                tmpMAFmostCommonUnits = ""
+                for key in tmpMafDeciderObj:
+                    maf, mafAllele = key.split("|")
+                    if maf >= tmpMAFmostCommonVal:
+                        tmpMAFmostCommonVal = maf
+                        tmpMAFmostCommonKey = key
+                        tmpMAFmostCommonBeta = tmpMafDeciderObj[key]["snpBeta"]
+                betas.append(tmpMAFmostCommonBeta*tmpMAFmostCommonVal*tmpMafDeciderObj[tmpMAFmostCommonKey]["numAlleles"])
+                betaUnits.add(tmpMAFmostCommonUnits)
+                if tmpMAFmostCommonBeta < 0:
+                    protectiveVariants.add(snp)
+                elif tmpMAFmostCommonBeta > 0:
+                    riskVariants.add(snp)
 
         if len(betaUnits) > 1:
             lowercaseB = [x.lower() for x in betaUnits]
@@ -154,31 +176,53 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                     # check if the snp is in this trait/study
                     if rsID in snpSet:
                         nonMissingSnps += 1
-                        riskAllele = tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['riskAllele']
-                        units = tableObjDict['associations'][rsID]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnit']
-                        alleles = vcfObj[samp][rsID]
-                        if alleles != "" and alleles is not None:
-                            snpBeta = tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['oddsRatio'])
-                            for allele in alleles:
-                                allele = str(allele)
-                                if allele != "":
-                                    betaUnits.add(units)
-                                    # check if the risk allele matches one of the sample's alleles for this SNP
-                                    if allele == riskAllele:
-                                        betas.append(snpBeta) # add the odds ratio to the list of odds ratios used to calculate the score
-                                        if snpBeta < 0:
-                                            protectiveVariants.add(rsID)
-                                        elif snpBeta > 0:
-                                            riskVariants.add(rsID)
-                                    elif allele == ".":
-                                        mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict and riskAllele in mafDict[rsID]["alleles"] else 0
-                                        betas.append(snpBeta*mafVal)
-                                        if snpBeta < 0:
-                                            protectiveVariants.add(rsID)
-                                        elif snpBeta > 0:
-                                            riskVariants.add(rsID)
-                                    else:
-                                        unmatchedAlleleVariants.add(rsID)
+                        tmpMafDeciderObj = {}
+                        for riskAllele in tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]:
+                            units = tableObjDict['associations'][rsID]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
+                            alleles = vcfObj[samp][rsID]
+                            if alleles != "" and alleles is not None:
+                                snpBeta = tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['oddsRatio'])
+                                for allele in alleles:
+                                    allele = str(allele)
+                                    if allele != "":
+                                        betaUnits.add(units)
+                                        # check if the risk allele matches one of the sample's alleles for this SNP
+                                        if allele == riskAllele:
+                                            betas.append(snpBeta) # add the odds ratio to the list of odds ratios used to calculate the score
+                                            if snpBeta < 0:
+                                                protectiveVariants.add(rsID)
+                                            elif snpBeta > 0:
+                                                riskVariants.add(rsID)
+                                        elif allele == ".":
+                                            mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict and riskAllele in mafDict[rsID]["alleles"] else 0
+                                            mafKey = "{}|{}".format(mafVal, riskAllele)
+                                            # We can't put this into the betas yet, because if there are multiple reported risk alleles (uncommon, but possible) we need to be able to chose the allele with the most common allele frequency
+                                            if mafKey not in tmpMafDeciderObj:
+                                                tmpMafDeciderObj[mafKey] = {
+                                                    "snpBeta": snpBeta,
+                                                    "numAlleles": 1
+                                                }
+                                            else:
+                                                tmpMafDeciderObj[mafKey]["numAlleles"] += 1
+                                        else:
+                                            unmatchedAlleleVariants.add(rsID)
+                        # here is where we find the allele with the greatest allele frequency, which indicates that the allele is more prevelant in the population and should thus be the one we choose to use (note, most of the time, there is only a single allele being considered here)
+                        tmpMAFmostCommonKey = ""
+                        tmpMAFmostCommonVal = 0
+                        tmpMAFmostCommonBeta = 0
+                        tmpMAFmostCommonUnits = ""
+                        for key in tmpMafDeciderObj:
+                            maf, mafAllele = key.split("|")
+                            if maf >= tmpMAFmostCommonVal:
+                                tmpMAFmostCommonVal = maf
+                                tmpMAFmostCommonKey = key
+                                tmpMAFmostCommonBeta = tmpMafDeciderObj[key]["snpBeta"]
+                        betas.append(tmpMAFmostCommonBeta*tmpMAFmostCommonVal*tmpMafDeciderObj[tmpMAFmostCommonKey]["numAlleles"])
+                        betaUnits.add(tmpMAFmostCommonUnits)
+                        if tmpMAFmostCommonBeta < 0:
+                            protectiveVariants.add(rsID)
+                        elif tmpMAFmostCommonBeta > 0:
+                            riskVariants.add(rsID)
 
             if len(betaUnits) > 1:
                 lowercaseB = [x.lower() for x in betaUnits]

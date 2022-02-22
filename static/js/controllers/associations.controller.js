@@ -352,10 +352,13 @@ async function separateStudies(associations, traitData, refGen, sex) {
             // if the pValBetaAnno not in the snp/trait/studyID obj
             pValBetaAnnoValType = association.pValueAnnotation + "|" + association.betaAnnotation + "|" + association.ogValueTypes
             if (!(pValBetaAnnoValType in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID])){
-                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType] = createStudyIDObj(association)
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType] = {}
+            }
+            if (!(association.riskAllele in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType])){
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType][association.riskAllele] = createStudyIDObj(association)
             }
             else {
-                console.log("Okay, we have a duplicate or a serious problem...")
+                console.log("Okay, we have a serious problem...")
             }
         }
         else {
@@ -373,7 +376,6 @@ async function separateStudies(associations, traitData, refGen, sex) {
 
 function createStudyIDObj(association){
     return {
-        riskAllele: association.riskAllele,
         pValue: association.pValue,
         oddsRatio: association.oddsRatio,
         betaValue: association.betaValue,
