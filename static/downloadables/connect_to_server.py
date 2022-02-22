@@ -119,7 +119,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         else:
             if (checkForAllClumps(pop, refGen)):
                 clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
-                print(pop)
                 clumpsData = getAllClumps(refGen, pop)
 	    
         # check to see if clumpsData is instantiated in the local variables
@@ -313,7 +312,6 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
         clumpsPath = os.path.join(workingFilesPath, fileName)
 
         # get clumps using the refGen and superpopulation
-        print(pop)
         clumpsData = getClumps(refGen, pop, chromPos)
 
         # check to see if clumpsData is instantiated in the local variables
