@@ -267,7 +267,7 @@ exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
     });
 }
 
-async function separateStudies(associations, traitData, refGen, sex) {
+async function separateStudies(associations, traitData, refGen) {
 
     // store the citation and reported trait for each study
     var studyIDsToMetaData = {}
@@ -283,7 +283,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (traitStudyTypes.length == 0) {
             traitStudyTypes.push("O")
         }
-        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
+        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|") //TODO look into this, maybe we souldn't be splitting on an or.
         pvalBetaAnnoValType = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation + "|" + studyObj.ogValueTypes
         superPopulations = studyObj.superPopulation.split("|")
         sex = studyObj.sex

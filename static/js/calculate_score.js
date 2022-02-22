@@ -13,6 +13,8 @@ function pageReset() {
     document.getElementById("gwasDatabase").style.display = "initial";
     document.getElementById("gwasUpload").style.display = "none";
     document.getElementById("orValueType").checked = true;
+    document.getElementById("mafThresholdIn").value = 0.0;
+    document.getElementById("superPopSelect").value = "European"
 }
 
 //updates the output box and resultJSON string with the new string

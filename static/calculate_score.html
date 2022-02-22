@@ -126,7 +126,7 @@
                       <option value="hg18">NCBI36/hg18</option>
                       <option value="hg17">NCBI35/hg17</option>
                     </select>
-                    <br>
+                    <!-- <br>
                     <label for="superPopSelect">Super Population:</label>
                     <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
                       <option selected="selected" value="default">--Super Population--</option>
@@ -135,7 +135,7 @@
                       <option>East Asian</option>
                       <option>European</option>
                       <option>South Asian</option>
-                    </select>
+                    </select> -->
                   </div>
                 </div>
               </div>
@@ -228,8 +228,7 @@
                     <span id="optionalPValAnno" title="Annotation for P-values. Note that when this is present, calculations are split by p-value annotation."> P-Value&nbsp;Annotation<sup>?</sup>,</span>
                     <span id="optionalHeaderBeta"></span>
                     and <span title ="Trait description for this study in the author's own words.">Reported&nbsp;Trait<sup>?</sup></span>.
-                    <!-- Change the last sentence about more than one odds ratio TODO!!!!!!!!! -->
-                    All other columns in the file will be ignored. If more than one odds ratio exists for an rsID, the odds ratio and corresponding risk allele with the most significant p-value will be used.</p>
+                    All other columns in the file will be ignored. If more than one odds ratio exists for an rsID within a trait/study combination, the tool will throw an error and cease calculating.</p>
                 </div>
                 <div class="file-field" style="padding: .5em;">
                   <h5 class="text-left">1. Upload GWAS File</h5>
@@ -293,20 +292,17 @@
                 </div>
               </div>
 
+              <!--TODO update with CLUMPING-->
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                  <h5>2: Select an Output File Format&nbsp;</h5>
-                  <script src="js/calculate_score.js"></script>
-                  <script src="js/formatHelper.js"></script>
-                  <script src="js/vcf_parser.js"></script>
-                  <div class="fileFormOptions">
-                    <select id="fileType" , onchange="changeFormat();">
-                      <option value="tsv">TSV</option>
-                      <option value="json">JSON</option>
-                    </select>
-                    <select id="fileFormat", onchange="changeFormat();">
-                      <option selected="selected" value="condensed">Condensed</option>
-                      <option value="full">Full</option>
+                  <h5><span title="Some studies report more than one super population. For those cases, the user can select the super population they would prefer for linkage-disequilibrium clumping.">2:&nbsp;Preferred Super&nbsp;Population<sup>?</sup></span></h5>
+                  <div class="superPop">
+                    <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
+                      <option value="African">African</option>
+                      <option value="American">American</option>
+                      <option value="East Asian">East Asian</option>
+                      <option value="European" selected='selected'>European</option>
+                      <option value="South Asian">South Asian</option>
                     </select>
                   </div>
                 </div>
@@ -331,22 +327,33 @@
                 </div>
               </div>
 
-              <!--TODO update with CLUMPING-->
-              <!-- <div class='child'>
-                <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                  <h5>4: Preferred Super Population</h5>
-                  <div class="superPop">
-                    <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
-                      <option selected="selected" value="default">--Super Population--</option>
-                      <option>African</option>
-                      <option>American</option>
-                      <option>East Asian</option>
-                      <option>European</option>
-                      <option>South Asian</option>
+              <div class='child'>
+                <div class="col-lg-12 mb-.5 mt-2 text-left" style="background-color: whitesmoke;  padding: .5em;">
+                  <h5><span title="Users may choose to set a threshold for snps that will exclude snps from calculation which have an allele frequency below the indicated threshold.">4&nbsp;(Optional): MAF&nbsp;Threshold<sup>?</sup></span></h5>
+                  <div id="mafThreshold">
+                    <input type="number" value="0.0" name="mafThresholdIn" id="mafThresholdIn" size=5 min=0.0 max=1.0 step=0.01 >
+                  </div>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
+                  <h5>5: Select an Output File Format&nbsp;</h5>
+                  <script src="js/calculate_score.js"></script>
+                  <script src="js/formatHelper.js"></script>
+                  <script src="js/vcf_parser.js"></script>
+                  <div class="fileFormOptions">
+                    <select id="fileType" , onchange="changeFormat();">
+                      <option value="tsv">TSV</option>
+                      <option value="json">JSON</option>
+                    </select>
+                    <select id="fileFormat", onchange="changeFormat();">
+                      <option selected="selected" value="condensed">Condensed</option>
+                      <option value="full">Full</option>
                     </select>
                   </div>
                 </div>
-              </div> -->
+              </div>
               <!--uses "js/calculate_score.js"-->
               <button type="button" id="feedbackSubmit" onclick="calculatePolyScore();"
                 class="btn btn-primary btn-lg" style="margin-top: .5em; padding: .5em;">Calculate Risk Scores</button>
