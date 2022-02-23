@@ -109,7 +109,7 @@ prskbMenu () {
 # the usage statement of the tool
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
-    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [subject super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
+    echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [preferred GWA study super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
     echo ""
     echo -e "${MYSTERYCOLOR}Optional parameters to filter studies: "
     echo -e "   ${MYSTERYCOLOR}-t${NC} traitList ex. -t acne -t insomnia -t \"Alzheimer's disease\""
@@ -126,7 +126,7 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file"
     echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user uploaded GWAS data uses beta coefficent values instead of odds ratios" 
     echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used (also is the cohort used for reporting percentiles) ex. -q adni-ad (see the menu to learn more about the cohorts available)"
-    echo -e "   ${MYSTERYCOLOR}-l${NC} sample-wide LD clumping ex. -l" 
+    echo -e "   ${MYSTERYCOLOR}-l${NC} individual-specific LD clumping ex. -l" 
     echo ""
 }
 
@@ -184,7 +184,7 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}2${NC} - -o Output file                                              |"
         echo -e "| ${LIGHTPURPLE}3${NC} - -c P-value Cutoff                                           |"
         echo -e "| ${LIGHTPURPLE}4${NC} - -r RefGen                                                   |"
-        echo -e "| ${LIGHTPURPLE}5${NC} - -p Subject Super Population                                 |"
+        echo -e "| ${LIGHTPURPLE}5${NC} - -p Preferred GWA Study Super Population                     |"
         echo    "|                                                                 |"
         echo -e "|${LIGHTPURPLE}OPTIONAL PARAMS: ${NC}                                                |"
         echo -e "| ${LIGHTPURPLE}6${NC} - -t trait                                                    |"
@@ -200,7 +200,7 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}16${NC} - -a reference genome of GWAS data file                      |"
         echo -e "| ${LIGHTPURPLE}17${NC} - -b flag indicates beta values used for uploaded GWAS data  |"
         echo -e "| ${LIGHTPURPLE}18${NC} - -q minor allele frequency cohort                           |"
-        echo -e "| ${LIGHTPURPLE}19${NC} - -l sample-wide LD clumping                                 |"
+        echo -e "| ${LIGHTPURPLE}19${NC} - -l individual-specific  LD clumping                        |"
         echo -e "|                                                                 |"
         echo -e "| ${LIGHTPURPLE}20${NC} - Done                                                       |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
@@ -230,7 +230,8 @@ learnAboutParameters () {
                 echo "This parameter tells us which reference genome was used to identify the variants " 
                 echo -e "in the input VCF file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
                 echo "" ;;
-            5 ) echo -e "${MYSTERYCOLOR}-p Subject Super Population: ${NC}"
+            5 ) echo -e "${MYSTERYCOLOR}-p Preferred GWA Study Super Population: ${NC}"
+	    #TODO: write a better explanation for this section
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
                 echo "SNPs for PRS calculation. We use the five super populations from the " 
                 echo "1000 Genomes as the available options. Below are the acceptable codes. " # this will need some re-work on the language
@@ -344,15 +345,17 @@ learnAboutParameters () {
                 echo -e "To use the minor allele frequencies from the user vcf, use ${GREEN}-q user ${NC}."
                 echo "Note that this option will not report percentile rank."
                 echo "" ;;
-            19 ) echo -e "${MYSTERYCOLOR} -l sample-wide LD clumping: ${NC}"
-                echo "To perform linkage disequilbrium clumping on a sample-wide level, include the -l parameter." 
-                echo "By default, LD clumping is performed per individual, where only the variants that contain"
-                echo "the corresponding GWA study risk allele are included in the clumping algorithm."
-                echo "Individual-wide LD clumping is beneficial because it allows for a greater number of variants"
-                echo "to be included for each individual's polygenic risk score."
-                echo "In contrast, sample-wide LD clumping performs clumping on all variants that are shared between"
-                echo "the query data and the GWA study. Sample-wide LD clumping allows for sample-wide"
-                echo "PRS comparisons because each individual risk score is calculated using the same variants."
+            19 ) echo -e "${MYSTERYCOLOR} -l individual-specific LD clumping: ${NC}"
+		echo "To perform linkage disequilibrium clumping on an individual level, include the -l parameter."
+		echo "By default, LD clumping is performed on a sample-wide basis, where"
+		echo "the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study."
+		echo "This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons"
+		echo "since each risk score is calculated using the same variants."
+		echo "In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation"
+		echo "by only looking at the individual's variants that have a corresponding risk allele" 
+		echo  "(or, in the absence of a risk allele, an imputed unknown allele) in the GWA study."
+		echo "The benefit to this type of LD clumping is that it allows for a greater number of risk alleles"
+		echo "to be included in each individual's polygenic risk score."
                 echo "" ;;
             20 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
@@ -455,6 +458,7 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
         echo -e "|${LIGHTPURPLE}REQUIRED COLUMNS: ${NC}            |"
         echo -e "| ${LIGHTPURPLE}1${NC} - Study ID                 |"
         echo -e "| ${LIGHTPURPLE}2${NC} - Trait                    |"
+        echo -e "| ${LIGHTPURPLE}2${NC} - Super Population         |"
         echo -e "| ${LIGHTPURPLE}3${NC} - RsID                     |"
         echo -e "| ${LIGHTPURPLE}4${NC} - Chromosome               |"
         echo -e "| ${LIGHTPURPLE}5${NC} - Position                 |"
@@ -482,6 +486,10 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR} Trait: ${NC}" 
                 echo "The Experimental Factor Ontology (EFO) trait the GWAS deals with."
+                echo "" ;;
+            3 ) echo -e "${MYSTERYCOLOR} Super Population: ${NC}" 
+		#TODO: write this section
+		echo "write something here"
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR} RsID: ${NC}"
                 echo "The Reference SNP cluster ID (RsID) of the SNP."
@@ -571,7 +579,7 @@ calculatePRS () {
     valueTypesForCalc=()
     sexForCalc=()
     isCondensedFormat=1
-    isSampleClump=0
+    isIndividualClump=0
 
     single="'"
     escaped="\'"
@@ -810,14 +818,13 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
-            l)  isSampleClump=1;;
+            l)  isIndividualClump=1;;
             [?])    usage
                     exit 1;;
         esac
     done
 
     # if missing a required parameter, show menu/usage option
-    #TODO: decide if we want to take out SuperPop from the required params
     if [ -z "$filename" ] || [ -z "$output" ] || [ -z "$cutoff" ] || [ -z "$refgen" ] || [ -z "$superPop" ]; then
         askToStartMenu
     fi
@@ -1062,7 +1069,7 @@ calculatePRS () {
         if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "${sexes}" "${valueTypes}" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$TIMESTAMP" "$processes" "$isSampleClump" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$TIMESTAMP" "$processes" "$isIndividualClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
