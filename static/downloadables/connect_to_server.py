@@ -782,17 +782,15 @@ def getPreferredPop(popList, superPop):
         return (superPop)
     else:
         filteredKeys = []
-        if superPop == 'EUR':
-            keys=['EUR', 'AMR', 'SAS', 'EAS', 'AFR']
-        elif superPop == 'AMR':
-            keys=['AMR', 'EUR', 'SAS', 'EAS', 'AFR']
-        elif superPop == 'SAS':
-            keys=['SAS', 'EAS', 'EUR', 'AMR', 'AFR']
-        elif superPop == 'EAS':
-            keys=['EAS', 'SAS', 'EUR', 'AMR', 'AFR']
-	#TODO: check with justin if these heirarchies are correct
-        elif superPop == 'AFR':
-            keys=['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
+        superPopHeirarchy = {
+            'EUR': ['EUR', 'AMR', 'SAS', 'EAS', 'AFR'],
+            'AMR': ['AMR', 'EUR', 'SAS', 'EAS', 'AFR'],
+            'SAS': ['SAS', 'EAS', 'EUR', 'AMR', 'AFR'],
+            'EAS': ['EAS', 'SAS', 'EUR', 'AMR', 'AFR'],
+	    #TODO: check with justin if these heirarchies are correct
+            'AFR': ['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
+        }
+        keys = superPopHeirarchy[superPop]
         for pop in keys:
             if pop == 'EUR':
                 tryPop = 'European'
