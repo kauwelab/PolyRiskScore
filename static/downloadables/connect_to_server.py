@@ -227,19 +227,21 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             valueType = "beta" if userGwasBeta else "OR"
             pvalBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + valueType
             if pvalBetaAnnoValType not in associationDict[line[si]]["traits"][line[ti]][line[sii]]:
-                # perform strand flipping TODO THIS MIGHT BE SOMETHING THAT NEEDS TO CHANGE
-                riskAllele = runStrandFlipping(line[si], line[rai])
-                associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType] = {
-                    "riskAllele": riskAllele,
+                associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType] = {}
+            
+            # perform strand flipping TODO THIS MIGHT BE SOMETHING THAT NEEDS TO CHANGE
+            riskAllele = runStrandFlipping(line[si], line[rai])
+            if riskAllele not in associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]:
+                associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]= {
                     "pValue": float(line[pvi]),
                     "sex": "NA",
                     "ogValueTypes": 'beta' if userGwasBeta else 'or'
                 }
                 if userGwasBeta:
-                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]['betaValue'] = float(line[bvi])
-                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]['betaUnit'] = line[bui]
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaValue'] = float(line[bvi])
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaUnit'] = line[bui]
                 else:
-                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]['oddsRatio'] = float(line[ori])
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['oddsRatio'] = float(line[ori])
             else:
                 # if the snp is duplicated, notify the user and exit
                 raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format(line[si], line[ti], line[sii], pvalBetaAnnoValType))
