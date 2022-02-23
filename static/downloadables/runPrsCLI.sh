@@ -348,7 +348,7 @@ learnAboutParameters () {
             19 ) echo -e "${MYSTERYCOLOR} -l individual-specific LD clumping: ${NC}"
 		echo "To perform linkage disequilibrium clumping on an individual level, include the -l parameter."
 		echo "By default, LD clumping is performed on a sample-wide basis, where"
-		echo "the variants included in the clumping process are all variants that are present in the GWA study."
+		echo "the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study."
 		echo "This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons"
 		echo "since each risk score is calculated using the same variants."
 		echo "In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation"
