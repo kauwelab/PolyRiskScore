@@ -8,6 +8,7 @@ import sys
 import os
 import os.path
 from collections import defaultdict
+from connect_to_server import getPreferredPop
 
 def parseAndCalculateFiles(params):
     # initialize the parameters used in multiprocessing
@@ -92,7 +93,6 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
 	
 	# loop through each population and download the corresponding clumps file. Add that file to a dictionary
 	# where {pop:clumps object, pop2: clumps object, etc.}
-        print(str(allSuperPops))
         allClumps = {}
         for pop in allSuperPops:
             if isFilters:
@@ -113,43 +113,6 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
 
     return tableObjDict, allClumps, clumpNumDict, studySnpsDict, mafDict, filteredInputPath
 
-def getPreferredPop(popList, superPop):
-    if len(popList) == 1 and str(popList[0]) == 'NA':
-        return(superPop)
-    elif superPop in popList:
-        return (superPop)
-    else:
-        filteredKeys = []
-        if superPop == 'EUR':
-            keys=['EUR', 'AMR', 'SAS', 'EAS', 'AFR']
-        elif superPop == 'AMR':
-            keys=['AMR', 'EUR', 'SAS', 'EAS', 'AFR']
-        elif superPop == 'SAS':
-            keys=['SAS', 'EAS', 'EUR', 'AMR', 'AFR']
-        elif superPop == 'EAS':
-            keys=['EAS', 'SAS', 'EUR', 'AMR', 'AFR']
-	#TODO: check with justin if these heirarchies are correct
-        elif superPop == 'AFR':
-            keys=['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
-        for pop in keys:
-            if pop == 'EUR':
-                tryPop = 'European'
-            elif pop == 'AMR':
-                tryPop = 'American'
-            elif pop == 'AFR':
-                tryPop = 'African'
-            elif pop == 'EAS':
-                tryPop = 'East Asian'
-            elif pop == 'SAS':
-                tryPop = 'South Asian'
-
-            if tryPop in popList:
-                filteredKeys.append(pop)
-        values = list(range(0,len(filteredKeys)))
-        heirarchy = dict(zip(filteredKeys, values))
-        preferredPop = min(heirarchy, key=heirarchy.get)
-
-    return preferredPop
 
 def formatAndReturnGenotype(genotype, REF, ALT):
     try:
@@ -627,7 +590,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
     # Access the downloaded files and paths
     tableObjDict, allClumpsObjDict, clumpNumDict, studySnpsDict, mafDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload)
-    print(str(allClumpsObjDict.keys()))
     
     # Determine whether the output format is condensed and either json or tsv
     if outputType == '.json':

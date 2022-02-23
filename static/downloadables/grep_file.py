@@ -5,6 +5,7 @@ import os.path
 import json
 from sys import argv
 from io import TextIOWrapper
+from connect_to_server import getPreferredPop
 
 # filter the input vcf or txt file so that it only include SNPs that exist in the PRSKB database
 def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, sexes, valueTypes, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp, useGWASupload):
@@ -45,7 +46,7 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
 
 def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload):
-    isFiltered = False
+    isFilters = False
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     # create path for filtered input file
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
@@ -139,44 +140,6 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valu
         ethnicities = [sub.replace("_", " ") for sub in ethnicities]
 
     return traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes
-
-def getPreferredPop(popList, superPop):
-    if str(popList[0]) == 'NA' and len(popList) == 1:
-        return (superPop)
-    elif superPop in popList:
-        return (superPop)
-    else:
-        filteredKeys = []
-        if superPop == 'EUR':
-            keys=['EUR', 'AMR', 'SAS', 'EAS', 'AFR']
-        elif superPop == 'AMR':
-            keys=['AMR', 'EUR', 'SAS', 'EAS', 'AFR']
-        elif superPop == 'SAS':
-            keys=['SAS', 'EAS', 'EUR', 'AMR', 'AFR']
-        elif superPop == 'EAS':
-            keys=['EAS', 'SAS', 'EUR', 'AMR', 'AFR']
-	#TODO: check with justin if these heirarchies are correct
-        elif superPop == 'AFR':
-            keys=['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
-        for pop in keys:
-            if pop == 'EUR':
-                tryPop = 'European'
-            elif pop == 'AMR':
-                tryPop = 'American'
-            elif pop == 'AFR':
-                tryPop = 'African'
-            elif pop == 'EAS':
-                tryPop = 'East Asian'
-            elif pop == 'SAS':
-                tryPop = 'South Asian'
-
-            if tryPop in popList:
-                filteredKeys.append(pop)
-        values = list(range(0,len(filteredKeys)))
-        heirarchy = dict(zip(filteredKeys, values))
-        preferredPop = min(heirarchy, key=heirarchy.get)
-
-    return preferredPop
 
 def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
     txt_file = openFileForParsing(inputFilePath)

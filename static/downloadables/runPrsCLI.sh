@@ -352,8 +352,9 @@ learnAboutParameters () {
 		echo "This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons"
 		echo "since each risk score is calculated using the same variants."
 		echo "In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation"
-		echo "by only looking at the individual's variants that have a corresponding risk allele in the GWA study."
-		echo "The benefit to this type of LD clumping is that it allows for a greater number of variants"
+		echo "by only looking at the individual's variants that have a corresponding risk allele" 
+		echo  "(or, in the absence of a risk allele, an imputed unknown allele) in the GWA study."
+		echo "The benefit to this type of LD clumping is that it allows for a greater number of risk alleles"
 		echo "to be included in each individual's polygenic risk score."
                 echo "" ;;
             20 ) cont=0 ;;

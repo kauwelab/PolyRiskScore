@@ -64,6 +64,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         
     # else get the associations using the given filters
     else:
+	# this boolean lets us know that study filters were requested
         isFilters = True
 
         fileName = "associations_{ahash}.txt".format(ahash = fileHash)
@@ -794,22 +795,20 @@ def getPreferredPop(popList, superPop):
         elif superPop == 'AFR':
             keys=['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
         for pop in keys:
-            if pop == 'EUR':
-                tryPop = 'European'
-            elif pop == 'AMR':
-                tryPop = 'American'
-            elif pop == 'AFR':
-                tryPop = 'African'
-            elif pop == 'EAS':
-                tryPop = 'East Asian'
-            elif pop == 'SAS':
-                tryPop = 'South Asian'
-
+            popKeys = {
+                'EUR':'European',
+                'AMR': 'American', 
+                'AFR': 'African',
+                'EAS': 'East Asian',
+                'SAS': 'South Asian'
+            }
+            tryPop = popKeys[pop]
+	    # create a filtered list (maintaining the same order) that only includes the super populations
+	    # that are also present in the study population list
             if tryPop in popList:
                 filteredKeys.append(pop)
-        values = list(range(0,len(filteredKeys)))
-        heirarchy = dict(zip(filteredKeys, values))
-        preferredPop = min(heirarchy, key=heirarchy.get)
+	# grab the first population in the filtered list
+	preferredPop = filteredKeys[0]
 
     return preferredPop
 	
