@@ -5,7 +5,10 @@ import os.path
 import time
 import datetime
 from sys import argv
-from grep_file import openFileForParsing
+from io import TextIOWrapper
+import zipfile
+import tarfile
+import gzip
 
 # get the associations and clumps from the Server
 def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes, superPop, fileHash, extension, mafCohort):
@@ -350,6 +353,35 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
         f.close()
 
     return
+
+
+# opens and returns an open file from the inputFile path, using zipfile, tarfile, gzip, or open depending on the file's type
+# assumes the file is valid (validated with getZippedFileExtension function)
+def openFileForParsing(inputFile, isGWAS=False):
+    filename = ""
+    if zipfile.is_zipfile(inputFile):
+        # open the file
+        archive = zipfile.ZipFile(inputFile)
+        # get the vcf or txt file in the zip
+        for filename in archive.namelist():
+            extension = filename[-4:].lower()
+            if (not isGWAS and extension == ".txt" or extension == ".vcf") or (isGWAS and extension == ".txt" or extension == ".tsv"):
+                # TextIOWrapper converts bytes to strings and force_zip64 is for files potentially larger than 2GB
+                return TextIOWrapper(archive.open(filename, force_zip64=True))
+    elif tarfile.is_tarfile(inputFile):
+        # open the file
+        archive = tarfile.open(inputFile)
+        # get the vcf or txt file in the tar
+        for tarInfo in archive:
+            extension = tarInfo.name[-4:].lower()
+            if (not isGWAS and extension == ".txt" or extension == ".vcf") or (isGWAS and extension == ".txt" or extension == ".tsv"):
+                # TextIOWrapper converts bytes to strings
+                return TextIOWrapper(archive.extractfile(tarInfo))
+    elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
+        return TextIOWrapper(gzip.open(inputFile, 'r'))
+    else:
+        # default option for regular vcf and txt files
+        return open(inputFile, 'r')
 
 
 def checkForAllAssociFile(refGen):
@@ -790,7 +822,7 @@ def getPreferredPop(popList, superPop):
             'AMR': ['AMR', 'EUR', 'SAS', 'EAS', 'AFR'],
             'SAS': ['SAS', 'EAS', 'EUR', 'AMR', 'AFR'],
             'EAS': ['EAS', 'SAS', 'EUR', 'AMR', 'AFR'],
-	    #TODO: check with justin if these heirarchies are correct
+            #TODO: check with justin if these heirarchies are correct
             'AFR': ['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
         }
         keys = superPopHeirarchy[superPop]
@@ -807,11 +839,11 @@ def getPreferredPop(popList, superPop):
 	    # that are also present in the study population list
             if tryPop in popList:
                 filteredKeys.append(pop)
-	# grab the first population in the filtered list
-	preferredPop = filteredKeys[0]
+    # grab the first population in the filtered list
+    preferredPop = filteredKeys[0]
 
     return preferredPop
-	
+
 if __name__ == "__main__":
     if argv[1] == "GWAS":
         formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8])
