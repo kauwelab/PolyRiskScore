@@ -592,6 +592,23 @@ if (is_ebi_reachable()) {
         filter(unique_beta_units==1) %>% # remove all groups with more than 1 unique beta unit
         dplyr::select(-unique_beta_units) # remove the unique beta units column
 
+      # resolve snps that have differences in rounding which leads to duplicates
+      studyData <- studyData %>%
+        mutate(rounded_beta = across(starts_with("betaValue"), round, 2)) %>% # create a rounded betaValue column for comparing
+        mutate(rounded_odds = across(starts_with("oddsRatio"), round, 2)) %>% # create a rounded oddsRatio column for comparing
+        distinct(snp, riskAllele, pValue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, rounded_beta, rounded_odds, .keep_all = TRUE) %>%
+        dplyr::select(-rounded_beta, -rounded_odds) # remove the rounded columns
+
+      # remove the duplicate snps that we can't resolve
+      studyData <- studyData %>%
+        group_by(snp, riskAllele, trait, pvalue_description, beta_description, ogValueTypes, studyID) %>%
+        mutate(num_repeated_snps = n()) %>%
+        ungroup() %>%
+        group_by(trait, pvalue_description, beta_description, ogValueTypes, studyID) %>%
+        mutate(remove_study = sum(num_repeated_snps)/n())
+        filter(remove_study==1) %>%
+        dplyr::select(-num_repeated_snps, -remove_study) # remove the num repeated snps column and remove study column
+
       # check if studyData has enough snps
       if (is.null(checkIfValidDataObj(studyData))) {next}
       
