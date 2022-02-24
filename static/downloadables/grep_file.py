@@ -4,8 +4,7 @@ import gzip
 import os.path
 import json
 from sys import argv
-from io import TextIOWrapper
-from connect_to_server import getPreferredPop
+from connect_to_server import getPreferredPop, openFileForParsing
 
 # filter the input vcf or txt file so that it only include SNPs that exist in the PRSKB database
 def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, sexes, valueTypes, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp, useGWASupload):
@@ -313,46 +312,18 @@ def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, study
                 # if we aren't going to use all the associations, decide if this is one that we will use
                 # check if the pValue is less than the given threshold
                 for pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
-                    pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]['pValue']
-                    if pValue <= float(p_cutOff):
-                        # if there were filters specified for the studies, check if this study should be used
-                        if not isAllFiltersNone:
-                            studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
-                            useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, study, trait, studyMetaData, useTrait)
-                        if useStudy or isAllFiltersNone:
-                            snpInFilters = True
-                            return snpInFilters
+                    for riskAllele in tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]:
+                        pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType][riskAllele]['pValue']
+                        if pValue <= float(p_cutOff):
+                            # if there were filters specified for the studies, check if this study should be used
+                            if not isAllFiltersNone:
+                                studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
+                                useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, study, trait, studyMetaData, useTrait)
+                            if useStudy or isAllFiltersNone:
+                                snpInFilters = True
+                                return snpInFilters
 
     return snpInFilters
-
-
-# opens and returns an open file from the inputFile path, using zipfile, tarfile, gzip, or open depending on the file's type
-# assumes the file is valid (validated with getZippedFileExtension function)
-def openFileForParsing(inputFile, isGWAS=False):
-    filename = ""
-    if zipfile.is_zipfile(inputFile):
-        # open the file
-        archive = zipfile.ZipFile(inputFile)
-        # get the vcf or txt file in the zip
-        for filename in archive.namelist():
-            extension = filename[-4:].lower()
-            if (not isGWAS and extension == ".txt" or extension == ".vcf") or (isGWAS and extension == ".txt" or extension == ".tsv"):
-                # TextIOWrapper converts bytes to strings and force_zip64 is for files potentially larger than 2GB
-                return TextIOWrapper(archive.open(filename, force_zip64=True))
-    elif tarfile.is_tarfile(inputFile):
-        # open the file
-        archive = tarfile.open(inputFile)
-        # get the vcf or txt file in the tar
-        for tarInfo in archive:
-            extension = tarInfo.name[-4:].lower()
-            if (not isGWAS and extension == ".txt" or extension == ".vcf") or (isGWAS and extension == ".txt" or extension == ".tsv"):
-                # TextIOWrapper converts bytes to strings
-                return TextIOWrapper(archive.extractfile(tarInfo))
-    elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
-        return TextIOWrapper(gzip.open(inputFile, 'r'))
-    else:
-        # default option for regular vcf and txt files
-        return open(inputFile, 'r')
 
 
 def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, studyID, trait, studyMetaData, useTrait):
