@@ -313,7 +313,7 @@ if (is_ebi_reachable()) {
         }
       }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
     }
-    studyTable <- arrange(studyTable, trait, citation)
+    studyTable <- arrange(studyTable, trait, citation, studyID, pValueAnnotation, betaAnnotation, ogValueTypes)
     # write out the study table
     write.table(studyTable, file=studyTablePath, sep="\t", row.names=FALSE, quote=FALSE, fileEncoding = "UTF-8")
   }

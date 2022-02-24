@@ -13,35 +13,120 @@ from uploadTablesToDatabase import checkTableExists, getConnection
 
 # This script should be run monthly
 
-# gets the associationsObj from the all_associations endpoint
-def callAllAssociationsEndpoint(refGen):
-    params = {
-        'pValue': 1,
-        'refGen': refGen,
-    }
-    associations = getUrlWithParams("https://prs.byu.edu/all_associations", params = params)
-    return associations
+
+def getAssociations(refGen, config):
+    connection = getConnection(config)
+    associationsUnformatted = []
+    if (checkTableExists(connection.cursor(), "associations_table")):
+        cursor = connection.cursor()
+        sql = "SELECT snp, {r}, riskAllele, pValue, pValueAnnotation, oddsRatio, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, studyID, trait FROM associations_table; ".format(r=refGen)
+        cursor.execute(sql)
+        returnedAssociations = cursor.fetchall()
+        cursor.close()
+        associationsUnformatted = returnedAssociations
+    else:
+        raise NameError("associations_tables DNE")
+
+    metaDataUnformatted = []
+    if (checkTableExists(connection.cursor(), "study_table") and checkTableExists(connection.cursor(), "studyMaxes")):
+        cursor = connection.cursor()
+        sql = "SELECT studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, ogValueTypes, sex, " + \
+                "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.trait) = altmetricScore, 'HI', '') as hi, " + \
+                "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.trait) = initialSampleSize+replicationSampleSize, 'LC', '') as lc, " + \
+                "IF((SELECT altmetricScore FROM studyMaxes WHERE trait=study_table.reportedTrait) = altmetricScore, 'HI', '') as rthi, " + \
+                "IF((SELECT cohort FROM studyMaxes WHERE trait=study_table.reportedTrait) = initialSampleSize+replicationSampleSize, 'LC', '') as rtlc " + \
+                "FROM study_table; "
+        cursor.execute(sql)
+        returnedMetaData = cursor.fetchall()
+        cursor.close()
+        metaDataUnformatted = returnedMetaData
+    else:
+        raise NameError("study_table or studyMaxes DNE")
+
+    return formatAssociations(associationsUnformatted, metaDataUnformatted)
 
 
-# for GET urls
-def getUrlWithParams(url, params):
-    response = requests.get(url=url, params=params)
-    response.close()
-    assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
-    return response.json()  
+def formatAssociations(associationsUnformatted, metaDataUnformatted):
+    studyIDsToMetaData = {}
+    for studyID, reportedTrait, citation, trait, ethnicity, superPopulation, pValueAnnotation, betaAnnotation, ogValueTypes, sex, hi, lc, rthi, rtlc in metaDataUnformatted:
+        traitStudyTypes = []
+        if (hi != ""):
+            traitStudyTypes.append(hi)
+        if (lc != ""):
+            traitStudyTypes.append(lc)
+        if len(traitStudyTypes) == 0:
+            traitStudyTypes.append("O")
+
+        ethnicities = ethnicity.replace(" or ", "|").split("|")
+        pvalBetaAnnoValType = "|".join([pValueAnnotation, betaAnnotation, ogValueTypes])
+        superPopulations = superPopulation.split("|")
+        if (not (studyID in studyIDsToMetaData)):
+            studyTypes = []
+            if rthi != "":
+                studyTypes.append(rthi)
+            if rtlc != "":
+                studyTypes.append(rtlc)
+            if len(studyTypes) == 0 :
+                studyTypes.append("O")
+            studyIDsToMetaData[studyID] = {
+                    "citation": citation,
+                    "reportedTrait": reportedTrait,
+                    "studyTypes": studyTypes,
+                    "traits": {},
+                    "ethnicity": ethnicities if ethnicities != "" else []
+            }
+    
+        if not (trait in studyIDsToMetaData[studyID]["traits"]):
+            studyIDsToMetaData[studyID]["traits"][trait] = {
+                    "studyTypes": traitStudyTypes,
+                    "pValBetaAnnoValType": [pvalBetaAnnoValType],
+                    "superPopulations": superPopulations,
+                    "sexes": [sex]
+            }
+        else:
+            studyIDsToMetaData[studyID]["traits"][trait]["studyTypes"] = list(set(studyIDsToMetaData[studyID]["traits"][trait]["studyTypes"] + traitStudyTypes))
+            studyIDsToMetaData[studyID]["traits"][trait]["pValBetaAnnoValType"].append(pvalBetaAnnoValType) 
+            studyIDsToMetaData[studyID]["traits"][trait]["superPopulations"] = list(set(studyIDsToMetaData[studyID]["traits"][trait]["superPopulations"] + superPopulations))
+            studyIDsToMetaData[studyID]["traits"][trait]["sexes"].append(sex)
+    associationsBySnp = {}
+
+    for snp, position, riskAllele, pValue, pValueAnnotation, oddsRatio, betaValue, betaUnit, betaAnnotation, ogValueTypes, sex, studyID, trait in associationsUnformatted:
+        if studyID in studyIDsToMetaData:
+            if not snp in associationsBySnp:
+                associationsBySnp[position] = snp
+                associationsBySnp[snp] = {
+                        "pos": position,
+                        "traits": {}
+                    }
+
+            if not trait in associationsBySnp[snp]["traits"]:
+                associationsBySnp[snp]["traits"][trait] = {}
+            if not studyID in associationsBySnp[snp]["traits"][trait]:
+                associationsBySnp[snp]["traits"][trait][studyID] = {}
+            pValBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + ogValueTypes
+            if not pValBetaAnnoValType in associationsBySnp[snp]["traits"][trait][studyID]:
+                associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType] = {}
+            if not riskAllele in associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType]:
+                associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele] = {
+                        "pValue": pValue,
+                        "oddsRatio": oddsRatio,
+                        "betaValue": betaValue,
+                        "betaUnit": betaUnit,
+                        "sex": sex,
+                        "ogValueTypes": ogValueTypes
+                    }
+            else:
+                print("we have a serious problem..")
+                print(studyID, trait, pValBetaAnnoValType, snp, riskAllele, associationsBySnp[snp]["traits"][trait][studyID][pValBetaAnnoValType])
+        else:
+            print("Not in studyIDsToMetaData", studyID)
+
+    return { "studyIDsToMetaData": studyIDsToMetaData, "associations": associationsBySnp }
 
 
 # gets the clumps from the database
 # TODO this will need to be updated for new clumping procedure
-def getClumps(refGen, pop, rsIDs, password):
-    # set other default variables
-    config = {
-        'user': 'polyscore',
-        'password': password,
-        'host': 'localhost',
-        'database': 'polyscore',
-        'auth_plugin': 'mysql_native_password',
-    }
+def getClumps(refGen, pop, rsIDs, config):
     popToColumn = {
         "AFR": "african_Clump",
         "AMR": "american_Clump",
@@ -125,11 +210,19 @@ def createServerDownloadFiles(params):
     refGen = params[0]
     password = params[1]
     generalFilePath = params[2]
+    config = {
+        'user': 'polyscore',
+        'password': password,
+        'host': 'localhost',
+        'database': 'polyscore',
+        'auth_plugin': 'mysql_native_password',
+    }
 
     rsIDKeys = set()
 
     # creating an AllAssociations file
-    associationsObj = callAllAssociationsEndpoint(refGen)
+    # associationsObj = callAllAssociationsEndpoint(refGen)
+    associationsObj = getAssociations(refGen, config)
     associationsFilePath = os.path.join(generalFilePath, "allAssociations_{refGen}.txt".format(refGen=refGen))
     print("Writing Association File:", (refGen))
     rsIDKeys.update(associationsObj['associations'].keys())
@@ -144,7 +237,7 @@ def createServerDownloadFiles(params):
     # for each superPop in the 1000 genomes, create clumps files for the superPop/refGen combo
     for pop in ["AFR", "AMR", "EAS", "EUR", "SAS"]:
         clumpsFilePath = os.path.join(generalFilePath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
-        clumpsObjUnformatted = getClumps(refGen, pop, rsIDKeys, password)
+        clumpsObjUnformatted = getClumps(refGen, pop, rsIDKeys, config)
         clumpsObj = formatClumps(clumpsObjUnformatted)
         print("Writing clumps File:", (refGen, pop))
         f = open(clumpsFilePath, 'w')
