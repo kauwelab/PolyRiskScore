@@ -594,11 +594,16 @@ if (is_ebi_reachable()) {
       
       # resolve snps that have differences in rounding which leads to duplicates
       studyData <- studyData %>%
-        mutate(rounded_beta = across(starts_with("betaValue"), round, 2)) %>% # create a rounded betaValue column for comparing
-        mutate(rounded_odds = across(starts_with("or_per_copy_number"), round, 2)) %>% # create a rounded oddsRatio column for comparing
+        mutate(rounded_beta = floor(betaValue) + signif(betaValue - floor(betaValue), 2)) %>% # create a rounded betaValue column for comparing (2 sig figs after the decimal)
+        mutate(rounded_odds = floor(or_per_copy_number) + signif(or_per_copy_number - floor(or_per_copy_number), 2)) %>% # create a rounded oddsRatio column for comparing (2 sig figs after the decimal)
+        group_by(variant_id, risk_allele, pvalue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, rounded_beta, rounded_odds) %>%
+        mutate(num_repeated_snps = dplyr::n()) %>%
+        ungroup() %>%
+        mutate(or_per_copy_number = ifelse(num_repeated_snps > 1, rounded_odds, or_per_copy_number)) %>%
+        mutate(betaValue = ifelse(num_repeated_snps > 1, rounded_beta, betaValue)) %>%
         distinct(variant_id, risk_allele, pvalue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, rounded_beta, rounded_odds, .keep_all = TRUE) %>%
-        dplyr::select(-rounded_beta, -rounded_odds) # remove the rounded columns
-              
+        dplyr::select(-rounded_beta, -rounded_odds, -num_repeated_snps) # remove the rounded columns and num_repeated_snps column
+      
       # remove the duplicate snps that we can't resolve
       studyData <- studyData %>%
         group_by(variant_id, risk_allele, trait, pvalue_description, beta_description, ogValueTypes, studyID) %>%
