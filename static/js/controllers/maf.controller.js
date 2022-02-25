@@ -1,5 +1,6 @@
 const MAF = require("../models/maf.model.js");
 const path = require("path")
+const fs = require("fs");
 
 
 exports.getMaf = (req, res) => {
@@ -42,6 +43,15 @@ exports.getAllMaf = (req, res) => {
         }
     });
 };
+
+exports.getLastMAFupdate = (req, res) => {
+    cohort = req.query.cohort
+    refGen = req.query.refGen
+    mafPath = path.join(__dirname, '../..', `downloadables/preppedServerFiles/${cohort}_maf_${refGen}.txt`)
+    statsObj = fs.statSync(mafPath)
+    updateTime = statsObj.mtime
+    res.send(`${updateTime.getFullYear()}-${updateTime.getMonth()}-${updateTime.getDate()}`)
+}
 
 exports.getDownloadMaf = (req, res) => {
     refGen = req.query.refGen
