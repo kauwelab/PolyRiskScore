@@ -61,7 +61,8 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
             studySnpsData = getAllStudySnps()
         
-        if (checkForAllMAFFiles(mafCohort, refGen)):
+        dwnldNewMAFFile, mafPathExists = checkForAllMAFFiles(mafCohort, refGen)
+        if (dwnldNewMAFFile):
             mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
             mafData = getAllMaf(mafCohort, refGen)
         
@@ -104,7 +105,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f = open(mafPath, 'w', encoding="utf-8")
         f.write(json.dumps(mafData))
         f.close()
-    elif mafCohort != 'user':
+    elif mafCohort != 'user' and not mafPathExists:
         raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
 
     # check to see if studySnpsData is instantiated in the local variables
@@ -453,6 +454,7 @@ def checkForAllClumps(pop, refGen):
 
 def checkForAllMAFFiles(mafCohort, refGen):
     dnldNewMaf = True
+    pathExists = False
     # check to see if the workingFiles directory is there, if not make the directory
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
@@ -462,8 +464,10 @@ def checkForAllMAFFiles(mafCohort, refGen):
 
     # if the path exists, check if we don't need to download a new one
     if os.path.exists(allMAFfile):
+        pathExists = True
         params = {
-            "mafCohort": mafCohort
+            "cohort": mafCohort,
+            "refGen": refGen
         }
 
         response = requests.get(url="https://prs.byu.edu/last_maf_update", params=params)
@@ -479,7 +483,7 @@ def checkForAllMAFFiles(mafCohort, refGen):
         if (lastMafUpdate <= fileModDate):
             dnldNewMaf = False
 
-    return dnldNewMaf
+    return dnldNewMaf, pathExists
 
 
 # gets associations obj download from the Server
