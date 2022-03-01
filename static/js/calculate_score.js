@@ -384,6 +384,7 @@ var calculatePolyScore = async () => {
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
     var mafElement = document.getElementById("mafCohort")
     var mafCohort = mafElement.options[mafElement.selectedIndex].value;
+    var mafThreshold = document.getElementById("mafThresholdIn").value;
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
 
     //if the user doesn't specify a refgen, super pop, or default sex, prompt them to do so
@@ -504,7 +505,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        handleCalculateScore(snpObjs, associationData, mafData, clumpsData, pValue, false, false);
+        handleCalculateScore(snpObjs, associationData, mafData, clumpsData, pValue, mafThreshold, false, false);
     }
     else {
         //if text input is empty, return error
@@ -523,7 +524,7 @@ var calculatePolyScore = async () => {
                                                 
                 return;
             }
-            handleCalculateScore(vcfFile, associationData, mafData, clumpsData, pValue, true, (mafCohort == 'user' ? true : false));
+            handleCalculateScore(vcfFile, associationData, mafData, clumpsData, pValue, mafThreshold, true, (mafCohort == 'user' ? true : false));
         }
     }
 }
@@ -784,7 +785,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsData, pValue, isVCF, userMAF) => {
+var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsData, pValue, mafThreshold, isVCF, userMAF) => {
     var greppedSNPsMAFAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF, userMAF)
     var greppedSNPs = greppedSNPsMAFAndtotalInputVariants[0]
     var userMAFData = greppedSNPsMAFAndtotalInputVariants[1]
@@ -800,15 +801,20 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
     }
 
     try {
-        var result = await calculateScore(associationData, mafData, clumpsData, greppedSNPs, pValue, totalInputVariants);
+        var result = await calculateScore(associationData, mafData, clumpsData, greppedSNPs, pValue, mafThreshold, totalInputVariants);
         try {
             result = JSON.parse(result)
         } catch (e) {
             //todo create an endpoint that we can send errors to and give a better error response for the user
             console.log("There was an error in calculating the results. Please try again.")
         }
+        console.log(result)
         if (result == {}) {
             $('#response').html("None of the snps from the input file were found.");
+        }
+        else if (result["studyResults"] == "No results to display") {
+            alert("We were not able to caluclate results using the given values. Try adjusting the p-value cutoff or the MAF threshold.")
+            return
         }
         else {
             //shortens the result for website desplay
@@ -841,7 +847,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
  * @param {*} totalInputVariants 
  * @returns 
  */
-var calculateScore = async (associationData, mafData, clumpsData, greppedSamples, pValue, totalInputVariants) => {
+var calculateScore = async (associationData, mafData, clumpsData, greppedSamples, pValue, mafThreshold, totalInputVariants) => {
     var resultObj = {};
     var indexSnpObj = {};
     var resultJsons = {};
@@ -856,6 +862,7 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
         //add information to results
         resultJsons = { 
             pValueCutoff: pValue, 
+            mafThreshold: mafThreshold,
             totalVariants: totalInputVariants,
             studyResults: {}
         }
@@ -921,7 +928,8 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
                                     traitStudypValueAnnoValTypeSamp = [trait, studyID, pValBetaAnnoValType, individualName].join("|")
                                     for (riskAllele in associationData['associations'][key]['traits'][trait][studyID][pValBetaAnnoValType]) {
                                         associationObj = associationData['associations'][key]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]
-                                        if (associationObj.pValue <= parseFloat(pValue)) {
+                                        snpMafThreshold = (key in mafData && riskAllele in mafData[key]['alleles'] ? mafData[key]['alleles'][riskAllele] : 0)
+                                        if (associationObj.pValue <= parseFloat(pValue) && snpMafThreshold >= mafThreshold) {
                                             numAllelesMatch = 0
                                             numAlleleMissingGenotype = 0
                                             for (i=0; i < alleles.length; i++) {
@@ -1059,7 +1067,7 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
         //if the input data doesn't have an individual in it (we can assume this is a text input query with no matching SNPs)
         //TODO fill this out
         if (Object.keys(resultJsons['studyResults']).length == 0) {
-            resultJson['studyResults'] = "No results to display"
+            resultJsons['studyResults'] = "No results to display"
         }
         //convert the result JSON list to a string and return
         return JSON.stringify(resultJsons);
@@ -1113,7 +1121,7 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValBeta
             }
             betaUnits = associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][allele]['betaUnit']
         }
-        //This is to ensure that if we have multiple alleles for the same snp, and that snp was imputed, we only cound the snp 1 time
+        //This is to ensure that if we have multiple alleles for the same snp, and that snp was imputed, we only count the snp 1 time
         if (nonMissingSnpsForSnp > 1){ 
             nonMissingSnps += 1 
         } else { 
