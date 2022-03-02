@@ -299,7 +299,7 @@ def getPRSFromArray(betas, nonMissingSnps, valueType):
 
         combinedBetas = combinedBetas / ( ploidy * nonMissingSnps )
 
-        if valueType == 'oddsRatios':
+        if valueType == 'odds' or valueType == 'odds ratio':
             combinedBetas = math.exp(combinedBetas)
 
         combinedBetas = round(combinedBetas, 3)

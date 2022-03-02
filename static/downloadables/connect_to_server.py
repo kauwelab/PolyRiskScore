@@ -200,11 +200,10 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             bai = headers.index("beta annotation") if "beta annotation" in headers else -1
 
         else:
+            line = line.rstrip("\r").rstrip("\n").split("\t")
 	    # Add super population to the super population set
             preferredPop = getPreferredPop(line[spi], superPop)
             allSuperPops.add(preferredPop)
-
-            line = line.rstrip("\r").rstrip("\n").split("\t")
             # create the chrom:pos to snp dict
             # if the chrom:pos not in the chromSnpDict
             chromPos = ":".join([line[ci], line[pi]])
@@ -228,7 +227,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             # if pvalannotation not in associationDict[line[si]]["traits"][line[ti]][line[sii]]
             pValueAnnotation = line[pvai] if pvai != -1 else "NA"
             betaAnnotation = line[bai] if bai != -1 else "NA"
-            valueType = "beta" if userGwasBeta else "OR"
+            valueType = "beta" if userGwasBeta else "odds ratio"
             pvalBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + valueType
             if pvalBetaAnnoValType not in associationDict[line[si]]["traits"][line[ti]][line[sii]]:
                 associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType] = {}
@@ -239,7 +238,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]= {
                     "pValue": float(line[pvi]),
                     "sex": "NA",
-                    "ogValueTypes": 'beta' if userGwasBeta else 'or'
+                    "betaUnit": 'beta' if userGwasBeta else 'odds ratio'
                 }
                 if userGwasBeta:
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaValue'] = float(line[bvi])
@@ -273,7 +272,8 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 		
             # create studyID/trait/pValueAnnotation to snps
             # if trait|studyID|pValueAnnotation not in the studySnpsData
-            traitStudyIDPValAnno = "|".join([line[ti], line[sii]], pvalBetaAnnoValType)
+            joinList = [line[ti], pvalBetaAnnoValType, line[sii]]
+            traitStudyIDPValAnno = "|".join(joinList)
             if traitStudyIDPValAnno not in studySnpsData:
                 studySnpsData[traitStudyIDPValAnno] = []
             # add snp to the traitStudyIDToSnp
@@ -328,7 +328,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             f.close()
 
     #get maf data using the refgen and mafcohort
-    fileName = "{m}_maf_{ahash}.txt".format(n=mafCohort, ahash=fileHash)
+    fileName = "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash)
     mafPath = os.path.join(workingFilesPath, fileName)
     mafData = getMaf(mafCohort, refGen, chromPos)
 
@@ -645,6 +645,7 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
 def runStrandFlipping(snp, allele):
     import myvariant
     from Bio.Seq import Seq
+    #TODO: there's a warning about the usage of seq
 
     mv = myvariant.MyVariantInfo()
 
@@ -668,6 +669,11 @@ def getVariantAlleles(rsID, mv):
     output = f.getvalue()
 
     objs = queryResult['hits'][0] if len(queryResult['hits']) > 0 else None
+    #TODO if there is only one item in the objs list, the type is not a list, it's just a map
+    objsList = []
+    if isinstance(objs, dict):
+        objsList.append(objs)
+        objs = objsList
 
     alleles = set()
     if objs is not None:
@@ -815,6 +821,7 @@ def checkInternetConnection():
 
 
 def getPreferredPop(popList, superPop):
+    # convert all populations listed in the gwas to lower case
     if len(popList) == 1 and str(popList[0]) == 'NA':
         return(superPop)
     elif superPop in popList:
@@ -832,11 +839,11 @@ def getPreferredPop(popList, superPop):
         keys = superPopHeirarchy[superPop]
         for pop in keys:
             popKeys = {
-                'EUR':'European',
-                'AMR': 'American', 
-                'AFR': 'African',
-                'EAS': 'East Asian',
-                'SAS': 'South Asian'
+                'EUR':'european',
+                'AMR': 'american', 
+                'AFR': 'african',
+                'EAS': 'east asian',
+                'SAS': 'south asian'
             }
             tryPop = popKeys[pop]
 	    # create a filtered list (maintaining the same order) that only includes the super populations
@@ -850,6 +857,6 @@ def getPreferredPop(popList, superPop):
 
 if __name__ == "__main__":
     if argv[1] == "GWAS":
-        formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8])
+        formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10])
     else:
         retrieveAssociationsAndClumps(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11])

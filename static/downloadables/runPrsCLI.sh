@@ -1033,7 +1033,7 @@ calculatePRS () {
             # saves both to files
             # GWAS data --> GWASassociations_{fileHash}.txt
             # clumps --> {superPop}_clumps_{refGen}_{fileHash}.txt
-            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${userGwasBeta}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${mafCohort}" "${fileHash}"; then
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${userGwasBeta}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${mafCohort}" "${fileHash}" "${extension}"; then
                 echo "Formatted GWAS data and retrieved clumping information from the PRSKB"
             else
                 echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"

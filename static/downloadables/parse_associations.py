@@ -208,7 +208,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
                     #compare the pvalue to the threshold
                     if pValue <= float(p_cutOff):
-                        if riskAllele in alleles:
+                        if riskAllele in alleles or not isIndividualClump:
                             # Check to see if the snp position from this line in the file exists in the clump table
                             if snp in clumpsObjDict:
                                 # Grab the clump number associated with this snp 
@@ -291,6 +291,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
 
 def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
+    isIndividualClump = int(isIndividualClump)
     # variable to keep track of the number of samples in the input file
     sampleNum=0
     createMaf = False
@@ -451,6 +452,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                                     # and switch out the data accordingly
                                                     if pValue < index_pvalue:
                                                         index_snp_map[sample][clumpNum] = rsID, riskAllele, alleles if complements is None else complements
+
                                                         clumpedVariants.add(index_snp)
                                                     else:
                                                         if index_alleles == "" and isIndividualClump:
@@ -531,7 +533,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                     else:
                                         # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
                                         index_snp_map[sample][clumpNum] = rsID, riskAllele, [".", "."]
-                                # the variant isn't in the clump tables
+                                # the variant is the only one in its clump
                                 else:
                                     sample_map[sample][rsID] = [".", "."]
                             # the variant isn't in the clump tables

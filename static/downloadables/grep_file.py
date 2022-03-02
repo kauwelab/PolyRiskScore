@@ -24,14 +24,14 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
     # loop through each study/trait in the studySnpsDict and check whether any studies pass the filters
     studyInFilters = isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, p_cutOff)
-    if not studyInFilters:
+    if not studyInFilters and not useGWASupload:
         raise SystemExit("WARNING: None of the studies in the database match the specified filters. Adjust your filters and try again.")
 
     # create a new filtered file that only includes associations in the user-specified studies
     if isRSids:
-        clumpNumDict = filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload)
     else:
-        clumpNumDict = filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload)
 
     # write the clumpNumDict to a file for future use
     # the clumpNumDict is used to determine which variants aren't in LD with any of the other variants in the study
@@ -140,7 +140,7 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valu
 
     return traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes
 
-def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
+def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload):
     txt_file = openFileForParsing(inputFilePath)
     filteredOutput = open(filteredFilePath, 'w')
 
@@ -178,13 +178,13 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filt
                     "Offending line:\n" + line)
 
         snpInFilters = isSnpInFilters(snp, None, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff)
-        if snpInFilters:
+        if snpInFilters or useGWASupload:
             # We use the clumpNumDict later in the parse_files functions to determine which variants are in an LD clump by themselves
             # if the snp is part of an ld clump that has already been noted, increase the count of the ld clump this snp is in
             for pop in allClumpsObjDict.keys():
                 if snp in allClumpsObjDict[pop].keys():
                     clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
-                    clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
+                    clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
             # write the line to the filtered txt file
             filteredOutput.write(line)
             inputInFilters = True
@@ -195,7 +195,7 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filt
             for pop in allClumpsObjDict.keys():
                 if snp in allClumpsObjDict[pop].keys():
                     clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
-                    clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
+                    clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
         
     if fileEmpty:
         raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
@@ -206,7 +206,7 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filt
     return clumpNumDict
 
 
-def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
+def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload):
     # open the input file path for opening
     inputVCF = openFileForParsing(inputFilePath)
 
@@ -237,13 +237,13 @@ def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filt
                         rsID = tableObjDict['associations'][chromPos]
                     # check if the snp is in the filtered studies
                     snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff)
-                    if snpInFilters:
+                    if snpInFilters or useGWASupload:
                         # increase count of the ld clump this snp is in
                         # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
                         for pop in allClumpsObjDict.keys():
                             if rsID in allClumpsObjDict[pop].keys():
                                 clumpNum = allClumpsObjDict[pop][rsID]['clumpNum']
-                                clumpNumDict[str((pop, clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
+                                clumpNumDict[str((pop, clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
 
                         # write the line to the filtered VCF
                         w.write(line)
@@ -255,7 +255,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFilePath, filt
                     for pop in allClumpsObjDict.keys():
                         if snp in allClumpsObjDict[pop]:
                             clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
-                            clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
+                            clumpNumDict[str((pop, clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
 
             if fileEmpty:
                 raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
@@ -334,7 +334,10 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, value
     useValueType = False
     useSex = False
 
-    studyValueTypes = set([x.split("|")[-1] for x in studyMetaData['traits'][trait]['pValBetaAnnoValType']])
+    if studyMetaData is not None:
+        studyValueTypes = set([x.split("|")[-1] for x in studyMetaData['traits'][trait]['pValBetaAnnoValType']])
+    else:
+        studyValueTypes = set()
 
     # if the studyID matches one that was selected, use it
     if studyIDs is not None and studyID in studyIDs:
