@@ -227,9 +227,7 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
             return data;
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
+            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`)
         }
     }));
 }
@@ -273,9 +271,7 @@ function callMAFAPI(mafCohort, chrom, pos, refGen){
             return data;
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required maf data: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
+            alert(`There was an error retrieving required maf data: ${XMLHttpRequest.responseText}`)
         }
     }));
 }
@@ -360,9 +356,7 @@ function callClumpsEndpoint(superPop, refGen, positions) {
             return data;
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
+            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`)
         }
     }));
 }
@@ -387,17 +381,9 @@ var calculatePolyScore = async () => {
     var mafThreshold = document.getElementById("mafThresholdIn").value;
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
 
-    //if the user doesn't specify a refgen, super pop, or default sex, prompt them to do so
-    if (refGen == "default") {
-        //TODO change to an alert instead
-        updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
-        document.getElementById('resultsDisplay').style.display = 'block';
-        return;
-    }
-    if (superPop == "default") {
-        //TODO change to an alert instead
-        updateResultBoxAndStoredValue('Please select the super population corresponding to your file (step 2).');
-        document.getElementById('resultsDisplay').style.display = 'block';
+    //if the user doesn't specify a refgen prompt them to do so
+    if (refGen == "default" && !(document.getElementById('textInputButton').checked)) {
+        alert("Please select the reference genome corresponding to your file (step 2 of Sample(s) section).")
         return;
     }
 
@@ -409,9 +395,7 @@ var calculatePolyScore = async () => {
         var gwasValueType = document.querySelector('input[name="gwas_value_type"]:checked').value;
 
         if (gwasRefGen == "default") {
-            //TODO change to an alert instead
-            updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
-            document.getElementById('resultsDisplay').style.display = 'block';
+            alert('Please select the reference genome corresponding to your GWAS file (GWAS Summary Statistics section).')
             return;
         }
 
@@ -429,9 +413,7 @@ var calculatePolyScore = async () => {
         var studies = [...studyNodes].map(option => [option.value, option.dataset.trait, option.dataset.pvalueannotation, option.dataset.betaannotation, option.dataset.valtype]);
 
         if (studies.length === 0) {
-            // TODO change to an alert instead
-            updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
-            document.getElementById('resultsDisplay').style.display = 'block';
+            alert('Please specify at least one trait and study from the dropdowns above (GWAS Summary Statistics section).')
             return;
         }
     
@@ -463,7 +445,7 @@ var calculatePolyScore = async () => {
 
         //if text input is empty, return error
         if (!textArea.value) {
-            updateResultBoxAndStoredValue("Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1).");
+            alert("Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1).")
             return;
         }
 
@@ -476,11 +458,11 @@ var calculatePolyScore = async () => {
             snpArray = snp.split(':');
             //if the snpid is invalid, return error
             if (!snpArray[0].toLowerCase().startsWith("rs") || isNaN(snpArray[0].substring(2, snpArray[0].length))) {
-                updateResultBoxAndStoredValue("Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers.");
+                alert("Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers.")
                 return;
             }
             if (snpArray.length > 2) {
-                updateResultBoxAndStoredValue("Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon.");
+                alert("Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon.");
                 return;
             }
             else if (snpArray.length == 2) {
@@ -488,13 +470,13 @@ var calculatePolyScore = async () => {
                 var alleleArray = snpArray[1].split(",");
                 //if more than 2 alleles, return error
                 if (alleleArray.length > 2) {
-                    updateResultBoxAndStoredValue("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
+                    alert("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
                     return;
                 }
                 for (var j = 0; j < alleleArray.length; ++j) {
                     //if any allele is not  A, T, G, or C, return error
                     if (!/^[GTAC]+$/.test(alleleArray[j])) {
-                        updateResultBoxAndStoredValue("Allele \"" + alleleArray[j] + "\" is invalid. Must contain only A, T, G, and C's.");
+                        alert("Allele \"" + alleleArray[j] + "\" is invalid. Must contain only A, T, G, and C's.");
                         return;
                     }
                 }
@@ -510,14 +492,14 @@ var calculatePolyScore = async () => {
     else {
         //if text input is empty, return error
         if (typeof vcfFile === "undefined") {
-            updateResultBoxAndStoredValue("Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (step 1).");
+            alert("Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (Sample(s) section).")
             return;
         }
         else {
             var extension = vcfFile.name.split(".").pop();
             if (extension.toLowerCase() != "vcf") {
                 //if here, the user uploded a file with an invalid format
-                updateResultBoxAndStoredValue("Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
+                alert("Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
                                                 "Please note that the web version of PRSKB does not support zipped files,\n"+ 
                                                 "but that the command line interface does. It is available for download\n" +
                                                 "above under the \"Download\" tab or at https://prs.byu.edu/cli_download.html");
@@ -703,9 +685,7 @@ function getChromPosToSnps(refGen, snps) {
             return data
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required snps data: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
+            alert(`There was an error retrieving required snps data: ${XMLHttpRequest.responseText}`)
         }
     }));
 }
@@ -748,7 +728,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
             return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], totalInputVariants]
         }
         catch (err) {
-            updateResultBoxAndStoredValue(getErrorMessage(err));
+            alert(getErrorMessage(err));
             return;
         }
     }
@@ -830,7 +810,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
         })
     }
     catch (err) {
-        updateResultBoxAndStoredValue(getErrorMessage(err));
+        alert(getErrorMessage(err));
     }
 }
 
@@ -1288,72 +1268,64 @@ function formatTSV(jsonObject, isCondensed) {
     studyIDKeys = Object.keys(jsonObject['studyResults'])
 
     first = true
-    if (studyIDKeys.includes("Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: ")) {
-        //todo wewant to print this out and not go through everything else:
-        //todo add a ? to results and explain about the different files for download.
-
-        resultsString = "Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: \n"
-        resultsString += jsonObject['studyResults']['Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: '].join('\n')
-    }
-    else {
-        for (var i = 0; i < studyIDKeys.length; i++) {
-            studyID = studyIDKeys[i]
-            traitKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'])
-            for (var j = 0; j < traitKeys.length; j++) {
-                trait = traitKeys[j]
-                pValBetaAnnoValTypeKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
-                for (var p = 0; p < pValBetaAnnoValTypeKeys.length; p++) {
-                    pValBetaAnnoValType = pValBetaAnnoValTypeKeys[p]
-                    lineInfo = [studyID, jsonObject['studyResults'][studyID]['reportedTrait'], trait, pValBetaAnnoValType, jsonObject['studyResults'][studyID]['citation']]
-                    if (first) {
-                        first = false
-                        sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType])
-                        if (isCondensed) {
-                            resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
-                        }
-                        else {
-                            resultsString = headerInit.join("\t")
-                        }
-                    }
-    
-                    for (var k = 0; k < sampleKeys.length; k++) {
-                        sample = sampleKeys[k]
-                        oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['oddsRatio']
-                        betaValue = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaValue']
-                        betaUnit = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaUnit']
-                        if (k==0) {
-                            lineInfo.push(betaUnit)
-                        }
-                        score = (betaValue !== undefined ? betaValue : oddsRatio)
-                        if (isCondensed) {
-                            //TODO we will want to use the valuetype from the study to actually do this
-                            lineInfo.push(score)
-                        }
-                        else {
-                            protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['protectiveVariants']
-                            riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['riskVariants']
-                            // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
-                            unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['unmatchedVariants']
-                            // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
-                            clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['clumpedVariants']
-    
-                            // set the arrays to "." if they are empty, otherwise join them on bar ("|")
-                            protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
-                            riskSnps = (riskSnps.length == 0) ? "." : riskSnps.join("|")
-                            unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
-                            clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
-    
-                            lineResult = `${sample}\t${lineInfo.join('\t')}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
-                            resultsString = resultsString.concat("\n", lineResult)
-                        }
-                    }
+    for (var i = 0; i < studyIDKeys.length; i++) {
+        studyID = studyIDKeys[i]
+        traitKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'])
+        for (var j = 0; j < traitKeys.length; j++) {
+            trait = traitKeys[j]
+            pValBetaAnnoValTypeKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
+            for (var p = 0; p < pValBetaAnnoValTypeKeys.length; p++) {
+                pValBetaAnnoValType = pValBetaAnnoValTypeKeys[p]
+                lineInfo = [studyID, jsonObject['studyResults'][studyID]['reportedTrait'], trait, pValBetaAnnoValType, jsonObject['studyResults'][studyID]['citation']]
+                if (first) {
+                    first = false
+                    sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType])
                     if (isCondensed) {
-                        resultsString = resultsString + "\n" + lineInfo.join("\t")
+                        resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
                     }
+                    else {
+                        resultsString = headerInit.join("\t")
+                    }
+                }
+
+                for (var k = 0; k < sampleKeys.length; k++) {
+                    sample = sampleKeys[k]
+                    oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['oddsRatio']
+                    betaValue = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaValue']
+                    betaUnit = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaUnit']
+                    if (k==0) {
+                        lineInfo.push(betaUnit)
+                    }
+                    score = (betaValue !== undefined ? betaValue : oddsRatio)
+                    if (isCondensed) {
+                        //TODO we will want to use the valuetype from the study to actually do this
+                        lineInfo.push(score)
+                    }
+                    else {
+                        protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['protectiveVariants']
+                        riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['riskVariants']
+                        // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
+                        unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['unmatchedVariants']
+                        // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
+                        clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['clumpedVariants']
+
+                        // set the arrays to "." if they are empty, otherwise join them on bar ("|")
+                        protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
+                        riskSnps = (riskSnps.length == 0) ? "." : riskSnps.join("|")
+                        unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
+                        clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
+
+                        lineResult = `${sample}\t${lineInfo.join('\t')}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
+                        resultsString = resultsString.concat("\n", lineResult)
+                    }
+                }
+                if (isCondensed) {
+                    resultsString = resultsString + "\n" + lineInfo.join("\t")
                 }
             }
         }
     }
+
     return resultsString;
 }
 
