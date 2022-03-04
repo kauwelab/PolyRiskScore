@@ -201,7 +201,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
         else:
             line = line.rstrip("\r").rstrip("\n").split("\t")
             # Add super population to the super population set
-            preferredPop = getPreferredPop(line[spi], superPop)
+            preferredPop = getPreferredPop(line[spi].upper(), superPop)
             allSuperPops.add(preferredPop)
             # create the chrom:pos to snp dict
             # if the chrom:pos not in the chromSnpDict
@@ -838,15 +838,15 @@ def getPreferredPop(popList, superPop):
         keys = superPopHeirarchy[superPop]
         for pop in keys:
             popKeys = {
-                'EUR':'european',
-                'AMR': 'american', 
-                'AFR': 'african',
-                'EAS': 'east asian',
-                'SAS': 'south asian'
+                'EUR': 'European',
+                'AMR': 'American', 
+                'AFR': 'African',
+                'EAS': 'East Asian',
+                'SAS': 'South Asian'
             }
             tryPop = popKeys[pop]
-	    # create a filtered list (maintaining the same order) that only includes the super populations
-	    # that are also present in the study population list
+            # create a filtered list (maintaining the same order) that only includes the super populations
+            # that are also present in the study population list
             if tryPop in popList:
                 filteredKeys.append(pop)
     # grab the first population in the filtered list
