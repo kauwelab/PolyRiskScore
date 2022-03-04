@@ -184,7 +184,6 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 ci = headers.index("chromosome")
                 pi = headers.index("position")
                 rai = headers.index("risk allele")
-                ori = headers.index("odds ratio")
                 if userGwasBeta:
                     bvi = headers.index("beta coefficient")
                     bui = headers.index("beta units")
@@ -201,7 +200,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 
         else:
             line = line.rstrip("\r").rstrip("\n").split("\t")
-	    # Add super population to the super population set
+            # Add super population to the super population set
             preferredPop = getPreferredPop(line[spi], superPop)
             allSuperPops.add(preferredPop)
             # create the chrom:pos to snp dict
