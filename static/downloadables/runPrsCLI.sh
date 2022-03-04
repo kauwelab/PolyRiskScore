@@ -217,6 +217,7 @@ learnAboutParameters () {
                 echo "on the same line. (ex. rs6656401:AA or rs6656401:A)"
                 echo ""
                 echo "Additionally, VCF files separated into chromosomes are allowed, using Bash Expansion."
+                echo "(ex. '/path/to/file_chr*.vcf' )"
                 echo "To use this method, you must enclose it in single (') or double (\") quotes. All "
                 echo "VCFs must have the same headers. If the files are compressed, they must all be "
                 echo "compressed in the same manner. "
