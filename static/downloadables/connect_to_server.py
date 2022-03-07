@@ -185,7 +185,6 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 ci = headers.index("chromosome")
                 pi = headers.index("position")
                 rai = headers.index("risk allele")
-                ori = headers.index("odds ratio")
                 if userGwasBeta:
                     bvi = headers.index("beta coefficient")
                     bui = headers.index("beta units")
@@ -203,9 +202,10 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
         else:
             line = line.rstrip("\r").rstrip("\n").split("\t")
 	    # Add super population to the super population set
-            print(len(line[spi]))
             line[spi] = [eachPop.lower() for eachPop in line[spi]]
             preferredPop = getPreferredPop(line[spi], superPop)
+            # Add super population to the super population set
+            preferredPop = getPreferredPop(line[spi].upper(), superPop)
             allSuperPops.add(preferredPop)
             # create the chrom:pos to snp dict
             # if the chrom:pos not in the chromSnpDict
@@ -721,7 +721,7 @@ def getClumps(refGen, superPop, snpsFromAssociations):
         "refGen": refGen,
         "superPop": superPop,
     }
-    print("Retrieving clumping information")
+    print(f"Retrieving clumping information: {superPop}")
 
     try:
         chromToPosMap = {}
@@ -840,15 +840,15 @@ def getPreferredPop(popList, superPop):
         keys = superPopHeirarchy[superPop]
         for pop in keys:
             popKeys = {
-                'EUR':'european',
-                'AMR': 'american', 
-                'AFR': 'african',
-                'EAS': 'east asian',
-                'SAS': 'south asian'
+                'EUR': 'European',
+                'AMR': 'American', 
+                'AFR': 'African',
+                'EAS': 'East Asian',
+                'SAS': 'South Asian'
             }
             tryPop = popKeys[pop]
-	    # create a filtered list (maintaining the same order) that only includes the super populations
-	    # that are also present in the study population list
+            # create a filtered list (maintaining the same order) that only includes the super populations
+            # that are also present in the study population list
             if tryPop in popList:
                 filteredKeys.append(pop)
     # grab the first population in the filtered list

@@ -180,7 +180,7 @@ learnAboutParameters () {
         echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
         echo    "|                                                                 |"
         echo -e "|${LIGHTPURPLE}REQUIRED PARAMS: ${NC}                                                |"
-        echo -e "| ${LIGHTPURPLE}1${NC} - -f VCF File or rsIDs:genotypes file                         |"
+        echo -e "| ${LIGHTPURPLE}1${NC} - -f VCF File, VCF chromosome files, or rsIDs:genotypes file  |"
         echo -e "| ${LIGHTPURPLE}2${NC} - -o Output file                                              |"
         echo -e "| ${LIGHTPURPLE}3${NC} - -c P-value Cutoff                                           |"
         echo -e "| ${LIGHTPURPLE}4${NC} - -r RefGen                                                   |"
@@ -215,6 +215,14 @@ learnAboutParameters () {
                 echo "the polygenic risk scores calculated. Alternativly, the path to a TXT file that"
                 echo "contains rsIDs in the format of 1 rsID per line, with the genotypes following"
                 echo "on the same line. (ex. rs6656401:AA or rs6656401:A)"
+                echo ""
+                echo "Additionally, VCF files separated into chromosomes are allowed, using Bash Expansion."
+                echo "(ex. '/path/to/file_chr*.vcf' )"
+                echo "To use this method, you must enclose it in single (') or double (\") quotes. All "
+                echo "VCFs must have the same headers. If the files are compressed, they must all be "
+                echo "compressed in the same manner. "
+                echo ""
+                echo "File names/directories should not contain spaces."
                 echo "" ;;
             2 ) echo -e "${MYSTERYCOLOR}-o Output File path: ${NC}" 
                 echo "The path to the file that will contain the final polygenic risk scores. The "
@@ -614,24 +622,29 @@ calculatePRS () {
         case $c in 
             f)  if ! [ -z "$filename" ]; then
                     echo "Too many filenames given at once."
+                    echo "If you have files split into multiple chromosomes, use Bash expansion"
+                    echo "to select them all. Be sure to put the path in either single (') or double(\")"
+                    echo "quotes. If the chromosome files are compressed, they must all be compressed in the same way."
+                    echo "Additionally, directories and files should not contain spaces in the names."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
                 filename=$OPTARG
                 filename="${filename//\\//}" # replace backslashes with forward slashes
-                if [ ! -f "$filename" ]; then
-                    echo -e "The file${LIGHTRED} $filename ${NC}does not exist."
+                files=( $(echo $filename) )
+                if [ ! -f "${files[0]}" ]; then
+                    echo -e "The file${LIGHTRED} ${files[0]} ${NC}does not exist."
                     echo "Check the path and try again."
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
-                elif ! [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
+                elif ! [[ $(echo ${files[0]} | tr '[:upper:]' '[:lower:]') =~ .vcf$|.txt$ ]]; then
                     # check if the file is a valid zipped file (check getZippedFileExtension for more details)
-                    zipExtension=`$pyVer "$SCRIPT_DIR/grep_file.py" "zip" "$filename" "True" "False"`
+                    zipExtension=`$pyVer "$SCRIPT_DIR/grep_file.py" "zip" "${files[0]}" "True" "False"`
                     if [ "$zipExtension" = ".vcf" ] || [ "$zipExtension" = ".txt" ]; then
                         echo "zipped file validated"
                     # if "False", the file is not a zipped file
                     elif [ "$zipExtension" = "False" ]; then
-                        echo -e "The file${LIGHTRED} $filename ${NC}is in the wrong format."
+                        echo -e "The file${LIGHTRED} ${files[0]} ${NC}is in the wrong format."
                         echo -e "Please use a vcf or txt file."
                         echo -e "${LIGHTRED}Quitting...${NC}"
                         exit 1
@@ -825,7 +838,7 @@ calculatePRS () {
     done
 
     # if missing a required parameter, show menu/usage option
-    if [ -z "$filename" ] || [ -z "$output" ] || [ -z "$cutoff" ] || [ -z "$refgen" ] || [ -z "$superPop" ]; then
+    if [ -z "$files" ] || [ -z "$output" ] || [ -z "$cutoff" ] || [ -z "$refgen" ] || [ -z "$superPop" ]; then
         askToStartMenu
     fi
 
@@ -849,13 +862,14 @@ calculatePRS () {
     export ethnicities=${ethnicityForCalc[@]}
     export valueTypes=${valueTypesForCalc[@]}
     export sexes=${sexForCalc[@]}
+    export files=${files[@]}
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
-    fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}" | cut -f 1 -d ' ')
+    fileHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}" | cut -f 1 -d ' ')
     if ! [ -z ${GWASfilename} ]; then
-        fileHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}${userGwasBeta}" | cut -f 1 -d ' ')
+        fileHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}${userGwasBeta}" | cut -f 1 -d ' ')
     fi
-    requiredParamsHash=$(cksum <<< "${filename}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
+    requiredParamsHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
     # Create uniq ID for filtered file path
     TIMESTAMP=`date "+%Y-%m-%d_%H-%M-%S-%3N"` 
     
@@ -868,7 +882,7 @@ calculatePRS () {
     if [ $zipExtension = ".vcf" ] || [ $zipExtension = ".txt" ]; then
         extension="$zipExtension"
     else
-        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$filename'); print(f_ext);")
+        extension=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('${files[0]}'); print(f_ext);")
     fi
 
     # if GWAS file is present and GWASzipExtension hasn't been instantiated yet, initialize it
@@ -1026,7 +1040,7 @@ calculatePRS () {
         fi
 
         checkForNewVersion
-        echo "Running PRSKB on $filename"
+        echo "Running PRSKB on ${files[@]}"
 
         if ! [ -z "${GWASfilename}" ]; then 
             # Calls a python function to format the given GWAS data and get the clumps from our database
@@ -1059,17 +1073,17 @@ calculatePRS () {
         outputType=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_ext.lower());")
         outputName=$($pyVer -c "import os; f_name, f_ext = os.path.splitext('$output'); print(f_name);")
 
-        echo "Calculating prs on $filename"
+        echo "Calculating prs on ${files[@]}"
         FILE="${SCRIPT_DIR}/.workingFiles/associations_${fileHash}.txt"
         if ! [ -z "${GWASfilename}" ]; then 
             FILE="${SCRIPT_DIR}/.workingFiles/GWASassociations_${fileHash}.txt"
         fi
 
         # filter the input file so that it only includes the lines with variants that match the given filters
-        if $pyVer "${SCRIPT_DIR}/grep_file.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "${sexes}" "${valueTypes}" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
+        if $pyVer "${SCRIPT_DIR}/grep_file.py" "$files" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "${sexes}" "${valueTypes}" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$filename" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$TIMESTAMP" "$processes" "$isIndividualClump" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$files" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$TIMESTAMP" "$processes" "$isIndividualClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else

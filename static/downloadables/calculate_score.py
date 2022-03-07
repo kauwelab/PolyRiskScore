@@ -33,11 +33,9 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
 
         mark = False
 
-        nonMissingSnps = 0
         for snp in txtObj:
             print('txtObj', txtObj)
             if snp in snpSet:
-                nonMissingSnps += 1
                 for riskAllele in tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]:
                     units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
                     # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
@@ -67,6 +65,8 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                             else:
                                 print('unmatchedalleleVariants')
                                 unmatchedAlleleVariants.add(snp)
+
+        nonMissingSnps = len(protectiveVariants | riskVariants | unmatchedAlleleVariants)
 
         if len(betaUnits) > 1:
             lowercaseB = [x.lower() for x in betaUnits]
@@ -134,7 +134,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
     # json output objects
     json_study_results = {}
     json_samp_list = []
-    nonMissingSnps = 0
 
     # For every sample in the vcf nested dictionary
     for samp in sampleOrder:
@@ -154,11 +153,9 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
             mark = False
             # Loop through each snp associated with this disease/study/sample
             if samp in vcfObj:
-                nonMissingSnps = 0
                 for rsID in vcfObj[samp]:
                     # check if the snp is in this trait/study
                     if rsID in snpSet:
-                        nonMissingSnps += 1
                         for riskAllele in tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]:
                             units = tableObjDict['associations'][rsID]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
                             alleles = vcfObj[samp][rsID]
@@ -185,6 +182,8 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                                                 riskVariants.add(rsID)
                                         else:
                                             unmatchedAlleleVariants.add(rsID)
+
+            nonMissingSnps = len(protectiveVariants | riskVariants | unmatchedAlleleVariants)
 
             if len(betaUnits) > 1:
                 lowercaseB = [x.lower() for x in betaUnits]
