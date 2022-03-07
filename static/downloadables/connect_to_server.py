@@ -79,6 +79,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         for study in associationsReturnObj['studyIDsToMetaData'].keys():
             for trait in associationsReturnObj['studyIDsToMetaData'][study]['traits'].keys():
                 superPopList = associationsReturnObj['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+                superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 
@@ -202,6 +203,8 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
         else:
             line = line.rstrip("\r").rstrip("\n").split("\t")
 	    # Add super population to the super population set
+            print(len(line[spi]))
+            line[spi] = [eachPop.lower() for eachPop in line[spi]]
             preferredPop = getPreferredPop(line[spi], superPop)
             allSuperPops.add(preferredPop)
             # create the chrom:pos to snp dict
@@ -824,8 +827,6 @@ def getPreferredPop(popList, superPop):
     # convert all populations listed in the gwas to lower case
     if len(popList) == 1 and str(popList[0]) == 'NA':
         return(superPop)
-    elif superPop in popList:
-        return (superPop)
     else:
         filteredKeys = []
         superPopHeirarchy = {

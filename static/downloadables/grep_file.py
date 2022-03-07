@@ -22,6 +22,10 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
     # Check to see if any filters were selected by the user
     isAllFiltersNone = (traits is None and studyIDs is None and studyTypes is None and ethnicities is None and sexes is None and valueTypes is None)
 
+    # Check to make sure no filters were selected if the user uploaded their own GWAS data
+    if not isAllFiltersNone and useGWASupload:
+        raise SystemExit("WARNING: If you upload your own GWAS data, you cannot specify any other additional study filters. Remove the study filters and try again.")
+
     # loop through each study/trait in the studySnpsDict and check whether any studies pass the filters
     studyInFilters = isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, p_cutOff)
     if not studyInFilters and not useGWASupload:
@@ -83,6 +87,7 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
         for study in tableObjDict['studyIDsToMetaData']:
             for trait in tableObjDict['studyIDsToMetaData'][study]['traits'].keys():
                 superPopList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+                superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 	
