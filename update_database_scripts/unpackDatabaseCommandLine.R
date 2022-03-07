@@ -334,12 +334,16 @@ if (is_ebi_reachable()) {
   }
 
   # if the data object does not have enough SNPs, prints and returns NULL
-  checkIfValidDataObj <- function(dataObj) {
-    if (nrow(dataObj) < minNumStudyAssociations) {
+  checkIfValidDataObj <- function(dataObj, message = "") {
+    if (nrow(dataObj) == 0 || nrow(dataObj) < minNumStudyAssociations) {
       # get the name of the variable passed into the function
       dataObjName <- deparse(substitute(dataObj))
       invalidStudies <<- c(invalidStudies, studyID)
-      DevPrint(paste0("    Not enough valid ", dataObjName, " info for ", citation))
+      if (message == "") {
+        DevPrint(paste0("    Not enough valid ", dataObjName, " info for ", citation))
+      } else {
+        DevPrint(message)
+      }
       return(nextWithAppendCheck())
     }
     return("good")
@@ -591,11 +595,34 @@ if (is_ebi_reachable()) {
         mutate(unique_beta_units = n_distinct(tolower(beta_unit))) %>% # create column counting number of unique beta units per group
         filter(unique_beta_units==1) %>% # remove all groups with more than 1 unique beta unit
         dplyr::select(-unique_beta_units) # remove the unique beta units column
-
-      # check if studyData has enough snps
-      if (is.null(checkIfValidDataObj(studyData))) {next}
       
-      studyData <- ungroup(studyData)
+      # resolve snps that have differences in rounding which leads to duplicates
+      studyData <- studyData %>%
+        mutate(rounded_beta = floor(betaValue) + signif(betaValue - floor(betaValue), 2)) %>% # create a rounded betaValue column for comparing (2 sig figs after the decimal)
+        mutate(rounded_odds = floor(or_per_copy_number) + signif(or_per_copy_number - floor(or_per_copy_number), 2)) %>% # create a rounded oddsRatio column for comparing (2 sig figs after the decimal)
+        group_by(variant_id, risk_allele, pvalue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, rounded_beta, rounded_odds) %>%
+        mutate(num_rounded_repeated_snps = dplyr::n()) %>%
+        ungroup() %>%
+        group_by(variant_id, risk_allele, pvalue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, betaValue, or_per_copy_number) %>%
+        mutate(num_repeated_snps = dplyr::n()) %>%
+        ungroup() %>%
+        mutate(or_per_copy_number = ifelse(num_rounded_repeated_snps > 1 & num_repeated_snps == 1, rounded_odds, or_per_copy_number)) %>%
+        mutate(betaValue = ifelse(num_rounded_repeated_snps > 1 & num_repeated_snps == 1, rounded_beta, betaValue)) %>%
+        distinct(variant_id, risk_allele, pvalue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, betaValue, or_per_copy_number, .keep_all = TRUE) %>%
+        dplyr::select(-rounded_beta, -rounded_odds, -num_repeated_snps, -num_rounded_repeated_snps) # remove the rounded columns and repeated_snps columns
+      
+      # remove the studies with snps that we can't resolve
+      studyData <- studyData %>%
+        group_by(variant_id, risk_allele, trait, pvalue_description, beta_description, ogValueTypes, studyID) %>%
+        mutate(num_repeated_snps = dplyr::n()) %>%
+        ungroup()
+      if (nrow(filter(studyData, num_repeated_snps>1)) > 0) {
+        studyData <- tibble()
+      }
+      
+      # check if studyData has enough snps
+      if (is.null(checkIfValidDataObj(studyData, paste0("    Study skipped due to unresolved duplicate SNPs: ", citation)))) {next}
+      
       # calculate the total number of SNPS that have been filtered out for the study and add it as a column      
       numFinalAssociations <- length(studyData[["variant_id"]])
       numAssociationsFiltered <- numTotalAssociations - numFinalAssociations

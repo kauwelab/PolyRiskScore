@@ -717,7 +717,7 @@ def getClumps(refGen, superPop, snpsFromAssociations):
         "refGen": refGen,
         "superPop": superPop,
     }
-    print("Retrieving clumping information")
+    print(f"Retrieving clumping information: {superPop}")
 
     try:
         chromToPosMap = {}
