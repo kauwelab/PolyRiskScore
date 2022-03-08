@@ -56,6 +56,7 @@ optUsage () {
     echo "  [-u: disables uploading tables to the database]"
     echo "  [-e: disables creating example VCF and TXT files]"
     echo "  [-c: disables creating clump and association downloadable files]"
+    echo "  [-m: disables creating maf and percentiles downloadable files]"
     echo "  [-g: disables uploading updated files to GitHub]"
 }
 
@@ -118,6 +119,7 @@ strandFlipping="true"
 uploadTables="true"
 exampleFiles="true"
 clumpAssociationDownloadFiles="true"
+mafPercentilesDownloadFiles="true"
 github="true"
 
 # non-option argument position counter
@@ -145,6 +147,8 @@ for arg do
                 echo "Creating example VCF and TXT files disabled";;
             -c) clumpAssociationDownloadFiles="false"
                 echo "Creating clump and association downloadable files disabled";;
+            -m) mafPercentilesDownloadFiles="false"
+                echo "Creating maf and percentiles downloadable files disabled";;
             -g) github="false"
                 echo "Uploading new data to GitHub disabled";;
             *)  echo ""
@@ -314,6 +318,13 @@ fi
 if [ $clumpAssociationDownloadFiles == "true" ]; then
     echo "Creating Association and Clumps download files"
     python3 createServerAssociClumpsAndTraitStudyToSnpFiles.py "$password"
+    wait
+fi
+
+#============Create MAF and Percentiles download files============================================
+if [ $mafPercentilesDownloadFiles == "true" ]; then
+    echo "Creating Association and Clumps download files"
+    python3 createServerMafAndPercentileFiles.py "$password"
     wait
 fi
 
