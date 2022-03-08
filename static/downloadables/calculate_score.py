@@ -298,8 +298,8 @@ def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
             combinedBetas = 0.001
 
         combinedBetas = combinedBetas / ( ploidy * nonMissingSnps )
-
-        if valueType == 'odds' or valueType == 'odds ratio' or valueType == 'or':
+        
+        if valueType == 'or':
             combinedBetas = math.exp(combinedBetas)
 
         if combinedBetas < 0:

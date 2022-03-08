@@ -53,6 +53,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
     if useGWASupload:
+        print('in use gwas upload')
         isFilters=True
         associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))

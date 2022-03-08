@@ -82,7 +82,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             for trait in associationsReturnObj['studyIDsToMetaData'][study]['traits'].keys():
                 superPopList = associationsReturnObj['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
                 superPopList = [eachPop.lower() for eachPop in superPopList]
-                print(superPopList)
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 
@@ -118,7 +117,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
 
     if 'possibleAllelesData' in locals():
-        print("writing to the file")
         f = open(possibleAllelesPath, 'w', encoding="utf-8")
         f.write(json.dumps(possibleAllelesData))
         f.close()
@@ -242,7 +240,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             # if pvalannotation not in associationDict[line[si]]["traits"][line[ti]][line[sii]]
             pValueAnnotation = line[pvai] if pvai != -1 else "NA"
             betaAnnotation = line[bai] if bai != -1 else "NA"
-            valueType = "beta" if userGwasBeta else "odds ratio"
+            valueType = "beta" if userGwasBeta else "OR"
             pvalBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + valueType
             if pvalBetaAnnoValType not in associationDict[line[si]]["traits"][line[ti]][line[sii]]:
                 associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType] = {}
@@ -353,6 +351,12 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
     studySnpsPath = os.path.join(workingFilesPath, fileName)
 
+    # get the possible alleles for snps
+    fileName = "possibleAlleles_{ahash}.txt".format(ahash = fileHash)
+    possibleAllelesPath = os.path.join(workingFilesPath, fileName)
+    possibleAllelesData = getPossibleAlleles(list(associationsReturnObj['associations'].keys()))
+
+
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
         f = open(associationsPath, 'w', encoding="utf-8")
@@ -368,6 +372,12 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     if 'studySnpsData' in locals():
         f = open(studySnpsPath, 'w', encoding="utf-8")
         f.write(json.dumps(studySnpsData))
+        f.close()
+
+    # check to se if possible allele data is instantiated in the loacl variables
+    if 'possibleAllelesData' in locals():
+        f = open(possibleAllelesPath, 'w', encoding="utf-8")
+        f.write(json.dumps(possibleAllelesData))
         f.close()
 
     return
