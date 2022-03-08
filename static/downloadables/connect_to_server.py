@@ -60,12 +60,14 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             associationsReturnObj = getAllAssociations(refGen)
             studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
             studySnpsData = getAllStudySnps()
+            possibleAllelesPath = os.path.join(workingFilesPath, "allPossibleAlleles.txt")
+            possibleAllelesData = getAllPossibleAlleles()
         
         dwnldNewMAFFile, mafPathExists = checkForAllMAFFiles(mafCohort, refGen)
         if (dwnldNewMAFFile):
             mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
             mafData = getAllMaf(mafCohort, refGen)
-        
+
     # else get the associations using the given filters
     else:
 	# this boolean lets us know that study filters were requested
@@ -95,6 +97,12 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         studySnpsPath = os.path.join(workingFilesPath, fileName)
         studySnpsData = getSpecificStudySnps(finalStudyList)
 
+        # get the possible alleles for snps
+        fileName = "possibleAlleles_{ahash}.txt".format(ahash = fileHash)
+        possibleAllelesPath = os.path.join(workingFilesPath, fileName)
+        possibleAllelesData = getPossibleAlleles(snpsFromAssociations)
+        print(possibleAllelesData)
+
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
         f = open(associationsPath, 'w', encoding="utf-8")
@@ -107,6 +115,12 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f.close()
     elif mafCohort != 'user' and not mafPathExists:
         raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
+
+    if 'possibleAllelesData' in locals():
+        print("writing to the file")
+        f = open(possibleAllelesPath, 'w', encoding="utf-8")
+        f.write(json.dumps(possibleAllelesData))
+        f.close()
 
     # check to see if studySnpsData is instantiated in the local variables
     if 'studySnpsData' in locals():
@@ -522,6 +536,10 @@ def getAllStudySnps():
     # Organized with study as the Keys and snps as values
     return studySnpsReturnObj
 
+def getAllPossibleAlleles():
+    possibleAllelesObj = getUrlWithParams("https://prs.byu.edu/get_all_possible_alleles", params={})
+    return possibleAllelesObj
+
 
 # This function is used to combine json from all the separate calls into one json object. Due to the amount of nesting in the json
 # this is the neccesary way to properly combine
@@ -659,6 +677,23 @@ def runStrandFlipping(snp, allele):
     return str(riskAllele)
 
 
+def getPossibleAlleles(snpsFromAssociations):
+    import myvariant
+    from Bio.Seq import Seq
+    #TODO: there's a warning about the usage of seq
+
+    mv = myvariant.MyVariantInfo()
+    snpsToPossibleAlleles = {}
+
+    for snp in snpsFromAssociations:
+        print(snp)
+        if snp.startswith("rs"):
+            possibleAlleles = getVariantAlleles(snp, mv)
+            snpsToPossibleAlleles[snp] = possibleAlleles
+    print(snpsToPossibleAlleles)
+    return snpsToPossibleAlleles
+
+
 def getVariantAlleles(rsID, mv):
     import contextlib, io
 
@@ -690,7 +725,9 @@ def getVariantAlleles(rsID, mv):
         # TODO maybe: try to find it with a merged snp?
         pass
 
-    return alleles
+    print(alleles)
+
+    return list(alleles)
 
 
 # for POST urls

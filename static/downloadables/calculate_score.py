@@ -283,6 +283,7 @@ def createMarks(betas, nonMissingSnps, studyID, mark, valueType):
 
 
 def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
+    valueType = valueType.lower()
 # calculate the PRS from the list of betas
     ploidy = 2
     combinedBetas = 0
@@ -302,7 +303,7 @@ def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
 
         combinedBetas = combinedBetas / ( ploidy * nonMissingSnps )
 
-        if valueType == 'odds' or valueType == 'odds ratio':
+        if valueType == 'odds' or valueType == 'odds ratio' or valueType == 'or':
             combinedBetas = math.exp(combinedBetas)
 
         combinedBetas = round(combinedBetas, 3)
