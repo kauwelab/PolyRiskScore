@@ -275,20 +275,24 @@ def formatJson(studyInfo, outputFile):
 
 
 def createMarks(betas, nonMissingSnps, studyID, mark, valueType):
-    prs = str(getPRSFromArray(betas, nonMissingSnps, valueType))
+    prs = str(getPRSFromArray(betas, nonMissingSnps, valueType, studyID))
     # Add a mark to studies that have duplicate snps with varying pvalue annotations
     if mark is True:
         studyID = studyID + '†'
     return prs, studyID
 
 
-def getPRSFromArray(betas, nonMissingSnps, valueType):
+def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
 # calculate the PRS from the list of betas
     ploidy = 2
     combinedBetas = 0
     # if there are no values in the betas array, set combinedBetas to 'NF'
     if not betas:
         combinedBetas = "NF"
+    elif nonMissingSnps == 0:
+        combinedBetas = "NF"
+        SystemExit(f"ERROR: We had values that were zero, so the snps weren't added to the lists. Please let us know about this error and send up this studyID: {studyID}")
+
     else:
         for beta in betas:
             beta = float(beta)
