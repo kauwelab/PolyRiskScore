@@ -306,7 +306,14 @@ def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
         if valueType == 'odds' or valueType == 'odds ratio' or valueType == 'or':
             combinedBetas = math.exp(combinedBetas)
 
+        if combinedBetas < 0:
+            keepSign = -1
+        else:
+            keepSign = 1
+
         combinedBetas = round(combinedBetas, 3)
+        if combinedBetas == 0:
+            combinedBetas = keepSign * 0.001
 
     return(str(combinedBetas))
 
