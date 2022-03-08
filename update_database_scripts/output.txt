@@ -1,15 +1,178 @@
-Start time: Sat 01 Jan 2022 12:00:01 AM MST
+Start time: Tue 08 Mar 2022 08:36:01 AM MST
 getting password from file path specified
+Downloading new raw data disabled
+Creating new associations table disabled
+Ordering associations table disabled
+Creating new studies table disabled
+Removing downloaded raw data disabled
+Strand flipping disabled
+Upload tables to database disabled
+Creating example VCF and TXT files disabled
+Creating clump and association downloadable files disabled
 Uploading new data to GitHub disabled
-[1] "Initializing download script!"
-[1] "All required packages already installed."
-[1] "Downloading study data!"
-Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies?page=1592&size=20 failed: response code was 500.
-Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies?page=1594&size=20 failed: response code was 500.
-Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies?page=1595&size=20 failed: response code was 500.
-Warning: The request for https://www.ebi.ac.uk/gwas/rest/api/studies?page=1597&size=20 failed: response code was 500.
-Error in gc_request_all(resource_url = resource_url, base_url = base_url,  : 
-  Failed to get all pages of /studies!
-Calls: get_studies ... get_studies_all -> <Anonymous> -> .f -> gc_request_all
-Execution halted
-"Rscript downloadStudiesToFile.R $studyAndPubTSVFolderPath": exit code:1
+Creating Association and Clumps download files
+Starting to get MAF and Percentile data to create files
+On adni_maf
+on adni_maf_chr1
+on adni_maf_chr2
+on adni_maf_chr3
+on adni_maf_chr4
+on adni_maf_chr5
+on adni_maf_chr6
+on adni_maf_chr7
+on adni_maf_chr8
+on adni_maf_chr9
+on adni_maf_chr10
+on adni_maf_chr11
+on adni_maf_chr12
+on adni_maf_chr13
+on adni_maf_chr14
+on adni_maf_chr15
+on adni_maf_chr16
+on adni_maf_chr17
+on adni_maf_chr18
+on adni_maf_chr19
+on adni_maf_chr20
+on adni_maf_chr21
+on adni_maf_chr22
+On eur_maf
+on eur_maf_chr1
+on eur_maf_chr2
+on eur_maf_chr3
+on eur_maf_chr4
+on eur_maf_chr5
+on eur_maf_chr6
+on eur_maf_chr7
+on eur_maf_chr8
+on eur_maf_chr9
+on eur_maf_chr10
+on eur_maf_chr11
+on eur_maf_chr12
+on eur_maf_chr13
+on eur_maf_chr14
+on eur_maf_chr15
+on eur_maf_chr16
+on eur_maf_chr17
+on eur_maf_chr18
+on eur_maf_chr19
+on eur_maf_chr20
+on eur_maf_chr21
+on eur_maf_chr22
+On sas_maf
+on sas_maf_chr1
+on sas_maf_chr2
+on sas_maf_chr3
+on sas_maf_chr4
+on sas_maf_chr5
+on sas_maf_chr6
+on sas_maf_chr7
+on sas_maf_chr8
+on sas_maf_chr9
+on sas_maf_chr10
+on sas_maf_chr11
+on sas_maf_chr12
+on sas_maf_chr13
+on sas_maf_chr14
+on sas_maf_chr15
+on sas_maf_chr16
+on sas_maf_chr17
+on sas_maf_chr18
+on sas_maf_chr19
+on sas_maf_chr20
+on sas_maf_chr21
+on sas_maf_chr22
+On amr_maf
+on amr_maf_chr1
+on amr_maf_chr2
+on amr_maf_chr3
+on amr_maf_chr4
+on amr_maf_chr5
+on amr_maf_chr6
+on amr_maf_chr7
+on amr_maf_chr8
+on amr_maf_chr9
+on amr_maf_chr10
+on amr_maf_chr11
+on amr_maf_chr12
+on amr_maf_chr13
+on amr_maf_chr14
+on amr_maf_chr15
+on amr_maf_chr16
+on amr_maf_chr17
+on amr_maf_chr18
+on amr_maf_chr19
+on amr_maf_chr20
+on amr_maf_chr21
+on amr_maf_chr22
+On afr_maf
+on afr_maf_chr1
+on afr_maf_chr2
+on afr_maf_chr3
+on afr_maf_chr4
+on afr_maf_chr5
+on afr_maf_chr6
+on afr_maf_chr7
+on afr_maf_chr8
+on afr_maf_chr9
+on afr_maf_chr10
+on afr_maf_chr11
+on afr_maf_chr12
+on afr_maf_chr13
+on afr_maf_chr14
+on afr_maf_chr15
+on afr_maf_chr16
+on afr_maf_chr17
+on afr_maf_chr18
+on afr_maf_chr19
+on afr_maf_chr20
+on afr_maf_chr21
+on afr_maf_chr22
+On eas_maf
+on eas_maf_chr1
+on eas_maf_chr2
+on eas_maf_chr3
+on eas_maf_chr4
+on eas_maf_chr5
+on eas_maf_chr6
+on eas_maf_chr7
+on eas_maf_chr8
+on eas_maf_chr9
+on eas_maf_chr10
+on eas_maf_chr11
+on eas_maf_chr12
+on eas_maf_chr13
+on eas_maf_chr14
+on eas_maf_chr15
+on eas_maf_chr16
+on eas_maf_chr17
+on eas_maf_chr18
+on eas_maf_chr19
+on eas_maf_chr20
+on eas_maf_chr21
+on eas_maf_chr22
+On ukbb_maf
+on ukbb_maf_chr1
+on ukbb_maf_chr2
+on ukbb_maf_chr3
+on ukbb_maf_chr4
+on ukbb_maf_chr5
+on ukbb_maf_chr6
+on ukbb_maf_chr7
+on ukbb_maf_chr8
+on ukbb_maf_chr9
+on ukbb_maf_chr10
+on ukbb_maf_chr11
+on ukbb_maf_chr12
+on ukbb_maf_chr13
+on ukbb_maf_chr14
+on ukbb_maf_chr15
+on ukbb_maf_chr16
+on ukbb_maf_chr17
+on ukbb_maf_chr18
+on ukbb_maf_chr19
+on ukbb_maf_chr20
+on ukbb_maf_chr21
+on ukbb_maf_chr22
+Finished creating server download percentile and maf files
+Total time taken: 00h:13m:15s
+"read -p "Press [Enter] key to finish..."": exit code:1
