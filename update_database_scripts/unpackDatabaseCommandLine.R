@@ -111,7 +111,7 @@ suppressMessages(library(purrr))
 #----------------------------------------------------------------------------------------------
 
 if (is_ebi_reachable()) {
-  # evaulate command line arguments if supplied
+  # evaluate command line arguments if supplied
   outPath <- args[1]
   rawGWASTSVFolderPath <- args[2]
   chainFilePath <- args[3]
@@ -245,7 +245,7 @@ if (is_ebi_reachable()) {
   
   addPosColumns <- function(associationsTable) {
     # if any positions are missing from hg38, use myvariant to get hg19, then get hg38, else get hg19
-    unknownSNPPosIDs <- unique(studyData[is.na(studyData$hg38),]["variant_id"]) # get the unknown pos SNP IDs
+    unknownSNPPosIDs <- unique(associationsTable[is.na(associationsTable$hg38),]["snp"]) # get the unknown pos SNP IDs
     if (nrow(unknownSNPPosIDs) > 0) {
       # get the positions of SNPs that don't have their positions listed in the GWAS catalog
       unknownSNPPosObjs <- suppressWarnings(getVariants(unknownSNPPosIDs)) # get the SNP info objects using myvariant (it gets hg19 positions)
@@ -629,6 +629,8 @@ if (is_ebi_reachable()) {
       studyData <- add_column(studyData, numAssociationsFiltered = numAssociationsFiltered, .after = "sex")
 
       associationsTable <- bind_rows(studyData, associationsTable)
+      studyData <- tibble()
+      
       
       # add lastUpdated to tibble
       lastUpdatedTibble <- add_row(lastUpdatedTibble, studyID = studyID, lastUpdated = as.character(max(as.Date(associationsTable$last_update_date))))
