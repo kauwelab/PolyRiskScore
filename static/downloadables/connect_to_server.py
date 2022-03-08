@@ -101,7 +101,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         fileName = "possibleAlleles_{ahash}.txt".format(ahash = fileHash)
         possibleAllelesPath = os.path.join(workingFilesPath, fileName)
         possibleAllelesData = getPossibleAlleles(snpsFromAssociations)
-        print(possibleAllelesData)
 
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
@@ -686,11 +685,9 @@ def getPossibleAlleles(snpsFromAssociations):
     snpsToPossibleAlleles = {}
 
     for snp in snpsFromAssociations:
-        print(snp)
         if snp.startswith("rs"):
             possibleAlleles = getVariantAlleles(snp, mv)
             snpsToPossibleAlleles[snp] = possibleAlleles
-    print(snpsToPossibleAlleles)
     return snpsToPossibleAlleles
 
 
@@ -724,8 +721,6 @@ def getVariantAlleles(rsID, mv):
     else:
         # TODO maybe: try to find it with a merged snp?
         pass
-
-    print(alleles)
 
     return list(alleles)
 
