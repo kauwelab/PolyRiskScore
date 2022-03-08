@@ -216,7 +216,6 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             if snp in clumpsObjDict:
                                 # Grab the clump number associated with this snp 
                                 clumpNum = clumpsObjDict[snp]['clumpNum']
-                                print('snp', snp, 'clumpNum', clumpNum)
                                 # check to see the number of variants in this ld clump. If the snp is the only one in the clump, we skip the clumping checks
                                 clumpNumTotal = clumpNumDict[str((preferredPop,clumpNum))]
 
@@ -243,7 +242,6 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             else:
                                 sample_map[snp] = alleles
                         elif riskAllele not in alleles and isIndividualClump:
-                            print('snp', snp)
                             # the risk allele wasn't in the listed alleles
                             unmatchedAlleleVariants.add(snp)
 

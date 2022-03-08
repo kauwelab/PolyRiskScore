@@ -80,6 +80,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
             for trait in associationsReturnObj['studyIDsToMetaData'][study]['traits'].keys():
                 superPopList = associationsReturnObj['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
                 superPopList = [eachPop.lower() for eachPop in superPopList]
+                print(superPopList)
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 
@@ -202,10 +203,8 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
         else:
             line = line.rstrip("\r").rstrip("\n").split("\t")
 	    # Add super population to the super population set
-            line[spi] = [eachPop.lower() for eachPop in line[spi]]
-            preferredPop = getPreferredPop(line[spi], superPop)
+            preferredPop = getPreferredPop(line[spi].lower(), superPop)
             # Add super population to the super population set
-            preferredPop = getPreferredPop(line[spi].upper(), superPop)
             allSuperPops.add(preferredPop)
             # create the chrom:pos to snp dict
             # if the chrom:pos not in the chromSnpDict
@@ -241,13 +240,15 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]= {
                     "pValue": float(line[pvi]),
                     "sex": "NA",
-                    "betaUnit": 'beta' if userGwasBeta else 'odds ratio'
+                    "ogValueTypes": 'beta' if userGwasBeta else 'OR'
                 }
                 if userGwasBeta:
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaValue'] = float(line[bvi])
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaUnit'] = line[bui]
                 else:
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['oddsRatio'] = float(line[ori])
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaUnit'] = 'NA'
+	
             else:
                 # if the snp is duplicated, notify the user and exit
                 raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format(line[si], line[ti], line[sii], pvalBetaAnnoValType))
@@ -825,7 +826,7 @@ def checkInternetConnection():
 
 def getPreferredPop(popList, superPop):
     # convert all populations listed in the gwas to lower case
-    if len(popList) == 1 and str(popList[0]) == 'NA':
+    if len(popList) == 1 and str(popList[0]).lower() == 'na':
         return(superPop)
     else:
         filteredKeys = []
@@ -840,11 +841,11 @@ def getPreferredPop(popList, superPop):
         keys = superPopHeirarchy[superPop]
         for pop in keys:
             popKeys = {
-                'EUR': 'European',
-                'AMR': 'American', 
-                'AFR': 'African',
-                'EAS': 'East Asian',
-                'SAS': 'South Asian'
+                'EUR': 'european',
+                'AMR': 'american', 
+                'AFR': 'african',
+                'EAS': 'east asian',
+                'SAS': 'south asian'
             }
             tryPop = popKeys[pop]
             # create a filtered list (maintaining the same order) that only includes the super populations

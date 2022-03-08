@@ -34,16 +34,13 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
         mark = False
 
         for snp in txtObj:
-            print('txtObj', txtObj)
             if snp in snpSet:
                 for riskAllele in tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]:
                     units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
                     # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
                     snpBeta = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['oddsRatio'])
                     # Also iterate through each of the alleles
-                    print('snp', snp, 'riskAllele', riskAllele)
                     for allele in txtObj[snp]:
-                        print('looking at allele:', allele)
                         # Then compare to the gwa study
                         if allele != "":
                             if allele == riskAllele:
@@ -55,7 +52,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                                     riskVariants.add(snp)
                             elif allele == "." :
                                 mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict and riskAllele in mafDict[snp]["alleles"] else 0
-                                print('mafVal', mafVal, 'snpBeta', snpBeta)
                                 betas.append(snpBeta*mafVal)
                                 betaUnits.add(units)
                                 if snpBeta < 0:
@@ -63,7 +59,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                                 elif snpBeta > 0:
                                     riskVariants.add(snp)
                             else:
-                                print('unmatchedalleleVariants')
                                 unmatchedAlleleVariants.add(snp)
 
         nonMissingSnps = len(protectiveVariants | riskVariants | unmatchedAlleleVariants)
@@ -73,8 +68,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             if len(set(lowercaseB)) == 1:
                 studyUnits = lowercaseB.pop()
             else:
-                print("ERROR: The following had too many betaUnits: {} {} {}".format(trait, studyID, pValBetaAnnoValType))
-                print("Output file will list 'Error - too many units' as the betaUnits")
                 studyUnits = 'Error - too many units'
         elif len(betaUnits) == 1:
             studyUnits = betaUnits.pop()
@@ -190,8 +183,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                 if len(set(lowercaseB)) == 1:
                     studyUnits = lowercaseB.pop()
                 else:
-                    print("ERROR: The following had too many betaUnits: {} {} {} {}".format(samp, trait, studyID, pValBetaAnnoValType))
-                    print("Output file will list 'Error - too many units' as the betaUnits")
                     studyUnits = 'Error - too many units'
             elif len(betaUnits) == 1:
                 studyUnits = betaUnits.pop()
@@ -289,7 +280,6 @@ def createMarks(betas, nonMissingSnps, studyID, mark, valueType):
 
 def getPRSFromArray(betas, nonMissingSnps, valueType):
 # calculate the PRS from the list of betas
-    print('betas', betas, 'nonmissingsnps', nonMissingSnps, 'valueType', valueType)
     ploidy = 2
     combinedBetas = 0
     # if there are no values in the betas array, set combinedBetas to 'NF'
@@ -302,13 +292,12 @@ def getPRSFromArray(betas, nonMissingSnps, valueType):
         if combinedBetas == 0:
             combinedBetas = 0.001
 
-        print('combinedBetas', combinedBetas)
         combinedBetas = combinedBetas / ( ploidy * nonMissingSnps )
-        print('combinedBetas', combinedBetas)
 
-        if valueType == 'odds' or valueType == 'odds ratio' or valueType == 'OR':
+        #if valueType == 'odds' or valueType == 'odds ratio' or valueType == 'OR':
+        print('value type', valueType)
+        if valueType == 'odds ratio':
             combinedBetas = math.exp(combinedBetas)
-            print('final combinedBetas', combinedBetas)
 
         combinedBetas = round(combinedBetas, 3)
 
