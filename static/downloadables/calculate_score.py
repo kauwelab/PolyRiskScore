@@ -68,8 +68,6 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             if len(set(lowercaseB)) == 1:
                 studyUnits = lowercaseB.pop()
             else:
-                print("ERROR: The following had too many betaUnits: {} {} {}".format(trait, studyID, pValBetaAnnoValType))
-                print("Output file will list 'Error - too many units' as the betaUnits")
                 studyUnits = 'Error - too many units'
         elif len(betaUnits) == 1:
             studyUnits = betaUnits.pop()
@@ -185,8 +183,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                 if len(set(lowercaseB)) == 1:
                     studyUnits = lowercaseB.pop()
                 else:
-                    print("ERROR: The following had too many betaUnits: {} {} {} {}".format(samp, trait, studyID, pValBetaAnnoValType))
-                    print("Output file will list 'Error - too many units' as the betaUnits")
                     studyUnits = 'Error - too many units'
             elif len(betaUnits) == 1:
                 studyUnits = betaUnits.pop()
@@ -302,8 +298,8 @@ def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
             combinedBetas = 0.001
 
         combinedBetas = combinedBetas / ( ploidy * nonMissingSnps )
-
-        if valueType == 'odds' or valueType == 'odds ratio' or valueType == 'or':
+        
+        if valueType == 'or':
             combinedBetas = math.exp(combinedBetas)
 
         if combinedBetas < 0:

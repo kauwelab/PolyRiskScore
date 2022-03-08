@@ -81,6 +81,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         for study in associationsReturnObj['studyIDsToMetaData'].keys():
             for trait in associationsReturnObj['studyIDsToMetaData'][study]['traits'].keys():
                 superPopList = associationsReturnObj['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+                superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 
@@ -116,7 +117,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
 
     if 'possibleAllelesData' in locals():
-        print("writing to the file")
         f = open(possibleAllelesPath, 'w', encoding="utf-8")
         f.write(json.dumps(possibleAllelesData))
         f.close()
@@ -213,8 +213,9 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
 
         else:
             line = line.rstrip("\r").rstrip("\n").split("\t")
+	    # Add super population to the super population set
+            preferredPop = getPreferredPop(line[spi].lower(), superPop)
             # Add super population to the super population set
-            preferredPop = getPreferredPop(line[spi].upper(), superPop)
             allSuperPops.add(preferredPop)
             # create the chrom:pos to snp dict
             # if the chrom:pos not in the chromSnpDict
@@ -239,7 +240,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             # if pvalannotation not in associationDict[line[si]]["traits"][line[ti]][line[sii]]
             pValueAnnotation = line[pvai] if pvai != -1 else "NA"
             betaAnnotation = line[bai] if bai != -1 else "NA"
-            valueType = "beta" if userGwasBeta else "odds ratio"
+            valueType = "beta" if userGwasBeta else "OR"
             pvalBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + valueType
             if pvalBetaAnnoValType not in associationDict[line[si]]["traits"][line[ti]][line[sii]]:
                 associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType] = {}
@@ -250,13 +251,15 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]= {
                     "pValue": float(line[pvi]),
                     "sex": "NA",
-                    "betaUnit": 'beta' if userGwasBeta else 'odds ratio'
+                    "ogValueTypes": 'beta' if userGwasBeta else 'OR'
                 }
                 if userGwasBeta:
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaValue'] = float(line[bvi])
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaUnit'] = line[bui]
                 else:
                     associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['oddsRatio'] = float(line[ori])
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaUnit'] = 'NA'
+	
             else:
                 # if the snp is duplicated, notify the user and exit
                 raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format(line[si], line[ti], line[sii], pvalBetaAnnoValType))
@@ -348,6 +351,12 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
     studySnpsPath = os.path.join(workingFilesPath, fileName)
 
+    # get the possible alleles for snps
+    fileName = "possibleAlleles_{ahash}.txt".format(ahash = fileHash)
+    possibleAllelesPath = os.path.join(workingFilesPath, fileName)
+    possibleAllelesData = getPossibleAlleles(list(associationsReturnObj['associations'].keys()))
+
+
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
         f = open(associationsPath, 'w', encoding="utf-8")
@@ -363,6 +372,12 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     if 'studySnpsData' in locals():
         f = open(studySnpsPath, 'w', encoding="utf-8")
         f.write(json.dumps(studySnpsData))
+        f.close()
+
+    # check to se if possible allele data is instantiated in the loacl variables
+    if 'possibleAllelesData' in locals():
+        f = open(possibleAllelesPath, 'w', encoding="utf-8")
+        f.write(json.dumps(possibleAllelesData))
         f.close()
 
     return
@@ -853,10 +868,8 @@ def checkInternetConnection():
 
 def getPreferredPop(popList, superPop):
     # convert all populations listed in the gwas to lower case
-    if len(popList) == 1 and str(popList[0]) == 'NA':
+    if len(popList) == 1 and str(popList[0]).lower() == 'na':
         return(superPop)
-    elif superPop in popList:
-        return (superPop)
     else:
         filteredKeys = []
         superPopHeirarchy = {
@@ -870,11 +883,11 @@ def getPreferredPop(popList, superPop):
         keys = superPopHeirarchy[superPop]
         for pop in keys:
             popKeys = {
-                'EUR': 'European',
-                'AMR': 'American', 
-                'AFR': 'African',
-                'EAS': 'East Asian',
-                'SAS': 'South Asian'
+                'EUR': 'european',
+                'AMR': 'american', 
+                'AFR': 'african',
+                'EAS': 'east asian',
+                'SAS': 'south asian'
             }
             tryPop = popKeys[pop]
             # create a filtered list (maintaining the same order) that only includes the super populations

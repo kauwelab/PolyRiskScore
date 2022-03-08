@@ -53,6 +53,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
     if useGWASupload:
+        print('in use gwas upload')
         isFilters=True
         associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
@@ -94,6 +95,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         for study in tableObjDict['studyIDsToMetaData']:
             for trait in tableObjDict['studyIDsToMetaData'][study]['traits']:
                 superPopList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+                superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 	
@@ -151,6 +153,7 @@ def formatAndReturnGenotype(genotype, REF, ALT):
 
 
 def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
+    isIndividualClump = int(isIndividualClump)
     #create set to hold  the lines with a snp in this study
     studyLines = {}
 
@@ -186,6 +189,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     
     # Access the preferred super population for this study
     popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+    popList = [eachPop.lower() for eachPop in popList]
     preferredPop = getPreferredPop(popList, superPop)
 
     # Create a dictionary with clump number and index snp to keep track of the variant with the lowest pvalue in each ld region
@@ -244,7 +248,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             # The snp wasn't in the clump map (meaning it wasn't in 1000 Genomes), so add it
                             else:
                                 sample_map[snp] = alleles
-                        else:
+                        elif riskAllele not in alleles and isIndividualClump:
                             # the risk allele wasn't in the listed alleles
                             unmatchedAlleleVariants.add(snp)
 
@@ -368,6 +372,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
 
     # Access the super population used for clumping this study
     popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+    popList = [eachPop.lower() for eachPop in popList]
     preferredPop = getPreferredPop(popList, superPop)
 
     # Create dictionaries to store the variants not used in the calculations for each sample
@@ -618,6 +623,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
 	# get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+        popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
         clumpsObjDict = allClumpsObjDict[preferredPop]
         snpSet = studySnpsDict[key]
@@ -650,6 +656,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         snpSet = studySnpsDict[keyString]
 	# get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+        popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
         clumpsObjDict = allClumpsObjDict[preferredPop]
         paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
