@@ -2,6 +2,7 @@ import myvariant
 import contextlib, io
 from sys import argv
 from Bio.Seq import Seq
+import json
 
 # This script performs strand flipping on the associations_table.tsv. For each line in the associations file, the script grabs information about
 # viable alleles for the variant. The riskAllele is checked against this list to see if the riskAllele needs to be flipped to its complement
@@ -51,6 +52,7 @@ def main():
     associFile = open(associationTableFolderPath, 'r', encoding='utf-8')
     content = associFile.readlines()
     strandFlipped = open("flipped.tsv", fileView)
+    possibleAllelesDict = {}
     
     for i in range(1,len(content)):
         line = content[i].strip().split('\t')
@@ -62,6 +64,7 @@ def main():
         ogValueType = line[18]
 
         possibleAlleles = getVariantAlleles(rsID, mv)
+        possibleAllelesDict[rsID] = list(possibleAlleles)
         riskAllele = Seq(line[9])
         if riskAllele not in possibleAlleles:
             complement = riskAllele.reverse_complement()
@@ -77,6 +80,9 @@ def main():
     associFile = open(associationTableFolderPath, 'w')
     associFile.write(''.join(content))
     associFile.close()
+    possibleAllelesFile = open('../static/downloadables/preppedServerFiles/allPossibleAlleles.txt', 'w')
+    possibleAllelesFile.write(json.dumps(possibleAllelesDict))
+    possibleAllelesFile.close()
 
     print("Finished strand flipping")
 
