@@ -197,7 +197,7 @@ if (is_ebi_reachable()) {
       print(paste("ERROR! First hg is", firstHgName, "and second hg is", secondHgStr))
     }
     results <- liftOver(grs, hgChain)
-    # go through each result and make sure empty GRanges are not empty (so they persist after as_tibble) and GRanges with multiple ranges are left with only one range
+    # make empty GRanges not empty (so they persist after using as_tibble)
     emptyGRangesIndicies <- which(!lengths(results))
     if (length(emptyGRangesIndicies) > 0) {
       print(paste0("WARNING: failed to convert the following positions from ", firstHgName, " to ", secondHgStr))
@@ -206,6 +206,7 @@ if (is_ebi_reachable()) {
         suppressWarnings(results[emptyGRangesIndicies[i]] <- GRangesList(GRanges(c("NA"),c("1-1"),c("*")))) # default dummy GRanges to be replaced later
       }
     }
+    # make GRanges with multiple ranges have only their first range
     multiRangeIndecies <- which(lengths(results) > 1)
     if (length(multiRangeIndecies) > 0) {
       print(paste0("WARNING: the following position maps to more than one position from ", firstHgName, " to ", secondHgStr, ": removing all but one"))
@@ -654,7 +655,7 @@ if (is_ebi_reachable()) {
         appendWithCheck()
       }, error=function(e){
         cat("ERROR:",conditionMessage(e), "\n")
-        # resets the associationsTable and other tables of the
+        # resets the associationsTable and other tables if there is an error in the tables of the last 10 studies so the error does not perpetuate
         resetTablesAndIndiciesAppended()
         DevPrint(paste0("Tables reset due to error for studies indecies ", i-10, "-", i))
       })
