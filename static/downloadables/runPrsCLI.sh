@@ -661,9 +661,10 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                output=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
+                output=$(echo $OPTARG)
+                output_ext=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
                 output="${output//\\//}" # replace backslashes with forward slashes
-                if ! [[ "${output}" =~ .tsv$|.json$ ]]; then
+                if ! [[ "${output_ext}" =~ .tsv$|.json$ ]]; then
                     echo -e "${LIGHTRED}$output ${NC} is not in the right format."
                     echo -e "Valid formats are ${GREEN}tsv${NC} and ${GREEN}json${NC}"
                     echo -e "${LIGHTRED}Quitting...${NC}"

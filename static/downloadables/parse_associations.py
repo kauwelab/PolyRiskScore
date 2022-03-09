@@ -53,7 +53,6 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
     if useGWASupload:
-        print('in use gwas upload')
         isFilters=True
         associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
@@ -248,7 +247,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             # The snp wasn't in the clump map (meaning it wasn't in 1000 Genomes), so add it
                             else:
                                 sample_map[snp] = alleles
-                        elif riskAllele not in alleles and isIndividualClump:
+                        else:
                             # the risk allele wasn't in the listed alleles
                             unmatchedAlleleVariants.add(snp)
 
@@ -463,7 +462,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
                                                     # and switch out the data accordingly
                                                     if pValue < index_pvalue:
                                                         index_snp_map[sample][clumpNum] = rsID, riskAllele, alleles if complements is None else complements
-
                                                         clumpedVariants.add(index_snp)
                                                     else:
                                                         if index_alleles == "" and isIndividualClump:
@@ -486,7 +484,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
                                         sample_map[sample][rsID] = alleles if complements is None else complements
 
                                 # the sample's alleles don't include the risk allele and early clumping is not requested
-                                elif not atRisk and isIndividualClump:
+                                else:
                                     unmatchedAlleleVariants.add(rsID)
 
                                     clumped_snps_map[sample] = clumpedVariants

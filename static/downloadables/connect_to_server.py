@@ -875,10 +875,10 @@ def getPreferredPop(popList, superPop):
         superPopHeirarchy = {
             'EUR': ['EUR', 'AMR', 'SAS', 'EAS', 'AFR'],
             'AMR': ['AMR', 'EUR', 'SAS', 'EAS', 'AFR'],
-            'SAS': ['SAS', 'EAS', 'EUR', 'AMR', 'AFR'],
-            'EAS': ['EAS', 'SAS', 'EUR', 'AMR', 'AFR'],
+            'SAS': ['SAS', 'EAS', 'AMR', 'EUR', 'AFR'],
+            'EAS': ['EAS', 'SAS', 'AMR', 'EUR', 'AFR'],
             #TODO: check with justin if these heirarchies are correct
-            'AFR': ['AFR', 'EUR', 'AMR', 'SAS', 'EAS']
+            'AFR': ['AFR', 'AMR', 'SAS', 'EUR', 'EAS']
         }
         keys = superPopHeirarchy[superPop]
         for pop in keys:
