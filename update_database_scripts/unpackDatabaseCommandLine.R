@@ -249,7 +249,7 @@ if (is_ebi_reachable()) {
     if (nrow(unknownSNPPosIDs) > 0) {
       # get the positions of SNPs that don't have their positions listed in the GWAS catalog
       unknownSNPPosObjs <- suppressWarnings(getVariants(unknownSNPPosIDs)) # get the SNP info objects using myvariant (it gets hg19 positions)
-      snpPosTable <- tibble(snp = unknownSNPPosObjs@listData[["dbsnp.rsid"]], hg19 = paste0(unknownSNPPosObjs@listData[["dbsnp.chrom"]], ":", unknownSNPPosObjs@listData[["dbsnp.hg19.start"]]))
+      snpPosTable <- tibble(snp = unknownSNPPosObjs@listData[["query"]], hg19 = paste0(unknownSNPPosObjs@listData[["dbsnp.chrom"]], ":", unknownSNPPosObjs@listData[["dbsnp.hg19.start"]]))
       snpPosTable <- snpPosTable[!duplicated(snpPosTable), ] # remove duplicate SNPs from snpPosTable
       snpPosTable <- add_column(snpPosTable, hg38 = hgToHg(snpPosTable["hg19"], "hg38"), .after = "snp") # get hg38 from hg19
       associationsTable <- left_join(associationsTable, snpPosTable, by = "snp") %>% # fill in the new hg38 positions for the associations table
@@ -317,14 +317,19 @@ if (is_ebi_reachable()) {
         appendToAssociationsTable(associationsTable)
         appendToLastUpdatedTable(lastUpdatedTibble)
         # reset the associationsTable and lastUpdatedTibble and keep going
-        associationsTable <<- tibble()
-        lastUpdatedTibble <<- tibble(studyID = character(), lastUpdated = character())
         indecesAppendedStr <<- paste(studyIndeciesAppended,collapse=",")
         DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
-        studyIndeciesAppended <<- c()
+        resetTablesAndIndiciesAppended()
       }
       DevPrint(paste0("Time elapsed: ", format(Sys.time() - start_time)))
     }
+  }
+  
+  resetTablesAndIndiciesAppended <- function() {
+    # reset the associationsTable and lastUpdatedTibble and keep going
+    associationsTable <<- tibble()
+    lastUpdatedTibble <<- tibble(studyID = character(), lastUpdated = character())
+    studyIndeciesAppended <<- c()
   }
   
   # skips the current SNP, but checks to see if previous data should be added to the associations table
@@ -406,11 +411,11 @@ if (is_ebi_reachable()) {
       betaNum <- betaNumbers[[i]]
       if (!is.na(betaNum)) {
         betaDirect <- betaDirections[[i]]
-        if (betaDirect == "decrease") {
+        if (!is.na(betaDirect) & betaDirect == "decrease") {
           betas <- c(betas, betaNum * -1) # add a "-" if the direction is a decrease
         }
         else {
-          betas <- c(betas, betaNum) # append the beta number if the direction is an increase
+          betas <- c(betas, betaNum) # append the beta number if the direction is an increase or NA
         }
       }
       else {
@@ -638,7 +643,14 @@ if (is_ebi_reachable()) {
       studyIndeciesAppended <- c(studyIndeciesAppended, i)
       
       # for every 10 studies, append to the associations_table.tsv
-      appendWithCheck()
+      tryCatch({
+        appendWithCheck()
+      }, error=function(e){
+        cat("ERROR:",conditionMessage(e), "\n")
+        # resets the associationsTable and other tables of the
+        resetTablesAndIndiciesAppended()
+        DevPrint(paste0("Tables reset due to error for studies indecies ", i-10, "-", i))
+      })
     }, error=function(e){
       cat("ERROR:",conditionMessage(e), "\n")
       if (conditionMessage(e) == "cannot open the connection") {
