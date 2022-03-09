@@ -354,11 +354,7 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, value
     useValueType = False
     useSex = False
 
-    if studyMetaData is not None:
-        studyValueTypes = set([x.split("|")[-1] for x in studyMetaData['traits'][trait]['pValBetaAnnoValType']])
-    else:
-        studyValueTypes = set()
-
+    studyValueTypes = set([x.split("|")[-1] for x in studyMetaData['traits'][trait]['pValBetaAnnoValType']])
     # if the studyID matches one that was selected, use it
     if studyIDs is not None and studyID in studyIDs:
         useStudyID = True
