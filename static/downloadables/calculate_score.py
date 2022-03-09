@@ -294,7 +294,7 @@ def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
         combinedBetas = "NF"
     elif nonMissingSnps == 0:
         combinedBetas = "NF"
-        SystemExit(f"ERROR: We had values that were zero, so the snps weren't added to the lists. Please let us know about this error and send up this studyID: {studyID}")
+        SystemExit(f"ERROR: We ran into an issue while calculating. Please let us know about this error and send us this studyID: {studyID}. In the meantime, try using a different study.")
 
     else:
         for beta in betas:
