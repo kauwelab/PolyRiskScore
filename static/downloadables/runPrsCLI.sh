@@ -496,8 +496,7 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
                 echo "The Experimental Factor Ontology (EFO) trait the GWAS deals with."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR} Super Population: ${NC}" 
-		#TODO: write this section
-		echo "write something here"
+                echo "The super population from the 1000 Genomes most closely associated with the GWAS data. This super population will be used for LD calculations."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR} RsID: ${NC}"
                 echo "The Reference SNP cluster ID (RsID) of the SNP."
