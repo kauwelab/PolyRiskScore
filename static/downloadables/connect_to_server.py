@@ -713,7 +713,6 @@ def getVariantAlleles(rsID, mv):
     output = f.getvalue()
 
     objs = queryResult['hits'][0] if len(queryResult['hits']) > 0 else None
-    #TODO if there is only one item in the objs list, the type is not a list, it's just a map
     objsList = []
     if isinstance(objs, dict):
         objsList.append(objs)
@@ -875,7 +874,6 @@ def getPreferredPop(popList, superPop):
             'AMR': ['AMR', 'EUR', 'SAS', 'EAS', 'AFR'],
             'SAS': ['SAS', 'EAS', 'AMR', 'EUR', 'AFR'],
             'EAS': ['EAS', 'SAS', 'AMR', 'EUR', 'AFR'],
-            #TODO: check with justin if these heirarchies are correct
             'AFR': ['AFR', 'AMR', 'SAS', 'EUR', 'EAS']
         }
         keys = superPopHeirarchy[superPop]
