@@ -2,6 +2,7 @@ import os
 from sys import argv
 from time import sleep
 import glob
+from multiprocessing import Pool
 from uploadTablesToDatabase import getConnection, checkTableExists, deleteTable, createTable, createFreshTable, getFileLineEnding, enableLocalLoad, setPathWithCheck
 
 def addDataToMAFTableCatch(config, tablesFolderPath, chrNum, dbTableName, tableColumns):
@@ -34,6 +35,40 @@ def usage():
         tablesFolderPath- the path to the folder containing the maf tables
     """)
 
+def createAndUpload(params):
+    config = params[0]
+    tableName = params[1] 
+    tableColumns = params[2]
+    path = params[3] 
+    chrom = params[4]
+    tableColumnsWOid = params[5]
+
+    createFreshTable(config, tableName, tableColumns)
+    addDataToMAFTableCatch(config, path, chrom, tableName, tableColumnsWOid)
+
+
+def paramsForSingleTable(password, chrom, cohort):
+    config = {
+        'user': 'polyscore',
+        'password': password,
+        'host': 'localhost',
+        'database': 'polyscore',
+        'allow_local_infile': True,
+        'auth_plugin': 'mysql_native_password'
+    }
+
+    connection = getConnection(config)
+    enableLocalLoad(connection.cursor())
+    connection.close()
+
+    tableColumns = "( ID int AUTO_INCREMENT PRIMARY KEY, chrom tinyint, hg38 int unsigned, hg19 int unsigned, hg18 int unsigned, hg17 int unsigned, snp varchar(50), allele text, alleleFrequency double )"
+    tableColumnsWOid = "( chrom, hg38, hg19, hg18, hg17, snp, allele, alleleFrequency )"
+    mafTablesFolderPath = "../tables/maf"
+    
+    path = "{}/{}_MAF/{}_chr{}_maf.tsv".format(mafTablesFolderPath, cohort.upper(), cohort.upper(), chrom)
+    tableName = "{}_maf_chr{}".format(cohort.lower(), chrom)
+    createAndUpload((config, tableName, tableColumns, path, chrom, tableColumnsWOid))
+
 
 def main():
     # the password for connecting to the database
@@ -41,6 +76,7 @@ def main():
     # the location of the tables
     mafTablesFolderPath =  "../tables/maf"
     mafDirectories = ["ADNI_MAF", "AFR_MAF", "AMR_MAF", "EAS_MAF", "EUR_MAF", "SAS_MAF", "UKBB_MAF"]
+    paramOpts = []
 
     # arg handling
     if len(argv) <= 1:
@@ -74,7 +110,7 @@ def main():
     enableLocalLoad(connection.cursor())
     connection.close()
 
-    tableColumns = "( ID int AUTO_INCREMENT PRIMARY KEY, chrom tinyint, pos int unsigned, snp varchar(50), allele text, alleleFrequency double )"
+    tableColumns = "( ID int AUTO_INCREMENT PRIMARY KEY, chrom tinyint, hg38 int unsigned, hg19 int unsigned, hg18 int unsigned, hg17 int unsigned, snp varchar(50), allele text, alleleFrequency double )"
     tableColumnsWOid = "( chrom, hg38, hg19, hg18, hg17, snp, allele, alleleFrequency )"
 
     # create the cohort tables
@@ -90,10 +126,14 @@ def main():
                 elif len(fileName) == 1:
                     tableName = directory.lower() + '_chr' + str(i)
                     path = fileName[0].replace("\\", "/")
-                    createFreshTable(config, tableName, tableColumns)
-                    addDataToMAFTableCatch(config, path, i, tableName, tableColumnsWOid)
+                    paramOpts.append((config, tableName, tableColumns, path, i, tableColumnsWOid))
+                    # createFreshTable(config, tableName, tableColumns)
+                    # addDataToMAFTableCatch(config, path, i, tableName, tableColumnsWOid)
                 else:
                     print("we have zero filenames that match this chr{} : {} ".format(i, pathToFile))
+
+    with Pool(processes=5) as pool:
+        pool.map(createAndUpload, paramOpts)
 
     print("Finished uploading maf data to the PRSKB database!")
 

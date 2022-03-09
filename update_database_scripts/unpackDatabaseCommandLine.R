@@ -111,7 +111,7 @@ suppressMessages(library(purrr))
 #----------------------------------------------------------------------------------------------
 
 if (is_ebi_reachable()) {
-  # evaulate command line arguments if supplied
+  # evaluate command line arguments if supplied
   outPath <- args[1]
   rawGWASTSVFolderPath <- args[2]
   chainFilePath <- args[3]
@@ -197,24 +197,31 @@ if (is_ebi_reachable()) {
       print(paste("ERROR! First hg is", firstHgName, "and second hg is", secondHgStr))
     }
     results <- liftOver(grs, hgChain)
-      # the as_tibble function puts out a warning message that isn't important, so suppressWarnings is used
-    secondHgTibble <- suppressWarnings(as_tibble(results)) %>%
-      unite(!!(secondHgStr), seqnames:start, sep = ":")
-    secondHgTibble <- mutate(secondHgTibble, !!(secondHgStr) := str_extract(secondHgTibble[[3]], "\\d+:\\d+")) %>%
-      dplyr::select(!!(secondHgStr))
-    
-    #TODO there has to be a better way to do this... can the as_tibble function keep empty GRanges?
-    # fills in rows that weren't able to be converted 
-    failedIndecies <- which(as.numeric(results@partitioning) %in% NA)
-    if (length(failedIndecies) > 0) {
+    # make empty GRanges not empty (so they persist after using as_tibble)
+    emptyGRangesIndicies <- which(!lengths(results))
+    if (length(emptyGRangesIndicies) > 0) {
       print(paste0("WARNING: failed to convert the following positions from ", firstHgName, " to ", secondHgStr))
-      for (i in 1:length(failedIndecies)) {
-        print(paste0(firstHgCol[[failedIndecies[i], 1]], " at index ", failedIndecies[i]))
-      }
-      for (i in 1:length(failedIndecies)) {
-        secondHgTibble <- add_row(secondHgTibble, .before=failedIndecies[i])
+      for (i in 1:length(emptyGRangesIndicies)) {
+        print(paste0(firstHgCol[[emptyGRangesIndicies[i], 1]], " at index ", emptyGRangesIndicies[i]))
+        suppressWarnings(results[emptyGRangesIndicies[i]] <- GRangesList(GRanges(c("NA"),c("1-1"),c("*")))) # default dummy GRanges to be replaced later
       }
     }
+    # make GRanges with multiple ranges have only their first range
+    multiRangeIndecies <- which(lengths(results) > 1)
+    if (length(multiRangeIndecies) > 0) {
+      print(paste0("WARNING: the following position maps to more than one position from ", firstHgName, " to ", secondHgStr, ": removing all but one"))
+      for (i in 1:length(multiRangeIndecies)) {
+        print(paste0(firstHgCol[[multiRangeIndecies[i], 1]], " at index ", multiRangeIndecies[i]))
+        results[multiRangeIndecies[i]] <- GRangesList(GRanges(c("NA"),c("1-1"),c("*"))) # default dummy GRanges to be replaced later
+      }
+    }
+
+    # the as_tibble function puts out a warning message that isn't important, so suppressWarnings is used
+    secondHgTibble <- suppressWarnings(as_tibble(results)) %>%
+      unite(!!(secondHgStr), seqnames:start, sep = ":") %>%
+      mutate_if(is.character, str_replace_all, pattern = "NA:1", replacement = "NA") # replaces default dummy GRanges row with NA
+    secondHgTibble <- mutate(secondHgTibble, !!(secondHgStr) := str_extract(secondHgTibble[[3]], "\\d+:\\d+")) %>%
+      dplyr::select(!!(secondHgStr))
     return(secondHgTibble[[1]])
   }
 
@@ -245,12 +252,13 @@ if (is_ebi_reachable()) {
   
   addPosColumns <- function(associationsTable) {
     # if any positions are missing from hg38, use myvariant to get hg19, then get hg38, else get hg19
-    unknownSNPPosIDs <- unique(studyData[is.na(studyData$hg38),]["variant_id"]) # get the unknown pos SNP IDs
+    unknownSNPPosIDs <- unique(associationsTable[is.na(associationsTable$hg38),]["snp"]) # get the unknown pos SNP IDs
     if (nrow(unknownSNPPosIDs) > 0) {
       # get the positions of SNPs that don't have their positions listed in the GWAS catalog
       unknownSNPPosObjs <- suppressWarnings(getVariants(unknownSNPPosIDs)) # get the SNP info objects using myvariant (it gets hg19 positions)
-      snpPosTable <- tibble(snp = unknownSNPPosObjs@listData[["dbsnp.rsid"]], hg19 = paste0(unknownSNPPosObjs@listData[["dbsnp.chrom"]], ":", unknownSNPPosObjs@listData[["dbsnp.hg19.start"]]))
+      snpPosTable <- tibble(snp = unknownSNPPosObjs@listData[["query"]], hg19 = paste0(unknownSNPPosObjs@listData[["dbsnp.chrom"]], ":", unknownSNPPosObjs@listData[["dbsnp.hg19.start"]]))
       snpPosTable <- snpPosTable[!duplicated(snpPosTable), ] # remove duplicate SNPs from snpPosTable
+      snpPosTable <- filter(snpPosTable, !startsWith(hg19, "X")&!startsWith(hg19, "Y")&!(hg19 == "NA:NA")) # remove any snps starting with X or Y or snps that are not in myvariant ("NA:NA")
       snpPosTable <- add_column(snpPosTable, hg38 = hgToHg(snpPosTable["hg19"], "hg38"), .after = "snp") # get hg38 from hg19
       associationsTable <- left_join(associationsTable, snpPosTable, by = "snp") %>% # fill in the new hg38 positions for the associations table
         mutate(hg38 = coalesce(hg38.x, hg38.y)) %>%
@@ -317,14 +325,19 @@ if (is_ebi_reachable()) {
         appendToAssociationsTable(associationsTable)
         appendToLastUpdatedTable(lastUpdatedTibble)
         # reset the associationsTable and lastUpdatedTibble and keep going
-        associationsTable <<- tibble()
-        lastUpdatedTibble <<- tibble(studyID = character(), lastUpdated = character())
         indecesAppendedStr <<- paste(studyIndeciesAppended,collapse=",")
         DevPrint(paste0("Appended studies to output file: ", indecesAppendedStr, " of ", stopIndex))
-        studyIndeciesAppended <<- c()
+        resetTablesAndIndiciesAppended()
       }
       DevPrint(paste0("Time elapsed: ", format(Sys.time() - start_time)))
     }
+  }
+  
+  resetTablesAndIndiciesAppended <- function() {
+    # reset the associationsTable and lastUpdatedTibble and keep going
+    associationsTable <<- tibble()
+    lastUpdatedTibble <<- tibble(studyID = character(), lastUpdated = character())
+    studyIndeciesAppended <<- c()
   }
   
   # skips the current SNP, but checks to see if previous data should be added to the associations table
@@ -334,12 +347,16 @@ if (is_ebi_reachable()) {
   }
 
   # if the data object does not have enough SNPs, prints and returns NULL
-  checkIfValidDataObj <- function(dataObj) {
-    if (nrow(dataObj) < minNumStudyAssociations) {
+  checkIfValidDataObj <- function(dataObj, message = "") {
+    if (nrow(dataObj) == 0 || nrow(dataObj) < minNumStudyAssociations) {
       # get the name of the variable passed into the function
       dataObjName <- deparse(substitute(dataObj))
       invalidStudies <<- c(invalidStudies, studyID)
-      DevPrint(paste0("    Not enough valid ", dataObjName, " info for ", citation))
+      if (message == "") {
+        DevPrint(paste0("    Not enough valid ", dataObjName, " info for ", citation))
+      } else {
+        DevPrint(message)
+      }
       return(nextWithAppendCheck())
     }
     return("good")
@@ -402,11 +419,11 @@ if (is_ebi_reachable()) {
       betaNum <- betaNumbers[[i]]
       if (!is.na(betaNum)) {
         betaDirect <- betaDirections[[i]]
-        if (betaDirect == "decrease") {
+        if (!is.na(betaDirect) & betaDirect == "decrease") {
           betas <- c(betas, betaNum * -1) # add a "-" if the direction is a decrease
         }
         else {
-          betas <- c(betas, betaNum) # append the beta number if the direction is an increase
+          betas <- c(betas, betaNum) # append the beta number if the direction is an increase or NA
         }
       }
       else {
@@ -591,17 +608,42 @@ if (is_ebi_reachable()) {
         mutate(unique_beta_units = n_distinct(tolower(beta_unit))) %>% # create column counting number of unique beta units per group
         filter(unique_beta_units==1) %>% # remove all groups with more than 1 unique beta unit
         dplyr::select(-unique_beta_units) # remove the unique beta units column
-
-      # check if studyData has enough snps
-      if (is.null(checkIfValidDataObj(studyData))) {next}
       
-      studyData <- ungroup(studyData)
+      # resolve snps that have differences in rounding which leads to duplicates
+      studyData <- studyData %>%
+        mutate(rounded_beta = floor(betaValue) + signif(betaValue - floor(betaValue), 2)) %>% # create a rounded betaValue column for comparing (2 sig figs after the decimal)
+        mutate(rounded_odds = floor(or_per_copy_number) + signif(or_per_copy_number - floor(or_per_copy_number), 2)) %>% # create a rounded oddsRatio column for comparing (2 sig figs after the decimal)
+        group_by(variant_id, risk_allele, pvalue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, rounded_beta, rounded_odds) %>%
+        mutate(num_rounded_repeated_snps = dplyr::n()) %>%
+        ungroup() %>%
+        group_by(variant_id, risk_allele, pvalue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, betaValue, or_per_copy_number) %>%
+        mutate(num_repeated_snps = dplyr::n()) %>%
+        ungroup() %>%
+        mutate(or_per_copy_number = ifelse(num_rounded_repeated_snps > 1 & num_repeated_snps == 1, rounded_odds, or_per_copy_number)) %>%
+        mutate(betaValue = ifelse(num_rounded_repeated_snps > 1 & num_repeated_snps == 1, rounded_beta, betaValue)) %>%
+        distinct(variant_id, risk_allele, pvalue, trait, pvalue_description, beta_description, beta_unit, ogValueTypes, studyID, betaValue, or_per_copy_number, .keep_all = TRUE) %>%
+        dplyr::select(-rounded_beta, -rounded_odds, -num_repeated_snps, -num_rounded_repeated_snps) # remove the rounded columns and repeated_snps columns
+      
+      # remove the studies with snps that we can't resolve
+      studyData <- studyData %>%
+        group_by(variant_id, risk_allele, trait, pvalue_description, beta_description, ogValueTypes, studyID) %>%
+        mutate(num_repeated_snps = dplyr::n()) %>%
+        ungroup()
+      if (nrow(filter(studyData, num_repeated_snps>1)) > 0) {
+        studyData <- tibble()
+      }
+      
+      # check if studyData has enough snps
+      if (is.null(checkIfValidDataObj(studyData, paste0("    Study skipped due to unresolved duplicate SNPs: ", citation)))) {next}
+      
       # calculate the total number of SNPS that have been filtered out for the study and add it as a column      
       numFinalAssociations <- length(studyData[["variant_id"]])
       numAssociationsFiltered <- numTotalAssociations - numFinalAssociations
       studyData <- add_column(studyData, numAssociationsFiltered = numAssociationsFiltered, .after = "sex")
 
       associationsTable <- bind_rows(studyData, associationsTable)
+      studyData <- tibble()
+      
       
       # add lastUpdated to tibble
       lastUpdatedTibble <- add_row(lastUpdatedTibble, studyID = studyID, lastUpdated = as.character(max(as.Date(associationsTable$last_update_date))))
@@ -609,7 +651,14 @@ if (is_ebi_reachable()) {
       studyIndeciesAppended <- c(studyIndeciesAppended, i)
       
       # for every 10 studies, append to the associations_table.tsv
-      appendWithCheck()
+      tryCatch({
+        appendWithCheck()
+      }, error=function(e){
+        cat("ERROR:",conditionMessage(e), "\n")
+        # resets the associationsTable and other tables if there is an error in the tables of the last 10 studies so the error does not perpetuate
+        resetTablesAndIndiciesAppended()
+        DevPrint(paste0("Tables reset due to error for studies indecies ", i-10, "-", i))
+      })
     }, error=function(e){
       cat("ERROR:",conditionMessage(e), "\n")
       if (conditionMessage(e) == "cannot open the connection") {

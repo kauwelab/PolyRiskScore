@@ -37,31 +37,31 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJso
         for snp in txtObj:
             if snp in snpSet:
                 nonMissingSnps += 1
-                riskAllele = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['riskAllele']
-                units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnit']
-                # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
-                snpBeta = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['oddsRatio'])
-                # Also iterate through each of the alleles
-                for allele in txtObj[snp]:
-                    # Then compare to the gwa study
-                    if allele != "":
-                        if allele == riskAllele:
-                            betas.append(snpBeta)
-                            betaUnits.add(units)
-                            if snpBeta < 0:
-                                protectiveVariants.add(snp)
-                            elif snpBeta > 0:
-                                riskVariants.add(snp)
-                        elif allele == "." :
-                            mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict and riskAllele in mafDict[snp]["alleles"] else 0
-                            betas.append(snpBeta*mafVal)
-                            betaUnits.add(units)
-                            if snpBeta < 0:
-                                protectiveVariants.add(snp)
-                            elif snpBeta > 0:
-                                riskVariants.add(snp)
-                        else:
-                            unmatchedAlleleVariants.add(snp)
+                for riskAllele in tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]:
+                    units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
+                    # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
+                    snpBeta = tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['oddsRatio'])
+                    # Also iterate through each of the alleles
+                    for allele in txtObj[snp]:
+                        # Then compare to the gwa study
+                        if allele != "":
+                            if allele == riskAllele:
+                                betas.append(snpBeta)
+                                betaUnits.add(units)
+                                if snpBeta < 0:
+                                    protectiveVariants.add(snp)
+                                elif snpBeta > 0:
+                                    riskVariants.add(snp)
+                            elif allele == "." :
+                                mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict and riskAllele in mafDict[snp]["alleles"] else 0
+                                betas.append(snpBeta*mafVal)
+                                betaUnits.add(units)
+                                if snpBeta < 0:
+                                    protectiveVariants.add(snp)
+                                elif snpBeta > 0:
+                                    riskVariants.add(snp)
+                            else:
+                                unmatchedAlleleVariants.add(snp)
 
         if len(betaUnits) > 1:
             lowercaseB = [x.lower() for x in betaUnits]
@@ -156,31 +156,32 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJso
                     # check if the snp is in this trait/study
                     if rsID in snpSet:
                         nonMissingSnps += 1
-                        riskAllele = tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['riskAllele']
-                        units = tableObjDict['associations'][rsID]["traits"][trait][studyID][pValBetaAnnoValType]['betaUnit']
-                        alleles = vcfObj[samp][rsID]
-                        if alleles != "" and alleles is not None:
-                            snpBeta = tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]['oddsRatio'])
-                            for allele in alleles:
-                                allele = str(allele)
-                                if allele != "":
-                                    betaUnits.add(units)
-                                    # check if the risk allele matches one of the sample's alleles for this SNP
-                                    if allele == riskAllele:
-                                        betas.append(snpBeta) # add the odds ratio to the list of odds ratios used to calculate the score
-                                        if snpBeta < 0:
-                                            protectiveVariants.add(rsID)
-                                        elif snpBeta > 0:
-                                            riskVariants.add(rsID)
-                                    elif allele == ".":
-                                        mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict and riskAllele in mafDict[rsID]["alleles"] else 0
-                                        betas.append(snpBeta*mafVal)
-                                        if snpBeta < 0:
-                                            protectiveVariants.add(rsID)
-                                        elif snpBeta > 0:
-                                            riskVariants.add(rsID)
-                                    else:
-                                        unmatchedAlleleVariants.add(rsID)
+                        for riskAllele in tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]:
+                            units = tableObjDict['associations'][rsID]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
+                            alleles = vcfObj[samp][rsID]
+                            if alleles != "" and alleles is not None:
+                                snpBeta = tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['betaValue'] if valueType == "beta" else math.log(tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]['oddsRatio'])
+                                for allele in alleles:
+                                    allele = str(allele)
+                                    if allele != "":
+                                        betaUnits.add(units)
+                                        # check if the risk allele matches one of the sample's alleles for this SNP
+                                        if allele == riskAllele:
+                                            betas.append(snpBeta) # add the odds ratio to the list of odds ratios used to calculate the score
+                                            if snpBeta < 0:
+                                                protectiveVariants.add(rsID)
+                                            elif snpBeta > 0:
+                                                riskVariants.add(rsID)
+                                        elif allele == ".":
+                                            mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict and riskAllele in mafDict[rsID]["alleles"] else 0
+                                            betas.append(snpBeta*mafVal)
+                                            betaUnits.add(units)
+                                            if snpBeta < 0:
+                                                protectiveVariants.add(rsID)
+                                            elif snpBeta > 0:
+                                                riskVariants.add(rsID)
+                                        else:
+                                            unmatchedAlleleVariants.add(rsID)
 
             if len(betaUnits) > 1:
                 lowercaseB = [x.lower() for x in betaUnits]
