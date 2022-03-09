@@ -188,7 +188,7 @@ Additonal Optional Parameters
 These additional parameters manage calculation details and may only be specified once per calculation.
 
 Verbose (-v)
-"""""""""""""
+""""""""""""
 Creates a more detailed TSV result file. 
 The verbose output file will include the following for each corresponding sample, study, and trait combination: 
 
@@ -232,7 +232,7 @@ This parameter determines the number of subprocesses used by the Python multipro
    -n 4
 
 User GWAS upload file (-u)
-"""""""""""""""""""""""""""
+""""""""""""""""""""""""""
 
 This parameter allows the user to upload a GWAS summary statistics file to be used in polygenic risk score calculations instead of GWAS Catalog data stored in our database. The file must be tab separated, use a .tsv or .txt extension (or be a zipped file with one of those extensions), and have the correct columns in order for calculations to occur. (see Uploading GWAS Summary Statistics for more directions on uploading GWAS data)
 
@@ -241,7 +241,7 @@ This parameter allows the user to upload a GWAS summary statistics file to be us
    -u path/to/file/GWASsummaryStatistics.tsv
 
 GWAS reference genome (-a)
-"""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""
 
 Specifies the reference genome of the GWAS summary statistics data. If left off when a GWAS file is uploaded, the reference genome is assumed to be the same as the samples reference genome (-r).
 
@@ -261,26 +261,37 @@ This flag indicates that the uploaded GWAS file uses beta values instead of odds
 Minor allele frequency cohort (-q)
 """"""""""""""""""""""""""""""""""
 
-This parameter specifies the cohort to use for minor allele frequecies. The default is the Uk Biobank. Available options are:
+This parameter specifies the cohort to use for minor allele frequecies and the cohort to use for reporting percentile rank. The default is the Uk Biobank. Available options are:
+
 * UKBB
+* ADNI-AD
+* ADNI-MCI
+* ADNI-CN
 * AFR
 * AMR
 * EAS
 * EUR
 * SAS
-* ADNI-AD
 
+To use the minor allele frequencies from the user vcf, use -q user. Note that this option will not report percentile rank.
 
 .. code-block:: bash
 
    -q adni-ad
 
+Individual-specific LD clumping (-l)
+""""""""""""""""""""""""""""""""""""
+
+To perform linkage disequilibrium clumping on an individual level, include the -l parameter. By default, LD clumping is performed on a sample-wide basis, where the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study. This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons since each risk score is calculated using the same variants. In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation by only looking at the individual's variants that have a corresponding risk allele (or, in the absence of a risk allele, an imputed unknown allele) in the GWA study. The benefit to this type of LD clumping is that it allows for a greater number of risk alleles to be included in each individual's polygenic risk score.
+
+.. code-block:: bash
+
+   -l
+
 Calculate Scores
 ----------------
 
 Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in the database for each individual in the input file. Additional parameters will filter studies to be included in the calculation. 
-
-Some trait/study combination have multiple odds ratios and p-values for the same SNP. This could be due to many reasons, including differences in association between males and females. By default, we exclude all SNPs that have multiple odds ratios/p-values from calculations or are reported for only a single sex. Users are given the option to add in SNP associations that are annotated for males or females. Studies where snps have been excluded for these reasons are denoted by a † symbol. 
 
 Uploading GWAS Summary Statistics
 =================================
@@ -290,11 +301,13 @@ In addition to calculating polygenic risk scores using GWA studies from the GWAS
 Format
 ------
 
-The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the **-b** flag is present, then instead of an Odds Ratio column, the user should include a Beta Coefficient column and a Beta unit column. Additional optional columns that will be included if present are: P-value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
 
-If more than one odds ratio exists for an rsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used.
 
-*NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.*
+If more than one odds ratio exists for an RsID in a study/trait combination, the program will notify the user and stop running. To avoid this, please ensure that you do not have any duplicated snps.
+
+
+*NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, -y, and -g will be ignored.*
 
 Columns
 -------
@@ -311,13 +324,17 @@ Required Columns
 5. **Position** - The position of the SNP in the reference genome.
 6. **Risk Allele** - The allele that confers risk or protection.
 7. **Odds Ratio** - Computed in the GWA study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.
-8. **P-value** - The probability that the risk allele confers the amount of risk stated.
+8. **Beta Coefficient** - Computed in the GWAS study, a numerical value that indicates the increase or decrease in the genetic risk per unit.
+9. **Beta Unit** - The units associated with the beta coefficient. e.g. cm, beats per min.
+10. **P-value** - The probability that the risk allele confers the amount of risk stated.
 
 Optional Columns
 ^^^^^^^^^^^^^^^^^
 
-1. **Citation** - The citation information for the study.
-2. **Reported Trait** - Trait description for this study in the authors own words.
+1. **P-Value Annotation** - Provides additional information for the p-value, i.e. if the p-value computed only included women.
+2. **Beta Annotation** - Provides additional information for the beta value.
+3. **Citation** - The citation information for the study.
+4. **Reported Trait** - Trait description for this study in the authors own words.
 
 
 Examples
@@ -368,6 +385,20 @@ Run the calculator using uploaded GWAS summary statistics:
    ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv -a hg17
    ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv
 
+Run the calculator using uploaded GWAS summary statistics with beta values:
+
+.. code-block:: bash
+
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv -a hg17 -b
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv -b
+
+Run the calculator specifying the minor allele frequency cohort:
+
+.. code-block:: bash
+
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p EAS -q adni-ad
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p EAS -q EAS
+
 More examples can be found in the CLI download README.md
 
 Output Results
@@ -380,7 +411,7 @@ Condensed
 
 This version of the output results contains one row for each study with columns for each sample's polygenic risk score. 
 
-Study ID | Citation | Reported Trait | Trait(s) | Sample1 | Sample2 | Sample3 | ect. 
+Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect. 
 
 .. code-block:: bash
 
@@ -391,7 +422,7 @@ Full
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Citation | Reported Trait | Traits(s) | Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
+Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | Total SNPs | Used Super Population | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
