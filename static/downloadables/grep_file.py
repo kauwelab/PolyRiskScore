@@ -148,7 +148,6 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valu
     return traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes
 
 def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload):
-    # txt_file = openFileForParsing(inputFiles)
     filteredOutput = open(filteredFilePath, 'w')
     # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
     inputInFilters = False
