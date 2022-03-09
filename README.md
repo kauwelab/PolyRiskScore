@@ -1,22 +1,20 @@
 # PRSKB
 
-The Polygenic Risk Score Knowledge Base (PRSKB) is a website and command-line interface tool designed to facilitate the calculation of polygenic risk scores using genome-wide association studies from the [NHGRI-EBI Catalog](https://www.ebi.ac.uk/gwas). 
+The Polygenic Risk Score Knowledge Base (PRSKB) is a website and command-line interface tool designed to facilitate the calculation of polygenic risk scores using genome-wide association studies from the [NHGRI-EBI Catalog](https://www.ebi.ac.uk/gwas).
 
 ## Website
 
-The PRSKB website offers users the ability to calculate polygenic risk scores across multiple traits with minimal effort. The website not only offers the calculator, but additional information and tools to aid in calculations and data comparisons. 
+The PRSKB website offers users the ability to calculate polygenic risk scores across multiple traits with minimal effort. The website not only offers the calculator, but additional information and tools to aid in calculations and data comparisons.
 
 Website Link: [https://prs.byu.edu](https://prs.byu.edu)
 
 ### Calculate
-The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across more than 2100 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, p-value cutoff, and selected studies, polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file. 
-
-Some trait/study combination have multiple odds ratios and p-values for the same SNP. This could be due to many reasons, including differences in association between males and females. By default, we exclude all SNPs that have multiple odds ratios/p-values from calculations or are reported for only a single sex. Users are given the option to add in SNP associations that are annotated for males or females. Studies where SNPs have been excluded for these reasons are denoted by a † symbol. 
+The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across more than 2100 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, p-value cutoff, and selected studies, polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file.
 
 #### Uploading GWAS Summary Statistic Data
 In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations. 
 
-The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the summary statistics use beta values instead of odds ratios, replace the Odds Ratio column with Beta Coefficients and Beta Units. Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
 
 If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used. Additonally, although we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, *we do not currently perform strand flipping on GWAS data uploaded to the website.* Please ensure that your data is presented on the correct strand.
 
