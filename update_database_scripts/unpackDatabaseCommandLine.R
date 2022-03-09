@@ -197,24 +197,30 @@ if (is_ebi_reachable()) {
       print(paste("ERROR! First hg is", firstHgName, "and second hg is", secondHgStr))
     }
     results <- liftOver(grs, hgChain)
-      # the as_tibble function puts out a warning message that isn't important, so suppressWarnings is used
-    secondHgTibble <- suppressWarnings(as_tibble(results)) %>%
-      unite(!!(secondHgStr), seqnames:start, sep = ":")
-    secondHgTibble <- mutate(secondHgTibble, !!(secondHgStr) := str_extract(secondHgTibble[[3]], "\\d+:\\d+")) %>%
-      dplyr::select(!!(secondHgStr))
-    
-    #TODO there has to be a better way to do this... can the as_tibble function keep empty GRanges?
-    # fills in rows that weren't able to be converted 
-    failedIndecies <- which(as.numeric(results@partitioning) %in% NA)
-    if (length(failedIndecies) > 0) {
+    # go through each result and make sure empty GRanges are not empty (so they persist after as_tibble) and GRanges with multiple ranges are left with only one range
+    emptyGRangesIndicies <- which(!lengths(results))
+    if (length(emptyGRangesIndicies) > 0) {
       print(paste0("WARNING: failed to convert the following positions from ", firstHgName, " to ", secondHgStr))
-      for (i in 1:length(failedIndecies)) {
-        print(paste0(firstHgCol[[failedIndecies[i], 1]], " at index ", failedIndecies[i]))
-      }
-      for (i in 1:length(failedIndecies)) {
-        secondHgTibble <- add_row(secondHgTibble, .before=failedIndecies[i])
+      for (i in 1:length(emptyGRangesIndicies)) {
+        print(paste0(firstHgCol[[emptyGRangesIndicies[i], 1]], " at index ", emptyGRangesIndicies[i]))
+        suppressWarnings(results[emptyGRangesIndicies[i]] <- GRangesList(GRanges(c("NA"),c("1-1"),c("*")))) # default dummy GRanges to be replaced later
       }
     }
+    multiRangeIndecies <- which(lengths(results) > 1)
+    if (length(multiRangeIndecies) > 0) {
+      print(paste0("WARNING: the following position maps to more than one position from ", firstHgName, " to ", secondHgStr, ": removing all but one"))
+      for (i in 1:length(multiRangeIndecies)) {
+        print(paste0(firstHgCol[[multiRangeIndecies[i], 1]], " at index ", multiRangeIndecies[i]))
+        results[multiRangeIndecies[i]] <- GRangesList(GRanges(c("NA"),c("1-1"),c("*"))) # default dummy GRanges to be replaced later
+      }
+    }
+
+    # the as_tibble function puts out a warning message that isn't important, so suppressWarnings is used
+    secondHgTibble <- suppressWarnings(as_tibble(results)) %>%
+      unite(!!(secondHgStr), seqnames:start, sep = ":") %>%
+      mutate_if(is.character, str_replace_all, pattern = "NA:1", replacement = "NA") # replaces default dummy GRanges row with NA
+    secondHgTibble <- mutate(secondHgTibble, !!(secondHgStr) := str_extract(secondHgTibble[[3]], "\\d+:\\d+")) %>%
+      dplyr::select(!!(secondHgStr))
     return(secondHgTibble[[1]])
   }
 
@@ -251,6 +257,7 @@ if (is_ebi_reachable()) {
       unknownSNPPosObjs <- suppressWarnings(getVariants(unknownSNPPosIDs)) # get the SNP info objects using myvariant (it gets hg19 positions)
       snpPosTable <- tibble(snp = unknownSNPPosObjs@listData[["query"]], hg19 = paste0(unknownSNPPosObjs@listData[["dbsnp.chrom"]], ":", unknownSNPPosObjs@listData[["dbsnp.hg19.start"]]))
       snpPosTable <- snpPosTable[!duplicated(snpPosTable), ] # remove duplicate SNPs from snpPosTable
+      snpPosTable <- filter(snpPosTable, !startsWith(hg19, "X")&!startsWith(hg19, "Y")&!(hg19 == "NA:NA")) # remove any snps starting with X or Y or snps that are not in myvariant ("NA:NA")
       snpPosTable <- add_column(snpPosTable, hg38 = hgToHg(snpPosTable["hg19"], "hg38"), .after = "snp") # get hg38 from hg19
       associationsTable <- left_join(associationsTable, snpPosTable, by = "snp") %>% # fill in the new hg38 positions for the associations table
         mutate(hg38 = coalesce(hg38.x, hg38.y)) %>%
