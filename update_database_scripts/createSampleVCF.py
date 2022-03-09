@@ -68,6 +68,8 @@ f.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMP001\tSAMP002
 for i in range(len(snpsData)):
     snp = snpsData[i]['snp']
     ref = snpRefAlleleDict[snp]['ref']
+    if ref == ".":
+        break
     if snpsData[i]['riskAllele'] == ref[0] and snpRefAlleleDict[snp]['alt'] != "":
         alt = snpRefAlleleDict[snp]['alt']
     else: 
@@ -75,7 +77,6 @@ for i in range(len(snpsData)):
     hg19 = snpsData[i].pop('hg19')
     if (hg19 != "NA"):
         chrom, pos = hg19.split(":")
-        print("here0", chrom, pos, snp, ref, alt)
         f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
     elif snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "" and snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "NA":
         chrom = snpRefAlleleDict[snpsData[i]['snp']]['chrom']
