@@ -216,7 +216,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                         'units (if applicable)': studyUnits,
                         'snpOverlap': snpOverlap,
                         'totalSnps': totalSnps,
-                        'UsedSuperPop': preferredPop
+                        'usedSuperPop': preferredPop
                     })
 
                 # add the sample score and variant information

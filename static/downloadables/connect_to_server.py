@@ -676,7 +676,6 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
 def runStrandFlipping(snp, allele):
     import myvariant
     from Bio.Seq import Seq
-    #TODO: there's a warning about the usage of seq
 
     mv = myvariant.MyVariantInfo()
 
@@ -694,7 +693,6 @@ def runStrandFlipping(snp, allele):
 def getPossibleAlleles(snpsFromAssociations):
     import myvariant
     from Bio.Seq import Seq
-    #TODO: there's a warning about the usage of seq
 
     mv = myvariant.MyVariantInfo()
     snpsToPossibleAlleles = {}
