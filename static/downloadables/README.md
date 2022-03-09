@@ -43,8 +43,14 @@ To run the risk score calculator from the command-line, you should pass the requ
 
 #### Using a VCF with required parameters
 ```bash
-./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
+./runPrsCLI.sh -f 'inputFiles_chr*.vcf' -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ```
+
+#### Using multiple VCFs separated by chromosomes with required parameters
+```bash
+./runPrsCLI.sh -f 'inputFiles_chr*.vcf' -o outputFile.tsv -r hg19 -c 0.05 -p EUR
+```
+*NOTE: For this option, you must use bash expansion and enclose the file path in either single (') or double (") quotes*
 
 #### Using a TXT with required parameters
 ```bash
@@ -65,11 +71,11 @@ Below is a breakdown and explanation of all the parameters that can be used with
 
 These parameters must be present in order for the PRSKB CLI tool to run calculations. If any of these are missing, the tool will give you the option of printing out the usage statement or starting the interactive menu.
 
-* **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on [Using a TXT with required parameters](#using-a-txt-with-required-parameters) for the format of the txt file) or a zipped VCF or TXT file. 
+* **-f inputFilePath** -- The location of the file to calculate polygenic risk scores for. Can be a VCF or a TXT file (see note on [Using a TXT with required parameters](#using-a-txt-with-required-parameters) for the format of the txt file) or a zipped VCF or TXT file. Additionally, you can use bash expansion to select multiple vcf files separated by chromosome (see note on [Using multiple VCFs separated by chromosomes with required parameters](#using-multiple-vcfs-separated-by-chromosomes-with-required-parameters) for information on this option)
 * **-o outputFilePath** -- The location where the output file should be created. Must be either a TSV or a JSON file.
 * **-r refGen** -- The reference genome used to sequence the variants in the input file. Acceptable values are **hg17**, **hg18**, **hg19**, and **hg38**.
 * **-c pValueCutoff** -- The p-value cutoff for SNPs that will be included. Any SNP that has a p-value greater than the cutoff will not be considered for calculation.
-* **-p superPopulation** -- The super population of the samples in the input file. This parameter is used for performing linkage-disequilibrium clumping. Acceptable values are **AFR**, **AMR**, **EAS**, **EUR**, and **SAS**.
+* **-p superPopulation** -- The super population preferred for Linkage-Disequilibrium calculations. Acceptable values are **AFR**, **AMR**, **EAS**, **EUR**, and **SAS**.
 
 ### Optional Filtering Parameters 
 
@@ -79,18 +85,21 @@ In addition to running calculations on all the study/trait combinations in our d
 * **-k studyType** -- Adding study types will filter out all studies except those labeled as the desired study type (see note on studyID). Acceptable values are **HI** (High Impact), **LC** (Large Cohort), and **O** (Other).
 * **-i studyID** -- Adding a GWAS Catalog Study Accession number (study ID) will ensure that the study corresponding to the study ID given will have polygenic risk scores calculated for it. *NOTE: The study ID filter is not affected by other filters and the calculator will run for the study corresponding to the study ID given, notwithstanding the presence of other filters.*
 * **-e ethnicity** -- Adding an ethnicity filter will restrict risk score calculations to those studies that report the given ethnicity in either their discovery sample ancestry or their replication sample ancestry (see note on studyID).
+* **-y value type** -- Adding a value type will filter out studies that are not of the indicated value type. Approved values are **beta** or  **'odds ratio'**.
+* **-g sex** -- This parameter will allow the user to filter studies by the sex associated with the studies. Use **F** or **Female**, **M** or **Male**, or **E** or **Exclude** (if you wish to have only studies without sex associations).
 
 Traits and studies available through this tool can be searched from the PRSKB CLI interactive menu using the *Search for a specific study or trait* option. A list of ethnicities from the server can be printed using the *View available ethnicities for filter* menu option. 
 
 ### Additional Optional Parameters
 
 * **-v verbose result file** -- Adding the **-v** parameter will return the output file in a 'verbose' format, which includes a line for each sample/study/trait combination. Additional columns are added that display lists of protective variants, risk variants, variants that are present but do not include the risk allele, and variants that are in high linkage disequilibrium whose odds ratios are not included in the calculations. *NOTE: This only applies to TSV output files. JSON output files are always 'verbose'.*
-* **-g sex dependent associations** -- This parameter will indicate the sex of the samples in the input file. Though a rare occurence, some studies have duplicates of the same SNP that differ by which biological sex the p-value and odds ratio is associated with or SNPs that are not duplicated, but are dependent on biological sex. The system default is to exclude sex dependent SNPs from calculations. You can include sex dependent associations by selecting either male (M) or female (F).
 * **-s stepNumber** -- The calculator can be run in two steps. The first step deals with downloading necessary information for calculations from our server. The second step is responsible for performing the actual calculations and does not require an internet connection. Running the tool without a specified step number will run both steps sequentially. 
 * **-n numberOfSubprocesses** -- The calculations for each trait/study can be run using multiprocessing. Users can designate the number of subprocesses used by the multiprocessing module. If no value is given, all available cores will be used.
-* **-m omitUnusedStudiesFile** -- Prevents the creation of the additional output file that lists the trait/study combinations that produced no risk score due to the absence of the study's SNPs in the samples vcf/txt file. 
 * **-u userGWASUploadFile** -- This parameter allows the user to upload a GWAS summary statistics file to be used in polygenic risk score calculations instead of GWAS Catalog data stored in our database. The file must be tab separated, use a .tsv or .txt extension (or be a zipped file with one of those extensions), and have the correct columns in order for calculations to occur. See [Uploading GWAS Summary Statistics](#uploading-gwas-summary-statistics) for more directions on uploading GWAS data. 
-* **-a GWASrefGen** -- Indicates the reference genome of the GWAS data. If this parameter is not included, it is assumed that the reference genome for the GWAS data is the same as the samples. 
+* **-a GWASrefGen** -- Indicates the reference genome of the GWAS data. If this parameter is not included, it is assumed that the reference genome for the GWAS data is the same as the samples.
+* **-b GWAS uses beta values** -- **-b** Indicates that the values in the uploaded GWAS file are beta values
+* **-q minor allele frequency cohort** -- This parameter allows the user to select the cohort to use for minor allele frequencies and also indicates the cohort to use for reporting percentile rank. Available options are: **ukbb** (Uk Biobank), **adni-ad** (ADNI Alzheimer's disease), **adni-mci** (ADNI Mild cognitive impairment), **adni-cn** (ADNI Cognitively normal), **afr** (1000 Genomes African), **amr** (1000 Genomes American), **eas** (1000 Genomes East Asian), **eur** (1000 Genomes European), and **sas** (1000 Genomes South Asian)
+* **-l individual-specific LD clumping** -- To perform linkage disequilibrium clumping on an individual level, include the -l flag. By default, LD clumping is performed on a sample-wide basis, where the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study. This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons since each risk score is calculated using the same variants. In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation by only looking at the individual's variants that have a corresponding risk allele (or, in the absence of a risk allele, an imputed unknown allele) in the GWA study. The benefit to this type of LD clumping is that it allows for a greater number of risk alleles to be included in each individual's polygenic risk score.
 
 ## Uploading GWAS Summary Statistics
 
@@ -98,11 +107,11 @@ In addition to calculating polygenic risk scores using GWA studies from the GWAS
 
 ### Format
 
-The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. 
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the summary statistics use beta values instead of odds ratios, replace the Odds Ratio column with Beta Coefficients and Beta Units. Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
 
-If more than one odds ratio exists for an RsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used.
+If more than one odds ratio exists for an RsID/allele combination in a study, tool will exit.
 
-*NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.*
+*NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, -y, and -g will be ignored.*
 
 ### Columns
 
@@ -117,12 +126,16 @@ Below is a brief overview of the required and optional columns for uploading GWA
 5. Position - The position of the SNP in the reference genome.
 6. Risk Allele - The allele that confers risk or protection.
 7. Odds Ratio - Computed in the GWA study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.
-8. P-value - The probability that the risk allele confers the amount of risk stated.
+8. Beta Coefficient - Computed in the GWAS study, a numerical value that indicates the increase or decrease in the genetic risk per unit.
+9. Beta Unit - The units associated with the beta coefficient. e.g. cm, beats per min.
+10. P-value - The probability that the risk allele confers the amount of risk stated.
 
 #### Optional Columns
 
-1. Citation - The citation information for the study.
-2. Reported Trait - Trait description for this study in the authors own words.
+1. P-Value Annotation - Provides additional information for the p-value, i.e. if the p-value computed only included women.
+2. Beta Annotation - Provides additional information for the beta value.
+3. Citation - The citation information for the study.
+4. Reported Trait - Trait description for this study in the authors own words.
 
 ## Examples
 
@@ -168,7 +181,7 @@ Below is a brief overview of the required and optional columns for uploading GWA
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -v
 ```
 
-#### Specifying a Default Sex
+#### Filtering By Sex
 ```bash
 # runs the calculator specifying Male as the default sex
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -g Male
@@ -196,8 +209,8 @@ Below is a brief overview of the required and optional columns for uploading GWA
 
 #### Using All Filter Types
 ```bash
-# runs the calculator on studies with the trait "Alzheimer's Disease", European ethnicty, and are High Impact, and the study corresponding to the studyID GCST000001
-./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t "Alzheimer's Disease" -e European -k HI -i GCST000001
+# runs the calculator on studies with the trait "Alzheimer's Disease", European ethnicty, are High Impact and are not associated with any specific sex, and the study corresponding to the studyID GCST000001
+./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t "Alzheimer's Disease" -e European -k HI -i GCST000001 -g exclude
 ```
 
 #### Additional Step Number Example
@@ -270,6 +283,8 @@ For each study/trait, we create an additional temporary file that includes only 
 * **{t}\_{s}\_{uniq}.txt** -- where 't' referes to the trait, 's' refers to the study, and 'uniq' is a uniqe timestamp for the particular user. 
 
 Each filtered file is removed before the program finishes.
+
+#TODO add in MAF, possibleAlleles, Percentiles, ect
 
 
 

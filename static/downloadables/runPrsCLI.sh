@@ -334,8 +334,7 @@ learnAboutParameters () {
                 echo "" ;;
             17 ) echo -e "${MYSTERYCOLOR} -b beta values used for uploaded GWAS data: ${NC}"
                 echo "This flag indicates that beta coefficents were used in the uploaded GWAS data" 
-                echo "file instead of odds ratios. The beta values will first be converted to odds ratios and then"
-                echo "those values will be used to calculate polygenic risk scores."
+                echo "file instead of odds ratios."
                 echo "" ;;
             18 ) echo -e "${MYSTERYCOLOR} -q minor allele frequency cohort: ${NC}"
                 echo "This parameter allows the user to select the cohort to use for minor allele frequencies and " 
@@ -354,7 +353,7 @@ learnAboutParameters () {
                 echo "Note that this option will not report percentile rank."
                 echo "" ;;
             19 ) echo -e "${MYSTERYCOLOR} -l individual-specific LD clumping: ${NC}"
-		echo "To perform linkage disequilibrium clumping on an individual level, include the -l parameter."
+		echo "To perform linkage disequilibrium clumping on an individual level, include the -l flag."
 		echo "By default, LD clumping is performed on a sample-wide basis, where"
 		echo "the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study."
 		echo "This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons"

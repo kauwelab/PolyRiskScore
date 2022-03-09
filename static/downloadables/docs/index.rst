@@ -80,11 +80,12 @@ Required Parameters
 
 File Path (-f)
 """"""""""""""
-The path to the input file. Either a vcf or a txt with lines formatted as rsID:allele1,allele2
+The path to the input file. Either a vcf or a txt with lines formatted as rsID:allele1,allele2. Additionally, can use Bash Expansion to specify vcf's broken up by chromosome. If using this option, be sure to enclose with either single (') or double (") quotes.
 
 .. code-block:: bash
 
    -f path/to/file/samples.vcf
+   -f "path/to/files/samples_chr*.vcf"
 
 Output File (-o)
 """"""""""""""""
