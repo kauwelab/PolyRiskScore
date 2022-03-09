@@ -15,6 +15,7 @@ The PRSKB's CLI tool is an extension of the PRSKB web application. It is designe
 * Searching the database for studies and traits
 * Printing out available ethnicities to filter by
 * Learning about required and optional parameters for performing calculations
+* Uploading GWA Study data to use for calculations
 * Calculating polygenic risk scores
 
 Quick Start
@@ -111,7 +112,7 @@ The reference genome of samples in the input file. Available reference genomes: 
 
 Super Population (-p)
 """""""""""""""""""""
-The super population of samples in the input file. These are the five super populations from the 1000 genomes project
+The prefered super population to use for linkage-disequilibrium clumping. If a study has no super population attached to it or more than one super population, the tool will use this super population to determine which super population to use. These are the five super populations from the 1000 genomes project
 
 * AFR - African
 * AMR - American
@@ -164,6 +165,15 @@ Filters studies by the ethnicity of their sample population.
 
    -e European -e "East Asian"
 
+Sex dependent associations (-g)
+"""""""""""""""""""""""""""""""
+Some studies have a sex associated with the reported associations. This parameter allows users to filter studies based on
+sex. You can filter sex dependent studies by selecting either male (M), female (F), or exclude (E).
+
+.. code-block:: bash
+
+   -g f
+
 Additonal Optional Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -192,17 +202,6 @@ If the output file is in JSON format, the results will, by default, be in verbos
 
    -v
 
-Sex dependent associations (-g)
-"""""""""""""""""""""""""""""""
-Though a rare occurence, some studies have duplicates of the same SNP that differ by which biological sex 
-the p-value and odds ratio is associated with or SNPs that are not duplicated, but are dependent on biological sex. 
-The system default is to exclude sex dependent SNPs from calculations. You can include sex dependent associations 
-by selecting either male (M) or female (F).
-
-.. code-block:: bash
-
-   -g f
-
 Step Number (-s)
 """"""""""""""""
 Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter.
@@ -224,15 +223,6 @@ This parameter determines the number of subprocesses used by the Python multipro
 
    -n 4
 
-Omit Unused Studies file (-m)
-"""""""""""""""""""""""""""""
-
-This flag will prevent the creation of an additional output file that lists the studies that no risk scores could be calculated for. 
-
-.. code-block:: bash
-
-   -m
-
 User GWAS upload file (-u)
 """""""""""""""""""""""""""
 
@@ -250,6 +240,15 @@ Specifies the reference genome of the GWAS summary statistics data. If left off 
 .. code-block:: bash
 
    -a hg19
+
+Omit Unused Studies file (-m)
+"""""""""""""""""""""""""""""
+
+This flag will prevent the creation of an additional output file that lists the studies that no risk scores could be calculated for. 
+
+.. code-block:: bash
+
+   -m
 
 
 Calculate Scores
