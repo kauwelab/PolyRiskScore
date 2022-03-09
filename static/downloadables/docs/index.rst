@@ -165,6 +165,14 @@ Filters studies by the ethnicity of their sample population.
 
    -e European -e "East Asian"
 
+Value Type (-y)
+""""""""""""""""
+Studies in our database can report either odds ratios or beta values for the associations. You can filter studies by the type of values they use.
+
+.. code-block:: bash
+
+   -y 'odds ratios'
+
 Sex dependent associations (-g)
 """""""""""""""""""""""""""""""
 Some studies have a sex associated with the reported associations. This parameter allows users to filter studies based on
@@ -241,15 +249,31 @@ Specifies the reference genome of the GWAS summary statistics data. If left off 
 
    -a hg19
 
-Omit Unused Studies file (-m)
-"""""""""""""""""""""""""""""
+GWAS upload uses beta values (-b)
+"""""""""""""""""""""""""""""""""
 
-This flag will prevent the creation of an additional output file that lists the studies that no risk scores could be calculated for. 
+This flag indicates that the uploaded GWAS file uses beta values instead of odds ratios. (see Uploading GWAS Summary Statistics for more directions on uploading GWAS data) 
 
 .. code-block:: bash
 
-   -m
+   -b
 
+Minor allele frequency cohort (-q)
+""""""""""""""""""""""""""""""""""
+
+This parameter specifies the cohort to use for minor allele frequecies. The default is the Uk Biobank. Available options are:
+* UKBB
+* AFR
+* AMR
+* EAS
+* EUR
+* SAS
+* ADNI-AD
+
+
+.. code-block:: bash
+
+   -q adni-ad
 
 Calculate Scores
 ----------------
