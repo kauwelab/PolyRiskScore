@@ -155,9 +155,10 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
     # create a set to keep track of which ld clump numbers are assigned to only a single snp
     clumpNumDict = {}
 
+    # Create a boolean to check whether the input VCF is empty (outside here because )
+    fileEmpty = True
+
     for aFile in inputFiles:
-        # Create a boolean to check whether the input VCF is empty
-        fileEmpty = True
 
         txt_file = openFileForParsing(aFile)
         for line in txt_file:
@@ -196,8 +197,8 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
                 filteredOutput.write(line)
                 inputInFilters = True
 
-        if fileEmpty:
-            raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
+    if fileEmpty:
+        raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
 
     if not inputInFilters:
         raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified study filters. Check your input file and your filters and try again.")
@@ -264,7 +265,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
                             inputInFilters = True
 
             except ValueError:
-                raise SystemExit("THE VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
+                raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
             
             firstFile = False
 
