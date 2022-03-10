@@ -88,7 +88,51 @@ Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Bet
 
 ### JSON
 
-This version outputs the results in a json object format. The output automatically contains all the data the full version does and there is no condensed version of the json output.
+This version outputs the results in a json object format. The output automatically contains all the data the full version does and there is no condensed version of the json output. The file will contain a list of json study objects. Each study object will contain the list of samples and their score. 
+
+.. code-block:: bash
+    # example output
+    [
+        {
+            "studyID": "GCST001",
+            "reportedTrait": "Alzheimer's Disease",
+            "trait": "Alzheimer Disease",
+            "citation": "First Author et al. 2021",
+            "pValueAnnotation": "NA",
+            "betaAnnotation": "NA",
+            "scoreType": "OR",
+            "units (if applicable)": "NA",
+            "snpOverlap": 8,
+            "totalSnps": 14,
+            "usedSuperPop": "EUR",
+            "samples": [
+                {
+                    "sample": "SAMP001",
+                    "polygenicRiskScore": "1.277",
+                    "protectiveAlleles": "rs1|rs2|rs3",
+                    "riskAlleles": "rs4|rs5|rs6|rs7|rs8",
+                    "variantsWithoutRiskAllele": "rs9|rs10|rs11|rs14",
+                    "variantsInHighLD": "rs12|rs13"
+                },
+                {
+                    "sample": "SAMP002",
+                    "polygenicRiskScore": "NF",
+                    "protectiveAlleles": "",
+                    "riskAlleles": "",
+                    "variantsWithoutRiskAllele": "rs1|rs2|rs3|rs4|rs5|rs6|rs7|rs8|rs9|rs10|rs11|rs12|rs13|rs14",
+                    "variantsInHighLD": ""
+                },
+                {
+                    "sample": "SAMP003",
+                    "polygenicRiskScore": "1.63",
+                    "protectiveAlleles": "rs1|rs2|rs3",
+                    "riskAlleles": "rs4|rs5|rs6|rs7|rs8",
+                    "variantsWithoutRiskAllele": "rs1|rs2|rs3|rs4|rs5|rs6|rs7|rs8|rs9|rs10|rs11|rs14",
+                    "variantsInHighLD": "rs12|rs13"
+                }
+            ]
+        }
+    ]
 
 .. code-block:: bash
 
