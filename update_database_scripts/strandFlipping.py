@@ -1,3 +1,4 @@
+from re import A
 import myvariant
 import contextlib, io
 from sys import argv
@@ -9,6 +10,33 @@ import json
 #
 # How to run: python3 strandFlipping.py "associationTableFolderPath" "writeOrAppendToFlippedFile"
 # where: "associationTableFolderPath" is the path to the associations_table.tsv (default: "../tables")
+
+
+def createPossibleAlleles(queryObjs):
+    possibleAllelesObj = {}
+    if queryObjs is not None:
+        for obj in queryObjs:
+            alleles = set()
+            snp = obj['query']
+            # print(snp, obj)
+            if 'notfound' not in obj:
+                if ('alleles' in obj['dbsnp']): 
+                    for alleleObj in obj['dbsnp']['alleles']:
+                        alleles.add(alleleObj['allele'])
+                if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
+                    alleles.add(obj['dbsnp']['ref'])
+                if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
+                    alleles.add(obj['dbsnp']['alt'])
+                if (len(alleles) == 0):
+                    print(obj, "STILL NO ALLELES")
+                if snp not in possibleAllelesObj:
+                    possibleAllelesObj[snp] =  list(alleles)
+                else:
+                    tmpAlleles = set(possibleAllelesObj[snp])
+                    possibleAllelesObj[snp] = list(tmpAlleles | alleles)
+    else:
+        SystemExit("query Objs was empty!!! PROBLEM")
+    return possibleAllelesObj
 
 
 def getVariantAlleles(rsID, mv):
@@ -52,8 +80,16 @@ def main():
     associFile = open(associationTableFolderPath, 'r', encoding='utf-8')
     content = associFile.readlines()
     strandFlipped = open("flipped.tsv", fileView)
-    possibleAllelesDict = {}
+    snpSet = set()
     
+    for i in range(1,len(content)):
+        line = content[i].strip().split('\t')
+        rsID = line[1]
+        snpSet.add(rsID)
+
+    queryResults = mv.querymany(list(snpSet), scopes='dbsnp.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref')
+    possibleAllelesDict = createPossibleAlleles(queryResults)
+
     for i in range(1,len(content)):
         line = content[i].strip().split('\t')
         rsID = line[1]
@@ -63,12 +99,11 @@ def main():
         betaAnno = line[17]
         ogValueType = line[18]
 
-        possibleAlleles = getVariantAlleles(rsID, mv)
-        possibleAllelesDict[rsID] = list(possibleAlleles)
+        # possibleAlleles = getVariantAlleles(rsID, mv)
         riskAllele = Seq(line[9])
-        if riskAllele not in possibleAlleles:
+        if rsID in possibleAllelesDict and riskAllele not in possibleAllelesDict[rsID]:
             complement = riskAllele.reverse_complement()
-            if complement in possibleAlleles:
+            if complement in possibleAllelesDict[rsID]:
                 line[9] = str(complement)
                 strandFlipped.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(rsID, riskAllele, complement, trait, pValAnno, betaAnno, ogValueType, studyID))
                 print("WE MADE A SWITCH", rsID, riskAllele, complement)
@@ -77,10 +112,10 @@ def main():
 
     associFile.close()
     strandFlipped.close()
-    associFile = open(associationTableFolderPath, 'w')
+    associFile = open(associationTableFolderPath, 'w', encoding='utf-8')
     associFile.write(''.join(content))
     associFile.close()
-    possibleAllelesFile = open('../static/downloadables/preppedServerFiles/allPossibleAlleles.txt', 'w')
+    possibleAllelesFile = open('../static/downloadables/preppedServerFiles/allPossibleAlleles.txt', 'w', encoding='utf-8')
     possibleAllelesFile.write(json.dumps(possibleAllelesDict))
     possibleAllelesFile.close()
 
