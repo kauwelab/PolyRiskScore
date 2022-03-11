@@ -17,29 +17,30 @@ def parseAndCalculateFiles(params):
     tableObjDict  = params[2]
     snpSet = params[3]
     clumpNumDict = params[4]
-    mafDict = params[5]
-    pValue = params[6]
-    trait = params[7]
-    study = params[8]
-    pValueAnno = params[9]
-    betaAnnotation = params[10]
-    valueType = params[11]
-    isJson = params[12]
-    isCondensedFormat = params[13]
-    outputFilePath = params[14]
-    isRSids = params[15]
-    timestamp = params[16]
-    isIndividualClump = params[17]
-    superPop = params[18]
+    possibleAlleles = params[5]
+    mafDict = params[6]
+    pValue = params[7]
+    trait = params[8]
+    study = params[9]
+    pValueAnno = params[10]
+    betaAnnotation = params[11]
+    valueType = params[12]
+    isJson = params[13]
+    isCondensedFormat = params[14]
+    outputFilePath = params[15]
+    isRSids = params[16]
+    timestamp = params[17]
+    isIndividualClump = params[18]
+    superPop = params[19]
 
     # check if the input file is a txt or vcf file
     # parse the file to get the necessary genotype information for each sample and then run the calculations
     if isRSids: 
-        txtObj, clumpedVariants, unmatchedAlleleVariants = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, superPop)
-        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, None)
+        txtObj, clumpedVariants, unmatchedAlleleVariants, snpOverlap, totalSnps, preferredPop = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
+        cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, None, snpOverlap, totalSnps, preferredPop)
     else:
-        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
-        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, sample_order)
+        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order, snpOverlap, totalSnps, preferredPop = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
+        cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, sample_order, snpOverlap, totalSnps, preferredPop)
     return
 
 
@@ -57,18 +58,21 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
+        possibleAllelesPath = os.path.join(basePath, "possibleAlleles_{ahash}.txt".format(ahash=fileHash))
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
+        possibleAllelesPath = os.path.join(basePath, "allPossibleAlleles.txt".format(ahash=fileHash))
     else:
         isFilters = True
         associationsPath = specificAssociPath
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r = refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
+        possibleAllelesPath = os.path.join(basePath, "possibleAlleles_{ahash}.txt".format(ahash=fileHash))
 
     filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
 
@@ -82,12 +86,15 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
             studySnpsDict = json.load(studySnpsFile)
         with open(mafCohortPath, 'r') as mafFile:
             mafDict = json.load(mafFile)
+        with open(possibleAllelesPath, 'r') as possibleAllelesFile:
+            possibleAlleles = json.load(possibleAllelesFile)
 
 	# Get super populations from studyIDMetaData
         allSuperPops = set()
         for study in tableObjDict['studyIDsToMetaData']:
             for trait in tableObjDict['studyIDsToMetaData'][study]['traits']:
                 superPopList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+                superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 	
@@ -111,7 +118,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     except FileNotFoundError:
         raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}\n{3}\n{4}".format(associationsPath, clumpsPath, clumpNumPath, studySnpsPath, mafCohortPath))
 
-    return tableObjDict, allClumps, clumpNumDict, studySnpsDict, mafDict, filteredInputPath
+    return tableObjDict, allClumps, clumpNumDict, studySnpsDict, possibleAlleles, mafDict, filteredInputPath
 
 
 def formatAndReturnGenotype(genotype, REF, ALT):
@@ -144,7 +151,8 @@ def formatAndReturnGenotype(genotype, REF, ALT):
     return alleles
 
 
-def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, superPop):
+def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
+    isIndividualClump = int(isIndividualClump)
     #create set to hold  the lines with a snp in this study
     studyLines = {}
 
@@ -180,6 +188,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     
     # Access the preferred super population for this study
     popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+    popList = [eachPop.lower() for eachPop in popList]
     preferredPop = getPreferredPop(popList, superPop)
 
     # Create a dictionary with clump number and index snp to keep track of the variant with the lowest pvalue in each ld region
@@ -208,7 +217,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
                     #compare the pvalue to the threshold
                     if pValue <= float(p_cutOff):
-                        if riskAllele in alleles:
+                        if riskAllele in alleles or not isIndividualClump:
                             # Check to see if the snp position from this line in the file exists in the clump table
                             if snp in clumpsObjDict:
                                 # Grab the clump number associated with this snp 
@@ -242,6 +251,8 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                             # the risk allele wasn't in the listed alleles
                             unmatchedAlleleVariants.add(snp)
 
+    snpOverlap = len(usedSnps)
+    totalSnps = len(snpSet)
     # This next code accounts for snps that are in the study but are not reported in the sample. Instead of assuming the reference allele, we 
     # assume that the allele is unknown and thus will use MAF for calculations of these snps
     snpsLeftToImpute = set(snpSet).difference(usedSnps)
@@ -287,12 +298,14 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         sample_map[snp] = alleles
 
     final_map = dict(sample_map)
-    return final_map, clumpedVariants, unmatchedAlleleVariants
+    return final_map, clumpedVariants, unmatchedAlleleVariants, snpOverlap, totalSnps, preferredPop
 
 
-def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
+def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, p_cutOff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
+    isIndividualClump = int(isIndividualClump)
     # variable to keep track of the number of samples in the input file
     sampleNum=0
+    snpOverlap = 0
     createMaf = False
 
     if mafDict is None:
@@ -361,6 +374,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
 
     # Access the super population used for clumping this study
     popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+    popList = [eachPop.lower() for eachPop in popList]
     preferredPop = getPreferredPop(popList, superPop)
 
     # Create dictionaries to store the variants not used in the calculations for each sample
@@ -426,7 +440,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                 sample = call.sample
                                 genotype = record.genotype(sample)['GT']
                                 alleles = formatAndReturnGenotype(genotype, REF, ALT)
-                                complements = takeComplement(alleles, REF, ALT)
+                                complements = takeComplement(possibleAlleles[rsID], alleles, REF, ALT)
 
                                 # Grab or create maps that hold sets of unused variants for this sample
                                 clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
@@ -473,12 +487,14 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                         sample_map[sample][rsID] = alleles if complements is None else complements
 
                                 # the sample's alleles don't include the risk allele and early clumping is not requested
-                                elif not atRisk and isIndividualClump:
+                                else:
                                     unmatchedAlleleVariants.add(rsID)
 
                                     clumped_snps_map[sample] = clumpedVariants
                                     neutral_snps_map[sample] = unmatchedAlleleVariants
 
+        snpOverlap = len(usedSnps)
+        totalSnps = len(snpSet)
         # This next code accounts for snps that are in the study but are not reported in the sample. Instead of assuming the reference allele, we 
         # assume that the allele is unknown and thus will use MAF for calculations of these snps
         snpsLeftToImpute = set(snpSet).difference(usedSnps)
@@ -531,7 +547,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                     else:
                                         # Since the study/name combo wasn't already used in the index map, add it to both the index and sample map
                                         index_snp_map[sample][clumpNum] = rsID, riskAllele, [".", "."]
-                                # the variant isn't in the clump tables
+                                # the variant is the only one in its clump
                                 else:
                                     sample_map[sample][rsID] = [".", "."]
                             # the variant isn't in the clump tables
@@ -556,17 +572,17 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         if os.path.exists(tempFilePath):
             os.remove(tempFilePath)
 
-    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sampleOrder
+    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sampleOrder, snpOverlap, totalSnps, preferredPop
 
 
-def takeComplement(alleles, REF, ALT):
-    possibleAlleles = [REF] + [str(x) for x in ALT]
-    complements = [reverse_complement(x) for x in alleles]
+def takeComplement(possibleAlleles, alleles, REF, ALT):
+    fileAlleles = [REF] + [str(x) for x in ALT]
+    complements = [reverse_complement(x) for x in fileAlleles]
 
     # just trying to make sure we are as accurate as possible in our strand flipping --
     # if all the complements are in the possible alleles and none of the original alleles are in the possible alleles, then flip it
-    if (all(x in possibleAlleles for x in complements) and not all(x in possibleAlleles for x in alleles)):
-        return complements
+    if (all(x in possibleAlleles for x in complements) and not all(x in possibleAlleles for x in fileAlleles)):
+        return [reverse_complement(x) for x in alleles]
     else:
         return None
 
@@ -590,7 +606,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
 
     # Access the downloaded files and paths
-    tableObjDict, allClumpsObjDict, clumpNumDict, studySnpsDict, mafDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload)
+    tableObjDict, allClumpsObjDict, clumpNumDict, studySnpsDict, possibleAlleles, mafDict, filteredInputPath = getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, timestamp, useGWASupload)
     
     # Determine whether the output format is condensed and either json or tsv
     if outputType == '.json':
@@ -610,10 +626,11 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
 	# get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+        popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
         clumpsObjDict = allClumpsObjDict[preferredPop]
         snpSet = studySnpsDict[key]
-        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop)
+        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop)
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
@@ -624,15 +641,15 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to write out the header depending on the output type
         header = []
         if isCondensedFormat and isRSids: # condensed and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'Total SNPs', 'Used Super Population', 'Polygenic Risk Score']
         elif isCondensedFormat: # condensed and vcf input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'Total SNPs', 'Used Super Population']
             # loop through each sample and add to the header
             header = getSamples(filteredInputPath, header)
         elif not isCondensedFormat  and isRSids: # verbose and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'Total SNPs', 'Used Super Population', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         else: # verbose and vcf input
-            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'Total SNPs', 'Used Super Population', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)
 
     # we create params for each study so that we can run them on separate processes
@@ -642,12 +659,13 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         snpSet = studySnpsDict[keyString]
 	# get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+        popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
         clumpsObjDict = allClumpsObjDict[preferredPop]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
