@@ -8,8 +8,11 @@
 # cd to where the master script is stored
 cd /var/www/prs.byu.edu/html/update_database_scripts/
 # runs the master script with the password path specified by $1 with 8 subprocesses downloading association data
+# default way to run
 #./master_script.sh $1 8 -g
-./master_script.sh $1 8 -d -a -s -r -f -g
+
+./master_script.sh $1 8 -d -a -o -s -r -f -e -g
+
 
 # disables everything
 # ./master_script.sh $1 8 -d -a -o -s -r -f -u -e -c -m -g
