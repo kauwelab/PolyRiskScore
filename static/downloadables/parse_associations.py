@@ -323,7 +323,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     if sampleNum > 50:
         # create a temp file that will hold the lines of snps found in this trait/study
         basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
-        tempFilePath = os.path.join(basePath, "{t}_{s}_{uniq}.vcf".format(t=trait.replace('/','-'), s=study, uniq = timestamp))
+        tempFilePath = os.path.join(basePath, "{t}_{s}_{p}_{b}_{v}_{uniq}.vcf".format(t=trait.replace('/','-'), s=study, p=pValueAnno.replace('/','-'), b=betaAnnotation.replace('/','-'), v=valueType.replace('/','-'), uniq = timestamp))
         useFilePath = tempFilePath
         with open(tempFilePath, 'w') as w:
             # Open filtered file
@@ -624,7 +624,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to run through one iteration here so that we know the first json result has the opening list bracket
         key = next(iter(studySnpsDict))
         trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
-	# get the population used for clumping
+        # get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
         popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
@@ -657,7 +657,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         trait, pValueAnno, betaAnnotation, valueType, study = keyString.split('|')
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-	# get the population used for clumping
+        # get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
         popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
