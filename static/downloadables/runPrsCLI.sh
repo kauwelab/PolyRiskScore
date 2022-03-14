@@ -517,8 +517,7 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
                 echo "The Experimental Factor Ontology (EFO) trait the GWAS deals with."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR} Super Population: ${NC}" 
-		#TODO: write this section
-		echo "write something here"
+                echo "The super population from the 1000 Genomes most closely associated with the GWAS data. This super population will be used for LD calculations."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR} RsID: ${NC}"
                 echo "The Reference SNP cluster ID (RsID) of the SNP."
@@ -683,9 +682,10 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                output=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
+                output=$(echo $OPTARG)
+                output_ext=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
                 output="${output//\\//}" # replace backslashes with forward slashes
-                if ! [[ "${output}" =~ .tsv$|.json$ ]]; then
+                if ! [[ "${output_ext}" =~ .tsv$|.json$ ]]; then
                     echo -e "${LIGHTRED}$output ${NC} is not in the right format."
                     echo -e "Valid formats are ${GREEN}tsv${NC} and ${GREEN}json${NC}"
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -1098,7 +1098,7 @@ calculatePRS () {
             # saves both to files
             # GWAS data --> GWASassociations_{fileHash}.txt
             # clumps --> {superPop}_clumps_{refGen}_{fileHash}.txt
-            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${userGwasBeta}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${mafCohort}" "${fileHash}"; then
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${userGwasBeta}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${mafCohort}" "${fileHash}" "${extension}"; then
                 echo "Formatted GWAS data and retrieved clumping information from the PRSKB"
             else
                 echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"

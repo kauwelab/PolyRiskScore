@@ -24,6 +24,7 @@ rs58389158	T	A	Age-Related Hearing Impairment	NA	NA	beta	GCST008899
 rs10490924	A	T	Age-Related Macular Degeneration	NA	NA	OR	GCST001986
 rs3750848	C	G	Age-Related Macular Degeneration	NA	NA	OR	GCST001987
 rs10490924	A	T	Age-Related Macular Degeneration	NA	NA	OR	GCST004737
+rs1446296	C	G	Aggressive Behavior	NA	NA	OR	GCST010466
 rs555017	T	A	Aggressive Behavior	(reaction)	NA	beta	GCST002324
 rs7578047	C	G	Aggressive Behavior	(reaction)	NA	beta	GCST002324
 rs12249434	A	T	Aggressive Behavior	(temperament)	NA	beta	GCST002324
@@ -35,13 +36,17 @@ rs1864982	A	T	Alcohol Dependence	NA	NA	OR	GCST000432
 rs4478858	G	C	Alcohol Dependence	NA	NA	OR	GCST001874
 rs10849915	G	C	Alcohol Drinking	NA	NA	beta	GCST000954
 rs2074356	T	A	Alcohol Drinking	NA	NA	beta	GCST000954
+rs11366076	T	A	Alcohol Use Disorder Measurement	NA	NA	beta	GCST010545
 rs7025162	A	T	Alkaline Phosphatase Measurement	NA	NA	beta	GCST002214
+rs56392308	C	G	Alkaline Phosphatase Measurement	NA	NA	beta	GCST009652
 rs10716049	T	A	Alkaline Phosphatase Measurement	NA	NA	beta	GCST90018942
 rs5868014	G	C	Alkaline Phosphatase Measurement	NA	NA	beta	GCST90018942
 rs56392308	C	G	Alkaline Phosphatase Measurement	NA	NA	beta	GCST90019494
+rs199978639	A	T	Alopecia	NA	NA	beta	GCST006661
 rs1701704	C	G	Alopecia Areata	NA	NA	OR	GCST000719
 rs3118470	G	C	Alopecia Areata	NA	NA	OR	GCST000719
 rs9479482	A	T	Alopecia Areata	NA	NA	OR	GCST000719
+rs1394839	G	C	Alpha Synuclein Measurement	NA	NA	beta	GCST006279
 rs11613092	G	C	Alzheimer Disease	(noncarrier)	NA	OR	GCST002954
 rs802571	T	A	Alzheimer Disease	(noncarrier)	NA	OR	GCST002954
 rs1992269	A	T	Alzheimer Disease	NA	NA	OR	GCST002954
@@ -62,14 +67,20 @@ rs4839603	C	G	Analgesia Requirement Measurement	(additive model)	NA	beta	GCST005
 rs199670311	A	T	Analgesia Requirement Measurement	(dominant model)	NA	beta	GCST005364
 rs1468574	A	T	Androstenedione Measurement	NA	NA	beta	GCST004361
 rs8008961	A	T	Angioedema	(ea)	NA	OR	GCST002263
+rs495828	A	T	Angiotensin Converting Enzyme Activity Measurement	NA	% variance	beta	GCST000565
 rs1801274	T	A	Ankylosing Spondylitis	(ea)	NA	OR	GCST005529
 rs4676410	T	A	Ankylosing Spondylitis	(ea)	NA	OR	GCST005529
 rs1801274	T	A	Ankylosing Spondylitis	NA	NA	OR	GCST005529
 rs4676410	T	A	Ankylosing Spondylitis	NA	NA	OR	GCST005529
+rs2050188	G	C	Anti-Anoctamin 2 Antibody Measurement	NA	NA	beta	GCST009154
+rs2516049	G	C	Anti-Anoctamin 2 Antibody Measurement	NA	NA	beta	GCST009154
+rs2523627	C	G	Anti-Anoctamin 2 Antibody Measurement	NA	NA	beta	GCST009154
+rs3755963	C	G	Anti-Meningococcal C Igg Measurement	NA	NA	beta	GCST008498
 rs3818168	T	A	Anti-Meningococcal C Serum Bactericidal Antibody Measurement	NA	NA	beta	GCST008499
 rs60767289	G	C	Anti-Thyroglobulin Antibody Measurement	(women)	NA	beta	GCST008369
 rs13253854	C	G	Anti-Thyroglobulin Antibody Measurement	NA	NA	beta	GCST008369
 rs477515	T	A	Antibody Measurement	(quantitative)	NA	beta	GCST001812
+rs492899	G	C	Antinuclear Antibody Measurement	NA	NA	OR	GCST007737
 rs17112901	A	T	Antioxidant Measurement	(total antioxidants )	NA	beta	GCST001762
 rs4749791	A	T	Antioxidant Measurement	(total antioxidants )	NA	beta	GCST001762
 rs6044834	C	G	Antioxidant Measurement	(total antioxidants )	NA	beta	GCST001762
@@ -81,12 +92,15 @@ rs7141336	C	G	Anxiety Disorder	(aa, factor score analysis)	NA	beta	GCST002696
 rs12703441	C	G	Anxiety Disorder	(ea, factor score analysis)	NA	beta	GCST002696
 rs4692589	C	G	Anxiety Disorder	(ea, factor score analysis)	NA	beta	GCST002696
 rs11086257	A	T	Aortic Measurement	NA	NA	beta	GCST90093370
-rs565408205	A	T	Appendicular Lean Mass	NA	NA	beta	GCST90000025
+rs200913165	A	T	Appendicular Lean Mass	NA	NA	beta	GCST009577
+rs747058684	T	A	Appendicular Lean Mass	NA	NA	beta	GCST009577
 rs13438712	G	C	Arm Span	(arm span )	NA	beta	GCST001762
 rs1383808	G	C	Arm Span	(arm span )	NA	beta	GCST001762
 rs2790232	A	T	Arm Span	(arm span )	NA	beta	GCST001762
 rs3804024	G	C	Arm Span	(arm span )	NA	beta	GCST001762
 rs3742207	C	G	Arterial Stiffness Measurement	NA	NA	beta	GCST000370
+rs115871127	G	C	Aseptic Loosening	NA	NA	beta	GCST010082
+rs2514486	A	T	Aseptic Loosening	NA	NA	beta	GCST010082
 rs13077101	G	C	Aspartate Aminotransferase Measurement	(alt/ast)	NA	beta	GCST001762
 rs16836124	G	C	Aspartate Aminotransferase Measurement	(alt/ast)	NA	beta	GCST001762
 rs17360053	G	C	Aspartate Aminotransferase Measurement	(alt/ast)	NA	beta	GCST001762
@@ -183,8 +197,14 @@ rs79946301	A	T	Asthma	NA	NA	OR	GCST002875
 rs9367895	G	C	Asthma	NA	NA	OR	GCST002875
 rs9577729	G	C	Asthma	NA	NA	OR	GCST002875
 rs9963330	A	T	Asthma	NA	NA	OR	GCST002875
+rs9268516	A	T	Asthma Exacerbation Measurement	NA	NA	beta	GCST011975
 rs428445	T	A	Astigmatism	(asian, 25 years or older)	NA	OR	GCST002685
 rs485842	A	T	Astigmatism	NA	NA	beta	GCST001819
+rs12295535	A	T	Atopic Eczema	NA	NA	OR	GCST010090
+rs2041733	A	T	Atopic Eczema	NA	NA	OR	GCST010090
+rs7110818	A	T	Atopic Eczema	NA	NA	OR	GCST010090
+rs759382	C	G	Atopic Eczema	NA	NA	OR	GCST010090
+rs848	T	A	Atopic Eczema	NA	NA	OR	GCST010090
 rs7927894	A	T	Atopic Eczema	NA	NA	OR	GCST000374
 rs12634229	G	C	Atopic Eczema	NA	NA	OR	GCST001709
 rs16999165	T	A	Atopic Eczema	NA	NA	OR	GCST001709
@@ -206,8 +226,12 @@ rs1161463	C	G	Attention Deficit Hyperactivity Disorder	(maternal warmth)	NA	beta
 rs978597	G	C	Autism	NA	NA	OR	GCST010733
 rs13103662	A	T	Autism Spectrum Disorder	NA	NA	OR	GCST012466
 rs657152	G	C	Autoantibody Measurement	NA	NA	OR	GCST004382
+rs3842727	A	T	Autoantibody Measurement	(iaa-first)	NA	OR	GCST006197
+rs11705721	G	C	Autoantibody Measurement	(multiple-ia)	NA	OR	GCST006197
+rs3842727	A	T	Autoantibody Measurement	(multiple-ia)	NA	OR	GCST006197
 rs11571297	G	C	Autoimmune Thyroid Disease	NA	NA	OR	GCST005524
 rs706779	A	T	Autoimmune Thyroid Disease	NA	NA	OR	GCST005524
+rs8053655	A	T	Autoimmune Thyroid Disease	NA	NA	OR	GCST010571
 rs1270942	C	G	Autoimmune Thyroid Disease	NA	NA	OR	GCST002876
 rs1980493	G	C	Autoimmune Thyroid Disease	NA	NA	OR	GCST002876
 rs2523989	A	T	Autoimmune Thyroid Disease	NA	NA	OR	GCST002876
@@ -224,13 +248,17 @@ rs10542411	A	T	Basophil Count	NA	NA	beta	GCST004624
 rs11319879	T	A	Basophil Count	NA	NA	beta	GCST004624
 rs72079386	A	T	Basophil Count	NA	NA	beta	GCST004624
 rs79812451	A	T	Basophil Count	NA	NA	beta	GCST90018946
+rs370718489	G	C	Basophil Count	NA	NA	beta	GCST90002379
+rs370718489	G	C	Basophil Percentage Of Leukocytes	NA	NA	beta	GCST90002380
 rs897200	A	T	Behcet's Syndrome	NA	NA	OR	GCST001768
 rs1495965	G	C	Behcet's Syndrome	NA	NA	OR	GCST000728
 rs1800871	T	A	Behcet's Syndrome	NA	NA	OR	GCST000728
+rs2848479	A	T	Behcet's Syndrome	NA	NA	OR	GCST007551
 rs10488631	G	C	Biliary Liver Cirrhosis	NA	NA	OR	GCST000408
 rs2293370	C	G	Biliary Liver Cirrhosis	NA	NA	OR	GCST001685
 rs7665590	G	C	Biliary Liver Cirrhosis	NA	NA	OR	GCST001685
 rs887829	A	T	Bilirubin Measurement	NA	NA	beta	GCST001497
+rs11307933	C	G	Bilirubin Measurement	NA	NA	beta	GCST90018973
 rs2709736	G	C	Bipolar Disorder	NA	NA	OR	GCST000654
 rs2289700	A	T	Bipolar Disorder	NA	NA	OR	GCST001164
 rs1151200	G	C	Birth Weight	(birth weight )	NA	beta	GCST001762
@@ -297,7 +325,15 @@ rs798544	G	C	Body Height	NA	NA	beta	GCST000175
 rs967417	C	G	Body Height	NA	NA	beta	GCST000175
 rs13273123	C	G	Body Height	NA	NA	beta	GCST000522
 rs16910061	T	A	Body Height	NA	NA	beta	GCST000522
+rs1156293	G	C	Body Height	(height)	NA	beta	GCST010059
+rs2797910	G	C	Body Height	(height)	NA	beta	GCST010059
 rs35056343	A	T	Body Height	NA	NA	beta	GCST90018739
+rs11317100	T	A	Body Height	NA	NA	beta	GCST90018959
+rs34928504	T	A	Body Height	NA	NA	beta	GCST90018959
+rs56227649	A	T	Body Height	NA	NA	beta	GCST90018959
+rs57260104	T	A	Body Height	NA	NA	beta	GCST90018959
+rs5825003	G	C	Body Height	NA	NA	beta	GCST90018959
+rs75059952	T	A	Body Height	NA	NA	beta	GCST90018959
 rs2307857	A	T	Body Height	NA	NA	beta	GCST008163
 rs34957094	G	C	Body Height	NA	NA	beta	GCST008163
 rs9281492	A	T	Body Height	NA	NA	beta	GCST008163
@@ -354,6 +390,9 @@ rs29941	C	G	Body Weight	NA	NA	beta	GCST000299
 rs6265	G	C	Body Weight	NA	NA	beta	GCST000299
 rs10502386	A	T	Bone Density	(bone mineral content )	NA	beta	GCST001762
 rs1999805	C	G	Bone Density	NA	NA	beta	GCST000180
+rs4670762	A	T	Bone Mineral Content Measurement	(left leg)	NA	beta	GCST009378
+rs3739214	A	T	Bone Mineral Content Measurement	(lumbar spine)	NA	beta	GCST009378
+rs3739214	A	T	Bone Mineral Content Measurement	(pelvis)	NA	beta	GCST009378
 rs202240051	C	G	Bone Quantitative Ultrasound Measurement	NA	NA	beta	GCST004351
 rs671	C	G	Brain Aneurysm	NA	NA	OR	GCST001388
 rs2290720	G	C	Brain Measurement	NA	NA	beta	GCST000615
@@ -378,6 +417,7 @@ rs3803662	T	A	Breast Carcinoma	NA	NA	OR	GCST002234
 rs17530068	G	C	Breast Carcinoma	NA	NA	OR	GCST001937
 rs146817970	T	A	Breast Carcinoma	(ea)	NA	beta	GCST004988
 rs72396995	T	A	Breast Carcinoma	(ea)	NA	beta	GCST004988
+rs774002109	A	T	Breast Carcinoma	NA	NA	OR	GCST90011804
 rs1078806	C	G	Breast Carcinoma	(pooled p value)	NA	OR	GCST001831
 rs35054928	G	C	Breast Carcinoma	NA	NA	beta	GCST90018799
 rs1092913	T	A	Breast Carcinoma	NA	NA	OR	GCST001012
@@ -391,6 +431,7 @@ rs349423	A	T	Bronchopulmonary Dysplasia	NA	NA	OR	GCST002104
 rs71627250	A	T	Bronchopulmonary Dysplasia	NA	NA	OR	GCST002104
 rs78975256	G	C	Bronchopulmonary Dysplasia	NA	NA	OR	GCST002104
 rs9953270	G	C	Bronchopulmonary Dysplasia	NA	NA	OR	GCST002104
+rs1674809	A	T	C-Peptide Measurement	(south asian)	NA	beta	GCST008641
 rs9304270	A	T	C-Peptide Measurement	(c-peptide )	NA	beta	GCST001762
 rs2393791	A	T	C-Reactive Protein Measurement	NA	(z-score)	beta	GCST011657
 rs10125337	G	C	C-Reactive Protein Measurement	(crp )	NA	beta	GCST001762
@@ -444,6 +485,7 @@ rs111696067	A	T	Central Nervous System Cancer	NA	NA	OR	GCST003227
 rs111696067	A	T	Central Nervous System Cancer	NA	NA	OR	GCST003228
 rs2736100	G	C	Central Nervous System Cancer	NA	NA	OR	GCST000439
 rs1412829	C	G	Central Nervous System Cancer	NA	NA	OR	GCST000440
+rs1394839	G	C	Cerebrospinal Fluid Biomarker Measurement	NA	NA	beta	GCST006279
 rs4474258	A	T	Chemotherapy-Induced Alopecia	(recessive)	NA	OR	GCST002176
 rs11255615	G	C	Chemotherapy-Induced Alopecia	(allelic)	NA	OR	GCST002177
 rs1858231	C	G	Chemotherapy-Induced Alopecia	(allelic)	NA	OR	GCST002177
@@ -612,6 +654,7 @@ rs73718779	A	T	Chronic Lymphocytic Leukemia	NA	NA	OR	GCST003468
 rs9880772	T	A	Chronic Lymphocytic Leukemia	NA	NA	OR	GCST003468
 rs1690139	G	C	Chronic Mucus Hypersecretion	NA	NA	OR	GCST002613
 rs4863687	A	T	Chronic Mucus Hypersecretion	NA	NA	OR	GCST002613
+rs1054761	T	A	Chronic Obstructive Pulmonary Disease	NA	NA	OR	GCST011435
 rs1054761	T	A	Chronic Obstructive Pulmonary Disease	NA	NA	OR	GCST010249
 rs343064	A	T	Cirrhosis Of Liver	(fibrosis)	NA	beta	GCST000765
 rs2358462	G	C	Cirrhosis Of Liver	(steatosis)	NA	beta	GCST000765
@@ -667,10 +710,14 @@ rs1354492	A	T	Coagulation Factor Measurement	(fviii activity)	NA	beta	GCST001188
 rs379440	G	C	Coagulation Factor Measurement	(vwf levels)	NA	beta	GCST001188
 rs1063856	A	T	Coagulation Factor Measurement	NA	NA	beta	GCST001793
 rs687289	T	A	Coagulation Factor Measurement	NA	NA	beta	GCST001793
+rs5861490	A	T	Cognitive Function Measurement	NA	NA	beta	GCST009310
 rs3815501	A	T	Cognitive Function Measurement	NA	NA	beta	GCST90025853
 rs618236	A	T	Cognitive Function Measurement	NA	NA	beta	GCST90025854
+rs200736848	T	A	Cognitive Inhibition Measurement	NA	NA	beta	GCST009312
 rs3824999	C	G	Colorectal Cancer	NA	NA	OR	GCST002919
 rs12970291	T	A	Colorectal Cancer	(opposite direction)	NA	OR	GCST003208
+rs1075650	G	C	Colorectal Mucinous Adenocarcinoma	(univariable, recessive)	NA	OR	GCST006411
+rs1661281	T	A	Colorectal Mucinous Adenocarcinoma	(univariable, recessive)	NA	OR	GCST006411
 rs2914908	G	C	Common Carotid Intimal Medial Thickness	NA	NA	beta	GCST005183
 rs2914908	G	C	Common Carotid Intimal Medial Thickness	NA	NA	beta	GCST005184
 rs1052693	G	C	Complement C4 Measurement	(serum level of c4)	NA	beta	GCST001679
@@ -694,11 +741,13 @@ rs17782904	T	A	Coronary Aneurysm	NA	NA	OR	GCST003560
 rs6905288	T	A	Coronary Artery Disease	NA	NA	OR	GCST001401
 rs12734338	G	C	Coronary Artery Disease	NA	NA	OR	GCST002298
 rs3883013	G	C	Coronary Artery Disease	NA	NA	OR	GCST002298
+rs564398	G	C	Coronary Artery Disease	NA	NA	beta	GCST005767
 rs3782889	C	G	Coronary Artery Disease	NA	NA	OR	GCST001845
 rs291096	G	C	Coronary Atherosclerosis Measurement	(aa)	NA	OR	GCST004224
 rs6730148	G	C	Cortisol Secretion Measurement	(cortisol )	NA	beta	GCST001762
 rs11559024	G	C	Creatine Kinase Measurement	NA	NA	beta	GCST002603
 rs2361797	T	A	Creatine Kinase Measurement	NA	NA	beta	GCST002603
+rs138107037	A	T	Creatinine Measurement	NA	NA	beta	GCST90018979
 rs10262995	A	T	Creatinine Measurement	NA	NA	beta	GCST002982
 rs2352039	A	T	Creatinine Measurement	NA	NA	beta	GCST002982
 rs1398024	A	T	Crohn's Disease	NA	NA	OR	GCST000212
@@ -748,6 +797,7 @@ rs8005161	A	T	Crohn's Disease	(ea)	NA	OR	GCST003044
 rs9525625	A	T	Crohn's Disease	(ea)	NA	OR	GCST003044
 rs9868809	A	T	Crohn's Disease	(ea)	NA	OR	GCST003044
 rs35610040	G	C	Cystatin C Measurement	NA	NA	beta	GCST002406
+rs11932518	G	C	Delta-5 Desaturase Measurement	NA	NA	beta	GCST005668
 rs2280885	G	C	Delta-6 Desaturase Measurement	NA	NA	beta	GCST005669
 rs12000047	A	T	Depressive Symptom Measurement	NA	NA	beta	GCST007410
 rs4753426	G	C	Depressive Symptom Measurement	NA	NA	beta	GCST007410
@@ -763,6 +813,7 @@ rs2803589	G	C	Depressive Symptom Measurement	NA	NA	beta	GCST007412
 rs1579282	A	T	Depressive Symptom Measurement	NA	NA	beta	GCST007413
 rs2803589	G	C	Depressive Symptom Measurement	NA	NA	beta	GCST007413
 rs3750716	A	T	Dermatomyositis	NA	NA	OR	GCST003522
+rs2616194	T	A	Diabetes Mellitus Biomarker	NA	NA	beta	GCST011569
 rs304029	G	C	Diabetic Nephropathy	(aa, additive )	NA	OR	GCST003098
 rs11107616	C	G	Diabetic Nephropathy	(additive )	NA	OR	GCST003098
 rs731565	T	A	Diabetic Nephropathy	(mexican, additive )	NA	OR	GCST003098
@@ -851,20 +902,26 @@ rs12583637	A	T	Diastolic Blood Pressure	NA	NA	beta	GCST006630
 rs11065979	A	T	Diastolic Blood Pressure	(hispanic)	NA	beta	GCST007238
 rs1458038	A	T	Diastolic Blood Pressure	(hispanic)	NA	beta	GCST007238
 rs767055246	T	A	Diastolic Blood Pressure	NA	NA	beta	GCST011895
+rs767055246	T	A	Diastolic Blood Pressure	NA	NA	beta	GCST011905
 rs1364120	G	C	Diastolic Blood Pressure	NA	NA	beta	GCST008143
 rs900145	G	C	Diastolic Blood Pressure	NA	NA	beta	GCST006227
 rs926552	T	A	Diastolic Blood Pressure	NA	NA	beta	GCST006227
 rs7865146	A	T	Diastolic Blood Pressure	(dbp)	NA	beta	GCST000753
 rs11297247	T	A	Diastolic Blood Pressure Change Measurement	NA	NA	beta	GCST011893
+rs469709	A	T	Diastolic Blood Pressure Change Measurement	NA	NA	beta	GCST010216
+rs10817396	G	C	Diastolic Blood Pressure Change Measurement	NA	NA	beta	GCST006273
+rs12509878	C	G	Diastolic Blood Pressure Change Measurement	NA	NA	beta	GCST006273
 rs10033652	A	T	Diastolic Blood Pressure Change Measurement	NA	NA	beta	GCST008969
 rs11062980	A	T	Diastolic Blood Pressure Change Measurement	NA	NA	beta	GCST008969
 rs2064479	A	T	Diastolic Blood Pressure Change Measurement	NA	NA	beta	GCST008969
 rs2650673	A	T	Diastolic Blood Pressure Change Measurement	NA	NA	beta	GCST008969
+rs118131161	G	C	Diastolic Blood Pressure Change Measurement	(ea)	NA	beta	GCST009646
 rs10931041	A	T	Diet Measurement	NA	NA	beta	GCST004582
 rs7130875	G	C	Diffuse Scleroderma	NA	NA	OR	GCST005535
 rs2178146	A	T	Digestive System Disease	NA	NA	OR	GCST002231
 rs2927438	C	G	Digestive System Disease	NA	NA	OR	GCST002231
 rs7632500	C	G	Digestive System Disease	NA	NA	OR	GCST002231
+rs3842727	A	T	Disease Free Survival	NA	NA	OR	GCST006196
 rs1145724	G	C	Disease Progression Measurement	(cox proportional hazards regression model)	NA	OR	GCST007434
 rs1426107	A	T	Disease Progression Measurement	(cox proportional hazards regression model)	NA	OR	GCST007434
 rs3861289	A	T	Disease Progression Measurement	(cox proportional hazards regression model)	NA	OR	GCST007434
@@ -876,9 +933,11 @@ rs2756263	G	C	Drug-Induced Liver Injury	(dominant)	NA	OR	GCST007897
 rs16879765	A	T	Dupuytren Contracture	NA	NA	OR	GCST001144
 rs6519955	A	T	Dupuytren Contracture	NA	NA	OR	GCST001144
 rs4725982	A	T	Electrocardiography	(qtc interval)	NA	beta	GCST000564
+rs759623919	G	C	Electrocardiography	(140 ms)	NA	beta	GCST010796
 rs17368582	G	C	Emphysema Pattern Measurement	(moderate centrilobular, ea)	NA	beta	GCST002525
 rs17368582	G	C	Emphysema Pattern Measurement	(moderate centrilobular)	NA	beta	GCST002525
 rs12970291	T	A	Endometrial Neoplasm	(opposite direction)	NA	OR	GCST003208
+rs112796779	A	T	Endometriosis	(random effect)	NA	OR	GCST010178
 rs10431397	A	T	Endometriosis	NA	NA	OR	GCST001894
 rs10975519	A	T	Endometriosis	NA	NA	OR	GCST001894
 rs11193561	A	T	Endometriosis	NA	NA	OR	GCST001894
@@ -920,8 +979,15 @@ rs72079386	A	T	Eosinophil Count	NA	NA	beta	GCST004624
 rs1420101	A	T	Eosinophil Count	(ea)	NA	beta	GCST000339
 rs2269426	T	A	Eosinophil Count	(ea)	NA	beta	GCST000339
 rs1420101	A	T	Eosinophil Count	NA	NA	beta	GCST004135
+rs528167451	A	T	Eosinophil Count	NA	NA	beta	GCST90018953
+rs10542411	A	T	Eosinophil Count	NA	NA	beta	GCST90002381
+rs11332300	G	C	Eosinophil Count	NA	NA	beta	GCST90002381
+rs749891445	T	A	Eosinophil Count	NA	NA	beta	GCST90002381
 rs11319879	T	A	Eosinophil Percentage Of Granulocytes	NA	NA	beta	GCST004617
 rs371212078	C	G	Eosinophil Percentage Of Leukocytes	NA	NA	beta	GCST004600
+rs528167451	A	T	Eosinophil Percentage Of Leukocytes	NA	NA	beta	GCST90002382
+rs72138724	A	T	Eosinophil Percentage Of Leukocytes	NA	NA	beta	GCST90002382
+rs749891445	T	A	Eosinophil Percentage Of Leukocytes	NA	NA	beta	GCST90002382
 rs17004598	C	G	Eosinophilic Esophagitis	NA	NA	OR	GCST002527
 rs2155219	A	T	Eosinophilic Esophagitis	NA	NA	OR	GCST002527
 rs2898261	C	G	Eosinophilic Esophagitis	NA	NA	OR	GCST002527
@@ -932,6 +998,17 @@ rs39861	C	G	Epilepsy	(jme)	NA	OR	GCST001662
 rs477515	T	A	Epstein-Barr Virus Infection	(quantitative)	NA	beta	GCST001812
 rs2736100	G	C	Erythrocyte Count	NA	NA	beta	GCST000588
 rs11272634	C	G	Erythrocyte Count	NA	NA	beta	GCST90018751
+rs11285171	T	A	Erythrocyte Count	NA	NA	beta	GCST90018971
+rs145910606	T	A	Erythrocyte Count	NA	NA	beta	GCST90018971
+rs200970170	T	A	Erythrocyte Count	NA	NA	beta	GCST90018971
+rs145886884	A	T	Erythrocyte Count	NA	NA	beta	GCST90002403
+rs145910606	T	A	Erythrocyte Count	NA	NA	beta	GCST90002403
+rs373703160	C	G	Erythrocyte Count	NA	NA	beta	GCST90002403
+rs5813668	T	A	Erythrocyte Count	NA	NA	beta	GCST90002403
+rs2434584	C	G	Esophageal Adenocarcinoma	NA	NA	OR	GCST006530
+rs12465911	A	T	Esophageal Adenocarcinoma	NA	NA	OR	GCST006531
+rs2971030	G	C	Esophageal Adenocarcinoma	NA	NA	OR	GCST006531
+rs7141987	G	C	Esophageal Adenocarcinoma	NA	NA	OR	GCST006531
 rs2178146	A	T	Esophageal Adenocarcinoma	NA	NA	OR	GCST002231
 rs2927438	C	G	Esophageal Adenocarcinoma	NA	NA	OR	GCST002231
 rs7632500	C	G	Esophageal Adenocarcinoma	NA	NA	OR	GCST002231
@@ -945,9 +1022,14 @@ rs11731298	A	T	Estradiol Measurement	(estradiol )	NA	beta	GCST001762
 rs12739262	A	T	Estradiol Measurement	(estradiol )	NA	beta	GCST001762
 rs1443170	G	C	Estradiol Measurement	(estradiol )	NA	beta	GCST001762
 rs8113308	G	C	Estrogen-Receptor Positive Breast Cancer	NA	NA	OR	GCST002901
+rs2981579	T	A	Estrogen-Receptor Positive Breast Cancer	NA	NA	OR	GCST007415
 rs45446698	C	G	Estrone Conjugate Measurement	NA	NA	beta	GCST012151
 rs1468574	A	T	Estrone Measurement	NA	NA	beta	GCST004361
 rs8014252	G	C	Estrone Measurement	NA	NA	beta	GCST004362
+rs3842727	A	T	Event Free Survival Time	(iaa-first)	NA	OR	GCST006197
+rs11705721	G	C	Event Free Survival Time	(multiple-ia)	NA	OR	GCST006197
+rs3842727	A	T	Event Free Survival Time	(multiple-ia)	NA	OR	GCST006197
+rs852004	A	T	Executive Function Measurement	NA	NA	beta	GCST006219
 rs4926244	G	C	Exfoliation Syndrome	(asian)	NA	OR	GCST002787
 rs4926244	G	C	Exfoliation Syndrome	NA	NA	OR	GCST002787
 rs893818	T	A	Exfoliation Syndrome	NA	NA	OR	GCST002486
@@ -955,12 +1037,18 @@ rs375080348	A	T	Eye Colour Measurement	NA	NA	beta	GCST007741
 rs2721051	G	C	Eye Measurement	NA	NA	beta	GCST000683
 rs12447690	G	C	Eye Measurement	NA	NA	beta	GCST000775
 rs7044529	A	T	Eye Measurement	NA	NA	beta	GCST000775
+rs2972180	T	A	Eye Morphology Measurement	(left eye angle of ex-ps)	NA	beta	GCST006105
+rs3736712	C	G	Eye Morphology Measurement	(right eye tail length)	NA	beta	GCST006105
+rs10821147	A	T	Eye Morphology Measurement	(tangent line angle of el4)	NA	beta	GCST006107
+rs2000737	C	G	Eye Morphology Measurement	(tangent line angle of el4)	NA	beta	GCST006107
+rs750688	A	T	Eye Morphology Measurement	(tangent line angle of er4)	NA	beta	GCST006107
 rs6482814	C	G	Facial Morphology	(left facial angle of en-ex-go)	NA	beta	GCST006108
 rs1354492	A	T	Factor Viii Measurement	(fviii activity)	NA	beta	GCST001188
 rs560887	A	T	Fasting Blood Glucose Measurement	NA	NA	beta	GCST000205
 rs2166706	G	C	Fasting Blood Glucose Measurement	NA	NA	beta	GCST000457
 rs12707249	A	T	Fasting Blood Glucose Measurement	(glu )	NA	beta	GCST001762
 rs13100723	A	T	Fasting Blood Glucose Measurement	(glu )	NA	beta	GCST001762
+rs7686384	G	C	Fasting Blood Glucose Measurement	NA	NA	OR	GCST006257
 rs10965245	T	A	Fasting Blood Glucose Measurement	(fasting blood glucose)	NA	beta	GCST010062
 rs1799884	A	T	Fasting Blood Glucose Measurement	(fasting blood glucose)	NA	beta	GCST010062
 rs10811661	G	C	Fasting Blood Glucose Measurement	NA	NA	beta	GCST007899
@@ -1045,6 +1133,9 @@ rs58603829	A	T	Folic Acid Measurement	(folate )	NA	beta	GCST001762
 rs12611820	C	G	Folic Acid Measurement	(vitamin b9 - folate)	NA	beta	GCST002559
 rs3849969	T	A	Forced Expiratory Volume	NA	(z score)	beta	GCST012497
 rs2165220	C	G	Forced Expiratory Volume	NA	NA	beta	GCST006309
+rs35337335	G	C	Forced Expiratory Volume	NA	NA	beta	GCST008664
+rs323187	G	C	Forehead Morphology Measurement	(brow ridge height)	NA	beta	GCST006106
+rs363444	A	T	Forehead Morphology Measurement	(upper forehead slant depth)	NA	beta	GCST006106
 rs10490775	A	T	Fuchs Endothelial Corneal Dystrophy	NA	NA	OR	GCST000790
 rs10953615	C	G	Gallbladder Neoplasm	NA	NA	OR	GCST001404
 rs1558375	A	T	Gallbladder Neoplasm	NA	NA	OR	GCST004201
@@ -1054,6 +1145,9 @@ rs3781264	C	G	Gastric Carcinoma	(total gastric)	NA	OR	GCST000777
 rs10509671	C	G	Gastric Carcinoma	NA	NA	OR	GCST008646
 rs10955971	T	A	Gastritis	(females)	NA	OR	GCST002638
 rs8112449	T	A	Gastritis	(males)	NA	OR	GCST002638
+rs12465911	A	T	Gastroesophageal Reflux Disease	NA	NA	OR	GCST006531
+rs2971030	G	C	Gastroesophageal Reflux Disease	NA	NA	OR	GCST006531
+rs7141987	G	C	Gastroesophageal Reflux Disease	NA	NA	OR	GCST006531
 rs3843765	C	G	Genotoxic Compound Exposure Measurement	NA	NA	beta	GCST90060617
 rs3848745	T	A	Genotoxic Compound Exposure Measurement	NA	NA	beta	GCST90060617
 rs4508668	G	C	Genotoxic Compound Exposure Measurement	NA	NA	beta	GCST90060617
@@ -1102,6 +1196,7 @@ rs138107037	A	T	Glomerular Filtration Rate	NA	NA	beta	GCST008747
 rs10885409	G	C	Glucose Measurement	NA	NA	beta	GCST005763
 rs10244051	C	G	Glucose Measurement	(glu)	NA	beta	GCST000292
 rs560887	A	T	Glucose Measurement	(glu)	NA	beta	GCST000292
+rs66808118	A	T	Glucose Measurement	NA	NA	beta	GCST90018955
 rs102275	G	C	Glycerophospholipid Measurement	NA	NA	beta	GCST90060707
 rs174533	C	G	Glycerophospholipid Measurement	NA	NA	beta	GCST90060707
 rs174534	C	G	Glycerophospholipid Measurement	NA	NA	beta	GCST90060707
@@ -1225,6 +1320,42 @@ rs706779	A	T	Graves Disease	NA	NA	OR	GCST005524
 rs11571297	G	C	Graves Disease	NA	NA	OR	GCST005526
 rs706779	A	T	Graves Disease	NA	NA	OR	GCST005526
 rs2294025	T	A	Graves Disease	NA	NA	OR	GCST001984
+rs1979537	G	C	Gut Microbiome Measurement	NA	NA	beta	GCST010816
+rs2242130	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST010816
+rs3747965	G	C	Gut Microbiome Measurement	(female)	NA	beta	GCST010818
+rs1081063	G	C	Gut Microbiome Measurement	(male)	NA	beta	GCST010818
+rs501435	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST010818
+rs1883063	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST010819
+rs1780813	A	T	Gut Microbiome Measurement	(male)	NA	beta	GCST90006987
+rs1349254	A	T	Gut Microbiome Measurement	(female)	NA	beta	GCST90006988
+rs2782434	A	T	Gut Microbiome Measurement	(female)	NA	beta	GCST90006988
+rs35423	T	A	Gut Microbiome Measurement	NA	NA	beta	GCST90006988
+rs726236	G	C	Gut Microbiome Measurement	NA	NA	beta	GCST90006988
+rs155203	G	C	Gut Microbiome Measurement	(female)	NA	beta	GCST90006989
+rs2421787	C	G	Gut Microbiome Measurement	NA	NA	beta	GCST90006990
+rs3102476	T	A	Gut Microbiome Measurement	(female)	NA	beta	GCST90006993
+rs2632345	C	G	Gut Microbiome Measurement	(male)	NA	beta	GCST90006993
+rs2139123	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST90006993
+rs734380	C	G	Gut Microbiome Measurement	(male)	NA	beta	GCST90006994
+rs1838023	T	A	Gut Microbiome Measurement	(male)	NA	beta	GCST90006996
+rs2679876	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST90006997
+rs3785828	C	G	Gut Microbiome Measurement	(male)	NA	beta	GCST90007000
+rs1830888	T	A	Gut Microbiome Measurement	NA	NA	beta	GCST90007000
+rs1449311	T	A	Gut Microbiome Measurement	(female)	NA	beta	GCST90007001
+rs1460148	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST90007001
+rs246537	T	A	Gut Microbiome Measurement	(male)	NA	beta	GCST90007002
+rs729770	A	T	Gut Microbiome Measurement	(female)	NA	beta	GCST90007003
+rs2038965	G	C	Gut Microbiome Measurement	NA	NA	beta	GCST90007003
+rs2057094	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST90007003
+rs716399	C	G	Gut Microbiome Measurement	NA	NA	beta	GCST90007003
+rs1887091	A	T	Gut Microbiome Measurement	(male)	NA	beta	GCST90007004
+rs177710	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST90007005
+rs689695	G	C	Gut Microbiome Measurement	(female)	NA	beta	GCST90007007
+rs3909113	G	C	Gut Microbiome Measurement	NA	NA	beta	GCST90007007
+rs131734	C	G	Gut Microbiome Measurement	NA	NA	beta	GCST90007008
+rs627543	A	T	Gut Microbiome Measurement	NA	NA	beta	GCST90007009
+rs413634	C	G	Gut Microbiome Measurement	NA	NA	beta	GCST90007010
+rs818408	G	C	Gut Microbiome Measurement	NA	NA	beta	GCST90007012
 rs1805006	T	A	Hair Color	NA	NA	OR	GCST006986
 rs11571297	G	C	Hashimoto's Thyroiditis	NA	NA	OR	GCST005524
 rs706779	A	T	Hashimoto's Thyroiditis	NA	NA	OR	GCST005524
@@ -1249,8 +1380,14 @@ rs35363078	T	A	Heel Bone Mineral Density	(women)	NA	beta	GCST006288
 rs3092018	A	T	Heel Bone Mineral Density	NA	NA	beta	GCST006288
 rs34138479	A	T	Heel Bone Mineral Density	NA	NA	beta	GCST006288
 rs35363078	T	A	Heel Bone Mineral Density	NA	NA	beta	GCST006288
+rs6745983	C	G	Hematocrit	NA	NA	beta	GCST005775
+rs145886884	A	T	Hematocrit	NA	NA	beta	GCST90002383
+rs36068213	T	A	Hematocrit	NA	NA	beta	GCST90002383
 rs1113932	G	C	Hemoglobin A2 Measurement	(aa)	NA	beta	GCST002536
 rs3768751	G	C	Hemoglobin Measurement	(hemoglobin)	NA	beta	GCST010062
+rs34182778	G	C	Hemoglobin Measurement	NA	NA	beta	GCST010083
+rs145886884	A	T	Hemoglobin Measurement	NA	NA	beta	GCST90002384
+rs36068213	T	A	Hemoglobin Measurement	NA	NA	beta	GCST90002384
 rs4821116	G	C	Hepatitis B Virus Infection	NA	NA	OR	GCST002246
 rs2856718	A	T	Hepatitis B Virus Infection	NA	NA	OR	GCST001150
 rs3077	C	G	Hepatitis B Virus Infection	(clearance of hbv)	NA	OR	GCST001582
@@ -1274,6 +1411,9 @@ rs3764261	T	A	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST00
 rs12686004	T	A	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST001237
 rs12708980	C	G	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST001237
 rs2074356	T	A	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST001237
+rs261332	T	A	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST005776
+rs261336	C	G	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST005776
+rs3837681	C	G	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST010658
 rs141279119	G	C	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST004207
 rs1883025	A	T	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST008987
 rs247616	A	T	High Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST008987
@@ -1315,6 +1455,7 @@ rs10936797	C	G	Hormone Measurement	(total t4 )	NA	beta	GCST001762
 rs10851478	A	T	Human Papilloma Virus Infection	NA	NA	OR	GCST90085701
 rs3823363	A	T	Human Papilloma Virus Infection	NA	NA	OR	GCST90085701
 rs16945809	A	T	Hypertension	NA	NA	beta	GCST90026611
+rs769177	G	C	Hypertension	NA	NA	OR	GCST010477
 rs1014290	T	A	Hyperuricemia	NA	NA	OR	GCST008460
 rs671	C	G	Hyperuricemia	NA	NA	OR	GCST008460
 rs6801125	C	G	Hyperuricemia	NA	NA	OR	GCST008460
@@ -1323,6 +1464,7 @@ rs370475698	T	A	Hypothyroidism	NA	NA	beta	GCST90018862
 rs1380836	G	C	Icam-1 Measurement	(sicam-1 )	NA	beta	GCST001762
 rs17130643	A	T	Icam-1 Measurement	(sicam-1 )	NA	beta	GCST001762
 rs9378357	A	T	Icam-1 Measurement	(sicam-1 )	NA	beta	GCST001762
+rs761440	A	T	Idiopathic Osteonecrosis Of The Femoral Head	NA	NA	OR	GCST011155
 rs5743890	A	T	Idiopathic Pulmonary Fibrosis	NA	NA	OR	GCST001974
 rs5743894	G	C	Idiopathic Pulmonary Fibrosis	NA	NA	OR	GCST001974
 rs2738048	T	A	Iga Glomerulonephritis	(east asian)	NA	OR	GCST002655
@@ -1417,6 +1559,7 @@ rs933360	A	T	Insulin Response Measurement	NA	NA	beta	GCST005218
 rs933360	A	T	Insulin Response Measurement	NA	NA	beta	GCST005223
 rs12326088	C	G	Insulin Sensitivity Measurement	(quickl)	NA	beta	GCST001762
 rs333960	G	C	Insulin Sensitivity Measurement	(quickl)	NA	beta	GCST001762
+rs72703546	C	G	Insulin Sensitivity Measurement	NA	NA	OR	GCST009642
 rs933360	A	T	Insulin Sensitivity Measurement	NA	NA	beta	GCST005216
 rs1049564	T	A	Interferon Alpha Measurement	(ea)	NA	OR	GCST002666
 rs16877320	G	C	Interleukin 10 Measurement	(aa)	NA	beta	GCST006102
@@ -1437,6 +1580,7 @@ rs4688011	T	A	Juvenile Idiopathic Arthritis	NA	NA	OR	GCST001417
 rs6116471	T	A	Kanno Antigen Measurement	NA	NA	OR	GCST007948
 rs982422	A	T	Kynurenine Measurement	NA	NA	beta	GCST005342
 rs2284932	C	G	Lachrymal Gland Lesion	NA	NA	OR	GCST002913
+rs2023938	G	C	Large Artery Stroke	NA	NA	OR	GCST007991
 rs3002142	G	C	Ldl Peak Particle Diameter Measurement	NA	NA	beta	GCST002989
 rs11174812	A	T	Leprosy	NA	NA	OR	GCST002772
 rs383592	G	C	Leprosy	NA	NA	OR	GCST002772
@@ -1452,6 +1596,13 @@ rs4065321	G	C	Leukocyte Count	NA	NA	beta	GCST001302
 rs3094212	C	G	Leukocyte Count	NA	NA	beta	GCST000589
 rs389884	C	G	Leukocyte Count	(ea, wbc)	NA	beta	GCST001779
 rs61706696	T	A	Leukocyte Count	NA	NA	beta	GCST90018758
+rs35937832	A	T	Leukocyte Count	NA	NA	beta	GCST90018978
+rs549579958	C	G	Leukocyte Count	NA	NA	beta	GCST90018978
+rs71353786	A	T	Leukocyte Count	NA	NA	beta	GCST90018978
+rs79812451	A	T	Leukocyte Count	NA	NA	beta	GCST90018978
+rs140126992	T	A	Leukocyte Count	NA	NA	beta	GCST90002407
+rs549579958	C	G	Leukocyte Count	NA	NA	beta	GCST90002407
+rs71353786	A	T	Leukocyte Count	NA	NA	beta	GCST90002407
 rs9373839	G	C	Limited Scleroderma	NA	NA	OR	GCST005533
 rs145147495	A	T	Lip Morphology Measurement	NA	NA	beta	GCST004310
 rs17111684	A	T	Lipid Measurement	(aa)	NA	beta	GCST002042
@@ -1467,6 +1618,37 @@ rs3950119	G	C	Liver Fibrosis Measurement	NA	NA	beta	GCST010678
 rs6908031	G	C	Liver Fibrosis Measurement	NA	NA	beta	GCST010678
 rs7089692	G	C	Liver Fibrosis Measurement	NA	NA	beta	GCST010678
 rs138762279	A	T	Longevity	NA	NA	OR	GCST008601
+rs1000947	G	C	Longevity	NA	NA	beta	GCST009448
+rs11077897	G	C	Longevity	NA	NA	beta	GCST009448
+rs11584527	A	T	Longevity	NA	NA	beta	GCST009448
+rs11697370	A	T	Longevity	NA	NA	beta	GCST009448
+rs11783562	C	G	Longevity	NA	NA	beta	GCST009448
+rs12526097	G	C	Longevity	NA	NA	beta	GCST009448
+rs12734405	C	G	Longevity	NA	NA	beta	GCST009448
+rs12901998	A	T	Longevity	NA	NA	beta	GCST009448
+rs12929740	A	T	Longevity	NA	NA	beta	GCST009448
+rs13033350	A	T	Longevity	NA	NA	beta	GCST009448
+rs16847402	G	C	Longevity	NA	NA	beta	GCST009448
+rs16860198	C	G	Longevity	NA	NA	beta	GCST009448
+rs17113092	A	T	Longevity	NA	NA	beta	GCST009448
+rs17477137	A	T	Longevity	NA	NA	beta	GCST009448
+rs1950031	C	G	Longevity	NA	NA	beta	GCST009448
+rs1997850	G	C	Longevity	NA	NA	beta	GCST009448
+rs2029084	C	G	Longevity	NA	NA	beta	GCST009448
+rs2075679	G	C	Longevity	NA	NA	beta	GCST009448
+rs2411416	A	T	Longevity	NA	NA	beta	GCST009448
+rs247975	A	T	Longevity	NA	NA	beta	GCST009448
+rs2897250	G	C	Longevity	NA	NA	beta	GCST009448
+rs348480	A	T	Longevity	NA	NA	beta	GCST009448
+rs3796036	G	C	Longevity	NA	NA	beta	GCST009448
+rs524126	A	T	Longevity	NA	NA	beta	GCST009448
+rs5878	G	C	Longevity	NA	NA	beta	GCST009448
+rs690136	A	T	Longevity	NA	NA	beta	GCST009448
+rs886224	G	C	Longevity	NA	NA	beta	GCST009448
+rs9691522	A	T	Longevity	NA	NA	beta	GCST009448
+rs9974713	A	T	Longevity	NA	NA	beta	GCST009448
+rs9976694	A	T	Longevity	NA	NA	beta	GCST009448
+rs17698894	A	T	Longitudinal Bmi Measurement	(bmi)	NA	beta	GCST010059
 rs199950	G	C	Longitudinal Bmi Measurement	NA	NA	beta	GCST002692
 rs7565158	A	T	Longitudinal Bmi Measurement	NA	NA	beta	GCST002575
 rs6987702	G	C	Low Density Lipoprotein Cholesterol Measurement	NA	NA	beta	GCST000282
@@ -1502,6 +1684,13 @@ rs549579958	C	G	Lymphocyte Count	NA	NA	beta	GCST004627
 rs1388113944	A	T	Lymphocyte Count	NA	NA	beta	GCST90026514
 rs5850274	G	C	Lymphocyte Count	NA	NA	beta	GCST90001681
 rs41287767	T	A	Lymphocyte Count	NA	NA	beta	GCST90001685
+rs145612921	G	C	Lymphocyte Count	NA	NA	beta	GCST90018962
+rs549579958	C	G	Lymphocyte Count	NA	NA	beta	GCST90018962
+rs68041326	T	A	Lymphocyte Count	NA	NA	beta	GCST90018962
+rs549579958	C	G	Lymphocyte Count	NA	NA	beta	GCST90002388
+rs8177833	G	C	Lymphocyte Count	NA	NA	beta	GCST90002388
+rs35416333	C	G	Lymphocyte Percentage Of Leukocytes	NA	NA	beta	GCST90002389
+rs56213322	A	T	Lymphocyte Percentage Of Leukocytes	NA	NA	beta	GCST90002389
 rs2621416	G	C	Lymphoma	(fl)	NA	OR	GCST001826
 rs174533	T	A	Lysophosphatidylcholine Measurement	NA	NA	beta	GCST90060602
 rs174536	T	A	Lysophosphatidylcholine Measurement	NA	NA	beta	GCST90060602
@@ -1523,6 +1712,7 @@ rs2727263	G	C	Lysophosphatidylcholine Measurement	NA	NA	beta	GCST90060602
 rs2727270	A	T	Lysophosphatidylcholine Measurement	NA	NA	beta	GCST90060602
 rs2845572	C	G	Lysophosphatidylcholine Measurement	NA	NA	beta	GCST90060602
 rs509360	T	A	Lysophosphatidylcholine Measurement	NA	NA	beta	GCST90060602
+rs17368659	C	G	Macrophage Metalloelastase Measurement	NA	NA	beta	GCST009731
 rs3135758	A	T	Magnesium Measurement	(ea)	NA	beta	GCST002860
 rs603894	A	T	Magnesium Measurement	(ea)	NA	beta	GCST002860
 rs11891	T	A	Magnesium Measurement	NA	NA	beta	GCST002860
@@ -1533,6 +1723,7 @@ rs3814113	G	C	Malignant Epithelial Tumor Of Ovary	NA	NA	OR	GCST002748
 rs757210	A	T	Malignant Epithelial Tumor Of Ovary	NA	NA	OR	GCST002748
 rs7651446	A	T	Malignant Epithelial Tumor Of Ovary	NA	NA	OR	GCST002748
 rs1364229	A	T	Marginal Zone B-Cell Lymphoma	NA	NA	OR	GCST008726
+rs4987668	C	G	Mastocytosis	NA	NA	OR	GCST011383
 rs10232743	A	T	Maximal Oxygen Uptake Measurement	(vo2max )	NA	beta	GCST001762
 rs111299422	T	A	Maximal Oxygen Uptake Measurement	NA	NA	beta	GCST90093316
 rs111299422	T	A	Maximal Oxygen Uptake Measurement	NA	NA	beta	GCST90093317
@@ -1546,8 +1737,29 @@ rs900145	G	C	Mean Arterial Pressure	NA	NA	beta	GCST006231
 rs139711323	A	T	Mean Corpuscular Hemoglobin	NA	NA	beta	GCST004630
 rs200510190	G	C	Mean Corpuscular Hemoglobin	NA	NA	beta	GCST004630
 rs11272634	C	G	Mean Corpuscular Hemoglobin	NA	NA	beta	GCST90018744
+rs145910606	T	A	Mean Corpuscular Hemoglobin	NA	NA	beta	GCST90018964
+rs10717516	G	C	Mean Corpuscular Hemoglobin	NA	NA	beta	GCST90002390
+rs145910606	T	A	Mean Corpuscular Hemoglobin	NA	NA	beta	GCST90002390
+rs200510190	G	C	Mean Corpuscular Hemoglobin	NA	NA	beta	GCST90002390
+rs8178058	T	A	Mean Corpuscular Hemoglobin	NA	NA	beta	GCST90002390
+rs112409426	T	A	Mean Corpuscular Hemoglobin Concentration	NA	NA	beta	GCST90002391
+rs142832080	T	A	Mean Corpuscular Hemoglobin Concentration	NA	NA	beta	GCST90002391
 rs200510190	G	C	Mean Corpuscular Volume	NA	NA	beta	GCST004602
+rs145910606	T	A	Mean Corpuscular Volume	NA	NA	beta	GCST90018966
+rs10717516	G	C	Mean Corpuscular Volume	NA	NA	beta	GCST90002392
+rs141600568	G	C	Mean Corpuscular Volume	NA	NA	beta	GCST90002392
+rs143665849	T	A	Mean Corpuscular Volume	NA	NA	beta	GCST90002392
+rs145571377	A	T	Mean Corpuscular Volume	NA	NA	beta	GCST90002392
+rs145910606	T	A	Mean Corpuscular Volume	NA	NA	beta	GCST90002392
+rs200510190	G	C	Mean Corpuscular Volume	NA	NA	beta	GCST90002392
+rs10717516	G	C	Mean Corpuscular Volume	NA	NA	beta	GCST90002397
+rs145910606	T	A	Mean Corpuscular Volume	NA	NA	beta	GCST90002397
 rs7961894	A	T	Mean Platelet Volume	NA	NA	beta	GCST000305
+rs35179196	A	T	Mean Platelet Volume	NA	NA	beta	GCST90002395
+rs35375032	T	A	Mean Platelet Volume	NA	NA	beta	GCST90002395
+rs57988484	T	A	Mean Platelet Volume	NA	NA	beta	GCST90002395
+rs11323780	A	T	Mean Reticulocyte Volume	NA	NA	beta	GCST90002396
+rs549579958	C	G	Mean Reticulocyte Volume	NA	NA	beta	GCST90002396
 rs6978712	A	T	Medication Adherence Behavior	NA	NA	OR	GCST002637
 rs401681	A	T	Melanoma	NA	NA	OR	GCST001267
 rs910873	T	A	Melanoma	NA	NA	OR	GCST000198
@@ -1582,6 +1794,8 @@ rs1145724	G	C	Metastasis Measurement	(cox proportional hazards regression model)
 rs1426107	A	T	Metastasis Measurement	(cox proportional hazards regression model)	NA	OR	GCST007434
 rs3861289	A	T	Metastasis Measurement	(cox proportional hazards regression model)	NA	OR	GCST007434
 rs756055	C	G	Metastasis Measurement	(recessive, mixture cure model)	NA	OR	GCST007434
+rs3869132	A	T	Mhc Class I Polypeptide-Related Sequence A Measurement	NA	NA	beta	GCST009564
+rs112796779	A	T	Migraine Disorder	(random effect)	NA	OR	GCST010178
 rs1835740	A	T	Migraine Disorder	NA	NA	OR	GCST000782
 rs2074193	C	G	Migraine Disorder	NA	NA	OR	GCST002080
 rs895157	G	C	Moderate Albuminuria	NA	NA	OR	GCST007022
@@ -1589,8 +1803,14 @@ rs72888948	T	A	Monoclonal Gammopathy	NA	NA	OR	GCST007824
 rs2228467	G	C	Monocyte Count	NA	NA	beta	GCST001887
 rs2273788	A	T	Monocyte Count	NA	NA	beta	GCST001887
 rs424971	G	C	Monocyte Count	NA	NA	beta	GCST001887
+rs60217012	T	A	Monocyte Count	NA	NA	beta	GCST90018967
+rs141819830	A	T	Monocyte Count	NA	NA	beta	GCST90002393
+rs3216780	G	C	Monocyte Count	NA	NA	beta	GCST90002393
+rs35520592	C	G	Monocyte Count	NA	NA	beta	GCST90002393
 rs147817069	A	T	Monocyte Percentage Of Leukocytes	NA	NA	beta	GCST004609
+rs141819830	A	T	Monocyte Percentage Of Leukocytes	NA	NA	beta	GCST90002394
 rs3755021	T	A	Monocyte:lymphocyte Ratio	NA	NA	beta	GCST004170
+rs59633341	A	T	Mosaic Loss Of Chromosome Y Measurement	NA	NA	beta	GCST009375
 rs10734650	A	T	Moyamoya Disease	NA	NA	OR	GCST005575
 rs11640018	G	C	Moyamoya Disease	NA	NA	OR	GCST005575
 rs118177209	A	T	Moyamoya Disease	NA	NA	OR	GCST005575
@@ -1697,6 +1917,9 @@ rs793108	A	T	Multiple Sclerosis	NA	NA	OR	GCST001198
 rs806321	A	T	Multiple Sclerosis	NA	NA	OR	GCST001198
 rs3782886	A	T	Myocardial Infarction	NA	NA	OR	GCST002475
 rs4977574	C	G	Myocardial Infarction	NA	NA	OR	GCST002475
+rs2072134	T	A	Myocardial Infarction	NA	NA	OR	GCST010476
+rs2523644	G	C	Myocardial Infarction	NA	NA	OR	GCST010476
+rs3782886	G	C	Myocardial Infarction	NA	NA	OR	GCST010476
 rs11066301	T	A	Myositis	NA	NA	OR	GCST007278
 rs11621121	G	C	N-Glycan Measurement	(dg1, women)	NA	beta	GCST005046
 rs11621121	G	C	N-Glycan Measurement	(dg1)	NA	beta	GCST005046
@@ -1730,6 +1953,7 @@ rs246565	A	T	Neuroticism Measurement	NA	NA	beta	GCST008508
 rs7199110	A	T	Neuroticism Measurement	NA	NA	beta	GCST008508
 rs11361923	G	C	Neutrophil Count	NA	NA	beta	GCST004620
 rs61706696	T	A	Neutrophil Count	NA	NA	beta	GCST90018748
+rs71353786	A	T	Neutrophil Count	NA	NA	beta	GCST90002398
 rs57960857	A	T	Neutrophil Percentage Of Leukocytes	NA	NA	beta	GCST004633
 rs5894994	A	T	Nicotine Dependence	NA	NA	beta	GCST006302
 rs1051730	T	A	Nicotine Dependence	NA	NA	beta	GCST000171
@@ -1752,6 +1976,7 @@ rs8095193	A	T	Non-Obstructive Coronary Artery Disease	NA	NA	OR	GCST008436
 rs11080466	C	G	Non-Small Cell Lung Carcinoma	NA	NA	OR	GCST001210
 rs9981861	G	C	Non-Small Cell Lung Carcinoma	NA	(AG)	OR	GCST000871
 rs7620363	A	T	Non-Substance Related Disinhibited Behaviour	NA	NA	beta	GCST002132
+rs34549496	A	T	Non-Word Reading	NA	NA	beta	GCST007478
 rs10833478	G	C	Nrf2 Measurement	NA	NA	beta	GCST007538
 rs10917760	T	A	Nrf2 Measurement	NA	NA	beta	GCST007538
 rs2300268	C	G	Nrf2 Measurement	NA	NA	beta	GCST007538
@@ -1821,6 +2046,17 @@ rs763780	G	C	Pancreatic Carcinoma	NA	NA	OR	GCST004485
 rs719593	T	A	Parental Emotion Expression Measurmement	(maternal criticism)	NA	beta	GCST000245
 rs604381	A	T	Parental Emotion Expression Measurmement	(maternal warmth)	NA	beta	GCST000245
 rs1161463	C	G	Parental Emotion Expression Measurmement	(maternal warmth)	NA	beta	GCST000247
+rs11083232	G	C	Parental Longevity	NA	NA	beta	GCST009446
+rs1513895	A	T	Parental Longevity	NA	NA	beta	GCST009446
+rs10206961	A	T	Parental Longevity	NA	NA	beta	GCST009447
+rs17451403	A	T	Parental Longevity	NA	NA	beta	GCST009447
+rs3912613	G	C	Parental Longevity	NA	NA	beta	GCST009447
+rs7285459	G	C	Parental Longevity	NA	NA	beta	GCST009447
+rs7795011	C	G	Parental Longevity	NA	NA	beta	GCST009447
+rs9457827	A	T	Parental Longevity	NA	NA	beta	GCST009447
+rs9691174	G	C	Parental Longevity	NA	NA	beta	GCST009447
+rs9809889	A	T	Parental Longevity	NA	NA	beta	GCST009447
+rs9832642	G	C	Parental Longevity	NA	NA	beta	GCST009447
 rs5910	C	G	Parkinson Disease	NA	NA	OR	GCST004902
 rs4837628	A	T	Parkinson Disease	NA	NA	OR	GCST000567
 rs199533	C	G	Parkinson Disease	NA	NA	OR	GCST000772
@@ -2598,7 +2834,6 @@ rs174533	T	A	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
 rs174536	G	C	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
 rs174544	T	A	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
 rs174550	G	C	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
-rs174551	G	C	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
 rs174554	C	G	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
 rs174555	A	T	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
 rs174556	G	C	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
@@ -2791,6 +3026,315 @@ rs35574015	G	C	Phosphatidylethanolamine Measurement	NA	NA	beta	GCST90060806
 rs3803573	G	C	Phosphatidylethanolamine Measurement	NA	NA	beta	GCST90060806
 rs7200543	C	G	Phosphatidylethanolamine Measurement	NA	NA	beta	GCST90060806
 rs77927814	A	T	Phosphatidylethanolamine Measurement	NA	NA	beta	GCST90060806
+rs1535	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174544	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174547	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174556	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174561	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174564	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174566	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174567	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174577	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs174581	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs28456	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060825
+rs102275	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174536	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174550	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174551	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174554	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174562	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174567	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174568	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174577	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs174581	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs2576452	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs36621	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs36633	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs36636	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs36643	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs36659	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs40168	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs635608	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs7595	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs8736	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs99780	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060867
+rs10416555	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060872
+rs36633	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060872
+rs36636	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060872
+rs36643	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060872
+rs77215230	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060872
+rs2576452	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060877
+rs36636	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060877
+rs4806498	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060877
+rs36633	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060890
+rs4806498	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060890
+rs77215230	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060890
+rs102274	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs102275	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174536	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174538	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174546	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174547	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174550	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174553	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174555	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174556	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174560	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174561	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174568	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174572	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs174577	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs1885041	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs72719193	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs99780	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060898
+rs102275	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs11084313	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs1535	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174533	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174534	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174536	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174547	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174548	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174561	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174562	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174567	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174568	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174583	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs77215230	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs99780	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060903
+rs174546	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060907
+rs174550	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060907
+rs174561	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060907
+rs509360	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060907
+rs7943728	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060907
+rs10159255	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs102275	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10493322	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10789114	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10789119	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10889331	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10889333	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10889337	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10889348	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10889353	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10889356	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10889357	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs10889360	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11207970	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11207972	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11207974	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11207977	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11207980	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11207981	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11207982	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11207997	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs11485618	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1168003	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1168009	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1168029	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1168030	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1168040	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1168047	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1168113	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs12023489	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs12029068	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs12042319	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs12239736	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1570694	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs1690761	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174530	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174538	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174547	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174548	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174559	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174561	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174562	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174567	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs174570	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs2029763	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs2072113	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs2366636	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs2489835	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs2524299	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs2576452	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs2845574	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs36627	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs36631	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs36635	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs36636	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs36659	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs36660	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs36661	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs36664	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs4350231	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs4587594	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs583609	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs597470	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs598253	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs61775910	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs630144	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs634341	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs636497	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs637723	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs641540	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs642845	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs6587976	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs6587980	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs6675401	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs6679002	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs6682423	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs6696502	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs73062684	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs783291	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs8736	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs9436221	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs9436223	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs9988450	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060912
+rs4806498	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060942
+rs102275	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs11084313	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174533	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174536	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174545	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174547	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174555	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174556	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174560	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174561	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174576	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs174583	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs2524296	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs2576452	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs2845574	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs36625	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs36626	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs36627	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs36629	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs40167	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs509360	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs56322906	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs73062684	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs7595	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs77215230	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs8101801	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs99780	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060946
+rs1225737	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs1570069	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs1812685	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs183716	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs2576452	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs36629	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs36633	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs36638	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs36643	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs3798711	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs40357	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs6920155	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs8736	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs953413	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060976
+rs11084313	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060979
+rs36633	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060979
+rs36636	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060979
+rs4806498	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060979
+rs73062684	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060979
+rs8736	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060979
+rs174533	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174550	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174551	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174556	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174561	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174566	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174572	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174577	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174579	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174581	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174582	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs174585	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs2072113	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs2072114	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs2524296	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs2526680	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs2845572	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs2845573	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs2845574	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs28456	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs4564341	A	T	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060988
+rs102275	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs1535	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174536	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174544	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174553	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174556	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174560	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174562	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174567	C	G	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174568	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174576	G	C	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174577	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs174581	T	A	Phosphatidylinositol Measurement	NA	NA	beta	GCST90060992
+rs102275	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174536	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174537	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174546	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174551	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174559	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174560	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174562	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174564	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174577	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs174583	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs28456	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs99780	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060864
+rs102275	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174530	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174533	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174536	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174547	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174550	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174556	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174559	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174560	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174562	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174566	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174567	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174568	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174570	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174572	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174573	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174577	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174581	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174583	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs28456	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060985
+rs174533	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174536	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174546	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174547	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174550	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174555	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174556	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174562	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174572	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174573	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174577	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs174581	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs509360	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90060989
+rs102275	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174530	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174534	T	A	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174538	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174548	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174553	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174555	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174561	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174572	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174579	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174583	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs174585	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs2072114	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs2727270	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs2845573	C	G	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs4564341	G	C	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
+rs99780	A	T	Phosphatidylserines Measurement	NA	NA	beta	GCST90061008
 rs2233688	C	G	Phospholipase A2, Membrane Associated Measurement	NA	NA	beta	GCST008260
 rs2307246	T	A	Phospholipase A2, Membrane Associated Measurement	NA	NA	beta	GCST008260
 rs1020410	G	C	Physical Activity	(calorimeter activity )	NA	beta	GCST001762
@@ -2798,14 +3342,23 @@ rs7307889	A	T	Physical Activity	(calorimeter activity )	NA	beta	GCST001762
 rs7231041	G	C	Physical Activity	(moderate&vigorous activity )	NA	beta	GCST001762
 rs7583236	G	C	Physical Activity	(sedentary&light activity )	NA	beta	GCST001762
 rs2359536	G	C	Pituitary Gland Adenoma	NA	NA	OR	GCST002940
+rs66937127	T	A	Platelet Component Distribution Width	NA	NA	beta	GCST90002401
 rs11294619	T	A	Platelet Count	NA	NA	beta	GCST004603
 rs3733606	G	C	Platelet Count	NA	NA	beta	GCST002733
+rs138541467	T	A	Platelet Count	NA	NA	beta	GCST90002402
+rs141410014	G	C	Platelet Count	NA	NA	beta	GCST90002402
+rs34548043	T	A	Platelet Count	NA	NA	beta	GCST90002402
+rs35179196	A	T	Platelet Count	NA	NA	beta	GCST90002402
 rs11294619	T	A	Platelet Crit	NA	NA	beta	GCST004607
+rs34715615	A	T	Platelet Crit	NA	NA	beta	GCST90002400
+rs3834976	T	A	Platelet Crit	NA	NA	beta	GCST90002400
 rs34132030	A	T	Polyarticular Juvenile Idiopathic Arthritis, Rheumatoid Factor Negative	(additive model)	NA	OR	GCST005528
 rs2266959	A	T	Polyarticular Juvenile Idiopathic Arthritis, Rheumatoid Factor Negative	(dominant model)	NA	OR	GCST005528
 rs7775055	G	C	Polyarticular Juvenile Idiopathic Arthritis, Rheumatoid Factor Negative	(dominant model)	NA	OR	GCST005528
 rs1159315	G	C	Polycystic Ovary Syndrome	NA	NA	beta	GCST006659
 rs2060941	A	T	Polycystic Ovary Syndrome	NA	NA	beta	GCST006659
+rs2286896	G	C	Polymyositis	NA	NA	OR	GCST006052
+rs3094013	T	A	Polymyositis	NA	NA	OR	GCST006052
 rs2076222	A	T	Post-Operative Fentanyl Consumption Measurement	(additive)	NA	beta	GCST003200
 rs1033962	A	T	Post-Traumatic Stress Disorder	NA	NA	OR	GCST002681
 rs4952632	C	G	Pr Interval	(pr)	NA	beta	GCST002542
@@ -2814,6 +3367,8 @@ rs11024102	G	C	Primary Angle Closure Glaucoma	(asian)	NA	OR	GCST003467
 rs1015213	A	T	Primary Angle Closure Glaucoma	NA	NA	OR	GCST003467
 rs11024102	G	C	Primary Angle Closure Glaucoma	NA	NA	OR	GCST003467
 rs1859308	C	G	Primary Biliary Cirrhosis	NA	NA	OR	GCST003129
+rs413024	T	A	Primary Biliary Cirrhosis	NA	NA	OR	GCST009956
+rs700172	A	T	Primary Biliary Cirrhosis	NA	NA	OR	GCST009956
 rs11065979	A	T	Primary Biliary Cirrhosis	NA	NA	OR	GCST005581
 rs1646019	G	C	Primary Biliary Cirrhosis	NA	NA	OR	GCST005581
 rs17564829	G	C	Primary Biliary Cirrhosis	NA	NA	OR	GCST005581
@@ -2828,7 +3383,9 @@ rs17005934	G	C	Primary Biliary Cirrhosis	NA	NA	OR	GCST004302
 rs4149576	A	T	Primary Biliary Cirrhosis	NA	NA	OR	GCST004302
 rs4979467	A	T	Primary Biliary Cirrhosis	NA	NA	OR	GCST004302
 rs77871618	A	T	Primary Biliary Cirrhosis	NA	NA	OR	GCST004302
+rs2981579	T	A	Progesterone-Receptor Negative Breast Cancer	NA	NA	OR	GCST007420
 rs1873147	C	G	Progranulin Measurement	(meta-all, nscl/p)	NA	OR	GCST001628
+rs68010938	T	A	Prostate Carcinoma	NA	NA	OR	GCST011049
 rs11135910	A	T	Prostate Carcinoma	NA	NA	OR	GCST001942
 rs11902236	A	T	Prostate Carcinoma	NA	NA	OR	GCST001942
 rs2427345	G	C	Prostate Carcinoma	NA	NA	OR	GCST001942
@@ -2842,6 +3399,7 @@ rs1465618	A	T	Prostate Carcinoma	NA	NA	OR	GCST011957
 rs684232	G	C	Prostate Carcinoma	NA	NA	OR	GCST011957
 rs2121875	G	C	Prostate Carcinoma	NA	NA	OR	GCST001148
 rs7584330	C	G	Prostate Carcinoma	NA	NA	OR	GCST001148
+rs36096780	A	T	Prostate Carcinoma	NA	NA	OR	GCST90011808
 rs4793529	G	C	Prostate Carcinoma	NA	unit decrease	OR	GCST011829
 rs587948	C	G	Prostate Carcinoma	NA	unit decrease	OR	GCST011829
 rs757138	C	G	Prostate Carcinoma	NA	unit decrease	OR	GCST011829
@@ -2856,6 +3414,16 @@ rs867186	C	G	Protein C Measurement	NA	NA	beta	GCST002686
 rs867186	C	G	Protein C Measurement	NA	NA	beta	GCST000780
 rs2187668	A	T	Protein Measurement	NA	NA	OR	GCST000763
 rs7029145	A	T	Protein Measurement	NA	NA	OR	GCST000763
+rs553060882	A	T	Protein Measurement	(aadac)	NA	beta	GCST011427
+rs397941066	T	A	Protein Measurement	(coq9)	NA	beta	GCST011427
+rs1290142804	C	G	Protein Measurement	(coro1b)	NA	beta	GCST011427
+rs1168460561	G	C	Protein Measurement	(fdxr)	NA	beta	GCST011427
+rs1290142804	C	G	Protein Measurement	(ftl)	NA	beta	GCST011427
+rs1361284625	A	T	Protein Measurement	(hibch)	NA	beta	GCST011427
+rs148739641	A	T	Protein Measurement	(pcca)	NA	beta	GCST011427
+rs148739641	A	T	Protein Measurement	(pccb)	NA	beta	GCST011427
+rs199656581	A	T	Protein Measurement	(sept11)	NA	beta	GCST011427
+rs1177681540	T	A	Protein Measurement	(tst)	NA	beta	GCST011427
 rs16945809	A	T	Proteinuria	NA	NA	beta	GCST90026611
 rs2233278	A	T	Psoriasis	NA	NA	OR	GCST002738
 rs2395029	C	G	Psoriasis	NA	NA	OR	GCST000173
@@ -2872,7 +3440,13 @@ rs6480305	A	T	Psoriasis	(fixed)	NA	OR	GCST008479
 rs1991002	A	T	Psychosocial Stress Measurement	NA	NA	OR	GCST90093105
 rs778217695	T	A	Psychotic Symptoms	NA	NA	OR	GCST90020050
 rs58667	A	T	Pulmonary Function Measurement	(ppfev1)	NA	beta	GCST001918
+rs937965	A	T	Pulmonary Function Measurement	NA	NA	OR	GCST008240
+rs17113174	C	G	Pulmonary Function Measurement	NA	NA	OR	GCST008241
+rs937965	A	T	Pulmonary Function Measurement	NA	NA	OR	GCST008241
 rs409558	G	C	Pulse Pressure Measurement	NA	NA	beta	GCST006230
+rs147628895	A	T	Pulse Pressure Measurement	NA	NA	beta	GCST90018970
+rs67314034	T	A	Pulse Pressure Measurement	NA	NA	beta	GCST90018970
+rs68168422	G	C	Pulse Pressure Measurement	NA	NA	beta	GCST90018970
 rs1321311	T	A	Qrs Complex	(qrs duration)	NA	beta	GCST000561
 rs1733724	T	A	Qrs Complex	(qrs duration)	NA	beta	GCST000561
 rs9470366	T	A	Qrs Duration	NA	NA	beta	GCST002533
@@ -2883,6 +3457,8 @@ rs6845865	G	C	Qt Interval	NA	NA	beta	GCST000452
 rs789852	A	T	Qt Interval	NA	NA	beta	GCST000452
 rs10819861	G	C	Qt Interval	(qt)	NA	beta	GCST002542
 rs17879755	C	G	Qt Interval	NA	NA	beta	GCST001746
+rs76161559	A	T	Reading And Spelling Ability	NA	NA	beta	GCST007469
+rs2236018	A	T	Receptive Language Perception	NA	NA	beta	GCST010606
 rs3796619	T	A	Recombination Rate	NA	NA	beta	GCST000148
 rs1670533	C	G	Recombination Rate	NA	NA	beta	GCST000149
 rs59264502	A	T	Red Blood Cell Density Measurement	NA	NA	beta	GCST004379
@@ -3039,6 +3615,8 @@ rs79946301	A	T	Response To Diisocyanate	NA	NA	OR	GCST002875
 rs9367895	G	C	Response To Diisocyanate	NA	NA	OR	GCST002875
 rs9577729	G	C	Response To Diisocyanate	NA	NA	OR	GCST002875
 rs9963330	A	T	Response To Diisocyanate	NA	NA	OR	GCST002875
+rs17067290	T	A	Response To Diuretic	(allelic model)	NA	OR	GCST009319
+rs118131161	G	C	Response To Diuretic	(ea)	NA	beta	GCST009646
 rs4234284	T	A	Response To Docetaxel	(dominant)	NA	OR	GCST002180
 rs6117615	C	G	Response To Docetaxel	(dominant)	NA	OR	GCST002180
 rs3747851	T	A	Response To Docetaxel	(allelic model)	NA	OR	GCST001995
@@ -3059,6 +3637,7 @@ rs3906453	A	T	Response To Exercise	NA	NA	beta	GCST003207
 rs11062040	A	T	Response To Gemcitabine	NA	NA	OR	GCST001346
 rs763780	G	C	Response To Gemcitabine	NA	NA	OR	GCST001346
 rs11141915	T	A	Response To Gemcitabine	(allelic)	NA	OR	GCST001390
+rs1216352	A	T	Response To Long-Chain N-3 Pufa Dietary Supplementation	NA	NA	OR	GCST006055
 rs6506569	G	C	Response To Methotrexate	NA	NA	OR	GCST002375
 rs11045995	G	C	Response To Neuromuscular Blocker	NA	NA	beta	GCST012479
 rs7967354	G	C	Response To Neuromuscular Blocker	NA	NA	beta	GCST012479
@@ -3086,7 +3665,9 @@ rs4886670	A	T	Response To Platinum Based Chemotherapy	(allelic model)	NA	OR	GCST
 rs16825455	T	A	Response To Platinum Based Chemotherapy	(dominant model)	NA	OR	GCST001998
 rs12589282	G	C	Response To Platinum Based Chemotherapy	(recessive model)	NA	OR	GCST001998
 rs1364121	A	T	Response To Platinum-Based Neoadjuvant Chemotherapy	NA	NA	OR	GCST004097
+rs11932518	G	C	Response To Polyunsaturated Fatty Acid Supplementation	NA	NA	beta	GCST005668
 rs2280885	G	C	Response To Polyunsaturated Fatty Acid Supplementation	NA	NA	beta	GCST005669
+rs72703546	C	G	Response To Polyunsaturated Fatty Acid Supplementation	NA	NA	OR	GCST009642
 rs17822656	G	C	Response To Ranibizumab	NA	NA	OR	GCST006277
 rs1265112	G	C	Response To Reverse Transcriptase Inhibitor	NA	NA	OR	GCST001186
 rs11012476	A	T	Response To Rifampicin	NA	NA	OR	GCST004262
@@ -3103,6 +3684,7 @@ rs2122469	C	G	Response To Tamsulosin	NA	NA	beta	GCST001744
 rs303386	A	T	Response To Topoisomerase Inhibitor	(dominant)	NA	OR	GCST001994
 rs10074959	T	A	Response To Topoisomerase Inhibitor	(recessive model)	NA	OR	GCST001994
 rs480409	G	C	Response To Topoisomerase Inhibitor	(recessive model)	NA	OR	GCST001994
+rs3755963	C	G	Response To Vaccine	NA	NA	beta	GCST008498
 rs3818168	T	A	Response To Vaccine	NA	NA	beta	GCST008499
 rs6478282	A	T	Response To Vaccine	NA	NA	beta	GCST001547
 rs7230711	C	G	Response To Vaccine	NA	NA	beta	GCST001547
@@ -3137,6 +3719,40 @@ rs549579958	C	G	Reticulocyte Count	NA	NA	beta	GCST004622
 rs5868014	G	C	Reticulocyte Count	NA	NA	beta	GCST004622
 rs145910606	T	A	Reticulocyte Count	NA	NA	beta	GCST004628
 rs549579958	C	G	Reticulocyte Count	NA	NA	beta	GCST004628
+rs145910606	T	A	Reticulocyte Count	NA	NA	beta	GCST90002385
+rs34764015	A	T	Reticulocyte Count	NA	NA	beta	GCST90002385
+rs35964477	A	T	Reticulocyte Count	NA	NA	beta	GCST90002385
+rs549579958	C	G	Reticulocyte Count	NA	NA	beta	GCST90002385
+rs5868014	G	C	Reticulocyte Count	NA	NA	beta	GCST90002385
+rs59285639	A	T	Reticulocyte Count	NA	NA	beta	GCST90002385
+rs141274831	C	G	Reticulocyte Count	NA	NA	beta	GCST90002405
+rs145910606	T	A	Reticulocyte Count	NA	NA	beta	GCST90002405
+rs35964477	A	T	Reticulocyte Count	NA	NA	beta	GCST90002405
+rs549579958	C	G	Reticulocyte Count	NA	NA	beta	GCST90002405
+rs5868014	G	C	Reticulocyte Count	NA	NA	beta	GCST90002405
+rs145910606	T	A	Reticulocyte Measurement	NA	NA	beta	GCST90002386
+rs34764015	A	T	Reticulocyte Measurement	NA	NA	beta	GCST90002386
+rs35783812	T	A	Reticulocyte Measurement	NA	NA	beta	GCST90002386
+rs35964477	A	T	Reticulocyte Measurement	NA	NA	beta	GCST90002386
+rs549579958	C	G	Reticulocyte Measurement	NA	NA	beta	GCST90002386
+rs5868014	G	C	Reticulocyte Measurement	NA	NA	beta	GCST90002386
+rs59285639	A	T	Reticulocyte Measurement	NA	NA	beta	GCST90002386
+rs142336524	A	T	Reticulocyte Measurement	NA	NA	beta	GCST90002387
+rs145910606	T	A	Reticulocyte Measurement	NA	NA	beta	GCST90002387
+rs3858722	T	A	Reticulocyte Measurement	NA	NA	beta	GCST90002387
+rs549579958	C	G	Reticulocyte Measurement	NA	NA	beta	GCST90002387
+rs5868014	G	C	Reticulocyte Measurement	NA	NA	beta	GCST90002387
+rs59285639	A	T	Reticulocyte Measurement	NA	NA	beta	GCST90002387
+rs145910606	T	A	Reticulocyte Measurement	NA	NA	beta	GCST90002406
+rs35964477	A	T	Reticulocyte Measurement	NA	NA	beta	GCST90002406
+rs549579958	C	G	Reticulocyte Measurement	NA	NA	beta	GCST90002406
+rs5868014	G	C	Reticulocyte Measurement	NA	NA	beta	GCST90002406
+rs11992725	C	G	Retinal Break	NA	NA	OR	GCST009959
+rs12939240	T	A	Retinal Break	NA	NA	OR	GCST009959
+rs633918	A	T	Retinal Break	NA	NA	OR	GCST009959
+rs11992725	C	G	Retinal Detachment	NA	NA	OR	GCST009959
+rs12939240	T	A	Retinal Detachment	NA	NA	OR	GCST009959
+rs633918	A	T	Retinal Detachment	NA	NA	OR	GCST009959
 rs955943	A	T	Rhegmatogenous Retinal Detachment	NA	NA	OR	GCST001966
 rs11066301	T	A	Rheumatoid Arthritis	NA	NA	OR	GCST007278
 rs1364229	A	T	Rheumatoid Arthritis	NA	NA	OR	GCST008726
@@ -3216,17 +3832,30 @@ rs2074356	T	A	Serum Gamma-Glutamyl Transferase Measurement	NA	NA	beta	GCST001234
 rs2393791	G	C	Serum Gamma-Glutamyl Transferase Measurement	NA	NA	beta	GCST001234
 rs4835265	T	A	Serum Gamma-Glutamyl Transferase Measurement	NA	NA	beta	GCST001234
 rs1169288	G	C	Serum Gamma-Glutamyl Transferase Measurement	NA	NA	beta	GCST001307
+rs138895820	G	C	Serum Gamma-Glutamyl Transferase Measurement	NA	NA	beta	GCST90018954
+rs57625464	A	T	Serum Gamma-Glutamyl Transferase Measurement	NA	NA	beta	GCST90018954
 rs9329350	G	C	Serum Igg Glycosylation Measurement	(igp59)	NA	beta	GCST001848
 rs1372356	C	G	Serum Igg Measurement	(bsa-b)	NA	beta	GCST002518
 rs3135350	G	C	Serum Igg Measurement	(gliadin)	NA	beta	GCST002518
 rs11438927	G	C	Serum Metabolite Measurement	(butyrylcarnitine (c4))	NA	beta	GCST012020
 rs17882854	G	C	Serum Non-Albumin Protein Measurement	NA	NA	beta	GCST90019515
+rs10649697	T	A	Sex Hormone-Binding Globulin Measurement	NA	NA	beta	GCST90012108
+rs112965849	A	T	Sex Hormone-Binding Globulin Measurement	NA	NA	beta	GCST90012108
+rs10649697	T	A	Sex Hormone-Binding Globulin Measurement	NA	NA	beta	GCST90012109
+rs112965849	A	T	Sex Hormone-Binding Globulin Measurement	NA	NA	beta	GCST90012109
+rs112965849	A	T	Sex Hormone-Binding Globulin Measurement	NA	NA	beta	GCST90012110
+rs142773536	G	C	Sex Hormone-Binding Globulin Measurement	NA	NA	beta	GCST90012110
+rs112965849	A	T	Sex Hormone-Binding Globulin Measurement	NA	NA	beta	GCST90012111
+rs142773536	G	C	Sex Hormone-Binding Globulin Measurement	NA	NA	beta	GCST90012111
 rs13436218	C	G	Sexual Dysfunction	NA	NA	OR	GCST001453
 rs2445284	G	C	Sickle Cell Anemia	NA	NA	beta	GCST001862
 rs7203560	C	G	Sickle Cell Anemia	NA	NA	beta	GCST001862
 rs1545257	C	G	Sjogren Syndrome	NA	NA	OR	GCST004879
 rs3791406	A	T	Skin Aging Measurement	NA	NA	beta	GCST004574
 rs138895820	G	C	Sleep Apnea Measurement	NA	NA	beta	GCST90091025
+rs1156250	G	C	Sleep Apnea Measurement	NA	NA	beta	GCST009461
+rs158258	G	C	Sleep Apnea Measurement	NA	NA	beta	GCST009461
+rs2581360	A	T	Sleep Apnea Measurement	NA	NA	beta	GCST009461
 rs2278331	A	T	Sleep Duration	NA	NA	beta	GCST002053
 rs10493631	G	C	Sleep Measurement	(sleep duration )	NA	beta	GCST001762
 rs11658587	A	T	Sleep Measurement	(sleep duration )	NA	beta	GCST001762
@@ -3238,8 +3867,328 @@ rs7350721	C	G	Smoking Behaviour Measurement	(aa)	NA	beta	GCST004581
 rs16827293	A	T	Smoking Behaviour Measurement	(aa)	NA	beta	GCST004584
 rs10067755	C	G	Smoking Behaviour Measurement	NA	NA	beta	GCST004584
 rs7350721	C	G	Smoking Behaviour Measurement	(aa, ever vs never smoking)	NA	beta	GCST004586
+rs2434584	C	G	Smoking Status Measurement	NA	NA	OR	GCST006530
 rs649057	T	A	Smooth Surface Dental Caries	NA	NA	beta	GCST001896
 rs7157785	A	T	Sphingolipid Measurement	(sm 14:0mol%)	NA	beta	GCST000493
+rs12879147	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs12880341	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs12897637	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs1321940	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs2327447	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs2327448	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs34561759	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs35372182	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs3848765	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs4902242	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs6078878	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs6078882	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs6131421	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs680379	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs8003797	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs8008068	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs8012828	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060633
+rs10498511	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs111452458	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11158502	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs111719803	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs112697414	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs113085196	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs113406905	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs113431361	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs116982134	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs117393850	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs118024635	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11845471	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11846081	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11847033	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11847188	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11847332	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11848860	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11849082	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs11850575	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs12147926	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs12880341	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs12891651	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs138410811	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs139820814	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs142689528	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs143315154	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs143928911	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs146236048	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs147173826	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs147822428	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs148590087	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs17101348	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs17225497	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs180327	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs182319497	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs2031940	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs2075290	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs2266788	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs2327447	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs36144365	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs3742622	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs3761895	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs3843769	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs3848745	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs3848765	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs4346121	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs4508668	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs4814176	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs55758170	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs55797516	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs56015314	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs56094435	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs56105514	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs56169803	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs56342043	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs56858295	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs57107616	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs6078878	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs6078880	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs6078882	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61984012	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61984021	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61984029	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61984033	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61984044	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61984045	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61984055	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61985670	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61985672	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61985674	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61985681	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61985687	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs61985689	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs651821	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs6573528	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs66684280	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs7148726	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs7149625	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs7154718	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs7156219	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs73263634	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs73263676	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs73265719	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs73265743	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs77539437	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8003077	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8003101	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8003797	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8006901	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8007407	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8007889	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8010642	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8012828	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8013242	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8017835	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8018034	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8018872	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8019057	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8020831	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs8020833	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs9671362	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060641
+rs2266788	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060644
+rs651821	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060644
+rs2075290	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060647
+rs3741298	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060652
+rs651821	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060652
+rs180327	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060655
+rs2266788	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060655
+rs918144	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060655
+rs1263149	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060657
+rs180326	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060657
+rs180327	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060657
+rs3741298	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060657
+rs483082	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060657
+rs3741298	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060664
+rs651821	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060664
+rs1558861	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060673
+rs1321940	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs1367742	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs168622	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs2327448	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs3843770	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs3848745	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs3848746	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs438568	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs4508668	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs4814176	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs56155938	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs57362538	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs6041735	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs6078884	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs680379	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060674
+rs11604424	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060680
+rs180327	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060680
+rs11216140	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060685
+rs11604424	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060685
+rs180327	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060685
+rs1321940	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060695
+rs680379	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060695
+rs1321940	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs168621	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs168622	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs184856	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs189662	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs2327447	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs2876240	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs34899016	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs360530	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs360532	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs360533	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs360536	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3761893	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3848745	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3848746	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3848752	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3848754	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3848762	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3848764	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3848765	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3848767	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3903703	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs3910136	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs4081899	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs438568	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs4508668	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs4814176	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs57362538	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs5752840	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs6041735	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs6074539	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs6078866	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs6078884	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs615921	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs7268756	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs780093	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs780094	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs891661	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060700
+rs1321940	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs3761893	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs3848762	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs438568	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs4508668	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs56155938	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs57362538	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs6041735	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs6078882	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs6109679	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060717
+rs10790162	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060723
+rs11216129	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060723
+rs11666913	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060723
+rs180327	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060723
+rs4417316	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060723
+rs4508668	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060723
+rs6041735	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060723
+rs7246617	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060723
+rs11604424	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060728
+rs1321940	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060728
+rs180327	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060728
+rs438568	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060728
+rs4814176	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060728
+rs3741298	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060742
+rs10790162	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs1558861	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs2075290	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs2327445	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs2327447	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs34899016	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs360525	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs360538	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs3843770	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs3848746	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs3848762	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs3848767	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs3966739	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs6041735	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs6078878	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs6078882	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs6109676	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs6109679	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs615921	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs62201721	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs680379	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs8008070	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060752
+rs438568	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060808
+rs4814176	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060808
+rs2266788	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060813
+rs1011685	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs10790162	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs114650503	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs114964604	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs12682115	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs17410996	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs58946909	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs6586884	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs74855321	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs78810414	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060827
+rs1011685	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs10790162	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs117227752	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs12679834	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs12682115	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs1268353	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs1558861	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs180326	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs651821	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs76496571	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs76975037	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs7819706	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs7841189	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060830
+rs3843769	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs3848746	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs3848762	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs438568	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs4814181	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs56155938	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs6041821	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs6041824	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs6074546	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs6078878	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs6078880	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs6078884	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs6109679	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs6131421	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs7268756	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs891661	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060831
+rs10129316	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs10133655	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs1077989	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs10873203	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs11158676	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs11158678	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs12878981	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs12898179	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174533	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174536	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174537	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174546	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174556	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174560	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174562	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174565	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174568	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174577	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174585	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174608	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs174611	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs17831757	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs1885040	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs2004555	A	T	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs2072114	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs2273596	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs2524299	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs28456	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs61896141	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs61897793	C	G	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs61988187	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs61988189	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs7156144	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs7160654	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs7160944	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs72719193	T	A	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
+rs8019974	G	C	Sphingomyelin Measurement	NA	NA	beta	GCST90060859
 rs11025915	A	T	Spine Bone Mineral Density Change Measurement	NA	NA	beta	GCST005214
 rs17047225	C	G	Spine Bone Mineral Density Change Measurement	NA	NA	beta	GCST005214
 rs6060373	C	G	Spine Bone Size	NA	NA	beta	GCST001756
@@ -3276,6 +4225,7 @@ rs32579	A	T	Suntan	NA	NA	beta	GCST000371
 rs2299187	A	T	Survival Time	NA	NA	OR	GCST003541
 rs8113308	G	C	Survival Time	NA	NA	OR	GCST002901
 rs1050631	T	A	Survival Time	NA	NA	OR	GCST002010
+rs71668025	A	T	Susceptibility To Infectious Disease Measurement	NA	NA	OR	GCST009130
 rs34132030	A	T	Systemic Juvenile Idiopathic Arthritis	(additive model)	NA	OR	GCST005528
 rs2266959	A	T	Systemic Juvenile Idiopathic Arthritis	(dominant model)	NA	OR	GCST005528
 rs7775055	G	C	Systemic Juvenile Idiopathic Arthritis	(dominant model)	NA	OR	GCST005528
@@ -3297,6 +4247,19 @@ rs4639966	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST000507
 rs4917014	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST000507
 rs7197475	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST000507
 rs7812879	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST000507
+rs10233510	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs11132627	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs1116221	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs113206908	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs1385374	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs2763979	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs2837982	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs422951	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs4731530	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs6595836	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs67269402	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs7299679	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
+rs73366469	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST011426
 rs1128334	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST000592
 rs12599402	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST001795
 rs13385731	A	T	Systemic Lupus Erythematosus	NA	NA	OR	GCST001795
@@ -3305,6 +4268,8 @@ rs3734266	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST001795
 rs742108	T	A	Systemic Lupus Erythematosus	NA	NA	OR	GCST001795
 rs34452045	G	C	Systemic Lupus Erythematosus	NA	NA	OR	GCST011956
 rs66977652	T	A	Systemic Lupus Erythematosus	NA	NA	OR	GCST011956
+rs1820510	A	T	Systemic Mastocytosis	NA	NA	OR	GCST011382
+rs2857596	C	G	Systemic Mastocytosis	NA	NA	OR	GCST011382
 rs11066301	T	A	Systemic Scleroderma	NA	NA	OR	GCST007278
 rs7130875	G	C	Systemic Scleroderma	NA	NA	OR	GCST005534
 rs9373839	G	C	Systemic Scleroderma	NA	NA	OR	GCST005534
@@ -3313,8 +4278,11 @@ rs6774721	C	G	Systolic Blood Pressure	NA	NA	beta	GCST006624
 rs1458038	A	T	Systolic Blood Pressure	(hispanic)	NA	beta	GCST007237
 rs757201142	A	T	Systolic Blood Pressure	NA	NA	beta	GCST011891
 rs409558	G	C	Systolic Blood Pressure	NA	NA	beta	GCST006228
+rs147628895	A	T	Systolic Blood Pressure	NA	NA	beta	GCST90018972
+rs149481999	G	C	Systolic Blood Pressure	NA	NA	beta	GCST90018972
 rs2159537	G	C	Systolic Blood Pressure Change Measurement	(ordinal)	NA	beta	GCST003825
 rs2159537	G	C	Systolic Blood Pressure Change Measurement	(trajectory class 5)	NA	beta	GCST003825
+rs16984571	G	C	Systolic Blood Pressure Change Measurement	NA	NA	beta	GCST006274
 rs4454147	G	C	Systolic Blood Pressure Change Measurement	NA	NA	beta	GCST008968
 rs1383258	A	T	Takayasu Arteritis	(ea)	NA	OR	GCST006575
 rs2660739	A	T	Takayasu Arteritis	(ea)	NA	OR	GCST006575
@@ -3329,6 +4297,8 @@ rs3805663	T	A	Testicular Carcinoma	NA	NA	OR	GCST002022
 rs2736100	T	A	Testicular Carcinoma	NA	NA	OR	GCST000701
 rs7107174	A	T	Testicular Germ Cell Tumor	NA	NA	OR	GCST004635
 rs8077577	A	T	Testosterone Measurement	(testosterone )	NA	beta	GCST001762
+rs112714881	T	A	Testosterone Measurement	NA	NA	beta	GCST90012103
+rs111538456	C	G	Testosterone Measurement	NA	NA	beta	GCST90012113
 rs10510138	A	T	Thyroid Stimulating Hormone Measurement	(tsh )	NA	beta	GCST001762
 rs11201253	A	T	Thyroid Stimulating Hormone Measurement	(tsh )	NA	beta	GCST001762
 rs7253430	A	T	Thyroid Stimulating Hormone Measurement	(tsh )	NA	beta	GCST001762
@@ -3342,6 +4312,8 @@ rs6987702	G	C	Total Cholesterol Measurement	NA	NA	beta	GCST000285
 rs1043274	A	T	Total Cholesterol Measurement	(tc )	NA	beta	GCST001762
 rs17150243	C	G	Total Cholesterol Measurement	(tc )	NA	beta	GCST001762
 rs9956878	A	T	Total Cholesterol Measurement	(tc )	NA	beta	GCST001762
+rs1109559	C	G	Total Cholesterol Measurement	NA	NA	beta	GCST005781
+rs261332	T	A	Total Cholesterol Measurement	NA	NA	beta	GCST005781
 rs6861279	T	A	Total Cholesterol Measurement	(total cholesterol)	NA	beta	GCST010060
 rs11220462	T	A	Total Cholesterol Measurement	NA	NA	beta	GCST000760
 rs2081687	A	T	Total Cholesterol Measurement	NA	NA	beta	GCST000760
@@ -3362,7 +4334,9 @@ rs17612678	G	C	Transforming Growth Factor Beta Measurement	(tbf-b1 )	NA	beta	GCS
 rs2333163	G	C	Transforming Growth Factor Beta Measurement	(tbf-b1 )	NA	beta	GCST001762
 rs359980	G	C	Transforming Growth Factor Beta Measurement	(tbf-b1 )	NA	beta	GCST001762
 rs76547188	A	T	Transforming Growth Factor Beta Measurement	(tbf-b1 )	NA	beta	GCST001762
+rs16934621	A	T	Treatment-Resistant Hypertension	NA	NA	OR	GCST007135
 rs6487504	A	T	Treatment-Resistant Hypertension	NA	NA	OR	GCST007136
+rs1216352	A	T	Triglyceride Change Measurement	NA	NA	OR	GCST006055
 rs3861882	A	T	Triglyceride Change Measurement	NA	NA	beta	GCST003207
 rs3906453	A	T	Triglyceride Change Measurement	NA	NA	beta	GCST003207
 rs10096633	G	C	Triglyceride Measurement	NA	NA	beta	GCST000289
@@ -3376,12 +4350,163 @@ rs2292873	A	T	Triglyceride Measurement	(tg )	NA	beta	GCST001762
 rs3741298	G	C	Triglyceride Measurement	(tg )	NA	beta	GCST001762
 rs6693036	G	C	Triglyceride Measurement	(tg )	NA	beta	GCST001762
 rs326	T	A	Triglyceride Measurement	(aa)	NA	beta	GCST002044
+rs651821	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060889
+rs10790162	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060894
+rs3741298	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060894
+rs10790162	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060906
+rs2266788	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060906
+rs2075290	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060911
+rs3741298	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060911
+rs2075290	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060915
+rs2266788	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060915
+rs651821	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060915
+rs11216140	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060934
+rs117199990	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060934
+rs1268353	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060934
+rs2075290	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060934
+rs60223219	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060934
+rs6586884	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060934
+rs75082673	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060934
+rs10790162	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060937
+rs117199990	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060937
+rs10790162	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060940
+rs2075290	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060940
+rs2266788	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060940
+rs10790162	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060948
+rs1011685	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs10790162	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs12679834	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs145391587	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs180327	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs1803924	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs2075290	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs2266788	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs3735964	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs3741298	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060952
+rs117199990	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060955
+rs651821	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060965
+rs12421652	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060968
+rs1268353	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060968
+rs2075290	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060968
+rs2266788	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060968
+rs4938307	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060968
+rs4938309	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060968
+rs651821	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060968
+rs102275	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs10790162	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs11216126	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs1268353	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs174533	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs174536	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs174562	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs174566	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs174568	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs174581	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs180327	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs2266788	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs622604	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs623908	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs651821	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060970
+rs11604424	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060973
+rs10790162	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060974
+rs2075290	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060974
+rs3741298	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060974
+rs102274	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174530	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174533	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174534	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174544	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174545	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174556	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174560	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174562	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174564	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174568	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174577	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs174581	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs99780	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060987
+rs1010022	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs12484700	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs12484809	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs13055900	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs16991158	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174533	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174534	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174556	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174559	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174562	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174564	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174568	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174581	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs174583	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs1883349	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2072906	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2281138	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2524296	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2526680	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2727270	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2845572	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2845574	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2851682	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs2896020	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs34352134	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs34376930	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs4564341	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs4823173	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs4823180	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs509360	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs73176497	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs9625962	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060991
+rs1010022	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs1010023	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs11090617	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs12484809	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs13056555	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs1883349	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs2076207	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs35621602	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs4823173	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs4823181	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs73176497	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs738408	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs9625962	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060994
+rs1535	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060997
+rs174534	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060997
+rs174536	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060997
+rs174537	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060997
+rs174544	T	A	Triglyceride Measurement	NA	NA	beta	GCST90060997
+rs174547	A	T	Triglyceride Measurement	NA	NA	beta	GCST90060997
+rs174561	G	C	Triglyceride Measurement	NA	NA	beta	GCST90060997
+rs174562	C	G	Triglyceride Measurement	NA	NA	beta	GCST90060997
+rs102274	A	T	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174533	T	A	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174534	T	A	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174536	T	A	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174537	A	T	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174544	T	A	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174546	A	T	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174547	G	C	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174548	A	T	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174550	G	C	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174553	C	G	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174559	T	A	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174560	G	C	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174561	G	C	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174577	T	A	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs174583	A	T	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs2526680	G	C	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs2727270	G	C	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs2845573	C	G	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs4564341	G	C	Triglyceride Measurement	NA	NA	beta	GCST90061006
+rs509360	C	G	Triglyceride Measurement	NA	NA	beta	GCST90061006
 rs2723357	G	C	Triglyceride Measurement	NA	NA	beta	GCST006436
 rs7350481	G	C	Triglyceride Measurement	NA	NA	beta	GCST000584
 rs15285	A	T	Triglyceride Measurement	NA	NA	beta	GCST001004
 rs780093	A	T	Triglyceride Measurement	NA	NA	beta	GCST001004
 rs3749147	C	G	Triglyceride Measurement	NA	NA	beta	GCST001006
 rs780093	A	T	Triglyceride Measurement	NA	NA	beta	GCST001006
+rs12130333	A	T	Triglyceride Measurement	NA	NA	beta	GCST005780
+rs2410616	A	T	Triglyceride Measurement	NA	NA	beta	GCST005780
 rs651821	G	C	Triglyceride Measurement	(japanese)	NA	beta	GCST003364
 rs780093	A	T	Triglyceride Measurement	NA	NA	beta	GCST008985
 rs10096633	A	T	Triglyceride Measurement	(tg)	NA	beta	GCST000292
@@ -3395,6 +4520,8 @@ rs442177	A	T	Triglyceride Measurement	NA	NA	beta	GCST000809
 rs10516430	A	T	Triglyceride Measurement	(triglycerides)	NA	beta	GCST000328
 rs10069690	A	T	Triple-Negative Breast Cancer	NA	NA	OR	GCST002305
 rs2363956	C	G	Triple-Negative Breast Cancer	NA	NA	OR	GCST002305
+rs2894967	C	G	Tuberculosis	(female)	NA	OR	GCST007231
+rs1501847	G	C	Tuberculosis	NA	NA	OR	GCST007231
 rs1616723	G	C	Tuberculosis	NA	NA	OR	GCST011395
 rs2756263	G	C	Tuberculosis	(dominant)	NA	OR	GCST007897
 rs13373941	C	G	Tumor Necrosis Factor-Alpha Measurement	(tnf-a )	NA	beta	GCST001762
@@ -3406,6 +4533,10 @@ rs9976767	C	G	Type 1 Diabetes Mellitus	NA	NA	OR	GCST000244
 rs1004446	C	G	Type 1 Diabetes Mellitus	NA	NA	OR	GCST000054
 rs1701704	C	G	Type 1 Diabetes Mellitus	NA	NA	OR	GCST000141
 rs12722495	A	T	Type 1 Diabetes Mellitus	NA	NA	OR	GCST001191
+rs3842727	A	T	Type 1 Diabetes Mellitus	NA	NA	OR	GCST006196
+rs3842727	A	T	Type 1 Diabetes Mellitus	(iaa-first)	NA	OR	GCST006197
+rs11705721	G	C	Type 1 Diabetes Mellitus	(multiple-ia)	NA	OR	GCST006197
+rs3842727	A	T	Type 1 Diabetes Mellitus	(multiple-ia)	NA	OR	GCST006197
 rs1445898	G	C	Type 1 Diabetes Mellitus	NA	NA	OR	GCST000038
 rs1990760	A	T	Type 1 Diabetes Mellitus	NA	NA	OR	GCST000038
 rs2292239	A	T	Type 1 Diabetes Mellitus	NA	NA	OR	GCST000038
@@ -3418,6 +4549,8 @@ rs2523989	A	T	Type 1 Diabetes Mellitus	NA	NA	OR	GCST002876
 rs886424	A	T	Type 1 Diabetes Mellitus	NA	NA	OR	GCST002876
 rs3802604	C	G	Type 1 Diabetes Mellitus	NA	NA	OR	GCST008377
 rs705699	T	A	Type 1 Diabetes Mellitus	NA	NA	OR	GCST008377
+rs2206734	A	T	Type 2 Diabetes Mellitus	NA	NA	OR	GCST010436
+rs2233580	A	T	Type 2 Diabetes Mellitus	NA	NA	OR	GCST010436
 rs1436953	G	C	Type 2 Diabetes Mellitus	NA	NA	OR	GCST001173
 rs994965583	G	C	Type 2 Diabetes Mellitus	NA	NA	OR	GCST006484
 rs1799884	A	T	Type 2 Diabetes Mellitus	(1-hpg)	NA	beta	GCST001965
@@ -3436,6 +4569,8 @@ rs4267949	G	C	Type 2 Diabetes Mellitus	NA	NA	OR	GCST90026415
 rs12518099	C	G	Type 2 Diabetes Mellitus	NA	NA	OR	GCST000478
 rs4689388	T	A	Type 2 Diabetes Mellitus	NA	NA	OR	GCST000478
 rs7903146	A	T	Type 2 Diabetes Mellitus	NA	NA	OR	GCST000049
+rs35389258	T	A	Type 2 Diabetes Mellitus	NA	NA	OR	GCST010118
+rs11410487	A	T	Type 2 Diabetes Mellitus	NA	NA	OR	GCST007847
 rs391300	G	C	Type 2 Diabetes Mellitus	NA	NA	OR	GCST000601
 rs7903146	A	T	Type 2 Diabetes Mellitus	(t2d)	NA	OR	GCST000753
 rs7765379	A	T	Typhoid Fever	NA	NA	OR	GCST002693
@@ -3503,6 +4638,8 @@ rs10908521	G	C	Uric Acid Measurement	NA	NA	beta	GCST004058
 rs16890979	A	T	Uric Acid Measurement	NA	NA	beta	GCST003359
 rs2231142	A	T	Uric Acid Measurement	NA	NA	beta	GCST003359
 rs505802	G	C	Uric Acid Measurement	NA	NA	beta	GCST003359
+rs17067290	T	A	Uric Acid Measurement	(allelic model)	NA	OR	GCST009319
+rs66822347	T	A	Uric Acid Measurement	NA	NA	beta	GCST90018977
 rs2728099	G	C	Uric Acid Measurement	NA	NA	OR	GCST004825
 rs13129697	C	G	Uric Acid Measurement	(uric acid)	NA	beta	GCST000328
 rs3733590	G	C	Uric Acid Measurement	NA	Discovery	beta	GCST005369
@@ -3539,6 +4676,8 @@ rs2280543	G	C	Uterine Fibroid	NA	NA	OR	GCST001027
 rs7913069	A	T	Uterine Fibroid	NA	NA	OR	GCST001027
 rs2519093	A	T	Venous Thromboembolism	NA	NA	OR	GCST001557
 rs8176719	G	C	Venous Thromboembolism	NA	NA	OR	GCST001557
+rs687289	T	A	Venous Thromboembolism	NA	NA	OR	GCST011359
+rs17751180	G	C	Vital Capacity	(fvc)	NA	beta	GCST010057
 rs516246	A	T	Vitamin B12 Measurement	(vitamin b12 )	NA	beta	GCST001762
 rs7544372	G	C	Vitamin B12 Measurement	(vitamin b12 )	NA	beta	GCST001762
 rs492602	C	G	Vitamin B12 Measurement	(vitamin b12)	NA	beta	GCST002559
@@ -3553,7 +4692,11 @@ rs3757247	A	T	Vitiligo	NA	NA	OR	GCST001509
 rs3814231	G	C	Vitiligo	NA	NA	OR	GCST001509
 rs853308	G	C	Vitiligo	NA	NA	OR	GCST001509
 rs11966200	A	T	Vitiligo	NA	NA	OR	GCST000692
+rs2624257	A	T	Volumetric Bone Mineral Density	(left rib)	NA	beta	GCST009377
+rs3739214	A	T	Volumetric Bone Mineral Density	(lumbar spine)	NA	beta	GCST009377
+rs8058306	A	T	Volumetric Bone Mineral Density	(right arm)	NA	beta	GCST009377
 rs379440	G	C	Von Willebrand Factor Measurement	(vwf levels)	NA	beta	GCST001188
+rs4121165	T	A	Waist Circumference	(waist)	NA	beta	GCST010063
 rs528704957	G	C	Waist Circumference	NA	NA	beta	GCST008151
 rs755802816	T	A	Waist Circumference	NA	NA	beta	GCST008151
 rs528704957	G	C	Waist Circumference	NA	NA	beta	GCST008160
@@ -3566,9 +4709,11 @@ rs16827293	A	T	Waist-Hip Ratio	(aa)	NA	beta	GCST004584
 rs10067755	C	G	Waist-Hip Ratio	NA	NA	beta	GCST004584
 rs10490924	A	T	Wet Macular Degeneration	NA	NA	OR	GCST004737
 rs9271588	G	C	Wheat Allergic Reaction	NA	NA	OR	GCST009143
+rs3215395	G	C	White Matter Hyperintensity Measurement	NA	NA	beta	GCST010101
 rs960667	T	A	Ykl40 Measurement	(ykl-40)	NA	beta	GCST010146
 rs1932064	T	A	Yu-Zhi Constitution Type	(dominant model)	NA	OR	GCST003026
 rs4526895	C	G	Yu-Zhi Constitution Type	(genotype model)	NA	OR	GCST003026
 rs7694118	C	G	Yu-Zhi Constitution Type	(genotype model)	NA	OR	GCST003026
 rs12036718	T	A	Yu-Zhi Constitution Type	(trend model)	NA	OR	GCST003026
 rs194045	G	C	Yu-Zhi Constitution Type	(trend model)	NA	OR	GCST003026
+rs174551	G	C	Phosphatidylcholine Measurement	NA	NA	beta	GCST90060962
