@@ -325,7 +325,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
         basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
         tempFilePath = os.path.join(basePath, "{t}_{s}_{p}_{b}_{v}_{uniq}.vcf".format(t=trait.replace('/','-'), s=study, p=pValueAnno.replace('/','-'), b=betaAnnotation.replace('/','-'), v=valueType.replace('/','-'), uniq = timestamp))
         useFilePath = tempFilePath
-        with open(tempFilePath, 'w') as w:
+        with open(tempFilePath, 'w', encoding="utf-8") as w:
             # Open filtered file
             with open(filteredFilePath, 'r') as f:
                 for line in f:

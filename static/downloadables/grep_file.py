@@ -54,29 +54,24 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
     isFilters = False
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     # create path for filtered input file
-    filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
+    filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.txt".format(ahash = fileHash, uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
     # create path for filtered associations
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
+    # create path for clump number dictionary
+    clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
     # get the paths for the associationsFile , study snps, and clumpsFile
     if useGWASupload:
         isFilters=True
         associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-
-        # create path for clump number dictionary
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
-        # create path for clump number dictionary
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
     else:
         isFilters=True
         associationsPath = specificAssociPath
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-        # create path for clump number dictionary
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
     try:
 	# write the files
         with open(associationsPath, 'r') as tableObjFile:
