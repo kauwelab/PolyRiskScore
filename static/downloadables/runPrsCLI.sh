@@ -239,16 +239,25 @@ learnAboutParameters () {
                 echo -e "in the input VCF file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
                 echo "" ;;
             5 ) echo -e "${MYSTERYCOLOR}-p Preferred GWA Study Super Population: ${NC}"
-	    #TODO: write a better explanation for this section
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
                 echo "SNPs for PRS calculation. We use the five super populations from the " 
-                echo "1000 Genomes as the available options. Below are the acceptable codes. " # this will need some re-work on the language
-                echo "" #AFR, AMR, EAS, EUR, SAS
+                echo "1000 Genomes as the available options. Most studies have one or more super"
+                echo "populations reported. We ask users for their preferred super population to"
+                echo "help us choose which super population to use if there is more than one reported"
+                echo "or if no super populations are reported. Below are the acceptable codes "
+                echo "and the order super populations are chosen based on preferred super population."
+                echo ""
                 echo -e "   ${GREEN}AFR${NC} - African population " 
                 echo -e "   ${GREEN}AMR${NC} - Ad Mixed American population " 
                 echo -e "   ${GREEN}EAS${NC} - East Asian population " 
                 echo -e "   ${GREEN}EUR${NC} - European population " 
                 echo -e "   ${GREEN}SAS${NC} - South Asian population " 
+                echo ""
+                echo -e "   ${LIGHTPURPLE}AFR${NC} --> AFR, AMR, SAS, EUR, EAS"
+                echo -e "   ${LIGHTPURPLE}AMR${NC} --> AMR, EUR, SAS, EAS, AFR"
+                echo -e "   ${LIGHTPURPLE}EAS${NC} --> EAS, SAS, AMR, EUR, AFR"
+                echo -e "   ${LIGHTPURPLE}EUR${NC} --> EUR, AMR, SAS, EAS, AFR"
+                echo -e "   ${LIGHTPURPLE}SAS${NC} --> SAS, EAS, AMR, EUR, AFR"
                 echo "" ;;
             6 ) echo -e "${MYSTERYCOLOR} -t traitsList: ${NC}"
                 echo "This parameter allows you to pick specifically which traits "
@@ -1093,7 +1102,7 @@ calculatePRS () {
             echo -e "${LIGHTRED}ERROR DURING CREATION OF FILTERED INPUT FILE... Quitting${NC}"
         fi
 
-        #TODO and an option for users to remove these files if they want
+        #TODO make an option for users to remove these files if they want
         # if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
         #     rm "$FILE"
         #     rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"

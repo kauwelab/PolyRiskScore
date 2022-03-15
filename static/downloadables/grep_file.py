@@ -199,7 +199,6 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
         raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified study filters. Check your input file and your filters and try again.")
 
     #here we add in the other snps that are not in the sample but are in the study
-    #TODO This needs to be doublechecked
     for key in studySnpsDict:
         for snp in studySnpsDict[key]:
             for pop in allClumpsObjDict.keys():
@@ -272,7 +271,6 @@ def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
             raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified filters. Check your input file and your filters and try again.")
 
         # here we add in the other snps that are not in the sample but are in the study
-        #TODO This needs to be doublechecked
         for key in studySnpsDict:
             for snp in studySnpsDict[key]:
                 for pop in allClumpsObjDict.keys():
@@ -363,7 +361,7 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, value
     # if the reportedTrait for the study is in the traits list for filtering, useReportedTrait is true
     if traits is None or (traits is not None and studyMetaData is not None and studyMetaData['reportedTrait'].lower() in traits):
         useReportedTrait = True
-    if studyMetaData is not None and studyMetaData['ethnicity'] is not None: #TODO should probably come up with a better way to handle a situation like this, we need to decide what we will do when the study doens't have an ethnicity attached to it (maybe give it 'other' on the server?)
+    if studyMetaData is not None and studyMetaData['ethnicity'] is not None:
         ethnicitiesLower = set([x.lower() for x in studyMetaData['ethnicity']])
         # if the ethnicities have overlap, set useEthnicity to true
         if (useTrait or useReportedTrait) and ethnicities is None or (ethnicities is not None and (len(set(ethnicities).intersection(ethnicitiesLower)) > 0)):
@@ -375,7 +373,7 @@ def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, value
     if ((valueTypes is None) or (len(set(valueTypes).intersection(set(studyValueTypes))) > 0)):
         useValueType = True
     # if no sexes were specified, or if the sexes that are in the study overlap with the requested sexes, set useSex to true
-    if ((sexes is None) or (len(set(sexes).intersection(set(studyMetaData['traits'][trait]['sexes']))) > 0)): #TODO: might need different logic for this if statement
+    if ((sexes is None) or (len(set(sexes).intersection(set(studyMetaData['traits'][trait]['sexes']))) > 0)):
         useSex = True
     # we either want to use this study because of the studyID or because filtering trait, ethnicity, and studyTypes give us this study
     return useStudyID or (useEthnicity and useStudyType and useValueType and useSex)
