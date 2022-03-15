@@ -92,6 +92,4 @@ module.exports = app => {
     app.post("/send_error", errors.sendError);
 
     app.get("/download_errors", errors.downloadErrors);
-
-    app.get("/join_test", associations.joinTest);
 }
