@@ -271,7 +271,7 @@ Association.getSingleSnpFromEachStudy = (refGen, result) => {
             refGen = validator.validateRefgen(refGen)
         }
     
-        sql.query(`SELECT snp, riskAllele, ${refGen}, studyID, pValueAnnotation, betaAnnotation FROM associations_table WHERE id IN ( SELECT min(id) FROM associations_table GROUP BY studyID, pValueAnnotation, betaAnnotation ); `, (err, data) => {
+        sql.query(`SELECT snp, riskAllele, ${refGen}, studyID, pValueAnnotation, betaAnnotation FROM associations_table WHERE id IN ( SELECT min(id) FROM associations_table GROUP BY studyID, trait, pValueAnnotation, betaAnnotation, ogValueTypes ); `, (err, data) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
