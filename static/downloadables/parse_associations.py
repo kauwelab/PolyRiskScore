@@ -51,30 +51,29 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
+    clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
     if useGWASupload:
         isFilters=True
         associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
         possibleAllelesPath = os.path.join(basePath, "possibleAlleles_{ahash}.txt".format(ahash=fileHash))
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
         possibleAllelesPath = os.path.join(basePath, "allPossibleAlleles.txt".format(ahash=fileHash))
     else:
         isFilters = True
         associationsPath = specificAssociPath
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r = refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
         possibleAllelesPath = os.path.join(basePath, "possibleAlleles_{ahash}.txt".format(ahash=fileHash))
 
-    filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
+    ext = "txt" if isRSids else "vcf"
+    filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.{ext}".format(ahash = fileHash, uniq = timestamp, ext = ext))
 
     try:
         # open the files that were previously created

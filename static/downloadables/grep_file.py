@@ -54,7 +54,8 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
     isFilters = False
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     # create path for filtered input file
-    filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.txt".format(ahash = fileHash, uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
+    ext = "txt" if isRSids else "vcf"
+    filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.{ext}".format(ahash = fileHash, uniq = timestamp, ext = ext))
     # create path for filtered associations
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
     # create path for clump number dictionary
