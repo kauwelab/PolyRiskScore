@@ -249,6 +249,24 @@ exports.getAssociationsDownloadFile = (req, res) => {
     }); 
 }
 
+exports.getAllPossibleAllelesDownloadFile = (req, res) => {
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `allPossibleAlleles.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
+}
+
 exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
     downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
     var options = { 

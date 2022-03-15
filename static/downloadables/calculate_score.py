@@ -4,16 +4,16 @@ import csv
 import os
 from filelock import FileLock
 
-def calculateScore(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, isRSids, sampleOrder):
+def calculateScore(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, isRSids, sampleOrder, snpOverlap, totalSnps, preferredPop):
     # check if the input file is a txt or vcf file and then run the calculations on that file
     if isRSids:
-        txtcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, trait, studyID, pValueAnno, betaAnnotation, valueType)
+        txtcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, trait, studyID, pValueAnno, betaAnnotation, valueType, snpOverlap, totalSnps, preferredPop)
     else:
-        vcfcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder)
+        vcfcalculations(snpSet, parsedObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder, snpOverlap, totalSnps, preferredPop)
     return
 
 
-def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, trait, studyID, pValueAnno, betaAnnotation, valueType):
+def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFormat, unmatchedAlleleVariants, clumpedVariants, outputFile, trait, studyID, pValueAnno, betaAnnotation, valueType, snpOverlap, totalSnps, preferredPop):
     # this variable is used as a key in various dictionaries. Due to the nature of the studies in our database, 
     # we separate calculations by trait, studyID, pValueAnnotation, betaAnnotation, and valueType. 
     # pValueAnnotation - comes from the GWAS catalog, gives annotation to the pvalue
@@ -33,10 +33,8 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
 
         mark = False
 
-        nonMissingSnps = 0
         for snp in txtObj:
             if snp in snpSet:
-                nonMissingSnps += 1
                 for riskAllele in tableObjDict['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]:
                     units = tableObjDict['associations'][snp]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
                     # if the values are betas, then grab the value, if odds ratios, then take the natural log of the odds ratio
@@ -63,13 +61,13 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                             else:
                                 unmatchedAlleleVariants.add(snp)
 
+        nonMissingSnps = len(protectiveVariants | riskVariants | unmatchedAlleleVariants)
+
         if len(betaUnits) > 1:
             lowercaseB = [x.lower() for x in betaUnits]
             if len(set(lowercaseB)) == 1:
                 studyUnits = lowercaseB.pop()
             else:
-                print("ERROR: The following had too many betaUnits: {} {} {}".format(trait, studyID, pValBetaAnnoValType))
-                print("Output file will list 'Error - too many units' as the betaUnits")
                 studyUnits = 'Error - too many units'
         elif len(betaUnits) == 1:
             studyUnits = betaUnits.pop()
@@ -83,7 +81,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             # Grab variant sets
             protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
             # new line to add to tsv file
-            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, snpOverlap, totalSnps, preferredPop, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
             # add new line to tsv file
             formatTSV(False, newLine, [], outputFile)
             
@@ -98,6 +96,9 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
                 'betaAnnotation': betaAnnotation,
                 'scoreType': valueType,
                 'units (if applicable)': studyUnits,
+                'snpOverlap': snpOverlap,
+                'totalSnps': totalSnps,
+                'usedSuperPop': preferredPop,
                 'polygenicRiskScore': prs,
                 'protectiveVariants': "|".join(protectiveVariants),
                 'riskVariants': "|".join(riskVariants),
@@ -110,7 +111,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
             json_study_results = {}
 
         elif isCondensedFormat:
-            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, prs]
+            newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, snpOverlap, totalSnps, preferredPop, prs]
             # write new line to tsv file
             formatTSV(False, newLine, [], outputFile)
     else:
@@ -119,7 +120,7 @@ def txtcalculations(snpSet, txtObj, tableObjDict, mafDict, isJson, isCondensedFo
     return
 
 
-def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder):
+def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFormat, neutral_snps_map, clumped_snps_map, outputFile, samp_num, trait, studyID, pValueAnno, betaAnnotation, valueType, sampleOrder, snpOverlap, totalSnps, preferredPop):
     # this variable is used as a key in various dictionaries. Due to the nature of the studies in our database, 
     # we separate calculations by trait, studyID, pValueAnnotation, betaAnnotation, and valueType. 
     pValBetaAnnoValType = "|".join((pValueAnno, betaAnnotation, valueType))
@@ -129,7 +130,6 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
     # json output objects
     json_study_results = {}
     json_samp_list = []
-    nonMissingSnps = 0
 
     # For every sample in the vcf nested dictionary
     for samp in sampleOrder:
@@ -149,11 +149,9 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
             mark = False
             # Loop through each snp associated with this disease/study/sample
             if samp in vcfObj:
-                nonMissingSnps = 0
                 for rsID in vcfObj[samp]:
                     # check if the snp is in this trait/study
                     if rsID in snpSet:
-                        nonMissingSnps += 1
                         for riskAllele in tableObjDict['associations'][rsID]['traits'][trait][studyID][pValBetaAnnoValType]:
                             units = tableObjDict['associations'][rsID]["traits"][trait][studyID][pValBetaAnnoValType][riskAllele]['betaUnit']
                             alleles = vcfObj[samp][rsID]
@@ -181,13 +179,13 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                                         else:
                                             unmatchedAlleleVariants.add(rsID)
 
+            nonMissingSnps = len(protectiveVariants | riskVariants | unmatchedAlleleVariants)
+
             if len(betaUnits) > 1:
                 lowercaseB = [x.lower() for x in betaUnits]
                 if len(set(lowercaseB)) == 1:
                     studyUnits = lowercaseB.pop()
                 else:
-                    print("ERROR: The following had too many betaUnits: {} {} {} {}".format(samp, trait, studyID, pValBetaAnnoValType))
-                    print("Output file will list 'Error - too many units' as the betaUnits")
                     studyUnits = 'Error - too many units'
             elif len(betaUnits) == 1:
                 studyUnits = betaUnits.pop()
@@ -201,7 +199,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                 #grab variant sets
                 protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 # add new line to tsv file
-                newLine = [samp, printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+                newLine = [samp, printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, snpOverlap, totalSnps, preferredPop, prs, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                 formatTSV(False, newLine, [], outputFile)
 
             elif isJson:
@@ -215,7 +213,10 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
                         'pValueAnnotation': pValueAnno,
                         'betaAnnotation' : betaAnnotation,
                         'scoreType': valueType,
-                        'units (if applicable)': studyUnits
+                        'units (if applicable)': studyUnits,
+                        'snpOverlap': snpOverlap,
+                        'totalSnps': totalSnps,
+                        'usedSuperPop': preferredPop
                     })
 
                 # add the sample score and variant information
@@ -242,7 +243,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, isJson, isCondensedFo
             elif isCondensedFormat:
                 # if this is the first sample, initiate the new line with the first four columns
                 if samp_count == 1:
-                    newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits]
+                    newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, snpOverlap, totalSnps, preferredPop]
                 newLine.append(prs) # append this sample's score to the row
                 
                 # if we've calculated a score for each sample, write the line to the output file
@@ -276,20 +277,25 @@ def formatJson(studyInfo, outputFile):
 
 
 def createMarks(betas, nonMissingSnps, studyID, mark, valueType):
-    prs = str(getPRSFromArray(betas, nonMissingSnps, valueType))
+    prs = str(getPRSFromArray(betas, nonMissingSnps, valueType, studyID))
     # Add a mark to studies that have duplicate snps with varying pvalue annotations
     if mark is True:
         studyID = studyID + '†'
     return prs, studyID
 
 
-def getPRSFromArray(betas, nonMissingSnps, valueType):
+def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
+    valueType = valueType.lower()
 # calculate the PRS from the list of betas
     ploidy = 2
     combinedBetas = 0
     # if there are no values in the betas array, set combinedBetas to 'NF'
     if not betas:
         combinedBetas = "NF"
+    elif nonMissingSnps == 0:
+        combinedBetas = "NF"
+        SystemExit(f"ERROR: We ran into an issue while calculating. Please let us know about this error and send us this studyID: {studyID}. In the meantime, try using a different study.")
+
     else:
         for beta in betas:
             beta = float(beta)
@@ -298,11 +304,18 @@ def getPRSFromArray(betas, nonMissingSnps, valueType):
             combinedBetas = 0.001
 
         combinedBetas = combinedBetas / ( ploidy * nonMissingSnps )
-
-        if valueType == 'oddsRatios':
+        
+        if valueType == 'or':
             combinedBetas = math.exp(combinedBetas)
 
+        if combinedBetas < 0:
+            keepSign = -1
+        else:
+            keepSign = 1
+
         combinedBetas = round(combinedBetas, 3)
+        if combinedBetas == 0:
+            combinedBetas = keepSign * 0.001
 
     return(str(combinedBetas))
 
