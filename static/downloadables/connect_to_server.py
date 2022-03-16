@@ -245,7 +245,6 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             if pvalBetaAnnoValType not in associationDict[line[si]]["traits"][line[ti]][line[sii]]:
                 associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType] = {}
             
-            # perform strand flipping TODO THIS MIGHT BE SOMETHING THAT NEEDS TO CHANGE
             riskAllele = runStrandFlipping(line[si], line[rai])
             if riskAllele not in associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]:
                 associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]= {
