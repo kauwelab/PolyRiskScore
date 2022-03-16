@@ -323,11 +323,11 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     if sampleNum > 50:
         # create a temp file that will hold the lines of snps found in this trait/study
         basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
-        testString = '{t}|{s}|{p}|{b}|{v}'.format(t=trait, s=study, p=pValueAnno, b=betaAnnotation, v=valueType)
-        testString = testString.encode()
-        hashObj = hashlib.md5(testString)
-        testString = hashObj.hexdigest()
-        tempFilePath = os.path.join(basePath, "{s}_{v}_{uniq}.vcf".format(s=study, v=testString, uniq = timestamp))
+        studyHash = '{t}|{s}|{p}|{b}|{v}'.format(t=trait, s=study, p=pValueAnno, b=betaAnnotation, v=valueType)
+        studyHash = studyHash.encode()
+        hashObj = hashlib.md5(studyHash)
+        studyHash = hashObj.hexdigest()
+        tempFilePath = os.path.join(basePath, "{s}_{h}_{uniq}.vcf".format(s=study, h=studyHash, uniq = timestamp))
         useFilePath = tempFilePath
         with open(tempFilePath, 'w', encoding="utf-8") as w:
             # Open filtered file
