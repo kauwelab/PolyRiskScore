@@ -361,6 +361,41 @@ function callClumpsEndpoint(superPop, refGen, positions) {
     }));
 }
 
+function getPreferredPop(superPopList, superPop) {
+    superPop = superPop.toLowerCase()
+    superPopList = superPopList.map(superPopI => {
+        return superPopI.toLowerCase()
+    })
+    if (superPopList.length == 1 && superPopList[0].toLowerCase() == 'na'){
+        return superPop
+    }
+    else {
+        filteredKeys = []
+        superPopHeirarchy = {
+            'european': ['european', 'american', 'south asian', 'east asian', 'african'],
+            'american': ['american', 'european', 'south asian', 'east asian', 'african'],
+            'south asian': ['south asian', 'east asian', 'american', 'european', 'african'],
+            'east asian': ['east asian', 'south asian', 'american', 'european', 'african'],
+            'african': ['african', 'american', 'south asian', 'european', 'east asian']
+        }
+        fixKeys = {
+            'european': 'EUR',
+            'american': 'AMR',
+            'south asian': 'SAS',
+            'east asian': 'EAS',
+            'african': 'AFR'
+        }
+        keys = superPopHeirarchy[superPop]
+        for (i=0; i < keys.length; i++) {
+            if (superPopList.includes(keys[i])) {
+                filteredKeys.push(fixKeys[keys[i]])
+            }
+        }
+        
+        return filteredKeys[0]
+    }
+}
+
 /**
  * Called when the user clicks the "Calcuate Risk Scores" button on the calculation page
  * Collects the information the user has specified on the web page and passes it to the handleCalculateScore function
@@ -380,6 +415,7 @@ var calculatePolyScore = async () => {
     var mafCohort = mafElement.options[mafElement.selectedIndex].value;
     var mafThreshold = document.getElementById("mafThresholdIn").value;
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
+    var clumpingType = document.querySelector('input[name="ld_radio"]:checked').value;
 
     //if the user doesn't specify a refgen prompt them to do so
     if (refGen == "default" && !(document.getElementById('textInputButton').checked)) {
@@ -435,7 +471,21 @@ var calculatePolyScore = async () => {
         associationData = await getSelectStudyAssociations(studyList, refGen, sex, valueType);
     }
 
-    clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
+    allSuperPops = []
+    for (studyIDkey in associationData['studyIDsToMetaData']) {
+        for (trait in associationData['studyIDsToMetaData'][studyIDkey]['traits']) {
+            superPopList = associationData['studyIDsToMetaData'][studyIDkey]['traits'][trait]['superPopulations']
+            preferredPop = getPreferredPop(superPopList, superPop)
+            allSuperPops.push(preferredPop)
+        }
+    }
+
+    clumpsData = {}
+
+    for (i=0; i<allSuperPops.length; i++) {
+        clumpsData[allSuperPops[i]] = await getClumpsFromPositions(associationData['associations'], refGen, allSuperPops[i]);
+    }
+
     mafData = (mafCohort == 'user' ? {} : await getMafData(associationData['associations'], mafCohort, refGen))
 
     //if in text input mode
@@ -487,7 +537,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        handleCalculateScore(snpObjs, associationData, mafData, clumpsData, pValue, mafThreshold, false, false);
+        handleCalculateScore(snpObjs, associationData, mafData, superPop, clumpsData, pValue, mafThreshold, false, false);
     }
     else {
         //if text input is empty, return error
@@ -506,7 +556,7 @@ var calculatePolyScore = async () => {
                                                 
                 return;
             }
-            handleCalculateScore(vcfFile, associationData, mafData, clumpsData, pValue, mafThreshold, true, (mafCohort == 'user' ? true : false));
+            handleCalculateScore(vcfFile, associationData, mafData, superPop, clumpsData, pValue, mafThreshold, true, (mafCohort == 'user' ? true : false));
         }
     }
 }
@@ -765,7 +815,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsData, pValue, mafThreshold, isVCF, userMAF) => {
+var handleCalculateScore = async (snpsInput, associationData, mafData, preferredPop, clumpsData, pValue, mafThreshold, isVCF, userMAF) => {
     var greppedSNPsMAFAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF, userMAF)
     var greppedSNPs = greppedSNPsMAFAndtotalInputVariants[0]
     var userMAFData = greppedSNPsMAFAndtotalInputVariants[1]
@@ -774,14 +824,15 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
     if (!(Object.keys(userMAFData).length === 0) && userMAF) {
         mafData = userMAFData
     }
-    if (Object.keys(mafData).length === 0) {
-        //TODO LET THE USER KNOW THERE WAS AN ISSUE WITH MAF AND WE HAD TO EXIT
-        alert("There was an issue either retrieving or creating the MAF object. Please try again.")
-        return
-    }
+    // TODO come back to this. See if we need this code or if we should just get rid of it
+    // if (Object.keys(mafData).length === 0) {
+    //     //TODO LET THE USER KNOW THERE WAS AN ISSUE WITH MAF AND WE HAD TO EXIT
+    //     alert("There was an issue either retrieving or creating the MAF object. Please try again.")
+    //     return
+    // }
 
     try {
-        var result = await calculateScore(associationData, mafData, clumpsData, greppedSNPs, pValue, mafThreshold, totalInputVariants);
+        var result = await calculateScore(associationData, mafData, preferredPop, clumpsData, greppedSNPs, pValue, mafThreshold, totalInputVariants);
         try {
             result = JSON.parse(result)
         } catch (e) {
@@ -827,7 +878,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
  * @param {*} totalInputVariants 
  * @returns 
  */
-var calculateScore = async (associationData, mafData, clumpsData, greppedSamples, pValue, mafThreshold, totalInputVariants) => {
+var calculateScore = async (associationData, mafData, preferredPop, clumpsData, greppedSamples, pValue, mafThreshold, totalInputVariants) => {
     var resultObj = {};
     var indexSnpObj = {};
     var resultJsons = {};
@@ -904,6 +955,8 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
                         for (trait in associationData['associations'][key]['traits']) {
                             for (studyID in associationData['associations'][key]['traits'][trait]) {
                                 printStudyID = studyID
+                                superPopList = associationData['studyIDsToMetaData'][printStudyID]['traits'][trait]['superPopulations']
+                                superPopToUse = getPreferredPop(superPopList, preferredPop)
                                 for (pValBetaAnnoValType in associationData['associations'][key]['traits'][trait][studyID]) {
                                     traitStudypValueAnnoValTypeSamp = [trait, studyID, pValBetaAnnoValType, individualName].join("|")
                                     for (riskAllele in associationData['associations'][key]['traits'][trait][studyID][pValBetaAnnoValType]) {
@@ -928,8 +981,8 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
                                             }
     
                                             if (numAllelesMatch + numAlleleMissingGenotype > 0) {
-                                                if (clumpsData !== undefined && key in clumpsData) {
-                                                    clumpNum = clumpsData[key]['clumpNum']
+                                                if (clumpsData !== undefined && key in clumpsData[superPopToUse]) {
+                                                    clumpNum = clumpsData[superPopToUse][key]['clumpNum']
                                                     if (clumpNum in indexSnpObj[traitStudypValueAnnoValTypeSamp]) {
                                                         const [indexClumpSnp, indexRiskAllele] = indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum]
                                                         indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID][pValBetaAnnoValType][indexRiskAllele]['pValue']
