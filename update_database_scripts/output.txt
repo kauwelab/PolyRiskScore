@@ -1,4 +1,4 @@
-Start time: Fri 11 Mar 2022 12:54:01 PM MST
+Start time: Tue 15 Mar 2022 03:22:01 PM MDT
 getting password from file path specified
 Downloading new raw data disabled
 Creating new associations table disabled
@@ -58,17 +58,6 @@ Getting clumps for  hg19 EUR
 Writing clumps File: ('hg19', 'EUR')
 Getting clumps for  hg19 SAS
 Writing clumps File: ('hg19', 'SAS')
-Writing Association File: hg17
-Getting clumps for  hg17 AFR
-Writing clumps File: ('hg17', 'AFR')
-Getting clumps for  hg17 AMR
-Writing clumps File: ('hg17', 'AMR')
-Getting clumps for  hg17 EAS
-Writing clumps File: ('hg17', 'EAS')
-Getting clumps for  hg17 EUR
-Writing clumps File: ('hg17', 'EUR')
-Getting clumps for  hg17 SAS
-Writing clumps File: ('hg17', 'SAS')
 Writing Association File: hg18
 Getting clumps for  hg18 AFR
 Writing clumps File: ('hg18', 'AFR')
@@ -91,6 +80,17 @@ Getting clumps for  hg38 EUR
 Writing clumps File: ('hg38', 'EUR')
 Getting clumps for  hg38 SAS
 Writing clumps File: ('hg38', 'SAS')
+Writing Association File: hg17
+Getting clumps for  hg17 AFR
+Writing clumps File: ('hg17', 'AFR')
+Getting clumps for  hg17 AMR
+Writing clumps File: ('hg17', 'AMR')
+Getting clumps for  hg17 EAS
+Writing clumps File: ('hg17', 'EAS')
+Getting clumps for  hg17 EUR
+Writing clumps File: ('hg17', 'EUR')
+Getting clumps for  hg17 SAS
+Writing clumps File: ('hg17', 'SAS')
 Finished creating server download association and clumps files
 Creating Association and Clumps download files
 Starting to get MAF and Percentile data to create files
@@ -118,5 +118,5 @@ on adni_maf_chr20
 on adni_maf_chr21
 on adni_maf_chr22
 Finished creating server download percentile and maf files
-Total time taken: 00h:46m:52s
+Total time taken: 00h:45m:18s
 "read -p "Press [Enter] key to finish..."": exit code:1
