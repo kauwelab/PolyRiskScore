@@ -8,6 +8,7 @@ import sys
 import os
 import os.path
 from collections import defaultdict
+import hashlib
 from connect_to_server import getPreferredPop
 
 def parseAndCalculateFiles(params):
@@ -322,11 +323,15 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     if sampleNum > 50:
         # create a temp file that will hold the lines of snps found in this trait/study
         basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
-        tempFilePath = os.path.join(basePath, "{t}_{s}_{p}_{b}_{v}_{uniq}.vcf".format(t=trait.replace('/','-'), s=study, p=pValueAnno.replace('/','-'), b=betaAnnotation.replace('/','-'), v=valueType.replace('/','-'), uniq = timestamp))
+        testString = '{t}|{s}|{p}|{b}|{v}'.format(t=trait, s=study, p=pValueAnno, b=betaAnnotation, v=valueType)
+        testString = testString.encode()
+        hashObj = hashlib.md5(testString)
+        testString = hashObj.hexdigest()
+        tempFilePath = os.path.join(basePath, "{s}_{v}_{uniq}.vcf".format(s=study, v=testString, uniq = timestamp))
         useFilePath = tempFilePath
         with open(tempFilePath, 'w', encoding="utf-8") as w:
             # Open filtered file
-            with open(filteredFilePath, 'r') as f:
+            with open(filteredFilePath, 'r', encoding="utf-8") as f:
                 for line in f:
                     # check if the line is a header
                     if line[0] == '#':
