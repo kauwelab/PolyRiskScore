@@ -285,7 +285,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (traitStudyTypes.length == 0) {
             traitStudyTypes.push("O")
         }
-        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
+        ethnicities = studyObj.ethnicity.split("|")
         pvalBetaAnnoValType = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation + "|" + studyObj.ogValueTypes
         superPopulations = studyObj.superPopulation.split("|")
         sex = studyObj.sex

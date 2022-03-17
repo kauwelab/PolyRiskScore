@@ -605,6 +605,7 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, val
             "ogValueTypes": valueTypes
         }
         traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
+        #TODO it looks like this is timing out (-e "Asian unspecified" -y beta -g female -k HI) Need to do something to handle this later
 
         # select the studyIDs of the studies
         for trait in traitData:
