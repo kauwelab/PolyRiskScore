@@ -744,7 +744,7 @@ calculatePRS () {
                         sexForCalc+=("female")
                     else
                         echo "'e' or 'exclude' present. Other sex parameters will be ignored."
-                        sexForCalc+=("$sex")
+                        sexForCalc+=("exclude")
                     fi
                 fi;;
             s)  if ! [ -z "$step" ]; then 
@@ -1111,6 +1111,7 @@ calculatePRS () {
         #     rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         # fi
         
+        [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
         [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
