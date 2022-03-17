@@ -63,7 +63,11 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
+        filteredStudySnpsPath = os.path.join(basePath, "filteredStudySnps_{ahash}_{uniq}.txt".format(ahash=fileHash, uniq=timestamp))
+        if os.path.exists(filteredStudySnpsPath):
+            studySnpsPath = filteredStudySnpsPath
+        else:
+            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         mafCohortPath = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
         possibleAllelesPath = os.path.join(basePath, "allPossibleAlleles.txt".format(ahash=fileHash))
     else:
@@ -626,21 +630,21 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     
     if isJson: #json and verbose
         # we need to run through one iteration here so that we know the first json result has the opening list bracket
-        key = next(iter(studySnpsDict))
-        trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
-        # get the population used for clumping
-        popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-        popList = [eachPop.lower() for eachPop in popList]
-        preferredPop = getPreferredPop(popList, superPop)
-        clumpsObjDict = allClumpsObjDict[preferredPop]
-        snpSet = studySnpsDict[key]
-        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop)
+        # key = next(iter(studySnpsDict))
+        # trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
+        # # get the population used for clumping
+        # popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+        # popList = [eachPop.lower() for eachPop in popList]
+        # preferredPop = getPreferredPop(popList, superPop)
+        # clumpsObjDict = allClumpsObjDict[preferredPop]
+        # snpSet = studySnpsDict[key]
+        # params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, pValue, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, outputFilePath, isRSids, timestamp, isIndividualClump, superPop)
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
-        parseAndCalculateFiles(params)
+        # parseAndCalculateFiles(params)
             # remove the key value pair from the dictinoary so that it's not written to the output file twice (see below)
-        del studySnpsDict[key]
+        # del studySnpsDict[key]
     else:
         # we need to write out the header depending on the output type
         header = []

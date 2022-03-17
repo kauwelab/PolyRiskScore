@@ -744,7 +744,7 @@ calculatePRS () {
                         sexForCalc+=("female")
                     else
                         echo "'e' or 'exclude' present. Other sex parameters will be ignored."
-                        sexForCalc+=("$sex")
+                        sexForCalc+=("exclude")
                     fi
                 fi;;
             s)  if ! [ -z "$step" ]; then 

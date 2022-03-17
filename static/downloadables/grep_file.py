@@ -16,28 +16,38 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
     
     # get the associations, clumps, study snps, and the paths to the filtered input file and the clump number file
-    tableObjDict, allClumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload)
+    tableObjDict, allClumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath, isPreFiltered = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload)
 
     # format the filters
     traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes = formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes)
 
     # Check to see if any filters were selected by the user
     isAllFiltersNone = (traits is None and studyIDs is None and studyTypes is None and ethnicities is None and sexes is None and valueTypes is None)
+    # Check to see if only studyIDs were requested
+    isOnlyStudyIDs = (studyIDs is not None and traits is None and studyTypes is None and ethnicities is None and sexes is None and valueTypes is None)
+
+    if not isPreFiltered and not isAllFiltersNone:
+        basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
+        filteredStudySnpsPath = os.path.join(basePath, "filteredStudySnps_{ahash}_{uniq}.txt".format(ahash=fileHash, uniq=timestamp))
+        filteredStudySnps = filterStudySnps(tableObjDict, studySnpsDict, traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes, isOnlyStudyIDs)
+        with open(filteredStudySnpsPath, 'w') as f:
+            f.write(json.dumps(filteredStudySnps))
+        filteredStudySnps = {}
 
     # Check to make sure no filters were selected if the user uploaded their own GWAS data
     if not isAllFiltersNone and useGWASupload:
         raise SystemExit("WARNING: If you upload your own GWAS data, you cannot specify any other additional study filters. Remove the study filters and try again.")
 
     # loop through each study/trait in the studySnpsDict and check whether any studies pass the filters
-    studyInFilters = isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, p_cutOff)
+    studyInFilters = isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, isOnlyStudyIDs, traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, p_cutOff)
     if not studyInFilters and not useGWASupload:
         raise SystemExit("WARNING: None of the studies in the database match the specified filters. Adjust your filters and try again.")
 
     # create a new filtered file that only includes associations in the user-specified studies
     if isRSids:
-        clumpNumDict = filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload)
+        clumpNumDict = filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, isOnlyStudyIDs, p_cutOff, useGWASupload)
     else:
-        clumpNumDict = filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload)
+        clumpNumDict = filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, isOnlyStudyIDs, p_cutOff, useGWASupload)
 
     # write the clumpNumDict to a file for future use
     # the clumpNumDict is used to determine which variants aren't in LD with any of the other variants in the study
@@ -112,7 +122,7 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
     except FileNotFoundError: 
         raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}".format(associationsPath, clumpsPath, studySnpsPath))
 
-    return tableObjDict, allClumps, studySnpsDict, filteredInputPath, clumpNumPath
+    return tableObjDict, allClumps, studySnpsDict, filteredInputPath, clumpNumPath, isFilters
 
 
 def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes):
@@ -143,7 +153,34 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valu
 
     return traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes
 
-def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload):
+
+def filterStudySnps(tableObjDict, studySnpsDict, traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes, isOnlyStudyIDs):
+    tmpObj = {}
+    for snp in tableObjDict['associations'].keys():
+        if (snp.startswith('rs')):
+            # if isSnpInFilters()
+            for trait in tableObjDict['associations'][snp]['traits'].keys():
+                useTrait = (traits is not None and trait.lower() in traits) or traits is None
+                for study in tableObjDict['associations'][snp]['traits'][trait]:
+                    useStudy = studyIDs is not None and study in studyIDs
+                    useReportedTrait = (traits is not None and tableObjDict['studyIDsToMetaData'][study]['reportedTrait'] in traits) or traits is None
+                    useStudyTypes = (studyTypes is not None and any(tableObjDict['studyIDsToMetaData'][study]['studyTypes']) in studyTypes) or studyTypes is None
+                    useEthnicity = (ethnicities is not None and any(tableObjDict['studyIDsToMetaData'][study]['ethnicity']) in ethnicities) or ethnicities is None
+                    if sexes is not None and ('e' in sexes or 'exclude' in sexes):
+                        # print(tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['sexes'])
+                        useSexes = not any(tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['sexes']) in ['male', 'female']
+                    else:
+                        useSexes = (sexes is not None and any(tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['sexes']) in sexes) or sexes is None
+                    for uniqueKey in tableObjDict['associations'][snp]['traits'][trait][study]:
+                        pValANno, betaAnno, valueType = uniqueKey.split("|")
+                        useValueType = (valueTypes is not None and valueType in valueTypes) or valueTypes is None
+                        fullKeyString = "|".join([trait, uniqueKey, study])
+                        if useStudy or ((not isOnlyStudyIDs) and (useTrait or useReportedTrait) and useStudyTypes and useEthnicity and useSexes and useValueType):
+                            tmpObj[fullKeyString] = studySnpsDict[fullKeyString]
+    return tmpObj
+
+
+def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, isOnlyStudyIDs, p_cutOff, useGWASupload):
     filteredOutput = open(filteredFilePath, 'w')
     # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
     inputInFilters = False
@@ -181,7 +218,7 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
                         "Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)\n" +
                         "Offending line:\n" + line)
 
-            snpInFilters = isSnpInFilters(snp, None, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff)
+            snpInFilters = isSnpInFilters(snp, None, tableObjDict, isAllFiltersNone, isOnlyStudyIDs, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff)
             if snpInFilters or useGWASupload:
                 # We use the clumpNumDict later in the parse_files functions to determine which variants are in an LD clump by themselves
                 # if the snp is part of an ld clump that has already been noted, increase the count of the ld clump this snp is in
@@ -212,7 +249,7 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
     return clumpNumDict
 
 
-def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff, useGWASupload):
+def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, isOnlyStudyIDs, p_cutOff, useGWASupload):
     # create a set to keep track of which ld clump numbers are assigned to only a single snp
     clumpNumDict = {}
     with open(filteredFilePath, 'w') as w:
@@ -245,7 +282,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
                         if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
                             rsID = tableObjDict['associations'][chromPos]
                         # check if the snp is in the filtered studies
-                        snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff)
+                        snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, isOnlyStudyIDs, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff)
                         if snpInFilters or useGWASupload:
                             # increase count of the ld clump this snp is in
                             # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
@@ -283,7 +320,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
     return clumpNumDict
 
 
-def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, p_cutOff):
+def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, isOnlyStudyIDs, traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, p_cutOff):
     studyInFilters = False
     useTrait = False
     useStudy = False
@@ -300,7 +337,9 @@ def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, stud
             useTrait = True
 
         # if there were filters specified for the studies, check if this study should be used
-        if not isAllFiltersNone:
+        if isOnlyStudyIDs:
+            useStudy = study in studyIDs
+        elif not isAllFiltersNone:
             studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
             useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, study, trait, studyMetaData, useTrait)
         if useStudy or isAllFiltersNone:
@@ -310,7 +349,7 @@ def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, stud
     return studyInFilters
 
 
-def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff):
+def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, isOnlyStudyIDs, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff):
     snpInFilters = False
     # if the position is found in our database
     if rsID in tableObjDict['associations']:
@@ -330,7 +369,9 @@ def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, study
                         pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType][riskAllele]['pValue']
                         if pValue <= float(p_cutOff):
                             # if there were filters specified for the studies, check if this study should be used
-                            if not isAllFiltersNone:
+                            if isOnlyStudyIDs:
+                                useStudy = study in studyIDs
+                            elif not isAllFiltersNone:
                                 studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
                                 useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, study, trait, studyMetaData, useTrait)
                             if useStudy or isAllFiltersNone:
