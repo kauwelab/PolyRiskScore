@@ -37,7 +37,6 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
     allSnps = set()
     for key in studySnpsDict:
         allSnps.update(set(studySnpsDict[key]))
-    print(allSnps)
 
     # Check to make sure no filters were selected if the user uploaded their own GWAS data
     if not isAllFiltersNone and useGWASupload:
