@@ -57,7 +57,7 @@ def formatAssociations(associationsUnformatted, metaDataUnformatted):
         if len(traitStudyTypes) == 0:
             traitStudyTypes.append("O")
 
-        ethnicities = ethnicity.replace(" or ", "|").split("|")
+        ethnicities = ethnicity.split("|")
         pvalBetaAnnoValType = "|".join([pValueAnnotation, betaAnnotation, ogValueTypes])
         superPopulations = superPopulation.split("|")
         if (not (studyID in studyIDsToMetaData)):

@@ -251,16 +251,26 @@ learnAboutParameters () {
                 echo -e "${LIGHTRED}**NOTE:${NC} This parameter is not required for .txt files and will be defaulted to ${GREEN}hg38${NC} in that case if the user does not select a refGen." 
                 echo "" ;;
             5 ) echo -e "${MYSTERYCOLOR}-p Preferred GWA Study Super Population: ${NC}"
-	    #TODO: write a better explanation for this section
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
                 echo "SNPs for PRS calculation. We use the five super populations from the " 
-                echo "1000 Genomes as the available options. Below are the acceptable codes. " # this will need some re-work on the language
-                echo "" #AFR, AMR, EAS, EUR, SAS
+                echo "1000 Genomes as the available options. Most studies have one or more super"
+                echo "populations reported. We ask users for their preferred super population to"
+                echo "help us choose which super population to use if there is more than one reported"
+                echo "or if no super populations are reported. Below are the acceptable codes "
+                echo "and the order super populations are chosen based on preferred super population"
+                echo "when the preferred super population is not present in the study."
+                echo ""
                 echo -e "   ${GREEN}AFR${NC} - African population " 
                 echo -e "   ${GREEN}AMR${NC} - Ad Mixed American population " 
                 echo -e "   ${GREEN}EAS${NC} - East Asian population " 
                 echo -e "   ${GREEN}EUR${NC} - European population " 
                 echo -e "   ${GREEN}SAS${NC} - South Asian population " 
+                echo ""
+                echo -e "   ${LIGHTPURPLE}AFR${NC} --> AFR, AMR, SAS, EUR, EAS"
+                echo -e "   ${LIGHTPURPLE}AMR${NC} --> AMR, EUR, SAS, EAS, AFR"
+                echo -e "   ${LIGHTPURPLE}EAS${NC} --> EAS, SAS, AMR, EUR, AFR"
+                echo -e "   ${LIGHTPURPLE}EUR${NC} --> EUR, AMR, SAS, EAS, AFR"
+                echo -e "   ${LIGHTPURPLE}SAS${NC} --> SAS, EAS, AMR, EUR, AFR"
                 echo "" ;;
             6 ) echo -e "${MYSTERYCOLOR} -t traitsList: ${NC}"
                 echo "This parameter allows you to pick specifically which traits "
@@ -756,7 +766,7 @@ calculatePRS () {
                         sexForCalc+=("female")
                     else
                         echo "'e' or 'exclude' present. Other sex parameters will be ignored."
-                        sexForCalc+=("$sex")
+                        sexForCalc+=("exclude")
                     fi
                 fi;;
             s)  if ! [ -z "$step" ]; then 
@@ -1144,7 +1154,7 @@ calculatePRS () {
             echo -e "${LIGHTRED}ERROR DURING CREATION OF FILTERED INPUT FILE... Quitting${NC}"
         fi
 
-        #TODO and an option for users to remove these files if they want
+        #TODO make an option for users to remove these files if they want
         # if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
         #     rm "$FILE"
         #     rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
@@ -1152,7 +1162,9 @@ calculatePRS () {
         #     rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
         # fi
         
-        [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
+        # TODO come back and uncomment these when tool is ready to be run
+        #[ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
+        #[ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
         echo "Cleaned up intermediate files"

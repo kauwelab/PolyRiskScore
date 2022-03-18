@@ -8,6 +8,7 @@ import sys
 import os
 import os.path
 from collections import defaultdict
+import hashlib
 from connect_to_server import getPreferredPop
 
 def parseAndCalculateFiles(params):
@@ -54,12 +55,12 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     
     basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
+    clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
     # get the paths for the associationsFile and clumpsFile
     if useGWASupload:
         isFilters=True
         associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
         if not omitPercentiles:
             percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
@@ -67,8 +68,11 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
     elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
+        filteredStudySnpsPath = os.path.join(basePath, "filteredStudySnps_{ahash}_{uniq}.txt".format(ahash=fileHash, uniq=timestamp))
+        if os.path.exists(filteredStudySnpsPath):
+            studySnpsPath = filteredStudySnpsPath
+        else:
+            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         mafCohortPath = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
         if not omitPercentiles:
             percentilePath = os.path.join(basePath, "allPercentiles_${m}.txt".format(m=percentileCohort)) 
@@ -77,13 +81,13 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         isFilters = True
         associationsPath = specificAssociPath
         studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r = refGen, ahash = fileHash))
         mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
         if not omitPercentiles:
             percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
         possibleAllelesPath = os.path.join(basePath, "possibleAlleles_{ahash}.txt".format(ahash=fileHash))
 
-    filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
+    ext = "txt" if isRSids else "vcf"
+    filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.{ext}".format(ahash = fileHash, uniq = timestamp, ext = ext))
 
     try:
         # open the files that were previously created
@@ -337,11 +341,15 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     if sampleNum > 50:
         # create a temp file that will hold the lines of snps found in this trait/study
         basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
-        tempFilePath = os.path.join(basePath, "{t}_{s}_{p}_{b}_{v}_{uniq}.vcf".format(t=trait.replace('/','-'), s=study, p=pValueAnno.replace('/','-'), b=betaAnnotation.replace('/','-'), v=valueType.replace('/','-'), uniq = timestamp))
+        studyHash = '{t}|{s}|{p}|{b}|{v}'.format(t=trait, s=study, p=pValueAnno, b=betaAnnotation, v=valueType)
+        studyHash = studyHash.encode()
+        hashObj = hashlib.md5(studyHash)
+        studyHash = hashObj.hexdigest()
+        tempFilePath = os.path.join(basePath, "{s}_{h}_{uniq}.vcf".format(s=study, h=studyHash, uniq = timestamp))
         useFilePath = tempFilePath
         with open(tempFilePath, 'w', encoding="utf-8") as w:
             # Open filtered file
-            with open(filteredFilePath, 'r') as f:
+            with open(filteredFilePath, 'r', encoding="utf-8") as f:
                 for line in f:
                     # check if the line is a header
                     if line[0] == '#':
@@ -455,7 +463,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
                                 sample = call.sample
                                 genotype = record.genotype(sample)['GT']
                                 alleles = formatAndReturnGenotype(genotype, REF, ALT)
-                                complements = takeComplement(possibleAlleles[rsID], alleles, REF, ALT)
+                                complements = takeComplement(possibleAlleles[rsID], alleles, REF, ALT) if rsID in possibleAlleles else None
 
                                 # Grab or create maps that hold sets of unused variants for this sample
                                 clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
@@ -638,21 +646,21 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
     
     if isJson: #json and verbose
         # we need to run through one iteration here so that we know the first json result has the opening list bracket
-        key = next(iter(studySnpsDict))
-        trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
-        # get the population used for clumping
-        popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-        popList = [eachPop.lower() for eachPop in popList]
-        preferredPop = getPreferredPop(popList, superPop)
-        clumpsObjDict = allClumpsObjDict[preferredPop]
-        snpSet = studySnpsDict[key]
-        params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, percentileDict[key], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop)
+        # key = next(iter(studySnpsDict))
+        # trait, pValueAnno, betaAnnotation, valueType, study = key.split("|")
+        # # get the population used for clumping
+        # popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+        # popList = [eachPop.lower() for eachPop in popList]
+        # preferredPop = getPreferredPop(popList, superPop)
+        # clumpsObjDict = allClumpsObjDict[preferredPop]
+        # snpSet = studySnpsDict[key]
+        # params = (filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, percentileDict[key], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop)
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
-        parseAndCalculateFiles(params)
+        # parseAndCalculateFiles(params)
             # remove the key value pair from the dictinoary so that it's not written to the output file twice (see below)
-        del studySnpsDict[key]
+        # del studySnpsDict[key]
     else:
         # we need to write out the header depending on the output type
         header = []
@@ -678,10 +686,10 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
         clumpsObjDict = allClumpsObjDict[preferredPop]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, percentileDict[key], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, percentileDict[keyString], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, percentileDict[key], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, percentileDict[keyString], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:

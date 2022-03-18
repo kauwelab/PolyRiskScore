@@ -204,22 +204,6 @@ exports.snpsByEthnicity = (req, res) => {
     })
 }
 
-exports.joinTest = (req, res) => {
-    Association.joinTest((err,data) => {
-        if (err) {
-            res.status(500).send({
-                message: "Error retrieving join"
-            });
-        }
-        else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            // formating returned data
-            res.send(data);
-        }
-    })
-}
-
-//TODO DON'T FORGET TO UPDATE THE FILES THAT CREATE THESE!
 // gets the last time the allAssociations file was updated. Used for the cli to check if the user needs to re-download association data
 exports.getLastAssociationsUpdate = (req, res) => {
     refGen = req.query.refGen
@@ -301,7 +285,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (traitStudyTypes.length == 0) {
             traitStudyTypes.push("O")
         }
-        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
+        ethnicities = studyObj.ethnicity.split("|")
         pvalBetaAnnoValType = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation + "|" + studyObj.ogValueTypes
         superPopulations = studyObj.superPopulation.split("|")
         sex = studyObj.sex

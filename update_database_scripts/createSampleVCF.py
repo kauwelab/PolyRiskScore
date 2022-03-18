@@ -69,7 +69,7 @@ for i in range(len(snpsData)):
     snp = snpsData[i]['snp']
     ref = snpRefAlleleDict[snp]['ref']
     if ref == ".":
-        break
+        continue
     if snpsData[i]['riskAllele'] == ref[0] and snpRefAlleleDict[snp]['alt'] != "":
         alt = snpRefAlleleDict[snp]['alt']
     else: 

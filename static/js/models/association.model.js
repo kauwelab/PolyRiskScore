@@ -271,7 +271,7 @@ Association.getSingleSnpFromEachStudy = (refGen, result) => {
             refGen = validator.validateRefgen(refGen)
         }
     
-        sql.query(`SELECT snp, riskAllele, ${refGen}, studyID, pValueAnnotation, betaAnnotation FROM associations_table WHERE id IN ( SELECT min(id) FROM associations_table GROUP BY studyID, pValueAnnotation, betaAnnotation ); `, (err, data) => {
+        sql.query(`SELECT snp, riskAllele, ${refGen}, studyID, pValueAnnotation, betaAnnotation FROM associations_table WHERE id IN ( SELECT min(id) FROM associations_table GROUP BY studyID, trait, pValueAnnotation, betaAnnotation, ogValueTypes ); `, (err, data) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -331,7 +331,6 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 if(Array.isArray(ethnicities)) {
                     queryString = queryString.concat(`SELECT snp FROM associations_table WHERE studyID IN ( `)
                     for (j = 0; j < res[i].length; j++) {
-                        //TODO clean to remove duplicate code
                         queryString = (j < res[i].length - 1 ? queryString.concat(`?, `) : queryString.concat(`?`))
                         queryParams.push(res[i][j].studyID)
                     }
@@ -339,7 +338,6 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 }
                 //if there is only one ethnicity in the selector, only select SNPs for the studies in that ethnicity
                 else {
-                    //TODO clean to remove duplicate code
                     if (i == 0){
                         queryString = queryString.concat(`SELECT snp FROM associations_table WHERE studyID IN ( ?, `)
                     }
@@ -365,7 +363,6 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 results = []
                 //handling for more than one ethnicity
                 if (Array.isArray(ethnicities)) {
-                    //TODO clean to remove duplicate code
                     //for each ethnicity
                     for (i = 0; i < res.length; i++) {
                         ethnicity = ethnicities[i]
@@ -384,7 +381,6 @@ Association.snpsByEthnicity = (ethnicities, result) => {
                 }
                 //handling for a single ethnicity
                 else {
-                    //TODO clean to remove duplicate code
                     snps = []
                     for (i = 0; i < res.length; i++) {
                         snps.push(data[i].snp)
@@ -404,20 +400,5 @@ Association.snpsByEthnicity = (ethnicities, result) => {
         result(e, null)
     }
 }
-
-Association.joinTest = (result) => {
-    queryString = "SELECT * FROM study_table JOIN Associations ON study_table.studyID = Associations.studyID;"
-
-    //TODO remove
-    console.log(queryString)
-    sql.query(queryString, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(err, null);
-            return;
-        }
-        result(null, res);
-    });
-};
 
 module.exports = Association;
