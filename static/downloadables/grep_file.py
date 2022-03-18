@@ -227,7 +227,7 @@ def filterTXT(allClumpsObjDict, allSnps, inputFiles, filteredFilePath, useGWASup
                 # We use the clumpNumDict later in the parse_files functions to determine which variants are in an LD clump by themselves
                 # if the snp is part of an ld clump that has already been noted, increase the count of the ld clump this snp is in
                 for pop in allClumpsObjDict.keys():
-                    if snp in allClumpsObjDict[pop].keys():
+                    if snp in allClumpsObjDict[pop]:
                         clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
                         clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
                 # write the line to the filtered txt file
@@ -291,7 +291,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                             # increase count of the ld clump this snp is in
                             # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
                             for pop in allClumpsObjDict.keys():
-                                if rsID in allClumpsObjDict[pop].keys():
+                                if rsID in allClumpsObjDict[pop]:
                                     clumpNum = allClumpsObjDict[pop][rsID]['clumpNum']
                                     clumpNumDict[str((pop, clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
 
