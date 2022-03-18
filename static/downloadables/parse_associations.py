@@ -448,7 +448,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
                                 sample = call.sample
                                 genotype = record.genotype(sample)['GT']
                                 alleles = formatAndReturnGenotype(genotype, REF, ALT)
-                                complements = takeComplement(possibleAlleles[rsID], alleles, REF, ALT)
+                                complements = takeComplement(possibleAlleles[rsID], alleles, REF, ALT) if rsID in possibleAlleles else None
 
                                 # Grab or create maps that hold sets of unused variants for this sample
                                 clumpedVariants = clumped_snps_map[sample] if sample in clumped_snps_map else set()
