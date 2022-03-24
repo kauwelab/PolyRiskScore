@@ -45,7 +45,9 @@ function getTraits() {
             document.multiselect('#traitSelect');
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
+            msg = `There was an error loading the traits: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg);
         }
     })
 }
@@ -80,7 +82,9 @@ function getEthnicities() {
             document.multiselect('#ethnicitySelect');
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error loading the ethnicities: ${XMLHttpRequest.responseText}`);
+            msg = `There was an error loading the ethnicities: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg);
         }
     })
 }
@@ -120,7 +124,9 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
             var traits = Object.keys(data);
 
             if (traits.length == 0) {
-                alert(`No results were found using the specified filters. Try using different filters.`)
+                msg = `No results were found using the specified filters. Try using different filters.`
+                updateResultBoxAndStoredValue(msg)
+                alert(msg)
             }
 
             for (i = 0; i < traits.length; i++) {
@@ -184,7 +190,9 @@ function getStudies() {
 
     if (selectedTraits.length == 0) {
         console.log("NO TRAIT SELECTED")
-        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
+        msg = `No traits selected. You must select at least one trait in order to filter studies.`
+        updateResultBoxAndStoredValue(msg)
+        alert(msg);
         return;
     }
 
@@ -227,7 +235,9 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
             return data;
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`)
+            msg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
         }
     }));
 }
@@ -271,7 +281,9 @@ function callMAFAPI(mafCohort, chrom, pos, refGen){
             return data;
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error retrieving required maf data: ${XMLHttpRequest.responseText}`)
+            msg = `There was an error retrieving required maf data: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
         }
     }));
 }
@@ -356,7 +368,9 @@ function callClumpsEndpoint(superPop, refGen, positions) {
             return data;
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error retrieving required associations: ${XMLHttpRequest.responseText}`)
+            msg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
         }
     }));
 }
@@ -419,7 +433,9 @@ var calculatePolyScore = async () => {
 
     //if the user doesn't specify a refgen prompt them to do so
     if (refGen == "default" && !(document.getElementById('textInputButton').checked)) {
-        alert("Please select the reference genome corresponding to your file (step 2 of Sample(s) section).")
+        msg = "Please select the reference genome corresponding to your file (step 2 of Sample(s) section)."
+        updateResultBoxAndStoredValue(msg)
+        alert(msg)
         return;
     }
 
@@ -431,7 +447,9 @@ var calculatePolyScore = async () => {
         var gwasValueType = document.querySelector('input[name="gwas_value_type"]:checked').value;
 
         if (gwasRefGen == "default") {
-            alert('Please select the reference genome corresponding to your GWAS file (GWAS Summary Statistics section).')
+            msg = 'Please select the reference genome corresponding to your GWAS file (GWAS Summary Statistics section).'
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return;
         }
 
@@ -449,7 +467,9 @@ var calculatePolyScore = async () => {
         var studies = [...studyNodes].map(option => [option.value, option.dataset.trait, option.dataset.pvalueannotation, option.dataset.betaannotation, option.dataset.valtype]);
 
         if (studies.length === 0) {
-            alert('Please specify at least one trait and study from the dropdowns above (GWAS Summary Statistics section).')
+            msg = 'Please specify at least one trait and study from the dropdowns above (GWAS Summary Statistics section).'
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return;
         }
     
@@ -490,12 +510,13 @@ var calculatePolyScore = async () => {
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
-        //TODO: is it possible to refactor the next ~20 lines of code into its own function for increased readability?
         var textArea = document.getElementById('input');
 
         //if text input is empty, return error
         if (!textArea.value) {
-            alert("Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1).")
+            msg = "Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1)."
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return;
         }
 
@@ -508,11 +529,15 @@ var calculatePolyScore = async () => {
             snpArray = snp.split(':');
             //if the snpid is invalid, return error
             if (!snpArray[0].toLowerCase().startsWith("rs") || isNaN(snpArray[0].substring(2, snpArray[0].length))) {
-                alert("Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers.")
+                msg = "Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg)
                 return;
             }
             if (snpArray.length > 2) {
-                alert("Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon.");
+                msg = "Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg);
                 return;
             }
             else if (snpArray.length == 2) {
@@ -520,13 +545,17 @@ var calculatePolyScore = async () => {
                 var alleleArray = snpArray[1].split(",");
                 //if more than 2 alleles, return error
                 if (alleleArray.length > 2) {
-                    alert("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
+                    msg = "Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles."
+                    updateResultBoxAndStoredValue(msg)
+                    alert(msg);
                     return;
                 }
                 for (var j = 0; j < alleleArray.length; ++j) {
                     //if any allele is not  A, T, G, or C, return error
                     if (!/^[GTAC]+$/.test(alleleArray[j])) {
-                        alert("Allele \"" + alleleArray[j] + "\" is invalid. Must contain only A, T, G, and C's.");
+                        msg = "Allele \"" + alleleArray[j] + "\" is invalid. Must contain only A, T, G, and C's."
+                        updateResultBoxAndStoredValue(msg)
+                        alert(msg);
                         return;
                     }
                 }
@@ -542,17 +571,21 @@ var calculatePolyScore = async () => {
     else {
         //if text input is empty, return error
         if (typeof vcfFile === "undefined") {
-            alert("Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (Sample(s) section).")
+            msg = "Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (Sample(s) section)."
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return;
         }
         else {
             var extension = vcfFile.name.split(".").pop();
             if (extension.toLowerCase() != "vcf") {
                 //if here, the user uploded a file with an invalid format
-                alert("Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
-                                                "Please note that the web version of PRSKB does not support zipped files,\n"+ 
-                                                "but that the command line interface does. It is available for download\n" +
-                                                "above under the \"Download\" tab or at https://prs.byu.edu/cli_download.html");
+                msg = "Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
+                        "Please note that the web version of PRSKB does not support zipped files,\n"+ 
+                        "but that the command line interface does. It is available for download\n" +
+                        "above under the \"Download\" tab or at https://prs.byu.edu/cli_download.html"
+                updateResultBoxAndStoredValue(msg)
+                alert(msg);
                                                 
                 return;
             }
@@ -617,7 +650,9 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
 
             if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1) {
                 console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi)
-                alert("The format of your GWAS upload is incorrect. Please fix it and try again.")
+                msg = "The format of your GWAS upload is incorrect. Please fix it and try again."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg)
                 return
             }
         }
@@ -672,7 +707,9 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 }
             }
             else {
-                alert("You have more than one association for the same Trait/study/(pValueAnnotation|betaAnnotation) combination. Please fix this before attempting to run the PRSKB calculator.")
+                msg = "You have more than one association for the same Trait/study/(pValueAnnotation|betaAnnotation) combination. Please fix this before attempting to run the PRSKB calculator."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg)
                 return
             }
 
@@ -735,7 +772,9 @@ function getChromPosToSnps(refGen, snps) {
             return data
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error retrieving required snps data: ${XMLHttpRequest.responseText}`)
+            msg = `There was an error retrieving required snps data: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
         }
     }));
 }
@@ -743,7 +782,7 @@ function getChromPosToSnps(refGen, snps) {
 /**
  * Resets resultJSON
  */
-function resetOutput() { //todo maybe should add this to when the traits/studies/ect are changed?
+function resetOutput() {
     resultJSON = "";
 }
 
@@ -778,6 +817,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
             return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], totalInputVariants]
         }
         catch (err) {
+            updateResultBoxAndStoredValue(getErrorMessage(err))
             alert(getErrorMessage(err));
             return;
         }
@@ -844,7 +884,9 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, preferred
             $('#response').html("None of the snps from the input file were found.");
         }
         else if (result["studyResults"] == "No results to display") {
-            alert("We were not able to caluclate results using the given values. Try adjusting the p-value cutoff or the MAF threshold.")
+            msg = "We were not able to caluclate results using the given values. Try adjusting the p-value cutoff or the MAF threshold."
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return
         }
         else {
@@ -861,6 +903,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, preferred
         })
     }
     catch (err) {
+        updateResultBoxAndStoredValue(getErrorMessage(err))
         alert(getErrorMessage(err));
     }
 }
@@ -1163,7 +1206,7 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValBeta
     }
 
     if (combinedScore === 0) {
-        combinedScore = "NF" //TODO will we need to change this?
+        combinedScore = "NF"
     } else {
         combinedScore = combinedScore / (ploidy * nonMissingSnps)
         // switch the score back to odds ratios
@@ -1484,7 +1527,6 @@ function download(filenameArray, extension, textArray) {
         type: "blob",
         compression: "DEFLATE",
         compressionOptions: {
-            //TODO let the user know that they've downloaded the file while they are waiting
             /* compression level ranges from 1 (best speed) to 9 (best compression) */
             level: 5
         }
@@ -1515,7 +1557,9 @@ function exampleInput() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "sample.vcf");
     var errorLoading = function(pe) {
-        alert("Error loading the example file. Please try again")
+        msg = "Error loading the example file. Please try again"
+        updateResultBoxAndStoredValue(msg)
+        alert(msg)
     }
     xmlhttp.onload = function(pe) {
         if (xmlhttp.status == 200) {
@@ -1555,7 +1599,9 @@ function exampleGWASInput() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "sampleGWAS.tsv");
     var errorLoading = function(pe) {
-        alert("Error loading the example GWAS file. Please try again")
+        msg = "Error loading the example GWAS file. Please try again"
+        updateResultBoxAndStoredValue(msg)
+        alert(msg)
     }
     xmlhttp.onload = function(pe) {
         if (xmlhttp.status == 200) {
