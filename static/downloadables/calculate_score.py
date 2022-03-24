@@ -304,22 +304,11 @@ def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
         for beta in betas:
             beta = float(beta)
             combinedBetas += beta
-        if combinedBetas == 0:
-            combinedBetas = 0.001
 
         combinedBetas = combinedBetas / ( ploidy * nonMissingSnps )
         
         if valueType == 'or':
             combinedBetas = math.exp(combinedBetas)
-
-        if combinedBetas < 0:
-            keepSign = -1
-        else:
-            keepSign = 1
-
-        combinedBetas = round(combinedBetas, 3)
-        if combinedBetas == 0:
-            combinedBetas = keepSign * 0.001
 
     return(str(combinedBetas))
 
