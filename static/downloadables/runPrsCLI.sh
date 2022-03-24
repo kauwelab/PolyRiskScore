@@ -926,9 +926,9 @@ calculatePRS () {
     export files=${files[@]}
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
-    fileHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}${omitPercentiles}" | cut -f 1 -d ' ')
+    fileHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}" | cut -f 1 -d ' ')
     if ! [ -z ${GWASfilename} ]; then
-        fileHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}${userGwasBeta}${omitPercentiles}" | cut -f 1 -d ' ')
+        fileHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}${GWASfilename}${GWASrefgen}${userGwasBeta}" | cut -f 1 -d ' ')
     fi
     requiredParamsHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}" | cut -f 1 -d ' ')
     # Create uniq ID for filtered file path
@@ -1119,7 +1119,7 @@ calculatePRS () {
             # saves them to files
             # associations --> either allAssociations.txt OR associations_{fileHash}.txt
             # clumps --> {superPop}_clumps_{refGen}.txt OR {superPop}_clumps_{refGen}_{fileHash}.txt
-            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "${ethnicities}" "${valueTypes}" "${sexes}" "$superPop" "$fileHash" "$extension" "${mafCohort}" "${omitPercentiles}"; then
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "$refgen" "${traits}" "${studyTypes}" "${studyIDs}" "${ethnicities}" "${valueTypes}" "${sexes}" "$superPop" "$fileHash" "$extension" "${mafCohort}"; then
                 echo "Got SNPs and disease information from PRSKB"
                 echo "Got Clumping information from PRSKB"
             else
