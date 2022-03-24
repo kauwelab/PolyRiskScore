@@ -90,9 +90,9 @@ def main():
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_percentiles", "cohort_percentiles")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_percentiles", "cohort_percentiles")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_percentiles", "cohort_percentiles")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_percentiles", "cohort_percentiles")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_percentiles", "cohort_percentiles")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_AD_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_MCI_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_CN_percentiles", "cohort_percentiles")
 
     # add the summary data tables to the database
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_summary_data", "cohort_summary_data")
@@ -101,9 +101,9 @@ def main():
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_summary_data", "cohort_summary_data")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_summary_data", "cohort_summary_data")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_summary_data", "cohort_summary_data")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_summary_data", "cohort_summary_data")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_summary_data", "cohort_summary_data")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_AD_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_MCI_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_CN_summary_data", "cohort_summary_data")
 
     # add the snps data tables to the database
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_snps", "cohort_snps")
@@ -112,9 +112,9 @@ def main():
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_snps", "cohort_snps")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_snps", "cohort_snps")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_snps", "cohort_snps")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_snps", "cohort_snps")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_snps", "cohort_snps")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_AD_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_MCI_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_CN_snps", "cohort_snps")
 
     print("Finished uploading cohort data to the PRSKB database!")
 
