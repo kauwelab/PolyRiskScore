@@ -1168,8 +1168,6 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValBeta
         combinedScore = combinedScore / (ploidy * nonMissingSnps)
         // switch the score back to odds ratios
         if (valueType == 'oddsRatio') {combinedScore = Math.exp(combinedScore)}
-        // round the answer to 3 decimal places
-        combinedScore = combinedScore.toFixed(3)
     }
 
     return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
