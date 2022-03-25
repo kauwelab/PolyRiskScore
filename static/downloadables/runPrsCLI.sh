@@ -865,7 +865,7 @@ calculatePRS () {
                     exit 1
                 fi;;
             m)  omitPercentiles=1;;
-            c)  if ! [ -z "$mafCutoff" ]; then
+            x)  if ! [ -z "$mafCutoff" ]; then
                     echo "Too many maf cutoffs given"
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
