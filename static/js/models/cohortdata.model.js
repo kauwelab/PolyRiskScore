@@ -221,10 +221,6 @@ Cohortdata.getFullResults = (studyID, trait, cohorts, pValueAnnotation, betaAnno
 }
 
 Cohortdata.getStudySnps = (studyID, trait, cohort, pValueAnnotation, betaAnnotation, ogValueTypes, result) => {
-    // the snps we have for ADNI cover MCI, AD, and controls
-    // if (cohort.includes("adni")) {
-    //     cohort = "adni"
-    // }
     sqlStatement = "SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ? AND pValueAnnotation = ? AND betaAnnotation = ? AND ogValueTypes = ? "
     sql.query(sqlStatement, [studyID, trait, cohort, pValueAnnotation, betaAnnotation, ogValueTypes], (err, res) => {
         if (err) {
@@ -236,7 +232,7 @@ Cohortdata.getStudySnps = (studyID, trait, cohort, pValueAnnotation, betaAnnotat
     })
 }
 
-Cohortdata.getPercentiles = (studyIDObjs, result) => {
+Cohortdata.getPercentiles = (studyIDObjs, cohort, result) => {
     try {
         queryString = ""
         queryParams = []
@@ -249,8 +245,8 @@ Cohortdata.getPercentiles = (studyIDObjs, result) => {
             if (!(Object.prototype.toString.call(studyObj) === '[object Object]')) {
                 studyObj = JSON.parse(studyObj)
             }
-            queryString = queryString.concat(`SELECT * FROM cohort_percentiles WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? AND betaAnnotation = ? AND ogValueTypes = ?; `)
-            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation, studyObj.betaAnnotation, studyObj.ogValueTypes])
+            queryString = queryString.concat(`SELECT * FROM cohort_percentiles WHERE studyID = ? AND trait = ? AND pValueAnnotation = ? AND betaAnnotation = ? AND ogValueTypes = ? AND cohort = ?; `)
+            queryParams = queryParams.concat([studyObj.studyID, studyObj.trait, studyObj.pValueAnnotation, studyObj.betaAnnotation, studyObj.ogValueTypes, cohort])
         })
         console.log('about to query table')
 
