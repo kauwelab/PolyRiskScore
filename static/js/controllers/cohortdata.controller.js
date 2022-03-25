@@ -52,7 +52,7 @@ exports.getStudies = (req, res) => {
 }
 
 exports.getCohorts = (req, res) => {
-    cohortdata.getCohorts(req.query.studyID, req.query.trait, (err, data) => {
+    cohortdata.getCohorts(req.query.studyID, req.query.trait, req.query.pValAnno, req.query.betaAnno, req.query.valueType, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -71,7 +71,7 @@ exports.getCohorts = (req, res) => {
 }
 
 exports.getSummaryResults = (req, res) => {
-    cohortdata.getSummaryResults(req.query.studyID, req.query.trait, req.query.cohort, (err, data) => {
+    cohortdata.getSummaryResults(req.query.studyID, req.query.trait, req.query.cohort, req.query.pValAnno, req.query.betaAnno, req.query.valueType, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -86,7 +86,7 @@ exports.getSummaryResults = (req, res) => {
 }
 
 exports.getFullResults = (req, res) => {
-    cohortdata.getFullResults(req.query.studyID, req.query.trait, req.query.cohort, (err, data) => {
+    cohortdata.getFullResults(req.query.studyID, req.query.trait, req.query.cohort, req.query.pValAnno, req.query.betaAnno, req.query.valueType, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -101,7 +101,7 @@ exports.getFullResults = (req, res) => {
 }
 
 exports.getStudySnps = (req, res) => {
-    cohortdata.getStudySnps(req.query.studyID, req.query.trait, req.query.cohort, (err, data) => {
+    cohortdata.getStudySnps(req.query.studyID, req.query.trait, req.query.cohort, req.query.pValAnno, req.query.betaAnno, req.query.valueType, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -114,4 +114,66 @@ exports.getStudySnps = (req, res) => {
             res.send(snps);
         }
     })
+}
+
+exports.getPercentiles = (req, res) => {
+    var studyIDObjs = req.body.studyIDObjs
+
+    percentiles = {}
+
+    cohortdata.getPercentiles(studyIDObjs, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: `Error retrieving associations: ${err}`
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            for (i=0; i<data.length; i++) {
+                if (Array.isArray(data[i])) {
+                    for (j=0; j<data[i].length; j++) {
+                        key = [data[i][j].trait, data[i][j].pValueAnnotation, data[i][j].betaAnnotation, data[i][j].ogValueTypes, data[i][j].studyID].join("|")
+                        if (!(Object.keys(percentiles).includes(key))) {
+                            percentiles[key] = data[i][j]
+                        }
+                    }
+                }
+                else {
+                    key=[data[i].trait, data[i].pValueAnnotation, data[i].betaAnnotation, data[i].ogValueTypes, data[i].studyID].join("|")
+                    if (!(Object.keys(percentiles).includes(key))) {
+                        percentiles[key] = data[i]
+                    }
+                }
+            }
+            res.send(percentiles);
+        }
+    });
+}
+
+exports.getLastPercentilesUpdate = (req, res) => {
+    cohort = req.query.cohort
+
+    percentilesPath = path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allPercentiles_${cohort}.txt`)
+    statsObj = fs.statSync(percentilesPath)
+    updateTime = statsObj.mtime
+    res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
+}
+
+exports.getDownloadPercentiles = (req, res) => {
+    cohort = req.query.cohort
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `allPercentiles_${cohort}.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
 }
