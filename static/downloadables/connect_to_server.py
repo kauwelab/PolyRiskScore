@@ -18,6 +18,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     if extension == '.txt' and mafCohort == 'user':
         raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
 
+    mafCohort = formatMafCohort(mafCohort)
     percentilesCohort = mafCohort
     if mafCohort.startswith("adni"):
         mafCohort = "adni"
@@ -100,7 +101,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
 
         fileName = "percentiles_{c}_{ahash}.txt".format(c=percentilesCohort, ahash=fileHash)
         percentilesPath = os.path.join(workingFilesPath, fileName)
-        percentileData = getPercentiles(refGen, finalStudyList)
+        percentileData = getPercentiles(percentilesCohort, finalStudyList)
         
         # get the study:snps info
         fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
@@ -877,9 +878,6 @@ def getPercentiles(percentilesCohort, finalStudyList):
     # if the cohort is user, return empty, we will use the user maf
     if (percentilesCohort == 'user'): return {}
 
-    body = {
-        "cohort": percentilesCohort
-    }
     print("Retrieving Percentile information for studies")
 
     percentiles = {}
@@ -895,14 +893,16 @@ def getPercentiles(percentilesCohort, finalStudyList):
             # get the associations based on the studyIDs
             print("{}...".format(j), end = "", flush=True)
             body = {
+                "cohort": percentilesCohort,
                 "studyIDObjs":finalStudyList[i:j]
             }
+            print(body)
             tmpPercentiles = postUrlWithBody("https://prs.byu.edu/get_percentiles", body)
             for key in tmpPercentiles:
                 if key not in percentiles:
                     percentiles[key] = tmpPercentiles[key]
             i = j
-            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList - 1
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList
         print("Done\n")
     except AssertionError:
         raise SystemExit("ERROR: 504 - Connection to the server timed out")
@@ -951,6 +951,14 @@ def checkInternetConnection():
         return
     except OSError:
         raise SystemExit("ERROR: No internet - Check your connection")
+
+
+def formatMafCohort(mafCohort):
+    mafCohort = mafCohort.replace("-", "_")
+    if mafCohort == "adni_cn":
+        mafCohort = "adni_controls"
+
+    return mafCohort
 
 
 def getPreferredPop(popList, superPop):

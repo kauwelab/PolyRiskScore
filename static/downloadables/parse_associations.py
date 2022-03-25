@@ -9,7 +9,7 @@ import os
 import os.path
 from collections import defaultdict
 import hashlib
-from connect_to_server import getPreferredPop
+from connect_to_server import getPreferredPop, formatMafCohort
 
 def parseAndCalculateFiles(params):
     # initialize the parameters used in multiprocessing
@@ -49,6 +49,7 @@ def parseAndCalculateFiles(params):
 
 
 def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, omitPercentiles, timestamp, useGWASupload):
+    mafCohort = formatMafCohort(mafCohort)
     percentileCohort = mafCohort
     if mafCohort.startswith("adni"):
         mafCohort = "adni"
