@@ -118,10 +118,11 @@ exports.getStudySnps = (req, res) => {
 
 exports.getPercentiles = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
+    var cohort = req.body.cohort
 
     percentiles = {}
 
-    cohortdata.getPercentiles(studyIDObjs, async (err, data) => {
+    cohortdata.getPercentiles(studyIDObjs, cohort, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
