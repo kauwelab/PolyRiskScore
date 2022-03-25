@@ -93,7 +93,7 @@ module.exports = app => {
 
     app.get("/last_maf_update", maf.getLastMAFupdate);
 
-    app.get("/last_maf_update", maf.getLastMafUpdate);
+    app.get("/get_maf_download_file", maf.getDownloadMaf);
 
     app.post("/send_error", errors.sendError);
 
