@@ -115,30 +115,30 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
         f = open(associationsPath, 'w', encoding="utf-8")
-        f.write(json.dumps(associationsReturnObj))
+        f.write(json.dumps(associationsReturnObj, indent=4))
         f.close()
 
     if 'mafData' in locals():
         f = open(mafPath, 'w', encoding="utf-8")
-        f.write(json.dumps(mafData))
+        f.write(json.dumps(mafData, indent=4))
         f.close()
     elif mafCohort != 'user' and not mafPathExists:
         raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
 
-    if 'percentilesData' in locals():
+    if 'percentileData' in locals():
         f = open(percentilesPath, 'w', encoding='utf-8')
-        f.write(json.dumps(percentileData))
+        f.write(json.dumps(percentileData, indent=4))
         f.close()
 
     if 'possibleAllelesData' in locals():
         f = open(possibleAllelesPath, 'w', encoding="utf-8")
-        f.write(json.dumps(possibleAllelesData))
+        f.write(json.dumps(possibleAllelesData, indent=4))
         f.close()
 
     # check to see if studySnpsData is instantiated in the local variables
     if 'studySnpsData' in locals():
         f = open(studySnpsPath, 'w', encoding="utf-8")
-        f.write(json.dumps(studySnpsData))
+        f.write(json.dumps(studySnpsData, indent=4))
         f.close()
     
     for pop in allSuperPops:
@@ -156,7 +156,7 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         # check to see if clumpsData is instantiated in the local variables
         if 'clumpsData' in locals():
             f = open(clumpsPath, 'w', encoding="utf-8")
-            f.write(json.dumps(clumpsData))
+            f.write(json.dumps(clumpsData, indent=4))
             f.close()
 
     return
@@ -886,11 +886,11 @@ def getPercentiles(percentilesCohort, finalStudyList):
 
     lengthOfList = len(finalStudyList)
     i = 0
-    j = 1000 if lengthOfList > 1000 else lengthOfList - 1
+    j = 1000 if lengthOfList > 1000 else lengthOfList
     runLoop = True
     try:
         while runLoop:
-            if j == lengthOfList - 1:
+            if j == lengthOfList:
                 runLoop = False
             # get the associations based on the studyIDs
             print("{}...".format(j), end = "", flush=True)

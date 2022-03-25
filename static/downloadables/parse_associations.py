@@ -21,8 +21,8 @@ def parseAndCalculateFiles(params):
     possibleAlleles = params[5]
     mafDict = params[6]
     percentileDict = params[7]
-    pValue = params[8]
-    mafCutoff = params[9]
+    pValue = float(params[8])
+    mafCutoff = float(params[9])
     trait = params[10]
     study = params[11]
     pValueAnno = params[12]
@@ -234,7 +234,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     # for txt, we are not going to do strand flipping since we don't have access to anything except the allele reported for the person
 
                     #compare the pvalue to the threshold
-                    if pValue <= float(p_cutOff) and mafVal >= mafCutoff:
+                    if pValue <= p_cutOff and mafVal >= mafCutoff:
                         usedSnps.add(snp)
                         if riskAllele in alleles or not isIndividualClump:
                             # Check to see if the snp position from this line in the file exists in the clump table
@@ -283,7 +283,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                 pValue = tableObjDict['associations'][snp]['traits'][trait][study][pValBetaAnnoValType][riskAllele]['pValue']
                 mafVal = mafDict[snp]['alleles'][riskAllele] if snp in mafDict and riskAllele in mafDict[snp]["alleles"] else 0
                 #compare the pvalue to the threshold
-                if pValue <= float(p_cutOff) and mafVal >= mafCutoff:
+                if pValue <= p_cutOff and mafVal >= mafCutoff:
                     if snp in clumpsObjDict:
                         # Grab the clump number associated with this snp 
                         clumpNum = clumpsObjDict[snp]['clumpNum']
@@ -463,7 +463,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
                         mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict and riskAllele in mafDict[rsID]["alleles"] else 0
 
                         # compare the pvalue to the pvalue cutoff
-                        if pValue <= float(p_cutOff) and mafVal >= mafCutoff:
+                        if pValue <= p_cutOff and mafVal >= mafCutoff:
                             usedSnps.add(rsID)
                             # loop through each sample of the vcf file
                             for call in record.samples:
@@ -538,7 +538,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
                         pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType][riskAllele]['pValue']
                         mafVal = mafDict[rsID]['alleles'][riskAllele] if rsID in mafDict and riskAllele in mafDict[rsID]["alleles"] else 0
                         # compare the pvalue to the pvalue cutoff
-                        if pValue <= float(p_cutOff) and mafVal >= mafCutoff:
+                        if pValue <= p_cutOff and mafVal >= mafCutoff:
                             if rsID in clumpsObjDict:
                                 # Grab the clump number associated with this study and snp position
                                 clumpNum = clumpsObjDict[rsID]['clumpNum']
@@ -637,6 +637,8 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         num_processes = None
     else:
         num_processes = int(num_processes)
+
+    omitPercentiles = False if int(omitPercentiles) == 0 else True
     
     # tells us if we were passed rsIDs or a vcf
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False

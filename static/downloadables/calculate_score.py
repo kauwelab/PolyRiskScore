@@ -317,20 +317,21 @@ def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
 
 # This function determines the percentile (or percentile range) of the prs score
 def getPercentile(prs, percentileDict, omitPercentiles):
+    if (prs)== "NF":
+        return "NA"
+    prs = float(prs)
     if omitPercentiles:
         return "NA"
     lb = 0 # keeps track of the lower bound percentile
     ub = 0 # keeps track of the upper bound percentile
-    for i in range(1, 101):
+    for i in range(0, 101):
         key = "p{}".format(i)
-        # if the prs is greater than the score at the i-th percentile, set the lower bound to i
-        if prs > percentileDict[key]:
+        # if the prs is greater than or equal to the score at the i-th percentile, and the score doesn't match the score at the lower bound, set the lower and upper bounds to i
+        if prs >= percentileDict[key] and percentileDict[key] != percentileDict["p{}".format(lb)]:
+            ub = i
             lb = i
-        # else if the prs is equal to the score at the i-th percentile and the score at the lower bound is not equal to the score at the i-th percentile, set the lower bound to i
-        elif prs == percentileDict[key] and percentileDict[key] != percentileDict["p{}".format(lb)]:
-            lb = i
-        # else if the prs is equal to the score at the i-th percentile, we will be working with a range of percentiles that all have the same value, so set the upper bound to i
-        elif prs == percentileDict[key]:
+        # else if the prs is greater than or equal to the score at the i-th percentile, set the upper bound to the i-th percentile
+        elif prs >= percentileDict[key]:
             ub = i
         # else the prs is less than the score at the i-th percentile and we are done
         else:
