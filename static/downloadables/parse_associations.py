@@ -683,15 +683,16 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         trait, pValueAnno, betaAnnotation, valueType, study = keyString.split('|')
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
+        uniquePercentileDict = percentileDict[keyString] if not omitPercentiles else {}
         # get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
         popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
         clumpsObjDict = allClumpsObjDict[preferredPop]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, percentileDict[keyString], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, uniquePercentileDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, percentileDict[keyString], pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, uniquePercentileDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
