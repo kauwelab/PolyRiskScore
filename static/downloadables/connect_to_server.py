@@ -897,7 +897,7 @@ def getPercentiles(percentilesCohort, finalStudyList):
             body = {
                 "studyIDObjs":finalStudyList[i:j]
             }
-            tmpPercentiles = postUrlWithBody("https://prs.byu.edu/get_percentiles", body)       # TODO WORKING HERE END OF DAY (2/7/2022)
+            tmpPercentiles = postUrlWithBody("https://prs.byu.edu/get_percentiles", body)
             for key in tmpPercentiles:
                 if key not in percentiles:
                     percentiles[key] = tmpPercentiles[key]
