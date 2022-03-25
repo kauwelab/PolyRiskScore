@@ -65,9 +65,23 @@ def createPercentileDownloadFile(params):
 def formatPercentiles(percentilesUnformatted):
     percentiles = {}
     for line in percentilesUnformatted:
-        key = "|".join([line["trait"], line['pValueAnnotation'], line['betaAnnotation'], line['ogValueTypes'], line['studyID']])
+        key = "|".join([line[2], line[4], line[5], line[6], line[0]])
         if key not in percentiles:
-            percentiles[key] = line #TODO will need to check and see if this works this way
+            percentiles[key] = {
+                "studyID": line[0],
+                "reportedTrait": line[1],
+                "trait": line[2],
+                "citation": line[3],
+                "pValueAnnotation": line[4],
+                "betaAnnotation": line[5],
+                "ogValueTypes": line[6],
+                "betaUnit": line[7],
+                "snpOverlap": line[8],
+                "totalSnps": line[9],
+                "usedSuperPop": line[10],
+                "p0": line[11],
+                "p1": line[12],
+            }
 
     return percentiles
 
@@ -212,15 +226,15 @@ def main():
          paramMAFopts.append((tablePrefix, password, generalFilePath))
         #createMAFDownloadFiles([tablePrefix, password, generalFilePath])
 
-    with Pool(processes=7) as pool:
-        pool.map(createMAFDownloadFiles, paramMAFopts)
+   # with Pool(processes=7) as pool:
+    #    pool.map(createMAFDownloadFiles, paramMAFopts)
 
     # COMMENTED OUT UNTIL WE ACTUALLY HAVE PERCENTILES TO WORK WITH
-    # for cohort in ["adni", 'ukbb', 'afr', 'amr', 'eas', 'eur', 'sas']:
-    #     paramOpts.append(cohort, password)
+    for cohort in ["adni_ad", 'adni_controls', 'adni_mci', 'afr', 'amr', 'eas', 'eur', 'sas']: #'ukbb'
+         paramOpts.append((cohort, password, generalFilePath))
     
-    # with Pool(processes=5) as pool2:
-    #     pool2.map(createPercentileDownloadFile, paramOpts)
+    with Pool(processes=5) as pool2:
+         pool2.map(createPercentileDownloadFile, paramOpts)
 
     print("Finished creating server download percentile and maf files")
 
