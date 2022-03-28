@@ -320,7 +320,7 @@ def getPercentile(prs, percentileDict, omitPercentiles):
     if (prs)== "NF":
         return "NA"
     prs = float(prs)
-    if omitPercentiles:
+    if omitPercentiles or percentileDict == {}:
         return "NA"
     lb = 0 # keeps track of the lower bound percentile
     ub = 0 # keeps track of the upper bound percentile

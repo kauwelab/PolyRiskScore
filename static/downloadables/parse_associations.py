@@ -684,7 +684,7 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         trait, pValueAnno, betaAnnotation, valueType, study = keyString.split('|')
         # get all of the variants associated with this trait/study
         snpSet = studySnpsDict[keyString]
-        uniquePercentileDict = percentileDict[keyString] if not omitPercentiles else {}
+        uniquePercentileDict = percentileDict[keyString] if not omitPercentiles and keyString in percentileDict else {}
         # get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
         popList = [eachPop.lower() for eachPop in popList]
