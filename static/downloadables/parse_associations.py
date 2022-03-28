@@ -101,7 +101,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
             studySnpsDict = json.load(studySnpsFile)
         with open(mafCohortPath, 'r') as mafFile:
             mafDict = json.load(mafFile)
-        if not omitPercentiles: #TODO!!! getting this key: Platelet Reactivity Measurement|(adjusted for cyp2c19*2)|NA|beta|GCST010485 but there is no * in the other thing
+        if not omitPercentiles:
             with open(percentilePath, 'r', encoding="utf-8") as percentileFile:
                 percentileDict = json.load(percentileFile)
         else:
