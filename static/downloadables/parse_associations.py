@@ -49,6 +49,7 @@ def parseAndCalculateFiles(params):
 
 
 def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen, isRSids, omitPercentiles, timestamp, useGWASupload):
+    isFilters = False
     mafCohort = formatMafCohort(mafCohort)
     percentileCohort = mafCohort
     if mafCohort.startswith("adni"):
@@ -76,7 +77,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
             studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
         mafCohortPath = os.path.join(basePath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
         if not omitPercentiles:
-            percentilePath = os.path.join(basePath, "allPercentiles_${m}.txt".format(m=percentileCohort)) 
+            percentilePath = os.path.join(basePath, "allPercentiles_{m}.txt".format(m=percentileCohort)) 
         possibleAllelesPath = os.path.join(basePath, "allPossibleAlleles.txt".format(ahash=fileHash))
     else:
         isFilters = True
@@ -100,8 +101,8 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
             studySnpsDict = json.load(studySnpsFile)
         with open(mafCohortPath, 'r') as mafFile:
             mafDict = json.load(mafFile)
-        if not omitPercentiles:
-            with open(percentilePath, 'r') as percentileFile:
+        if not omitPercentiles: #TODO!!! getting this key: Platelet Reactivity Measurement|(adjusted for cyp2c19*2)|NA|beta|GCST010485 but there is no * in the other thing
+            with open(percentilePath, 'r', encoding="utf-8") as percentileFile:
                 percentileDict = json.load(percentileFile)
         else:
             percentileDict = {}

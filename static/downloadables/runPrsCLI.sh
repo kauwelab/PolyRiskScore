@@ -1160,11 +1160,10 @@ calculatePRS () {
         #     rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
         #     rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
         #     rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+            # [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
+            # [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
         # fi
         
-        # TODO come back and uncomment these when tool is ready to be run
-        #[ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
-        #[ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
         echo "Cleaned up intermediate files"
