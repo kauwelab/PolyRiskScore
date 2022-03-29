@@ -74,9 +74,9 @@ def main():
     enableLocalLoad(connection.cursor())
     connection.close()
 
-    percentileTableColumns = "( studyID varchar(20), reportedTrait varchar(255), trait varchar(255), citation varchar(50), p0 float, p1 float, p2 float, p3 float, p4 float, p5 float, p6 float, p7 float, p8 float, p9 float, p10 float, p11 float, p12 float, p13 float, p14 float, p15 float, p16 float, p17 float, p18 float, p19 float, p20 float, p21 float, p22 float, p23 float, p24 float, p25 float, p26 float, p27 float, p28 float, p29 float, p30 float, p31 float, p32 float, p33 float, p34 float, p35 float, p36 float, p37 float, p38 float, p39 float, p40 float, p41 float, p42 float, p43 float, p44 float, p45 float, p46 float, p47 float, p48 float, p49 float, p50 float, p51 float, p52 float, p53 float, p54 float, p55 float, p56 float, p57 float, p58 float, p59 float, p60 float, p61 float, p62 float, p63 float, p64 float, p65 float, p66 float, p67 float, p68 float, p69 float, p70 float, p71 float, p72 float, p73 float, p74 float, p75 float, p76 float, p77 float, p78 float, p79 float, p80 float, p81 float, p82 float, p83 float, p84 float, p85 float, p86 float, p87 float, p88 float, p89 float, p90 float, p91 float, p92 float, p93 float, p94 float, p95 float, p96 float, p97 float, p98 float, p99 float, p100 float, cohort varchar(50) )"
-    summaryTableColumns = "( studyID varchar(20), reportedTrait varchar(255), trait varchar(255), citation varchar(50), min float, max float, median float, rng float, mean float, geomMean float, harmMean float, stdev float, geomStdev float, cohort varchar(50) )"
-    snpTableColumns = "( studyID varchar(20), trait varchar(255), snps varchar(255), cohort varchar(50) )"
+    percentileTableColumns = "( studyID varchar(20), reportedTrait varchar(255), trait varchar(255), citation varchar(50), pValueAnnotation varchar(255), betaAnnotation varchar(255), ogValueTypes varchar(20), betaUnit varchar(50), snpOverlap int, totalSnps int, usedSuperPop varchar(10), p0 float, p1 float, p2 float, p3 float, p4 float, p5 float, p6 float, p7 float, p8 float, p9 float, p10 float, p11 float, p12 float, p13 float, p14 float, p15 float, p16 float, p17 float, p18 float, p19 float, p20 float, p21 float, p22 float, p23 float, p24 float, p25 float, p26 float, p27 float, p28 float, p29 float, p30 float, p31 float, p32 float, p33 float, p34 float, p35 float, p36 float, p37 float, p38 float, p39 float, p40 float, p41 float, p42 float, p43 float, p44 float, p45 float, p46 float, p47 float, p48 float, p49 float, p50 float, p51 float, p52 float, p53 float, p54 float, p55 float, p56 float, p57 float, p58 float, p59 float, p60 float, p61 float, p62 float, p63 float, p64 float, p65 float, p66 float, p67 float, p68 float, p69 float, p70 float, p71 float, p72 float, p73 float, p74 float, p75 float, p76 float, p77 float, p78 float, p79 float, p80 float, p81 float, p82 float, p83 float, p84 float, p85 float, p86 float, p87 float, p88 float, p89 float, p90 float, p91 float, p92 float, p93 float, p94 float, p95 float, p96 float, p97 float, p98 float, p99 float, p100 float, cohort varchar(50) )"
+    summaryTableColumns = "( studyID varchar(20), reportedTrait varchar(255), trait varchar(255), citation varchar(50), pValueAnnotation varchar(255), betaAnnotation varchar(255), ogValueTypes varchar(20), betaUnit varchar(50), snpOverlap int, totalSnps int, usedSuperPop varchar(10), min float, max float, median float, rng float, mean float, geomMean float, harmMean varchar(100), stdev float, geomStdev varchar(100), cohort varchar(50) )"
+    snpTableColumns = "( studyID varchar(20), trait varchar(255), pValueAnnotation varchar(255), betaAnnotation varchar(255), ogValueTypes varchar(20), snps varchar(255), cohort varchar(50) )"
 
     # create the cohort tables
     createFreshTable(config, "cohort_percentiles", percentileTableColumns)
@@ -90,9 +90,9 @@ def main():
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_percentiles", "cohort_percentiles")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_percentiles", "cohort_percentiles")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_percentiles", "cohort_percentiles")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_percentiles", "cohort_percentiles")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_percentiles", "cohort_percentiles")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_AD_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_MCI_percentiles", "cohort_percentiles")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_CN_percentiles", "cohort_percentiles")
 
     # add the summary data tables to the database
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_summary_data", "cohort_summary_data")
@@ -101,9 +101,9 @@ def main():
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_summary_data", "cohort_summary_data")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_summary_data", "cohort_summary_data")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_summary_data", "cohort_summary_data")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_summary_data", "cohort_summary_data")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_summary_data", "cohort_summary_data")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_AD_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_MCI_summary_data", "cohort_summary_data")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_CN_summary_data", "cohort_summary_data")
 
     # add the snps data tables to the database
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "ukbb_snps", "cohort_snps")
@@ -112,9 +112,9 @@ def main():
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EAS_snps", "cohort_snps")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "EUR_snps", "cohort_snps")
     addDataToCohortTableCatch(config, cohortTablesFolderPath, "SAS_snps", "cohort_snps")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "AD_adni_snps", "cohort_snps")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "MCI_adni_snps", "cohort_snps")
-    addDataToCohortTableCatch(config, cohortTablesFolderPath, "control_adni_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_AD_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_MCI_snps", "cohort_snps")
+    addDataToCohortTableCatch(config, cohortTablesFolderPath, "ADNI_CN_snps", "cohort_snps")
 
     print("Finished uploading cohort data to the PRSKB database!")
 
