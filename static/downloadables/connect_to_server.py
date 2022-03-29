@@ -883,6 +883,7 @@ def getPercentiles(percentilesCohort, finalStudyList):
     percentiles = {}
 
     lengthOfList = len(finalStudyList)
+    # i and j allow us to cut the list of items sent into chunks of 1000
     i = 0
     j = 1000 if lengthOfList > 1000 else lengthOfList
     runLoop = True
