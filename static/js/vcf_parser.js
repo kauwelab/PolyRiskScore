@@ -90,7 +90,7 @@
                 vcfObj.set(sampleIndex[j], vcfSNPObjs)
             }
         }
-        return [vcfObj, mafData];
+        return [vcfObj, mafData, allPresentSnps];
     }
 
     /**
