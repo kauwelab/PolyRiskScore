@@ -81,6 +81,12 @@ module.exports = app => {
 
     app.get("/cohort_study_snps", cohortdata.getStudySnps);
 
+    app.post("/get_percentiles", cohortdata.getPercentiles);
+
+    app.get("/last_percentiles_update", cohortdata.getLastPercentilesUpdate);
+
+    app.get("/get_percentiles_download_file", cohortdata.getDownloadPercentiles);
+
     app.post("/get_maf", maf.getMaf);
 
     app.get("/get_all_maf", maf.getAllMaf);
