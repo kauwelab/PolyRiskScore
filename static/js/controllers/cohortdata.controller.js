@@ -1,4 +1,5 @@
 const cohortdata = require("../models/cohortdata.model.js");
+const path = require("path")
 
 exports.getTraits = (req, res) => {
     cohortdata.getTraits((err, data) => {
@@ -154,7 +155,7 @@ exports.getPercentiles = (req, res) => {
 exports.getLastPercentilesUpdate = (req, res) => {
     cohort = req.query.cohort
 
-    percentilesPath = path.join(__dirname, '../..', `downloadables/associationsAndClumpsFiles/allPercentiles_${cohort}.txt`)
+    percentilesPath = path.join(__dirname, '../..', `downloadables/preppedServerFiles/allPercentiles_${cohort}.txt`)
     statsObj = fs.statSync(percentilesPath)
     updateTime = statsObj.mtime
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
@@ -162,7 +163,7 @@ exports.getLastPercentilesUpdate = (req, res) => {
 
 exports.getDownloadPercentiles = (req, res) => {
     cohort = req.query.cohort
-    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
     var options = { 
         root: downloadPath
     };
