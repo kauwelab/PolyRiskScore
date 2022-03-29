@@ -475,6 +475,9 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
                                                         index_snp_map[sample][clumpNum] = rsID, riskAllele, alleles if complements is None else complements
                                                         clumpedVariants.add(index_snp)
                                                     else:
+							# TODO: What if the current SNP also has two missing alleles? In this case, wouldn't we
+							# want to keep the SNP with the lower pvalue? Should this be changed to something more like:
+							# if index_alleles == "" and alleles != "" and isIndividualClump:
                                                         if index_alleles == "" and isIndividualClump:
                                                             index_snp_map[sample][clumpNum] = rsID, riskAllele, alleles if complements is None else complements
                                                             clumpedVariants.add(index_snp)

@@ -566,7 +566,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        handleCalculateScore(snpObjs, associationData, mafData, superPop, clumpsData, pValue, mafThreshold, false, false);
+        handleCalculateScore(snpObjs, associationData, mafData, superPop, clumpingType, clumpsData, pValue, mafThreshold, false, false);
     }
     else {
         //if text input is empty, return error
@@ -589,7 +589,7 @@ var calculatePolyScore = async () => {
                                                 
                 return;
             }
-            handleCalculateScore(vcfFile, associationData, mafData, superPop, clumpsData, pValue, mafThreshold, true, (mafCohort == 'user' ? true : false));
+            handleCalculateScore(vcfFile, associationData, mafData, superPop, clumpingType, clumpsData, pValue, mafThreshold, true, (mafCohort == 'user' ? true : false));
         }
     }
 }
@@ -855,7 +855,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var handleCalculateScore = async (snpsInput, associationData, mafData, preferredPop, clumpsData, pValue, mafThreshold, isVCF, userMAF) => {
+var handleCalculateScore = async (snpsInput, associationData, mafData, preferredPop, clumpingType, clumpsData, pValue, mafThreshold, isVCF, userMAF) => {
     var greppedSNPsMAFAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF, userMAF)
     var greppedSNPs = greppedSNPsMAFAndtotalInputVariants[0]
     var userMAFData = greppedSNPsMAFAndtotalInputVariants[1]
@@ -872,7 +872,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, preferred
     // }
 
     try {
-        var result = await calculateScore(associationData, mafData, preferredPop, clumpsData, greppedSNPs, pValue, mafThreshold, totalInputVariants);
+        var result = await calculateScore(associationData, mafData, preferredPop, clumpingType, clumpsData, greppedSNPs, pValue, mafThreshold, totalInputVariants);
         try {
             result = JSON.parse(result)
         } catch (e) {
@@ -921,7 +921,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, preferred
  * @param {*} totalInputVariants 
  * @returns 
  */
-var calculateScore = async (associationData, mafData, preferredPop, clumpsData, greppedSamples, pValue, mafThreshold, totalInputVariants) => {
+var calculateScore = async (associationData, mafData, preferredPop, clumpingType, clumpsData, greppedSamples, pValue, mafThreshold, totalInputVariants) => {
     var resultObj = {};
     var indexSnpObj = {};
     var resultJsons = {};
@@ -994,7 +994,7 @@ var calculateScore = async (associationData, mafData, preferredPop, clumpsData, 
                         }
                     }
 
-                    if (key in associationData['associations'] && alleles != []) {
+                    if (key in associationData['associations']) {
                         for (trait in associationData['associations'][key]['traits']) {
                             for (studyID in associationData['associations'][key]['traits'][trait]) {
                                 printStudyID = studyID
@@ -1023,7 +1023,8 @@ var calculateScore = async (associationData, mafData, preferredPop, clumpsData, 
                                                 }
                                             }
     
-                                            if (numAllelesMatch + numAlleleMissingGenotype > 0) {
+					    // If there is a matching risk allele for this SNP or sample-wide LD clumping was requested, move forward
+                                            if ((numAllelesMatch > 0) || (clumpingType === 'sample')) {
                                                 if (clumpsData !== undefined && key in clumpsData[superPopToUse]) {
                                                     clumpNum = clumpsData[superPopToUse][key]['clumpNum']
                                                     if (clumpNum in indexSnpObj[traitStudypValueAnnoValTypeSamp]) {
@@ -1043,8 +1044,25 @@ var calculateScore = async (associationData, mafData, preferredPop, clumpsData, 
                                                             indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = [key, riskAllele]
                                                         }
                                                         else {
-                                                            // add the current snp to neutral snps
-                                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(key)
+							    // Check to see if the current index SNP for this clump had a matching risk allele
+                                                            indexNumMatchingAlleles = resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp]['numAllelesMatch']
+							    // Even though the p-value for the current SNP is > the p-value of the index SNP, replace the index SNP if individual LD clumping was requested and there were no matching risk alleles for the index SNP (meaning the alleles were ./. and derived from MAF
+                                                            if ((indexNumMatchingAlleles < 1) && (clumpingType === 'individual')) {
+                                                                delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(indexClumpSnp)
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAlleleMissingGenotype'] = numAlleleMissingGenotype
+                                                                if (numAlleleMissingGenotype > 0) {
+                                                                    if (key in mafData && riskAllele in mafData[key]['alleles']){
+                                                                        resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][riskAllele]
+                                                                    }
+                                                                }
+                                                                indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = [key, riskAllele]
+                                                            } else {
+                                                            }
+                                                                // add the current snp to neutral snps
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(key)
                                                         }
                                                     }
                                                     else {
