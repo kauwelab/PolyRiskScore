@@ -121,11 +121,7 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
         tableObjFile = {}
         studySnpsFile = {}
     except FileNotFoundError: 
-        if isFilters:
-            clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = pop, r = refGen, ahash = fileHash))
-        else:
-            clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = pop, r = refGen))
-        raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}".format(associationsPath, clumpsPath, studySnpsPath))
+        raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\nClumping files for the following superPops: {1}\n{2}".format(associationsPath, allSuperPops, studySnpsPath))
 
     return tableObjDict, allClumps, studySnpsDict, filteredInputPath, clumpNumPath, isFilters
 
