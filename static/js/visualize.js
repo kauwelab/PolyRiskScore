@@ -52,7 +52,9 @@ function getStudies() {
                     studyObj = studyLists[i]
                     var trait = studyObj.trait
                     var studyID = studyObj.studyID
-                    var displayString = trait + " | " + studyObj.citation + " | " + studyID
+                    var pValAnno = studyObj.pValueAnnotation
+                    var betaAnno = studyObj.betaAnnotation
+                    var displayString = `${trait}|${pValAnno}|${betaAnno}|${studyObj.citation}|${studyID}`
 
                     var opt = document.createElement('option');
                     opt.appendChild(document.createTextNode(formatHelper.formatForWebsite(displayString)));
@@ -62,6 +64,9 @@ function getStudies() {
                     opt.setAttribute('data-title', studyObj.title);
                     opt.setAttribute('data-pubmedid', studyObj.pubMedID);
                     opt.setAttribute('data-reported-trait', studyObj.reportedTrait);
+                    opt.setAttribute('data-pvalueannotation', pValAnno);
+                    opt.setAttribute('data-betaannotation', betaAnno);
+                    opt.setAttribute('data-valtype', studyObj.ogValueTypes);
                     opt.setAttribute('data-trait', trait);
                     studySelector.appendChild(opt);
                 }
@@ -82,6 +87,9 @@ function getCohorts() {
     selectedStudy = studySelector.options[studySelector.selectedIndex]
     studyID = studySelector.value;
     trait = selectedStudy.getAttribute("data-trait")
+    pValAnno = selectedStudy.getAttribute('data-pvalueannotation')
+    betaAnno = selectedStudy.getAttribute('data-betaannotation')
+    valType = selectedStudy.getAttribute('data-valtype')
     var cohortSelector = document.getElementById("cohort-Selector");
     cohortSelector.disabled = false;
     cohortSelectorList = cohortSelector.options
@@ -105,7 +113,7 @@ function getCohorts() {
     $.ajax({
         type: "GET",
         url: "cohort_get_cohorts",
-        data: { trait: trait, studyID: studyID },
+        data: { trait: trait, studyID: studyID, pValAnno: pValAnno, betaAnno: betaAnno, valueType: valType },
         success: async function (data) {
             cohortList = data;
             // ensure the correct cohort options are available
@@ -145,6 +153,9 @@ function displayGraphs() {
     selectedStudy = studySelector.options[studySelector.selectedIndex]
     studyID = studySelector.value;
     trait = selectedStudy.getAttribute("data-trait")
+    pValAnno = selectedStudy.getAttribute('data-pvalueannotation')
+    betaAnno = selectedStudy.getAttribute('data-betaannotation')
+    valType = selectedStudy.getAttribute('data-valtype')
 
     var cohortNodes = document.querySelectorAll('#cohort-Selector :checked');
     var cohorts = [...cohortNodes].map(option => option.value)
@@ -152,7 +163,7 @@ function displayGraphs() {
     $.ajax({
         type: "GET",
         url: "/cohort_full_results",
-        data: { trait: trait, studyID: studyID, cohort: cohorts },
+        data: { trait: trait, studyID: studyID, cohort: cohorts, pValAnno: pValAnno, betaAnno: betaAnno, valueType: valType },
         success: async function (data) {
 
             if (data.length == 0) {
@@ -200,6 +211,9 @@ function displayGraphs() {
                 <p><b>Citation:</b> ${selectedStudy.getAttribute("data-citation")}</p>
                 <p><b>Disease/Trait:</b> ${selectedStudy.getAttribute("data-trait")}</p>
                 <p><b>Reported Trait:</b> ${selectedStudy.getAttribute("data-reported-trait")}</p>
+                <p><b>P-value Annotation:</b> ${selectedStudy.getAttribute("data-pvalueannotation")}</p>
+                <p><b>Beta Annotation:</b> ${selectedStudy.getAttribute("data-betaannotation")}</p>
+                <p><b>Value Type:</b> ${selectedStudy.getAttribute("data-valtype")}</p>
                 <p><b>Pubmed ID:</b> ${selectedStudy.getAttribute("data-pubmedid")}</p>
                 <p><b>Altmetric Score:</b> ${selectedStudy.getAttribute("data-altmetric-score")}</p>
                 <ul class="prsList" style="text-align: left">

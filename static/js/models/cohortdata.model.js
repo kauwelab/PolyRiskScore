@@ -97,19 +97,16 @@ Cohortdata.getStudies = (trait, studyTypes, result) => {
                 return;
             }
 
+            sqlString = ""
             sqlQuestionMarks = ""
-            studyIDs = []
+            params = []
             for (i=0; i<data.length; i++) {
-                if (i == data.length-1) {
-                    sqlQuestionMarks = sqlQuestionMarks.concat("?")
-                } else {
-                    sqlQuestionMarks = sqlQuestionMarks.concat("?, ")
-                }
-                studyIDs.push(data[i].studyID)
+                sqlString += `SELECT trait, studyID, pValueAnnotation, betaAnnotation, ogValueTypes FROM cohort_summary_data WHERE studyID = ? and trait = ? and pValueAnnotation = ? and betaAnnotation = ? and ogValueTypes = ? ;`
+                params.push(data[i].studyID, data[i].trait, data[i].pValueAnnotation, data[i].betaAnnotation, data[i].ogValueTypes)
             }
 
             // grab trait/studyID combos that are in the cohort table
-            sql.query(`SELECT trait, studyID, pValueAnnotation, betaAnnotation, ogValueTypes, FROM cohort_summary_data WHERE studyID IN (${sqlQuestionMarks})`, studyIDs, (err, matchingStudyIDsData) => {
+            sql.query(sqlString, params, (err, matchingStudyIDsData) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
