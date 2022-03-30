@@ -64,36 +64,36 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
 
 def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload):
-    isFilters = False
-    basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
-    # create path for filtered input file
-    ext = "txt" if isRSids else "vcf"
-    filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.{ext}".format(ahash = fileHash, uniq = timestamp, ext = ext))
-    # create path for filtered associations
-    specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
-    # create path for clump number dictionary
-    clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
-    # get the paths for the associationsFile , study snps, and clumpsFile
-    if useGWASupload:
-        isFilters=True
-        associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-    elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
-        associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
-        associationsPath = os.path.join(basePath, associFileName)
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
-    else:
-        isFilters=True
-        associationsPath = specificAssociPath
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
     try:
-	# write the files
-        with open(associationsPath, 'r') as tableObjFile:
-            tableObjDict = json.load(tableObjFile)
-        with open(studySnpsPath, 'r') as studySnpsFile:
-            studySnpsDict = json.load(studySnpsFile)
+        isFilters = False
+        basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
+        # create path for filtered input file
+        ext = "txt" if isRSids else "vcf"
+        filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.{ext}".format(ahash = fileHash, uniq = timestamp, ext = ext))
+        # create path for filtered associations
+        specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
+        # create path for clump number dictionary
+        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
+        # get the paths for the associationsFile , study snps, and clumpsFile
+        if useGWASupload:
+            isFilters=True
+            associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
+            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
+        elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
+            associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
+            associationsPath = os.path.join(basePath, associFileName)
+            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
+        else:
+            isFilters=True
+            associationsPath = specificAssociPath
+            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
+        # write the files
+            with open(associationsPath, 'r') as tableObjFile:
+                tableObjDict = json.load(tableObjFile)
+            with open(studySnpsPath, 'r') as studySnpsFile:
+                studySnpsDict = json.load(studySnpsFile)
 
-	# Get super populations from studyIDMetaData
+        # Get super populations from studyIDMetaData
         allSuperPops = set()
         for study in tableObjDict['studyIDsToMetaData']:
             for trait in tableObjDict['studyIDsToMetaData'][study]['traits'].keys():
@@ -101,8 +101,8 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
                 superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
-	
-	# loop through each population and get the corresponding clumps file
+
+        # loop through each population and get the corresponding clumps file
         allClumps = {}
         for pop in allSuperPops:
             if isFilters:
@@ -117,9 +117,7 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
                     clumpsObjDict = json.load(clumpsObjFile)
                     allClumps[pop] = clumpsObjDict
                     clumpsObjFile = {}
-	    
 
-	
         tableObjFile = {}
         studySnpsFile = {}
     except FileNotFoundError: 
