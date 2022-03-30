@@ -1086,9 +1086,9 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                                                 }
                                                                 indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = [key, riskAllele]
                                                             } else {
-                                                            }
                                                                 // add the current snp to neutral snps
                                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(key)
+                                                            }
                                                         }
                                                     }
                                                     else {
