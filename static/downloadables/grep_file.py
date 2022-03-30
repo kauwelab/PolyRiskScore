@@ -121,7 +121,7 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
         tableObjFile = {}
         studySnpsFile = {}
     except FileNotFoundError: 
-        if allSuperPops in locals():
+        if 'allSuperPops' in locals():
             raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\nClumping files for the following superPops: {1}\n{2}".format(associationsPath, allSuperPops, studySnpsPath))
         else:
             raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}".format(associationsPath, studySnpsPath))
