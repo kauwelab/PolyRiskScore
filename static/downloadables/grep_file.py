@@ -88,10 +88,10 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
             associationsPath = specificAssociPath
             studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         # write the files
-            with open(associationsPath, 'r') as tableObjFile:
-                tableObjDict = json.load(tableObjFile)
-            with open(studySnpsPath, 'r') as studySnpsFile:
-                studySnpsDict = json.load(studySnpsFile)
+        with open(associationsPath, 'r') as tableObjFile:
+            tableObjDict = json.load(tableObjFile)
+        with open(studySnpsPath, 'r') as studySnpsFile:
+            studySnpsDict = json.load(studySnpsFile)
 
         # Get super populations from studyIDMetaData
         allSuperPops = set()
