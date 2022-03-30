@@ -1299,11 +1299,11 @@ function getPercentile(prs, percentileDict, omitPercentiles){
 
     // if the lower bound is less than the upper bound, send back the range of percentiles
     if (lb < ub) {
-        return "{}-{}".format(lb,ub)
+        return `${lb}-${ub}`
     }
     // else return just the lower bound
     else{
-        return str(lb)
+        return `${lb}`
     } 
 }
 
