@@ -241,13 +241,13 @@ function displayTable() {
     var tablePlot = document.getElementById("tablePlot");
 
     var values = [
-        ['Min', 'Max', 'Median', 'Range', 'Mean', 'Geometric Mean', 'Harmonic Mean', "Standard Deviation", "Geometric Standard Deviation"],
+        ['Used Super Population', 'Min', 'Max', 'Median', 'Range', 'Mean', 'Geometric Mean', 'Harmonic Mean', "Standard Deviation", "Geometric Standard Deviation"],
     ]
 
     var headers = [["<b>Summary Values</b>"]]
 
     for (i=0; i<displayDataObj.length; i++) {
-        values.push([displayDataObj[i]["min"], displayDataObj[i]["max"], displayDataObj[i]["median"], displayDataObj[i]["rng"], displayDataObj[i]["mean"], displayDataObj[i]["geomMean"], displayDataObj[i]["harmMean"], displayDataObj[i]["stdev"], displayDataObj[i]["geomStdev"]])
+        values.push([displayDataObj[i]['usedSuperPop'], displayDataObj[i]["min"], displayDataObj[i]["max"], displayDataObj[i]["median"], displayDataObj[i]["rng"], displayDataObj[i]["mean"], displayDataObj[i]["geomMean"], displayDataObj[i]["harmMean"], displayDataObj[i]["stdev"], displayDataObj[i]["geomStdev"]])
         headers.push(["<b>" + displayDataObj[i]["cohort"].toUpperCase() + "</b>"])
     }
 
