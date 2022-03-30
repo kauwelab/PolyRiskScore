@@ -98,7 +98,6 @@ Cohortdata.getStudies = (trait, studyTypes, result) => {
             }
 
             sqlString = ""
-            sqlQuestionMarks = ""
             params = []
             for (i=0; i<data.length; i++) {
                 sqlString += `SELECT trait, studyID, pValueAnnotation, betaAnnotation, ogValueTypes FROM cohort_summary_data WHERE studyID = ? and trait = ? and pValueAnnotation = ? and betaAnnotation = ? and ogValueTypes = ? ;`
