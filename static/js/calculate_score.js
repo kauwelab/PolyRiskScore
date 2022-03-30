@@ -1,5 +1,4 @@
 var resultJSON = "";
-var unusedTraitStudyArray = [];
 var traitsList = []
 //if false, the VCF button is selected- used as a toggle to prevent action on double click
 var textButtonSelected = true;
@@ -13,6 +12,8 @@ function pageReset() {
     document.getElementById("gwasDatabase").style.display = "initial";
     document.getElementById("gwasUpload").style.display = "none";
     document.getElementById("orValueType").checked = true;
+    document.getElementById("mafThresholdIn").value = 0.0;
+    document.getElementById("superPopSelect").value = "European"
 }
 
 //updates the output box and resultJSON string with the new string
@@ -44,7 +45,9 @@ function getTraits() {
             document.multiselect('#traitSelect');
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
+            msg = `There was an error loading the traits: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg);
         }
     })
 }
@@ -79,7 +82,9 @@ function getEthnicities() {
             document.multiselect('#ethnicitySelect');
         },
         error: function (XMLHttpRequest) {
-            alert(`There was an error loading the ethnicities: ${XMLHttpRequest.responseText}`);
+            msg = `There was an error loading the ethnicities: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg);
         }
     })
 }
@@ -100,7 +105,7 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
         sex = ["NA"]
     }
     else {
-        sex = [sex, "NA"]
+        sex = [sex]
     }
 
     if (valueType == "both") {
@@ -119,7 +124,9 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
             var traits = Object.keys(data);
 
             if (traits.length == 0) {
-                alert(`No results were found using the specified filters. Try using different filters.`)
+                msg = `No results were found using the specified filters. Try using different filters.`
+                updateResultBoxAndStoredValue(msg)
+                alert(msg)
             }
 
             for (i = 0; i < traits.length; i++) {
@@ -183,7 +190,9 @@ function getStudies() {
 
     if (selectedTraits.length == 0) {
         console.log("NO TRAIT SELECTED")
-        alert(`No traits selected. You must select at least one trait in order to filter studies.`);
+        msg = `No traits selected. You must select at least one trait in order to filter studies.`
+        updateResultBoxAndStoredValue(msg)
+        alert(msg);
         return;
     }
 
@@ -211,7 +220,7 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
         sex = ["NA"]
     }
     else {
-        sex = [sex, "NA"]
+        sex = [sex]
     }
 
     if (valueType == "both") {
@@ -226,11 +235,33 @@ function getSelectStudyAssociations(studyList, refGen, sex, valueType) {
             return data;
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
+            msg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
         }
     }));
+}
+
+/**
+ * Gets the percentile data from the server
+ * @param {*} studyList
+ * @param {*} cohort 
+ * @returns 
+ */
+function getPercentiles(studyList, cohort) {
+    return Promise.resolve($.ajax({
+        type: "POST",
+        url: "/get_percentiles",
+        data: { studyIDObjs: studyList, cohort:cohort },
+        success: async function (data) {
+            return data;
+        },
+        error: function (XMLHttpRequest) {
+            msg = `There was an error retrieving percentiles: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
+        }
+    }))
 }
 
 /**
@@ -272,9 +303,9 @@ function callMAFAPI(mafCohort, chrom, pos, refGen){
             return data;
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required maf data: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
+            msg = `There was an error retrieving required maf data: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
         }
     }));
 }
@@ -359,11 +390,46 @@ function callClumpsEndpoint(superPop, refGen, positions) {
             return data;
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
+            msg = `There was an error retrieving required associations: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
         }
     }));
+}
+
+function getPreferredPop(superPopList, superPop) {
+    superPop = superPop.toLowerCase()
+    superPopList = superPopList.map(superPopI => {
+        return superPopI.toLowerCase()
+    })
+    if (superPopList.length == 1 && superPopList[0].toLowerCase() == 'na'){
+        return superPop
+    }
+    else {
+        filteredKeys = []
+        superPopHeirarchy = {
+            'european': ['european', 'american', 'south asian', 'east asian', 'african'],
+            'american': ['american', 'european', 'south asian', 'east asian', 'african'],
+            'south asian': ['south asian', 'east asian', 'american', 'european', 'african'],
+            'east asian': ['east asian', 'south asian', 'american', 'european', 'african'],
+            'african': ['african', 'american', 'south asian', 'european', 'east asian']
+        }
+        fixKeys = {
+            'european': 'EUR',
+            'american': 'AMR',
+            'south asian': 'SAS',
+            'east asian': 'EAS',
+            'african': 'AFR'
+        }
+        keys = superPopHeirarchy[superPop]
+        for (i=0; i < keys.length; i++) {
+            if (superPopList.includes(keys[i])) {
+                filteredKeys.push(fixKeys[keys[i]])
+            }
+        }
+        
+        return filteredKeys[0]
+    }
 }
 
 /**
@@ -383,19 +449,15 @@ var calculatePolyScore = async () => {
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
     var mafElement = document.getElementById("mafCohort")
     var mafCohort = mafElement.options[mafElement.selectedIndex].value;
+    var mafThreshold = document.getElementById("mafThresholdIn").value;
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
+    var clumpingType = document.querySelector('input[name="ld_radio"]:checked').value;
 
-    //if the user doesn't specify a refgen, super pop, or default sex, prompt them to do so
-    if (refGen == "default") {
-        //TODO change to an alert instead
-        updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
-        document.getElementById('resultsDisplay').style.display = 'block';
-        return;
-    }
-    if (superPop == "default") {
-        //TODO change to an alert instead
-        updateResultBoxAndStoredValue('Please select the super population corresponding to your file (step 2).');
-        document.getElementById('resultsDisplay').style.display = 'block';
+    //if the user doesn't specify a refgen prompt them to do so
+    if (refGen == "default" && !(document.getElementById('textInputButton').checked)) {
+        msg = "Please select the reference genome corresponding to your file (step 2 of Sample(s) section)."
+        updateResultBoxAndStoredValue(msg)
+        alert(msg)
         return;
     }
 
@@ -407,9 +469,9 @@ var calculatePolyScore = async () => {
         var gwasValueType = document.querySelector('input[name="gwas_value_type"]:checked').value;
 
         if (gwasRefGen == "default") {
-            //TODO change to an alert instead
-            updateResultBoxAndStoredValue('Please select the reference genome corresponding to your file (step 2).');
-            document.getElementById('resultsDisplay').style.display = 'block';
+            msg = 'Please select the reference genome corresponding to your GWAS file (GWAS Summary Statistics section).'
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return;
         }
 
@@ -427,9 +489,9 @@ var calculatePolyScore = async () => {
         var studies = [...studyNodes].map(option => [option.value, option.dataset.trait, option.dataset.pvalueannotation, option.dataset.betaannotation, option.dataset.valtype]);
 
         if (studies.length === 0) {
-            // TODO change to an alert instead
-            updateResultBoxAndStoredValue('Please specify at least one trait and study from the dropdowns above (steps 3-5).');
-            document.getElementById('resultsDisplay').style.display = 'block';
+            msg = 'Please specify at least one trait and study from the dropdowns above (GWAS Summary Statistics section).'
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return;
         }
     
@@ -451,17 +513,33 @@ var calculatePolyScore = async () => {
         associationData = await getSelectStudyAssociations(studyList, refGen, sex, valueType);
     }
 
-    clumpsData = await getClumpsFromPositions(associationData['associations'], refGen, superPop);
+    allSuperPops = []
+    for (studyIDkey in associationData['studyIDsToMetaData']) {
+        for (trait in associationData['studyIDsToMetaData'][studyIDkey]['traits']) {
+            superPopList = associationData['studyIDsToMetaData'][studyIDkey]['traits'][trait]['superPopulations']
+            preferredPop = getPreferredPop(superPopList, superPop)
+            allSuperPops.push(preferredPop)
+        }
+    }
+
+    clumpsData = {}
+
+    for (i=0; i<allSuperPops.length; i++) {
+        clumpsData[allSuperPops[i]] = await getClumpsFromPositions(associationData['associations'], refGen, allSuperPops[i]);
+    }
+
     mafData = (mafCohort == 'user' ? {} : await getMafData(associationData['associations'], mafCohort, refGen))
+    percentileData = await getPercentiles(studyList, mafCohort)
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
-        //TODO: is it possible to refactor the next ~20 lines of code into its own function for increased readability?
         var textArea = document.getElementById('input');
 
         //if text input is empty, return error
         if (!textArea.value) {
-            updateResultBoxAndStoredValue("Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1).");
+            msg = "Please input RS IDs by hand according to the procedures above or import a VCF file using the \"File Upload\" and then the \"Choose File\" buttons above (step 1)."
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return;
         }
 
@@ -474,11 +552,15 @@ var calculatePolyScore = async () => {
             snpArray = snp.split(':');
             //if the snpid is invalid, return error
             if (!snpArray[0].toLowerCase().startsWith("rs") || isNaN(snpArray[0].substring(2, snpArray[0].length))) {
-                updateResultBoxAndStoredValue("Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers.");
+                msg = "Invalid SNP id \"" + snpArray[0] + "\". Each ID should start with \"rs\" followed by a string of numbers."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg)
                 return;
             }
             if (snpArray.length > 2) {
-                updateResultBoxAndStoredValue("Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon.");
+                msg = "Invalid SNP \"" + snp + "\". Each SNP entry should only contain one colon."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg);
                 return;
             }
             else if (snpArray.length == 2) {
@@ -486,13 +568,17 @@ var calculatePolyScore = async () => {
                 var alleleArray = snpArray[1].split(",");
                 //if more than 2 alleles, return error
                 if (alleleArray.length > 2) {
-                    updateResultBoxAndStoredValue("Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles.");
+                    msg = "Too many alleles for \"" + snp + "\". Each SNP should have a maximum of two alleles."
+                    updateResultBoxAndStoredValue(msg)
+                    alert(msg);
                     return;
                 }
                 for (var j = 0; j < alleleArray.length; ++j) {
                     //if any allele is not  A, T, G, or C, return error
                     if (!/^[GTAC]+$/.test(alleleArray[j])) {
-                        updateResultBoxAndStoredValue("Allele \"" + alleleArray[j] + "\" is invalid. Must contain only A, T, G, and C's.");
+                        msg = "Allele \"" + alleleArray[j] + "\" is invalid. Must contain only A, T, G, and C's."
+                        updateResultBoxAndStoredValue(msg)
+                        alert(msg);
                         return;
                     }
                 }
@@ -503,26 +589,30 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        handleCalculateScore(snpObjs, associationData, mafData, clumpsData, pValue, false, false);
+        handleCalculateScore(snpObjs, associationData, mafData, percentileData, superPop, clumpingType, clumpsData, pValue, mafThreshold, false, false);
     }
     else {
         //if text input is empty, return error
         if (typeof vcfFile === "undefined") {
-            updateResultBoxAndStoredValue("Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (step 1).");
+            msg = "Please import a VCF file using the \"Choose File\" button above or input RS IDs by hand using the \"Text input\" button above (Sample(s) section)."
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
             return;
         }
         else {
             var extension = vcfFile.name.split(".").pop();
             if (extension.toLowerCase() != "vcf") {
                 //if here, the user uploded a file with an invalid format
-                updateResultBoxAndStoredValue("Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
-                                                "Please note that the web version of PRSKB does not support zipped files,\n"+ 
-                                                "but that the command line interface does. It is available for download\n" +
-                                                "above under the \"Download\" tab or at https://prs.byu.edu/cli_download.html");
+                msg = "Invalid file format. Check that your file is an unzipped vcf file and try again.\n" +
+                        "Please note that the web version of PRSKB does not support zipped files,\n"+ 
+                        "but that the command line interface does. It is available for download\n" +
+                        "above under the \"Download\" tab or at https://prs.byu.edu/cli_download.html"
+                updateResultBoxAndStoredValue(msg)
+                alert(msg);
                                                 
                 return;
             }
-            handleCalculateScore(vcfFile, associationData, mafData, clumpsData, pValue, true, (mafCohort == 'user' ? true : false));
+            handleCalculateScore(vcfFile, associationData, mafData, percentileData, superPop, clumpingType, clumpsData, pValue, mafThreshold, true, (mafCohort == 'user' ? true : false));
         }
     }
 }
@@ -583,7 +673,9 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
 
             if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1) {
                 console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi)
-                alert("The format of your GWAS upload is incorrect. Please fix it and try again.")
+                msg = "The format of your GWAS upload is incorrect. Please fix it and try again."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg)
                 return
             }
         }
@@ -621,22 +713,26 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             betaAnnotation = (bai != -1 ? cols[bai] : "NA")
             pValBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + gwasValueType
             if (!(pValBetaAnnoValType in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]])) {
-                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType] = {
-                    riskAllele: cols[rai],
+                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType] = {}
+            }
+            if (!(cols[rai] in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType])) {
+                associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType][cols[rai]] = {
                     pValue: parseFloat(cols[pvi]),
                     sex: "NA",
                     ogValueTypes: gwasValueType,
                 }
                 if (gwasValueType == 'or') {
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType]['oddsRatio'] = parseFloat(cols[ori])
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType][cols[rai]]['oddsRatio'] = parseFloat(cols[ori])
                 }
                 else {
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType]['betaValue'] = parseFloat(cols[bvi]),
-                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType]['betaUnit'] = cols[bui]
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType][cols[rai]]['betaValue'] = parseFloat(cols[bvi]),
+                    associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType][cols[rai]]['betaUnit'] = cols[bui]
                 }
             }
             else {
-                alert("You have more than one association for the same Trait/study/(pValueAnnotation|betaAnnotation) combination. Please fix this before attempting to run the PRSKB calculator.")
+                msg = "You have more than one association for the same Trait/study/(pValueAnnotation|betaAnnotation) combination. Please fix this before attempting to run the PRSKB calculator."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg)
                 return
             }
 
@@ -699,9 +795,9 @@ function getChromPosToSnps(refGen, snps) {
             return data
         },
         error: function (XMLHttpRequest) {
-            var errMsg = `There was an error retrieving required snps data: ${XMLHttpRequest.responseText}`
-            updateResultBoxAndStoredValue(errMsg)
-            alert(errMsg);
+            msg = `There was an error retrieving required snps data: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
         }
     }));
 }
@@ -709,9 +805,8 @@ function getChromPosToSnps(refGen, snps) {
 /**
  * Resets resultJSON
  */
-function resetOutput() { //todo maybe should add this to when the traits/studies/ect are changed?
+function resetOutput() {
     resultJSON = "";
-    unusedTraitStudyArray = []
 }
 
 /**
@@ -726,7 +821,10 @@ function resetOutput() { //todo maybe should add this to when the traits/studies
 var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isVCF, userMAF) => {
     //Gets a map of pos/snp -> {snp, pos, oddsRatio, allele, study, trait}
     var associMap = associationData['associations']
-    
+    var allAssociMapKeys = Object.keys(associMap)
+    allNeededSnps = allAssociMapKeys.filter(function (snp) {
+        return snp.startsWith("rs");
+      });
     //remove SNPs that aren't relevant from the snpsInput object
     var greppedSNPs;
     var totalInputVariants = 0;
@@ -738,25 +836,36 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
             var reducedVCFLines = await getGreppedFileLines(vcfLines, associMap);
 
             //converts the vcf lines into an object that can be parsed
-            greppedSNPsAndMAF = vcf_parser.getVCFObj(reducedVCFLines, userMAF);
-            return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], totalInputVariants]
+            greppedSNPsAndMAF = vcf_parser.getVCFObj(reducedVCFLines, userMAF, allNeededSnps, associMap);
+            return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], greppedSNPsAndMAF[2], totalInputVariants]
         }
         catch (err) {
-            updateResultBoxAndStoredValue(getErrorMessage(err));
+            updateResultBoxAndStoredValue(getErrorMessage(err))
+            alert(getErrorMessage(err));
             return;
         }
     }
     else {
         var greppedSNPsList = [];
+        var usedSnps = []
         totalInputVariants = snpsInput.size;
         for (const key of snpsInput.keys()) {
             if (key in associMap) {
+                usedSnps.push(key)
                 greppedSNPsList.push(snpsInput.get(key));
             }
         }
+        //Impute missing Snps - txt
+        snpsToImpute = $(allNeededSnps).not(usedSnps).toArray()
+        for (i=0; i<snpsToImpute.length; i++) {
+            greppedSNPsList.push({
+                snp: snpsToImpute[i],
+                alleleArray: [".", "."]
+            })
+        }
         var greppedSNPs = new Map();
         greppedSNPs.set("TextInput", greppedSNPsList);
-        return [greppedSNPs, {}, totalInputVariants]
+        return [greppedSNPs, {}, usedSnps, totalInputVariants]
     }
 }
 
@@ -769,32 +878,33 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsData, pValue, isVCF, userMAF) => {
+var handleCalculateScore = async (snpsInput, associationData, mafData, percentileData, preferredPop, clumpingType, clumpsData, pValue, mafThreshold, isVCF, userMAF) => {
     var greppedSNPsMAFAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF, userMAF)
     var greppedSNPs = greppedSNPsMAFAndtotalInputVariants[0]
     var userMAFData = greppedSNPsMAFAndtotalInputVariants[1]
-    var totalInputVariants = greppedSNPsMAFAndtotalInputVariants[2]
+    var presentSnps = greppedSNPsMAFAndtotalInputVariants[2]
+    var totalInputVariants = greppedSNPsMAFAndtotalInputVariants[3]
     
     if (!(Object.keys(userMAFData).length === 0) && userMAF) {
         mafData = userMAFData
     }
-    if (Object.keys(mafData).length === 0) {
-        //TODO LET THE USER KNOW THERE WAS AN ISSUE WITH MAF AND WE HAD TO EXIT
-        alert("There was an issue either retrieving or creating the MAF object. Please try again.")
-        return
-    }
 
     try {
-        var result = await calculateScore(associationData, mafData, clumpsData, greppedSNPs, pValue, totalInputVariants);
+        var result = await calculateScore(associationData, mafData, presentSnps, preferredPop, clumpingType, clumpsData, percentileData, greppedSNPs, pValue, mafThreshold, totalInputVariants);
         try {
-            unusedTraitStudyPValueAnnoCombo = result[1]
-            result = JSON.parse(result[0])
+            result = JSON.parse(result)
         } catch (e) {
             //todo create an endpoint that we can send errors to and give a better error response for the user
             console.log("There was an error in calculating the results. Please try again.")
         }
         if (result == {}) {
             $('#response').html("None of the snps from the input file were found.");
+        }
+        else if (result["studyResults"] == "No results to display") {
+            msg = "We were not able to caluclate results using the given values. Try adjusting the p-value cutoff or the MAF threshold."
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
+            return
         }
         else {
             //shortens the result for website desplay
@@ -803,7 +913,6 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
         }
         //saves the full result on currently open session of the website for further modifications 
         resultJSON = result;
-        unusedTraitStudyArray = unusedTraitStudyPValueAnnoCombo;
         //go the the result output box
         $('#responseBox')[0].scrollIntoView({
             behavior: 'smooth',
@@ -811,7 +920,8 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
         })
     }
     catch (err) {
-        updateResultBoxAndStoredValue(getErrorMessage(err));
+        updateResultBoxAndStoredValue(getErrorMessage(err))
+        alert(getErrorMessage(err));
     }
 }
 
@@ -820,7 +930,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
  * Calculates the polygenic risk scores for the greppedSamples data using the associationData object, with clumpsData and
  * pValue acting as filters. pValue and totalInputVariants are aditional statistics returned in the final json
  * The complete json returned is composed of two objects: the result including risk scores for all samples, studies, and
- * traits, and an unusedTraitStudyPValueAnnoCombo object containing all trait-study combos that were not used in calculations
+ * traits
  * @param {*} associationData 
  * @param {*} clumpsData 
  * @param {*} greppedSamples 
@@ -828,11 +938,10 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, clumpsDat
  * @param {*} totalInputVariants 
  * @returns 
  */
-var calculateScore = async (associationData, mafData, clumpsData, greppedSamples, pValue, totalInputVariants) => {
+var calculateScore = async (associationData, mafData, presentSnps, preferredPop, clumpingType, clumpsData, percentileData, greppedSamples, pValue, mafThreshold, totalInputVariants) => {
     var resultObj = {};
     var indexSnpObj = {};
     var resultJsons = {};
-    var unusedTraitStudyPValueAnnoCombo = new Set()
 
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
     var selectedTraits = [...traitNodes].map(option => option.value);
@@ -844,6 +953,7 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
         //add information to results
         resultJsons = { 
             pValueCutoff: pValue, 
+            mafThreshold: mafThreshold,
             totalVariants: totalInputVariants,
             studyResults: {}
         }
@@ -861,13 +971,7 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
                             pValBetaAnnoValType = associationData['studyIDsToMetaData'][studyIDs[i]]['traits'][trait]['pValBetaAnnoValType'][j]
                             // ensure that the right studies/traits are being used and that this matches the CLI
                             if (selectedTraits.length == 0 || selectedTraits.includes(trait) || selectedTraits.includes(associationData['studyIDsToMetaData'][studyIDs[i]]["reportedTrait"])) {
-                                //TODO this should probably be changed to be the numAssociaitonsFiltered
-                                if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyIDs[i]] && associationData['studyIDsToMetaData'][studyIDs[i]]['traitsWithExcludedSnps'].includes(trait)) {
-                                    printStudyID = studyIDs[i].concat('†')
-                                }
-                                else {
-                                    printStudyID = studyIDs[i]
-                                }
+                                printStudyID = studyIDs[i]
                                 if (!(printStudyID in resultObj)) {
                                     resultObj[printStudyID] = {}
                                 }
@@ -882,7 +986,11 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
                                         snps: {},
                                         variantsWithUnmatchedAlleles: [],
                                         variantsInHighLD: [],
-                                        variantsWithMissingGenotypes: []
+                                        variantsWithMissingGenotypes: [],
+                                        snpOverlap: [],
+                                        snpsExcludedDueToCutoffs: [],
+                                        totalSnps: [],
+                                        usedSuperPopulation: ""
                                     }
                                 }
                                 if (!([trait, studyIDs[i], pValBetaAnnoValType, individualName].join("|") in indexSnpObj)) {
@@ -907,89 +1015,110 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
                         }
                     }
 
-                    if (key in associationData['associations'] && alleles != []) {
+                    if (key in associationData['associations']) {
                         for (trait in associationData['associations'][key]['traits']) {
                             for (studyID in associationData['associations'][key]['traits'][trait]) {
                                 printStudyID = studyID
+                                superPopList = associationData['studyIDsToMetaData'][printStudyID]['traits'][trait]['superPopulations']
+                                superPopToUse = getPreferredPop(superPopList, preferredPop)
                                 for (pValBetaAnnoValType in associationData['associations'][key]['traits'][trait][studyID]) {
                                     traitStudypValueAnnoValTypeSamp = [trait, studyID, pValBetaAnnoValType, individualName].join("|")
-                                    associationObj = associationData['associations'][key]['traits'][trait][studyID][pValBetaAnnoValType]
-                                    //TODO update this with the numAssociationsFiltered instead
-                                    if ('traitsWithExcludedSnps' in associationData['studyIDsToMetaData'][studyID]) {
-                                        if (associationData['studyIDsToMetaData'][studyID]['traitsWithExcludedSnps'].includes(trait)) {
-                                            printStudyID = studyID.concat('†')
-                                        }
-                                    }
-
-                                    if (associationObj.pValue <= pValue) {
-                                        numAllelesMatch = 0
-                                        numAlleleMissingGenotype = 0
-                                        for (i=0; i < alleles.length; i++) {
-                                            allele = alleles[i]
-                                            if (allele == associationObj.riskAllele){
-                                                numAllelesMatch++;
+                                    resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['usedSuperPopulation'] = superPopToUse
+                                    for (riskAllele in associationData['associations'][key]['traits'][trait][studyID][pValBetaAnnoValType]) {
+                                        associationObj = associationData['associations'][key]['traits'][trait][studyID][pValBetaAnnoValType][riskAllele]
+                                        snpMafThreshold = (key in mafData && riskAllele in mafData[key]['alleles'] ? mafData[key]['alleles'][riskAllele] : 0)
+                                        if (associationObj.pValue <= parseFloat(pValue) && snpMafThreshold >= mafThreshold) {
+                                            if (presentSnps.includes(key)){
+                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'].push(key)
                                             }
-                                            else if (allele == '.') {
-                                                numAlleleMissingGenotype++;
-                                                //todo should this be in the normal or separated like this?
-                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsWithMissingGenotypes'].push(key)
+                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['totalSnps'].push(key)
+                                            numAllelesMatch = 0
+                                            numAlleleMissingGenotype = 0
+                                            for (i=0; i < alleles.length; i++) {
+                                                allele = alleles[i]
+                                                if (allele == riskAllele){
+                                                    numAllelesMatch++;
+                                                }
+                                                else if (allele == '.') {
+                                                    numAlleleMissingGenotype++;
+                                                    //todo should this be in the normal or separated like this?
+                                                    resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsWithMissingGenotypes'].push(key)
+                                                }
+                                                else {
+                                                    resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsWithUnmatchedAlleles'].push(key)
+                                                }
                                             }
-                                            else {
-                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsWithUnmatchedAlleles'].push(key)
-                                            }
-                                        }
-
-                                        if (numAllelesMatch + numAlleleMissingGenotype > 0) {
-                                            if (clumpsData !== undefined && key in clumpsData) {
-                                                clumpNum = clumpsData[key]['clumpNum']
-                                                if (clumpNum in indexSnpObj[traitStudypValueAnnoValTypeSamp]) {
-                                                    indexClumpSnp = indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum]
-                                                    indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID][pValBetaAnnoValType]['pValue']
-                                                    if (associationObj.pValue < indexPvalue) {
-                                                        delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp] //TODO test that this worked
-                                                        resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(indexClumpSnp)
+    
+                                            // If there is a matching risk allele for this SNP or sample-wide LD clumping was requested, move forward
+                                            if ((numAllelesMatch > 0) || (clumpingType === 'sample')) {
+                                                if (clumpsData !== undefined && key in clumpsData[superPopToUse]) {
+                                                    clumpNum = clumpsData[superPopToUse][key]['clumpNum']
+                                                    if (clumpNum in indexSnpObj[traitStudypValueAnnoValTypeSamp]) {
+                                                        const [indexClumpSnp, indexRiskAllele] = indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum]
+                                                        indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID][pValBetaAnnoValType][indexRiskAllele]['pValue']
+                                                        if (associationObj.pValue < indexPvalue) {
+                                                            delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(indexClumpSnp)
+                                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
+                                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
+                                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAlleleMissingGenotype'] = numAlleleMissingGenotype
+                                                            if (numAlleleMissingGenotype > 0) {
+                                                                if (key in mafData && riskAllele in mafData[key]['alleles']){
+                                                                    resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][riskAllele]
+                                                                }
+                                                            }
+                                                            indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = [key, riskAllele]
+                                                        }
+                                                        else {
+                                                            // Check to see if the current index SNP for this clump had a matching risk allele
+                                                            indexNumMatchingAlleles = resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp]['numAllelesMatch']
+                                                            // Even though the p-value for the current SNP is > the p-value of the index SNP, replace the index SNP if individual LD clumping was requested and there were no matching risk alleles for the index SNP (meaning the alleles were ./. and derived from MAF
+                                                            if ((indexNumMatchingAlleles < 1) && (clumpingType === 'individual')) {
+                                                                delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(indexClumpSnp)
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAlleleMissingGenotype'] = numAlleleMissingGenotype
+                                                                if (numAlleleMissingGenotype > 0) {
+                                                                    if (key in mafData && riskAllele in mafData[key]['alleles']){
+                                                                        resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][riskAllele]
+                                                                    }
+                                                                }
+                                                                indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = [key, riskAllele]
+                                                            } else {
+                                                                // add the current snp to neutral snps
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(key)
+                                                            }
+                                                        }
+                                                    }
+                                                    else {
+                                                        // add the clumpNum/key to the indexSnpObj
+                                                        indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = [key, riskAllele]
                                                         resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
                                                         resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
                                                         resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAlleleMissingGenotype'] = numAlleleMissingGenotype
                                                         if (numAlleleMissingGenotype > 0) {
-                                                            if (key in mafData && associationObj.riskAllele in mafData[key]['alleles']){
-                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][associationObj.riskAllele]
+                                                            if (key in mafData && riskAllele in mafData[key]['alleles']){
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][riskAllele]
                                                             }
                                                         }
-                                                        indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = key
                                                     }
-                                                    else {
-                                                        // add the current snp to neutral snps
-                                                        resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(key)
-                                                    }
-                                                }
-                                                else {
-                                                    // add the clumpNum/key to the indexSnpObj
-                                                    indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum] = key
+                                                } else {
+                                                    // just add the snp to calculations
                                                     resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
                                                     resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
                                                     resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAlleleMissingGenotype'] = numAlleleMissingGenotype
                                                     if (numAlleleMissingGenotype > 0) {
-                                                        if (key in mafData && associationObj.riskAllele in mafData[key]['alleles']){
-                                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][associationObj.riskAllele]
+                                                        if (key in mafData && riskAllele in mafData[key]['alleles']){
+                                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][riskAllele]
                                                         }
-                                                    }
-                                                }
-                                            } else {
-                                                // just add the snp to calculations
-                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
-                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
-                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAlleleMissingGenotype'] = numAlleleMissingGenotype
-                                                if (numAlleleMissingGenotype > 0) {
-                                                    if (key in mafData && associationObj.riskAllele in mafData[key]['alleles']){
-                                                        resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][associationObj.riskAllele]
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                    else {
-                                        //TODO: add something to identify snps that aren't added because of pValue
+                                        else {
+                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['snpsExcludedDueToCutoffs']
+                                        }
                                     }
                                 }
                             }
@@ -1017,13 +1146,19 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
                         tmpPValueAnnoObj = {}
                         atLeastOneGoodSamp = false
                         for (sample in resultObj[studyID][trait][pValBetaAnnoValType]) {
-                            scoreAndSnps = calculateCombinedScoreAndFormatSnps(resultObj[studyID][trait][pValBetaAnnoValType][sample], trait, studyID_og, pValBetaAnnoValType, associationData)
+                            uniqueKey = [trait, pValBetaAnnoValType, studyID].join("|")
+                            percentileObj = uniqueKey in percentileData ? percentileData[uniqueKey] : {}
+                            scoreAndSnps = calculateCombinedScoreAndFormatSnps(resultObj[studyID][trait][pValBetaAnnoValType][sample], percentileObj, trait, studyID_og, pValBetaAnnoValType, associationData)
                             tmpSampleObj = {
                                 protectiveVariants: scoreAndSnps[4],
                                 riskVariants: scoreAndSnps[3],
                                 unmatchedVariants: scoreAndSnps[5],
-                                clumpedVariants: scoreAndSnps[6]
-                                //TODO add a column for MAF excluded and one for PVALUE excluded
+                                clumpedVariants: scoreAndSnps[6],
+                                snpOverlap: scoreAndSnps[7],
+                                snpsExcludedDueToCutoffs: scoreAndSnps[8],
+                                totalSnps: scoreAndSnps[9],
+                                percentile: scoreAndSnps[10],
+                                usedSuperPopulation: resultObj[studyID][trait][pValBetaAnnoValType][sample]['usedSuperPopulation']
                             }
                             if (scoreAndSnps[1] == 'oddsRatio') {
                                 tmpSampleObj['oddsRatio'] = scoreAndSnps[0]
@@ -1041,16 +1176,12 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
                             tmpTraitObj[pValBetaAnnoValType] = tmpPValueAnnoObj
                             atLeastOneGoodPValueAnno = true
                         }
-                        else {
-                            unusedTraitStudyPValueAnnoCombo.add([trait, studyID, pValBetaAnnoValType])
-                        }
                     }
                     if (atLeastOneGoodPValueAnno) {
                         tmpStudyObj['traits'][trait] = tmpTraitObj
                     }
                     else {
                         tmpStudyObj['traits'][trait] = {}
-                        // unusedTraitStudyPValueAnnoCombo.add([trait, studyID, pValBetaAnnoValType])
                         delete tmpStudyObj['traits'][trait]
                     }
                 }
@@ -1060,12 +1191,11 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
             }
         }
         //if the input data doesn't have an individual in it (we can assume this is a text input query with no matching SNPs)
-        //TODO fill this out
         if (Object.keys(resultJsons['studyResults']).length == 0) {
-            resultJsons['studyResults']["Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: "] = Array.from(unusedTraitStudyPValueAnnoCombo)
+            resultJsons['studyResults'] = "No results to display"
         }
-        //convert the result JSON list to a string, the unusedTraitStudyPValueAnnoCombo to array and return
-        return [JSON.stringify(resultJsons), Array.from(unusedTraitStudyPValueAnnoCombo)];
+        //convert the result JSON list to a string and return
+        return JSON.stringify(resultJsons);
     }
 }
 
@@ -1079,7 +1209,7 @@ var calculateScore = async (associationData, mafData, clumpsData, greppedSamples
  * @param {*} associationData 
  * @returns list containing combinied OR and 4 sets of SNPs grouped by SNP type
  */
-function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValBetaAnnoValType, associationData) {
+function calculateCombinedScoreAndFormatSnps(sampleObj, percentileObj, trait, studyID, pValBetaAnnoValType, associationData) {
     var combinedScore = 0;
     var protective = new Set()
     var risk = new Set()
@@ -1087,44 +1217,94 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, trait, studyID, pValBeta
     var clumped = new Set(sampleObj.variantsInHighLD)
     var ploidy = 2
     var nonMissingSnps = 0 // this is the number of non-missing snps obbserved in sample
-    //TODO add in handling for MAF snps
+    var snpOverlap = new Set(sampleObj.snpOverlap)
+    var excludedSnps = new Set(sampleObj.snpsExcludedDueToCutoffs)
+    var totalSnps = new Set(sampleObj.totalSnps)
 
     valueType = 'betaValue'
     changed = 0
     betaUnits = "NA"
 
-
     //calculate the odds ratio and determine which alleles are protective, risk, and neutral
     for (snp in sampleObj['snps']) {
-        if (associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['ogValueTypes'].toLowerCase() == 'or' && valueType == 'betaValue') {
-            valueType = 'oddsRatio'
-            changed += 1
+        nonMissingSnpsForSnp = 0
+        for (allele in associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]){
+            if (associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][allele]['ogValueTypes'].toLowerCase() == 'or' && valueType == 'betaValue') {
+                valueType = 'oddsRatio'
+                changed += 1
+            }
+            if (valueType == 'oddsRatio' && changed > 1) {console.log("THIS SHOULDN'T BE HAPPENING!! NEED TO ADD ANOTHER LEVEL TO THE ASSOCIATIONS OBJECT")}
+            snpDosage = sampleObj['snps'][snp]['numAllelesMatch']
+            snpMissingGenotype = sampleObj['snps'][snp]['numAlleleMissingGenotype']
+            maf = ("MAF" in sampleObj['snps'][snp] ? sampleObj['snps'][snp]['MAF'] : 0)
+            snpBeta = (valueType == 'betaValue' ? associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][allele][valueType] : Math.log(associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][allele][valueType]))
+            combinedScore += ((snpBeta * snpDosage) + (snpBeta * maf * snpMissingGenotype))
+            if (snpDosage + snpMissingGenotype != 0) {nonMissingSnpsForSnp += 1}
+            if (snpBeta > 0) {
+                risk.add(snp)
+            }
+            else if (snpBeta < 0) {
+                protective.add(snp)
+            }
+            betaUnits = associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][allele]['betaUnit']
         }
-        if (valueType == 'oddsRatio' && changed > 1) {console.log("THIS SHOULDN'T BE HAPPENING!! NEED TO ADD ANOTHER LEVEL TO THE ASSOCIATIONS OBJECT")}
-        snpDosage = sampleObj['snps'][snp]['numAllelesMatch']
-        snpMissingGenotype = sampleObj['snps'][snp]['numAlleleMissingGenotype']
-        maf = ("MAF" in sampleObj['snps'][snp] ? sampleObj['snps'][snp]['MAF'] : 0)
-        snpBeta = (valueType == 'betaValue' ? associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][valueType] : Math.log(associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType][valueType]))
-        combinedScore += ((snpBeta * snpDosage) + (snpBeta * maf * snpMissingGenotype))
-        if (snpDosage + snpMissingGenotype != 0) {nonMissingSnps += 1} //TODO double check this 
-        if (snpBeta > 0) {
-            risk.add(snp)
+        //This is to ensure that if we have multiple alleles for the same snp, and that snp was imputed, we only count the snp 1 time
+        if (nonMissingSnpsForSnp > 1){ 
+            nonMissingSnps += 1 
+        } else { 
+            nonMissingSnps += nonMissingSnpsForSnp 
         }
-        else if (snpBeta < 0) {
-            protective.add(snp)
-        }
-        betaUnits = associationData['associations'][snp]['traits'][trait][studyID][pValBetaAnnoValType]['betaUnit']
     }
 
     if (combinedScore === 0) {
-        combinedScore = "NF" //TODO will we need to change this?
+        combinedScore = "NF"
     } else {
         combinedScore = combinedScore / (ploidy * nonMissingSnps)
         // switch the score back to odds ratios
         if (valueType == 'oddsRatio') {combinedScore = Math.exp(combinedScore)}
     }
 
-    return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped)]
+    percentile = getPercentile(combinedScore, percentileObj, false)
+
+    return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped), snpOverlap.length, excludedSnps.length, totalSnps.length, percentile]
+}
+
+// This function determines the percentile (or percentile range) of the prs score
+function getPercentile(prs, percentileDict, omitPercentiles){
+    if (prs == "NF") {
+        return "NA"
+    }
+    prs = parseFloat(prs)
+    if (omitPercentiles || percentileDict == {}) {
+        return "NA"
+    }
+    lb = 0 // keeps track of the lower bound percentile
+    ub = 0 // keeps track of the upper bound percentile
+    for (i = 0; i < 101; i++){
+        key = `p${i}`
+        // if the prs is greater than or equal to the score at the i-th percentile, and the score doesn't match the score at the lower bound, set the lower and upper bounds to i
+        if (prs >= percentileDict[key] && percentileDict[key] != percentileDict[`p${lb}`]) {
+            ub = i
+            lb = i
+        }
+        // else if the prs is greater than or equal to the score at the i-th percentile, set the upper bound to the i-th percentile
+        else if (prs >= percentileDict[key]) {
+            ub = i
+        }
+        // else the prs is less than the score at the i-th percentile and we are done
+        else {
+            break
+        }
+    }
+
+    // if the lower bound is less than the upper bound, send back the range of percentiles
+    if (lb < ub) {
+        return "{}-{}".format(lb,ub)
+    }
+    // else return just the lower bound
+    else{
+        return str(lb)
+    } 
 }
 
 /**
@@ -1140,7 +1320,7 @@ var trim = function (str) {
  * @param {*} err 
  * @returns 
  */
-function getErrorMessage(err) { //TODO we are going to want to NOT give this information to the user in the final product. What we can and should do is create an endpoint to send errors to that can be saved for us to look over later
+function getErrorMessage(err) {
     var response = 'There was an error computing the risk score:'
     if (err != undefined) {
         response += '\n' + err;
@@ -1262,10 +1442,10 @@ function formatTSV(jsonObject, isCondensed) {
     sampleKeys = []
 
     if (isCondensed) {
-        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation|Beta Annotation|Score Type', 'Citation', 'Units (if applicable)']
+        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'SNPs Excluded Due To Cutoffs', 'Total SNPs', 'Used Super Population']
     }
     else {
-        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'P-Value Annotation|Beta Annotation|Score Type', 'Citation', 'Units (if applicable)', 'Polygenic Risk Score', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'SNPs Excluded Due To Cutoffs', 'Total SNPs', 'Used Super Population', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
     }
 
     resultsString = ''
@@ -1273,72 +1453,77 @@ function formatTSV(jsonObject, isCondensed) {
     studyIDKeys = Object.keys(jsonObject['studyResults'])
 
     first = true
-    if (studyIDKeys.includes("Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: ")) {
-        //todo wewant to print this out and not go through everything else:
-        //todo add a ? to results and explain about the different files for download.
-
-        resultsString = "Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: \n"
-        resultsString += jsonObject['studyResults']['Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: '].join('\n')
-    }
-    else {
-        for (var i = 0; i < studyIDKeys.length; i++) {
-            studyID = studyIDKeys[i]
-            traitKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'])
-            for (var j = 0; j < traitKeys.length; j++) {
-                trait = traitKeys[j]
-                pValBetaAnnoValTypeKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
-                for (var p = 0; p < pValBetaAnnoValTypeKeys.length; p++) {
-                    pValBetaAnnoValType = pValBetaAnnoValTypeKeys[p]
-                    lineInfo = [studyID, jsonObject['studyResults'][studyID]['reportedTrait'], trait, pValBetaAnnoValType, jsonObject['studyResults'][studyID]['citation']]
-                    if (first) {
-                        first = false
-                        sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType])
-                        if (isCondensed) {
-                            resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
-                        }
-                        else {
-                            resultsString = headerInit.join("\t")
-                        }
-                    }
-    
-                    for (var k = 0; k < sampleKeys.length; k++) {
-                        sample = sampleKeys[k]
-                        oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['oddsRatio']
-                        betaValue = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaValue']
-                        betaUnit = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaUnit']
-                        if (k==0) {
-                            lineInfo.push(betaUnit)
-                        }
-                        score = (betaValue !== undefined ? betaValue : oddsRatio)
-                        if (isCondensed) {
-                            //TODO we will want to use the valuetype from the study to actually do this
-                            lineInfo.push(score)
-                        }
-                        else {
-                            protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['protectiveVariants']
-                            riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['riskVariants']
-                            // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
-                            unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['unmatchedVariants']
-                            // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
-                            clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['clumpedVariants']
-    
-                            // set the arrays to "." if they are empty, otherwise join them on bar ("|")
-                            protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
-                            riskSnps = (riskSnps.length == 0) ? "." : riskSnps.join("|")
-                            unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
-                            clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
-    
-                            lineResult = `${sample}\t${lineInfo.join('\t')}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
-                            resultsString = resultsString.concat("\n", lineResult)
-                        }
-                    }
+    for (var i = 0; i < studyIDKeys.length; i++) {
+        studyID = studyIDKeys[i]
+        traitKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'])
+        for (var j = 0; j < traitKeys.length; j++) {
+            trait = traitKeys[j]
+            pValBetaAnnoValTypeKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait])
+            for (var p = 0; p < pValBetaAnnoValTypeKeys.length; p++) {
+                pValBetaAnnoValType = pValBetaAnnoValTypeKeys[p]
+                sepValues = pValBetaAnnoValType.split("|")
+                pValAnno = sepValues[0]
+                betaAnno = sepValues[1]
+                valType = sepValues[2]
+                lineInfo = [studyID, jsonObject['studyResults'][studyID]['reportedTrait'], trait, jsonObject['studyResults'][studyID]['citation'], pValAnno, betaAnno, valType]
+                if (first) {
+                    first = false
+                    sampleKeys = Object.keys(jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType])
                     if (isCondensed) {
-                        resultsString = resultsString + "\n" + lineInfo.join("\t")
+                        resultsString = headerInit.join("\t") + "\t" + sampleKeys.join("\t")
                     }
+                    else {
+                        resultsString = headerInit.join("\t")
+                    }
+                }
+
+                for (var k = 0; k < sampleKeys.length; k++) {
+                    sample = sampleKeys[k]
+                    oddsRatio = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['oddsRatio']
+                    betaValue = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaValue']
+                    betaUnit = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaUnit']
+                    snpOverlap = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['snpOverlap']
+                    excludedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['snpsExcludedDueToCutoffs']
+                    totalSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['totalSnps']
+                    usedSuperPopulation = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['usedSuperPopulation']
+                    if (k==0) {
+                        lineInfo.push(betaUnit)
+                    }
+                    score = (betaValue !== undefined ? betaValue : oddsRatio)
+                    if (isCondensed) {
+                        if (k==0){
+                            lineInfo.push(snpOverlap)
+                            lineInfo.push(excludedSnps)
+                            lineInfo.push(totalSnps)
+                            lineInfo.push(usedSuperPopulation)
+                        }
+                        lineInfo.push(score)
+                    }
+                    else {
+                        protectiveSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['protectiveVariants']
+                        riskSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['riskVariants']
+                        // unmatchedSnps are variants present in an individual, but with an allele other than the risk allele
+                        unmatchedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['unmatchedVariants']
+                        // clumpedSnps are variants in LD with a variant with a more significant p-value, so their odds ratio isn't included in the prs calculation
+                        clumpedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['clumpedVariants']
+
+                        // set the arrays to "." if they are empty, otherwise join them on bar ("|")
+                        protectiveSnps = (protectiveSnps.length == 0) ? "." : protectiveSnps.join("|")
+                        riskSnps = (riskSnps.length == 0) ? "." : riskSnps.join("|")
+                        unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
+                        clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
+
+                        lineResult = `${sample}\t${lineInfo.join('\t')}\t${snpOverlap}\t${excludedSnps}\t${totalSnps}\t${usedSuperPopulation}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
+                        resultsString = resultsString.concat("\n", lineResult)
+                    }
+                }
+                if (isCondensed) {
+                    resultsString = resultsString + "\n" + lineInfo.join("\t")
                 }
             }
         }
     }
+
     return resultsString;
 }
 
@@ -1396,7 +1581,7 @@ function getResultOutput(jsonObject) {
  * Downloads the results of the calculations in a zip file named polyscore_<random int>.zip
  */
 function downloadResults() {
-    if (resultJSON == {} && unusedTraitStudyArray.length == 0) {
+    if (resultJSON == {}) {
         $('#response').html("There are no files to download. Please try the calculator again");
         return
     }
@@ -1416,14 +1601,8 @@ function downloadResults() {
     else {
         extension = ".txt";
     }
-    if (unusedTraitStudyArray.length != 0) {
-        formattedUnusedTraitStudyArray = "Trait,Study,P-Value Annotation|Beta Annotation|Score Type combinations with no matching snps in the input file: \n" + unusedTraitStudyArray.join("\n")
-    }
-    else {
-        formattedUnusedTraitStudyArray = null
-    }
 
-    download([fileName, fileName + "_unusedTraitStudy"], extension, [resultText, formattedUnusedTraitStudyArray]);
+    download([fileName], extension, [resultText]);
 }
 
 /**
@@ -1452,7 +1631,6 @@ function download(filenameArray, extension, textArray) {
         type: "blob",
         compression: "DEFLATE",
         compressionOptions: {
-            //TODO let the user know that they've downloaded the file while they are waiting
             /* compression level ranges from 1 (best speed) to 9 (best compression) */
             level: 5
         }
@@ -1483,7 +1661,9 @@ function exampleInput() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "sample.vcf");
     var errorLoading = function(pe) {
-        alert("Error loading the example file. Please try again")
+        msg = "Error loading the example file. Please try again"
+        updateResultBoxAndStoredValue(msg)
+        alert(msg)
     }
     xmlhttp.onload = function(pe) {
         if (xmlhttp.status == 200) {
@@ -1523,7 +1703,9 @@ function exampleGWASInput() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open('GET', "sampleGWAS.tsv");
     var errorLoading = function(pe) {
-        alert("Error loading the example GWAS file. Please try again")
+        msg = "Error loading the example GWAS file. Please try again"
+        updateResultBoxAndStoredValue(msg)
+        alert(msg)
     }
     xmlhttp.onload = function(pe) {
         if (xmlhttp.status == 200) {
@@ -1567,6 +1749,7 @@ function clickTextInput() {
         }
 
         $("#mafCohort option[value=user]").remove()
+        document.getElementById("sample-info").style.display = "none";
     }
 }
 
@@ -1599,6 +1782,7 @@ function clickFileUpload() {
         opt.appendChild(document.createTextNode(displayString));
         opt.value = "user";
         mafSelector.appendChild(opt);
+        document.getElementById("sample-info").style.display = "initial";
     }
 
 }

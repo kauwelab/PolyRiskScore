@@ -269,7 +269,7 @@ exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
     });
 }
 
-async function separateStudies(associations, traitData, refGen, sex) {
+async function separateStudies(associations, traitData, refGen) {
 
     // store the citation and reported trait for each study
     var studyIDsToMetaData = {}

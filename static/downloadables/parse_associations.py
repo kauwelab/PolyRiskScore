@@ -499,7 +499,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
                                                         index_snp_map[sample][clumpNum] = rsID, riskAllele, alleles if complements is None else complements
                                                         clumpedVariants.add(index_snp)
                                                     else:
-                                                        if index_alleles == "" and isIndividualClump:
+                                                        if index_alleles == "" and alleles != "" and isIndividualClump:
                                                             index_snp_map[sample][clumpNum] = rsID, riskAllele, alleles if complements is None else complements
                                                             clumpedVariants.add(index_snp)
                                                         else:

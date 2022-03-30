@@ -38,11 +38,15 @@ exports.getStudies = (req, res) => {
             studiesToReturn = []
 
             for (i=0; i<studyDataFromCohortTable.length; i++) {
-                studyIDsFromCohortTable.push(studyDataFromCohortTable[i].studyID)
+                if (studyDataFromCohortTable[i] != []) {
+                    for (j=0; j<studyDataFromCohortTable[i].length; j++){
+                        studyIDsFromCohortTable.push([studyDataFromCohortTable[i][j].studyID, studyDataFromCohortTable[i][j].trait, studyDataFromCohortTable[i][j].pValueAnnotation, studyDataFromCohortTable[i][j].betaAnnotation, studyDataFromCohortTable[i][j].ogValueTypes].join("|"))
+                    }
+                }
             }
 
             for (i=0; i<studiesFromStudyTable.length; i++) {
-                if (studyIDsFromCohortTable.includes(studiesFromStudyTable[i].studyID)) {
+                if (studyIDsFromCohortTable.includes([studiesFromStudyTable[i].studyID, studiesFromStudyTable[i].trait, studiesFromStudyTable[i].pValueAnnotation, studiesFromStudyTable[i].betaAnnotation, studiesFromStudyTable[i].ogValueTypes].join("|"))) {
                     studiesToReturn.push(studiesFromStudyTable[i])
                 }
             }
