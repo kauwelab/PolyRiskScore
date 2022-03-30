@@ -266,19 +266,14 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJso
 def formatJson(studyInfo, outputFile):
     json_output=[]
     json_output.append(studyInfo)
-    # if this is the first object to be added, write it to the output file
-    if not os.path.exists(outputFile):
-        with FileLock(outputFile + ".lock"):
-            with open(outputFile, 'w', newline='') as f:
-                json.dump(json_output, f, indent=4)
-    else:
-        with FileLock(outputFile + ".lock"):
-            # if there is already data in the output file, remove the closing ] and add a comma with the new json object and then close the file with a closing ]
-            with open(outputFile, 'r+', newline = '') as f:
-                f.seek(0,2)
-                position = f.tell() -1
-                f.seek(position)
-                f.write( ",{}]".format(json.dumps(studyInfo, indent=4)))
+
+    with FileLock(outputFile + ".lock"):
+        # if there is already data in the output file, remove the closing ] and add a comma with the new json object and then close the file with a closing ]
+        with open(outputFile, 'r+', newline = '') as f:
+            f.seek(0,2)
+            position = f.tell() -1
+            f.seek(position)
+            f.write( "{},]".format(json.dumps(studyInfo, indent=4)))
     return
 
 

@@ -664,6 +664,10 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
+            jsonOutput = open(outputFilePath, 'w')
+            jsonOutput.write("[]")
+            jsonOutput.close()
+
     else:
         # we need to write out the header depending on the output type
         header = []
@@ -699,6 +703,16 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         with Pool(processes=num_processes) as pool:
             pool.map(parseAndCalculateFiles, paramOpts)
 
+    if isJson: #json and verbose
+        # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
+        if os.path.exists(outputFilePath):
+            jsonOutput = open(outputFilePath, 'r+')
+            jsonOutput.seek(0,2)
+            position = jsonOutput.tell() -2
+            print(position)
+            jsonOutput.seek(position)
+            jsonOutput.write(" ")
+            jsonOutput.close()
 
 if __name__ == "__main__":
     useGWASupload = True if sys.argv[17] == "True" or sys.argv[17] == True else False
