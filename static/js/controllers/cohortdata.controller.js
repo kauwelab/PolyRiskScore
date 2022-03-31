@@ -39,7 +39,13 @@ exports.getStudies = (req, res) => {
 
             for (i=0; i<studyDataFromCohortTable.length; i++) {
                 if (studyDataFromCohortTable[i] != []) {
-                    studyIDsFromCohortTable.push([studyDataFromCohortTable[i].studyID, studyDataFromCohortTable[i].trait, studyDataFromCohortTable[i].pValueAnnotation, studyDataFromCohortTable[i].betaAnnotation, studyDataFromCohortTable[i].ogValueTypes].join("|"))
+                    if (Array.isArray(studyDataFromCohortTable[i])) {
+                        for (j=0; j<studyDataFromCohortTable[i].length; j++) {
+                            studyIDsFromCohortTable.push([studyDataFromCohortTable[i][j].studyID, studyDataFromCohortTable[i][j].trait, studyDataFromCohortTable[i][j].pValueAnnotation, studyDataFromCohortTable[i][j].betaAnnotation, studyDataFromCohortTable[i][j].ogValueTypes].join("|"))
+                        }
+                    } else {
+                        studyIDsFromCohortTable.push([studyDataFromCohortTable[i].studyID, studyDataFromCohortTable[i].trait, studyDataFromCohortTable[i].pValueAnnotation, studyDataFromCohortTable[i].betaAnnotation, studyDataFromCohortTable[i].ogValueTypes].join("|"))
+                    }
                 }
             }
 
