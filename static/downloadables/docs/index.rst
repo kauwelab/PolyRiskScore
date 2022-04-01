@@ -64,7 +64,7 @@ Display Ethnicities
 
 The menu has an option for displaying the available ethnicities to filter studies by.
 
-.. image:: ../../images/displayEthnicities.png
+.. image:: ../../images/DisplayEthnicities.png
   :alt: Screenshot showing displayed ethnicities
 
 Learn about Parameters 
