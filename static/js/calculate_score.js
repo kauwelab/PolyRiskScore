@@ -424,12 +424,19 @@ function callClumpsEndpoint(superPop, refGen, positions) {
 }
 
 function getPreferredPop(superPopList, superPop) {
+    fixKeys = {
+        'european': 'EUR',
+        'american': 'AMR',
+        'south asian': 'SAS',
+        'east asian': 'EAS',
+        'african': 'AFR'
+    }
     superPop = superPop.toLowerCase()
     superPopList = superPopList.map(superPopI => {
         return superPopI.toLowerCase()
     })
     if (superPopList.length == 1 && superPopList[0].toLowerCase() == 'na'){
-        return superPop
+        return fixKeys[superPop]
     }
     else {
         filteredKeys = []
@@ -439,13 +446,6 @@ function getPreferredPop(superPopList, superPop) {
             'south asian': ['south asian', 'east asian', 'american', 'european', 'african'],
             'east asian': ['east asian', 'south asian', 'american', 'european', 'african'],
             'african': ['african', 'american', 'south asian', 'european', 'east asian']
-        }
-        fixKeys = {
-            'european': 'EUR',
-            'american': 'AMR',
-            'south asian': 'SAS',
-            'east asian': 'EAS',
-            'african': 'AFR'
         }
         keys = superPopHeirarchy[superPop]
         for (i=0; i < keys.length; i++) {
