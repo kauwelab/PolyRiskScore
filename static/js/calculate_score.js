@@ -1145,7 +1145,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                             }
                                         }
                                         else {
-                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['snpsExcludedDueToCutoffs']
+                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['snpsExcludedDueToCutoffs'].push(key) 
                                         }
                                     }
                                 }
@@ -1294,7 +1294,7 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, percentileObj, trait, st
 
     percentile = getPercentile(combinedScore, percentileObj, false)
 
-    return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped), snpOverlap.length, excludedSnps.length, totalSnps.length, percentile]
+    return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped), snpOverlap.size, excludedSnps.size, totalSnps.size, percentile]
 }
 
 // This function determines the percentile (or percentile range) of the prs score
