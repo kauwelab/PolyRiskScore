@@ -65,9 +65,123 @@ def createPercentileDownloadFile(params):
 def formatPercentiles(percentilesUnformatted):
     percentiles = {}
     for line in percentilesUnformatted:
-        key = "|".join([line["trait"], line['pValueAnnotation'], line['betaAnnotation'], line['ogValueTypes'], line['studyID']])
+        key = "|".join([line[2], line[4], line[5], line[6], line[0]])
         if key not in percentiles:
-            percentiles[key] = line #TODO will need to check and see if this works this way
+            percentiles[key] = {
+                "studyID": line[0],
+                "reportedTrait": line[1],
+                "trait": line[2],
+                "citation": line[3],
+                "pValueAnnotation": line[4],
+                "betaAnnotation": line[5],
+                "ogValueTypes": line[6],
+                "betaUnit": line[7],
+                "snpOverlap": line[8],
+                "totalSnps": line[9],
+                "usedSuperPop": line[10],
+                "p0": line[11],
+                "p1": line[12],
+                "p2": line[13],
+                "p3": line[14],
+                "p4": line[15],
+                "p5": line[16],
+                "p6": line[17],
+                "p7": line[18],
+                "p8": line[19],
+                "p9": line[20],
+                "p10": line[21],
+                "p11": line[22],
+                "p12": line[23],
+                "p13": line[24],
+                "p14": line[25],
+                "p15": line[26],
+                "p16": line[27],
+                "p17": line[28],
+                "p18": line[29],
+                "p19": line[30],
+                "p20": line[31],
+                "p21": line[32],
+                "p22": line[33],
+                "p23": line[34],
+                "p24": line[35],
+                "p25": line[36],
+                "p26": line[37],
+                "p27": line[38],
+                "p28": line[39],
+                "p29": line[40],
+                "p30": line[41],
+                "p31": line[42],
+                "p32": line[43],
+                "p33": line[44],
+                "p34": line[45],
+                "p35": line[46],
+                "p36": line[47],
+                "p37": line[48],
+                "p38": line[49],
+                "p39": line[50],
+                "p40": line[51],
+                "p41": line[52],
+                "p42": line[53],
+                "p43": line[54],
+                "p44": line[55],
+                "p45": line[56],
+                "p46": line[57],
+                "p47": line[58],
+                "p48": line[59],
+                "p49": line[60],
+                "p50": line[61],
+                "p51": line[62],
+                "p52": line[63],
+                "p53": line[64],
+                "p54": line[65],
+                "p55": line[66],
+                "p56": line[67],
+                "p57": line[68],
+                "p58": line[69],
+                "p59": line[70],
+                "p60": line[71],
+                "p61": line[72],
+                "p62": line[73],
+                "p63": line[74],
+                "p64": line[75],
+                "p65": line[76],
+                "p66": line[77],
+                "p67": line[78],
+                "p68": line[79],
+                "p69": line[80],
+                "p70": line[81],
+                "p71": line[82],
+                "p72": line[83],
+                "p73": line[84],
+                "p74": line[85],
+                "p75": line[85],
+                "p76": line[86],
+                "p77": line[87],
+                "p78": line[88],
+                "p79": line[89],
+                "p80": line[90],
+                "p81": line[91],
+                "p82": line[92],
+                "p83": line[93],
+                "p84": line[94],
+                "p85": line[95],
+                "p86": line[96],
+                "p87": line[97],
+                "p88": line[98],
+                "p89": line[99],
+                "p90": line[100],
+                "p91": line[101],
+                "p92": line[102],
+                "p93": line[103],
+                "p94": line[104],
+                "p95": line[105],
+                "p96": line[106],
+                "p97": line[107],
+                "p98": line[108],
+                "p99": line[109],
+                "p100": line[110],
+                "cohort": line[111]
+            }
 
     return percentiles
 
@@ -212,15 +326,15 @@ def main():
          paramMAFopts.append((tablePrefix, password, generalFilePath))
         #createMAFDownloadFiles([tablePrefix, password, generalFilePath])
 
-    with Pool(processes=7) as pool:
-        pool.map(createMAFDownloadFiles, paramMAFopts)
+   # with Pool(processes=7) as pool:
+    #    pool.map(createMAFDownloadFiles, paramMAFopts)
 
     # COMMENTED OUT UNTIL WE ACTUALLY HAVE PERCENTILES TO WORK WITH
-    # for cohort in ["adni", 'ukbb', 'afr', 'amr', 'eas', 'eur', 'sas']:
-    #     paramOpts.append(cohort, password)
+    for cohort in ["adni_ad", 'adni_controls', 'adni_mci', 'afr', 'amr', 'eas', 'eur', 'sas']: #'ukbb'
+         paramOpts.append((cohort, password, generalFilePath))
     
-    # with Pool(processes=5) as pool2:
-    #     pool2.map(createPercentileDownloadFile, paramOpts)
+    with Pool(processes=5) as pool2:
+         pool2.map(createPercentileDownloadFile, paramOpts)
 
     print("Finished creating server download percentile and maf files")
 

@@ -79,6 +79,12 @@ version="1.7.0"
 #   adding in maf handling (-q)
 #
 #
+#   2/16/2022
+#
+#   added in a flag to omit percentiles from the output (-m)
+#   added a parameter to set a cutoff value for minor allele frequencies (-x)
+#
+#
 # ########################################################################
 
 # colors for text printing
@@ -126,6 +132,8 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file"
     echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user uploaded GWAS data uses beta coefficent values instead of odds ratios" 
     echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used (also is the cohort used for reporting percentiles) ex. -q adni-ad (see the menu to learn more about the cohorts available)"
+    echo -e "   ${MYSTERYCOLOR}-m${NC} omits reporting percentiles"
+    echo -e "   ${MYSTERYCOLOR}-x${NC} sets the cutoff minor allele frequency value"
     echo -e "   ${MYSTERYCOLOR}-l${NC} individual-specific LD clumping ex. -l" 
     echo ""
 }
@@ -200,9 +208,11 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}16${NC} - -a reference genome of GWAS data file                      |"
         echo -e "| ${LIGHTPURPLE}17${NC} - -b flag indicates beta values used for uploaded GWAS data  |"
         echo -e "| ${LIGHTPURPLE}18${NC} - -q minor allele frequency cohort                           |"
-        echo -e "| ${LIGHTPURPLE}19${NC} - -l individual-specific  LD clumping                        |"
+        echo -e "| ${LIGHTPURPLE}19${NC} - -m omit percentiles from output                            |"
+        echo -e "| ${LIGHTPURPLE}20${NC} - -x cutoff value for minor allele frequency                 |"
+        echo -e "| ${LIGHTPURPLE}21${NC} - -l individual-specific LD clumping                         |"
         echo -e "|                                                                 |"
-        echo -e "| ${LIGHTPURPLE}20${NC} - Done                                                       |"
+        echo -e "| ${LIGHTPURPLE}22${NC} - Done                                                       |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         # gets the inputted number from the user
@@ -237,18 +247,30 @@ learnAboutParameters () {
             4 ) echo -e "${MYSTERYCOLOR}-r RefGen (Reference Genome): ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
                 echo -e "in the input VCF file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
+                echo ""
+                echo -e "${LIGHTRED}**NOTE:${NC} This parameter is not required for .txt files and will be defaulted to ${GREEN}hg38${NC} in that case if the user does not select a refGen." 
                 echo "" ;;
             5 ) echo -e "${MYSTERYCOLOR}-p Preferred GWA Study Super Population: ${NC}"
-	    #TODO: write a better explanation for this section
                 echo "This parameter is required for us to run Linkage Disequilibrium on "
                 echo "SNPs for PRS calculation. We use the five super populations from the " 
-                echo "1000 Genomes as the available options. Below are the acceptable codes. " # this will need some re-work on the language
-                echo "" #AFR, AMR, EAS, EUR, SAS
+                echo "1000 Genomes as the available options. Most studies have one or more super"
+                echo "populations reported. We ask users for their preferred super population to"
+                echo "help us choose which super population to use if there is more than one reported"
+                echo "or if no super populations are reported. Below are the acceptable codes "
+                echo "and the order super populations are chosen based on preferred super population"
+                echo "when the preferred super population is not present in the study."
+                echo ""
                 echo -e "   ${GREEN}AFR${NC} - African population " 
                 echo -e "   ${GREEN}AMR${NC} - Ad Mixed American population " 
                 echo -e "   ${GREEN}EAS${NC} - East Asian population " 
                 echo -e "   ${GREEN}EUR${NC} - European population " 
                 echo -e "   ${GREEN}SAS${NC} - South Asian population " 
+                echo ""
+                echo -e "   ${LIGHTPURPLE}AFR${NC} --> AFR, AMR, SAS, EUR, EAS"
+                echo -e "   ${LIGHTPURPLE}AMR${NC} --> AMR, EUR, SAS, EAS, AFR"
+                echo -e "   ${LIGHTPURPLE}EAS${NC} --> EAS, SAS, AMR, EUR, AFR"
+                echo -e "   ${LIGHTPURPLE}EUR${NC} --> EUR, AMR, SAS, EAS, AFR"
+                echo -e "   ${LIGHTPURPLE}SAS${NC} --> SAS, EAS, AMR, EUR, AFR"
                 echo "" ;;
             6 ) echo -e "${MYSTERYCOLOR} -t traitsList: ${NC}"
                 echo "This parameter allows you to pick specifically which traits "
@@ -352,19 +374,28 @@ learnAboutParameters () {
                 echo -e "To use the minor allele frequencies from the user vcf, use ${GREEN}-q user ${NC}."
                 echo "Note that this option will not report percentile rank."
                 echo "" ;;
-            19 ) echo -e "${MYSTERYCOLOR} -l individual-specific LD clumping: ${NC}"
-		echo "To perform linkage disequilibrium clumping on an individual level, include the -l flag."
-		echo "By default, LD clumping is performed on a sample-wide basis, where"
-		echo "the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study."
-		echo "This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons"
-		echo "since each risk score is calculated using the same variants."
-		echo "In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation"
-		echo "by only looking at the individual's variants that have a corresponding risk allele" 
-		echo  "(or, in the absence of a risk allele, an imputed unknown allele) in the GWA study."
-		echo "The benefit to this type of LD clumping is that it allows for a greater number of risk alleles"
-		echo "to be included in each individual's polygenic risk score."
+            19 ) echo -e "${MYSTERYCOLOR} -m omit percentiles from output: ${NC}"
+                echo "This flag allows the user to remove the Percentile column/property from the verbose output file."
+                echo ""
+                echo -e "${LIGHTRED}**NOTE:${NC} Percentiles will automatically be omitted from outputs using the GWAS upload option."
                 echo "" ;;
-            20 ) cont=0 ;;
+            20 ) echo -e "${MYSTERYCOLOR} -x cutoff for minor allele frequency: ${NC}"
+                echo "This parameter allows the user to select a cutoff for minor allele frequencies."
+                echo "Risk alleles with a frequency below the threshold will not be used in calculations."
+                echo "" ;;
+            21 ) echo -e "${MYSTERYCOLOR} -l individual-specific LD clumping: ${NC}"
+                echo "To perform linkage disequilibrium clumping on an individual level, include the -l flag."
+                echo "By default, LD clumping is performed on a sample-wide basis, where"
+                echo "the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study."
+                echo "This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons"
+                echo "since each risk score is calculated using the same variants."
+                echo "In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation"
+                echo "by only looking at the individual's variants that have a corresponding risk allele" 
+                echo  "(or, in the absence of a risk allele, an imputed unknown allele) in the GWA study."
+                echo "The benefit to this type of LD clumping is that it allows for a greater number of risk alleles"
+                echo "to be included in each individual's polygenic risk score."
+                echo "" ;;
+            22 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -495,8 +526,7 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
                 echo "The Experimental Factor Ontology (EFO) trait the GWAS deals with."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR} Super Population: ${NC}" 
-		#TODO: write this section
-		echo "write something here"
+                echo "The super population from the 1000 Genomes most closely associated with the GWAS data. This super population will be used for LD calculations."
                 echo "" ;;
             3 ) echo -e "${MYSTERYCOLOR} RsID: ${NC}"
                 echo "The Reference SNP cluster ID (RsID) of the SNP."
@@ -586,6 +616,7 @@ calculatePRS () {
     valueTypesForCalc=()
     sexForCalc=()
     isCondensedFormat=1
+    omitPercentiles=0
     isIndividualClump=0
 
     single="'"
@@ -616,7 +647,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:u:a:q:by:l' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:u:a:by:q:mx:l' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -660,9 +691,10 @@ calculatePRS () {
                     echo -e "${LIGHTRED}Quitting...${NC}"
                     exit 1
                 fi
-                output=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
+                output=$(echo $OPTARG)
+                output_ext=$(echo $OPTARG | tr '[:upper:]' '[:lower:]')
                 output="${output//\\//}" # replace backslashes with forward slashes
-                if ! [[ "${output}" =~ .tsv$|.json$ ]]; then
+                if ! [[ "${output_ext}" =~ .tsv$|.json$ ]]; then
                     echo -e "${LIGHTRED}$output ${NC} is not in the right format."
                     echo -e "Valid formats are ${GREEN}tsv${NC} and ${GREEN}json${NC}"
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -733,7 +765,7 @@ calculatePRS () {
                         sexForCalc+=("female")
                     else
                         echo "'e' or 'exclude' present. Other sex parameters will be ignored."
-                        sexForCalc+=("$sex")
+                        sexForCalc+=("exclude")
                     fi
                 fi;;
             s)  if ! [ -z "$step" ]; then 
@@ -793,7 +825,8 @@ calculatePRS () {
                         exit 1
                     fi
                 fi
-                useGWAS="True";;
+                useGWAS="True"
+                omitPercentiles=1;;
             a)  if ! [ -z "$GWASrefgen" ]; then
                     echo "Too many GWAS reference genomes given."
                     echo -e "${LIGHTRED}Quitting...${NC}"
@@ -830,11 +863,33 @@ calculatePRS () {
                     echo "Check the value and try again."
                     exit 1
                 fi;;
+            m)  omitPercentiles=1;;
+            x)  if ! [ -z "$mafCutoff" ]; then
+                    echo "Too many maf cutoffs given"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                mafCutoff=$OPTARG
+                if ! [[ "$mafCutoff" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
+                    echo -e "${LIGHTRED}$mafCutoff ${NC}is your maf cutoff value, but it is not a number."
+                    echo "Check the value and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi;;
             l)  isIndividualClump=1;;
             [?])    usage
                     exit 1;;
         esac
     done
+
+    # if the user is using a txt file and forgot to set the refgen, we are going to default it to hg38
+    if [[ $(echo $filename | tr '[:upper:]' '[:lower:]') =~ .txt$ ]] && [ -z "$refgen" ] ; then
+        echo "No refGen selected, defaulting to hg38"
+        refgen='hg38'
+    elif ! [ -z "$zipExtension" ] && [ "$zipExtension" = ".txt" ] && [ -z "$refgen" ] ; then
+        echo "No refGen selected, defaulting to hg38"
+        refgen='hg38'
+    fi
 
     # if missing a required parameter, show menu/usage option
     if [ -z "$files" ] || [ -z "$output" ] || [ -z "$cutoff" ] || [ -z "$refgen" ] || [ -z "$superPop" ]; then
@@ -850,8 +905,14 @@ calculatePRS () {
         GWASrefgen=${refgen}
     fi
 
+    # default the mafCohort to UKBB
     if [ -z "${mafCohort}" ]; then
         mafCohort='ukbb'
+    fi
+
+    # default the maf cutoff to zero
+    if [ -z "${mafCutoff}" ]; then
+        mafCutoff=0
     fi
 
     # preps variables for passing to python script
@@ -1046,7 +1107,7 @@ calculatePRS () {
             # saves both to files
             # GWAS data --> GWASassociations_{fileHash}.txt
             # clumps --> {superPop}_clumps_{refGen}_{fileHash}.txt
-            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${userGwasBeta}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${mafCohort}" "${fileHash}"; then
+            if $pyVer "${SCRIPT_DIR}/connect_to_server.py" "GWAS" "${GWASfilename}" "${userGwasBeta}" "${GWASextension}" "${GWASrefgen}" "${refgen}" "${superPop}" "${mafCohort}" "${fileHash}" "${extension}"; then
                 echo "Formatted GWAS data and retrieved clumping information from the PRSKB"
             else
                 echo -e "${LIGHTRED}AN ERROR HAS CAUSED THE TOOL TO EXIT... Quitting${NC}"
@@ -1082,7 +1143,7 @@ calculatePRS () {
         if $pyVer "${SCRIPT_DIR}/grep_file.py" "$files" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "${sexes}" "${valueTypes}" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$files" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$TIMESTAMP" "$processes" "$isIndividualClump" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$files" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$mafCutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitPercentiles" "$TIMESTAMP" "$processes" "$isIndividualClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else
@@ -1092,15 +1153,16 @@ calculatePRS () {
             echo -e "${LIGHTRED}ERROR DURING CREATION OF FILTERED INPUT FILE... Quitting${NC}"
         fi
 
-        #TODO and an option for users to remove these files if they want
+        #TODO make an option for users to remove these files if they want
         # if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
         #     rm "$FILE"
         #     rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
         #     rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
         #     rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+            # [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
+            # [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
         # fi
         
-        [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${TIMESTAMP}${extension}"
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
         echo "Cleaned up intermediate files"

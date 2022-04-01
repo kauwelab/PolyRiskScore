@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link href="css/bootstrap-4.2.1.css" rel="stylesheet">
   <link href="css/bootstrap-tour.min.css" rel="stylesheet">
-  <link href="css/multiselect.css" rel="stylesheet"> <!-- TODO -->
+  <link href="css/multiselect.css" rel="stylesheet"> 
 </head>
 <script src="js/multiselect.min.js"></script>
 
@@ -114,7 +114,7 @@
               </form>
               <p>&nbsp;</p>
 
-              <div class='child'>
+              <div class='child' id='sample-info' style="display: none;">
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
                   <h5>2. Specify Sample Information &nbsp;</h5>
                   <div style="margin-left: 1.5em;">
@@ -125,16 +125,6 @@
                       <option value="hg19">GRCh37/hg19</option>
                       <option value="hg18">NCBI36/hg18</option>
                       <option value="hg17">NCBI35/hg17</option>
-                    </select>
-                    <br>
-                    <label for="superPopSelect">Super Population:</label>
-                    <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
-                      <option selected="selected" value="default">--Super Population--</option>
-                      <option>African</option>
-                      <option>American</option>
-                      <option>East Asian</option>
-                      <option>European</option>
-                      <option>South Asian</option>
                     </select>
                   </div>
                 </div>
@@ -228,8 +218,7 @@
                     <span id="optionalPValAnno" title="Annotation for P-values. Note that when this is present, calculations are split by p-value annotation."> P-Value&nbsp;Annotation<sup>?</sup>,</span>
                     <span id="optionalHeaderBeta"></span>
                     and <span title ="Trait description for this study in the author's own words.">Reported&nbsp;Trait<sup>?</sup></span>.
-                    <!-- Change the last sentence about more than one odds ratio TODO!!!!!!!!! -->
-                    All other columns in the file will be ignored. If more than one odds ratio exists for an rsID, the odds ratio and corresponding risk allele with the most significant p-value will be used.</p>
+                    All other columns in the file will be ignored. If more than one odds ratio exists for an rsID within a trait/study combination, the tool will throw an error and cease calculating.</p>
                 </div>
                 <div class="file-field" style="padding: .5em;">
                   <h5 class="text-left">1. Upload GWAS File</h5>
@@ -295,7 +284,62 @@
 
               <div class='child'>
                 <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                  <h5>2: Select an Output File Format&nbsp;</h5>
+                  <h5><span title="Some studies report more than one super population. For those cases, the user can select the super population they would prefer for linkage-disequilibrium clumping.">2:&nbsp;Preferred Super&nbsp;Population<sup>?</sup></span></h5>
+                  <div class="superPop">
+                    <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
+                      <option value="African">African</option>
+                      <option value="American">American</option>
+                      <option value="East Asian">East Asian</option>
+                      <option value="European" selected='selected'>European</option>
+                      <option value="South Asian">South Asian</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
+                  <h5><span title="The equation we use handles missing genotypes in the VCF by multiplying the allele frequency of the risk allele by the number of missing genotypes present in the sample.">3: MAF&nbsp;Population<sup>?</sup></span></h5>
+                  <div class="MAFoption">
+                    <select id="mafCohort" , onchange="changeMAF();">
+                      <option value="ukbb" selected='selected'>UK Biobank</option>
+                      <option value="adni-ad">ADNI-Alzheimers disease</option>
+                      <option value="adni-mci">ADNI-Mild cognitive impairment</option>
+                      <option value="adni-controls">ADNI-controls</option>
+                      <option value="afr">1000 Genomes - AFR population</option>
+                      <option value="amr">1000 Genomes - AMR population</option>
+                      <option value="eas">1000 Genomes - EAS population</option>
+                      <option value="eur">1000 Genomes - EUR population</option>
+                      <option value="sas">1000 Genomes - SAS population</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-.5 mt-2 text-left" style="background-color: whitesmoke;  padding: .5em;">
+                <h5><span title="Users can choose to have linkage disequilibrium clumping performed either on all the variants present in the sample group or on each individual's set of variants">4&nbsp;: Linkage-disequilibrium&nbsp;Clumping<sup>?</sup></span></h5>
+                  <form name="ldRadio">
+                    <input type="radio" name="ld_radio" value="sample" id="sampleLD" checked>
+                    <label for="sampleLD" style="margin-right: 1em;">Sample-Wide Clumping</label>
+                    <input type="radio" name="ld_radio" value="individual" id="individualLD">
+                    <label for="individualLD" style="margin-right: 1em;">Individual Clumping</label>
+                  </form>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-.5 mt-2 text-left" style="padding: .5em;">
+                  <h5><span title="Users may choose to set a threshold for snps that will exclude snps from calculation which have an allele frequency below the indicated threshold.">5&nbsp;(Optional): MAF&nbsp;Threshold<sup>?</sup></span></h5>
+                  <div id="mafThreshold">
+                    <input type="number" value="0.0" name="mafThresholdIn" id="mafThresholdIn" size=5 min=0.0 max=1.0 step=0.01 >
+                  </div>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke;  padding: .5em;">
+                  <h5>6: Select an Output File Format&nbsp;</h5>
                   <script src="js/calculate_score.js"></script>
                   <script src="js/formatHelper.js"></script>
                   <script src="js/vcf_parser.js"></script>
@@ -311,40 +355,6 @@
                   </div>
                 </div>
               </div>
-
-              <div class='child'>
-                <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
-                  <h5><span title="The equation we use handles missing genotypes in the VCF by multiplying the allele frequency of the risk allele by the number of missing genotypes present in the sample.">3: MAF&nbsp;Population<sup>?</sup></span></h5>
-                  <div class="MAFoption">
-                    <select id="mafCohort" , onchange="changeMAF();">
-                      <option value="ukbb" selected='selected'>UK Biobank</option>
-                      <option value="adni">ADNI</option>
-                      <option value="afr">1000 Genomes - AFR population</option>
-                      <option value="amr">1000 Genomes - AMR population</option>
-                      <option value="eas">1000 Genomes - EAS population</option>
-                      <option value="eur">1000 Genomes - EUR population</option>
-                      <option value="sas">1000 Genomes - SAS population</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <!--TODO update with CLUMPING-->
-              <!-- <div class='child'>
-                <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                  <h5>4: Preferred Super Population</h5>
-                  <div class="superPop">
-                    <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
-                      <option selected="selected" value="default">--Super Population--</option>
-                      <option>African</option>
-                      <option>American</option>
-                      <option>East Asian</option>
-                      <option>European</option>
-                      <option>South Asian</option>
-                    </select>
-                  </div>
-                </div>
-              </div> -->
               <!--uses "js/calculate_score.js"-->
               <button type="button" id="feedbackSubmit" onclick="calculatePolyScore();"
                 class="btn btn-primary btn-lg" style="margin-top: .5em; padding: .5em;">Calculate Risk Scores</button>
@@ -394,7 +404,7 @@
   <footer class="text-center" style="background-color: #343a40;">
     <div class="container">
       <div class="row">
-        <div class="col-12" style="margin-top: 1rem;"></div>
+        <div class="col-12" style="margin-top: 2rem;"></div>
       </div>
     </div>
   </footer>

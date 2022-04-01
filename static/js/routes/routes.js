@@ -55,6 +55,8 @@ module.exports = app => {
 
     app.get("/get_traitStudyID_to_snp", associations.getTraitStudyIDToSnpsDownloadFile)
 
+    app.get("/get_all_possible_alleles", associations.getAllPossibleAllelesDownloadFile)
+
     // Gets the clumping numbers for studies and ethnicities
 
     app.post("/ld_clumping_by_pos", clumps.getClumpingByPos);
@@ -79,6 +81,12 @@ module.exports = app => {
 
     app.get("/cohort_study_snps", cohortdata.getStudySnps);
 
+    app.post("/get_percentiles", cohortdata.getPercentiles);
+
+    app.get("/last_percentiles_update", cohortdata.getLastPercentilesUpdate);
+
+    app.get("/get_percentiles_download_file", cohortdata.getDownloadPercentiles);
+
     app.post("/get_maf", maf.getMaf);
 
     app.get("/get_all_maf", maf.getAllMaf);
@@ -90,6 +98,4 @@ module.exports = app => {
     app.post("/send_error", errors.sendError);
 
     app.get("/download_errors", errors.downloadErrors);
-
-    app.get("/join_test", associations.joinTest);
 }

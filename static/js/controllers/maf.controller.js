@@ -76,9 +76,9 @@ exports.getDownloadMaf = (req, res) => {
 
 function formatCohort(mafCohort) {
     if (mafCohort.startsWith("adni")) {
-	return "adni";
+        return "adni";
     } else {
-	return mafCohort
+        return mafCohort
     }
 }
 

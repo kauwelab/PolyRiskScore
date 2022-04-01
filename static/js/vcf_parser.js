@@ -5,12 +5,13 @@
      * @param {*} fileLines 
      * @returns vcfObj
      */
-    exports.getVCFObj = function (fileLines, userMAF) {
+    exports.getVCFObj = function (fileLines, userMAF, allNeededSnps, associMap) {
         var numSamples = 0;
         var sampleIndex = {}
         var vcfObj = new Map();
         var mafData = {}
         containsAF = false
+        allPresentSnps = new Set()
         fileLines.forEach(function (line) {
             // check if line starts with hash and use them
             if (line.indexOf('#') === 0) {
@@ -54,6 +55,7 @@
                 // parse the variant information
                 var infoObject = parseVariantData(varInfo, info);
                 var vcfLine = createVariantData(info, infoObject, sampleObject);
+                allPresentSnps.add(vcfLine.id)
                 vcfObj = addLineToVcfObj(vcfObj, vcfLine)
                 //if userMAF is true, create the maf for this line. If the VCF doesnt have AF (allele frequency) we need to throw an error
                 if (userMAF) {
@@ -73,7 +75,22 @@
                 }
             }
         });
-        return [vcfObj, mafData];
+        allPresentSnps = Array.from(allPresentSnps)
+        //Impute the snps that the samples don't have
+        imputeSnps = $(allNeededSnps).not(allPresentSnps).toArray()
+        for (i=0; i<imputeSnps.length; i++) {
+            for (j=0; j<numSamples; j++) {
+                vcfSNPObjs = vcfObj.get(sampleIndex[j])
+                tmpSNPobj = {
+                    pos: associMap[imputeSnps[i]].pos,
+                    snp: imputeSnps[i],
+                    alleleArray: [".", "."]
+                }
+                vcfSNPObjs.push(tmpSNPobj)
+                vcfObj.set(sampleIndex[j], vcfSNPObjs)
+            }
+        }
+        return [vcfObj, mafData, allPresentSnps];
     }
 
     /**

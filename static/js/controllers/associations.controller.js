@@ -204,22 +204,6 @@ exports.snpsByEthnicity = (req, res) => {
     })
 }
 
-exports.joinTest = (req, res) => {
-    Association.joinTest((err,data) => {
-        if (err) {
-            res.status(500).send({
-                message: "Error retrieving join"
-            });
-        }
-        else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            // formating returned data
-            res.send(data);
-        }
-    })
-}
-
-//TODO DON'T FORGET TO UPDATE THE FILES THAT CREATE THESE!
 // gets the last time the allAssociations file was updated. Used for the cli to check if the user needs to re-download association data
 exports.getLastAssociationsUpdate = (req, res) => {
     refGen = req.query.refGen
@@ -237,6 +221,24 @@ exports.getAssociationsDownloadFile = (req, res) => {
         root: downloadPath
     };
     var fileName = `allAssociations_${refGen}.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
+}
+
+exports.getAllPossibleAllelesDownloadFile = (req, res) => {
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `allPossibleAlleles.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
             console.log(err); 
@@ -267,7 +269,7 @@ exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
     });
 }
 
-async function separateStudies(associations, traitData, refGen, sex) {
+async function separateStudies(associations, traitData, refGen) {
 
     // store the citation and reported trait for each study
     var studyIDsToMetaData = {}
@@ -283,7 +285,7 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (traitStudyTypes.length == 0) {
             traitStudyTypes.push("O")
         }
-        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
+        ethnicities = studyObj.ethnicity.split("|")
         pvalBetaAnnoValType = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation + "|" + studyObj.ogValueTypes
         superPopulations = studyObj.superPopulation.split("|")
         sex = studyObj.sex

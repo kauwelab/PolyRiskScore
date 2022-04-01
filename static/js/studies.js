@@ -10,31 +10,33 @@ function getOrderedPublicationsAndLoad() {
             //creates a map of unique pubMedIDs -> studyObject, with subsequent studyIDs 
             //being added to the studyObject's studyID list
             pubMedObjs = new Map()
-            for (var i = 0; i < studyObjects.length; i++) {
-                studyObjects[i].trait = formatHelper.formatForWebsite(studyObjects[i].trait)
-
-                //if the pubMedObjs already has an entry for this studyObject's pubMedID
-                if (pubMedObjs.has(studyObjects[i].pubMedID)) {
-                    //gets the object address of the pubMedObj inside pubMedObjs for direct editing
-                    //(doesn't need to be appended to the map)
-                    var pubMedObj = pubMedObjs.get(studyObjects[i].pubMedID);
-                    //if the studyObject's studyID isn't already in the pubMedObj's list, add it
-                    if (!pubMedObj.studyID.includes(studyObjects[i].studyID)) {
-                        pubMedObj.studyID.push(studyObjects[i].studyID)
+            for (const key in studyObjects) {
+                currentTraitObj = studyObjects[key]
+                for (i=0; i<currentTraitObj.length; i++){
+                    currentTraitObj[i].trait = formatHelper.formatForWebsite(currentTraitObj[i].trait)
+                    //if the pubMedObjs already has an entry for this studyObject's pubMedID
+                    if (pubMedObjs.has(currentTraitObj[i].pubMedID)) {
+                        //gets the object address of the pubMedObj inside pubMedObjs for direct editing
+                        //(doesn't need to be appended to the map)
+                        var pubMedObj = pubMedObjs.get(currentTraitObj[i].pubMedID);
+                        //if the studyObject's studyID isn't already in the pubMedObj's list, add it
+                        if (!pubMedObj.studyID.includes(currentTraitObj[i].studyID)) {
+                            pubMedObj.studyID.push(currentTraitObj[i].studyID)
+                        }
+                        //if the studyObject's trait isn't already in the pubMedObj's list, add it
+                        if (!pubMedObj.trait.includes(currentTraitObj[i].trait)) {
+                            pubMedObj.trait.push(currentTraitObj[i].trait)
+                        }
                     }
-                    //if the studyObject's trait isn't already in the pubMedObj's list, add it
-                    if (!pubMedObj.trait.includes(studyObjects[i].trait)) {
-                        pubMedObj.trait.push(studyObjects[i].trait)
+                    //if the studyObject isn't in the pubMedObj map yet, convert some of its data to lists and add it
+                    else {
+                        //copies the studyObject into a new variable to edit it's values
+                        var newPubMedObj = Object.assign({}, currentTraitObj[i]);
+                        newPubMedObj.studyID = [newPubMedObj.studyID]
+                        newPubMedObj.trait = [newPubMedObj.trait]
+                        //add the new studyObject to the map
+                        pubMedObjs.set(currentTraitObj[i].pubMedID, newPubMedObj)
                     }
-                }
-                //if the studyObject isn't in the pubMedObj map yet, convert some of its data to lists and add it
-                else {
-                    //copies the studyObject into a new variable to edit it's values
-                    var newPubMedObj = Object.assign({}, studyObjects[i]);
-                    newPubMedObj.studyID = [newPubMedObj.studyID]
-                    newPubMedObj.trait = [newPubMedObj.trait]
-                    //add the new studyObject to the map
-                    pubMedObjs.set(studyObjects[i].pubMedID, newPubMedObj)
                 }
             }
             //sort alphabetically by citation (author name + year)

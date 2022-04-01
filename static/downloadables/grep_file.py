@@ -16,24 +16,41 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
     isRSids = True if extension.lower().endswith(".txt") or inputFilePath.lower().endswith(".txt") else False
     
     # get the associations, clumps, study snps, and the paths to the filtered input file and the clump number file
-    tableObjDict, allClumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload)
+    tableObjDict, allClumpsObjDict, studySnpsDict, filteredInputPath, clumpNumPath, isPreFiltered = getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload)
 
     # format the filters
     traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes = formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes)
 
     # Check to see if any filters were selected by the user
     isAllFiltersNone = (traits is None and studyIDs is None and studyTypes is None and ethnicities is None and sexes is None and valueTypes is None)
+    # Check to see if only studyIDs were requested
+    isOnlyStudyIDs = (studyIDs is not None and traits is None and studyTypes is None and ethnicities is None and sexes is None and valueTypes is None)
+
+    if not isPreFiltered and not isAllFiltersNone:
+        basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
+        filteredStudySnpsPath = os.path.join(basePath, "filteredStudySnps_{ahash}_{uniq}.txt".format(ahash=fileHash, uniq=timestamp))
+        filteredStudySnps = filterStudySnps(tableObjDict, studySnpsDict, traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes, isOnlyStudyIDs)
+        studySnpsDict = filteredStudySnps
+        with open(filteredStudySnpsPath, 'w') as f:
+            f.write(json.dumps(filteredStudySnps))
+
+    allSnps = set()
+    for key in studySnpsDict:
+        allSnps.update(set(studySnpsDict[key]))
+
+    # Check to make sure no filters were selected if the user uploaded their own GWAS data
+    if not isAllFiltersNone and useGWASupload:
+        raise SystemExit("WARNING: If you upload your own GWAS data, you cannot specify any other additional study filters. Remove the study filters and try again.")
 
     # loop through each study/trait in the studySnpsDict and check whether any studies pass the filters
-    studyInFilters = isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, p_cutOff)
-    if not studyInFilters:
+    if len(allSnps) == 0 and not useGWASupload:
         raise SystemExit("WARNING: None of the studies in the database match the specified filters. Adjust your filters and try again.")
 
     # create a new filtered file that only includes associations in the user-specified studies
     if isRSids:
-        clumpNumDict = filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterTXT(allClumpsObjDict, allSnps, inputFiles, filteredInputPath,useGWASupload)
     else:
-        clumpNumDict = filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredInputPath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff)
+        clumpNumDict = filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredInputPath, useGWASupload)
 
     # write the clumpNumDict to a file for future use
     # the clumpNumDict is used to determine which variants aren't in LD with any of the other variants in the study
@@ -47,48 +64,45 @@ def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, re
 
 
 def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, timestamp, useGWASupload):
-    isFilters = False
-    basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
-    # create path for filtered input file
-    filteredInputPath = os.path.join(basePath, "filteredInput_{uniq}.txt".format(uniq = timestamp)) if isRSids else os.path.join(basePath, "filteredInput_{uniq}.vcf".format(uniq = timestamp))
-    # create path for filtered associations
-    specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
-    # get the paths for the associationsFile , study snps, and clumpsFile
-    if useGWASupload:
-        isFilters=True
-        associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-
-        # create path for clump number dictionary
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
-    elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
-        associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
-        associationsPath = os.path.join(basePath, associFileName)
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
-        # create path for clump number dictionary
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}.txt".format(r=refGen))
-    else:
-        isFilters=True
-        associationsPath = specificAssociPath
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-        # create path for clump number dictionary
-        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
     try:
-	# write the files
+        isFilters = False
+        basePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
+        # create path for filtered input file
+        ext = "txt" if isRSids else "vcf"
+        filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.{ext}".format(ahash = fileHash, uniq = timestamp, ext = ext))
+        # create path for filtered associations
+        specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
+        # create path for clump number dictionary
+        clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
+        # get the paths for the associationsFile , study snps, and clumpsFile
+        if useGWASupload:
+            isFilters=True
+            associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
+            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
+        elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
+            associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
+            associationsPath = os.path.join(basePath, associFileName)
+            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
+        else:
+            isFilters=True
+            associationsPath = specificAssociPath
+            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
+        # write the files
         with open(associationsPath, 'r') as tableObjFile:
             tableObjDict = json.load(tableObjFile)
         with open(studySnpsPath, 'r') as studySnpsFile:
             studySnpsDict = json.load(studySnpsFile)
 
-	# Get super populations from studyIDMetaData
+        # Get super populations from studyIDMetaData
         allSuperPops = set()
         for study in tableObjDict['studyIDsToMetaData']:
             for trait in tableObjDict['studyIDsToMetaData'][study]['traits'].keys():
                 superPopList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
+                superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
-	
-	# loop through each population and get the corresponding clumps file
+
+        # loop through each population and get the corresponding clumps file
         allClumps = {}
         for pop in allSuperPops:
             if isFilters:
@@ -103,15 +117,16 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
                     clumpsObjDict = json.load(clumpsObjFile)
                     allClumps[pop] = clumpsObjDict
                     clumpsObjFile = {}
-	    
 
-	
         tableObjFile = {}
         studySnpsFile = {}
     except FileNotFoundError: 
-        raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}\n{2}".format(associationsPath, clumpsPath, studySnpsPath))
+        if 'allSuperPops' in locals():
+            raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\nClumping files for the following superPops: {1}\n{2}".format(associationsPath, allSuperPops, studySnpsPath))
+        else:
+            raise SystemExit("ERROR: One or both of the required working files could not be found. \n Paths searched for: \n{0}\n{1}".format(associationsPath, studySnpsPath))
 
-    return tableObjDict, allClumps, studySnpsDict, filteredInputPath, clumpNumPath
+    return tableObjDict, allClumps, studySnpsDict, filteredInputPath, clumpNumPath, isFilters
 
 
 def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes):
@@ -142,17 +157,46 @@ def formatVarForFiltering(traits, studyTypes, studyIDs, ethnicities, sexes, valu
 
     return traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes
 
-def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
+
+def filterStudySnps(tableObjDict, studySnpsDict, traits, studyTypes, studyIDs, ethnicities, sexes, valueTypes, isOnlyStudyIDs):
+    tmpObj = {}
+    for snp in tableObjDict['associations'].keys():
+        if (snp.startswith('rs')):
+            # if isSnpInFilters()
+            for trait in tableObjDict['associations'][snp]['traits'].keys():
+                useTrait = (traits is not None and trait.lower() in traits) or traits is None
+                for study in tableObjDict['associations'][snp]['traits'][trait]:
+                    useStudy = studyIDs is not None and study in studyIDs
+                    useReportedTrait = (traits is not None and tableObjDict['studyIDsToMetaData'][study]['reportedTrait'] in traits) or traits is None
+                    useStudyTypes = (studyTypes is not None and len(set(tableObjDict['studyIDsToMetaData'][study]['studyTypes']) &set(studyTypes)) > 0) or studyTypes is None
+                    useTraitStudyTypes = (studyTypes is not None and len(set(tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['studyTypes']) &set(studyTypes)) > 0) or studyTypes is None
+                    useEthnicity = (ethnicities is not None and len(set([x.lower() for x in tableObjDict['studyIDsToMetaData'][study]['ethnicity']]) &set(ethnicities)) > 0) or ethnicities is None
+                    if sexes is not None and ('e' in sexes or 'exclude' in sexes):
+                        useSexes = len(set(tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['sexes']) &set(['male', 'female'])) == 0
+                    else:
+                        useSexes = (sexes is not None and len(set(tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['sexes']) &set(['male', 'female'])) > 0) or sexes is None
+                    for uniqueKey in tableObjDict['associations'][snp]['traits'][trait][study]:
+                        pValANno, betaAnno, valueType = uniqueKey.split("|")
+                        useValueType = (valueTypes is not None and valueType in valueTypes) or valueTypes is None
+                        fullKeyString = "|".join([trait, uniqueKey, study])
+                        if useStudy or ((not isOnlyStudyIDs) and (useTrait or useReportedTrait) and (useStudyTypes or useTraitStudyTypes) and useEthnicity and useSexes and useValueType):
+                            tmpObj[fullKeyString] = studySnpsDict[fullKeyString]
+    return tmpObj
+
+
+def filterTXT(allClumpsObjDict, allSnps, inputFiles, filteredFilePath, useGWASupload):
     filteredOutput = open(filteredFilePath, 'w')
+    usedSnps = set()
     # Create a boolean to keep track of whether any variants in the input VCF match the user-specified filters
     inputInFilters = False
 
     # create a set to keep track of which ld clump numbers are assigned to only a single snp
     clumpNumDict = {}
 
+    # Create a boolean to check whether the input VCF is empty (outside here because )
+    fileEmpty = True
+
     for aFile in inputFiles:
-        # Create a boolean to check whether the input VCF is empty
-        fileEmpty = True
 
         txt_file = openFileForParsing(aFile)
         for line in txt_file:
@@ -179,39 +223,38 @@ def filterTXT(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
                         "Please ensure that all lines are formatted correctly (rsID:Genotype,Genotype)\n" +
                         "Offending line:\n" + line)
 
-            snpInFilters = isSnpInFilters(snp, None, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff)
-            if snpInFilters:
+            if (snp in allSnps) or useGWASupload:
+                usedSnps.add(snp)
                 # We use the clumpNumDict later in the parse_files functions to determine which variants are in an LD clump by themselves
                 # if the snp is part of an ld clump that has already been noted, increase the count of the ld clump this snp is in
                 for pop in allClumpsObjDict.keys():
-                    if snp in allClumpsObjDict[pop].keys():
+                    if snp in allClumpsObjDict[pop]:
                         clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
-                        clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
+                        clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
                 # write the line to the filtered txt file
                 filteredOutput.write(line)
                 inputInFilters = True
 
-        if fileEmpty:
-            raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
+    if fileEmpty:
+        raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
 
     if not inputInFilters:
         raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified study filters. Check your input file and your filters and try again.")
 
     #here we add in the other snps that are not in the sample but are in the study
-    #TODO This needs to be doublechecked
-    for key in studySnpsDict:
-        for snp in studySnpsDict[key]:
-            for pop in allClumpsObjDict.keys():
-                if snp in allClumpsObjDict[pop].keys():
-                    clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
-                    clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
-        
+    toAdd = allSnps.difference(usedSnps)
+    for snp in toAdd:
+        for pop in allClumpsObjDict.keys():
+            if snp in allClumpsObjDict[pop].keys():
+                clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
+                clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
 
     filteredOutput.close()
     return clumpNumDict
 
 
-def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filteredFilePath, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, isAllFiltersNone, p_cutOff):
+def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFilePath, useGWASupload):
+    usedSnps = set()
     # create a set to keep track of which ld clump numbers are assigned to only a single snp
     clumpNumDict = {}
     with open(filteredFilePath, 'w') as w:
@@ -244,14 +287,14 @@ def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
                         if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
                             rsID = tableObjDict['associations'][chromPos]
                         # check if the snp is in the filtered studies
-                        snpInFilters = isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff)
-                        if snpInFilters:
+                        if (rsID in allSnps) or useGWASupload:
+                            usedSnps.add(rsID)
                             # increase count of the ld clump this snp is in
                             # We use the clumpNumDict later in the parsing functions to determine which variants are not in LD with any of the other variants
                             for pop in allClumpsObjDict.keys():
-                                if rsID in allClumpsObjDict[pop].keys():
+                                if rsID in allClumpsObjDict[pop]:
                                     clumpNum = allClumpsObjDict[pop][rsID]['clumpNum']
-                                    clumpNumDict[str((pop, clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
+                                    clumpNumDict[str((pop, clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
 
                             # write the line to the filtered VCF
                             w.write(line)
@@ -259,126 +302,26 @@ def filterVCF(tableObjDict, allClumpsObjDict, studySnpsDict, inputFiles, filtere
                             inputInFilters = True
 
             except ValueError:
-                raise SystemExit("THE VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
+                raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
             
             firstFile = False
 
-            if fileEmpty:
-                raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
+        if fileEmpty:
+            raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
 
         # send error message if input not in filters
         if not inputInFilters:
             raise SystemExit("WARNING: None of the variants available in the input file match the variants given by the specified filters. Check your input file and your filters and try again.")
 
         # here we add in the other snps that are not in the sample but are in the study
-        #TODO This needs to be doublechecked
-        for key in studySnpsDict:
-            for snp in studySnpsDict[key]:
-                for pop in allClumpsObjDict.keys():
-                    if snp in allClumpsObjDict[pop]:
-                        clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
-                        clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(clumpNum, 0) + 1
-
+        toAdd = allSnps.difference(usedSnps)
+        for snp in toAdd:
+            for pop in allClumpsObjDict.keys():
+                if snp in allClumpsObjDict[pop]:
+                    clumpNum = allClumpsObjDict[pop][snp]['clumpNum']
+                    clumpNumDict[str((pop,clumpNum))] = clumpNumDict.get(str((pop, clumpNum)), 0) + 1
 
     return clumpNumDict
-
-
-def isStudyInFilters(studySnpsDict, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, p_cutOff):
-    studyInFilters = False
-    useTrait = False
-    useStudy = False
-    # Loop through each trait/study
-    for keyString in studySnpsDict:
-        trait = keyString.split('|')[0]
-        pValueAnnotation = keyString.split('|')[1]
-        betaAnnotation = keyString.split('|')[2]
-        valueType = keyString.split('|')[3]
-        study = keyString.split('|')[4]
-        
-        # if there are traits to filter by and the trait for this snp is in the list, use this trait
-        if traits is not None and trait.lower() in traits:
-            useTrait = True
-
-        # if there were filters specified for the studies, check if this study should be used
-        if not isAllFiltersNone:
-            studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
-            useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, study, trait, studyMetaData, useTrait)
-        if useStudy or isAllFiltersNone:
-            studyInFilters = True
-            return studyInFilters
-
-    return studyInFilters
-
-
-def isSnpInFilters(rsID, chromPos, tableObjDict, isAllFiltersNone, traits, studyIDs, studyTypes, ethnicities, valueTypes, sexes, p_cutOff):
-    snpInFilters = False
-    # if the position is found in our database
-    if rsID in tableObjDict['associations']:
-        # Loop through each trait for the position
-        for trait in tableObjDict['associations'][rsID]['traits'].keys():
-            useTrait = False
-            useStudy = False
-            # if there are traits to filter by and the trait for this snp is in the list, use this trait
-            if traits is not None and trait.lower() in traits:
-                useTrait = True
-            # Loop through each study containing the position
-            for study in tableObjDict['associations'][rsID]['traits'][trait].keys():
-                # if we aren't going to use all the associations, decide if this is one that we will use
-                # check if the pValue is less than the given threshold
-                for pValBetaAnnoValType in tableObjDict['associations'][rsID]['traits'][trait][study]:
-                    for riskAllele in tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType]:
-                        pValue = tableObjDict['associations'][rsID]['traits'][trait][study][pValBetaAnnoValType][riskAllele]['pValue']
-                        if pValue <= float(p_cutOff):
-                            # if there were filters specified for the studies, check if this study should be used
-                            if not isAllFiltersNone:
-                                studyMetaData = tableObjDict['studyIDsToMetaData'][study] if study in tableObjDict['studyIDsToMetaData'].keys() else None
-                                useStudy = shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, study, trait, studyMetaData, useTrait)
-                            if useStudy or isAllFiltersNone:
-                                snpInFilters = True
-                                return snpInFilters
-
-    return snpInFilters
-
-
-def shouldUseAssociation(traits, studyIDs, studyTypes, ethnicities, sexes, valueTypes, studyID, trait, studyMetaData, useTrait):
-    useStudyID = False
-    useReportedTrait = False
-    useEthnicity = False
-    useStudyType = False
-    useValueType = False
-    useSex = False
-
-    studyValueTypes = set([x.split("|")[-1] for x in studyMetaData['traits'][trait]['pValBetaAnnoValType']])
-
-    # if the studyID matches one that was selected, use it
-    if studyIDs is not None and studyID in studyIDs:
-        useStudyID = True
-
-    if studyIDs is not None and traits is None and ethnicities is None and studyTypes is None:
-        return useStudyID
-
-    # set use trait to True if we aren't specificallly filtering by it
-    if traits is None:
-        useTrait = True
-    # if the reportedTrait for the study is in the traits list for filtering, useReportedTrait is true
-    if traits is None or (traits is not None and studyMetaData is not None and studyMetaData['reportedTrait'].lower() in traits):
-        useReportedTrait = True
-    if studyMetaData is not None and studyMetaData['ethnicity'] is not None: #TODO should probably come up with a better way to handle a situation like this, we need to decide what we will do when the study doens't have an ethnicity attached to it (maybe give it 'other' on the server?)
-        ethnicitiesLower = set([x.lower() for x in studyMetaData['ethnicity']])
-        # if the ethnicities have overlap, set useEthnicity to true
-        if (useTrait or useReportedTrait) and ethnicities is None or (ethnicities is not None and (len(set(ethnicities).intersection(ethnicitiesLower)) > 0)):
-            useEthnicity = True
-    # if we have studyTypes that match the filter, set useStudyType to true
-    if (((useTrait and studyTypes is None) or (useTrait and studyTypes is not None and len(set(studyTypes).intersection(set(studyMetaData['traits'][trait]['studyTypes']))) > 0)) or 
-            ((useReportedTrait and studyTypes is None) or (useReportedTrait and studyTypes is not None and len(set(studyTypes).intersection(set(studyMetaData['studyTypes']))) > 0))):
-        useStudyType = True
-    if ((valueTypes is None) or (len(set(valueTypes).intersection(set(studyValueTypes))) > 0)):
-        useValueType = True
-    # if no sexes were specified, or if the sexes that are in the study overlap with the requested sexes, set useSex to true
-    if ((sexes is None) or (len(set(sexes).intersection(set(studyMetaData['traits'][trait]['sexes']))) > 0)): #TODO: might need different logic for this if statement
-        useSex = True
-    # we either want to use this study because of the studyID or because filtering trait, ethnicity, and studyTypes give us this study
-    return useStudyID or (useEthnicity and useStudyType and useValueType and useSex)
 
 
 # checks if the file is a vaild zipped file and returns the extension of the file inside the zipped file
