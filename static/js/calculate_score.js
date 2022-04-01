@@ -96,8 +96,24 @@ function getEthnicities() {
  * @param {*} selectedEthnicities 
  */
 function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, sex, valueType) {
-    var studySelector = document.getElementById("studySelect");
+    return Promise.resolve($.ajax({
+        type: "POST",
+        url: "/get_studies",
+        data: { studyTypes: selectedTypes, traits: selectedTraits, ethnicities: selectedEthnicities, sexes: sex, ogValueTypes: valueType },
+        success: async function (data) {
+            return data;
+        },
+        error: function (XMLHttpRequest) {
+            msg = `There was an error retrieving study data: ${XMLHttpRequest.responseText}`
+            updateResultBoxAndStoredValue(msg)
+            alert(msg)
+        }
+    }));
+}
 
+
+var getStudyData = async (selectedTraits, selectedTypes, selectedEthnicities, sex, valueType) => {
+    var studySelector = document.getElementById("studySelect");
     if (sex == "both") {
         sex = undefined
     }
@@ -114,68 +130,78 @@ function callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, s
 
     //TODO add a screen overlay that tells the user we are loading the studies. 
 
-    $.ajax({
-        type: "POST",
-        url: "/get_studies",
-        data: { studyTypes: selectedTypes, traits: selectedTraits, ethnicities: selectedEthnicities, sexes: sex, ogValueTypes: valueType },
-        success: async function (data) {
-            //data ~ {traitName:[{study},{study},{study}], traitName:[{study},{study}],...}
-            var studyLists = data;
-            var traits = Object.keys(data);
+    returnedResults = {}
+    lenOfList = selectedTraits.length
+    i = 0
+    j = lenOfList > 1000 ? 1000 : lenOfList
+    if (j >= 500) {
+        alert("Due to the number of traits selected, it will take us a little time to load. Please be patient. \nDepending on the number of traits selected and your internet connection, it could take up to 5 min to load. ")
+    }
+    runLoop = true
+    while (runLoop) {
+        console.log(`Working on grabbing studies for traits ${i}-${j}`)
+        if (j == lenOfList) {
+            runLoop = false
+        }
+        returnedResults = Object.assign(await callGetStudiesAPI(selectedTraits.slice(i,j), selectedTypes, selectedEthnicities, sex, valueType), returnedResults)
+        i = j
+        j = lenOfList > 1000 + j ? 1000 + j : lenOfList
+    }
+    var traits = Object.keys(returnedResults);
 
-            if (traits.length == 0) {
-                msg = `No results were found using the specified filters. Try using different filters.`
-                updateResultBoxAndStoredValue(msg)
-                alert(msg)
-            }
+    if (traits.length == 0) {
+        msg = `No results were found using the specified filters. Try using different filters.`
+        updateResultBoxAndStoredValue(msg)
+        alert(msg)
+    }
 
-            for (i = 0; i < traits.length; i++) {
-                var trait = traits[i];
-                for (j = 0; j < studyLists[trait].length; j++) {
-                    var study = studyLists[trait][j];
-                    createOpt = true
-                    var hasOption = $(`#studySelect option[value='${study.studyID}']`);
-                    if (hasOption.length > 0) {
-                        for (k=0; k < hasOption.length; k++) {
-                            data_trait = hasOption[k].getAttribute('data-trait')
-                            data_pValueAnno = hasOption[k].getAttribute('data-pvalueannotation')
-                            data_betaAnno = hasOption[k].getAttribute('data-betaannotation')
-                            data_valType = hasOption[k].getAttribute('data-valtype')
-                            if (data_trait == trait && data_pValueAnno == study.pValueAnnotation && data_betaAnno == study.betaAnnotation && data_valType == study.ogValueType) {
-                                createOpt = false
-                            }
-                        }
-                    }
-                    if (createOpt) {
-                        var opt = document.createElement('option');
-                        var displayString = formatHelper.formatForWebsite(trait + ' | ' + study.pValueAnnotation + ' | ' + study.betaAnnotation + ' | ' + study.citation + ' | ' + study.studyID);
-                        opt.appendChild(document.createTextNode(displayString));
-                        opt.value = study.studyID;
-                        opt.setAttribute('data-trait', trait);
-                        opt.setAttribute('data-pvalueannotation', study.pValueAnnotation);
-                        opt.setAttribute('data-betaannotation', study.betaAnnotation);
-                        opt.setAttribute('data-valtype', study.ogValueTypes)
-                        studySelector.appendChild(opt);
+    for (i = 0; i < traits.length; i++) {
+        var trait = traits[i];
+        for (j = 0; j < returnedResults[trait].length; j++) {
+            var study = returnedResults[trait][j];
+            createOpt = true
+            var hasOption = $(`#studySelect option[value='${study.studyID}']`);
+            if (hasOption.length > 0) {
+                for (k=0; k < hasOption.length; k++) {
+                    data_trait = hasOption[k].getAttribute('data-trait')
+                    data_pValueAnno = hasOption[k].getAttribute('data-pvalueannotation')
+                    data_betaAnno = hasOption[k].getAttribute('data-betaannotation')
+                    data_valType = hasOption[k].getAttribute('data-valtype')
+                    if (data_trait == trait && data_pValueAnno == study.pValueAnnotation && data_betaAnno == study.betaAnnotation && data_valType == study.ogValueType) {
+                        createOpt = false
                     }
                 }
             }
-
-            // order the studies (trait -> citation -> studyID)
-            $("#studySelect").html($("#studySelect option").sort(function (a, b) {
-                return a.text == b.text ? 0 : a.text < b.text ? -1 : 1
-            }))
-            document.multiselect('#studySelect');
-        },
-        error: function (XMLHttpRequest) {
-            alert(`There was an error loading the studies: ${XMLHttpRequest.responseText}`);
+            if (createOpt) {
+                var opt = document.createElement('option');
+                var displayString = formatHelper.formatForWebsite(trait + ' | ' + study.pValueAnnotation + ' | ' + study.betaAnnotation + ' | ' + study.citation + ' | ' + study.studyID);
+                opt.appendChild(document.createTextNode(displayString));
+                opt.value = study.studyID;
+                opt.setAttribute('data-trait', trait);
+                opt.setAttribute('data-pvalueannotation', study.pValueAnnotation);
+                opt.setAttribute('data-betaannotation', study.betaAnnotation);
+                opt.setAttribute('data-valtype', study.ogValueTypes)
+                studySelector.appendChild(opt);
+            }
         }
-    })
+    }
+
+    // order the studies (trait -> citation -> studyID)
+    $("#studySelect").html($("#studySelect option").sort(function (a, b) {
+        return a.text == b.text ? 0 : a.text < b.text ? -1 : 1
+    }))
+    document.multiselect('#studySelect');
+
+
+
+    return returnedResults
 }
+    
 
 /**
  * Gets the selected selected traits, types, and enthnicities, then passes them to the callGetStudiesAPI function to populate the studies drop down
  */
-function getStudies() {
+var getStudies = async () => {
     //get the users selected traits, ethnicities, and studty types as arrays of values
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
     var selectedTraits = [...traitNodes].map(option => option.value);
@@ -199,8 +225,8 @@ function getStudies() {
     //make sure the select is reset/empty so that the multiselect command will function properly
     $('#studySelect').replaceWith("<select id='studySelect' multiple></select>")    
 
-    //call the API and populate the study dropdown/multiselect with the results
-    callGetStudiesAPI(selectedTraits, selectedTypes, selectedEthnicities, sex, valueType)
+    //call the API and populate the study dropdown/multiselect with the results'
+    returnedStudyObjects = await getStudyData(selectedTraits, selectedTypes, selectedEthnicities, sex, valueType)
 }
 
 
@@ -398,12 +424,19 @@ function callClumpsEndpoint(superPop, refGen, positions) {
 }
 
 function getPreferredPop(superPopList, superPop) {
+    fixKeys = {
+        'european': 'EUR',
+        'american': 'AMR',
+        'south asian': 'SAS',
+        'east asian': 'EAS',
+        'african': 'AFR'
+    }
     superPop = superPop.toLowerCase()
     superPopList = superPopList.map(superPopI => {
         return superPopI.toLowerCase()
     })
     if (superPopList.length == 1 && superPopList[0].toLowerCase() == 'na'){
-        return superPop
+        return fixKeys[superPop]
     }
     else {
         filteredKeys = []
@@ -413,13 +446,6 @@ function getPreferredPop(superPopList, superPop) {
             'south asian': ['south asian', 'east asian', 'american', 'european', 'african'],
             'east asian': ['east asian', 'south asian', 'american', 'european', 'african'],
             'african': ['african', 'american', 'south asian', 'european', 'east asian']
-        }
-        fixKeys = {
-            'european': 'EUR',
-            'american': 'AMR',
-            'south asian': 'SAS',
-            'east asian': 'EAS',
-            'african': 'AFR'
         }
         keys = superPopHeirarchy[superPop]
         for (i=0; i < keys.length; i++) {
@@ -493,6 +519,8 @@ var calculatePolyScore = async () => {
             updateResultBoxAndStoredValue(msg)
             alert(msg)
             return;
+        } else if (studies.length > 10) {
+            alert('Due to the number of studies selected, this could take a long time. We suggest downloading our command-line interface tool and using it to run calculations. (see the Download page)')
         }
     
         document.getElementById('resultsDisplay').style.display = 'block';
