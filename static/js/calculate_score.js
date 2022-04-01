@@ -134,7 +134,7 @@ var getStudyData = async (selectedTraits, selectedTypes, selectedEthnicities, se
     lenOfList = selectedTraits.length
     i = 0
     j = lenOfList > 1000 ? 1000 : lenOfList
-    if (j >= 500) {
+    if (j >= 100) {
         alert("Due to the number of traits selected, it will take us a little time to load. Please be patient. \nDepending on the number of traits selected and your internet connection, it could take up to 5 min to load. ")
     }
     runLoop = true
@@ -519,7 +519,15 @@ var calculatePolyScore = async () => {
             updateResultBoxAndStoredValue(msg)
             alert(msg)
             return;
-        } else if (studies.length > 10) {
+        } else if (studies.length > 500) {
+            alert('We have determined to limit the number of studies that can be run at a time on the website (max 500 at a time). Please download the command-line interface to run all the studies in our database (see Download page).')
+            return
+        } else if (studies.length > 100) {
+            isGo = confirm(`You are about to attempt to run ${studies.length} studies. This will take a long time. We suggest downloading our command-line interface to run these studies instead. (see the Download page)`)
+            if (!isGo) {
+                return
+            }
+        } else if (studies.length > 25) {
             alert('Due to the number of studies selected, this could take a long time. We suggest downloading our command-line interface tool and using it to run calculations. (see the Download page)')
         }
     
