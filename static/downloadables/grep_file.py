@@ -199,6 +199,7 @@ def filterTXT(allClumpsObjDict, allSnps, inputFiles, filteredFilePath, useGWASup
     for aFile in inputFiles:
 
         txt_file = openFileForParsing(aFile)
+        allSnpsInInput = set()
         for line in txt_file:
             # remove all whitespace from line
             nw_line = "".join(line.split())
@@ -216,6 +217,11 @@ def filterTXT(allClumpsObjDict, allSnps, inputFiles, filteredFilePath, useGWASup
                     snp, alleles = strippedLine.split(':')
                     allele1, allele2 = alleles.split(',')
                     alleles = [allele1.upper(), allele2.upper()]
+                    # ensure we don't have duplicate lines of SNPs in input file
+                    if snp in allSnpsInInput:
+                        raise SystemExit("Found multiple lines for single SNP. Please consolidate into a single line in the input file and run again.")
+                    else:
+                        allSnpsInInput.add(snp)
                 else:
                     continue
             except ValueError:
@@ -235,6 +241,7 @@ def filterTXT(allClumpsObjDict, allSnps, inputFiles, filteredFilePath, useGWASup
                 filteredOutput.write(line)
                 inputInFilters = True
 
+        allSnpsInInput = set()
     if fileEmpty:
         raise SystemExit("The VCF file is either empty or formatted incorrectly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position")
 
@@ -270,6 +277,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
             inputVCF = openFileForParsing(aFile)
 
             try:
+                allSnpsInInput = set()
                 for line in inputVCF:
                     # cut the line so that we don't use memory to tab split a huge file
                     shortLine = line[0:500]
@@ -281,6 +289,11 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                         cols = shortLine.split('\t')
                         # get the rsid and chrompos
                         rsID = cols[2]
+                        # ensure we don't have duplicate lines of SNPs in input file
+                        if rsID in allSnpsInInput:
+                            raise SystemExit("Found multiple lines for single SNP. Please consolidate into a single line in the input file and run again.")
+                        else:
+                            allSnpsInInput.add(rsID)
                         chromPos = str(cols[0]) + ':' + str(cols[1])
                         # a record exists, so the file was not empty
                         fileEmpty = False
@@ -300,6 +313,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                             w.write(line)
                             w.write("\n")
                             inputInFilters = True
+                allSnpsInInput = set()
 
             except ValueError:
                 raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")

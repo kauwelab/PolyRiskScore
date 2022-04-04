@@ -623,6 +623,12 @@ var calculatePolyScore = async () => {
                 snp: snpArray[0],
                 alleleArray: alleleArray
             }
+            if (snpObjs.has(snpArray[0])){
+                msg = "Detected a duplicated SNP. Ensure that SNPs are only listed once and try again."
+                updateResultBoxAndStoredValue(msg)
+                alert(msg);
+                return;
+            }
             snpObjs.set(snpArray[0], snpObj);
         }
         handleCalculateScore(snpObjs, associationData, mafData, percentileData, superPop, clumpingType, clumpsData, pValue, mafThreshold, false, false);

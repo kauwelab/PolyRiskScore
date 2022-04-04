@@ -55,6 +55,9 @@
                 // parse the variant information
                 var infoObject = parseVariantData(varInfo, info);
                 var vcfLine = createVariantData(info, infoObject, sampleObject);
+                if (allPresentSnps.has(vcfLine.id)) {
+                    throw "Detected a duplicated SNP. Ensure that SNPs are only listed once and try again."
+                }
                 allPresentSnps.add(vcfLine.id)
                 vcfObj = addLineToVcfObj(vcfObj, vcfLine)
                 //if userMAF is true, create the maf for this line. If the VCF doesnt have AF (allele frequency) we need to throw an error
