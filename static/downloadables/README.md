@@ -239,7 +239,7 @@ Below is a brief overview of the required and optional columns for uploading GWA
 
 ## .workingFiles Directory
 
-The .workingFiles directory is created by this tool to hold various files necessary to calculate polygenic risk scores. Each file is vital to the calculation process and can cause the tool to quit prematurly if it is not present. Details on these files can be found below.
+The .workingFiles directory is a hidden directory created by this tool to hold various files necessary to calculate polygenic risk scores. Each file is vital to the calculation process and can cause the tool to quit prematurly if it is not present. Details on these files can be found below.
 
 ### Association Files
 
@@ -293,7 +293,7 @@ Minor Allele Frequency (MAF) files contain frequency values calculated from the 
 
 * **{cohort}\_maf\_{ahash}.txt** -- The number at the end of the file name (ahash) is a hash created using all the given parameters. 
 
-### Possible Alleles
+### Possible Alleles files
 
 Possible alleles files contain SNPs mapped to a list of possible alleles for that SNP. This is used for strand flipping the uploaded samples in VCF format. If the reverse complement of the alleles in the VCF are in the possible alleles, and the alleles from the VCF are not in the possible alleles, we will assume the SNP should be strand flipped.
 
@@ -321,7 +321,8 @@ There are two choices for the tsv output results - condensed (default) or full. 
 - **Beta Annotation** -- Additional information about the beta values
 - **Score Type** -- This indicates if the study used odds ratios or beta values
 - **Units (if applicable)** -- This column will contain the beta units if the Score Type is beta. 
-- **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are in the study
+- **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are in the study and not excluded from the calculation (see below)
+- **SNPs Excluded Due To Cutoffs** -- Details the number of snps excluded from the study calculation due to p-value cutoff or minor allele frequency threshold
 - **Total SNPs** -- The total number of SNPs used in the calculation
 - **Used Super Population** -- The super population used for linkage disequillibrium
 

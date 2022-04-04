@@ -280,6 +280,15 @@ To use the minor allele frequencies from the user vcf, use -q user. Note that th
 
    -q adni-ad
 
+Omit Percentiles (-m)
+""""""""""""""""""""""""""""""""""
+
+This flag prevents the calculation of percentile rank in the full output version. 
+
+.. code-block:: bash
+
+   -q adni-ad
+
 Individual-specific LD clumping (-l)
 """"""""""""""""""""""""""""""""""""
 
@@ -412,7 +421,7 @@ Condensed
 
 This version of the output results contains one row for each study with columns for each sample's polygenic risk score. 
 
-Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect. 
+Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
 
 .. code-block:: bash
 
@@ -423,7 +432,7 @@ Full
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | Total SNPs | Used Super Population | Risk Variants | Variants Without Risk Allele | Variants in High LD
+Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
