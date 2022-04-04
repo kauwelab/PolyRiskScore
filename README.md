@@ -11,6 +11,8 @@ Website Link: [https://prs.byu.edu](https://prs.byu.edu)
 ### Calculate
 The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across more than 2100 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, p-value cutoff, and selected studies, polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file.
 
+*Note*: Due to the vast number of studies the PRSKB has access to, it is not feasible to calculate PRS for them all on the website. If you wish to run large amounts of studies in a single run, see our [Command-Line Interface download (CLI)](https://prs.byu.edu/cli_download). Our current limit for number of studies to be run at a time is 500, though we strongly recommend using the CLI for anything more that 50 studies. 
+
 #### Uploading GWAS Summary Statistic Data
 In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations. 
 
@@ -55,7 +57,8 @@ There are two choices for the tsv output results - condensed (default) or full. 
 - **Beta Annotation** -- Additional information about the beta values
 - **Score Type** -- This indicates if the study used odds ratios or beta values
 - **Units (if applicable)** -- This column will contain the beta units if the Score Type is beta. 
-- **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are in the study
+- **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are in the study and not excluded from the calculation (see below)
+- **SNPs Excluded Due To Cutoffs** -- Details the number of snps excluded from the study calculation due to p-value cutoff or minor allele frequency threshold
 - **Total SNPs** -- The total number of SNPs used in the calculation
 - **Used Super Population** -- The super population used for linkage disequillibrium
 
@@ -64,13 +67,13 @@ There are two choices for the tsv output results - condensed (default) or full. 
 - **Protective Variants** -- Variants that are protective against the phenotype of interest
 - **Risk Variants** -- Variants that add risk for the phenotype of interest
 - **Variants Without Risk Alleles** -- Variants that are present in the study, but the sample does not possess the allele reported with association
-- **Variants in High LD** -- Variants that are not used in the calculation, due to them being in high linkage disequillibrium with another variant in the study. 
+- **Variants in High LD** -- Variants that are not used in the calculation, due to them being in high linkage disequillibrium with another variant in the study.
 
 ### Condensed
 
 This version of the output results contains one row for each study with columns for each sample's polygenic risk score. A column will be named using the samples identifier and that column will hold their risk scores. 
 
-Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect. 
+Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect. 
 
 .. code-block:: bash
 
@@ -80,7 +83,7 @@ Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotat
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | Total SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
+Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
@@ -103,6 +106,7 @@ This version outputs the results in a json object format. The output automatical
             "scoreType": "OR",
             "units (if applicable)": "NA",
             "snpOverlap": 8,
+            "excludedSnps": 3,
             "totalSnps": 14,
             "usedSuperPop": "EUR",
             "samples": [

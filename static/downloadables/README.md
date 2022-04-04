@@ -99,6 +99,7 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 * **-a GWASrefGen** -- Indicates the reference genome of the GWAS data. If this parameter is not included, it is assumed that the reference genome for the GWAS data is the same as the samples.
 * **-b GWAS uses beta values** -- **-b** Indicates that the values in the uploaded GWAS file are beta values
 * **-q minor allele frequency cohort** -- This parameter allows the user to select the cohort to use for minor allele frequencies and also indicates the cohort to use for reporting percentile rank. Available options are: **ukbb** (Uk Biobank), **adni-ad** (ADNI Alzheimer's disease), **adni-mci** (ADNI Mild cognitive impairment), **adni-cn** (ADNI Cognitively normal), **afr** (1000 Genomes African), **amr** (1000 Genomes American), **eas** (1000 Genomes East Asian), **eur** (1000 Genomes European), and **sas** (1000 Genomes South Asian)
+* **-m omit percentiles** -- Use this flag if you do not want percentile rank calculated for your data
 * **-l individual-specific LD clumping** -- To perform linkage disequilibrium clumping on an individual level, include the -l flag. By default, LD clumping is performed on a sample-wide basis, where the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study. This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons since each risk score is calculated using the same variants. In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation by only looking at the individual's variants that have a corresponding risk allele (or, in the absence of a risk allele, an imputed unknown allele) in the GWA study. The benefit to this type of LD clumping is that it allows for a greater number of risk alleles to be included in each individual's polygenic risk score.
 
 ## Uploading GWAS Summary Statistics
@@ -276,7 +277,7 @@ In addition to the [Clumping Files](#clumping-files) above, clump number diction
 
 Filtered files are created in order to speed up the calculation process. In the grep_file.py script as part of step 2, the input VCF or TXT file is filtered so that only SNPs that are present in the designated studies are maintained in a new temporary file. This file is named as follows:
 
-* **filteredInput_{uniq}.txt** -- where 'uniq' is a uniqe timestamp for the particular user. 
+* **filteredInput\_{ahash}\_{uniq}.txt** -- where 'uniq' is a uniqe timestamp for the particular user and ahash is a hash created using the input paramters. 
 
 For each study/trait, we create an additional temporary file that includes only SNPs from the above file that are included in the study/trait. This file is created in the parse_associations.py script in step 2 and is named as follows:
 
@@ -296,12 +297,17 @@ Minor Allele Frequency (MAF) files contain frequency values calculated from the 
 
 Possible alleles files contain SNPs mapped to a list of possible alleles for that SNP. This is used for strand flipping the uploaded samples in VCF format. If the reverse complement of the alleles in the VCF are in the possible alleles, and the alleles from the VCF are not in the possible alleles, we will assume the SNP should be strand flipped.
 
-* **sllPossibleAlleles.txt** -- This file is created when no filters are present
+* **allPossibleAlleles.txt** -- This file is created when no filters are present
 
 * **possibleAlleles\_{ahash}.txt** -- The number at the end of the file name (ahash) is a hash created using all the given parameters. 
 
+### Percentile files
 
-#TODO add in Percentiles
+Percentile files contain the percentiles calculated for the requested cohort that will be used to calculate percentile rank for the samples supplied by the user. This is to aid in contectualization of the polygenic risk scores. Percentile rank is not displayed for condensed output files.
+
+* **allPercentiles\_{cohort}.txt** -- Holds the percentiles for all studies using the supplied cohort
+
+* **percentiles\_{cohort}\_{ahash}.txt** -- Holds the percentiles for studies selected using the supplied parameters and cohort. ahash is a hash created using the parameters given
 
 ## Output Results
 
@@ -330,7 +336,7 @@ There are two choices for the tsv output results - condensed (default) or full. 
 
 This version of the output results contains one row for each study with columns for each sample's polygenic risk score. A column will be named using the samples identifier and that column will hold their risk scores. 
 
-Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect. 
+Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
 
 .. code-block:: bash
 
@@ -340,7 +346,7 @@ Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotat
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | Total SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
+Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
@@ -363,6 +369,7 @@ This version outputs the results in a json object format. The output automatical
             "scoreType": "OR",
             "units (if applicable)": "NA",
             "snpOverlap": 8,
+            "excludedSnps": 3,
             "totalSnps": 14,
             "usedSuperPop": "EUR",
             "samples": [
