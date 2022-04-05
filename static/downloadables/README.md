@@ -43,7 +43,7 @@ To run the risk score calculator from the command-line, you should pass the requ
 
 #### Using a VCF with required parameters
 ```bash
-./runPrsCLI.sh -f 'inputFiles_chr*.vcf' -o outputFile.tsv -r hg19 -c 0.05 -p EUR
+./runPrsCLI.sh -f 'inputFile.vcf' -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ```
 
 #### Using multiple VCFs separated by chromosomes with required parameters
@@ -108,7 +108,7 @@ In addition to calculating polygenic risk scores using GWA studies from the GWAS
 
 ### Format
 
-The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the summary statistics use beta values instead of odds ratios, replace the Odds Ratio column with Beta Coefficients and Beta Units. Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the summary statistics use beta values instead of odds ratios, replace the "Odds Ratio" column with two columns: "Beta Coefficients" and "Beta Units." Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
 
 If more than one odds ratio exists for an RsID/allele combination in a study, tool will exit.
 

@@ -16,7 +16,7 @@ The Calculate page of the PRSKB website allows the user to calculate polygenic r
 #### Uploading GWAS Summary Statistic Data
 In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations. 
 
-The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the summary statistics use beta values instead of odds ratios, replace the Odds Ratio column with Beta Coefficients and Beta Units. Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the summary statistics use beta values instead of odds ratios, replace the "Odds Ratio" column with two columns: "Beta Coefficients" and "Beta Units". Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
 
 If more than one odds ratio exists for an RsID/allele combination in a study, tool will exit. Although we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, *we do not currently perform strand flipping on GWAS data uploaded to the website.* Please ensure that your data is presented on the correct strand or use the CLI tool.
 
@@ -57,7 +57,7 @@ There are two choices for the tsv output results - condensed (default) or full. 
 - **Beta Annotation** -- Additional information about the beta values
 - **Score Type** -- This indicates if the study used odds ratios or beta values
 - **Units (if applicable)** -- This column will contain the beta units if the Score Type is beta. 
-- **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are in the study and not excluded from the calculation (see below)
+- **SNP Overlap** -- Details the number of SNPs that are in the input vcf/txt file which are also in the study and not excluded from the calculation (see below)
 - **SNPs Excluded Due To Cutoffs** -- Details the number of snps excluded from the study calculation due to p-value cutoff or minor allele frequency threshold
 - **Total SNPs** -- The total number of SNPs used in the calculation
 - **Used Super Population** -- The super population used for linkage disequillibrium
