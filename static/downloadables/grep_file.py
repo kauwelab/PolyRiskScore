@@ -219,7 +219,7 @@ def filterTXT(allClumpsObjDict, allSnps, inputFiles, filteredFilePath, useGWASup
                     alleles = [allele1.upper(), allele2.upper()]
                     # ensure we don't have duplicate lines of SNPs in input file
                     if snp in allSnpsInInput:
-                        raise SystemExit("Found multiple lines for single SNP. Please consolidate into a single line in the input file and run again.")
+                        raise SystemExit(f'Found multiple lines for single SNP {snp}. Please consolidate into a single line in the input file and run again.')
                     else:
                         allSnpsInInput.add(snp)
                 else:
@@ -291,7 +291,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                         rsID = cols[2]
                         # ensure we don't have duplicate lines of SNPs in input file
                         if rsID in allSnpsInInput:
-                            raise SystemExit("Found multiple lines for single SNP. Please consolidate into a single line in the input file and run again.")
+                            raise SystemExit(f'Found multiple lines for single SNP {rsID}. Please consolidate into a single line in the input file and run again.')
                         else:
                             allSnpsInInput.add(rsID)
                         chromPos = str(cols[0]) + ':' + str(cols[1])

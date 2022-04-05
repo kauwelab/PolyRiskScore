@@ -56,7 +56,7 @@
                 var infoObject = parseVariantData(varInfo, info);
                 var vcfLine = createVariantData(info, infoObject, sampleObject);
                 if (allPresentSnps.has(vcfLine.id)) {
-                    throw "Detected a duplicated SNP. Ensure that SNPs are only listed once and try again."
+                    throw `Found multiple lines for single SNP ${vcfLine.id}. Please consolidate into a single line in the input file and run again`
                 }
                 allPresentSnps.add(vcfLine.id)
                 vcfObj = addLineToVcfObj(vcfObj, vcfLine)

@@ -624,7 +624,7 @@ var calculatePolyScore = async () => {
                 alleleArray: alleleArray
             }
             if (snpObjs.has(snpArray[0])){
-                msg = "Detected a duplicated SNP. Ensure that SNPs are only listed once and try again."
+                msg = `Found multiple lines for single SNP ${snpArray[0]}. Please consolidate into a single line in the input file and run again`
                 updateResultBoxAndStoredValue(msg)
                 alert(msg);
                 return;
