@@ -287,7 +287,7 @@ def createMarks(betas, nonMissingSnps, studyID, mark, valueType):
 
 def getPRSFromArray(betas, nonMissingSnps, valueType, studyID):
     valueType = valueType.lower()
-# calculate the PRS from the list of betas
+    # calculate the PRS from the list of betas
     ploidy = 2
     combinedBetas = 0
     # if there are no values in the betas array, set combinedBetas to 'NF'

@@ -1155,14 +1155,14 @@ calculatePRS () {
         fi
 
         #TODO make an option for users to remove these files if they want
-        # if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-        #     rm "$FILE"
-        #     rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-        #     rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
-        #     rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
-            # [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
-            # [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
-        # fi
+        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+            rm "$FILE"
+            rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
+            rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+            [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
+            [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
+        fi
         
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
