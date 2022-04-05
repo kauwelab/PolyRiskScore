@@ -741,7 +741,7 @@ calculatePRS () {
                 trait="${trait//$single/$escaped}" # replace single quotes with escaped single quotes
                 trait="${trait//$space/$underscore}"    # replace spaces with underscores
                 trait="${trait//$quote/$empty}" # replace double quotes with nothing
-                traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
+                traitsForCalc+=("$trait");; 
             k)  studyType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
                 if [ $studyType != "hi" ] && [ $studyType != "lc" ] && [ $studyType != "o" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
