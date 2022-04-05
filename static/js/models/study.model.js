@@ -161,7 +161,6 @@ Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, resul
                 }
                 appendor = "AND (";
                 for(j=0; j < ethnicities.length; j++){
-                    //TODO check for "unspecified/blank" ethnicity studies
                     if (ethnicities[j] == "unspecified") {
                         subQueryString = subQueryString.concat(appendor).concat(` ethnicity = '' OR ethnicity = ' ' OR ethnicity = 'NA' `);
                         appendor = "OR";
