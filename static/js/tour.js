@@ -125,8 +125,10 @@ function startTour() {
             {
                 element: "#mafContainer",
                 title: "Select MAF population",
-                content: "The population chosen will be used to impute genotypes missing from your input data using their minor allele frequency (MAF). Choose the \
-                population most representative of your input file for best results."
+                content: "The population chosen will be used to impute genotypes missing from your input data using their \
+                minor allele frequency (MAF). It is also used to determine the percentile rank of the calculated risk scores, \
+                which are available in the full and json output formats. Choose the population most representative of your \
+                input file for best results."
             },
             {
                 element: "#mafThreshContainer",
