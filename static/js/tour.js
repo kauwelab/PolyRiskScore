@@ -36,7 +36,7 @@ function startTour() {
         steps: [
             {
                 element: "#startTour",
-                title: "Welcome to PRSKB!",
+                title: "Welcome to the PRSKB!",
                 content: "Calculating polygenic risk scores with PRSKB is easy! This is a brief tutorial to get you started."
             },
             {
@@ -59,13 +59,6 @@ function startTour() {
                 Choose the \"GRCh37/hg19\" option for the example VCF."
             },
             {
-                element: "#superPopSelect",
-                title: "Select super population of individual(s) in your VCF file.",
-                content: "This will be used to perform LD clumping on your data (see the About \
-                page). If you are unsure about the super population of the individual(s) in your file, \
-                choose the one you believe to be the most accurate."
-            },
-            {
                 element: "#GWAStypeSelector",
                 title: "GWAS",
                 content: "Users have the option of either calculating polygenic risk scores from \
@@ -76,13 +69,15 @@ function startTour() {
                 element: "#traitSelectContainer",
                 title: "Select traits",
                 content: "Use the search bar to search specific traits for which you would like to \
-                calulate polygenic risk scores. Click on one or more traits to include them in your \
-                results. Note: you can select all traits using the \"Select all\" button. However, \
-                calculations may take some time depending on the size of your VCF file. When you are\
-                done selecting traits, press the \"next\" button to continue the tour.",
+                calculate polygenic risk scores. Click on one or more traits to include them in your \
+                results. Note: a maximum of 50 traits at a time is recommended, but 10 or fewer is \
+                better for faster results. Use the CLI found in the \"Download\" tab above \
+                to run more traits simultaneously. Calculations may take some time depending on \
+                the size of your VCF file. When you are done selecting traits, press the \"next\" \
+                button to continue the tour.",
             },
             {
-                element: "#applyFilters",
+                element: "#additionalFiltersContainer",
                 title: "Select additional study filters",
                 content: "Studies about the traits you selected can be further filtered by choosing \
                 study type, study ethnicity, original value type, or sex. \"High impact\" is measured by Altmetric score while \
@@ -91,16 +86,8 @@ function startTour() {
                 \"Apply Filters\" button to update the studies list.",
                 reflex: true
             },
-            // {
-            //     element: "#sex",
-            //     title: "Include or exclude sex dependent SNPs",
-            //     content: "Occasionally, studies will include SNPs that have odds ratios which \
-            //     are dependent upon biological sex. By default, we exclude any SNPs that are depenent on \
-            //     biological sex. If you choose, you can include either female or male dependent SNPs. \
-            //     When you are done, press the \"next\" button to continue the tour."
-            // },
             {
-                element: "#studySelectContainer",
+                element: "#tourStudySelectContainer",
                 title: "Select studies",
                 content: "Search and select studies to include in your results. A separate polygenic risk score \
                 will be calculated for each study/trait pair. Once you have finished selecting your filters, press \
@@ -118,10 +105,35 @@ function startTour() {
                 content: "Select the reference genome corresponding to the GWAS data you have uploaded. For the example GWAS file, select the 'GRCh38/hg38' option."
             },
             {
-                element: "#pvalInput",
+                element: "#pvalContainer",
                 title: "Enter p-value cutoff",
                 content: "Enter the p-value cutoff for odds ratios you wish to include in your polygenic risk score \
-                using the two text boxes."
+                using the two text boxes. The default value is 1.0x10^-5."
+            },
+            {
+                element: "#superPopContainer",
+                title: "Select super population of individual(s) in your VCF file",
+                content: "This will be used to perform LD clumping on your data (see the About \
+                page). If you are unsure about the super population of the individual(s) in your file, \
+                choose the one you believe to be the most accurate."
+            },
+            {
+                element: "#mafContainer",
+                title: "Select MAF population",
+                content: "This will be used to impute genotypes missing from your input data. Normally \
+                you should choose the population most representative of your input file for best results \
+                but for now, choose \"UK Biobank\" and click \"next.\""
+            },
+            {
+                element: "#ldContainer",
+                title: "Select LD Clumping Type",
+                content: "Choose whether LD clumping should be performed sample-wide or by individual. For \
+                now, leave it at \"sample-wide clumping.\""
+            },
+            {
+                element: "#mafThreshContainer",
+                title: "Select MAF Threshold",
+                content: "This will filter out SNPs below the specified MAF threshold. Leave it at 0 for now."
             },
             {
                 element: "#fileType",
@@ -131,16 +143,11 @@ function startTour() {
             {
                 element: "#fileFormat",
                 title: "Select output format (pt 2)",
-                content: "Choose either a condensed results version or a full results version. The condensed version displays \
-                the polygenic risk scores for each sample for each trait/study combination. The full version additionally gives \
-                information for each sample on which SNPs contribute to the trait, which are protective against the trait, and \
-                which are neutral or have unknown contributions."
-            },
-            {
-                element: "#mafCohort",
-                title: "Select population for MAF",
-                content: "Select the population to use allele frequencies from."
-
+                content: "Choose either condensed results version or a full results version. The condensed version displays \
+                the polygenic risk scores for each sample for each trait/study combination. The full version puts each sample/trait \
+                pair on a separate line and additionally gives information for each sample on the number of SNPs excluded due \
+                to cutoffs in the study, the total number of SNPs in the study, the number that contribute to the trait, that \
+                are protective against the trait, and that are neutral or have unknown contributions."
             },
             {
                 element: "#feedbackSubmit",
@@ -183,7 +190,7 @@ function startTour() {
  * @param {*} stepName- currently only expected to be "refGen" (we can add other steps later), corresponding to refGenTourIndex
  */
 function moveToNextTourIndex(stepName) {
-    //if the tour has been initialized before (isn't undefinded)
+    //if the tour has been initialized before (isn't undefined)
     if (typeof tour !== "undefined") {
         //check if the tour is at the refGen selection point to prevent advances at the wrong times 
         if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {

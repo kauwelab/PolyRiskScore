@@ -159,52 +159,58 @@
                 </div>
 
                 <div class='child'>
-                  <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
-                    <h5>2. Additional Filters: </h5>
-                    <div style="margin-left: 1.5em;">
-                      <label for="studyTypeSelect"><span
-                          title="NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database (the first of every month).">Study
-                          Type<sup>?</sup></span>:</label>
-                      <!-- Filter Studies by  or Ethnicity&nbsp;</h5> -->
-                      <select id='studyTypeSelect' multiple>
-                        <option value="HI" selected="selected">High Impact Studies</option>
-                        <option value="LC" selected="selected">Large Cohort Studies</option>
-                        <option value="O" selected="selected">All Other Studies</option>
-                      </select>
-                      <label for="ethnicitySelect" style="margin-left: .5em;">Ethnicity:</label>
-                      <select id='ethnicitySelect' multiple></select>
-                      <br>
-                      <!-- TODO: add explination/ fix it up -->
-                      <label for="sex"><span
-                          title="Occasionally, studies will include SNPs that have odds ratios which are dependent upon biological sex. By default, we exclude any SNPs that are depenent on biological sex. If you choose, you can include either female or male dependent SNPs.">Sex&nbsp;Specific&nbsp;SNPs<sup>?</sup></span>:</label>
-                      <select id="sex" onchange="moveToNextTourIndex('sex')">
-                        <option selected="selected" value="both">Both</option>
-                        <option value="exclude">Exclude</option>
-                        <option value="f">Female</option>
-                        <option value="m">Male</option>
-                      </select>
-                      <label for="valueType" style="margin-top: 1em; margin-left: .5em;">Value Type:</label>
-                      <select id='valueType'>
-                        <option value="both" selected="selected">Both</option>
-                        <option value="or">Odds Ratios</option>
-                        <option value="beta">Beta Coefficients</option>
-                      </select>
-                      <br>
-                      <button id='applyFilters' class="btn btn-primary btn-sm" onClick="getStudies()">
-                        Apply Filters
-                      </button>
+                  <!--This div id is used for the bootstrap tour-->
+                  <div id='additionalFiltersContainer' class='child'>
+                    <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
+                      <h5>2. Additional Filters: </h5>
+                      <div style="margin-left: 1.5em;">
+                        <label for="studyTypeSelect"><span
+                            title="NOTE: High Impact studies are determined using study Altmetric scores and are based on the score that was given on the day we uploaded data to our database (the first of every month).">Study
+                            Type<sup>?</sup></span>:</label>
+                        <!-- Filter Studies by  or Ethnicity&nbsp;</h5> -->
+                        <select id='studyTypeSelect' multiple>
+                          <option value="HI" selected="selected">High Impact Studies</option>
+                          <option value="LC" selected="selected">Large Cohort Studies</option>
+                          <option value="O" selected="selected">All Other Studies</option>
+                        </select>
+                        <label for="ethnicitySelect" style="margin-left: .5em;">Ethnicity:</label>
+                        <select id='ethnicitySelect' multiple></select>
+                        <br>
+                        <!-- TODO: add explination/ fix it up -->
+                        <label for="sex"><span
+                            title="Occasionally, studies will include SNPs that have odds ratios which are dependent upon biological sex. By default, we exclude any SNPs that are depenent on biological sex. If you choose, you can include either female or male dependent SNPs.">Sex&nbsp;Specific&nbsp;SNPs<sup>?</sup></span>:</label>
+                        <select id="sex" onchange="moveToNextTourIndex('sex')">
+                          <option selected="selected" value="both">Both</option>
+                          <option value="exclude">Exclude</option>
+                          <option value="f">Female</option>
+                          <option value="m">Male</option>
+                        </select>
+                        <label for="valueType" style="margin-top: 1em; margin-left: .5em;">Value Type:</label>
+                        <select id='valueType'>
+                          <option value="both" selected="selected">Both</option>
+                          <option value="or">Odds Ratios</option>
+                          <option value="beta">Beta Coefficients</option>
+                        </select>
+                        <br>
+                        <button id='applyFilters' class="btn btn-primary btn-sm" onClick="getStudies()">
+                          Apply Filters
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div class='child'>
-                  <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                    <h5>3. Select from Filtered <span
-                        title="NOTE: Our studies database is updated the first of every month.">Studies<sup>?</sup></span>&nbsp;
-                    </h5>
-                    <div id='studySelectContainer'>
-                      <select id='studySelect' multiple>
-                      </select>
+                  <!--This div id is used for the bootstrap tour-->
+                  <div id='tourStudySelectContainer' class='child'>
+                    <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
+                      <h5>3. Select from Filtered <span
+                          title="NOTE: Our studies database is updated the first of every month.">Studies<sup>?</sup></span>&nbsp;
+                      </h5>
+                      <div id='studySelectContainer'>
+                        <select id='studySelect' multiple>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -270,90 +276,105 @@
               </div>
 
               <div class='child'>
-                <div class="col-lg-12 mb-.5 mt-2 text-left" style="padding: .5em;">
-                  <h5>1: Enter P-Value Cutoff&nbsp;</h5>
-                  <form action="#" method="POST" id="pvalInput" name="pvalOptions">
-                    <div class="form-inline">
-                      <div>
-                        <input type="number" value="1.0" name="pValScalarIn" id="pValScalarIn" size=5 min=1.0 max=10.0
-                          onchange="changePValScalar()">
-                        x10^-
-                        <input type="number" value="5" name="pValMagIn" id="pValMagIn" size=5 min=0.0 max=100.0
-                          onchange="changePValMagnitude()">
+                <!--This div id is used for the bootstrap tour-->
+                <div id='pvalContainer' class='child'>
+                  <div class="col-lg-12 mb-.5 mt-2 text-left" style="padding: .5em;">
+                    <h5>1: Enter P-Value Cutoff&nbsp;</h5>
+                    <form action="#" method="POST" id="pvalInput" name="pvalOptions">
+                      <div class="form-inline">
+                        <div>
+                          <input type="number" value="1.0" name="pValScalarIn" id="pValScalarIn" size=5 min=1.0 max=10.0
+                            onchange="changePValScalar()">
+                          x10^-
+                          <input type="number" value="5" name="pValMagIn" id="pValMagIn" size=5 min=0.0 max=100.0
+                            onchange="changePValMagnitude()">
+                        </div>
+                        <label>
+                          &nbsp;&nbsp;&nbsp;(
+                          <output id="pvalScalar" name="pvalScalar" for="pValScalarIn">1.0</output>
+                          x10
+                          <sup>
+                            <output id="pvalMagnigtude" name="pvalMagnigtude" for="pValMagIn">-5</output>
+                          </sup>)
+                        </label>
                       </div>
-                      <label>
-                        &nbsp;&nbsp;&nbsp;(
-                        <output id="pvalScalar" name="pvalScalar" for="pValScalarIn">1.0</output>
-                        x10
-                        <sup>
-                          <output id="pvalMagnigtude" name="pvalMagnigtude" for="pValMagIn">-5</output>
-                        </sup>)
-                      </label>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <div class='child'>
+                <!--This div id is used for the bootstrap tour-->
+                <div id='superPopContainer' class='child'>
+                  <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
+                    <h5><span
+                        title="Some studies report more than one super population. For those cases, the user can select the super population they would prefer for linkage-disequilibrium clumping.">2:&nbsp;Preferred
+                        Super&nbsp;Population<sup>?</sup></span></h5>
+                    <div class="superPop">
+                      <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
+                        <option value="African">African</option>
+                        <option value="American">American</option>
+                        <option value="East Asian">East Asian</option>
+                        <option value="European" selected='selected'>European</option>
+                        <option value="South Asian">South Asian</option>
+                      </select>
                     </div>
-                  </form>
-                </div>
-              </div>
-
-              <div class='child'>
-                <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                  <h5><span
-                      title="Some studies report more than one super population. For those cases, the user can select the super population they would prefer for linkage-disequilibrium clumping.">2:&nbsp;Preferred
-                      Super&nbsp;Population<sup>?</sup></span></h5>
-                  <div class="superPop">
-                    <select id='superPopSelect' onchange="moveToNextTourIndex('superPop')">
-                      <option value="African">African</option>
-                      <option value="American">American</option>
-                      <option value="East Asian">East Asian</option>
-                      <option value="European" selected='selected'>European</option>
-                      <option value="South Asian">South Asian</option>
-                    </select>
                   </div>
                 </div>
               </div>
 
               <div class='child'>
-                <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
-                  <h5><span
-                      title="The equation we use handles missing genotypes in the VCF by multiplying the allele frequency of the risk allele by the number of missing genotypes present in the sample.">3:
-                      MAF&nbsp;Population<sup>?</sup></span></h5>
-                  <div class="MAFoption">
-                    <select id="mafCohort" onchange="changeMAF();">
-                      <option value="ukbb" selected='selected'>UK Biobank</option>
-                      <option value="adni-ad">ADNI-Alzheimers disease</option>
-                      <option value="adni-mci">ADNI-Mild cognitive impairment</option>
-                      <option value="adni-controls">ADNI-controls</option>
-                      <option value="afr">1000 Genomes - AFR population</option>
-                      <option value="amr">1000 Genomes - AMR population</option>
-                      <option value="eas">1000 Genomes - EAS population</option>
-                      <option value="eur">1000 Genomes - EUR population</option>
-                      <option value="sas">1000 Genomes - SAS population</option>
-                    </select>
+                <!--This div id is used for the bootstrap tour-->
+                <div id='mafContainer' class='child'>
+                  <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
+                    <h5><span
+                        title="The equation we use handles missing genotypes in the VCF by multiplying the allele frequency of the risk allele by the number of missing genotypes present in the sample.">3:
+                        MAF&nbsp;Population<sup>?</sup></span></h5>
+                    <div class="MAFoption">
+                      <select id="mafCohort" onchange="changeMAF();">
+                        <option value="ukbb" selected='selected'>UK Biobank</option>
+                        <option value="adni-ad">ADNI-Alzheimers disease</option>
+                        <option value="adni-mci">ADNI-Mild cognitive impairment</option>
+                        <option value="adni-controls">ADNI-controls</option>
+                        <option value="afr">1000 Genomes - AFR population</option>
+                        <option value="amr">1000 Genomes - AMR population</option>
+                        <option value="eas">1000 Genomes - EAS population</option>
+                        <option value="eur">1000 Genomes - EUR population</option>
+                        <option value="sas">1000 Genomes - SAS population</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div class='child'>
-                <div class="col-lg-12 mb-.5 mt-2 text-left" style="background-color: whitesmoke;  padding: .5em;">
-                  <h5><span
-                      title="Users can choose to have linkage disequilibrium clumping performed either on all the variants present in the sample group or on each individual's set of variants">4&nbsp;:
-                      Linkage-disequilibrium&nbsp;Clumping<sup>?</sup></span></h5>
-                  <form name="ldRadio">
-                    <input type="radio" name="ld_radio" value="sample" id="sampleLD" checked>
-                    <label for="sampleLD" style="margin-right: 1em;">Sample-Wide Clumping</label>
-                    <input type="radio" name="ld_radio" value="individual" id="individualLD">
-                    <label for="individualLD" style="margin-right: 1em;">Individual Clumping</label>
-                  </form>
+                <!--This div id is used for the bootstrap tour-->
+                <div id='ldContainer' class='child'>
+                  <div class="col-lg-12 mb-.5 mt-2 text-left" style="background-color: whitesmoke;  padding: .5em;">
+                    <h5><span
+                        title="Users can choose to have linkage disequilibrium clumping performed either on all the variants present in the sample group or on each individual's set of variants">4&nbsp;:
+                        Linkage-disequilibrium&nbsp;Clumping<sup>?</sup></span></h5>
+                    <form name="ldRadio">
+                      <input type="radio" name="ld_radio" value="sample" id="sampleLD" checked>
+                      <label for="sampleLD" style="margin-right: 1em;">Sample-Wide Clumping</label>
+                      <input type="radio" name="ld_radio" value="individual" id="individualLD">
+                      <label for="individualLD" style="margin-right: 1em;">Individual Clumping</label>
+                    </form>
+                  </div>
                 </div>
               </div>
 
               <div class='child'>
-                <div class="col-lg-12 mb-.5 mt-2 text-left" style="padding: .5em;">
-                  <h5><span
-                      title="Users may choose to set a threshold for snps that will exclude snps from calculation which have an allele frequency below the indicated threshold.">5&nbsp;(Optional):
-                      MAF&nbsp;Threshold<sup>?</sup></span></h5>
-                  <div id="mafThreshold">
-                    <input type="number" value="0.0" name="mafThresholdIn" id="mafThresholdIn" size=5 min=0.0 max=1.0
-                      step=0.01>
+                <!--This div id is used for the bootstrap tour-->
+                <div id='mafThreshContainer' class='child'>
+                  <div class="col-lg-12 mb-.5 mt-2 text-left" style="padding: .5em;">
+                    <h5><span
+                        title="Users may choose to set a threshold for snps that will exclude snps from calculation which have an allele frequency below the indicated threshold.">5&nbsp;(Optional):
+                        MAF&nbsp;Threshold<sup>?</sup></span></h5>
+                    <div id="mafThreshold">
+                      <input type="number" value="0.0" name="mafThresholdIn" id="mafThresholdIn" size=5 min=0.0 max=1.0
+                        step=0.01>
+                    </div>
                   </div>
                 </div>
               </div>
