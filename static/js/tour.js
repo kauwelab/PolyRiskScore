@@ -110,10 +110,11 @@ function startTour() {
             },
             {
                 element: "#superPopContainer",
-                title: "Select super population of individual(s) in your VCF file",
-                content: "This will be used to perform LD clumping on your data (see the About \
-                page). If you are unsure about the super population of the individual(s) in your file, \
-                choose the one you believe to be the most accurate."
+                title: "Select preferred super population",
+                content: "This determines which super population will be used to perform LD clumping on your data \
+                (see the About page). When the preferred super population is not observed in the study, an \
+                alternative is chosen from the study's included super populations based on a predetermined order \
+                found in PRSKB's documentation. Choose the super population that best describes individual(s) in your file."
             },
             {
                 element: "#ldContainer",
