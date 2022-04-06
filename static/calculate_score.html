@@ -325,10 +325,27 @@
 
               <div class='child'>
                 <!--This div id is used for the bootstrap tour-->
-                <div id='mafContainer' class='child'>
-                  <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
+                <div id='ldContainer' class='child'>
+                  <div class="col-lg-12 mb-.5 mt-2 text-left" style="padding: .5em;">
                     <h5><span
-                        title="The equation we use handles missing genotypes in the VCF by multiplying the allele frequency of the risk allele by the number of missing genotypes present in the sample.">3:
+                        title="Users can choose to have linkage disequilibrium clumping performed either on all the variants present in the sample group or on each individual's set of variants">3&nbsp;:
+                        Linkage-disequilibrium&nbsp;Clumping<sup>?</sup></span></h5>
+                    <form name="ldRadio">
+                      <input type="radio" name="ld_radio" value="sample" id="sampleLD" checked>
+                      <label for="sampleLD" style="margin-right: 1em;">Sample-Wide Clumping</label>
+                      <input type="radio" name="ld_radio" value="individual" id="individualLD">
+                      <label for="individualLD" style="margin-right: 1em;">Individual Clumping</label>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <div class='child'>
+                <!--This div id is used for the bootstrap tour-->
+                <div id='mafContainer' class='child'>
+                  <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
+                    <h5><span
+                        title="The equation we use handles missing genotypes in the VCF by multiplying the allele frequency of the risk allele by the number of missing genotypes present in the sample.">4:
                         MAF&nbsp;Population<sup>?</sup></span></h5>
                     <div class="MAFoption">
                       <select id="mafCohort" onchange="changeMAF();">
@@ -347,29 +364,14 @@
                 </div>
               </div>
 
-              <div class='child'>
-                <!--This div id is used for the bootstrap tour-->
-                <div id='ldContainer' class='child'>
-                  <div class="col-lg-12 mb-.5 mt-2 text-left" style="background-color: whitesmoke;  padding: .5em;">
-                    <h5><span
-                        title="Users can choose to have linkage disequilibrium clumping performed either on all the variants present in the sample group or on each individual's set of variants">4&nbsp;:
-                        Linkage-disequilibrium&nbsp;Clumping<sup>?</sup></span></h5>
-                    <form name="ldRadio">
-                      <input type="radio" name="ld_radio" value="sample" id="sampleLD" checked>
-                      <label for="sampleLD" style="margin-right: 1em;">Sample-Wide Clumping</label>
-                      <input type="radio" name="ld_radio" value="individual" id="individualLD">
-                      <label for="individualLD" style="margin-right: 1em;">Individual Clumping</label>
-                    </form>
-                  </div>
-                </div>
-              </div>
+
 
               <div class='child'>
                 <!--This div id is used for the bootstrap tour-->
                 <div id='mafThreshContainer' class='child'>
                   <div class="col-lg-12 mb-.5 mt-2 text-left" style="padding: .5em;">
                     <h5><span
-                        title="Users may choose to set a threshold for snps that will exclude snps from calculation which have an allele frequency below the indicated threshold.">5&nbsp;(Optional):
+                        title="Users may choose to set a threshold for snps that will exclude snps from calculation which have an allele frequency below the indicated threshold.">5:&nbsp;(Optional)
                         MAF&nbsp;Threshold<sup>?</sup></span></h5>
                     <div id="mafThreshold">
                       <input type="number" value="0.0" name="mafThresholdIn" id="mafThresholdIn" size=5 min=0.0 max=1.0

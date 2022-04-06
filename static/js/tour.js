@@ -118,17 +118,17 @@ function startTour() {
                 choose the one you believe to be the most accurate."
             },
             {
+                element: "#ldContainer",
+                title: "Select LD Clumping Type",
+                content: "Choose whether LD clumping should be performed sample-wide or by individual. For \
+                now, leave it at \"sample-wide clumping.\""
+            },
+            {
                 element: "#mafContainer",
                 title: "Select MAF population",
                 content: "This will be used to impute genotypes missing from your input data. Normally \
                 you should choose the population most representative of your input file for best results \
                 but for now, choose \"UK Biobank\" and click \"next.\""
-            },
-            {
-                element: "#ldContainer",
-                title: "Select LD Clumping Type",
-                content: "Choose whether LD clumping should be performed sample-wide or by individual. For \
-                now, leave it at \"sample-wide clumping.\""
             },
             {
                 element: "#mafThreshContainer",
