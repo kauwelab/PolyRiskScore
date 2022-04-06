@@ -125,7 +125,7 @@ function startTour() {
             {
                 element: "#mafContainer",
                 title: "Select MAF population",
-                content: "This will be used to impute genotypes missing from your input data. Choose the \
+                content: "The population chosen will be used to impute genotypes missing from your input data using their minor allele frequency (MAF). Choose the \
                 population most representative of your input file for best results."
             },
             {
