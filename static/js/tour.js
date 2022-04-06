@@ -144,10 +144,11 @@ function startTour() {
                 element: "#fileFormat",
                 title: "Select output format (pt 2)",
                 content: "Choose either condensed results version or a full results version. The condensed version displays \
-                each study on a separate line with the sample polygenic risk scores as columns. The full version displays each \
-                sample/study pair on a separate line and additionally gives each sample's percentile compared to the selected \
-                MAF population as well as bar (|) separated lists of the protective, risk, non risk, and high LD SNPs involved \
-                in the calculation of the sample's score."
+                each study on a separate line with the sample polygenic risk scores as columns. The full version in tsv format \
+                displays each sample/study pair on a separate line and additionally gives each sample's percentile compared \
+                to the selected MAF population as well as bar (|) separated lists of the protective, risk, non risk, and \
+                high LD SNPs involved in the calculation of the sample's score. The json format includes each sample nested \
+                under a trait/study object."
             },
             {
                 element: "#feedbackSubmit",
