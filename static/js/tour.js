@@ -68,12 +68,10 @@ function startTour() {
             {
                 element: "#traitSelectContainer",
                 title: "Select traits",
-                content: "Use the search bar to search specific traits for which you would like to \
-                calculate polygenic risk scores. Click on one or more traits to include them in your \
-                results. Note: a maximum of 50 traits at a time is recommended, but 10 or fewer is \
-                better for faster results. Use the CLI found in the \"Download\" tab above \
-                to run more traits simultaneously. Calculations may take some time depending on \
-                the size of your VCF file. When you are done selecting traits, press the \"next\" \
+                content: "Use the search bar and click on one more more traits to include them in your results. \
+                Note: a maximum of 50 traits at a time is recommended, but 10 or fewer is better for faster results. \
+                Use the CLI found in the \"Download\" tab above to run more traits simultaneously. Calculations may take some \
+                time depending on the size of your VCF file and the number of traits selected. Press the \"next\" \
                 button to continue the tour.",
             },
             {
@@ -82,7 +80,7 @@ function startTour() {
                 content: "Studies about the traits you selected can be further filtered by choosing \
                 study type, study ethnicity, original value type, or sex. \"High impact\" is measured by Altmetric score while \
                 \"large cohort\" is measured \ by the size of a study's initial sample size plus its \
-                replication sample size. Once you have \ finished selecting your filters, press the \
+                replication sample size. Once you have finished selecting your filters, press the \
                 \"Apply Filters\" button to update the studies list.",
                 reflex: true
             },
@@ -90,7 +88,7 @@ function startTour() {
                 element: "#tourStudySelectContainer",
                 title: "Select studies",
                 content: "Search and select studies to include in your results. A separate polygenic risk score \
-                will be calculated for each study/trait pair. Once you have finished selecting your filters, press \
+                will be calculated for each study/trait pair. Once you have finished selecting your studies, press \
                 the \"next\" button to continue the tour."
             },
             {
@@ -126,28 +124,27 @@ function startTour() {
             {
                 element: "#mafContainer",
                 title: "Select MAF population",
-                content: "This will be used to impute genotypes missing from your input data. Normally \
-                you should choose the population most representative of your input file for best results \
-                but for now, choose \"UK Biobank\" and click \"next.\""
+                content: "This will be used to impute genotypes missing from your input data. Choose the \
+                population most representative of your input file for best results."
             },
             {
                 element: "#mafThreshContainer",
                 title: "Select MAF Threshold",
-                content: "This will filter out SNPs below the specified MAF threshold. Leave it at 0 for now."
+                content: "This will filter out SNPs below the specified MAF threshold."
             },
             {
                 element: "#fileType",
                 title: "Select output format (pt 1)",
-                content: "Choose between TSV or JSON output format."
+                content: "Choose between TSV and JSON output format."
             },
             {
                 element: "#fileFormat",
                 title: "Select output format (pt 2)",
                 content: "Choose either condensed results version or a full results version. The condensed version displays \
-                the polygenic risk scores for each sample for each trait/study combination. The full version puts each sample/trait \
-                pair on a separate line and additionally gives information for each sample on the number of SNPs excluded due \
-                to cutoffs in the study, the total number of SNPs in the study, the number that contribute to the trait, that \
-                are protective against the trait, and that are neutral or have unknown contributions."
+                each study on a separate line with the sample polygenic risk scores as columns. The full version displays each \
+                sample/study pair on a separate line and additionally gives each sample's percentile compared to the selected \
+                MAF population as well as bar (|) separated lists of the protective, risk, non risk, and high LD SNPs involved \
+                in the calculation of the sample's score."
             },
             {
                 element: "#feedbackSubmit",
