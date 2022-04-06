@@ -119,8 +119,8 @@ function startTour() {
             {
                 element: "#ldContainer",
                 title: "Select LD Clumping Type",
-                content: "Choose whether LD clumping should be performed sample-wide or by individual. For \
-                now, leave it at \"sample-wide clumping.\""
+                content: "Choose whether LD clumping should be performed sample-wide or by individual. See the \
+                PRSKB's documentation for the differences between these two options. Choose an option and press \"next.\""
             },
             {
                 element: "#mafContainer",
