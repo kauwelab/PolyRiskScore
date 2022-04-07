@@ -323,21 +323,21 @@ There are two choices for the tsv output results - condensed (default) or full. 
 - **Units (if applicable)** -- This column will contain the beta units if the Score Type is beta. 
 - **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are in the study and not excluded from the calculation (see below)
 - **SNPs Excluded Due To Cutoffs** -- Details the number of snps excluded from the study calculation due to p-value cutoff or minor allele frequency threshold
-- **Total SNPs** -- The total number of SNPs used in the calculation
+- **Included SNPs** -- The total number of SNPs included in the calculation
 - **Used Super Population** -- The super population used for linkage disequillibrium
 
 #### Columns Only Available In The Full Version
 - **Percentile** -- Indicates the percentile rank of the samples polygenic risk score
 - **Protective Variants** -- Variants that are protective against the phenotype of interest
 - **Risk Variants** -- Variants that add risk for the phenotype of interest
-- **Variants Without Risk Alleles** -- Variants that are present in the study, but the sample does not possess the allele reported with association
+- **Variants Without Risk Alleles** -- Variants that are present in the study, but the sample does not possess the allele reported with association. Note that a SNP may be in this list and also in the Protective Variants or Risk Variants list. This is caused by an individual being heterozygous for the alleles at that point. 
 - **Variants in High LD** -- Variants that are not used in the calculation, due to them being in high linkage disequillibrium with another variant in the study. 
 
 ### Condensed
 
 This version of the output results contains one row for each study with columns for each sample's polygenic risk score. A column will be named using the samples identifier and that column will hold their risk scores. 
 
-Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
+Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Included SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
 
 .. code-block:: bash
 
@@ -347,7 +347,7 @@ Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotat
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
+Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | INcluded SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
@@ -371,7 +371,7 @@ This version outputs the results in a json object format. The output automatical
             "units (if applicable)": "NA",
             "snpOverlap": 8,
             "excludedSnps": 3,
-            "totalSnps": 14,
+            "includedSnps": 14,
             "usedSuperPop": "EUR",
             "samples": [
                 {

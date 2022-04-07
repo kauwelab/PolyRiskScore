@@ -422,14 +422,34 @@ More examples can be found in the CLI download README.md
 Output Results
 ==============
 
-There are two choices for the tsv output results - condensed (default) or full. 
+There are two choices for the tsv output results - condensed (default) or full. Additonally, you can choose to output results in JSON format, which contains all the information found in the 'full' format. Explanations of the columns found in the output are given below.
+
+* **Study ID** -- The study identifier assigned by the GWAS Catalog (or the user if they uploaded their own GWAS summary statistics)
+* **Reported Trait** -- Trait based on the phenotype being studied, as described by the authors
+* **Trait** -- Trait assigned by the GWAS Catalog, standardized from the Experimental Factor Ontology
+* **Citation** -- The citation of the study
+* **P-Value Annotation** -- Additional information about the p-values
+* **Beta Annotation** -- Additional information about the beta values
+* **Score Type** -- This indicates if the study used odds ratios or beta values
+* **Units (if applicable)** -- This column will contain the beta units if the Score Type is beta. 
+* **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are in the study and not excluded from the calculation (see below)
+* **SNPs Excluded Due To Cutoffs** -- Details the number of snps excluded from the study calculation due to p-value cutoff or minor allele frequency threshold
+* **Included SNPs** -- The total number of SNPs included in the calculation
+* **Used Super Population** -- The super population used for linkage disequillibrium
+
+#### Columns Only Available In The Full Version
+* **Percentile** -- Indicates the percentile rank of the samples polygenic risk score
+* **Protective Variants** -- Variants that are protective against the phenotype of interest
+* **Risk Variants** -- Variants that add risk for the phenotype of interest
+* **Variants Without Risk Alleles** -- Variants that are present in the study, but the sample does not possess the allele reported with association. Note that a SNP may be in this list and also in the Protective Variants or Risk Variants list. This is caused by an individual being heterozygous for the alleles at that point. 
+* **Variants in High LD** -- Variants that are not used in the calculation, due to them being in high linkage disequillibrium with another variant in the study. 
 
 Condensed
 ---------
 
 This version of the output results contains one row for each study with columns for each sample's polygenic risk score. 
 
-Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
+Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Included SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
 
 .. code-block:: bash
 
@@ -440,8 +460,64 @@ Full
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Total SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
+Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Included SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
    ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c 0.0005 -r hg19 -p SAS -v
+
+Json
+----
+
+This version outputs the results in a json object format. The output automatically contains all the data the full version does and there is no condensed version of the json output. The file will contain a list of json study objects. Each study object will contain the list of samples and their score. 
+
+.. code-block:: bash
+    # example output
+    [
+        {
+            "studyID": "GCST001",
+            "reportedTrait": "Alzheimer's Disease",
+            "trait": "Alzheimer Disease",
+            "citation": "First Author et al. 2021",
+            "pValueAnnotation": "NA",
+            "betaAnnotation": "NA",
+            "scoreType": "OR",
+            "units (if applicable)": "NA",
+            "snpOverlap": 8,
+            "excludedSnps": 3,
+            "includedSnps": 14,
+            "usedSuperPop": "EUR",
+            "samples": [
+                {
+                    "sample": "SAMP001",
+                    "polygenicRiskScore": "1.277",
+                    "protectiveAlleles": "rs1|rs2|rs3",
+                    "riskAlleles": "rs4|rs5|rs6|rs7|rs8",
+                    "variantsWithoutRiskAllele": "rs9|rs10|rs11|rs14",
+                    "variantsInHighLD": "rs12|rs13"
+                },
+                {
+                    "sample": "SAMP002",
+                    "polygenicRiskScore": "NF",
+                    "protectiveAlleles": "",
+                    "riskAlleles": "",
+                    "variantsWithoutRiskAllele": "rs1|rs2|rs3|rs4|rs5|rs6|rs7|rs8|rs9|rs10|rs11|rs14",
+                    "variantsInHighLD": "rs12|rs13"
+                },
+                {
+                    "sample": "SAMP003",
+                    "polygenicRiskScore": "1.63",
+                    "protectiveAlleles": "rs1|rs2|rs3",
+                    "riskAlleles": "rs4|rs5|rs6|rs7|rs8",
+                    "variantsWithoutRiskAllele": "rs1|rs2|rs3|rs4|rs5|rs6|rs7|rs8|rs9|rs10|rs11|rs14",
+                    "variantsInHighLD": "rs12|rs13"
+                }
+            ]
+        }
+    ]
+
+.. code-block:: bash
+
+   ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.json -c 0.0005 -r hg19 -p SAS
+
+
