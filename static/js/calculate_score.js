@@ -365,8 +365,7 @@ function changeGWASType() {
 
     }
     else {
-        //todo update this description!!!!!
-        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn"><span title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Beta&nbsp;Coefficient<sup>?</sup></span>, <span id="ogValueTypeColumn" title="The units of the beta coefficient">Beta&nbsp;Units<sup>?</sup></span></span>')
+        $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn"><span title="Computed in the GWA study, a numerical value representing the effect size of a certain allele on the disease or trait of interest.">Beta&nbsp;Coefficient<sup>?</sup></span>, <span id="ogValueTypeColumn" title="The units of the beta coefficient">Beta&nbsp;Units<sup>?</sup></span></span>')
         $('#optionalPValAnno').replaceWith('<span id="optionalPValAnno" title="Annotation for P-values. Note that when this is present, calculations are split by p-value annotation and beta annotation."> P-Value&nbsp;Annotation<sup>?</sup>,</span>')
         $('#optionalHeaderBeta').replaceWith('<span id="optionalHeaderBeta" title="Annotation for the Beta Coefficients. Note that when this is present, calculations are split by p-value annotation and beta annotation.">Beta&nbsp;Annotation<sup>?</sup>,</span>')
     }
@@ -374,7 +373,6 @@ function changeGWASType() {
 
 //called in calculatePolyscore function
 //gets the clumping information using the positions from the associations object
-//TODO will need to update this for the new way of clumping
 var getClumpsFromPositions = async (associationsObj, refGen, superPop) => {
     posMap = {}
 
@@ -827,7 +825,6 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
  * @param {*} snps the rsids of the snps from gwas upload data
  * @returns an object of chrom:pos to snp to use in conversions in the associations data
  */
-//TODO this will need to be updated
 function getChromPosToSnps(refGen, snps) {
     return Promise.resolve($.ajax({
         type: "GET",
@@ -1083,7 +1080,6 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                                 }
                                                 else if (allele == '.') {
                                                     numAlleleMissingGenotype++;
-                                                    //todo should this be in the normal or separated like this?
                                                     resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsWithMissingGenotypes'].push(key)
                                                 }
                                                 else {
@@ -1099,7 +1095,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                                         const [indexClumpSnp, indexRiskAllele] = indexSnpObj[traitStudypValueAnnoValTypeSamp][clumpNum]
                                                         indexPvalue = associationData['associations'][indexClumpSnp]['traits'][trait][studyID][pValBetaAnnoValType][indexRiskAllele]['pValue']
                                                         if (associationObj.pValue < indexPvalue) {
-                                                            delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                            delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp]
                                                             resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(indexClumpSnp)
                                                             resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
                                                             resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
@@ -1116,7 +1112,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                                             indexNumMatchingAlleles = resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp]['numAllelesMatch']
                                                             // Even though the p-value for the current SNP is > the p-value of the index SNP, replace the index SNP if individual LD clumping was requested and there were no matching risk alleles for the index SNP (meaning the alleles were ./. and derived from MAF
                                                             if ((indexNumMatchingAlleles < 1) && (clumpingType === 'individual')) {
-                                                                delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp] //TODO test that this worked
+                                                                delete resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][indexClumpSnp]
                                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsInHighLD'].push(indexClumpSnp)
                                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
                                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
@@ -1480,7 +1476,6 @@ function getSnpFromLine(line) {
  */
 function formatTSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
-    //TODO: account for if the samples are not in the same order everytime
     sampleKeys = []
 
     if (isCondensed) {
@@ -1628,7 +1623,6 @@ function downloadResults() {
         return
     }
 
-    //TODO: update
     document.getElementById("download-bar").style.visibility = "visible";
     //var resultText = document.getElementById("response").value;
     var resultText = getResultOutput(resultJSON);
