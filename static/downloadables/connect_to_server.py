@@ -795,6 +795,9 @@ def getVariantAlleles(rsID, mv):
 def postUrlWithBody(url, body):
     response = requests.post(url=url, data=body)
     response.close()
+    if response.status_code == 504:
+        print("\n*** The connection timed out. If you haven't already, try running the first step with no additional filters, then running the second step with the filters.")
+        print("(See the README file for an example -- under Applying Step Numbers)\n")
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
     if response.status_code == 204:
         return {}
