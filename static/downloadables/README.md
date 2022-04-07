@@ -75,7 +75,7 @@ These parameters must be present in order for the PRSKB CLI tool to run calculat
 * **-o outputFilePath** -- The location where the output file should be created. Must be either a TSV or a JSON file.
 * **-r refGen** -- The reference genome used to sequence the variants in the input file. Acceptable values are **hg17**, **hg18**, **hg19**, and **hg38**.
 * **-c pValueCutoff** -- The p-value cutoff for SNPs that will be included. Any SNP that has a p-value greater than the cutoff will not be considered for calculation.
-* **-p superPopulation** -- The super population preferred for Linkage-Disequilibrium calculations. Acceptable values are **AFR**, **AMR**, **EAS**, **EUR**, and **SAS**.
+* **-p superPopulation** -- The super population preferred for Linkage-Disequilibrium calculations. Acceptable values are **AFR**, **AMR**, **EAS**, **EUR**, and **SAS**. (More information on this on our [readthedocs page](https://polyriskscore.readthedocs.io/en/latest))
 
 ### Optional Filtering Parameters 
 

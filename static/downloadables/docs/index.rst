@@ -113,13 +113,21 @@ The reference genome of samples in the input file. Available reference genomes: 
 
 Super Population (-p)
 """""""""""""""""""""
-The prefered super population to use for linkage-disequilibrium clumping. If a study has no super population attached to it or more than one super population, the tool will use this super population to determine which super population to use. These are the five super populations from the 1000 genomes project
+The preferred super population to use for linkage-disequilibrium clumping. If a study has no super population attached to it or more than one super population, the tool will use this super population to determine which super population to use. These are the five super populations from the 1000 genomes project
 
 * AFR - African
 * AMR - American
 * EAS - East Asian
 * EUR - European
 * SAS - South Asian
+
+Below is the order in which super populations are selected based on the preferred super population. This is used in the case where a study has more than one super population associated with it, and the preferred super population is not one of the super populations associated with the study. 
+
+* AFR - African --> AFR, AMR, SAS, EUR, EAS
+* AMR - American --> AMR, EUR, SAS, EAS, AFR
+* EAS - East Asian --> EAS, SAS, AMR, EUR, AFR
+* EUR - European --> EUR, AMR, SAS, EAS, AFR
+* SAS - South Asian --> SAS, EAS, AMR, EUR, AFR
 
 .. code-block:: bash
 
