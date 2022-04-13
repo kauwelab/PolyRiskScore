@@ -538,7 +538,7 @@ def checkForAllPercentilesFiles(percentilesCohort):
      # if the path exists, check if we don't need to download a new one
     if os.path.exists(allPercentilesfile):
         params = {
-            "percentilesCohort": percentilesCohort
+            "cohort": percentilesCohort
         }
 
         response = requests.get(url="https://prs.byu.edu/last_percentiles_update", params=params)
