@@ -114,13 +114,15 @@ function startTour() {
                 content: "This determines which super population will be used to perform LD clumping on your data \
                 (see the About page). When the preferred super population is not observed in the study, an \
                 alternative is chosen from the study's included super populations based on a predetermined order \
-                found in PRSKB's documentation (see https://polyriskscore.readthedocs.io/en/latest/#super-population-p) . Choose the super population that best describes individual(s) in your file."
+                found in the <a href=\"https://polyriskscore.readthedocs.io/en/latest/#super-population-p\">PRSKB's documentation</a>. \
+                Choose the super population that best describes individual(s) in your file."
             },
             {
                 element: "#ldContainer",
                 title: "Select LD Clumping Type",
                 content: "Choose whether LD clumping should be performed sample-wide or by individual. See the \
-                PRSKB's documentation for the differences between these two options. Choose an option and press \"next.\""
+                <a href=\"https://polyriskscore.readthedocs.io/en/latest/\">PRSKB's documentation</a> \
+                for the differences between these two options. Choose an option and press \"next.\""
             },
             {
                 element: "#mafContainer",
