@@ -12,7 +12,6 @@ exports.getTraits = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            //todo need to test
             returnData = []
             for (i = 0; i < data.length; i++) {
                 returnData.push(data[i].trait)

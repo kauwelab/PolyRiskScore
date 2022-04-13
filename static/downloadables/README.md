@@ -182,7 +182,7 @@ Below is a brief overview of the required and optional columns for uploading GWA
 # runs the calculator in two steps with additional filters
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t Acne -s 1
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t Acne -s 2
-# runs the calculator multiple times using the same "all_associations_hg19_f.txt" working file but different input files and filters
+# runs the calculator multiple times using the same "all_associations_hg19.txt" working file but different input files and filters
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -s 1
 ./runPrsCLI.sh -f inputFile_2.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t Acne -k HI -s 2
 ./runPrsCLI.sh -f inputFile_2.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t "Alzheimer's Disease" -k LC -e European -s 2
@@ -202,7 +202,7 @@ Below is a brief overview of the required and optional columns for uploading GWA
 
 #### Additional Step Number Example
 ```bash
-# calculates scores for all studies for inputFile.vcf, then using the already downloaded allAssociations_hg19_f.txt file, calculates scores for inputFile_1.vcf using the given filters
+# calculates scores for all studies for inputFile.vcf, then using the already downloaded allAssociations_hg19.txt file, calculates scores for inputFile_1.vcf using the given filters
 ./runPrsCLI.sh -f inputFile.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR
 ./runPrsCLI.sh -f inputFile_1.vcf -o outputFile.tsv -r hg19 -c 0.05 -p EUR -t Insomnia -t acne -i GCST000010 -k O -s 2
 ```
