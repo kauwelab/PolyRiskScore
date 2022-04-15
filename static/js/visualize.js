@@ -370,7 +370,6 @@ function changePlot() {
     document.getElementById("plotAndTable").style.visibility='visible';
 
     var plotType = document.querySelector('input[name="plot_type"]:checked').value;
-    console.log(plotType)
 
     switch(plotType) {
         case "Line":
