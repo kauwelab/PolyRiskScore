@@ -1025,7 +1025,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                         variantsWithMissingGenotypes: [],
                                         snpOverlap: [],
                                         snpsExcludedDueToCutoffs: [],
-                                        includedSnps: [],
+                                        totalSnps: [],
                                         usedSuperPopulation: ""
                                     }
                                 }
@@ -1067,7 +1067,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                             if (presentSnps.includes(key)){
                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'].push(key)
                                             }
-                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['includedSnps'].push(key)
+                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['totalSnps'].push(key)
                                             numAllelesMatch = 0
                                             numAlleleMissingGenotype = 0
                                             for (i=0; i < alleles.length; i++) {
@@ -1192,7 +1192,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                 clumpedVariants: scoreAndSnps[6],
                                 snpOverlap: scoreAndSnps[7],
                                 snpsExcludedDueToCutoffs: scoreAndSnps[8],
-                                includedSnps: scoreAndSnps[9],
+                                totalSnps: scoreAndSnps[9],
                                 percentile: scoreAndSnps[10],
                                 usedSuperPopulation: resultObj[studyID][trait][pValBetaAnnoValType][sample]['usedSuperPopulation']
                             }
@@ -1255,7 +1255,7 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, percentileObj, trait, st
     var nonMissingSnps = 0 // this is the number of non-missing snps obbserved in sample
     var snpOverlap = new Set(sampleObj.snpOverlap)
     var excludedSnps = new Set(sampleObj.snpsExcludedDueToCutoffs)
-    var includedSnps = new Set(sampleObj.includedSnps)
+    var totalSnps = new Set(sampleObj.totalSnps)
 
     valueType = 'betaValue'
     changed = 0
@@ -1302,7 +1302,7 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, percentileObj, trait, st
 
     percentile = getPercentile(combinedScore, percentileObj, false)
 
-    return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped), snpOverlap.size, excludedSnps.size, includedSnps.size, percentile]
+    return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped), snpOverlap.size, excludedSnps.size, totalSnps.size, percentile]
 }
 
 // This function determines the percentile (or percentile range) of the prs score
@@ -1478,10 +1478,10 @@ function formatTSV(jsonObject, isCondensed) {
     sampleKeys = []
 
     if (isCondensed) {
-        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'SNPs Excluded Due To Cutoffs', 'Included SNPs', 'Used Super Population']
+        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'SNPs Excluded Due To Cutoffs', 'Total SNPs', 'Used Super Population']
     }
     else {
-        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'SNPs Excluded Due To Cutoffs', 'Included SNPs', 'Used Super Population', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNP Overlap', 'SNPs Excluded Due To Cutoffs', 'Total SNPs', 'Used Super Population', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
     }
 
     resultsString = ''
@@ -1520,7 +1520,7 @@ function formatTSV(jsonObject, isCondensed) {
                     betaUnit = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['betaUnit']
                     snpOverlap = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['snpOverlap']
                     excludedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['snpsExcludedDueToCutoffs']
-                    includedSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['includedSnps']
+                    totalSnps = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['totalSnps']
                     usedSuperPopulation = jsonObject['studyResults'][studyID]['traits'][trait][pValBetaAnnoValType][sample]['usedSuperPopulation']
                     if (k==0) {
                         lineInfo.push(betaUnit)
@@ -1530,7 +1530,7 @@ function formatTSV(jsonObject, isCondensed) {
                         if (k==0){
                             lineInfo.push(snpOverlap)
                             lineInfo.push(excludedSnps)
-                            lineInfo.push(includedSnps)
+                            lineInfo.push(totalSnps)
                             lineInfo.push(usedSuperPopulation)
                         }
                         lineInfo.push(score)
@@ -1549,7 +1549,7 @@ function formatTSV(jsonObject, isCondensed) {
                         unmatchedSnps = (unmatchedSnps.length == 0) ? "." : unmatchedSnps.join("|")
                         clumpedSnps = (clumpedSnps.length == 0) ? "." : clumpedSnps.join("|")
 
-                        lineResult = `${sample}\t${lineInfo.join('\t')}\t${snpOverlap}\t${excludedSnps}\t${includedSnps}\t${usedSuperPopulation}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
+                        lineResult = `${sample}\t${lineInfo.join('\t')}\t${snpOverlap}\t${excludedSnps}\t${totalSnps}\t${usedSuperPopulation}\t${score}\t${protectiveSnps}\t${riskSnps}\t${unmatchedSnps}\t${clumpedSnps}`
                         resultsString = resultsString.concat("\n", lineResult)
                     }
                 }
