@@ -129,6 +129,7 @@ function getCohorts() {
                 return a.text == b.text ? 0 : a.text < b.text ? -1 : 1
             }))
             document.multiselect('#cohort-Selector');
+            document.getElementById("viewData").disabled = false
         },
         error: function (XMLHttpRequest) {
             alert(`There was an error loading the traits: ${XMLHttpRequest.responseText}`);
@@ -146,6 +147,8 @@ function resetFilters() {
 
     var cohortSelector = document.getElementById("cohort-Selector");
     cohortSelector.disabled = true;
+
+    document.getElementById("viewData").disabled = true
 }
 
 function displayGraphs() {
@@ -159,6 +162,11 @@ function displayGraphs() {
 
     var cohortNodes = document.querySelectorAll('#cohort-Selector :checked');
     var cohorts = [...cohortNodes].map(option => option.value)
+
+    if(cohorts.length == 0) {
+        alert("You must select the cohorts you wish to view data for")
+        return
+    }
 
     $.ajax({
         type: "GET",
