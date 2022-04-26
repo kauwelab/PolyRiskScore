@@ -171,8 +171,8 @@ Cohortdata.getFullResults = (studyID, trait, cohorts, pValueAnnotation, betaAnno
     }
 
     cohorts.forEach(cohort => {
-        sqlStatement = sqlStatement.concat(`SELECT * FROM cohort_summary_data JOIN cohort_percentiles ON ( cohort_summary_data.studyID = cohort_percentiles.studyID AND cohort_summary_data.trait = cohort_percentiles.trait and cohort_summary_data.cohort = cohort_percentiles.cohort ) WHERE cohort_summary_data.studyID = ? and cohort_summary_data.trait = ? and cohort_summary_data.cohort = ? ; `)
-        queryParams = queryParams.concat([studyID, trait, cohort])
+        sqlStatement = sqlStatement.concat(`SELECT * FROM cohort_summary_data JOIN cohort_percentiles ON ( cohort_summary_data.studyID = cohort_percentiles.studyID AND cohort_summary_data.trait = cohort_percentiles.trait and cohort_summary_data.cohort = cohort_percentiles.cohort AND cohort_summary_data.pValueAnnotation = cohort_percentiles.pValueAnnotation and cohort_summary_data.betaAnnotation = cohort_percentiles.betaAnnotation ) WHERE cohort_summary_data.studyID = ? and cohort_summary_data.trait = ? and cohort_summary_data.cohort = ? AND cohort_summary_data.pValueAnnotation = ? and cohort_summary_data.betaAnnotation = ? ; `)
+        queryParams = queryParams.concat([studyID, trait, cohort, pValueAnnotation, betaAnnotation])
 
         snpsSqlStatement = snpsSqlStatement.concat("SELECT * FROM cohort_snps WHERE studyID = ? and trait = ? and cohort = ? AND pValueAnnotation = ? AND betaAnnotation = ? AND ogValueTypes = ?; ")
         snpsQueryParams.push(studyID)

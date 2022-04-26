@@ -76,7 +76,7 @@
               Users can toggle between violin, box, and line plots. The line plot shows the progression of scores  for each percentile rank (i.e., for the specific cohort, 
               how many individuals have a score at or below a specific polygenic risk score?).
               <br> 
-              <br><i>Cohort data is updated at least once a year. If a risk score was reported as 0.0, that value is replaced with 0.001 in order for us to perform the summary calculations.</i>
+              <br><i>Cohort data is updated at least once a year. For studies that use beta values, our calculation of summary statistics (seen in the table) take the absolute value of the polygenic risk scores and then perform summary calculations. If a risk score was reported as 0.0, that value is replaced with 0.001.</i>
             </p>
           </div>
         </div>
@@ -118,7 +118,7 @@
           <label for="cohortSelector" style="margin-left: 2em; margin-top: 2em; margin-bottom: 2em;"><span title="Select a Cohort to view graphs and summary values. Each of these Cohorts were run on all the studies in the database and percentiles computed. If no cohorts are shown, we do not have that study available for visualization.">Cohort<sup>?</sup>:</span></label>
           <select name="cohortSelector" id='cohort-Selector' style="margin-top: 2em; margin-bottom: 2em;" disabled multiple></select>
           <br>
-          <button id='viewData' class="btn btn-primary btn-sm" style="margin-left: 1rem;" onClick="displayGraphs()">
+          <button id='viewData' class="btn btn-primary btn-sm" style="margin-left: 1rem;" disabled onClick="displayGraphs()">
             View Score Distribution
           </button>
         </div>

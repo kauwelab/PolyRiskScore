@@ -55,6 +55,9 @@
                 // parse the variant information
                 var infoObject = parseVariantData(varInfo, info);
                 var vcfLine = createVariantData(info, infoObject, sampleObject);
+                if (allPresentSnps.has(vcfLine.id)) {
+                    throw `Found multiple lines for single SNP ${vcfLine.id}. Please consolidate into a single line in the input file and run again`
+                }
                 allPresentSnps.add(vcfLine.id)
                 vcfObj = addLineToVcfObj(vcfObj, vcfLine)
                 //if userMAF is true, create the maf for this line. If the VCF doesnt have AF (allele frequency) we need to throw an error
@@ -64,7 +67,7 @@
                         pos: vcfLine.pos,
                         alleles: {}
                     }
-                    af = vcfLine.varinfo.AF.split(',') //todo watch this, could end up causing an error if we don't check for it
+                    af = vcfLine.varinfo.AF.split(',')
                     refAF = 1 - af.reduce(function(a,b){return parseFloat(a)+parseFloat(b);})
 
                     mafData[vcfLine.id]['alleles'][vcfLine.ref] = refAF

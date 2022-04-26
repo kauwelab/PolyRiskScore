@@ -740,7 +740,7 @@ calculatePRS () {
                 trait="${trait//$single/$escaped}" # replace single quotes with escaped single quotes
                 trait="${trait//$space/$underscore}"    # replace spaces with underscores
                 trait="${trait//$quote/$empty}" # replace double quotes with nothing
-                traitsForCalc+=("$trait");; #TODO still need to test this through the menu.. 
+                traitsForCalc+=("$trait");; 
             k)  studyType=$(echo "$OPTARG" | tr '[:upper:]' '[:lower:]')
                 if [ $studyType != "hi" ] && [ $studyType != "lc" ] && [ $studyType != "o" ]; then
                     echo "INVALID STUDY TYPE ARGUMENT. To filter by study type,"
@@ -1154,14 +1154,14 @@ calculatePRS () {
         fi
 
         #TODO make an option for users to remove these files if they want
-        # if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
-        #     rm "$FILE"
-        #     rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
-        #     rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
-        #     rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
-            # [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
-            # [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
-        # fi
+        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+            rm "$FILE"
+            rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
+            rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
+            rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+            [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
+            [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
+        fi
         
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"
