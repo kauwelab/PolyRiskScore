@@ -261,12 +261,15 @@ if [ $downloadRawData == "true" ]; then
 fi
 
 if [ $associationsTable == "true" ]; then
-    echo "Running GWAS database unpacker. This will take up to 1.5 hrs depending on the number of nodes you specified to download data."
+    echo "Running GWAS database unpacker. This will take up to 8 hrs or more depending on the number of nodes you specified to download data."
     for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
         Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
     done
     wait
     echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
+    echo "Filtering out SNPs with rogue beta units"
+    python3 filterBetaUnits.py $associationTableFolderPath
+    echo "Finished filtering beta units"
 fi
 
 if [ $orderAssociations == "true" ]; then
