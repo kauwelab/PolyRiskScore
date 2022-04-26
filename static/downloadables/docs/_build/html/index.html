@@ -39,6 +39,7 @@
 <li><p>Searching the database for studies and traits</p></li>
 <li><p>Printing out available ethnicities to filter by</p></li>
 <li><p>Learning about required and optional parameters for performing calculations</p></li>
+<li><p>Uploading GWA Study data to use for calculations</p></li>
 <li><p>Calculating polygenic risk scores</p></li>
 </ul>
 <div class="section" id="quick-start">
@@ -70,7 +71,7 @@ To access the menu, run the script without parameters. You will be given the opt
 <div class="section" id="display-ethnicities">
 <h2>Display Ethnicities<a class="headerlink" href="#display-ethnicities" title="Permalink to this headline">¶</a></h2>
 <p>The menu has an option for displaying the available ethnicities to filter studies by.</p>
-<img alt="Screenshot showing displayed ethnicities" src="_images/displayEthnicities.png" />
+<img alt="Screenshot showing displayed ethnicities" src="_images/DisplayEthnicities.png" />
 </div>
 <div class="section" id="learn-about-parameters">
 <h2>Learn about Parameters<a class="headerlink" href="#learn-about-parameters" title="Permalink to this headline">¶</a></h2>
@@ -80,8 +81,9 @@ To access the menu, run the script without parameters. You will be given the opt
 <h3>Required Parameters<a class="headerlink" href="#required-parameters" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="file-path-f">
 <h4>File Path (-f)<a class="headerlink" href="#file-path-f" title="Permalink to this headline">¶</a></h4>
-<p>The path to the input file. Either a vcf or a txt with lines formatted as rsID:allele1,allele2</p>
+<p>The path to the input file. Either a vcf or a txt with lines formatted as rsID:allele1,allele2. Additionally, can use Bash Expansion to specify vcf’s broken up by chromosome. If using this option, be sure to enclose with either single (‘) or double (“) quotes.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-f path/to/file/samples.vcf
+-f <span class="s2">&quot;path/to/files/samples_chr*.vcf&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -108,13 +110,21 @@ To access the menu, run the script without parameters. You will be given the opt
 </div>
 <div class="section" id="super-population-p">
 <h4>Super Population (-p)<a class="headerlink" href="#super-population-p" title="Permalink to this headline">¶</a></h4>
-<p>The super population of samples in the input file. These are the five super populations from the 1000 genomes project</p>
+<p>The preferred super population to use for linkage-disequilibrium clumping. If a study has no super population attached to it or more than one super population, the tool will use this super population to determine which super population to use. These are the five super populations from the 1000 genomes project</p>
 <ul class="simple">
 <li><p>AFR - African</p></li>
 <li><p>AMR - American</p></li>
 <li><p>EAS - East Asian</p></li>
 <li><p>EUR - European</p></li>
 <li><p>SAS - South Asian</p></li>
+</ul>
+<p>Below is the order in which super populations are selected based on the preferred super population. This is used in the case where a study has more than one super population associated with it, and the preferred super population is not one of the super populations associated with the study.</p>
+<ul class="simple">
+<li><p>AFR - African –&gt; AFR, AMR, SAS, EUR, EAS</p></li>
+<li><p>AMR - American –&gt; AMR, EUR, SAS, EAS, AFR</p></li>
+<li><p>EAS - East Asian –&gt; EAS, SAS, AMR, EUR, AFR</p></li>
+<li><p>EUR - European –&gt; EUR, AMR, SAS, EAS, AFR</p></li>
+<li><p>SAS - South Asian –&gt; SAS, EAS, AMR, EUR, AFR</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-p EUR
 </pre></div>
@@ -157,6 +167,21 @@ To access the menu, run the script without parameters. You will be given the opt
 </pre></div>
 </div>
 </div>
+<div class="section" id="value-type-y">
+<h4>Value Type (-y)<a class="headerlink" href="#value-type-y" title="Permalink to this headline">¶</a></h4>
+<p>Studies in our database can report either odds ratios or beta values for the associations. You can filter studies by the type of values they use.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-y <span class="s1">&#39;odds ratios&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sex-dependent-associations-g">
+<h4>Sex dependent associations (-g)<a class="headerlink" href="#sex-dependent-associations-g" title="Permalink to this headline">¶</a></h4>
+<p>Some studies have a sex associated with the reported associations. This parameter allows users to filter studies based on
+sex. You can filter sex dependent studies by selecting either male (M), female (F), or exclude (E).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-g f
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="additonal-optional-parameters">
 <h3>Additonal Optional Parameters<a class="headerlink" href="#additonal-optional-parameters" title="Permalink to this headline">¶</a></h3>
@@ -182,16 +207,6 @@ If the output file is in JSON format, the results will, by default, be in verbos
 </pre></div>
 </div>
 </div>
-<div class="section" id="sex-dependent-associations-g">
-<h4>Sex dependent associations (-g)<a class="headerlink" href="#sex-dependent-associations-g" title="Permalink to this headline">¶</a></h4>
-<p>Though a rare occurence, some studies have duplicates of the same SNP that differ by which biological sex
-the p-value and odds ratio is associated with or SNPs that are not duplicated, but are dependent on biological sex.
-The system default is to exclude sex dependent SNPs from calculations. You can include sex dependent associations
-by selecting either male (M) or female (F).</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-g f
-</pre></div>
-</div>
-</div>
 <div class="section" id="step-number-s">
 <h4>Step Number (-s)<a class="headerlink" href="#step-number-s" title="Permalink to this headline">¶</a></h4>
 <p>Breaks running the calculator into steps. Make sure when you are running the CLI in steps that the only parameter that changes between the two steps is the step parameter.</p>
@@ -205,13 +220,6 @@ by selecting either male (M) or female (F).</p>
 <h4>Number Of Processes (-n)<a class="headerlink" href="#number-of-processes-n" title="Permalink to this headline">¶</a></h4>
 <p>This parameter determines the number of subprocesses used by the Python multiprocessing module during the calculations. If no value is given by the user, all available cores will be utilized.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-n <span class="m">4</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="omit-unused-studies-file-m">
-<h4>Omit Unused Studies file (-m)<a class="headerlink" href="#omit-unused-studies-file-m" title="Permalink to this headline">¶</a></h4>
-<p>This flag will prevent the creation of an additional output file that lists the studies that no risk scores could be calculated for.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-m
 </pre></div>
 </div>
 </div>
@@ -229,12 +237,58 @@ by selecting either male (M) or female (F).</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="gwas-upload-uses-beta-values-b">
+<h4>GWAS upload uses beta values (-b)<a class="headerlink" href="#gwas-upload-uses-beta-values-b" title="Permalink to this headline">¶</a></h4>
+<p>This flag indicates that the uploaded GWAS file uses beta values instead of odds ratios. (see Uploading GWAS Summary Statistics for more directions on uploading GWAS data)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-b
+</pre></div>
+</div>
+</div>
+<div class="section" id="minor-allele-frequency-cohort-q">
+<h4>Minor allele frequency cohort (-q)<a class="headerlink" href="#minor-allele-frequency-cohort-q" title="Permalink to this headline">¶</a></h4>
+<p>This parameter specifies the cohort to use for minor allele frequecies and the cohort to use for reporting percentile rank. The default is the U.K. Biobank. Available options are:</p>
+<ul class="simple">
+<li><p>UKBB</p></li>
+<li><p>ADNI-AD</p></li>
+<li><p>ADNI-MCI</p></li>
+<li><p>ADNI-CN</p></li>
+<li><p>AFR</p></li>
+<li><p>AMR</p></li>
+<li><p>EAS</p></li>
+<li><p>EUR</p></li>
+<li><p>SAS</p></li>
+</ul>
+<p>To use the minor allele frequencies from the user vcf, use -q user. Note that this option will not report percentile rank.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-q adni-ad
+</pre></div>
+</div>
+</div>
+<div class="section" id="omit-percentiles-m">
+<h4>Omit Percentiles (-m)<a class="headerlink" href="#omit-percentiles-m" title="Permalink to this headline">¶</a></h4>
+<p>This flag prevents the calculation of percentile rank in the full output version.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-q adni-ad
+</pre></div>
+</div>
+</div>
+<div class="section" id="individual-specific-ld-clumping-l">
+<h4>Individual-specific LD clumping (-l)<a class="headerlink" href="#individual-specific-ld-clumping-l" title="Permalink to this headline">¶</a></h4>
+<p>To perform linkage disequilibrium clumping on an individual level, include the -l parameter. By default, LD clumping is performed on a sample-wide basis, where the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study. This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons since each risk score is calculated using the same variants. In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation by only looking at the individual’s variants that have a corresponding risk allele (or, in the absence of a risk allele, an imputed unknown allele) in the GWA study. The benefit to this type of LD clumping is that it allows for a greater number of risk alleles to be included in each individual’s polygenic risk score.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-l
+</pre></div>
+</div>
+</div>
+<div class="section" id="imputation-threshold-h">
+<h4>Imputation Threshold (-h)<a class="headerlink" href="#imputation-threshold-h" title="Permalink to this headline">¶</a></h4>
+<p>This allows the user to set a threshold for how many SNPs are allowed to be imputed. We divide the numnber of imputed SNPs by the total number of SNPs in the calculation and if that number exceedes the threshold we do not report that study. The default value is 0.5</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-h <span class="m">0</span>.5
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 <div class="section" id="calculate-scores">
 <h2>Calculate Scores<a class="headerlink" href="#calculate-scores" title="Permalink to this headline">¶</a></h2>
 <p>Polygenic risk scores can be calculated directly through the command-line or through the interactive menu. Using just the required parameters, the CLI will calculate risk scores for all studies in the database for each individual in the input file. Additional parameters will filter studies to be included in the calculation.</p>
-<p>Some trait/study combination have multiple odds ratios and p-values for the same SNP. This could be due to many reasons, including differences in association between males and females. By default, we exclude all SNPs that have multiple odds ratios/p-values from calculations or are reported for only a single sex. Users are given the option to add in SNP associations that are annotated for males or females. Studies where snps have been excluded for these reasons are denoted by a † symbol.</p>
 </div>
 </div>
 <div class="section" id="uploading-gwas-summary-statistics">
@@ -242,9 +296,9 @@ by selecting either male (M) or female (F).</p>
 <p>In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations.</p>
 <div class="section" id="format">
 <h2>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h2>
-<p>The GWAS summary statistics file to be uploaded <strong>must</strong> be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file’s header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. Additional optional columns that will be included if present are: Citation and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact.</p>
-<p>If more than one odds ratio exists for an rsID in a study, the odds ratio and corresponding risk allele with the most significant p-value will be used.</p>
-<p><em>NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, and -g will be ignored.</em></p>
+<p>The GWAS summary statistics file to be uploaded <strong>must</strong> be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file’s header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the <strong>-b</strong> flag is present, then instead of an Odds Ratio column, the user should include a Beta Coefficient column and a Beta unit column. Additional optional columns that will be included if present are: P-value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.</p>
+<p>If more than one odds ratio exists for an rsID in a study/trait combination, the program will notify the user and stop running. To avoid this, please ensure that you do not have any duplicated SNPs.</p>
+<p><em>NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, -y, and -g will be ignored.</em></p>
 </div>
 <div class="section" id="columns">
 <h2>Columns<a class="headerlink" href="#columns" title="Permalink to this headline">¶</a></h2>
@@ -259,12 +313,16 @@ by selecting either male (M) or female (F).</p>
 <li><p><strong>Position</strong> - The position of the SNP in the reference genome.</p></li>
 <li><p><strong>Risk Allele</strong> - The allele that confers risk or protection.</p></li>
 <li><p><strong>Odds Ratio</strong> - Computed in the GWA study, a numerical value of the odds that those in the case group have the allele of interest over the odds that those in the control group have the allele of interest.</p></li>
+<li><p><strong>Beta Coefficient</strong> - Computed in the GWAS study, a numerical value that indicates the increase or decrease in the genetic risk per unit.</p></li>
+<li><p><strong>Beta Unit</strong> - The units associated with the beta coefficient. e.g. cm, beats per min.</p></li>
 <li><p><strong>P-value</strong> - The probability that the risk allele confers the amount of risk stated.</p></li>
 </ol>
 </div>
 <div class="section" id="optional-columns">
 <h3>Optional Columns<a class="headerlink" href="#optional-columns" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
+<li><p><strong>P-Value Annotation</strong> - Provides additional information for the p-value, i.e. if the p-value computed only included women.</p></li>
+<li><p><strong>Beta Annotation</strong> - Provides additional information for the beta value.</p></li>
 <li><p><strong>Citation</strong> - The citation information for the study.</p></li>
 <li><p><strong>Reported Trait</strong> - Trait description for this study in the authors own words.</p></li>
 </ol>
@@ -304,15 +362,45 @@ by selecting either male (M) or female (F).</p>
 ./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv
 </pre></div>
 </div>
+<p>Run the calculator using uploaded GWAS summary statistics with beta values:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv -a hg17 -b
+./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p AFR -u path/to/GWAS/GWASsummaryStatistics.tsv -b
+</pre></div>
+</div>
+<p>Run the calculator specifying the minor allele frequency cohort:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p EAS -q adni-ad
+./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p EAS -q EAS
+</pre></div>
+</div>
 <p>More examples can be found in the CLI download README.md</p>
 </div>
 <div class="section" id="output-results">
 <h1>Output Results<a class="headerlink" href="#output-results" title="Permalink to this headline">¶</a></h1>
-<p>There are two choices for the tsv output results - condensed (default) or full.</p>
+<p>There are two choices for the tsv output results - condensed (default) or full. Additonally, you can choose to output results in JSON format, which contains all the information found in the ‘full’ format. Explanations of the columns found in the output are given below.</p>
+<ul class="simple">
+<li><p><strong>Study ID</strong> – The study identifier assigned by the GWAS Catalog (or the user if they uploaded their own GWAS summary statistics)</p></li>
+<li><p><strong>Reported Trait</strong> – Trait based on the phenotype being studied, as described by the authors</p></li>
+<li><p><strong>Trait</strong> – Trait assigned by the GWAS Catalog, standardized from the Experimental Factor Ontology</p></li>
+<li><p><strong>Citation</strong> – The citation of the study</p></li>
+<li><p><strong>P-Value Annotation</strong> – Additional information about the p-values</p></li>
+<li><p><strong>Beta Annotation</strong> – Additional information about the beta values</p></li>
+<li><p><strong>Score Type</strong> – This indicates if the study used odds ratios or beta values</p></li>
+<li><p><strong>Units (if applicable)</strong> – This column will contain the beta units if the Score Type is beta.</p></li>
+<li><p><strong>SNP Overlap</strong> – Details the number of SNPs that are in the sample vcf/txt file which are in the study and not excluded from the calculation (see below)</p></li>
+<li><p><strong>SNPs Excluded Due To Cutoffs</strong> – Details the number of snps excluded from the study calculation due to p-value cutoff or minor allele frequency threshold</p></li>
+<li><p><strong>Included SNPs</strong> – The total number of SNPs included in the calculation</p></li>
+<li><p><strong>Used Super Population</strong> – The super population used for linkage disequillibrium</p></li>
+</ul>
+<p>#### Columns Only Available In The Full Version
+* <strong>Percentile</strong> – Indicates the percentile rank of the samples polygenic risk score <em>(also included in the condensed version of .txt input files)
+* **Protective Variants*</em> – Variants that are protective against the phenotype of interest
+* <strong>Risk Variants</strong> – Variants that add risk for the phenotype of interest
+* <strong>Variants Without Risk Alleles</strong> – Variants that are present in the study, but the sample does not possess the allele reported with association. Note that a SNP may be in this list and also in the Protective Variants or Risk Variants list. This is caused by an individual being heterozygous for the alleles at that point.
+* <strong>Variants in High LD</strong> – Variants that are not used in the calculation, due to them being in high linkage disequillibrium with another variant in the study.</p>
 <div class="section" id="condensed">
 <h2>Condensed<a class="headerlink" href="#condensed" title="Permalink to this headline">¶</a></h2>
 <p>This version of the output results contains one row for each study with columns for each sample’s polygenic risk score.</p>
-<p>Study ID | Citation | Reported Trait | Trait(s) | Sample1 | Sample2 | Sample3 | ect.</p>
+<p>Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNPs Excluded Due To Cutoffs | Used Super Population | SNP Overlap | Included SNPs | Sample1 | Sample2 | Sample3 | ect.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS
 </pre></div>
 </div>
@@ -320,8 +408,64 @@ by selecting either male (M) or female (F).</p>
 <div class="section" id="full">
 <h2>Full<a class="headerlink" href="#full" title="Permalink to this headline">¶</a></h2>
 <p>This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation.</p>
-<p>Sample | Study ID | Citation | Reported Trait | Traits(s) | Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD</p>
+<p>Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNPs Excluded Due To Cutoffs | Used Super Population | SNP Overlap | Included SNPs | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.tsv -c <span class="m">0</span>.0005 -r hg19 -p SAS -v
+</pre></div>
+</div>
+</div>
+<div class="section" id="json">
+<h2>Json<a class="headerlink" href="#json" title="Permalink to this headline">¶</a></h2>
+<p>This version outputs the results in a json object format. The output automatically contains all the data the full version does and there is no condensed version of the json output. The file will contain a list of json study objects. Each study object will contain the list of samples and their score.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># example output</span>
+<span class="o">[</span>
+    <span class="o">{</span>
+        <span class="s2">&quot;studyID&quot;</span>: <span class="s2">&quot;GCST001&quot;</span>,
+        <span class="s2">&quot;reportedTrait&quot;</span>: <span class="s2">&quot;Alzheimer&#39;s Disease&quot;</span>,
+        <span class="s2">&quot;trait&quot;</span>: <span class="s2">&quot;Alzheimer Disease&quot;</span>,
+        <span class="s2">&quot;citation&quot;</span>: <span class="s2">&quot;First Author et al. 2021&quot;</span>,
+        <span class="s2">&quot;pValueAnnotation&quot;</span>: <span class="s2">&quot;NA&quot;</span>,
+        <span class="s2">&quot;betaAnnotation&quot;</span>: <span class="s2">&quot;NA&quot;</span>,
+        <span class="s2">&quot;scoreType&quot;</span>: <span class="s2">&quot;OR&quot;</span>,
+        <span class="s2">&quot;units (if applicable)&quot;</span>: <span class="s2">&quot;NA&quot;</span>,
+        <span class="s2">&quot;excludedSnps&quot;</span>: <span class="m">3</span>,
+        <span class="s2">&quot;usedSuperPop&quot;</span>: <span class="s2">&quot;EUR&quot;</span>,
+        <span class="s2">&quot;samples&quot;</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">&quot;sample&quot;</span>: <span class="s2">&quot;SAMP001&quot;</span>,
+                <span class="s2">&quot;polygenicRiskScore&quot;</span>: <span class="s2">&quot;1.277&quot;</span>,
+                <span class="s2">&quot;protectiveAlleles&quot;</span>: <span class="s2">&quot;rs1|rs2|rs3&quot;</span>,
+                <span class="s2">&quot;riskAlleles&quot;</span>: <span class="s2">&quot;rs4|rs5|rs6|rs7|rs8&quot;</span>,
+                <span class="s2">&quot;variantsWithoutRiskAllele&quot;</span>: <span class="s2">&quot;rs9|rs10|rs11|rs14&quot;</span>,
+                <span class="s2">&quot;variantsInHighLD&quot;</span>: <span class="s2">&quot;rs12|rs13&quot;</span>,
+                <span class="s2">&quot;snpOverlap&quot;</span>: <span class="m">8</span>,
+                <span class="s2">&quot;includedSnps&quot;</span>: <span class="m">14</span>
+            <span class="o">}</span>,
+            <span class="o">{</span>
+                <span class="s2">&quot;sample&quot;</span>: <span class="s2">&quot;SAMP002&quot;</span>,
+                <span class="s2">&quot;polygenicRiskScore&quot;</span>: <span class="s2">&quot;NF&quot;</span>,
+                <span class="s2">&quot;protectiveAlleles&quot;</span>: <span class="s2">&quot;&quot;</span>,
+                <span class="s2">&quot;riskAlleles&quot;</span>: <span class="s2">&quot;&quot;</span>,
+                <span class="s2">&quot;variantsWithoutRiskAllele&quot;</span>: <span class="s2">&quot;rs1|rs2|rs3|rs4|rs5|rs6|rs7|rs8|rs9|rs10|rs11|rs14&quot;</span>,
+                <span class="s2">&quot;variantsInHighLD&quot;</span>: <span class="s2">&quot;rs12|rs13&quot;</span>,
+                <span class="s2">&quot;snpOverlap&quot;</span>: <span class="m">8</span>,
+                <span class="s2">&quot;includedSnps&quot;</span>: <span class="m">14</span>
+            <span class="o">}</span>,
+            <span class="o">{</span>
+                <span class="s2">&quot;sample&quot;</span>: <span class="s2">&quot;SAMP003&quot;</span>,
+                <span class="s2">&quot;polygenicRiskScore&quot;</span>: <span class="s2">&quot;1.63&quot;</span>,
+                <span class="s2">&quot;protectiveAlleles&quot;</span>: <span class="s2">&quot;rs1|rs2|rs3&quot;</span>,
+                <span class="s2">&quot;riskAlleles&quot;</span>: <span class="s2">&quot;rs4|rs5|rs6|rs7|rs8&quot;</span>,
+                <span class="s2">&quot;variantsWithoutRiskAllele&quot;</span>: <span class="s2">&quot;rs1|rs2|rs3|rs4|rs5|rs6|rs7|rs8|rs9|rs10|rs11|rs14&quot;</span>,
+                <span class="s2">&quot;variantsInHighLD&quot;</span>: <span class="s2">&quot;rs12|rs13&quot;</span>,
+                <span class="s2">&quot;snpOverlap&quot;</span>: <span class="m">8</span>,
+                <span class="s2">&quot;includedSnps&quot;</span>: <span class="m">14</span>
+            <span class="o">}</span>
+        <span class="o">]</span>
+    <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./runPrsCLI.sh -f path/to/file/samples.vcf -o path/to/file/output.json -c <span class="m">0</span>.0005 -r hg19 -p SAS
 </pre></div>
 </div>
 </div>

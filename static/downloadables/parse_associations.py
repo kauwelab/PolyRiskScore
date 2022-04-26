@@ -40,13 +40,13 @@ def parseAndCalculateFiles(params):
     # check if the input file is a txt or vcf file
     # parse the file to get the necessary genotype information for each sample and then run the calculations
     if isRSids: 
-        txtObj, clumpedVariants, unmatchedAlleleVariants, snpOverlap, excludedSnps, totalSnps, preferredPop = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
+        txtObj, clumpedVariants, unmatchedAlleleVariants, snpOverlap, excludedSnps, includedSnps, preferredPop = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
         if txtObj is not None:
-            cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, None, snpOverlap, excludedSnps, totalSnps, preferredPop)
+            cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, None, snpOverlap, excludedSnps, includedSnps, preferredPop)
     else:
-        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order, snpOverlap, excludedSnps, totalSnps, preferredPop = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
+        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order, snpOverlap, excludedSnps, includedSnps, preferredPop = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
         if vcfObj is not None:
-            cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, sample_order, snpOverlap, excludedSnps, totalSnps, preferredPop)
+            cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, sample_order, snpOverlap, excludedSnps, includedSnps, preferredPop)
     return
 
 
@@ -328,7 +328,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     if snpOverlap == 0:
         return None, None, None, None, None, None, None
     
-    totalSnps = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps)
+    includedSnps = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps)
     snpsExcluded = len(excludedDueToCutoffs)
     # loop through each LD clump and add the index snp to the final sample map
     for clumpNum in index_snp_map:
@@ -336,7 +336,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
         sample_map[snp] = alleles
 
     final_map = dict(sample_map)
-    return final_map, clumpedVariants, unmatchedAlleleVariants, snpOverlap, snpsExcluded, totalSnps, preferredPop
+    return final_map, clumpedVariants, unmatchedAlleleVariants, snpOverlap, snpsExcluded, includedSnps, preferredPop
 
 
 def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, p_cutOff, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
@@ -633,10 +633,10 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
 
     usedSnpsAcrossAllSamps = set()
     snpOverlap = {}
-    totalSnps = {}
+    includedSnps = {}
     for samp in usedSnps:
         usedSnpsAcrossAllSamps.update(usedSnps[samp])
-        totalSnps[samp] = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps[samp])
+        includedSnps[samp] = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps[samp])
         snpOverlap[samp] = len(usedSnps[samp])
 
     snpOverlapAll = len(usedSnpsAcrossAllSamps)
@@ -652,7 +652,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
         if os.path.exists(tempFilePath):
             os.remove(tempFilePath)
 
-    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sampleOrder, snpOverlap, snpsExcluded, totalSnps, preferredPop
+    return final_map, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sampleOrder, snpOverlap, snpsExcluded, includedSnps, preferredPop
 
 
 def takeComplement(possibleAlleles, alleles, REF, ALT):
