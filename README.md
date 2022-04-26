@@ -9,16 +9,16 @@ The PRSKB website offers users the ability to calculate polygenic risk scores ac
 Website Link: [https://prs.byu.edu](https://prs.byu.edu)
 
 ### Calculate
-The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples across more than 2100 trait/study combinations. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, p-value cutoff, and selected studies, polygenic risk scores can be calculated for the inputted samples. Results can be downloaded as a tsv or json file.
+The Calculate page of the PRSKB website allows the user to calculate polygenic risk scores for multiple samples. As of March 16, 2022, the PRSKB database contains the following data derived from the GWAS Catalog: 250,134 variant associations; 125,433 unique single nucleotide polymorphisms; 20,798 unique study and trait combinations; 10,366 GWA study identifiers; and 3,463 PubMed identifiers. The PRSKB is automatically updated with new studies from the GWAS Catalog monthly. Using an input VCF or inputted rsIDs and genotypes, reference genome, super population of the samples, p-value cutoff, and selected studies, polygenic risk scores can be calculated for the input samples. Results can be downloaded as a tsv or json file.
 
-*Note*: Due to the vast number of studies the PRSKB has access to, it is not feasible to calculate PRS for them all on the website. If you wish to run large amounts of studies in a single run, see our [Command-Line Interface download (CLI)](https://prs.byu.edu/cli_download). Our current limit for number of studies to be run at a time is 500, though we strongly recommend using the CLI for anything more that 50 studies. 
+*Note*: Due to the vast number of studies the PRSKB has access to, it is not feasible to calculate PRS for them all on the website. If you wish to run large amounts of studies in a single run, see our [Command-Line Interface download (CLI)](https://prs.byu.edu/cli_download). Our current limit for number of studies to be run at a time is 500, although we strongly recommend using the CLI for anything more than 50 studies. 
 
 #### Uploading GWAS Summary Statistic Data
 In addition to calculating polygenic risk scores using GWA studies from the GWAS Catalog stored in our database, users have the option to upload their own GWAS summary statistics to use in risk score calculations. 
 
 The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the summary statistics use beta values instead of odds ratios, replace the "Odds Ratio" column with two columns: "Beta Coefficients" and "Beta Units". Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
 
-If more than one odds ratio exists for an RsID/allele combination in a study, tool will exit. Although we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, *we do not currently perform strand flipping on GWAS data uploaded to the website.* Please ensure that your data is presented on the correct strand or use the CLI tool.
+If more than one odds ratio exists for an RsID/allele combination in a study, the tool will exit. Although we perform strand flipping on GWAS summary statistics data we use from the GWAS Catalog, *we do not currently perform strand flipping on GWAS data uploaded to the website.* Please ensure that your data are presented on the correct strand or use the CLI tool.
 
 ### Studies
 The Studies page of the PRSKB website includes a link to the published paper, information on citing the PRSKB, and the ability to search the database of GWAS studies procured from the [GWAS Catalog](https://www.ebi.ac.uk/gwas).
@@ -62,7 +62,7 @@ There are two choices for the tsv output results - condensed (default) or full. 
 - **Included SNPs** -- The total number of SNPs included in the calculation
 - **Used Super Population** -- The super population used for linkage disequillibrium
 
-#### Columns Only Available In The Full Version
+#### Columns Available Only In The Full Version
 - **Percentile** -- Indicates the percentile rank of the samples polygenic risk score
 - **Protective Variants** -- Variants that are protective against the phenotype of interest
 - **Risk Variants** -- Variants that add risk for the phenotype of interest
@@ -145,6 +145,10 @@ This version outputs the results in a json object format. The output automatical
 ## Citing this work
 
 Please visit the [Studies](https://prs.byu.edu/studies.htm) page of the website for information on how to cite this tool and GWAS publications used. 
+
+##License
+
+This work is freely available for academic and not-for-profit use. However, commercial use is regulated by © 2020 Brigham Young University. All rights reserved. For more information about commercial use of this product, please contact Justin Miller, Ph.D. ([justin.miller@uky.edu](mailto:justin.miller@uky.edu)) or Keoni Kauwe, Ph.D. ([kauwe@byu.edu](mailto:kauwe@byu.edu)).
 
 ## Acknowledgements
 

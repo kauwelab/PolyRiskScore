@@ -270,7 +270,7 @@ This flag indicates that the uploaded GWAS file uses beta values instead of odds
 Minor allele frequency cohort (-q)
 """"""""""""""""""""""""""""""""""
 
-This parameter specifies the cohort to use for minor allele frequecies and the cohort to use for reporting percentile rank. The default is the Uk Biobank. Available options are:
+This parameter specifies the cohort to use for minor allele frequecies and the cohort to use for reporting percentile rank. The default is the U.K. Biobank. Available options are:
 
 * UKBB
 * ADNI-AD
@@ -322,7 +322,7 @@ Format
 The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file, or a zipped .tsv or .txt. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the **-b** flag is present, then instead of an Odds Ratio column, the user should include a Beta Coefficient column and a Beta unit column. Additional optional columns that will be included if present are: P-value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
 
 
-If more than one odds ratio exists for an RsID in a study/trait combination, the program will notify the user and stop running. To avoid this, please ensure that you do not have any duplicated snps.
+If more than one odds ratio exists for an rsID in a study/trait combination, the program will notify the user and stop running. To avoid this, please ensure that you do not have any duplicated SNPs.
 
 
 *NOTE: If a GWAS data file is specified, risk scores will only be calculated on that data. No association data from the PRSKB will be used. Additionally, the optional params -t, -k, -i, -e, -y, and -g will be ignored.*
