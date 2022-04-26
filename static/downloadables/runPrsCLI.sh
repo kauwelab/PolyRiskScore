@@ -113,6 +113,7 @@ prskbMenu () {
 }
 
 # the usage statement of the tool
+# letters still available for use: d, j, w, z
 usage () {
     echo -e "${LIGHTBLUE}USAGE:${NC} \n"
     echo -e "./runPrsCLI.sh ${LIGHTRED}-f [VCF file path OR rsIDs:genotype file path] ${LIGHTBLUE}-o [output file path (tsv or json format)] ${LIGHTPURPLE}-c [p-value cutoff (ex: 0.05)] ${YELLOW}-r [refGen {hg17, hg18, hg19, hg38}] ${GREEN}-p [preferred GWA study super population {AFR, AMR, EAS, EUR, SAS}]${NC}"
@@ -134,7 +135,8 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used (also is the cohort used for reporting percentiles) ex. -q adni-ad (see the menu to learn more about the cohorts available)"
     echo -e "   ${MYSTERYCOLOR}-m${NC} omits reporting percentiles"
     echo -e "   ${MYSTERYCOLOR}-x${NC} sets the cutoff minor allele frequency value"
-    echo -e "   ${MYSTERYCOLOR}-l${NC} individual-specific LD clumping ex. -l" 
+    echo -e "   ${MYSTERYCOLOR}-l${NC} individual-specific LD clumping ex. -l"
+    echo -e "   ${MYSTERYCOLOR}-h${NC} imputation threshold ex. -h 0.5"
     echo ""
 }
 
@@ -211,8 +213,9 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}19${NC} - -m omit percentiles from output                            |"
         echo -e "| ${LIGHTPURPLE}20${NC} - -x cutoff value for minor allele frequency                 |"
         echo -e "| ${LIGHTPURPLE}21${NC} - -l individual-specific LD clumping                         |"
+        echo -e "| ${LIGHTPURPLE}22${NC} - -h imputation threshold                                    |"
         echo -e "|                                                                 |"
-        echo -e "| ${LIGHTPURPLE}22${NC} - Done                                                       |"
+        echo -e "| ${LIGHTPURPLE}23${NC} - Done                                                       |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|"
 
         # gets the inputted number from the user
@@ -356,8 +359,7 @@ learnAboutParameters () {
                 echo "" ;;
             17 ) echo -e "${MYSTERYCOLOR} -b beta values used for uploaded GWAS data: ${NC}"
                 echo "This flag indicates that beta coefficents were used in the uploaded GWAS data" 
-                echo "file instead of odds ratios. The beta values will first be converted to odds ratios and then"
-                echo "those values will be used to calculate polygenic risk scores."
+                echo "file instead of odds ratios."
                 echo "" ;;
             18 ) echo -e "${MYSTERYCOLOR} -q minor allele frequency cohort: ${NC}"
                 echo "This parameter allows the user to select the cohort to use for minor allele frequencies and " 
@@ -385,7 +387,7 @@ learnAboutParameters () {
                 echo "Risk alleles with a frequency below the threshold will not be used in calculations."
                 echo "" ;;
             21 ) echo -e "${MYSTERYCOLOR} -l individual-specific LD clumping: ${NC}"
-                echo "To perform linkage disequilibrium clumping on an individual level, include the -l parameter."
+                echo "To perform linkage disequilibrium clumping on an individual level, include the -l flag."
                 echo "By default, LD clumping is performed on a sample-wide basis, where"
                 echo "the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study."
                 echo "This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons"
@@ -396,7 +398,13 @@ learnAboutParameters () {
                 echo "The benefit to this type of LD clumping is that it allows for a greater number of risk alleles"
                 echo "to be included in each individual's polygenic risk score."
                 echo "" ;;
-            22 ) cont=0 ;;
+            22 ) echo -e "${MYSTERYCOLOR} -h imputation threshold: ${NC}"
+                echo "This parameter allows the user to indicate the threshold for imputation."
+                echo "SNP imputation can be helpful in calculating polygenic risk scores, but too many imputed"
+                echo "SNPs can decrease the usefulness of risk scores. We allow the user to choose the ratio"
+                echo "of SNPs present in the sample to imputed SNPs. The default for this parameter is 0.5"
+                echo "" ;;
+            23 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
@@ -648,7 +656,7 @@ calculatePRS () {
     # create python import paths
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:u:a:by:q:mx:l' c "$@"
+    while getopts 'f:o:c:r:p:t:k:i:e:vs:g:n:u:a:by:q:mx:lh:' c "$@"
     do 
         case $c in 
             f)  if ! [ -z "$filename" ]; then
@@ -878,6 +886,18 @@ calculatePRS () {
                     exit 1
                 fi;;
             l)  isIndividualClump=1;;
+            h)  if ! [ -z "$imputationLevel" ]; then
+                    echo "Too many imputation thresholds given"
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi
+                imputationLevel=$OPTARG
+                if ! [[ "$imputationLevel" =~ ^[0-9]*(\.[0-9]+)?$ ]]; then
+                    echo -e "${LIGHTRED}$imputationLevel ${NC}is your imputation threshold value, but it is not a number."
+                    echo "Check the value and try again."
+                    echo -e "${LIGHTRED}Quitting...${NC}"
+                    exit 1
+                fi;;
             [?])    usage
                     exit 1;;
         esac
@@ -914,6 +934,11 @@ calculatePRS () {
     # default the maf cutoff to zero
     if [ -z "${mafCutoff}" ]; then
         mafCutoff=0
+    fi
+
+    # TODO: actually finish including the imputationLevel threshold
+    if [ -z "${imputationLevel}" ]; then
+        imputationLevel=0.5
     fi
 
     # preps variables for passing to python script
@@ -1144,7 +1169,7 @@ calculatePRS () {
         if $pyVer "${SCRIPT_DIR}/grep_file.py" "$files" "$fileHash" "$requiredParamsHash" "$superPop" "$refgen" "${sexes}" "${valueTypes}" "$cutoff" "${traits}" "${studyTypes}" "${studyIDs}" "$ethnicities" "$extension" "$TIMESTAMP" "$useGWAS"; then
             echo "Filtered input file"
             # parse through the filtered input file and calculate scores for each given study
-            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$files" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$mafCutoff" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitPercentiles" "$TIMESTAMP" "$processes" "$isIndividualClump" "$useGWAS"; then
+            if $pyVer "${SCRIPT_DIR}/parse_associations.py" "$files" "$fileHash" "$requiredParamsHash" "$superPop" "${mafCohort}" "$refgen" "$cutoff" "$mafCutoff" "${imputationLevel}" "$extension" "$output" "$outputType" "$isCondensedFormat" "$omitPercentiles" "$TIMESTAMP" "$processes" "$isIndividualClump" "$useGWAS"; then
                 echo "Parsed through genotype information"
                 echo "Calculated score"
             else

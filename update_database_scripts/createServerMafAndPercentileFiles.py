@@ -77,7 +77,7 @@ def formatPercentiles(percentilesUnformatted):
                 "ogValueTypes": line[6],
                 "betaUnit": line[7],
                 "snpOverlap": line[8],
-                "totalSnps": line[9],
+                "includedSnps": line[9],
                 "usedSuperPop": line[10],
                 "p0": line[11],
                 "p1": line[12],
