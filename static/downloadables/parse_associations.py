@@ -23,28 +23,29 @@ def parseAndCalculateFiles(params):
     percentileDict = params[7]
     pValue = float(params[8])
     mafCutoff = float(params[9])
-    trait = params[10]
-    study = params[11]
-    pValueAnno = params[12]
-    betaAnnotation = params[13]
-    valueType = params[14]
-    isJson = params[15]
-    isCondensedFormat = params[16]
-    omitPercentiles = params[17]
-    outputFilePath = params[18]
-    isRSids = params[19]
-    timestamp = params[20]
-    isIndividualClump = params[21]
-    superPop = params[22]
+    imputationThreshold = float(params[10])
+    trait = params[11]
+    study = params[12]
+    pValueAnno = params[13]
+    betaAnnotation = params[14]
+    valueType = params[15]
+    isJson = params[16]
+    isCondensedFormat = params[17]
+    omitPercentiles = params[18]
+    outputFilePath = params[19]
+    isRSids = params[20]
+    timestamp = params[21]
+    isIndividualClump = params[22]
+    superPop = params[23]
 
     # check if the input file is a txt or vcf file
     # parse the file to get the necessary genotype information for each sample and then run the calculations
     if isRSids: 
-        txtObj, clumpedVariants, unmatchedAlleleVariants, snpOverlap, excludedSnps, includedSnps, preferredPop = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
+        txtObj, clumpedVariants, unmatchedAlleleVariants, snpOverlap, excludedSnps, includedSnps, preferredPop = parse_txt(inputFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, imputationThreshold, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
         if txtObj is not None:
             cs.calculateScore(snpSet, txtObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, unmatchedAlleleVariants, clumpedVariants, outputFilePath, None, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, None, snpOverlap, excludedSnps, includedSnps, preferredPop)
     else:
-        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order, snpOverlap, excludedSnps, includedSnps, preferredPop = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
+        vcfObj, mafDict, neutral_snps_map, clumped_snps_map, sample_num, sample_order, snpOverlap, excludedSnps, includedSnps, preferredPop = parse_vcf(inputFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, pValue, mafCutoff, imputationThreshold, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop)
         if vcfObj is not None:
             cs.calculateScore(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJson, isCondensedFormat, omitPercentiles, neutral_snps_map, clumped_snps_map, outputFilePath, sample_num, trait, study, pValueAnno, betaAnnotation, valueType, isRSids, sample_order, snpOverlap, excludedSnps, includedSnps, preferredPop)
     return
@@ -173,7 +174,7 @@ def formatAndReturnGenotype(genotype, REF, ALT):
     return alleles
 
 
-def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
+def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, mafDict, p_cutOff, mafCutoff, imputationThreshold, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
     #create set to hold  the lines with a snp in this study
     studyLines = {}
 
@@ -327,6 +328,8 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     snpOverlap = len(usedSnps)
     if snpOverlap == 0:
         return None, None, None, None, None, None, None
+    else if (includedSnps - snpOverlap) / includedSnps > imputationThreshold:
+        return None, None, None, None, None, None, None
     
     includedSnps = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps)
     snpsExcluded = len(excludedDueToCutoffs)
@@ -339,7 +342,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     return final_map, clumpedVariants, unmatchedAlleleVariants, snpOverlap, snpsExcluded, includedSnps, preferredPop
 
 
-def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, p_cutOff, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
+def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, snpSet, clumpNumDict, mafDict, p_cutOff, mafCutoff, imputationThreshold, trait, study, pValueAnno, betaAnnotation, valueType, timestamp, isIndividualClump, superPop):
     # variable to keep track of the number of samples in the input file
     sampleNum=0
     snpOverlap = 0
@@ -632,16 +635,20 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
         raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
 
     usedSnpsAcrossAllSamps = set()
+    allIncludedSnps = set()
     snpOverlap = {}
     includedSnps = {}
     for samp in usedSnps:
         usedSnpsAcrossAllSamps.update(usedSnps[samp])
         includedSnps[samp] = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps[samp])
+        allIncludedSnps.update(includedSnps[samp])
         snpOverlap[samp] = len(usedSnps[samp])
 
     snpOverlapAll = len(usedSnpsAcrossAllSamps)
     if snpOverlapAll == 0:
         return None, None, None, None, None, None, None, None, None, None
+    else if (len(allIncludedSnps) - snpOverlapAll) / len(allIncludedSnps) > imputationThreshold: #todo check this!!!
+        return None, None, None, None, None, None, None
 
     snpsExcluded = len(excludedDueToCutoffs)
     final_map = dict(sample_map)
@@ -675,7 +682,7 @@ def getSamples(inputFilePath, header):
     return header
 
 
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, mafCutoff, extension, outputFilePath, outputType, isCondensedFormat, omitPercentiles, timestamp, num_processes, isIndividualClump, useGWASupload):
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, mafCutoff, imputationThreshold, extension, outputFilePath, outputType, isCondensedFormat, omitPercentiles, timestamp, num_processes, isIndividualClump, useGWASupload):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -736,10 +743,10 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
         clumpsObjDict = allClumpsObjDict[preferredPop]
-        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, uniquePercentileDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
+        paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, uniquePercentileDict, pValue, mafCutoff, imputationThreshold, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
         # if no subprocesses are going to be used, run the calculations once for each study/trait
         if num_processes == 0:
-            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, uniquePercentileDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
+            parseAndCalculateFiles((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, uniquePercentileDict, pValue, mafCutoff, imputationThreshold, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
 
     if num_processes is None or (type(num_processes) is int and num_processes > 0):
         with Pool(processes=num_processes) as pool:
@@ -757,6 +764,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             jsonOutput.close()
 
 if __name__ == "__main__":
-    useGWASupload = True if sys.argv[17] == "True" or sys.argv[17] == True else False
-    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], sys.argv[16], useGWASupload)
+    useGWASupload = True if sys.argv[18] == "True" or sys.argv[18] == True else False
+    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], sys.argv[16], sys.argv[17], useGWASupload)
 
