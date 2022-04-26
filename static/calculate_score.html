@@ -329,7 +329,16 @@
 
               <div class='child'>
                 <div class="col-lg-12 mb-.5 mt-2 text-left" style="padding: .5em;">
-                  <h5><span title="Users may choose to set a threshold for snps that will exclude snps from calculation which have an allele frequency below the indicated threshold.">5&nbsp;(Optional): MAF&nbsp;Threshold<sup>?</sup></span></h5>
+                  <h5><span title="The default is 0.5. This threshold allows users to decide the ratio of imputed SNPs to those present in the sample. If the ratio of imputed SNPs exceedes the given threshold, the study is not reported.">5&nbsp;: Imputation&nbsp;Threshold<sup>?</sup></span></h5>
+                  <div id="imputationThreshold">
+                    <input type="number" value="0.5" name="imputationThresholdIn" id="imputationThresholdIn" size=5 min=0.0 max=1.0 step=0.1 >
+                  </div>
+                </div>
+              </div>
+
+              <div class='child'>
+                <div class="col-lg-12 mb-.5 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
+                  <h5><span title="Users may choose to set a threshold for snps that will exclude snps from calculation which have an allele frequency below the indicated threshold.">6&nbsp;(Optional): MAF&nbsp;Threshold<sup>?</sup></span></h5>
                   <div id="mafThreshold">
                     <input type="number" value="0.0" name="mafThresholdIn" id="mafThresholdIn" size=5 min=0.0 max=1.0 step=0.01 >
                   </div>
@@ -337,8 +346,8 @@
               </div>
 
               <div class='child'>
-                <div class="col-lg-12 mb-0 mt-2 text-left" style="background-color: whitesmoke;  padding: .5em;">
-                  <h5>6: Select an Output File Format&nbsp;</h5>
+                <div class="col-lg-12 mb-0 mt-2 text-left" style="padding: .5em;">
+                  <h5>7: Select an Output File Format&nbsp;</h5>
                   <script src="js/calculate_score.js"></script>
                   <script src="js/formatHelper.js"></script>
                   <script src="js/vcf_parser.js"></script>

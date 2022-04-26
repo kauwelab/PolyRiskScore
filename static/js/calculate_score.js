@@ -474,6 +474,7 @@ var calculatePolyScore = async () => {
     var mafElement = document.getElementById("mafCohort")
     var mafCohort = mafElement.options[mafElement.selectedIndex].value;
     var mafThreshold = document.getElementById("mafThresholdIn").value;
+    var imputationThreshold = document.getElementById("imputationThresholdIn").value;
     var gwasType = document.querySelector('input[name="gwas_type"]:checked').value;
     var clumpingType = document.querySelector('input[name="ld_radio"]:checked').value;
 
@@ -629,7 +630,7 @@ var calculatePolyScore = async () => {
             }
             snpObjs.set(snpArray[0], snpObj);
         }
-        handleCalculateScore(snpObjs, associationData, mafData, percentileData, superPop, clumpingType, clumpsData, pValue, mafThreshold, false, false);
+        handleCalculateScore(snpObjs, associationData, mafData, percentileData, superPop, clumpingType, clumpsData, pValue, mafThreshold, imputationThreshold, false, false);
     }
     else {
         //if text input is empty, return error
@@ -652,7 +653,7 @@ var calculatePolyScore = async () => {
                                                 
                 return;
             }
-            handleCalculateScore(vcfFile, associationData, mafData, percentileData, superPop, clumpingType, clumpsData, pValue, mafThreshold, true, (mafCohort == 'user' ? true : false));
+            handleCalculateScore(vcfFile, associationData, mafData, percentileData, superPop, clumpingType, clumpsData, pValue, mafThreshold, imputationThreshold, true, (mafCohort == 'user' ? true : false));
         }
     }
 }
@@ -866,17 +867,15 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
       });
     //remove SNPs that aren't relevant from the snpsInput object
     var greppedSNPs;
-    var totalInputVariants = 0;
     if (isVCF) {
         try {
             //greps the vcf file, removing snps not in the database table object returned
             var vcfLines = await getFileLines(snpsInput);
-            totalInputVariants = getNumDatalines(vcfLines);
             var reducedVCFLines = await getGreppedFileLines(vcfLines, associMap);
 
             //converts the vcf lines into an object that can be parsed
             greppedSNPsAndMAF = vcf_parser.getVCFObj(reducedVCFLines, userMAF, allNeededSnps, associMap);
-            return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], greppedSNPsAndMAF[2], totalInputVariants]
+            return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], greppedSNPsAndMAF[2]]
         }
         catch (err) {
             updateResultBoxAndStoredValue(getErrorMessage(err))
@@ -885,16 +884,15 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
         }
     }
     else {
-        var greppedSNPsList = [];
+        var greppedSNPsList = []; 
         var usedSnps = []
-        totalInputVariants = snpsInput.size;
         for (const key of snpsInput.keys()) {
             if (key in associMap) {
                 usedSnps.push(key)
                 greppedSNPsList.push(snpsInput.get(key));
             }
         }
-        //Impute missing Snps - txt
+        //Impute missing Snps - txt #TODO finish up the imputing here
         if (usedSnps.length == 0) {
             return [null, {}, null, null]
         }
@@ -907,7 +905,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
         }
         var greppedSNPs = new Map();
         greppedSNPs.set("TextInput", greppedSNPsList);
-        return [greppedSNPs, {}, usedSnps, totalInputVariants]
+        return [greppedSNPs, {}, usedSnps]
     }
 }
 
@@ -920,19 +918,18 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
  * @param {*} isVCF - whether the user gave us a VCF file or SNP text
  * No return- prints the simplified scores result onto the webpage
  */
-var handleCalculateScore = async (snpsInput, associationData, mafData, percentileData, preferredPop, clumpingType, clumpsData, pValue, mafThreshold, isVCF, userMAF) => {
+var handleCalculateScore = async (snpsInput, associationData, mafData, percentileData, preferredPop, clumpingType, clumpsData, pValue, mafThreshold, imputationThreshold, isVCF, userMAF) => {
     var greppedSNPsMAFAndtotalInputVariants = await getGreppedSnpsAndTotalInputVariants(snpsInput, associationData, isVCF, userMAF)
     var greppedSNPs = greppedSNPsMAFAndtotalInputVariants[0]
     var userMAFData = greppedSNPsMAFAndtotalInputVariants[1]
     var presentSnps = greppedSNPsMAFAndtotalInputVariants[2]
-    var totalInputVariants = greppedSNPsMAFAndtotalInputVariants[3]
     
     if (!(Object.keys(userMAFData).length === 0) && userMAF) {
         mafData = userMAFData
     }
 
     try {
-        var result = await calculateScore(associationData, mafData, presentSnps, preferredPop, clumpingType, clumpsData, percentileData, greppedSNPs, pValue, mafThreshold, totalInputVariants);
+        var result = await calculateScore(associationData, mafData, presentSnps, preferredPop, clumpingType, clumpsData, percentileData, greppedSNPs, pValue, mafThreshold, imputationThreshold);
         if (result == []) {
             $('#response').html("None of the snps from the input file were found.");
         }
@@ -974,10 +971,9 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, percentil
  * @param {*} totalInputVariants 
  * @returns 
  */
-var calculateScore = async (associationData, mafData, presentSnps, preferredPop, clumpingType, clumpsData, percentileData, greppedSamples, pValue, mafThreshold, totalInputVariants) => {
+var calculateScore = async (associationData, mafData, presentSnps, preferredPop, clumpingType, clumpsData, percentileData, greppedSamples, pValue, mafThreshold, imputationThreshold) => {
     var resultObj = {};
     var indexSnpObj = {};
-    var resultJsons = {};
 
     var traitNodes = document.querySelectorAll('#traitSelect :checked');
     var selectedTraits = [...traitNodes].map(option => option.value);
@@ -1018,7 +1014,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                         variantsWithMissingGenotypes: [],
                                         snpOverlap: [],
                                         snpsExcludedDueToCutoffs: [],
-                                        totalSnps: [],
+                                        includedSnps: [],
                                         usedSuperPopulation: ""
                                     }
                                 }
@@ -1060,7 +1056,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                             if (presentSnps.includes(key)){
                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'].push(key)
                                             }
-                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['totalSnps'].push(key)
+                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['includedSnps'].push(key)
                                             numAllelesMatch = 0
                                             numAlleleMissingGenotype = 0
                                             for (i=0; i < alleles.length; i++) {
@@ -1202,10 +1198,10 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                 polygenicRiskScore: scoreAndSnps[0],
                                 
                             }
-                            if ( scoreAndSnps[7] > 0 && ((scoreAndSnps[1] == 'oddsRatio' && tmpSampleObj.oddsRatio != "NF") || tmpSampleObj.unmatchedVariants.length != 0 || (scoreAndSnps[1] == 'betaValue' && tmpSampleObj.betaValue != "NF"))) {
+                            if ( scoreAndSnps[7] > 0 && (includedSnps - scoreAndSnps[7]) / includedSnps <= imputationThreshold && ((scoreAndSnps[1] == 'oddsRatio' && tmpSampleObj.oddsRatio != "NF") || tmpSampleObj.unmatchedVariants.length != 0 || (scoreAndSnps[1] == 'betaValue' && tmpSampleObj.betaValue != "NF"))) {
                                 atLeastOneGoodSamp = true
-                                tmpPValueAnnoObj["samples"].push(tmpSampleObj)
                             }
+                            tmpPValueAnnoObj["samples"].push(tmpSampleObj)
                         }
                         if (atLeastOneGoodSamp) {
                             resultsJsonList.push(tmpPValueAnnoObj)
@@ -1242,7 +1238,7 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, percentileObj, trait, st
     var nonMissingSnps = 0 // this is the number of non-missing snps obbserved in sample
     var snpOverlap = new Set(sampleObj.snpOverlap)
     var excludedSnps = new Set(sampleObj.snpsExcludedDueToCutoffs)
-    var totalSnps = new Set(sampleObj.totalSnps)
+    var includedSnps = new Set(sampleObj.includedSnps)
 
     valueType = 'betaValue'
     changed = 0
@@ -1289,7 +1285,7 @@ function calculateCombinedScoreAndFormatSnps(sampleObj, percentileObj, trait, st
 
     percentile = getPercentile(combinedScore, percentileObj, false)
 
-    return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped), snpOverlap.size, excludedSnps.size, totalSnps.size, percentile]
+    return [combinedScore, valueType, betaUnits, Array.from(risk), Array.from(protective), Array.from(unmatched), Array.from(clumped), snpOverlap.size, excludedSnps.size, includedSnps.size, percentile]
 }
 
 // This function determines the percentile (or percentile range) of the prs score
