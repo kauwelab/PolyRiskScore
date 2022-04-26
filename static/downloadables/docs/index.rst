@@ -306,6 +306,15 @@ To perform linkage disequilibrium clumping on an individual level, include the -
 
    -l
 
+Imputation Threshold (-h)
+""""""""""""""""""""""""""
+
+This allows the user to set a threshold for how many SNPs are allowed to be imputed. We divide the numnber of imputed SNPs by the total number of SNPs in the calculation and if that number exceedes the threshold we do not report that study. The default value is 0.5
+
+.. code-block:: bash
+
+   -h 0.5
+
 Calculate Scores
 ----------------
 
@@ -438,7 +447,7 @@ There are two choices for the tsv output results - condensed (default) or full. 
 * **Used Super Population** -- The super population used for linkage disequillibrium
 
 #### Columns Only Available In The Full Version
-* **Percentile** -- Indicates the percentile rank of the samples polygenic risk score
+* **Percentile** -- Indicates the percentile rank of the samples polygenic risk score *(also included in the condensed version of .txt input files)
 * **Protective Variants** -- Variants that are protective against the phenotype of interest
 * **Risk Variants** -- Variants that add risk for the phenotype of interest
 * **Variants Without Risk Alleles** -- Variants that are present in the study, but the sample does not possess the allele reported with association. Note that a SNP may be in this list and also in the Protective Variants or Risk Variants list. This is caused by an individual being heterozygous for the alleles at that point. 
@@ -449,7 +458,7 @@ Condensed
 
 This version of the output results contains one row for each study with columns for each sample's polygenic risk score. 
 
-Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Included SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
+Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNPs Excluded Due To Cutoffs | Used Super Population | SNP Overlap | Included SNPs | Sample1 | Sample2 | Sample3 | ect.
 
 .. code-block:: bash
 
@@ -460,7 +469,7 @@ Full
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNP Overlap | SNPs Excluded Due To Cutoffs | Included SNPs | Used Super Population | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
+Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNPs Excluded Due To Cutoffs | Used Super Population | SNP Overlap | Included SNPs | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
@@ -469,9 +478,10 @@ Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Bet
 Json
 ----
 
-This version outputs the results in a json object format. The output automatically contains all the data the full version does and there is no condensed version of the json output. The file will contain a list of json study objects. Each study object will contain the list of samples and their score. 
+This version outputs the results in a json object format. The output automatically contains all the data the full version does and there is no condensed version of the json output. The file will contain a list of json study objects. Each study object will contain the list of samples and their score.
 
 .. code-block:: bash
+
     # example output
     [
         {
@@ -483,9 +493,7 @@ This version outputs the results in a json object format. The output automatical
             "betaAnnotation": "NA",
             "scoreType": "OR",
             "units (if applicable)": "NA",
-            "snpOverlap": 8,
             "excludedSnps": 3,
-            "includedSnps": 14,
             "usedSuperPop": "EUR",
             "samples": [
                 {
@@ -494,7 +502,9 @@ This version outputs the results in a json object format. The output automatical
                     "protectiveAlleles": "rs1|rs2|rs3",
                     "riskAlleles": "rs4|rs5|rs6|rs7|rs8",
                     "variantsWithoutRiskAllele": "rs9|rs10|rs11|rs14",
-                    "variantsInHighLD": "rs12|rs13"
+                    "variantsInHighLD": "rs12|rs13",
+                    "snpOverlap": 8,
+                    "includedSnps": 14
                 },
                 {
                     "sample": "SAMP002",
@@ -502,7 +512,9 @@ This version outputs the results in a json object format. The output automatical
                     "protectiveAlleles": "",
                     "riskAlleles": "",
                     "variantsWithoutRiskAllele": "rs1|rs2|rs3|rs4|rs5|rs6|rs7|rs8|rs9|rs10|rs11|rs14",
-                    "variantsInHighLD": "rs12|rs13"
+                    "variantsInHighLD": "rs12|rs13",
+                    "snpOverlap": 8,
+                    "includedSnps": 14
                 },
                 {
                     "sample": "SAMP003",
@@ -510,7 +522,9 @@ This version outputs the results in a json object format. The output automatical
                     "protectiveAlleles": "rs1|rs2|rs3",
                     "riskAlleles": "rs4|rs5|rs6|rs7|rs8",
                     "variantsWithoutRiskAllele": "rs1|rs2|rs3|rs4|rs5|rs6|rs7|rs8|rs9|rs10|rs11|rs14",
-                    "variantsInHighLD": "rs12|rs13"
+                    "variantsInHighLD": "rs12|rs13",
+                    "snpOverlap": 8,
+                    "includedSnps": 14
                 }
             ]
         }
