@@ -721,9 +721,9 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
         }
         else {
             cols = fileLines[i].replace(/\n/,'').replace(/\r$/, '').split('\t')
-            const studyIDregex = /GCST[0-9]*/
-            //ensuring that the studyID doesn't have any weird characters at the end
-            cols[sii] = cols[sii].match(studyIDregex)[0]
+            // const studyIDregex = /GCST[0-9]*/
+            // //ensuring that the studyID doesn't have any weird characters at the end
+            // cols[sii] = cols[sii].match(studyIDregex)[0]
             // create the chrom:pos to snp dict
             // if the chrom:pos not in the chromSnpDict
             if (!(`${cols[ci]}:${cols[pi]}` in chromSnpDict)) {
