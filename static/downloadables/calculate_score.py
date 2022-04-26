@@ -203,7 +203,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJso
                 #grab variant sets
                 protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants = formatSets(protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants)
                 # add new line to tsv file
-                newLine = [samp, printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, snpOverlap, excludedSnps, totalSnps, preferredPop, prs, percentileRank, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
+                newLine = [samp, printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, excludedSnps, preferredPop, snpOverlap[samp], totalSnps[samp], prs, percentileRank, protectiveVariants, riskVariants, unmatchedAlleleVariants, clumpedVariants]
                 formatTSV(False, newLine, [], outputFile)
 
             elif isJson:
@@ -218,9 +218,7 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJso
                         'betaAnnotation' : betaAnnotation,
                         'scoreType': valueType,
                         'units (if applicable)': studyUnits,
-                        'snpOverlap': snpOverlap,
                         'snpsExcludedDueToCutoffs': excludedSnps,
-                        'totalSnps': totalSnps,
                         'usedSuperPop': preferredPop
                     })
 
@@ -229,6 +227,8 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJso
                     'sample': samp,
                     'polygenicRiskScore': prs,
                     'percentile': percentileRank,
+                    'snpOverlap': snpOverlap[samp],
+                    'includedSnps': totalSnps[samp],
                     'protectiveAlleles': "|".join(protectiveVariants),
                     'riskAlleles': "|".join(riskVariants),
                     'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
@@ -249,7 +249,18 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJso
             elif isCondensedFormat:
                 # if this is the first sample, initiate the new line with the first four columns
                 if samp_count == 1:
-                    newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, snpOverlap, excludedSnps, totalSnps, preferredPop]
+                    overlapSnps = []
+                    allIncludedSnps = []
+                    for samp in snpOverlap:
+                        overlapSnps.append(snpOverlap[samp])
+                        allIncludedSnps.append(totalSnps[samp])
+
+                    if len(set(overlapSnps)) == 1:
+                        overlapSnps = list(set(overlapSnps))
+                    if len(set(allIncludedSnps)) == 1:
+                        allIncludedSnps = list(set(allIncludedSnps))
+
+                    newLine = [printStudyID, reportedTrait, trait, citation, pValueAnno, betaAnnotation, valueType, studyUnits, excludedSnps, preferredPop, "|".join([str(x) for x in overlapSnps]), "|".join([str(x) for x in allIncludedSnps])] #TODO
                 newLine.append(prs) # append this sample's score to the row
                 
                 # if we've calculated a score for each sample, write the line to the output file
