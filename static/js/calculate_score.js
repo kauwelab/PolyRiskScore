@@ -715,7 +715,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
 
             if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1 || spi == -1) {
                 console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi, spi)
-                msg = "One or more required columns are missing. Please check the spelling of your columns and try again."
+                msg = "The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format."
                 updateResultBoxAndStoredValue(msg)
                 alert(msg)
                 return
