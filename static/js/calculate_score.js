@@ -778,7 +778,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 }
             }
             else {
-                msg = "You a duplicate Rsid for one of your Trait/study/(pValueAnnotation|betaAnnotation) combinations. Please fix this before attempting to run the PRSKB calculator."
+                msg = "You have a duplicate Rsid for one of your Trait/study/(pValueAnnotation|betaAnnotation) combinations. Please fix this before attempting to run the PRSKB calculator."
                 updateResultBoxAndStoredValue(msg)
                 alert(msg)
                 return
