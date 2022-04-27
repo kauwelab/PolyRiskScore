@@ -144,8 +144,8 @@ usage () {
 chooseOption () {
     while true
     do
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
-        echo    "|                                                         |"
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
+        echo    "|                                                            |"
         echo -e "| ${LIGHTBLUE}Options Menu${NC}                                               |"
         echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                                 |"
         echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or trait                   |"
@@ -154,7 +154,7 @@ chooseOption () {
         echo -e "| ${LIGHTBLUE}5${NC} - Learn about user supplied GWAS data for calculations   |"
         echo -e "| ${LIGHTBLUE}6${NC} - Run the PRSKB calculator                               |"
         echo -e "| ${LIGHTBLUE}7${NC} - Quit                                                   |"
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
 
         read -p "#? " option
         echo ""
