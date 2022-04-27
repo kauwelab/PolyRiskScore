@@ -632,8 +632,8 @@ def getSamples(inputFilePath, header):
     header.extend(samples)
     return header
 
-
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, mafCutoff, extension, outputFilePath, outputType, isCondensedFormat, omitPercentiles, timestamp, num_processes, isIndividualClump, useGWASupload):
+# TODO I (Matt) added imputationLevel to match the runPrsCLI.sh call to this function- needs to be implemented
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, imputationLevel, refGen, pValue, mafCutoff, extension, outputFilePath, outputType, isCondensedFormat, omitPercentiles, timestamp, num_processes, isIndividualClump, useGWASupload):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -716,5 +716,4 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
 
 if __name__ == "__main__":
     useGWASupload = True if sys.argv[17] == "True" or sys.argv[17] == True else False
-    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], sys.argv[16], useGWASupload)
-
+    runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], sys.argv[16], sys.argv[17], useGWASupload)
