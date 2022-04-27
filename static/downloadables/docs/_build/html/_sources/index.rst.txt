@@ -354,7 +354,7 @@ Required Columns
 8. **Beta Coefficient** - Computed in the GWAS study, a numerical value that indicates the increase or decrease in the genetic risk per unit.
 9. **Beta Unit** - The units associated with the beta coefficient. e.g. cm, beats per min.
 10. **P-value** - The probability that the risk allele confers the amount of risk stated.
-11. **Super Population** - The 1000 Genomes super population of the samples used in the study. This can be any of the following values, or multiple of these separated by a bar (|): African, American, East Asian, European, and/or South Asian.
+11. **Super Population** - The 1000 Genomes super population of the samples used in the study. This can be any of the following values, or multiple of these separated by a bar (|): AFR, AMR, EAS, EUR, and/or SAS.
 
 Optional Columns
 ^^^^^^^^^^^^^^^^^
