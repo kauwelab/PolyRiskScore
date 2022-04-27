@@ -476,7 +476,7 @@ correctly formatted for calculations to occur. "
     echo -e "The file must be a ${MYSTERYCOLOR}tab separated${NC} .tsv or .txt file. It must \
 include a header line with named columns. The required columns are: ${MYSTERYCOLOR}Study ID${NC}, \
 ${MYSTERYCOLOR}Trait${NC}, ${MYSTERYCOLOR}RsID${NC}, ${MYSTERYCOLOR}Chromosome${NC}, ${MYSTERYCOLOR}Position${NC}, \
-${MYSTERYCOLOR}Risk Allele${NC}, ${MYSTERYCOLOR}Odds Ratio${NC}, and ${MYSTERYCOLOR}P-value${NC}. \
+${MYSTERYCOLOR}Risk Allele${NC}, ${MYSTERYCOLOR}Odds Ratio${NC}, ${MYSTERYCOLOR}P-value${NC}, and ${MYSTERYCOLOR}Super Population${NC}. \
 If the ${GREEN}-b${NC} flag is present, then instead of an ${MYSTERYCOLOR}Odds Ratio${NC} column, \
 the user should include a ${MYSTERYCOLOR}Beta Coefficient${NC} column and a ${MYSTERYCOLOR}Beta Unit${NC} column. \
 Optional column headers that will be included if present are: ${MYSTERYCOLOR}Citation${NC}, ${MYSTERYCOLOR}P-value Annotation${NC}, \
@@ -514,14 +514,15 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
         echo -e "| ${LIGHTPURPLE}8${NC} - Beta Coefficient         |"
         echo -e "| ${LIGHTPURPLE}9${NC} - Beta Unit                |"
         echo -e "| ${LIGHTPURPLE}10${NC} - P-value                 |"
+        echo -e "| ${LIGHTPURPLE}11${NC} - Super Population        |"
         echo    "|                              |"
         echo -e "|${LIGHTPURPLE}OPTIONAL COLUMNS: ${NC}            |"
-        echo -e "| ${LIGHTPURPLE}11${NC} - Citation                |"
-        echo -e "| ${LIGHTPURPLE}12${NC} - Reported Trait          |"
-        echo -e "| ${LIGHTPURPLE}13${NC} - P-Value Annotation      |"
-        echo -e "| ${LIGHTPURPLE}14${NC} - Beta Annotation         |"
+        echo -e "| ${LIGHTPURPLE}12${NC} - Citation                |"
+        echo -e "| ${LIGHTPURPLE}13${NC} - Reported Trait          |"
+        echo -e "| ${LIGHTPURPLE}14${NC} - P-Value Annotation      |"
+        echo -e "| ${LIGHTPURPLE}15${NC} - Beta Annotation         |"
         echo -e "|                              |"
-        echo -e "| ${LIGHTPURPLE}15${NC} - Return To Main Menu     |"
+        echo -e "| ${LIGHTPURPLE}16${NC} - Return To Main Menu     |"
         echo    "|_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ |"
 
         read -p "#? " option
@@ -561,19 +562,22 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
             10 ) echo -e "${MYSTERYCOLOR} P-value: ${NC}"
                 echo "The probability that the risk allele confers the amount of risk stated."
                 echo "" ;;
-            11 ) echo -e "${MYSTERYCOLOR} Citation: ${NC}"
+            11 ) echo -e "${MYSTERYCOLOR} Super Population: ${NC}"
+                echo "The 1000 Genomes super population of the samples used in the study. This can be any of the following values, or multiple of these separated by a bar (|): African, American, East Asian, European, and/or South Asian."
+                echo "" ;;
+            12 ) echo -e "${MYSTERYCOLOR} Citation: ${NC}"
                 echo "The citation information for the study."
                 echo "" ;;
-            12 ) echo -e "${MYSTERYCOLOR} Reported Trait: ${NC}"
+            13 ) echo -e "${MYSTERYCOLOR} Reported Trait: ${NC}"
                 echo "Trait description for this study in the authors own words."
                 echo "" ;;
-            13 ) echo -e "${MYSTERYCOLOR} P-Value Annotation: ${NC}"
+            14 ) echo -e "${MYSTERYCOLOR} P-Value Annotation: ${NC}"
                 echo "Provides additional information for the p-value, i.e. if the p-value computed only included women"
                 echo "" ;;
-            14 ) echo -e "${MYSTERYCOLOR} Beta Annotation: ${NC}"
+            15 ) echo -e "${MYSTERYCOLOR} Beta Annotation: ${NC}"
                 echo "Provides additional information for the beta value"
                 echo "" ;;
-            15 ) cont=0 ;;
+            16 ) cont=0 ;;
             * ) echo "INVALID OPTION";;
         esac
         if [[ "$cont" != "0" ]]; then
