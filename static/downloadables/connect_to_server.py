@@ -191,6 +191,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     bvi = -1 # beta value index
     bui = -1 # beta unit index
     pvi = -1 # p-value index
+    spi = -1 # super population index
     cti = -1 # citation index
     rti = -1 # reported trait index
     pvai = -1 # pvalue annotation index
@@ -207,7 +208,6 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             try:
                 sii = headers.index("study id")
                 ti = headers.index("trait")
-                spi = headers.index("super population")
                 si = headers.index("rsid")
                 ci = headers.index("chromosome")
                 pi = headers.index("position")
@@ -218,8 +218,9 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 else:
                     ori = headers.index("odds ratio")
                 pvi = headers.index("p-value")
+                spi = headers.index("super population")
             except ValueError:
-                raise SystemExit("ERROR: The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format.")
+                raise SystemExit("ERROR: The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format. Additionally, check your column names and ensure that there are no extra spaces in the names and that your spelling is correct.")
 
             cti = headers.index("citation") if "citation" in headers else -1
             rti = headers.index("reported trait") if "reported trait" in headers else -1
