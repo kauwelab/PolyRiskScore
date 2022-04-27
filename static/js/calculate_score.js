@@ -422,38 +422,42 @@ function callClumpsEndpoint(superPop, refGen, positions) {
 }
 
 function getPreferredPop(superPopList, superPop) {
-    fixKeys = {
-        'european': 'EUR',
-        'american': 'AMR',
-        'south asian': 'SAS',
-        'east asian': 'EAS',
-        'african': 'AFR'
-    }
-    superPop = superPop.toLowerCase()
-    superPopList = superPopList.map(superPopI => {
-        return superPopI.toLowerCase()
-    })
     if (superPopList.length == 1 && superPopList[0].toLowerCase() == 'na'){
-        return fixKeys[superPop]
+        return superPop
     }
     else {
         filteredKeys = []
         superPopHeirarchy = {
-            'european': ['european', 'american', 'south asian', 'east asian', 'african'],
-            'american': ['american', 'european', 'south asian', 'east asian', 'african'],
-            'south asian': ['south asian', 'east asian', 'american', 'european', 'african'],
-            'east asian': ['east asian', 'south asian', 'american', 'european', 'african'],
-            'african': ['african', 'american', 'south asian', 'european', 'east asian']
+            'EUR': ['EUR', 'AMR', 'SAS', 'EAS', 'AFR'],
+            'AMR': ['AMR', 'EUR', 'SAS', 'EAS', 'AFR'],
+            'SAS': ['SAS', 'EAS', 'AMR', 'EUR', 'AFR'],
+            'EAS': ['EAS', 'SAS', 'AMR', 'EUR', 'AFR'],
+            'AFR': ['AFR', 'AMR', 'SAS', 'EUR', 'EAS']
         }
         keys = superPopHeirarchy[superPop]
         for (i=0; i < keys.length; i++) {
             if (superPopList.includes(keys[i])) {
-                filteredKeys.push(fixKeys[keys[i]])
+                return keys[i]
             }
         }
         
-        return filteredKeys[0]
+        // if the superPopList does not have any of the 3 letter codes, return the default super pop
+        return superPop
     }
+}
+
+/**
+ * Converts the super population to its 3 letter code
+ */
+function getSuperPopCode(superPop) {
+    popKeys = {
+        'african': 'AFR',
+        'american': 'AMR', 
+        'east asian': 'EAS',
+        'european': 'EUR',
+        'south asian': 'SAS'
+    }
+    return popKeys[superPop.toLowerCase()]
 }
 
 /**
@@ -467,7 +471,7 @@ var calculatePolyScore = async () => {
     var refGenElement = document.getElementById("refGenome");
     var refGen = refGenElement.options[refGenElement.selectedIndex].value
     var superPopElement = document.getElementById("superPopSelect");
-    var superPop = superPopElement.options[superPopElement.selectedIndex].value
+    var superPop = getSuperPopCode(superPopElement.options[superPopElement.selectedIndex].value) // get the super pop 3 letter code using the value from the form
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
@@ -691,7 +695,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
     bai = -1 // optional beta annotation index
 
     for (i=0; i<fileLines.length; i++) {
-        if (fileLines[i].toLowerCase().replace(/\n/,'').replace(/\r$/, '') == "") {
+        if (fileLines[i].match(/^\s*$/) !== null) {
             // console.log("BLANK LINE IN GWAS UPLOAD -- SKIPPING")
             continue
         }
@@ -754,7 +758,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             pValueAnnotation = (pvai != -1 ? cols[pvai] : "NA")
             betaAnnotation = (bai != -1 ? cols[bai] : "NA")
             pValBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + gwasValueType
-            superPops = (spi != -1 ? cols[spi].toLowerCase().replace(/\n/,'').replace(/\r$/, '') : "NA")
+            superPops = (spi != -1 ? cols[spi].replace(/\n/,'').replace(/\r$/, '') : "NA")
             if (superPops.indexOf("|") != -1) {
                 superPops = superPops.split('|')
             } else {

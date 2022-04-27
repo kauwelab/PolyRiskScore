@@ -4,7 +4,7 @@ import gzip
 import os.path
 import json
 from sys import argv
-from connect_to_server import getPreferredPop, openFileForParsing
+from connect_to_server import getPreferredPop, getPopList, openFileForParsing
 
 # filter the input vcf or txt file so that it only include SNPs that exist in the PRSKB database
 def createFilteredFile(inputFilePath, fileHash, requiredParamsHash, superPop, refGen, sexes, valueTypes, p_cutOff, traits, studyTypes, studyIDs, ethnicities, extension, timestamp, useGWASupload):
@@ -98,7 +98,7 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
         for study in tableObjDict['studyIDsToMetaData']:
             for trait in tableObjDict['studyIDsToMetaData'][study]['traits'].keys():
                 superPopList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-                superPopList = [eachPop.lower() for eachPop in superPopList]
+                superPopList = getPopList(superPopList)
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 
