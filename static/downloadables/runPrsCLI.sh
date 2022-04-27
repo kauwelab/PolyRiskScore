@@ -563,7 +563,7 @@ ${MYSTERYCOLOR}-y${LIGHTRED}, and ${MYSTERYCOLOR}-g${LIGHTRED} will be ignored.$
                 echo "The probability that the risk allele confers the amount of risk stated."
                 echo "" ;;
             11 ) echo -e "${MYSTERYCOLOR} Super Population: ${NC}"
-                echo "The 1000 Genomes super population of the samples used in the study. This can be any of the following values, or multiple of these separated by a bar (|): African, American, East Asian, European, and/or South Asian."
+                echo "The 1000 Genomes super population of the samples used in the study. This can be any of the following values, or multiple of these separated by a bar (|): AFR, AMR, EAS, EUR, and/or SAS."
                 echo "" ;;
             12 ) echo -e "${MYSTERYCOLOR} Citation: ${NC}"
                 echo "The citation information for the study."
