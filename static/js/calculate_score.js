@@ -684,6 +684,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
     bvi = -1 //beta value index
     bui = -1 //beta units index
     pvi = -1 //p value index
+    spi = -1 //super population index
     cti = -1 // optional citation index
     rti = -1 // optional reported trait index
     pvai = -1 // optional p-value annotation index
@@ -706,14 +707,15 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             bvi = cols.indexOf("beta coefficient")
             bui = cols.indexOf("beta units")
             pvi = cols.indexOf("p-value")
+            spi = cols.indexOf("super population")
             cti = cols.indexOf("citation")
             rti = cols.indexOf("reported trait")
             pvai = cols.indexOf('p-value annotation')
             bai = cols.indexOf('beta annotation')
 
-            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1) {
-                console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi)
-                msg = "The format of your GWAS upload is incorrect. Please fix it and try again."
+            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1 || spi == -1) {
+                console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi, spi)
+                msg = "One or more required columns are missing. Please check the spelling of your columns and try again."
                 updateResultBoxAndStoredValue(msg)
                 alert(msg)
                 return
@@ -752,6 +754,12 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             pValueAnnotation = (pvai != -1 ? cols[pvai] : "NA")
             betaAnnotation = (bai != -1 ? cols[bai] : "NA")
             pValBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + gwasValueType
+            superPops = (spi != -1 ? cols[spi].toLowerCase().replace(/\n/,'').replace(/\r$/, '') : "NA")
+            if (superPops.indexOf("|") != -1) {
+                superPops = superPops.split('|')
+            } else {
+                superPops = [superPops]
+            }
             if (!(pValBetaAnnoValType in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]])) {
                 associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType] = {}
             }
@@ -770,7 +778,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 }
             }
             else {
-                msg = "You have more than one association for the same Trait/study/(pValueAnnotation|betaAnnotation) combination. Please fix this before attempting to run the PRSKB calculator."
+                msg = "You a duplicate Rsid for one of your Trait/study/(pValueAnnotation|betaAnnotation) combinations. Please fix this before attempting to run the PRSKB calculator."
                 updateResultBoxAndStoredValue(msg)
                 alert(msg)
                 return
@@ -795,7 +803,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 studyIDsToMetaData[cols[sii]]["traits"][cols[ti]] = {
                     studyTypes: [],
                     pValBetaAnnoValType: [pValBetaAnnoValType],
-                    superPopulations: []
+                    superPopulations: superPops
                 }
             }
             else {
