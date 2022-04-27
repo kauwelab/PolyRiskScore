@@ -129,9 +129,9 @@ usage () {
     echo -e "   ${MYSTERYCOLOR}-v${NC} verbose ex. -v (indicates a more detailed TSV result file. By default, JSON output will already be verbose.)"
     echo -e "   ${MYSTERYCOLOR}-s${NC} stepNumber ex. -s 1 or -s 2"    
     echo -e "   ${MYSTERYCOLOR}-n${NC} number of subprocesses ex. -n 2 (By default, the calculations will be run on all available subprocesses)"
-    echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about uploading GWAS data for calculations' or the CLI readme)"
+    echo -e "   ${MYSTERYCOLOR}-u${NC} path to GWAS data to use for calculations. Data in file MUST be tab separated and include the correct columns (see 'Learn about user supplied GWAS data for calculations' or the CLI readme)"
     echo -e "   ${MYSTERYCOLOR}-a${NC} reference genome used in the GWAS data file"
-    echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user uploaded GWAS data uses beta coefficent values instead of odds ratios" 
+    echo -e "   ${MYSTERYCOLOR}-b${NC} indicates that the user supplied GWAS data uses beta coefficent values instead of odds ratios" 
     echo -e "   ${MYSTERYCOLOR}-q${NC} sets the minor allele frequency cohort to be used (also is the cohort used for reporting percentiles) ex. -q adni-ad (see the menu to learn more about the cohorts available)"
     echo -e "   ${MYSTERYCOLOR}-m${NC} omits reporting percentiles"
     echo -e "   ${MYSTERYCOLOR}-x${NC} sets the cutoff minor allele frequency value"
@@ -144,17 +144,17 @@ usage () {
 chooseOption () {
     while true
     do
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
-        echo    "|                                                         |"
-        echo -e "| ${LIGHTBLUE}Options Menu${NC}                                            |"
-        echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                              |"
-        echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or trait                |"
-        echo -e "| ${LIGHTBLUE}3${NC} - View available ethnicities for filter               |"
-        echo -e "| ${LIGHTBLUE}4${NC} - View usage                                          |"
-        echo -e "| ${LIGHTBLUE}5${NC} - Learn about uploading GWAS data for calculations    |"
-        echo -e "| ${LIGHTBLUE}6${NC} - Run the PRSKB calculator                            |"
-        echo -e "| ${LIGHTBLUE}7${NC} - Quit                                                |"
-        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
+        echo    "|                                                            |"
+        echo -e "| ${LIGHTBLUE}Options Menu${NC}                                               |"
+        echo -e "| ${LIGHTBLUE}1${NC} - Learn about Parameters                                 |"
+        echo -e "| ${LIGHTBLUE}2${NC} - Search for a specific study or trait                   |"
+        echo -e "| ${LIGHTBLUE}3${NC} - View available ethnicities for filter                  |"
+        echo -e "| ${LIGHTBLUE}4${NC} - View usage                                             |"
+        echo -e "| ${LIGHTBLUE}5${NC} - Learn about user supplied GWAS data for calculations   |"
+        echo -e "| ${LIGHTBLUE}6${NC} - Run the PRSKB calculator                               |"
+        echo -e "| ${LIGHTBLUE}7${NC} - Quit                                                   |"
+        echo    " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
 
         read -p "#? " option
         echo ""
@@ -164,7 +164,7 @@ chooseOption () {
             2 ) searchTraitsAndStudies ;;
             3 ) printEthnicities ;;
             4 ) usage ;;
-            5 ) learnAboutGWASupload ;;
+            5 ) learnAboutUserGWAS ;;
             6 ) runPRS ;;
             7 ) echo -e " ${LIGHTRED}...Quitting...${NC}"
                 exit;;
@@ -208,7 +208,7 @@ learnAboutParameters () {
         echo -e "| ${LIGHTPURPLE}14${NC} - -n number of subprocesses                                  |"
         echo -e "| ${LIGHTPURPLE}15${NC} - -u tab separated GWAS data file                            |"
         echo -e "| ${LIGHTPURPLE}16${NC} - -a reference genome of GWAS data file                      |"
-        echo -e "| ${LIGHTPURPLE}17${NC} - -b flag indicates beta values used for uploaded GWAS data  |"
+        echo -e "| ${LIGHTPURPLE}17${NC} - -b flag indicates beta values used for user GWAS data      |"
         echo -e "| ${LIGHTPURPLE}18${NC} - -q minor allele frequency cohort                           |"
         echo -e "| ${LIGHTPURPLE}19${NC} - -m omit percentiles from output                            |"
         echo -e "| ${LIGHTPURPLE}20${NC} - -x cutoff value for minor allele frequency                 |"
@@ -348,17 +348,17 @@ learnAboutParameters () {
             15 ) echo -e "${MYSTERYCOLOR} -u tab separated GWAS data file path: ${NC}"
                 echo "If you wish to calculate polygenic risk scores using your own GWAS data, use this"
                 echo "parameter to specifiy the GWAS data file path. It must be a tab separated file."
-                echo "For more information about file format, see the 'Learn about uploading GWAS data for calculations'"
+                echo "For more information about file format, see the 'Learn about user supplied GWAS data for calculations'"
                 echo "option from the main menu."
                 echo "" ;;
-            16 ) echo -e "${MYSTERYCOLOR} -a reference genome of uploaded GWAS data: ${NC}"
+            16 ) echo -e "${MYSTERYCOLOR} -a reference genome of user GWAS data: ${NC}"
                 echo "This parameter tells us which reference genome was used to identify the variants " 
                 echo -e "in the GWAS data file. Available options are ${GREEN}hg17${NC}, ${GREEN}hg18${NC}, ${GREEN}hg19${NC}, and ${GREEN}hg38${NC}."
                 echo "If a GWAS data file is specified without this reference genome being specified, we assume the"
                 echo "reference genome is the same as the one for the input VCF or TXT."
                 echo "" ;;
-            17 ) echo -e "${MYSTERYCOLOR} -b beta values used for uploaded GWAS data: ${NC}"
-                echo "This flag indicates that beta coefficents were used in the uploaded GWAS data" 
+            17 ) echo -e "${MYSTERYCOLOR} -b beta values used for user supplied GWAS data: ${NC}"
+                echo "This flag indicates that beta coefficents were used in the user supplied GWAS data" 
                 echo "file instead of odds ratios."
                 echo "" ;;
             18 ) echo -e "${MYSTERYCOLOR} -q minor allele frequency cohort: ${NC}"
@@ -380,7 +380,7 @@ learnAboutParameters () {
             19 ) echo -e "${MYSTERYCOLOR} -m omit percentiles from output: ${NC}"
                 echo "This flag allows the user to remove the Percentile column/property from the verbose output file."
                 echo ""
-                echo -e "${LIGHTRED}**NOTE:${NC} Percentiles will automatically be omitted from outputs using the GWAS upload option."
+                echo -e "${LIGHTRED}**NOTE:${NC} Percentiles will automatically be omitted from outputs using the user supplied GWAS option."
                 echo "" ;;
             20 ) echo -e "${MYSTERYCOLOR} -x cutoff for minor allele frequency: ${NC}"
                 echo "This parameter allows the user to select a cutoff for minor allele frequencies."
@@ -466,12 +466,12 @@ printEthnicities () {
     fi
 }
 
-learnAboutGWASupload () {
-    echo -e "${LIGHTPURPLE} UPLOADING GWAS DATA FOR PRS CALCULATIONS${NC}"
+learnAboutUserGWAS () {
+    echo -e "${LIGHTPURPLE} USER SUPPLIED GWAS DATA FOR PRS CALCULATIONS${NC}"
     echo ""
     echo "The PRSKB CLI polygenic risk score calculator has the option of calculating \
 risk scores for GWAS data supplied by the user. The GWAS data file must be \
-correctly formatted for calculations to occur. "
+correctly formatted for calculations to occur."
     echo ""
     echo -e "The file must be a ${MYSTERYCOLOR}tab separated${NC} .tsv or .txt file. It must \
 include a header line with named columns. The required columns are: ${MYSTERYCOLOR}Study ID${NC}, \
@@ -1057,7 +1057,7 @@ calculatePRS () {
                 }
             }
             if ! [ -z ${GWASfilename} ]; then
-                echo -e "${LIGHTBLUE}Checking for required packages used for GWAS upload data strand flipping${NC}"
+                echo -e "${LIGHTBLUE}Checking for required packages used for user supplied GWAS data strand flipping${NC}"
                 echo "Checking for myvariant package requirement"
                 {
                     $pyVer -c "import myvariant" >/dev/null 2>&1
