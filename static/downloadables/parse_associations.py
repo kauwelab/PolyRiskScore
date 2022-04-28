@@ -114,7 +114,6 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         for study in tableObjDict['studyIDsToMetaData']:
             for trait in tableObjDict['studyIDsToMetaData'][study]['traits']:
                 superPopList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-                superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 
@@ -207,7 +206,6 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     
     # Access the preferred super population for this study
     popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-    popList = [eachPop.lower() for eachPop in popList]
     preferredPop = getPreferredPop(popList, superPop)
 
     # Create a dictionary with clump number and index snp to keep track of the variant with the lowest pvalue in each ld region
@@ -404,7 +402,6 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
 
     # Access the super population used for clumping this study
     popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-    popList = [eachPop.lower() for eachPop in popList]
     preferredPop = getPreferredPop(popList, superPop)
 
     # Create dictionaries to store the variants not used in the calculations for each sample
@@ -633,7 +630,7 @@ def getSamples(inputFilePath, header):
     return header
 
 # TODO I (Matt) added imputationLevel to match the runPrsCLI.sh call to this function- needs to be implemented
-def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, imputationLevel, refGen, pValue, mafCutoff, extension, outputFilePath, outputType, isCondensedFormat, omitPercentiles, timestamp, num_processes, isIndividualClump, useGWASupload):
+def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, superPop, mafCohort, refGen, pValue, mafCutoff, imputationLevel, extension, outputFilePath, outputType, isCondensedFormat, omitPercentiles, timestamp, num_processes, isIndividualClump, useGWASupload):
     paramOpts = []
     if num_processes == "":
         num_processes = None
@@ -691,7 +688,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         uniquePercentileDict = percentileDict[keyString] if not omitPercentiles and keyString in percentileDict else {}
         # get the population used for clumping
         popList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-        popList = [eachPop.lower() for eachPop in popList]
         preferredPop = getPreferredPop(popList, superPop)
         clumpsObjDict = allClumpsObjDict[preferredPop]
         paramOpts.append((filteredInputPath, clumpsObjDict, tableObjDict, snpSet, clumpNumDict, possibleAlleles, mafDict, uniquePercentileDict, pValue, mafCutoff, trait, study, pValueAnno, betaAnnotation, valueType, isJson, isCondensedFormat, omitPercentiles, outputFilePath, isRSids, timestamp, isIndividualClump, superPop))
@@ -715,5 +711,5 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             jsonOutput.close()
 
 if __name__ == "__main__":
-    useGWASupload = True if sys.argv[17] == "True" or sys.argv[17] == True else False
+    useGWASupload = True if sys.argv[18] == "True" or sys.argv[18] == True else False
     runParsingAndCalculations(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], sys.argv[16], sys.argv[17], useGWASupload)
