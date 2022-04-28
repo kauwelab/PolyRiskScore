@@ -233,8 +233,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
         else:
             line = line.split("\t")
             # Add super population to the super population set
-            popList = getPopList(line[spi])
-            preferredPop = getPreferredPop(popList, superPop)
+            preferredPop = getPreferredPop(line[spi], superPop)
             # Add super population to the super population set
             allSuperPops.add(preferredPop)
             # create the chrom:pos to snp dict
@@ -988,6 +987,7 @@ def getPopList(popListStr):
 
 
 def getPreferredPop(popList, superPop):
+    popList = getPopList(popList)
     # convert all populations listed in the gwas to lower case
     if len(popList) == 1 and str(popList[0]).lower() == 'na':
         return(superPop)
@@ -1003,10 +1003,8 @@ def getPreferredPop(popList, superPop):
         for pop in keys:
             if pop in popList:
                 # return the first pop from the heirarchy that is in the pop list
-                print("getPreferredPop-success", pop, popList)
                 return pop
     
-    print("getPreferredPop-failed", superPop, popList)
     # if none of the pops from the heirarchy are in the pop list, return the requested super pop
     return superPop
 
