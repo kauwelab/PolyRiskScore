@@ -109,7 +109,7 @@ In addition to calculating polygenic risk scores using GWA studies from the GWAS
 
 ### Format
 
-The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, and P-value. If the summary statistics use beta values instead of odds ratios, replace the "Odds Ratio" column with two columns: "Beta Coefficients" and "Beta Units." Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
+The GWAS summary statistics file to be uploaded **must** be in the correct format. It should be either a .tsv or a .txt tab separated file. The following columns are required and must be included in the file's header line: Study ID, Trait, RsID, Chromosome, Position, Risk Allele, Odds Ratio, P-value, and Super Population. If the summary statistics use beta values instead of odds ratios, replace the "Odds Ratio" column with two columns: "Beta Coefficients" and "Beta Units." Additional optional columns that will be included if present are: P-Value Annotation, Beta Annotation, Citation, and Reported Trait. Column order does not matter and there may be extra columns present in the file. Required and optional header names must be exact. Note that if P-value Annotation and/or Beta Annotation are present, then the calculator will separate calculations by those columns. If you do not wish for this to happen, do not include those optional columns.
 
 If more than one odds ratio exists for an RsID/allele combination in a study, the tool will exit.
 
@@ -131,6 +131,7 @@ Below is a brief overview of the required and optional columns for uploading GWA
 8. Beta Coefficient - Computed in the GWAS study, a numerical value that indicates the increase or decrease in the genetic risk per unit.
 9. Beta Unit - The units associated with the beta coefficient. e.g. cm, beats per min.
 10. P-value - The probability that the risk allele confers the amount of risk stated.
+11. Super Population - The 1000 Genomes super population of the samples used in the study. This can be any of the following values, or multiple of these separated by a bar (|): AFR, AMR, EAS, EUR, and/or SAS.
 
 #### Optional Columns
 

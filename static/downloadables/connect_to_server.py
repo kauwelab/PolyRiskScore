@@ -191,6 +191,7 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     bvi = -1 # beta value index
     bui = -1 # beta unit index
     pvi = -1 # p-value index
+    spi = -1 # super population index
     cti = -1 # citation index
     rti = -1 # reported trait index
     pvai = -1 # pvalue annotation index
@@ -200,14 +201,16 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
     duplicatesSet = set()
 
     for line in GWASfileOpen:
+        line = line.strip()
+        if len(line) == 0: # skip lines that don't have content
+            continue
         if firstLine:
             firstLine = False
-            headers = line.rstrip("\r").rstrip("\n").lower().split("\t")
+            headers = line.lower().split("\t")
 
             try:
                 sii = headers.index("study id")
                 ti = headers.index("trait")
-                spi = headers.index("super population")
                 si = headers.index("rsid")
                 ci = headers.index("chromosome")
                 pi = headers.index("position")
@@ -218,8 +221,9 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
                 else:
                     ori = headers.index("odds ratio")
                 pvi = headers.index("p-value")
+                spi = headers.index("super population")
             except ValueError:
-                raise SystemExit("ERROR: The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format.")
+                raise SystemExit("ERROR: The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format. Additionally, check your column names and ensure that there are no extra spaces in the names and that your spelling is correct.")
 
             cti = headers.index("citation") if "citation" in headers else -1
             rti = headers.index("reported trait") if "reported trait" in headers else -1
@@ -227,9 +231,9 @@ def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGe
             bai = headers.index("beta annotation") if "beta annotation" in headers else -1
 
         else:
-            line = line.rstrip("\r").rstrip("\n").split("\t")
+            line = line.split("\t")
             # Add super population to the super population set
-            preferredPop = getPreferredPop(line[spi].lower(), superPop)
+            preferredPop = getPreferredPop(line[spi], superPop)
             # Add super population to the super population set
             allSuperPops.add(preferredPop)
             # create the chrom:pos to snp dict
@@ -603,6 +607,7 @@ def getAllStudySnps():
     # Organized with study as the Keys and snps as values
     return studySnpsReturnObj
 
+
 def getAllPossibleAlleles():
     possibleAllelesObj = getUrlWithParams("https://prs.byu.edu/get_all_possible_alleles", params={})
     return possibleAllelesObj
@@ -964,12 +969,29 @@ def formatMafCohort(mafCohort):
     return mafCohort
 
 
+def getPopList(popListStr):
+    if isinstance(popListStr, list):
+        if len(popListStr) == 1 and "|" in popListStr[0]:
+            popListStr = popListStr[0].upper()
+        else:
+            return [pop.upper() for pop in popListStr]
+
+    popList = []
+    popListStr = popListStr.upper()
+    # split the string on bars if they are present, otherwise add the string to a list of length 1
+    if "|" in popListStr:
+        popList = popListStr.split("|")
+    else:
+        popList = [popListStr]
+    return popList
+
+
 def getPreferredPop(popList, superPop):
+    popList = getPopList(popList)
     # convert all populations listed in the gwas to lower case
     if len(popList) == 1 and str(popList[0]).lower() == 'na':
         return(superPop)
     else:
-        filteredKeys = []
         superPopHeirarchy = {
             'EUR': ['EUR', 'AMR', 'SAS', 'EAS', 'AFR'],
             'AMR': ['AMR', 'EUR', 'SAS', 'EAS', 'AFR'],
@@ -979,22 +1001,13 @@ def getPreferredPop(popList, superPop):
         }
         keys = superPopHeirarchy[superPop]
         for pop in keys:
-            popKeys = {
-                'EUR': 'european',
-                'AMR': 'american', 
-                'AFR': 'african',
-                'EAS': 'east asian',
-                'SAS': 'south asian'
-            }
-            tryPop = popKeys[pop]
-            # create a filtered list (maintaining the same order) that only includes the super populations
-            # that are also present in the study population list
-            if tryPop in popList:
-                filteredKeys.append(pop)
-    # grab the first population in the filtered list
-    preferredPop = filteredKeys[0]
+            if pop in popList:
+                # return the first pop from the heirarchy that is in the pop list
+                return pop
+    
+    # if none of the pops from the heirarchy are in the pop list, return the requested super pop
+    return superPop
 
-    return preferredPop
 
 if __name__ == "__main__":
     if argv[1] == "GWAS":
