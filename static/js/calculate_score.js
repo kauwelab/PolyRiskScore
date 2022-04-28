@@ -422,38 +422,42 @@ function callClumpsEndpoint(superPop, refGen, positions) {
 }
 
 function getPreferredPop(superPopList, superPop) {
-    fixKeys = {
-        'european': 'EUR',
-        'american': 'AMR',
-        'south asian': 'SAS',
-        'east asian': 'EAS',
-        'african': 'AFR'
-    }
-    superPop = superPop.toLowerCase()
-    superPopList = superPopList.map(superPopI => {
-        return superPopI.toLowerCase()
-    })
     if (superPopList.length == 1 && superPopList[0].toLowerCase() == 'na'){
-        return fixKeys[superPop]
+        return superPop
     }
     else {
         filteredKeys = []
         superPopHeirarchy = {
-            'european': ['european', 'american', 'south asian', 'east asian', 'african'],
-            'american': ['american', 'european', 'south asian', 'east asian', 'african'],
-            'south asian': ['south asian', 'east asian', 'american', 'european', 'african'],
-            'east asian': ['east asian', 'south asian', 'american', 'european', 'african'],
-            'african': ['african', 'american', 'south asian', 'european', 'east asian']
+            'EUR': ['EUR', 'AMR', 'SAS', 'EAS', 'AFR'],
+            'AMR': ['AMR', 'EUR', 'SAS', 'EAS', 'AFR'],
+            'SAS': ['SAS', 'EAS', 'AMR', 'EUR', 'AFR'],
+            'EAS': ['EAS', 'SAS', 'AMR', 'EUR', 'AFR'],
+            'AFR': ['AFR', 'AMR', 'SAS', 'EUR', 'EAS']
         }
         keys = superPopHeirarchy[superPop]
         for (i=0; i < keys.length; i++) {
             if (superPopList.includes(keys[i])) {
-                filteredKeys.push(fixKeys[keys[i]])
+                return keys[i]
             }
         }
         
-        return filteredKeys[0]
+        // if the superPopList does not have any of the 3 letter codes, return the default super pop
+        return superPop
     }
+}
+
+/**
+ * Converts the super population to its 3 letter code
+ */
+function getSuperPopCode(superPop) {
+    popKeys = {
+        'african': 'AFR',
+        'american': 'AMR', 
+        'east asian': 'EAS',
+        'european': 'EUR',
+        'south asian': 'SAS'
+    }
+    return popKeys[superPop.toLowerCase()]
 }
 
 /**
@@ -467,7 +471,7 @@ var calculatePolyScore = async () => {
     var refGenElement = document.getElementById("refGenome");
     var refGen = refGenElement.options[refGenElement.selectedIndex].value
     var superPopElement = document.getElementById("superPopSelect");
-    var superPop = superPopElement.options[superPopElement.selectedIndex].value
+    var superPop = getSuperPopCode(superPopElement.options[superPopElement.selectedIndex].value) // get the super pop 3 letter code using the value from the form
     var pValueScalar = document.getElementById('pValScalarIn').value;
     var pValMagnitute = -1 * document.getElementById('pValMagIn').value;
     var pValue = pValueScalar.concat("e".concat(pValMagnitute));
@@ -685,13 +689,14 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
     bvi = -1 //beta value index
     bui = -1 //beta units index
     pvi = -1 //p value index
+    spi = -1 //super population index
     cti = -1 // optional citation index
     rti = -1 // optional reported trait index
     pvai = -1 // optional p-value annotation index
     bai = -1 // optional beta annotation index
 
     for (i=0; i<fileLines.length; i++) {
-        if (fileLines[i].toLowerCase().replace(/\n/,'').replace(/\r$/, '') == "") {
+        if (fileLines[i].match(/^\s*$/) !== null) {
             // console.log("BLANK LINE IN GWAS UPLOAD -- SKIPPING")
             continue
         }
@@ -707,14 +712,15 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             bvi = cols.indexOf("beta coefficient")
             bui = cols.indexOf("beta units")
             pvi = cols.indexOf("p-value")
+            spi = cols.indexOf("super population")
             cti = cols.indexOf("citation")
             rti = cols.indexOf("reported trait")
             pvai = cols.indexOf('p-value annotation')
             bai = cols.indexOf('beta annotation')
 
-            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1) {
-                console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi)
-                msg = "The format of your GWAS upload is incorrect. Please fix it and try again."
+            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1 || spi == -1) {
+                console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi, spi)
+                msg = "The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format."
                 updateResultBoxAndStoredValue(msg)
                 alert(msg)
                 return
@@ -722,9 +728,9 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
         }
         else {
             cols = fileLines[i].replace(/\n/,'').replace(/\r$/, '').split('\t')
-            const studyIDregex = /GCST[0-9]*/
-            //ensuring that the studyID doesn't have any weird characters at the end
-            cols[sii] = cols[sii].match(studyIDregex)[0]
+            // const studyIDregex = /GCST[0-9]*/
+            // //ensuring that the studyID doesn't have any weird characters at the end
+            // cols[sii] = cols[sii].match(studyIDregex)[0]
             // create the chrom:pos to snp dict
             // if the chrom:pos not in the chromSnpDict
             if (!(`${cols[ci]}:${cols[pi]}` in chromSnpDict)) {
@@ -753,6 +759,12 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             pValueAnnotation = (pvai != -1 ? cols[pvai] : "NA")
             betaAnnotation = (bai != -1 ? cols[bai] : "NA")
             pValBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + gwasValueType
+            superPops = (spi != -1 ? cols[spi].replace(/\n/,'').replace(/\r$/, '') : "NA")
+            if (superPops.indexOf("|") != -1) {
+                superPops = superPops.split('|')
+            } else {
+                superPops = [superPops]
+            }
             if (!(pValBetaAnnoValType in associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]])) {
                 associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType] = {}
             }
@@ -771,7 +783,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 }
             }
             else {
-                msg = "You have more than one association for the same Trait/study/(pValueAnnotation|betaAnnotation) combination. Please fix this before attempting to run the PRSKB calculator."
+                msg = "You have a duplicate Rsid for one of your Trait/study/(pValueAnnotation|betaAnnotation) combinations. Please fix this before attempting to run the PRSKB calculator."
                 updateResultBoxAndStoredValue(msg)
                 alert(msg)
                 return
@@ -796,7 +808,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                 studyIDsToMetaData[cols[sii]]["traits"][cols[ti]] = {
                     studyTypes: [],
                     pValBetaAnnoValType: [pValBetaAnnoValType],
-                    superPopulations: []
+                    superPopulations: superPops
                 }
             }
             else {
