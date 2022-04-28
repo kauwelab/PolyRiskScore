@@ -972,12 +972,12 @@ def formatMafCohort(mafCohort):
 def getPopList(popListStr):
     if isinstance(popListStr, list):
         if len(popListStr) == 1 and "|" in popListStr[0]:
-            popListStr = popListStr[0]
+            popListStr = popListStr[0].upper()
         else:
-            return popListStr
+            return [pop.upper() for pop in popListStr]
 
     popList = []
-    popListStr = popListStr
+    popListStr = popListStr.upper()
     # split the string on bars if they are present, otherwise add the string to a list of length 1
     if "|" in popListStr:
         popList = popListStr.split("|")
