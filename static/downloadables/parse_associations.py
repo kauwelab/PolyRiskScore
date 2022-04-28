@@ -328,7 +328,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
     snpOverlap = len(usedSnps)
     if snpOverlap == 0:
         return None, None, None, None, None, None, None
-    else if (includedSnps - snpOverlap) / includedSnps > imputationThreshold:
+    elif (includedSnps - snpOverlap) / includedSnps > imputationThreshold:
         return None, None, None, None, None, None, None
     
     includedSnps = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps)
@@ -647,7 +647,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     snpOverlapAll = len(usedSnpsAcrossAllSamps)
     if snpOverlapAll == 0:
         return None, None, None, None, None, None, None, None, None, None
-    else if (len(allIncludedSnps) - snpOverlapAll) / len(allIncludedSnps) > imputationThreshold: #todo check this!!!
+    elif (len(allIncludedSnps) - snpOverlapAll) / len(allIncludedSnps) > imputationThreshold: #todo check this!!!
         return None, None, None, None, None, None, None
 
     snpsExcluded = len(excludedDueToCutoffs)
