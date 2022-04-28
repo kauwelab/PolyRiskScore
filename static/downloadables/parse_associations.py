@@ -35,7 +35,7 @@ def parseAndCalculateFiles(params):
     outputFilePath = params[19]
     isRSids = params[20]
     timestamp = params[21]
-    isIndividualClump = params[22]
+    isIndividualClump = int(params[22])
     superPop = params[23]
 
     # check if the input file is a txt or vcf file
@@ -326,13 +326,14 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                     excludedDueToCutoffs.add(snp)
 
     snpOverlap = len(usedSnps)
+    includedSnps = len(set(snpSet).difference(excludedDueToCutoffs, clumpedVariants) | usedSnps)
+    snpsExcluded = len(excludedDueToCutoffs)
+
     if snpOverlap == 0:
         return None, None, None, None, None, None, None
     elif (includedSnps - snpOverlap) / includedSnps > imputationThreshold:
         return None, None, None, None, None, None, None
     
-    includedSnps = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps)
-    snpsExcluded = len(excludedDueToCutoffs)
     # loop through each LD clump and add the index snp to the final sample map
     for clumpNum in index_snp_map:
         snp, rAllele, alleles = index_snp_map[clumpNum]
@@ -640,7 +641,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     includedSnps = {}
     for samp in usedSnps:
         usedSnpsAcrossAllSamps.update(usedSnps[samp])
-        tmpIncludedSnps = set(snpSet).difference(excludedDueToCutoffs) | usedSnps[samp]
+        tmpIncludedSnps = set(snpSet).difference(excludedDueToCutoffs, clumped_snps_map[samp]) | usedSnps[samp]
         includedSnps[samp] = len(tmpIncludedSnps)
         allIncludedSnps.update(tmpIncludedSnps)
         snpOverlap[samp] = len(usedSnps[samp])
@@ -648,7 +649,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     snpOverlapAll = len(usedSnpsAcrossAllSamps)
     if snpOverlapAll == 0:
         return None, None, None, None, None, None, None, None, None, None
-    elif (len(allIncludedSnps) - snpOverlapAll) / len(allIncludedSnps) > imputationThreshold: #todo check this!!!
+    elif (len(allIncludedSnps) - snpOverlapAll) / len(allIncludedSnps) > imputationThreshold:
         return None, None, None, None, None, None, None, None, None, None
 
     snpsExcluded = len(excludedDueToCutoffs)
@@ -722,15 +723,15 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to write out the header depending on the output type
         header = []
         if isCondensedFormat and isRSids: # condensed and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNPs Excluded Due To Cutoffs', 'Used Super Population', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile']
         elif isCondensedFormat: # condensed and vcf input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNPs Excluded Due To Cutoffs', 'Used Super Population', 'SNP Overlap', 'Included SNPs',]
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs',]
             # loop through each sample and add to the header
             header = getSamples(filteredInputPath, header)
         elif not isCondensedFormat  and isRSids: # verbose and txt input
-            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNPs Excluded Due To Cutoffs', 'Used Super Population', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+            header = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         else: # verbose and vcf input
-            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNPs Excluded Due To Cutoffs', 'Used Super Population', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
+            header = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants Without Risk Allele', 'Variants in High LD']
         cs.formatTSV(True, None, header, outputFilePath)
 
     # we create params for each study so that we can run them on separate processes
@@ -759,7 +760,6 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
             jsonOutput = open(outputFilePath, 'r+')
             jsonOutput.seek(0,2)
             position = jsonOutput.tell() -2
-            print(position)
             jsonOutput.seek(position)
             jsonOutput.write(" ")
             jsonOutput.close()
