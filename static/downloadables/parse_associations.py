@@ -548,7 +548,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
 
         usedSnpsAcrossAllSamps = set()
         for samp in usedSnps:
-            usedSnpsAcrossAllSamps.update(usedSnps[sample])
+            usedSnpsAcrossAllSamps.update(usedSnps[samp])
         snpOverlap = len(usedSnpsAcrossAllSamps)
         if snpOverlap == 0:
             return None, None, None, None, None, None, None, None, None, None
@@ -640,8 +640,9 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     includedSnps = {}
     for samp in usedSnps:
         usedSnpsAcrossAllSamps.update(usedSnps[samp])
-        includedSnps[samp] = len(set(snpSet).difference(excludedDueToCutoffs) | usedSnps[samp])
-        allIncludedSnps.update(includedSnps[samp])
+        tmpIncludedSnps = set(snpSet).difference(excludedDueToCutoffs) | usedSnps[samp]
+        includedSnps[samp] = len(tmpIncludedSnps)
+        allIncludedSnps.update(tmpIncludedSnps)
         snpOverlap[samp] = len(usedSnps[samp])
 
     snpOverlapAll = len(usedSnpsAcrossAllSamps)
