@@ -649,7 +649,7 @@ def parse_vcf(filteredFilePath, clumpsObjDict, tableObjDict, possibleAlleles, sn
     if snpOverlapAll == 0:
         return None, None, None, None, None, None, None, None, None, None
     elif (len(allIncludedSnps) - snpOverlapAll) / len(allIncludedSnps) > imputationThreshold: #todo check this!!!
-        return None, None, None, None, None, None, None
+        return None, None, None, None, None, None, None, None, None, None
 
     snpsExcluded = len(excludedDueToCutoffs)
     final_map = dict(sample_map)
