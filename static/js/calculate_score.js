@@ -358,11 +358,10 @@ function changeGWASType() {
  function changeGWASValueType() {
     var gwasType = document.querySelector('input[name="gwas_value_type"]:checked').value;
 
-    if (gwasType === "or") {
+    if (gwasType.toLowerCase() === "or") {
         $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn"><span title="Computed in the GWA study, a numerical value representing the odds that those in the case group carry the allele of interest over the odds that those in the control group carry the allele of interest.">Odds&nbsp;Ratio<sup>?</sup></span></span>')
         $('#optionalPValAnno').replaceWith('<span id="optionalPValAnno" title="Annotation for P-values. Note that when this is present, calculations are split by p-value annotation."> P-Value&nbsp;Annotation<sup>?</sup>,</span>')
         $('#optionalHeaderBeta').replaceWith('<span id="optionalHeaderBeta"></span>')
-
     }
     else {
         $('#ogValueTypeColumn').replaceWith('<span id="ogValueTypeColumn"><span title="Computed in the GWA study, a numerical value representing the effect size of a certain allele on the disease or trait of interest.">Beta&nbsp;Coefficient<sup>?</sup></span>, <span id="ogValueTypeColumn" title="The units of the beta coefficient">Beta&nbsp;Units<sup>?</sup></span></span>')
@@ -719,7 +718,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             pvai = cols.indexOf('p-value annotation')
             bai = cols.indexOf('beta annotation')
 
-            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType == 'or' || bvi == -1 && bui == -1 && gwasValueType == 'beta' || pvi == -1 || spi == -1) {
+            if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType.toLowerCase() == 'or' || bvi == -1 && bui == -1 && gwasValueType.toLowerCase() == 'beta' || pvi == -1 || spi == -1) {
                 console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi, spi)
                 msg = "The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format."
                 updateResultBoxAndStoredValue(msg)
@@ -775,7 +774,7 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
                     sex: "NA",
                     ogValueTypes: gwasValueType,
                 }
-                if (gwasValueType == 'or') {
+                if (gwasValueType.toLowerCase() == 'or') {
                     associationsDict[cols[si]]["traits"][cols[ti]][cols[sii]][pValBetaAnnoValType][cols[rai]]['oddsRatio'] = parseFloat(cols[ori])
                 }
                 else {
