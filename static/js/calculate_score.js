@@ -1100,6 +1100,7 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                                             resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
                                                             resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAlleleMissingGenotype'] = numAlleleMissingGenotype
                                                             resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'] = resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'].filter(val=> val !== indexClumpSnp)
+                                                            resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['includedSnps'] = resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['includedSnps'].filter(val=> val !== indexClumpSnp)
                                                             if (numAlleleMissingGenotype > 0) {
                                                                 if (key in mafData && riskAllele in mafData[key]['alleles']){
                                                                     resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][riskAllele]
@@ -1117,7 +1118,8 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key] = {}
                                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAllelesMatch'] = numAllelesMatch
                                                                 resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['numAlleleMissingGenotype'] = numAlleleMissingGenotype
-                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'] = resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'].filter(val=> val !== indexClumpSnp)
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'] = resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snpOverlap'].filter(val=> val !== key)
+                                                                resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['includedSnps'] = resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['includedSnps'].filter(val=> val !== key)
                                                                 if (numAlleleMissingGenotype > 0) {
                                                                     if (key in mafData && riskAllele in mafData[key]['alleles']){
                                                                         resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['snps'][key]['MAF'] = mafData[key]['alleles'][riskAllele]
