@@ -508,6 +508,7 @@ var calculatePolyScore = async () => {
         updateResultBoxAndStoredValue("Calculating. Please wait...")
 
         associationData = await getGWASUploadData(gwasDataFile, gwasRefGen, refGen, gwasValueType)
+        percentileData = null
     }
     else {
         var sexElement = document.getElementById("sex");
@@ -550,6 +551,7 @@ var calculatePolyScore = async () => {
         }
         //send a get request to the server with the specified traits and studies
         associationData = await getSelectStudyAssociations(studyList, refGen, sex, valueType);
+        percentileData = await getPercentiles(studyList, mafCohort)
     }
 
     allSuperPops = []
@@ -568,7 +570,6 @@ var calculatePolyScore = async () => {
     }
 
     mafData = (mafCohort == 'user' ? {} : await getMafData(associationData['associations'], mafCohort, refGen))
-    percentileData = await getPercentiles(studyList, mafCohort)
 
     //if in text input mode
     if (document.getElementById('textInputButton').checked) {
@@ -1460,13 +1461,13 @@ function formatTSV(jsonObject, isCondensed) {
     isRsid = document.getElementById('textInputButton').checked
 
     if (isCondensed && !isRsid) {
-        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNPs Excluded Due To Cutoffs', 'Used Super Population', 'SNP Overlap', 'Included SNPs']
+        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs']
     }
     else if (isCondensed && isRsid) {
-        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNPs Excluded Due To Cutoffs', 'Used Super Population', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile']
+        headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile']
     }
     else {
-        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'SNPs Excluded Due To Cutoffs', 'Used Super Population', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
+        headerInit = ['Sample', 'Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile', 'Protective Variants', 'Risk Variants', 'Variants without Risk Allele', 'Variants in High LD']
     }
 
     resultsString = ''
@@ -1474,7 +1475,7 @@ function formatTSV(jsonObject, isCondensed) {
     sampleNames = []
     for (var i = 0; i < jsonObject.length; i++) {
         studyObj = jsonObject[i]
-        lineInfo = [studyObj["studyID"], studyObj['reportedTrait'], studyObj['trait'], studyObj['citation'], studyObj['pValueAnnotation'], studyObj['betaAnnotation'], studyObj['scoreType'], studyObj['units (if applicable)'], studyObj['snpsExcludedDueToCutoffs'], studyObj['usedSuperPop']]
+        lineInfo = [studyObj["studyID"], studyObj['reportedTrait'], studyObj['trait'], studyObj['citation'], studyObj['pValueAnnotation'], studyObj['betaAnnotation'], studyObj['scoreType'], studyObj['units (if applicable)'], studyObj['usedSuperPop'], studyObj['snpsExcludedDueToCutoffs']]
         listOfOverlaps = []
         listOfIncluded = []
         listOfPrs = []
