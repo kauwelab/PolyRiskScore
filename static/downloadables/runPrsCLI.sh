@@ -436,7 +436,7 @@ searchTraitsAndStudies () {
                 fi
                 echo "" 
                 echo -e "${LIGHTPURPLE}First Author and Year | GWAS Catalog Study ID | Reported Trait | Trait | Original Value Type | Title${NC}"
-                if curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .ogValueType + " | " + .title + "\n"'; then
+                if curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .ogValueTypes + " | " + .title + "\n"'; then
                     echo ""
                 else 
                     jqError "STUDIES"
