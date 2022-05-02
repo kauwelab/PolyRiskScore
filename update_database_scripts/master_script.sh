@@ -50,6 +50,7 @@ optUsage () {
     echo "  [-d: disables downloading new raw data]"
     echo "  [-a: disables creating new associations table]"
     echo "  [-o: disables ordering associations table]"
+    echo "  [-b: disables beta unit filtering of associations table]"
     echo "  [-s: disables creating new studies table]"
     echo "  [-r: disables removing downloaded raw data]"
     echo "  [-f: disables strand flipping]"
@@ -135,6 +136,8 @@ for arg do
                 echo "Creating new associations table disabled";;
             -o) orderAssociations="false"
                 echo "Ordering associations table disabled";;
+            -b) filterBetaUnits="false"
+                echo "Filtering beta units disabled";;
             -s) studiesTable="false"
                 echo "Creating new studies table disabled";;
             -r) removeRawData="false"
@@ -267,15 +270,18 @@ if [ $associationsTable == "true" ]; then
     done
     wait
     echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
-    echo "Filtering out SNPs with rogue beta units"
-    python3 filterBetaUnits.py $associationTableFolderPath
-    echo "Finished filtering beta units"
 fi
 
 if [ $orderAssociations == "true" ]; then
     Rscript sortAssociationsTable.R $associationTableFolderPath
     wait
 fi
+
+if [ $filterBetaUnits == "true" ]; then
+    echo "Filtering out SNPs with rogue beta units"
+    python3 filterBetaUnits.py $associationTableFolderPath
+    echo "Finished filtering beta units"
+fi 
 
 #===============Study Table Code============================================================
 if [ $studiesTable == "true" ]; then
