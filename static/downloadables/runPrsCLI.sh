@@ -612,6 +612,7 @@ usage is given below for your convenience (You don't need to include ./runPrsCLI
     usage
     read -p "./runPrsCLI.sh " args
     args=$(echo "$args" | perl -pe "s/(\")(\S*)(\s)(\S*)(\")/\2_\4/g")
+    args=$(echo "$args" | perl -pe "s/(\"|')//g")
     echo $args
 
     calculatePRS $args
