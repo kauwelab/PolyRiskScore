@@ -9,6 +9,8 @@ from io import TextIOWrapper
 import zipfile
 import tarfile
 import gzip
+import myvariant
+from Bio.Seq import Seq
 
 # get the associations and clumps from the Server
 def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes, superPop, fileHash, extension, mafCohort):
@@ -750,9 +752,6 @@ def runStrandFlipping(snp, allele):
 
 
 def getPossibleAlleles(snpsFromAssociations):
-    import myvariant
-    from Bio.Seq import Seq
-
     mv = myvariant.MyVariantInfo()
     snpsToPossibleAlleles = {}
 
