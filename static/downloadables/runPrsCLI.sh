@@ -436,7 +436,7 @@ searchTraitsAndStudies () {
                 fi
                 echo "" 
                 echo -e "${LIGHTPURPLE}First Author and Year | GWAS Catalog Study ID | Reported Trait | Trait | Original Value Type | Title${NC}"
-                if curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .ogValueType + " | " + .title + "\n"'; then
+                if curl -s https://prs.byu.edu/find_studies/${searchTerm} | jq -r 'sort_by(.citation) | .[] | .citation + " | " + .studyID + " | " + .reportedTrait + " | " + .trait + " | " + .ogValueTypes + " | " + .title + "\n"'; then
                     echo ""
                 else 
                     jqError "STUDIES"
@@ -608,10 +608,12 @@ runPRS () {
     echo "The calculator will run and then the program will exit. Enter the parameters \
 as you would if you were running the program without opening the menu. The \
 usage is given below for your convenience (You don't need to include ./runPrsCLI.sh) "
+    echo "**Note: paths with backslashes are not supported: please use forward slash paths!**"
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
     args=$(echo "$args" | perl -pe "s/(\")(\S*)(\s)(\S*)(\")/\2_\4/g")
+    args=$(echo "$args" | perl -pe "s/(\"|')//g")
     echo $args
 
     calculatePRS $args
@@ -1056,48 +1058,49 @@ calculatePRS () {
                     exit 1
                 }
             }
+
+            echo "Checking for myvariant package requirement"
+            {
+                $pyVer -c "import myvariant" >/dev/null 2>&1
+            } && {
+                echo -e "myvariant package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: myvariant"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install myvariant
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (myvariant) and try running the tool again."
+                    exit 1
+                }
+            }
+        
+            echo "Checking for biopython package requirement"
+            {
+                $pyVer -c "import Bio" >/dev/null 2>&1
+            } && {
+                echo -e "biopython package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: biopython"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install biopython
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (biopython) and try running the tool again."
+                    exit 1
+                }
+            }
+
             if ! [ -z ${GWASfilename} ]; then
                 echo -e "${LIGHTBLUE}Checking for required packages used for user supplied GWAS data strand flipping${NC}"
-                echo "Checking for myvariant package requirement"
-                {
-                    $pyVer -c "import myvariant" >/dev/null 2>&1
-                } && {
-                    echo -e "myvariant package requirement met\n"
-                } || {
-                    {
-                        echo "Missing package requirement: myvariant"
-                        echo "Attempting download"
-                    } && {
-                        $pyVer -m pip install myvariant
-                    } && {
-                        echo -e "Download successful, Package requirement met\n"
-                    } || {
-                        echo "Failed to download the required package."
-                        echo "Please manually download this package (myvariant) and try running the tool again."
-                        exit 1
-                    }
-                }
-
-                echo "Checking for biopython package requirement"
-                {
-                    $pyVer -c "import Bio" >/dev/null 2>&1
-                } && {
-                    echo -e "biopython package requirement met\n"
-                } || {
-                    {
-                        echo "Missing package requirement: biopython"
-                        echo "Attempting download"
-                    } && {
-                        $pyVer -m pip install biopython
-                    } && {
-                        echo -e "Download successful, Package requirement met\n"
-                    } || {
-                        echo "Failed to download the required package."
-                        echo "Please manually download this package (biopython) and try running the tool again."
-                        exit 1
-                    }
-                }
-
                 echo "Checking for biothings_client package requirement"
                 {
                     $pyVer -c "import biothings_client" >/dev/null 2>&1
@@ -1188,10 +1191,11 @@ calculatePRS () {
             rm "$FILE"
             rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
-            rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
-            [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
-            [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
         fi
+
+        [ -e "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" ] && rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
+        [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
+        [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
         
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"
         [ -e "${SCRIPT_DIR}/$output.lock" ] && rm -- "${SCRIPT_DIR}/$output.lock"

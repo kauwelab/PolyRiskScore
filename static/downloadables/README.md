@@ -334,7 +334,7 @@ There are two choices for the tsv output results - condensed (default) or full. 
 - **Beta Annotation** -- Additional information about the beta values
 - **Score Type** -- This indicates if the study used odds ratios or beta values
 - **Units (if applicable)** -- This column will contain the beta units if the Score Type is beta. 
-- **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are in the study and not excluded from the calculation (see below)
+- **SNP Overlap** -- Details the number of SNPs that are in the sample vcf/txt file which are 1. in the study, 2. not excluded from the calculation (see below), and 3. not removed from the calculation due to linkage-disequilibrium clumping.
 - **SNPs Excluded Due To Cutoffs** -- Details the number of snps excluded from the study calculation due to p-value cutoff or minor allele frequency threshold
 - **Included SNPs** -- The total number of SNPs included in the calculation
 - **Used Super Population** -- The super population used for linkage disequillibrium
@@ -350,7 +350,7 @@ There are two choices for the tsv output results - condensed (default) or full. 
 
 This version of the output results contains one row for each study with columns for each sample's polygenic risk score. A column will be named using the samples identifier and that column will hold their risk scores. 
 
-Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNPs Excluded Due To Cutoffs | Used Super Population | SNP Overlap | Included SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
+Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | Used Super Population | SNPs Excluded Due To Cutoffs | SNP Overlap | Included SNPs | Used Super Population | Sample1 | Sample2 | Sample3 | ect.
 
 .. code-block:: bash
 
@@ -360,7 +360,7 @@ Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotat
 
 This version of the output results contains one row for each sample/study pair. It also includes columns listing the rsIDs of the snps involved in the risk score calculation. 
 
-Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | SNPs Excluded Due To Cutoffs | Used Super Population | SNP Overlap | Included SNPs | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
+Sample | Study ID | Reported Trait | Trait | Citation | P-Value Annotation | Beta Annotation | Score Type | Units (if applicable) | Used Super Population | SNPs Excluded Due To Cutoffs | SNP Overlap | Included SNPs | Polygenic Risk Score | Protective Variants | Risk Variants | Variants Without Risk Allele | Variants in High LD
 
 .. code-block:: bash
 
