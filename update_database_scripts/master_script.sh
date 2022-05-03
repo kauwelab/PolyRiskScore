@@ -265,7 +265,7 @@ if [ $downloadRawData == "true" ]; then
 fi
 
 if [ $associationsTable == "true" ]; then
-    echo "Running GWAS database unpacker. This will take up to 8 hrs or more depending on the number of nodes you specified to download data."
+    echo "Running GWAS database unpacker. This will take 8 hrs or more depending on the number of nodes you specified to download data."
     for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
         Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
     done
@@ -286,7 +286,7 @@ fi
 
 #===============Study Table Code============================================================
 if [ $studiesTable == "true" ]; then
-    echo "Creating the study table. This should take up to 15 min, but is often faster."
+    echo "Creating the study table. This should take about an hour."
     Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
     wait
 fi
