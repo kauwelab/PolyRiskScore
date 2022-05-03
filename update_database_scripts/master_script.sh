@@ -271,6 +271,10 @@ if [ $associationsTable == "true" ]; then
     done
     wait
     echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
+    echo "Started normalizing associations table characters."
+    python3 normalizeChars.py $associationTableFolderPath
+    wait
+    print("Normalizing complete!")
 fi
 
 if [ $orderAssociations == "true" ]; then
