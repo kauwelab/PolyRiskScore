@@ -608,6 +608,7 @@ runPRS () {
     echo "The calculator will run and then the program will exit. Enter the parameters \
 as you would if you were running the program without opening the menu. The \
 usage is given below for your convenience (You don't need to include ./runPrsCLI.sh) "
+    echo "**Note: paths with backslashes are not supported: please use forward slash paths!**"
     echo ""
     usage
     read -p "./runPrsCLI.sh " args
@@ -1057,48 +1058,49 @@ calculatePRS () {
                     exit 1
                 }
             }
+
+            echo "Checking for myvariant package requirement"
+            {
+                $pyVer -c "import myvariant" >/dev/null 2>&1
+            } && {
+                echo -e "myvariant package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: myvariant"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install myvariant
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (myvariant) and try running the tool again."
+                    exit 1
+                }
+            }
+        
+            echo "Checking for biopython package requirement"
+            {
+                $pyVer -c "import Bio" >/dev/null 2>&1
+            } && {
+                echo -e "biopython package requirement met\n"
+            } || {
+                {
+                    echo "Missing package requirement: biopython"
+                    echo "Attempting download"
+                } && {
+                    $pyVer -m pip install biopython
+                } && {
+                    echo -e "Download successful, Package requirement met\n"
+                } || {
+                    echo "Failed to download the required package."
+                    echo "Please manually download this package (biopython) and try running the tool again."
+                    exit 1
+                }
+            }
+
             if ! [ -z ${GWASfilename} ]; then
                 echo -e "${LIGHTBLUE}Checking for required packages used for user supplied GWAS data strand flipping${NC}"
-                echo "Checking for myvariant package requirement"
-                {
-                    $pyVer -c "import myvariant" >/dev/null 2>&1
-                } && {
-                    echo -e "myvariant package requirement met\n"
-                } || {
-                    {
-                        echo "Missing package requirement: myvariant"
-                        echo "Attempting download"
-                    } && {
-                        $pyVer -m pip install myvariant
-                    } && {
-                        echo -e "Download successful, Package requirement met\n"
-                    } || {
-                        echo "Failed to download the required package."
-                        echo "Please manually download this package (myvariant) and try running the tool again."
-                        exit 1
-                    }
-                }
-
-                echo "Checking for biopython package requirement"
-                {
-                    $pyVer -c "import Bio" >/dev/null 2>&1
-                } && {
-                    echo -e "biopython package requirement met\n"
-                } || {
-                    {
-                        echo "Missing package requirement: biopython"
-                        echo "Attempting download"
-                    } && {
-                        $pyVer -m pip install biopython
-                    } && {
-                        echo -e "Download successful, Package requirement met\n"
-                    } || {
-                        echo "Failed to download the required package."
-                        echo "Please manually download this package (biopython) and try running the tool again."
-                        exit 1
-                    }
-                }
-
                 echo "Checking for biothings_client package requirement"
                 {
                     $pyVer -c "import biothings_client" >/dev/null 2>&1
