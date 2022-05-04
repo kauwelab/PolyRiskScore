@@ -715,9 +715,9 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
-            jsonOutput = open(outputFilePath, 'w')
-            jsonOutput.write("[]")
-            jsonOutput.close()
+        jsonOutput = open(outputFilePath, 'w')
+        jsonOutput.write("[]")
+        jsonOutput.close()
 
     else:
         # we need to write out the header depending on the output type

@@ -279,16 +279,12 @@ def formatJson(studyInfo, outputFile):
     json_output.append(studyInfo)
 
     with FileLock(outputFile + ".lock"):
-        if not os.path.exists(outputFile):
-            with open(outputFile, "w") as f:
-                f.write("[{},]".format(json.dumps(studyInfo, indent=4)))
-        else:
-            # if there is already data in the output file, remove the closing ] and add a comma with the new json object and then close the file with a closing ]
-            with open(outputFile, 'r+', newline = '') as f:
-                f.seek(0,2)
-                position = f.tell() -1
-                f.seek(position)
-                f.write("{},]".format(json.dumps(studyInfo, indent=4)))
+        # if there is already data in the output file, remove the closing ] and add a comma with the new json object and then close the file with a closing ]
+        with open(outputFile, 'r+', newline = '') as f:
+            f.seek(0,2)
+            position = f.tell() -1
+            f.seek(position)
+            f.write("{},]".format(json.dumps(studyInfo, indent=4)))
     return
 
 
