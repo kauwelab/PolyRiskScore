@@ -18,8 +18,3 @@ core
 /tables/maf/
 /tables/cohorts/
 /tables/clumping/CHROM_CLUMPED_FILES/
-
-#temporary
-/static/js/calculate_score.js
-/static/calculate_score.html
-/static/js/vcf_parser.js
