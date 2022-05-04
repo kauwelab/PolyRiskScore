@@ -101,7 +101,7 @@ Traits and studies available through this tool can be searched from the PRSKB CL
 * **-q minor allele frequency cohort** -- This parameter allows the user to select the cohort to use for minor allele frequencies and also indicates the cohort to use for reporting percentile rank. Available options are: **ukbb** (Uk Biobank), **adni-ad** (ADNI Alzheimer's disease), **adni-mci** (ADNI Mild cognitive impairment), **adni-cn** (ADNI Cognitively normal), **afr** (1000 Genomes African), **amr** (1000 Genomes American), **eas** (1000 Genomes East Asian), **eur** (1000 Genomes European), and **sas** (1000 Genomes South Asian)
 * **-m omit percentiles** -- Use this flag if you do not want percentile rank calculated for your data
 * **-l individual-specific LD clumping** -- To perform linkage disequilibrium clumping on an individual level, include the -l flag. By default, LD clumping is performed on a sample-wide basis, where the variants included in the clumping process are the same for each individual, based off of all the variants that are present in the GWA study. This type of LD clumping is beneficial because it allows for sample-wide PRS comparisons since each risk score is calculated using the same variants. In contrast, individual-wide LD clumping determines the variants to be used in the PRS calculation by looking only at the individual's variants that have a corresponding risk allele (or, in the absence of a risk allele, an imputed unknown allele) in the GWA study. The benefit to this type of LD clumping is that it allows for a greater number of risk alleles to be included in each individual's polygenic risk score.
-* **-h imputation threshold** -- This allows the user to set a threshold for how many SNPs are allowed to be imputed. We divide the numnber of imputed SNPs by the total number of SNPs in the calculation and if that number exceedes the threshold we do not report that study. The default value is 0.5
+* **-h imputation threshold** -- This allows the user to set a threshold for how many SNPs are allowed to be imputed. We divide the numnber of imputed SNPs by the total number of SNPs in the calculation and if that number exceedes the threshold we do not report that study. The default value is 0.5. 1.0 means that 100% of the SNPs can be imputed and 0.0 means that no imputed SNPs are allowed in the calculation. We do require all studies to have at least one non-imputed SNP in the user file in order to be reported.
 
 ## Uploading GWAS Summary Statistics
 
@@ -258,33 +258,28 @@ The .workingFiles directory is a hidden directory created by this tool to hold v
 
 Association files hold the association data downloaded from our server required to calculate polygenic risk scores. These files are created in the connect_to_server.py script as part of step 1. There are two naming conventions for associations files:
 
-* **allAssociations_{refGen}.txt** -- This associations file is downloaded from the server when no filters are supplied. It contains all the associations from the server and is formatted for the specified reference genome (refGen) and excludes all snps that have duplicates in a study/trait combination. This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
-* **allAssociations_{refGen}_{sex}.txt** -- This associations file is downloaded from the server when no filters are supplied. It contains all the associations from the server and is formatted for the specified reference genome (refGen) and includes sex dependent associations for the sex indicated by the user (sex). This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
-* **associations_{ahash}.txt** -- This associations file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
+* **allAssociations_{refGen}.txt** -- This associations file is downloaded from the server. It contains all the associations from the server and is formatted for the specified reference genome (refGen) and excludes all snps that have duplicates in a study/trait combination. This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
 * **GWASassociations_{bhash}.txt** -- This associations file is created when using user supplied GWAS summary statistics data. The number at the end of the file name (bhash) is a hash created using the five required parameters as well as the -u and -a parameters.
 
 ### Trait/StudyID to SNPs Files
 
 These files contain a dictionary of trait/studyID combinations to a list of SNPs. They are created in the connect_to_server.py script as part of step 1. There are two naming conventions for associations files:
 
-* **traitStudyIDToSnps.txt** -- This file is downloaded from the server when no filters are supplied. It contains a dictionary of all trait/studyID combinations to a list of all the SNPs included in the study. This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
-* **traitStudyIDToSnps_{ahash}.txt** -- This file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
+* **traitStudyIDToSnps.txt** -- This file is downloaded from the server. It contains a dictionary of all trait/studyID combinations to a list of all the SNPs included in the study. This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
 * **traitStudyIDToSnps_{bhash}.txt** -- This file is created when using user supplied GWAS summary statistics data. The number at the end of the file name (bhash) is a hash created using the five required parameters as well as the -u and -a parameters.
 
 ### Clumping Files
 
 Clumping files hold pre-computed linkage disequilibrium clump numbers for SNPs downloaded from the server. They are created in the connect_to_server.py script as part of step 1. There are two naming conventions for clumping files:
 
-* **{superPop}\_clumps\_{refGen}.txt** -- This clumping file is downloaded from the server when no filters are supplied. It contains each SNP from the server and a corresponding number that represents its linkage disequilibrium. The file is formatted for the specified reference genome (refGen) and super population (superPop). This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
-* **{superPop}\_clumps\_{refGen}_{ahash}.txt** -- This clumping file is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
+* **{superPop}\_clumps\_{refGen}.txt** -- This clumping file is downloaded from the server. It contains each SNP from the server and a corresponding number that represents its linkage disequilibrium. The file is formatted for the specified reference genome (refGen) and super population (superPop). This file is not deleted by the tool, but is updated when the server has new data. In this way, this file can be used for multiple calculations (see [Additional Step Number Example](#additional-step-number-example)).
 * **{superPop}\_clumps\_{refGen}_{bhash}.txt** -- This clumping file is created when using user supplied GWAS summary statistics data. The number at the end of the file name (bhash) is a hash created using the five required parameters as well as the -u and -a parameters.
 
 ### Clump Number Dictionary Files
 
 In addition to the [Clumping Files](#clumping-files) above, clump number dictionary files are created in the grep_file.py script as part of step 2. The clump number dicionaries help speed up the calculation process by informing the tool which variants are not in linkage disequilibrium with any other SNP.
 
-* **clumpNumDict_{refGen}.txt** -- This clump number dictionary is created when no filters are supplied. The dictionary keys are made up of numbers representing linkage disequilibrium regions. The value for each clump number key is a list of SNPs that reside in that LD region. The clump number dictionary is specific to the reference genome (refGen) that matches the input file.
-* **clumpNumDict_{refGen}_{ahash}.txt** -- This clump number dictionary is created when specific filters are given to narrow down the studies used in calculations. The number at the end of the file name (ahash) is a hash created using all the given parameters. This allows the tool to use the correct file for calculations, especially when the stepNumber parameter is included (see the second example under [Applying Step Numbers](#applying-step-numbers)).
+* **clumpNumDict_{refGen}.txt** -- This clump number dictionary is created client-side. The dictionary keys are made up of numbers representing linkage disequilibrium regions. The value for each clump number key is a list of SNPs that reside in that LD region. The clump number dictionary is specific to the reference genome (refGen) that matches the input file.
 
 ### Filtered Files
 
@@ -302,25 +297,19 @@ Each filtered file is removed before the program finishes.
 
 Minor Allele Frequency (MAF) files contain frequency values calculated from the selected cohort. (Cohort options are *ukbb*, *adni-ad*, *adni-mci*, *adni-cn*, *afr*, *amr*, *eas*, *eur*, and *sas*.) This allows for filtering associations by allele frequency. Allele frequencies are also used when a sample's allele is unknown. The allele frequency of the risk allele is multiplied by the beta value or adds ratio and added to the calculation.
 
-* **{cohort}\_maf\_{refGen}.txt** -- This MAF file is created when no filters are present. refGen is the reference genome of the uploaded samples. 
-
-* **{cohort}\_maf\_{ahash}.txt** -- The number at the end of the file name (ahash) is a hash created using all the given parameters. 
+* **{cohort}\_maf\_{refGen}.txt** -- This MAF file is downloaded from the server. refGen is the reference genome of the uploaded samples.  
 
 ### Possible Alleles files
 
 Possible alleles files contain SNPs mapped to a list of possible alleles for that SNP. This is used for strand flipping the uploaded samples in VCF format. If the reverse complement of the alleles in the VCF are in the possible alleles, and the alleles from the VCF are not in the possible alleles, we will assume the SNP should be strand flipped.
 
-* **allPossibleAlleles.txt** -- This file is created when no filters are present
-
-* **possibleAlleles\_{ahash}.txt** -- The number at the end of the file name (ahash) is a hash created using all the given parameters. 
+* **allPossibleAlleles.txt** -- This file is downloaded from the server.
 
 ### Percentile files
 
 Percentile files contain the percentiles calculated for the requested cohort that will be used to calculate percentile rank for the samples supplied by the user. This is to aid in contectualization of the polygenic risk scores. Percentile rank is not displayed for condensed output files.
 
 * **allPercentiles\_{cohort}.txt** -- Holds the percentiles for all studies using the supplied cohort
-
-* **percentiles\_{cohort}\_{ahash}.txt** -- Holds the percentiles for studies selected using the supplied parameters and cohort. ahash is a hash created using the parameters given
 
 ## Output Results
 
