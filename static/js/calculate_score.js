@@ -504,7 +504,7 @@ var calculatePolyScore = async () => {
         }
 
         document.getElementById('resultsDisplay').style.display = 'block';
-        updateResultBoxAndStoredValue("Calculating. Please wait...")
+        updateResultBoxAndStoredValue("Calculating. Please wait, this could take several minutes.")
 
         associationData = await getGWASUploadData(gwasDataFile, gwasRefGen, refGen, gwasValueType)
         percentileData = {}
