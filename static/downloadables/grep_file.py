@@ -70,8 +70,6 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
         # create path for filtered input file
         ext = "txt" if isRSids else "vcf"
         filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.{ext}".format(ahash = fileHash, uniq = timestamp, ext = ext))
-        # create path for filtered associations
-        specificAssociPath = os.path.join(basePath, "associations_{ahash}.txt".format(ahash = fileHash))
         # create path for clump number dictionary
         clumpNumPath = os.path.join(basePath, "clumpNumDict_{r}_{ahash}.txt".format(r=refGen, ahash = fileHash))
         # get the paths for the associationsFile , study snps, and clumpsFile
@@ -79,14 +77,10 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
             isFilters=True
             associationsPath = os.path.join(basePath, "GWASassociations_{bhash}.txt".format(bhash = fileHash))
             studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-        elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
+        else:
             associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
             associationsPath = os.path.join(basePath, associFileName)
             studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps.txt")
-        else:
-            isFilters=True
-            associationsPath = specificAssociPath
-            studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
         # write the files
         with open(associationsPath, 'r') as tableObjFile:
             tableObjDict = json.load(tableObjFile)
@@ -104,18 +98,11 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
         # loop through each population and get the corresponding clumps file
         allClumps = {}
         for pop in allSuperPops:
-            if isFilters:
-                clumpsPath = os.path.join(basePath, "{p}_clumps_{r}_{ahash}.txt".format(p = pop, r = refGen, ahash = fileHash))
-                with open(clumpsPath, 'r') as clumpsObjFile:
-                    clumpsObjDict = json.load(clumpsObjFile)
-                    allClumps[pop] = clumpsObjDict
-                    clumpsObjFile = {}
-            else:
-                clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = pop, r = refGen))
-                with open(clumpsPath, 'r') as clumpsObjFile:
-                    clumpsObjDict = json.load(clumpsObjFile)
-                    allClumps[pop] = clumpsObjDict
-                    clumpsObjFile = {}
+            clumpsPath = os.path.join(basePath, "{p}_clumps_{r}.txt".format(p = pop, r = refGen))
+            with open(clumpsPath, 'r') as clumpsObjFile:
+                clumpsObjDict = json.load(clumpsObjFile)
+                allClumps[pop] = clumpsObjDict
+                clumpsObjFile = {}
 
         tableObjFile = {}
         studySnpsFile = {}

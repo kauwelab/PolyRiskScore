@@ -25,16 +25,6 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
     if mafCohort.startswith("adni"):
         mafCohort = "adni"
 
-    # Format variables used for getting associations
-    traits = traits.split(" ") if traits != "" else None
-    if traits is not None:
-        traits = [sub.replace('_', ' ').replace("\\'", "\'") for sub in traits]
-    studyTypes = studyTypes.split(" ") if studyTypes != "" else None
-    studyIDs = studyIDs.split(" ") if studyIDs != "" else None
-    sexes = sexes.split(" ") if sexes != "" else None
-    valueTypes = valueTypes.split(" ") if valueTypes != "" else None
-    ethnicity = ethnicity.split(" ") if ethnicity != "" else None
-
     if (ethnicity is not None):
         ethnicity = [sub.replace('_', ' ').replace('"', '').lower() for sub in ethnicity]
         availableEthnicities = getUrlWithParams("https://prs.byu.edu/ethnicities", params={})
@@ -50,70 +40,27 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
 
     # Create the set that will include all the user-preferred super populations that correspond to the associations
     allSuperPops = set()
-    isFilters = False
+    # if we need to download a new all associations file, write to file
+    associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
+    associationsPath = os.path.join(workingFilesPath, associFileName)
 
-    # if the user didn't give anything to filter by, get all the associations
-    if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None and sexes is None and valueTypes is None):
-        # if we need to download a new all associations file, write to file
-        associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
-        associationsPath = os.path.join(workingFilesPath, associFileName)
+    allSuperPops |= set(['AFR', 'AMR', 'EAS', 'EUR', 'SAS'])
 
-        allSuperPops |= set(['AFR', 'AMR', 'EAS', 'EUR', 'SAS'])
+    if (checkForAllAssociFile(refGen)):
+        associationsReturnObj = getAllAssociations(refGen)
+        studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
+        studySnpsData = getAllStudySnps()
+        possibleAllelesPath = os.path.join(workingFilesPath, "allPossibleAlleles.txt")
+        possibleAllelesData = getAllPossibleAlleles()
+    
+    dwnldNewMAFFile, mafPathExists = checkForAllMAFFiles(mafCohort, refGen)
+    if (dwnldNewMAFFile):
+        mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
+        mafData = getAllMaf(mafCohort, refGen)
 
-        if (checkForAllAssociFile(refGen)):
-            associationsReturnObj = getAllAssociations(refGen)
-            studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
-            studySnpsData = getAllStudySnps()
-            possibleAllelesPath = os.path.join(workingFilesPath, "allPossibleAlleles.txt")
-            possibleAllelesData = getAllPossibleAlleles()
-        
-        dwnldNewMAFFile, mafPathExists = checkForAllMAFFiles(mafCohort, refGen)
-        if (dwnldNewMAFFile):
-            mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
-            mafData = getAllMaf(mafCohort, refGen)
-
-        if (checkForAllPercentilesFiles(percentilesCohort)):
-            percentilesPath = os.path.join(workingFilesPath, "allPercentiles_{c}.txt".format(c=percentilesCohort))
-            percentileData = getAllPercentiles(percentilesCohort)
-        
-    # else get the associations using the given filters
-    else:
-        # this boolean lets us know that study filters were requested
-        isFilters = True
-
-        fileName = "associations_{ahash}.txt".format(ahash = fileHash)
-        associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj, finalStudyList = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes)
-
-        # get the set of super populations that correspond to the associations
-        for study in associationsReturnObj['studyIDsToMetaData'].keys():
-            for trait in associationsReturnObj['studyIDsToMetaData'][study]['traits'].keys():
-                superPopList = associationsReturnObj['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-                superPopList = [eachPop.lower() for eachPop in superPopList]
-                preferredPop = getPreferredPop(superPopList, superPop)
-                allSuperPops.add(preferredPop)
-
-        # grab all the snps or positions to use for getting the clumps
-        snpsFromAssociations = list(associationsReturnObj['associations'].keys())
-
-        #download the maf from database
-        fileName = "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash = fileHash)
-        mafPath = os.path.join(workingFilesPath, fileName)
-        mafData = getMaf(mafCohort, refGen, snpsFromAssociations)
-
-        fileName = "percentiles_{c}_{ahash}.txt".format(c=percentilesCohort, ahash=fileHash)
-        percentilesPath = os.path.join(workingFilesPath, fileName)
-        percentileData = getPercentiles(percentilesCohort, finalStudyList)
-        
-        # get the study:snps info
-        fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
-        studySnpsPath = os.path.join(workingFilesPath, fileName)
-        studySnpsData = getSpecificStudySnps(finalStudyList)
-
-        # get the possible alleles for snps
-        fileName = "possibleAlleles_{ahash}.txt".format(ahash = fileHash)
-        possibleAllelesPath = os.path.join(workingFilesPath, fileName)
-        possibleAllelesData = getPossibleAlleles(snpsFromAssociations)
+    if (checkForAllPercentilesFiles(percentilesCohort)):
+        percentilesPath = os.path.join(workingFilesPath, "allPercentiles_{c}.txt".format(c=percentilesCohort))
+        percentileData = getAllPercentiles(percentilesCohort)
 
     # check to see if associationsReturnObj is instantiated in the local variables
     if 'associationsReturnObj' in locals():
@@ -145,16 +92,9 @@ def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicit
         f.close()
     
     for pop in allSuperPops:
-        if isFilters:
-            #download clumps from database
-            fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = pop, r = refGen, ahash = fileHash)
-            clumpsPath = os.path.join(workingFilesPath, fileName)
-            # get clumps using the refGen and superpopulation
-            clumpsData = getClumps(refGen, pop, snpsFromAssociations)
-        else:
-            if (checkForAllClumps(pop, refGen)):
-                clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
-                clumpsData = getAllClumps(refGen, pop)
+        if (checkForAllClumps(pop, refGen)):
+            clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
+            clumpsData = getAllClumps(refGen, pop)
             
         # check to see if clumpsData is instantiated in the local variables
         if 'clumpsData' in locals():
