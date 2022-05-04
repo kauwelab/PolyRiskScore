@@ -15,8 +15,7 @@ associationTableFolderPath = argv[1] if len(argv) > 1 else "../tables/"
 associationsTablePath = path.join(associationTableFolderPath, "associations_table.tsv")
 
 
-# get the unique groupings of associations and store them in uniqueGroups
-
+# get the unique groupings of associations and store them in uniqueGroups (a dictionary of dictionaries)
 uniqueGroups = {}
 
 totalSNPs = 0
@@ -31,10 +30,16 @@ with open(associationsTablePath, "r", encoding="utf-8") as file:
         ogValueTypes = lineItems[18]
         studyID = lineItems[22]
         betaUnit = lineItems[16].lower()
+        # create a group string used to uniquely identify study combinations
         group = "|".join([trait, pValueAnnotation, betaAnnotation, ogValueTypes, studyID])
+        # if the group not in the unique groups dictionary, add it
+        # key: the group string
+        # value: a dictionary with key: betaUnit, and value: list containing the id of this line
         if group not in uniqueGroups:
             uniqueGroups[group] = {betaUnit:[id]}
         else:
+            # if the group is already in the unique groups dict, add the beta unit to the group's dictionary or 
+            # the id to the beta unit's list if the beta unit is already in the dictionary
             if betaUnit not in uniqueGroups[group]:
                 uniqueGroups[group][betaUnit] = [id]
             else:
@@ -45,6 +50,7 @@ with open(associationsTablePath, "r", encoding="utf-8") as file:
 numSNPsToRemove = 0
 idsToRemove = []
 for group, groupBetaUnits in uniqueGroups.items():
+    # if the group has more than one beta unit, save all ids of the group to be deleted
     if len(groupBetaUnits) > 1:
         for unit, ids in groupBetaUnits.items():
             for id in ids:
@@ -56,6 +62,7 @@ print(totalSNPs, "-", numSNPsToRemove, "=", totalSNPs-numSNPsToRemove)
 # print out the new associations table with the necessary ids removed and the id column shifted appropriately
 studiesAltered = set()
 numLinesRemoved = 0
+# read in all the lines again so they can be filtered and printed back into the original file
 with open(associationsTablePath, "r", encoding="utf-8") as infile:
     lines = infile.readlines()
 with open(associationsTablePath, "w", encoding="utf=8") as outFile:
@@ -66,6 +73,7 @@ with open(associationsTablePath, "w", encoding="utf=8") as outFile:
             outFile.write(line)
             header = False
         else:
+            # get the id and print it if it is not in the list of ids to remove, otherwise skip it
             lineItems = line.strip().split("\t")
             id = lineItems[0]
             if id not in idsToRemove:

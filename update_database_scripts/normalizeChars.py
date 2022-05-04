@@ -11,10 +11,13 @@ associationsTablePath = path.join(associationTableFolderPath, "associations_tabl
 
 associationTableLines = []
 
+# append all normalized lines to a list
 with open(associationsTablePath, "r", encoding="utf-8") as associationTable:
     for line in associationTable:
+        # from the wikipedia unicode equivalence documentation: NFKD: "Characters are decomposed by compatibility, and multiple combining characters are arranged in a specific order."
         associationTableLines.append(unicodedata.normalize("NFKD", line))
 
+# print normalized lines from the list to the original output file
 with open(associationsTablePath, "w", encoding="utf-8") as associationTable:
     for line in associationTableLines:
         associationTable.write(line)
