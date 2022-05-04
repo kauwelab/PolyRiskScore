@@ -79,6 +79,9 @@
             }
         });
         allPresentSnps = Array.from(allPresentSnps)
+        if (allPresentSnps.length == 0) {
+            return [null, null, null]
+        }
         //Impute the snps that the samples don't have
         imputeSnps = $(allNeededSnps).not(allPresentSnps).toArray()
         for (i=0; i<imputeSnps.length; i++) {

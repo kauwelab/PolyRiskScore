@@ -98,7 +98,6 @@ def getFilesAndPaths(fileHash, requiredParamsHash, superPop, refGen, isRSids, ti
         for study in tableObjDict['studyIDsToMetaData']:
             for trait in tableObjDict['studyIDsToMetaData'][study]['traits'].keys():
                 superPopList = tableObjDict['studyIDsToMetaData'][study]['traits'][trait]['superPopulations']
-                superPopList = [eachPop.lower() for eachPop in superPopList]
                 preferredPop = getPreferredPop(superPopList, superPop)
                 allSuperPops.add(preferredPop)
 
@@ -210,7 +209,7 @@ def filterTXT(allClumpsObjDict, allSnps, inputFiles, filteredFilePath, useGWASup
 
             try:
                 # if the line isn't empty or commented out
-                if nw_line != "" and not nw_line.startswith("#") and not nw_line.startswith("//"):
+                if nw_line.strip() != "" and not nw_line.startswith("#") and not nw_line.startswith("//"):
                     # a record exists, so the file was not empty
                     fileEmpty = False
                     strippedLine = nw_line.strip() # line should be in format of rsID:Genotype, Genotype
@@ -285,7 +284,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                         if firstFile:
                             w.write(line)
                     else:
-                        line = line.strip('\n')
+                        line = line.strip()
                         cols = shortLine.split('\t')
                         # get the rsid and chrompos
                         rsID = cols[2]
