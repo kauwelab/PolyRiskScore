@@ -1187,7 +1187,7 @@ calculatePRS () {
         fi
 
         #TODO make an option for users to remove these files if they want
-        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]] && [[ $step -ne 2 ]]; then
             rm "$FILE"
             rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
