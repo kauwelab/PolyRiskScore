@@ -376,6 +376,7 @@ learnAboutParameters () {
                 echo ""
                 echo -e "To use the minor allele frequencies from the user vcf, use ${GREEN}-q user ${NC}."
                 echo "Note that this option will not report percentile rank."
+                echo -e " The default is ukbb."
                 echo "" ;;
             19 ) echo -e "${MYSTERYCOLOR} -m omit percentiles from output: ${NC}"
                 echo "This flag allows the user to remove the Percentile column/property from the verbose output file."
@@ -927,15 +928,17 @@ calculatePRS () {
     if [ -z "$step" ]; then
         step=0
     fi
+
     # if no GWAS refgen is specified but a path to a gwas file is give, set GWASrefgen to the samples refgen
     if [ -z "${GWASrefgen}" ] && ! [ -z "${GWASfilename}" ]; then
-        echo "No GWASrefgen selected, defaulting to ${refgen}"
         GWASrefgen=${refgen}
+        echo "GWASrefgen defaulting to ${GWASrefgen}"
     fi
 
     # default the mafCohort to UKBB
     if [ -z "${mafCohort}" ]; then
         mafCohort='ukbb'
+        echo "mafCohort defaulting to ${mafCohort}"
     fi
 
     # default the maf cutoff to zero
