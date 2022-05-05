@@ -942,7 +942,7 @@ calculatePRS () {
         mafCutoff=0
     fi
 
-    # TODO: actually finish including the imputationLevel threshold
+    # TODO: actually finish including the imputationLevel threshold- remove this TODO?
     if [ -z "${imputationLevel}" ]; then
         imputationLevel=0.5
     fi
