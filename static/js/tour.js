@@ -118,7 +118,7 @@ function startTour() {
             {
                 element: "#mafTourContainer",
                 title: "Select population for MAF",
-                content: "Select the population to use allele frequencies from."
+                content: "Select the population to get percentiles and allele frequencies from."
             },
             {
                 element: "#ldClumpingTourContainer",
