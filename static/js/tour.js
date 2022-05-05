@@ -59,14 +59,7 @@ function startTour() {
                 Choose the \"GRCh37/hg19\" option for the example VCF."
             },
             {
-                element: "#superPopSelect",
-                title: "Select super population of individual(s) in your VCF file.",
-                content: "This will be used to perform LD clumping on your data (see the About \
-                page). If you are unsure about the super population of the individual(s) in your file, \
-                choose the one you believe to be the most accurate."
-            },
-            {
-                element: "#GWAStypeSelector",
+                element: "#GWAStypeContainer",
                 title: "GWAS",
                 content: "Users have the option of either calculating polygenic risk scores from \
                 GWAS data in the database or uploading their own GWAS data. Choose which one you \
@@ -82,23 +75,15 @@ function startTour() {
                 done selecting traits, press the \"next\" button to continue the tour.",
             },
             {
-                element: "#applyFilters",
+                element: "#applyFiltersTourContainer",
                 title: "Select additional study filters",
                 content: "Studies about the traits you selected can be further filtered by choosing \
-                study type, study ethnicity, original value type, or sex. \"High impact\" is measured by Altmetric score while \
-                \"large cohort\" is measured \ by the size of a study's initial sample size plus its \
-                replication sample size. Once you have \ finished selecting your filters, press the \
-                \"Apply Filters\" button to update the studies list.",
+                study type, study ethnicity, sex, or original value type. \"High impact\" is measured \
+                by Altmetric score while \"large cohort\" is measured by the size of a study's initial \
+                sample size plus its replication sample size. Once you have finished selecting your \
+                filters, press the \"Apply Filters\" button to update the studies list.",
                 reflex: true
             },
-            // {
-            //     element: "#sex",
-            //     title: "Include or exclude sex dependent SNPs",
-            //     content: "Occasionally, studies will include SNPs that have odds ratios which \
-            //     are dependent upon biological sex. By default, we exclude any SNPs that are depenent on \
-            //     biological sex. If you choose, you can include either female or male dependent SNPs. \
-            //     When you are done, press the \"next\" button to continue the tour."
-            // },
             {
                 element: "#studySelectContainer",
                 title: "Select studies",
@@ -118,10 +103,42 @@ function startTour() {
                 content: "Select the reference genome corresponding to the GWAS data you have uploaded. For the example GWAS file, select the 'GRCh38/hg38' option."
             },
             {
-                element: "#pvalInput",
+                element: "#pvalContainer",
                 title: "Enter p-value cutoff",
                 content: "Enter the p-value cutoff for odds ratios you wish to include in your polygenic risk score \
                 using the two text boxes."
+            },
+            {
+                element: "#superPopTourContainer",
+                title: "Select super population of individual(s) in your VCF file.",
+                content: "This will be used to perform LD clumping on your data (see the About \
+                page). If you are unsure about the super population of the individual(s) in your file, \
+                choose the one you believe to be the most accurate."
+            },
+            {
+                element: "#mafTourContainer",
+                title: "Select population for MAF",
+                content: "Select the population to use allele frequencies from."
+            },
+            {
+                element: "#ldClumpingTourContainer",
+                title: "Select LD clumping type",
+                content: "Choose between sample-wide clumping vs clumping per individual."
+            },
+            {
+                element: "#imputationTourContainer",
+                title: "Select imputation threshold",
+                content: "Select the maximum fraction of SNPs in a study that can be imputed. \
+                1.0 means 100% of the SNPs can be imputed and 0.0 means no imputation is permitted \
+                and all snps from each study must be in the input file. SNPs can be imputed. \
+                Note: regardless of the threshold, studies must have at least one non-imputed SNP to \
+                be reported."
+            },
+            {
+                element: "#mafThreshTourContainer",
+                title: "Select MAF threshold",
+                content: "SNPs with a MAF less than the threshold in the MAF population will be excluded \
+                from calculations."
             },
             {
                 element: "#fileType",
@@ -135,12 +152,6 @@ function startTour() {
                 the polygenic risk scores for each sample for each trait/study combination. The full version additionally gives \
                 information for each sample on which SNPs contribute to the trait, which are protective against the trait, and \
                 which are neutral or have unknown contributions."
-            },
-            {
-                element: "#mafCohort",
-                title: "Select population for MAF",
-                content: "Select the population to use allele frequencies from."
-
             },
             {
                 element: "#feedbackSubmit",
