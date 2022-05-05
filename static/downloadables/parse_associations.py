@@ -254,7 +254,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                             usedSnps.discard(index_snp)
                                         else:
                                             clumpedVariants.add(snp)
-                                            usedSnps.discard(index_snp)
+                                            usedSnps.discard(snp)
                                     else:
                                         # Since the clump number for this snp position and studyID
                                         # doesn't already exist, add it to the index map
