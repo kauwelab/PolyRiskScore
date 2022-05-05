@@ -929,6 +929,7 @@ calculatePRS () {
     fi
     # if no GWAS refgen is specified but a path to a gwas file is give, set GWASrefgen to the samples refgen
     if [ -z "${GWASrefgen}" ] && ! [ -z "${GWASfilename}" ]; then
+        echo "No GWASrefgen selected, defaulting to ${refgen}"
         GWASrefgen=${refgen}
     fi
 
