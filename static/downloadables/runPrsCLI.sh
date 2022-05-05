@@ -960,6 +960,12 @@ calculatePRS () {
     export sexes=${sexForCalc[@]}
     export files=${files[@]}
 
+    if ! [ -z "${GWASfilename}" ] && ! [ -z "${traits}" ] || ! [ -z "${studyTypes}" ] || ! [ -z "${studyIDs}" ] || ! [ -z "${ethnicities}" ] || ! [ -z "${valueTypes}" ] || ! [ -z "${sexes}" ]; then
+        echo -e "${LIGHTRED}WARNING:${NC} If you upload your own GWAS data, you cannot specify any other additional study filters. Remove the study filters and try again."
+        echo -e "${LIGHTRED}Quitting...${NC}"
+        exit 1
+    fi
+
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}" | cut -f 1 -d ' ')
     if ! [ -z ${GWASfilename} ]; then
