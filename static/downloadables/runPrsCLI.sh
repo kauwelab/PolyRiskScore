@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.8.0"
+version="1.9.0"
 #
 # 
 # 
@@ -84,6 +84,9 @@ version="1.8.0"
 #   added in a flag to omit percentiles from the output (-m)
 #   added a parameter to set a cutoff value for minor allele frequencies (-x)
 #
+#   5/5/2022
+#   
+#   various bug fixes and improvements
 #
 # ########################################################################
 
@@ -960,10 +963,12 @@ calculatePRS () {
     export sexes=${sexForCalc[@]}
     export files=${files[@]}
 
-    if ! [ -z "${GWASfilename}" ] && ! [ -z "${traits}" ] || ! [ -z "${studyTypes}" ] || ! [ -z "${studyIDs}" ] || ! [ -z "${ethnicities}" ] || ! [ -z "${valueTypes}" ] || ! [ -z "${sexes}" ]; then
-        echo -e "${LIGHTRED}WARNING:${NC} If you upload your own GWAS data, you cannot specify any other additional study filters. Remove the study filters and try again."
-        echo -e "${LIGHTRED}Quitting...${NC}"
-        exit 1
+    if ! [ -z "${GWASfilename}" ]; then
+        if ! [ -z "${traits}" ] || ! [ -z "${studyTypes}" ] || ! [ -z "${studyIDs}" ] || ! [ -z "${ethnicities}" ] || ! [ -z "${valueTypes}" ] || ! [ -z "${sexes}" ]; then
+            echo -e "${LIGHTRED}WARNING:${NC} If you upload your own GWAS data, you cannot specify any other additional study filters. Remove the study filters and try again."
+            echo -e "${LIGHTRED}Quitting...${NC}"
+            exit 1
+        fi
     fi
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
