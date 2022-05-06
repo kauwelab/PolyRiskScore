@@ -118,7 +118,7 @@ function startTour() {
                 Choose the super population that best describes individual(s) in your file."
             },
             {
-                element: "#ldContainer",
+                element: "#ldTourContainer",
                 title: "Select LD Clumping Type",
                 content: "Choose whether LD clumping should be performed sample-wide or by individual. See the \
                 <a href=\"https://polyriskscore.readthedocs.io/en/latest/\">PRSKB's documentation</a> \
@@ -134,25 +134,9 @@ function startTour() {
             },
             {
                 element: "#mafThreshContainer",
-                title: "Select MAF Threshold",
-                content: "This will filter out SNPs below the specified MAF threshold."
-            },
-            {
-                element: "#superPopTourContainer",
-                title: "Select super population of individual(s) in your VCF file.",
-                content: "This will be used to perform LD clumping on your data (see the About \
-                page). If you are unsure about the super population of the individual(s) in your file, \
-                choose the one you believe to be the most accurate."
-            },
-            {
-                element: "#mafTourContainer",
-                title: "Select population for MAF",
-                content: "Select the population to get percentiles and allele frequencies from."
-            },
-            {
-                element: "#ldClumpingTourContainer",
-                title: "Select LD clumping type",
-                content: "Choose between sample-wide clumping vs clumping per individual."
+                title: "Select MAF threshold",
+                content: "SNPs with a MAF less than the threshold in the MAF population will be excluded \
+                from calculations."
             },
             {
                 element: "#imputationTourContainer",
@@ -162,12 +146,6 @@ function startTour() {
                 imputed and 0.0 means no imputation is permitted and all snps from each study must \
                 be in the input file. Note: regardless of the threshold, studies must have at least \
                 one non-imputed SNP to be reported."
-            },
-            {
-                element: "#mafThreshTourContainer",
-                title: "Select MAF threshold",
-                content: "SNPs with a MAF less than the threshold in the MAF population will be excluded \
-                from calculations."
             },
             {
                 element: "#fileType",
