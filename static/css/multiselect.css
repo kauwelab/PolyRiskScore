@@ -26,6 +26,7 @@
 	border-bottom-left-radius: 2px;
 	border-bottom-right-radius: 2px;
 	margin-top: -2px;
+	text-align: left;
 }
 
 	.multiselect-wrapper .multiselect-list.active {

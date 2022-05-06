@@ -6308,6 +6308,173 @@ dfn:hover::before {top: 20px;}
   /* font-size: 1.3em; */
   cursor: pointer;  
 }
+/* inline list added by user
+.qcList{
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.inlineListItems {
+  display: inline-block;
+  background-color: #5C5C5C;
+  border-radius: 25px;
+  border-style: solid;
+  border-color: #3D3D3D;
+  border-width: 1em;
+  box-shadow: .1em;
+  color: white;
+  cursor: pointer;
+  padding: 0.2em;
+  margin: 0.2em;
+  width: 40%;
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+
+
+/*.inlineListItems{
+  text-decoration: none;
+  color: #000;
+  -webkit-transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+  -moz-transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+  -o-transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+  -ms-transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+  transition: font-size 0.3s ease-in-out, background-color 0.3s ease;
+}
+
+.inlineListItems:hover {
+  background: #3D3D3D;
+  /* font-size: 1.3em; 
+  cursor: pointer;  
+}
+
+.inlineListItems:last-child {
+  border: none
+}*/
+
+.prstile1 {
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  width: 30.33%;
+  height: 65px;
+  transition: height 0.2s ease-in-out;
+  -webkit-transition: height 0.2s ease-in-out;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: small;
+  padding-top: 10px;
+}
+
+.prstile2 {
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  width: 30.33%;
+  height: 65px;
+  transition: height 0.2s ease-in-out;
+  -webkit-transition: height 0.2s ease-in-out;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: small;
+  padding-top: 10px;
+}
+
+.prstile3 {
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  width: 30.33%;
+  height: 65px;
+  transition: height 0.2s ease-in-out;
+  -webkit-transition: height 0.2s ease-in-out;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: small;
+  padding-top: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+
+#prstile1.expand {
+  height: 45em;
+  cursor: pointer;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#prstile2.expand {
+  height: 32em;
+  cursor: pointer;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#prstile3.expand {
+  height: 20em;
+  cursor: pointer;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+@media (max-width : 990px ){
+  #prstile1.expand {
+    height: 55em;
+  }
+  
+  #prstile2.expand {
+    height: 45em;
+  }
+  
+  #prstile3.expand {
+    height: 25em;
+  }
+}
+
+@media (max-width : 760px ){
+  .prstile1, .prstile2, .prstile3 {
+    width: 48%;
+  }
+
+  #prstile1.expand {
+    height: 45em;
+  }
+  
+  #prstile2.expand {
+    height: 37em;
+  }
+  
+  #prstile3.expand {
+    height: 22em;
+  }
+}
+
+@media (max-width : 550px ){
+  .prstile1, .prstile2, .prstile3 {
+    width: 100%;
+  }
+
+  #prstile1.expand {
+    height: 35em;
+  }
+  
+  #prstile2.expand {
+    height: 23em;
+  }
+  
+  #prstile3.expand {
+    height: 16em;
+  }
+}
 
 .grow_text {
   -webkit-transition: font-size 0.3s ease;
@@ -6369,11 +6536,6 @@ dfn:hover::before {top: 20px;}
   width: 100%;
   padding-right: 15px;
   padding-left: 15px;
-
-  -ms-flex: 0 0 25%;
-    flex: 0 0 25%;
-    max-width: 25%;
-    
 }
 
 .flex-item:hover {

@@ -1,15 +1,8 @@
-import distutils.core
 import mysql.connector
 from mysql.connector import errorcode
-from mysql.connector.constants import ClientFlag
 import os
-from os import listdir
-from os.path import isfile, join
 from sys import argv
 from time import sleep
-
-import datetime
-import time
 
 # This script uploads the associations_table.tsv and the study_table.tsv to the PRSKB database.
 #
@@ -63,19 +56,14 @@ def deleteTable(cursor, dbTableName):
     cursor.close()
 
 # creates "dbTableName" and adds it to the database with no data
-def createTable(cursor, dbTableName):
-    tableColumns = ""
-    if dbTableName == "study_table":
-        tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), altmetricScore float, ethnicity varchar(255), initialSampleSize int unsigned, replicationSampleSize int unsigned, title varchar(255), lastUpdated varchar(15) )"
-    else:
-        tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, lowerCI float, upperCI float, sex varchar(20), citation varchar(50), studyID varchar(20) )"
+def createTable(cursor, dbTableName, tableColumns):
     sql = "CREATE TABLE `" + dbTableName + "` " + tableColumns + ";"
 
     cursor.execute(sql)
     cursor.close()
 
 # removes the table in fileNames if it exists and creates a new table
-def createFreshTable(config, tableName, dbTableName):
+def createFreshTable(config, dbTableName, tableColumns):
     connection = getConnection(config)
 
     dropped = False
@@ -84,7 +72,7 @@ def createFreshTable(config, tableName, dbTableName):
         deleteTable(connection.cursor(), dbTableName)
         dropped = True
     # create a new table with the table columns specified
-    createTable(connection.cursor(), dbTableName)
+    createTable(connection.cursor(), dbTableName, tableColumns)
     if dropped:
         print(dbTableName + " recreated")
     else:
@@ -105,13 +93,19 @@ def addStudyMaxesView(config):
 # gets the line ending pattern ("\n" or "\r\n") from the file at the given filePath; the line ending is then used outside of this function to upload the
 # file to the mysql database with the correct line ending
 def getFileLineEnding(filePath):
+    # assume "\n" ending
     ending = "\n"
-    with open(filePath) as readFile:
-        readFile.readline() # header
+    # open the file in binary to keep "\r" if they exist
+    with open(filePath, "rb") as readFile:
+        # get the first line
         line = readFile.readline()
-        if line[-2] == '\r':
+        # check what the ending of the line is using binary strings
+        if line.endswith(b"\r\n"):
             ending = "\r\n"
-    return ending
+        elif line.endswith(b"\n\r"):
+            ending = "\n\r"
+    # return the string form of the endings containing backslashes and not the literal ending
+    return repr(ending)
 
 # the same as the addDataToTable function except if there is an exception, it waits and then attepts to excecute addDataToTable again (this catches the 
 # occational hitch where the table isn't created before the program tries to add data to it)
@@ -130,7 +124,7 @@ def addDataToTable(config, tablesFolderPath, tableName, dbTableName):
     cursor = connection.cursor()
     path = os.path.join(tablesFolderPath, tableName + ".tsv")
     path = path.replace("\\", "/")
-    lineEnding = repr(getFileLineEnding(path))
+    lineEnding = getFileLineEnding(path)
     # character set latin1 is required for some of the tables containing non English characters in their names
     sql = 'LOAD DATA LOCAL INFILE "' + path + '" INTO TABLE `' + dbTableName + \
         '`CHARACTER SET utf8 COLUMNS TERMINATED BY "\t" LINES TERMINATED BY ' + lineEnding + ' IGNORE 1 LINES;'
@@ -185,6 +179,7 @@ def main():
     if len(argv) == 4:
         studyTableFolderPath = setPathWithCheck(argv[3])
 
+
     # set other default variables
     config = {
         'user': 'polyscore',
@@ -202,14 +197,23 @@ def main():
     connection.close()
 
     # add the associations_table to the database
-    createFreshTable(config, "associations_table", "associations_table")
+    tableColumns = "( id int unsigned not null, snp varchar(20), hg38 varchar(50), hg19 varchar(50), hg18 varchar(50), hg17 varchar(50), \
+        trait varchar(255), gene varchar(255), raf float, riskAllele varchar(20), pValue double, pValueAnnotation varchar(255), oddsRatio float, \
+        lowerCI float, upperCI float, betaValue float, betaUnit varchar(50), betaAnnotation varchar(255), ogValueTypes varchar(20), sex varchar(20), \
+        numAssociationsFiltered int unsigned, citation varchar(50), studyID varchar(20), INDEX (trait, studyID) )"
+    createFreshTable(config, "associations_table", tableColumns)
     addDataToTableCatch( config, associationTableFolderPath, "associations_table", "associations_table")
 
     # add the study_table to the database
-    createFreshTable(config, "study_table", "study_table")
+    tableColumns = "( studyID varchar(20), pubMedID varchar(20), trait varchar(255), reportedTrait varchar(255), citation varchar(50), \
+        altmetricScore decimal(15,5), ethnicity varchar(255), superPopulation varchar(255), initialSampleSize int unsigned, \
+        replicationSampleSize int unsigned, sex varchar(20), pValueAnnotation varchar(255), betaAnnotation varchar(255), ogValueTypes varchar(20), \
+        numAssociationsFiltered int unsigned, title varchar(255), lastUpdated varchar(15) )"
+    createFreshTable(config, "study_table", tableColumns)
     addDataToTableCatch(config, studyTableFolderPath, "study_table", "study_table")
 
-    print("Done!")
+    print("Finished uploading association and study tables to the PRSKB database.")
+    
 
 if __name__ == "__main__":
     main()

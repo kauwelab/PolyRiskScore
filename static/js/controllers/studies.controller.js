@@ -1,3 +1,4 @@
+const path = require("path");
 const Study = require("../models/study.model.js");
 
 // get all traits from the database, returns a list of traits
@@ -39,8 +40,9 @@ exports.getEthnicities = (req, res) => {
                 ethnicityString = data[i].ethnicity
                 ethnicityList = ethnicityString.split("|")
                 for (j=0; j<ethnicityList.length; j++){
-                    if (ethnicityList[j].toLowerCase() != "na" && ethnicityList[j] != "" && !(ethnicities.includes(ethnicityList[j]))) {
-                        ethnicities.push(ethnicityList[j])
+                    ethnicity = ethnicityList[j].toLowerCase()
+                    if (ethnicity != "na" && ethnicity != "" && !(ethnicities.includes(ethnicity))) {
+                        ethnicities.push(ethnicity)
                     }
                 }
             }
@@ -51,7 +53,7 @@ exports.getEthnicities = (req, res) => {
 }
 
 exports.findTraits = (req, res) => {
-    Study.findTrait(req.query.searchStr, (err, data) => {
+    Study.findTrait(req.params.searchStr, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -89,32 +91,7 @@ exports.getAll = (req, res) => {
         }
         else {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.send(data);
-        }
-    });
-};
-
-exports.getFiltered = (req, res) => {
-    traits = req.body.traits
-    studyTypes = req.body.studyTypes
-    ethnicities = req.body.ethnicities
-    console.log("getting studies");
-    Study.getFiltered(traits, studyTypes, ethnicities, (err, data) => {
-        if (err) {
-            res.status(500).send({
-                message: "Error retrieving studies"
-            });
-        }
-        else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            if (data == null) {
-                res.status(204).send({
-                    message: "No matching traits/studies were found"
-                });
-            }
-
             traitsList = {}
-            
             for (i=0; i<data.length; i++) {
                 if (Array.isArray(data[i])){
                     for (j=0; j<data[i].length; j++) {
@@ -135,7 +112,55 @@ exports.getFiltered = (req, res) => {
                     }
                 }
             }
+            res.send(traitsList);
+        }
+    });
+};
 
+exports.getFiltered = (req, res) => {
+    traits = req.body.traits
+    studyTypes = req.body.studyTypes
+    ethnicities = req.body.ethnicities
+    sexes = req.body.sexes
+    ogValueTypes = req.body.ogValueTypes
+    console.log("getting studies");
+    Study.getFiltered(traits, studyTypes, ethnicities, sexes, ogValueTypes, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving studies"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            if (data == null) {
+                res.status(204).send({
+                    message: "No matching traits/studies were found"
+                });
+                return;
+            }
+
+            traitsList = {}
+
+            for (i=0; i<data.length; i++) {
+                if (Array.isArray(data[i])){
+                    for (j=0; j<data[i].length; j++) {
+                        if (data[i][j].trait in traitsList) {
+                            traitsList[data[i][j].trait].push(data[i][j])
+                        }
+                        else {
+                            traitsList[data[i][j].trait] = [data[i][j]]
+                        }
+                    }
+                }
+                else {
+                    if (data[i].trait in traitsList) {
+                        traitsList[data[i].trait].push(data[i])
+                    }
+                    else {
+                        traitsList[data[i].trait] = [data[i]]
+                    }
+                }
+            }
             res.send(traitsList);
         }
     });
@@ -156,7 +181,7 @@ exports.getByID = (req, res) => {
 }
 
 exports.findStudies = (req, res) => {
-    Study.findStudy(req.query.searchStr, (err, data) => {
+    Study.findStudy(req.params.searchStr, (err, data) => {
         if (err) {
             res.status(500).send({
                 message: "Error retrieving studies"
@@ -168,3 +193,21 @@ exports.findStudies = (req, res) => {
         }
     });
 };
+
+exports.downloadStudyTable = (req, res) => {
+    downloadPath = path.join(__dirname, '../../..', 'tables')
+    var options = {
+        root: downloadPath
+    };
+    var fileName = 'study_table.tsv';
+    res.sendFile(fileName, options, function (err) {
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        }
+    });
+}

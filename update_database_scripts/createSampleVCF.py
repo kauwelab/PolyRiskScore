@@ -1,8 +1,6 @@
 import requests
 import myvariant
 import sys
-from sys import argv
-import json
 import os
 
 # This script creates a test VCF using one SNP from every study in the database. The VCF has 3 samples, 
@@ -14,9 +12,9 @@ import os
 
 
 # name of sample output vcf
-output = argv[1] if len(sys.argv) > 1 else "sample"
+output = sys.argv[1] if len(sys.argv) > 1 else "sample"
 # path to sample output vcf folder
-sampleVCFFolderPath = argv[2] if len(sys.argv) > 2 else "../static/"
+sampleVCFFolderPath = sys.argv[2] if len(sys.argv) > 2 else "../static/"
 # combine path and vcf name
 sampleVCFPath = os.path.join(sampleVCFFolderPath, output + ".vcf")
 print(sampleVCFPath)
@@ -47,8 +45,11 @@ for line in queryResults:
                 'alt': '.',
             }
         else:
+            ref = line['dbsnp']['ref']
+            if ref == "":
+                ref = "."
             snpRefAlleleDict[line['query']] = {
-                'ref': line['dbsnp']['ref'],
+                'ref': ref,
                 'pos': line['dbsnp']['hg19']['start'] if 'hg19' in line['dbsnp'].keys() else "",
                 'chrom': line['dbsnp']['chrom'],
                 'alt': line['dbsnp']['alt']
@@ -65,7 +66,9 @@ f.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMP001\tSAMP002
 for i in range(len(snpsData)):
     snp = snpsData[i]['snp']
     ref = snpRefAlleleDict[snp]['ref']
-    if  snpsData[i]['riskAllele'] == ref[0]:
+    if ref == ".":
+        continue
+    if snpsData[i]['riskAllele'] == ref[0] and snpRefAlleleDict[snp]['alt'] != "":
         alt = snpRefAlleleDict[snp]['alt']
     else: 
         alt = snpsData[i]['riskAllele']
@@ -73,12 +76,13 @@ for i in range(len(snpsData)):
     if (hg19 != "NA"):
         chrom, pos = hg19.split(":")
         f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
-    elif snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "":
+    elif snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "" and snpRefAlleleDict[snpsData[i]['snp']]['pos'] != "NA":
         chrom = snpRefAlleleDict[snpsData[i]['snp']]['chrom']
         pos = snpRefAlleleDict[snpsData[i]['snp']]['pos']
+        if chrom == "NA":
+            chrom = 25
+            pos = 0
         f.write("{0}\t{1}\t{2}\t{3}\t{4}\t.\tPASS\t.\tGT\t0/1\t0/0\t1/1\n".format(chrom, pos, snp, ref, alt))
-        
 f.close()
 
-
-
+print("Finished creating sample VCF")

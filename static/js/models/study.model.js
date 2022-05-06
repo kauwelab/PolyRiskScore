@@ -1,4 +1,5 @@
 const sql = require('./database')
+var async = require( 'async' );
 
 const Study = function (mstudy) {
     this.studyID = mstudy.studyID,
@@ -8,9 +9,15 @@ const Study = function (mstudy) {
     this.citation = mstudy.citation,
     this.altmetricScore = mstudy.altmetricScore,
     this.ethnicity = mstudy.ethnicity,
+    this.superPopulation = study.superPopulation,
     this.initialSampleSize = mstudy.initialSampleSize,
     this.replicationsSampleSize = mstudy.replicationSampleSize,
-    this.title = mstudy.title,
+    this.sex = mstudy.sex, // set of sexes that we have associations for in the study separated by |
+    this.pValueAnnotation = mstudy.pValueAnnotation, // set of the pValueAnnotations from the study, separated by |
+    this.betaAnnotation = mstudy.betaAnnotation, //set of betaAnnotations from the study, separated by |
+    this.ogValueTypes = mstudy.ogValueTypes, // beta and/or OR, separated by |
+    this.numAssociationsFiltered = mstudy.numAssociationsFiltered,
+    this.title = mstudy.title, 
     this.lastUpdated = mstudy.lastUpdated,
     this.studyType = mstudy.studyType
 }
@@ -68,7 +75,7 @@ Study.getAll = result => {
     });
 };
 
-Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
+Study.getFiltered = (traits, studyTypes, ethnicities, sexes, ogValueTypes, result) => {
     // use for adding the correct number of ? for using parameterization for the traits
     sqlQuestionMarks = ""
 
@@ -98,34 +105,47 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
         }
         if (res.length == 0) {
             result(null, null);
+            return;
         }
-        var sqlQueryString = "";
-        sqlQueryParams  = []
-        for (i = 0; i < res.length; i++) {
 
+        inner_callback = function(err) {
+            console.log("in inner callback")
+            // console.log(err)
+        }
+
+        console.log(`traits queried, ${res.length} result(s)`);
+
+        final_studies = []
+
+        async.forEachOf(res, function (dataElement, i, inner_callback){
+            var sqlQueryString = "";
+            sqlQueryParams = []
             //subQueryString is the string that we append query constraints to from the HTTP request
             var subQueryString = `SELECT * FROM study_table WHERE ( trait = ? OR reportedTrait = ? ) `;
-            sqlQueryParams.push(res[i].trait)
-            sqlQueryParams.push(res[i].trait)
+            sqlQueryParams.push(dataElement.trait)
+            sqlQueryParams.push(dataElement.trait)
             var appendor = "";
 
             //append sql conditional filters for studyType
             if(studyTypes){
+                if (!Array.isArray(studyTypes)){
+                    studyTypes = [studyTypes]
+                }
                 appendor = "AND (";
                 if (studyTypes.includes("LC")) {
                     subQueryString = subQueryString.concat(appendor).concat(` initialSampleSize+replicationSampleSize = ? `);
-                    sqlQueryParams.push(res[i].cohort)
+                    sqlQueryParams.push(dataElement.cohort)
                     appendor = "OR";
                 }
                 if (studyTypes.includes("HI")) {
                     subQueryString = subQueryString.concat(appendor).concat(` altmetricScore = ? `);
-                    sqlQueryParams.push(res[i].altmetricScore)
+                    sqlQueryParams.push(dataElement.altmetricScore)
                     appendor = "OR";
                 }
                 if (studyTypes.includes("O")) {
                     subQueryString = subQueryString.concat(appendor).concat(` altmetricScore <> ? AND  initialSampleSize+replicationSampleSize <> ? `);
-                    sqlQueryParams.push(res[i].altmetricScore)
-                    sqlQueryParams.push(res[i].cohort)
+                    sqlQueryParams.push(dataElement.altmetricScore)
+                    sqlQueryParams.push(dataElement.cohort)
                     appendor = "OR";
                 }
                 //if the appendor has been updated, then close the parenthesis
@@ -136,11 +156,13 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
 
             //append sql conditional filters for ethnicity
             if (ethnicities) {
+                if (!Array.isArray(ethnicities)){
+                    ethnicities = [ethnicities]
+                }
                 appendor = "AND (";
                 for(j=0; j < ethnicities.length; j++){
-                    //TODO check for "unspecified/blank" ethnicity studies
                     if (ethnicities[j] == "unspecified") {
-                        subQueryString = subQueryString.concat(appendor).concat(` ethnicity = '' OR ethnicity = ' ' `);
+                        subQueryString = subQueryString.concat(appendor).concat(` ethnicity = '' OR ethnicity = ' ' OR ethnicity = 'NA' `);
                         appendor = "OR";
                     }
                     else {
@@ -154,20 +176,61 @@ Study.getFiltered = (traits, studyTypes, ethnicities, result) => {
                     subQueryString = subQueryString.concat(") ")
                 }
             }
+
+            //append sql conditional filters for sexes
+            if (sexes) {
+                if (!Array.isArray(sexes)){
+                    sexes = [sexes]
+                }
+                // if sexes includes exclude, ignore any other options and exclude studies that have sex associations
+                if (sexes.includes("exclude") || sexes.includes('e')) {
+                    sexes = ["NA"]
+                }
+                appendor = "AND (";
+                for (j=0; j < sexes.length; j++) {
+                    subQueryString = subQueryString.concat(appendor).concat(` sex LIKE ? `);
+                    sqlQueryParams.push(`${sexes[j]}`)
+                    appendor = "OR";
+                }
+
+                if (appendor !== "AND (") {
+                    subQueryString = subQueryString.concat(") ")
+                }
+            }
+
+            //append sql conditional filters for ogValueTypes
+            if (ogValueTypes) {
+                subQueryString = subQueryString.concat(`AND ( ogValueTypes LIKE ? ) `);
+                sqlQueryParams.push(`%${ogValueTypes}%`)
+            }
+
             subQueryString = subQueryString.concat("; ")
             sqlQueryString = sqlQueryString.concat(subQueryString);
-        }
-        console.log(`traits queried, ${res.length} result(s)`);
 
-        sql.query(sqlQueryString, sqlQueryParams, (err, data) => {
+            sql.query(sqlQueryString, sqlQueryParams, function(err, rows){
+                if (err) {
+                    console.log(err)
+                    console.log("Honestly, we probably want it to fail here")
+                    result(err, null)
+                    return
+                }
+                else {
+                    final_studies = final_studies.concat(rows)
+                    inner_callback(null)
+                }
+            })
+
+        }, function(err){
             if (err) {
-                console.log("error: ", err);
-                result(err, null);
-                return;
+                console.log(err)
+                result(err, null)
+                return
             }
-            console.log(`studies queried, ${data.length} result(s)`)
-            result(null, data)
-        });
+            else {
+                result(null, final_studies);
+                return
+            }
+        })
     });
 };
 
@@ -198,7 +261,7 @@ Study.getByID = (studyIDs, result) => {
 Study.findStudy = (searchStr, result) => {
     // search by citation, title, or pubMedID
     searchString = `%${searchStr}%`
-    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? ;`, [searchString, searchString, searchString],  (err, res) => {
+    sql.query(`SELECT * FROM study_table WHERE citation LIKE ? OR title LIKE ? OR pubMedID LIKE ? OR studyID LIKE ? OR trait LIKE ? OR reportedTrait LIKE ? OR pValueAnnotation LIKE ? OR betaAnnotation LIKE ? ;`, [searchString, searchString, searchString, searchString, searchString, searchString, searchString, searchString],  (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);

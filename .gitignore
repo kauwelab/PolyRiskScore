@@ -1,5 +1,6 @@
 /node_modules
 /uploads
+passwords.js
 /static/js/passwords.js
 node_modules
 .DS_Store
@@ -8,3 +9,14 @@ core
 /update_database_scripts/rawGWASAncestries.tsv
 /update_database_scripts/rawGWASPublications.tsv
 /update_database_scripts/rawGWASStudyData.tsv
+/.vscode/settings.json
+/update_database_scripts/lastUpdated.tsv
+/update_database_scripts/__pycache__
+/update_database_scripts/calculate_MAF.py
+/update_database_scripts/calculate_MAF_1000g.py
+/update_database_scripts/uploadTablesToDatabase.pyc
+/tables/maf/
+/tables/cohorts/
+/tables/clumping/CHROM_CLUMPED_FILES/
+static/downloadables/.workingFiles
+static/downloadables/__pycache__

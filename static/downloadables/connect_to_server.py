@@ -1,123 +1,512 @@
 import json
-import math
-import ast
 import requests
 import os
 import os.path
 import time
 import datetime
-from multiprocessing import Process
+from sys import argv
+from io import TextIOWrapper
+import zipfile
+import tarfile
+import gzip
+import myvariant
+from Bio.Seq import Seq
 
 # get the associations and clumps from the Server
-def retrieveAssociationsAndClumps(pValue, refGen, traits, studyTypes, studyIDs, ethnicity, superPop, fileHash, extension, defaultSex):
+def retrieveAssociationsAndClumps(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes, superPop, fileHash, extension, mafCohort):
     checkInternetConnection()
 
-    # Format variables used for getting associations
-    traits = traits.split(" ") if traits != "" else None
-    if traits is not None:
-        traits = [sub.replace('_', ' ') for sub in traits]
-    studyTypes = studyTypes.split(" ") if studyTypes != "" else None
-    studyIDs = studyIDs.split(" ") if studyIDs != "" else None
-    ethnicity = ethnicity.split(" ") if ethnicity != "" else None
+    # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
+    if extension == '.txt' and mafCohort == 'user':
+        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
 
-    dnldNewAllAssociFile = checkForAllAssociFile(refGen, defaultSex)
-    
+    mafCohort = formatMafCohort(mafCohort)
+    percentilesCohort = mafCohort
+    if mafCohort.startswith("adni"):
+        mafCohort = "adni"
+
+    if (ethnicity is not None):
+        ethnicity = [sub.replace('_', ' ').replace('"', '').lower() for sub in ethnicity]
+        availableEthnicities = getUrlWithParams("https://prs.byu.edu/ethnicities", params={})
+        if (not bool(set(ethnicity) & set(availableEthnicities)) and studyIDs is None):
+            raise SystemExit('\nThe ethnicities requested are invalid. \nPlease use an ethnicity option from the list: \n\n{}'.format(availableEthnicities))
+
     workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
     associationsPath = ""
-    # if the user didn't give anything to filter by, get all the associations
-    if (traits is None and studyTypes is None and studyIDs is None and ethnicity is None):
-        # if we need to download a new all associations file, write to file
-        associationsPath = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
-        if (dnldNewAllAssociFile):
-            associationsReturnObj = getAllAssociations(refGen, defaultSex)
-            strandFlip = True
-            downloadClumpsFile = True
-        else:
-            # TODO: on a later branch, create an endpoint to check the date of the clumps file with the date of the clumps files on the database
-            downloadClumpsFile = True
-            strandFlip = False
-            # if os.path.exists(os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))):
-            #     # check the date on the file/ server file? 
-            #     return
-            # else:
-            #     downloadClumpsFile = True
-            #     strandFlip = False
-    # else get the associations using the given filters
-    else:
-        fileName = "associations_{ahash}.txt".format(ahash = fileHash)
-        associationsPath = os.path.join(workingFilesPath, fileName)
-        associationsReturnObj = getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex)
-        strandFlip = True
-        downloadClumpsFile = False
 
-    # flip strands as needed
-    if strandFlip:
-        print("Starting strand flipping on additional process")
-        p = Process(target=handleStrandFlippingAndSave, args=(associationsReturnObj, associationsPath))
-        p.start()
+    # if the directory doesn't exist, make it, and we will need to download the files
+    if not os.path.exists(workingFilesPath):
+        os.mkdir(workingFilesPath)
 
-    if downloadClumpsFile:
-        clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=superPop, r=refGen))
-        clumpsData = getAllClumps(refGen, superPop)
-    else:
-        # grab all the snps or positions to use for getting the clumps
-        snpsFromAssociations = list(associationsReturnObj['associations'].keys())
-        
-        #download clumps from database
-        fileName = "{p}_clumps_{r}_{ahash}.txt".format(p = superPop, r = refGen, ahash = fileHash)
-        clumpsPath = os.path.join(workingFilesPath, fileName)
-        # get clumps using the refGen and superpopulation
-        clumpsData = getClumps(refGen, superPop, snpsFromAssociations)
+    # Create the set that will include all the user-preferred super populations that correspond to the associations
+    allSuperPops = set()
+    # if we need to download a new all associations file, write to file
+    associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
+    associationsPath = os.path.join(workingFilesPath, associFileName)
 
-    f = open(clumpsPath, 'w', encoding="utf-8")
-    f.write(json.dumps(clumpsData))
-    f.close()
+    allSuperPops |= set(['AFR', 'AMR', 'EAS', 'EUR', 'SAS'])
 
-    if strandFlip:
-        p.join()
+    if (checkForAllAssociFile(refGen)):
+        associationsReturnObj = getAllAssociations(refGen)
+        studySnpsPath = os.path.join(workingFilesPath, "traitStudyIDToSnps.txt")
+        studySnpsData = getAllStudySnps()
+        possibleAllelesPath = os.path.join(workingFilesPath, "allPossibleAlleles.txt")
+        possibleAllelesData = getAllPossibleAlleles()
+    
+    dwnldNewMAFFile, mafPathExists = checkForAllMAFFiles(mafCohort, refGen)
+    if (dwnldNewMAFFile):
+        mafPath = os.path.join(workingFilesPath, "{m}_maf_{r}.txt".format(m=mafCohort, r=refGen))
+        mafData = getAllMaf(mafCohort, refGen)
+
+    if (checkForAllPercentilesFiles(percentilesCohort)):
+        percentilesPath = os.path.join(workingFilesPath, "allPercentiles_{c}.txt".format(c=percentilesCohort))
+        percentileData = getAllPercentiles(percentilesCohort)
+
+    # check to see if associationsReturnObj is instantiated in the local variables
+    if 'associationsReturnObj' in locals():
+        f = open(associationsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(associationsReturnObj, indent=4))
+        f.close()
+
+    if 'mafData' in locals():
+        f = open(mafPath, 'w', encoding="utf-8")
+        f.write(json.dumps(mafData, indent=4))
+        f.close()
+    elif mafCohort != 'user' and not mafPathExists:
+        raise SystemExit("ERROR: We were not able to retrieve the Minor Allele Frequency data at this time. Please try again.")
+
+    if 'percentileData' in locals():
+        f = open(percentilesPath, 'w', encoding='utf-8')
+        f.write(json.dumps(percentileData, indent=4))
+        f.close()
+
+    if 'possibleAllelesData' in locals():
+        f = open(possibleAllelesPath, 'w', encoding="utf-8")
+        f.write(json.dumps(possibleAllelesData, indent=4))
+        f.close()
+
+    # check to see if studySnpsData is instantiated in the local variables
+    if 'studySnpsData' in locals():
+        f = open(studySnpsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(studySnpsData, indent=4))
+        f.close()
+    
+    for pop in allSuperPops:
+        if (checkForAllClumps(pop, refGen)):
+            clumpsPath = os.path.join(workingFilesPath, "{p}_clumps_{r}.txt".format(p=pop, r=refGen))
+            clumpsData = getAllClumps(refGen, pop)
+            
+        # check to see if clumpsData is instantiated in the local variables
+        if 'clumpsData' in locals():
+            f = open(clumpsPath, 'w', encoding="utf-8")
+            f.write(json.dumps(clumpsData, indent=4))
+            f.close()
+
     return
 
 
-def checkForAllAssociFile(refGen, defaultSex):
+# format the uploaded GWAS data and get the clumps from the server
+def formatGWASAndRetrieveClumps(GWASfile, userGwasBeta, GWASextension, GWASrefGen, refGen, superPop, mafCohort, fileHash, extension):
+    checkInternetConnection()
+
+    # if the extension is .txt and the mafCohort is user -- Fail this is not a valid combination
+    if extension == '.txt' and mafCohort == 'user':
+        raise SystemExit('\nIn order to use the "user" option for maf cohort, you must upload a vcf, not a txt file. Please upload a vcf instead, or select a different maf cohort option. \n\n')
+
+    GWASfileOpen = openFileForParsing(GWASfile, True)
+
+    allSuperPops = set()
+
+    associationDict = {}
+    chromSnpDict = {}
+    studyIDsToMetaData = {}
+    studySnpsData = {}
+
+    sii = -1 # studyID index
+    ti = -1 # trait index
+    spi = -1 # super population index
+    si = -1 # snp index
+    ci = -1 # chromosome index
+    pi = -1 # position index
+    rai = -1 # risk allele index
+    ori = -1 # odds ratio index
+    bvi = -1 # beta value index
+    bui = -1 # beta unit index
+    pvi = -1 # p-value index
+    spi = -1 # super population index
+    cti = -1 # citation index
+    rti = -1 # reported trait index
+    pvai = -1 # pvalue annotation index
+    bai = -1 # beta annotation index
+
+    firstLine = True
+    duplicatesSet = set()
+
+    for line in GWASfileOpen:
+        line = line.strip()
+        if len(line) == 0: # skip lines that don't have content
+            continue
+        if firstLine:
+            firstLine = False
+            headers = line.lower().split("\t")
+
+            try:
+                sii = headers.index("study id")
+                ti = headers.index("trait")
+                si = headers.index("rsid")
+                ci = headers.index("chromosome")
+                pi = headers.index("position")
+                rai = headers.index("risk allele")
+                if userGwasBeta:
+                    bvi = headers.index("beta coefficient")
+                    bui = headers.index("beta units")
+                else:
+                    ori = headers.index("odds ratio")
+                pvi = headers.index("p-value")
+                spi = headers.index("super population")
+            except ValueError:
+                raise SystemExit("ERROR: The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format. Additionally, check your column names and ensure that there are no extra spaces in the names and that your spelling is correct.")
+
+            cti = headers.index("citation") if "citation" in headers else -1
+            rti = headers.index("reported trait") if "reported trait" in headers else -1
+            pvai = headers.index("p-value annotation") if "p-value annotation" in headers else -1
+            bai = headers.index("beta annotation") if "beta annotation" in headers else -1
+
+        else:
+            line = line.split("\t")
+            # Add super population to the super population set
+            preferredPop = getPreferredPop(line[spi], superPop)
+            # Add super population to the super population set
+            allSuperPops.add(preferredPop)
+            # create the chrom:pos to snp dict
+            # if the chrom:pos not in the chromSnpDict
+            chromPos = ":".join([line[ci], line[pi]])
+            if chromPos not in chromSnpDict:
+                # add the chrom:pos with the snp rsID
+                chromSnpDict[chromPos] = line[si]
+            
+            # create the snp to associations stuff dict
+            # if snp not in associationsDict
+            if line[si] not in associationDict:
+                associationDict[line[si]] = {
+                    "pos": chromPos,
+                    "traits": {}
+                }
+            # if trait not in associationsDict[snp][traits]
+            if line[ti] not in associationDict[line[si]]["traits"]:
+                associationDict[line[si]]["traits"][line[ti]] = {}
+            # if studyID not in associationDict[snp]["traits"][trait]
+            if line[sii] not in associationDict[line[si]]["traits"][line[ti]]:
+                associationDict[line[si]]["traits"][line[ti]][line[sii]] = {}
+            # if pvalannotation not in associationDict[line[si]]["traits"][line[ti]][line[sii]]
+            pValueAnnotation = line[pvai] if pvai != -1 else "NA"
+            betaAnnotation = line[bai] if bai != -1 else "NA"
+            valueType = "beta" if userGwasBeta else "OR"
+            pvalBetaAnnoValType = pValueAnnotation + "|" + betaAnnotation + "|" + valueType
+            if pvalBetaAnnoValType not in associationDict[line[si]]["traits"][line[ti]][line[sii]]:
+                associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType] = {}
+            
+            riskAllele = runStrandFlipping(line[si], line[rai])
+            if riskAllele not in associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType]:
+                associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]= {
+                    "pValue": float(line[pvi]),
+                    "sex": "NA",
+                    "ogValueTypes": 'beta' if userGwasBeta else 'OR'
+                }
+                if userGwasBeta:
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaValue'] = float(line[bvi])
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaUnit'] = line[bui]
+                else:
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['oddsRatio'] = float(line[ori])
+                    associationDict[line[si]]["traits"][line[ti]][line[sii]][pvalBetaAnnoValType][riskAllele]['betaUnit'] = 'NA'
+        
+            else:
+                # if the snp is duplicated, notify the user and exit
+                raise SystemExit("ERROR: The GWAS file contains at least one duplicated snp for the following combination. {}, {}, {}, {}, . \n Please ensure that there is only one snp for each combination.".format(line[si], line[ti], line[sii], pvalBetaAnnoValType))
+
+            # create the metadata info dict
+            # if the studyID is not in the studyIDsToMetaData
+            if line[sii] not in studyIDsToMetaData:
+                studyIDsToMetaData[line[sii]] = {
+                    "citation": line[cti] if cti != -1 else "",
+                    "reportedTrait": line[rti] if rti != -1 else "",
+                    "studyTypes": [],
+                    "traits": {},
+                    "ethnicity": []
+                }
+            # if the trait is not in the studyIDsToMetaData[studyID]["traits"]
+            if line[ti] not in studyIDsToMetaData[line[sii]]["traits"]:
+                # add the trait
+                studyIDsToMetaData[line[sii]]["traits"][line[ti]] = {
+                    "studyTypes": [],
+                    "pValBetaAnnoValType": [pvalBetaAnnoValType],
+                    "superPopulations": [line[spi]]
+                }
+            else:
+                studyIDsToMetaData[line[sii]]["traits"][line[ti]]['pValBetaAnnoValType'].append(pvalBetaAnnoValType)
+                
+            # create studyID/trait/pValueAnnotation to snps
+            # if trait|studyID|pValueAnnotation not in the studySnpsData
+            joinList = [line[ti], pvalBetaAnnoValType, line[sii]]
+            traitStudyIDPValAnno = "|".join(joinList)
+            if traitStudyIDPValAnno not in studySnpsData:
+                studySnpsData[traitStudyIDPValAnno] = []
+            # add snp to the traitStudyIDToSnp
+            studySnpsData[traitStudyIDPValAnno].append(line[si])
+
+    GWASfileOpen.close()
+
+    # remove duplicated associations
+    for (snp, trait, studyID) in duplicatesSet:
+        del associationDict[snp]["traits"][trait][studyID]
+        if associationDict[snp]["traits"][trait] == {}:
+            del associationDict[snp]["traits"][trait]
+            if associationDict[snp]["traits"] == {}:
+                del associationDict[snp]
+
+    # if the samples reference genome does not equal the gwas reference genome, get a dictionary with the correct positions
+    if GWASrefGen != refGen:
+        snps = list(associationDict.keys())
+        chromSnpDict = getUrlWithParams("https://prs.byu.edu/snps_to_chrom_pos", { "snps": snps, "refGen": refGen })
+
+    mergedAssociDict = dict()
+    mergedAssociDict.update(associationDict)
+    mergedAssociDict.update(chromSnpDict)
+    chromPos = list(chromSnpDict.keys())
+
+    associationsReturnObj = {
+        "associations": mergedAssociDict,
+        "studyIDsToMetaData": studyIDsToMetaData
+    }
+        
+    workingFilesPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".workingFiles")
+    # if the directory doesn't exist, make it, and we will need to download the files
+    if not os.path.exists(workingFilesPath):
+        os.mkdir(workingFilesPath)
+    
+    fileName = "GWASassociations_{fileHash}.txt".format(fileHash=fileHash)
+    associationsPath = os.path.join(workingFilesPath, fileName)
+
+
+    # Access and write the clumps file for each of the super populations preferred in the GWAS file
+    for pop in allSuperPops:
+        fileName = "{pop}_clumps_{refGen}_{fileHash}.txt".format(pop=pop, refGen=refGen, fileHash=fileHash)
+        clumpsPath = os.path.join(workingFilesPath, fileName)
+
+        # get clumps using the refGen and superpopulation
+        clumpsData = getClumps(refGen, pop, chromPos)
+
+        # check to see if clumpsData is instantiated in the local variables
+        if 'clumpsData' in locals():
+            f = open(clumpsPath, 'w', encoding="utf-8")
+            f.write(json.dumps(clumpsData))
+            f.close()
+
+    #get maf data using the refgen and mafcohort
+    fileName = "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash)
+    mafPath = os.path.join(workingFilesPath, fileName)
+    mafData = getMaf(mafCohort, refGen, chromPos)
+
+    # get the study:snps info
+    fileName = "traitStudyIDToSnps_{ahash}.txt".format(ahash = fileHash)
+    studySnpsPath = os.path.join(workingFilesPath, fileName)
+
+    # get the possible alleles for snps
+    fileName = "possibleAlleles_{ahash}.txt".format(ahash = fileHash)
+    possibleAllelesPath = os.path.join(workingFilesPath, fileName)
+    possibleAllelesData = getPossibleAlleles(list(associationsReturnObj['associations'].keys()))
+
+
+    # check to see if associationsReturnObj is instantiated in the local variables
+    if 'associationsReturnObj' in locals():
+        f = open(associationsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(associationsReturnObj))
+        f.close()
+
+    if 'mafData' in locals():
+        f = open(mafPath, 'w', encoding='utf-8')
+        f.write(json.dumps(mafData))
+        f.close()
+
+    # check to see if studySnpsDat is instantiated in the local variables
+    if 'studySnpsData' in locals():
+        f = open(studySnpsPath, 'w', encoding="utf-8")
+        f.write(json.dumps(studySnpsData))
+        f.close()
+
+    # check to se if possible allele data is instantiated in the loacl variables
+    if 'possibleAllelesData' in locals():
+        f = open(possibleAllelesPath, 'w', encoding="utf-8")
+        f.write(json.dumps(possibleAllelesData))
+        f.close()
+
+    return
+
+
+# opens and returns an open file from the inputFile path, using zipfile, tarfile, gzip, or open depending on the file's type
+# assumes the file is valid (validated with getZippedFileExtension function)
+def openFileForParsing(inputFile, isGWAS=False):
+    filename = ""
+    if zipfile.is_zipfile(inputFile):
+        # open the file
+        archive = zipfile.ZipFile(inputFile)
+        # get the vcf or txt file in the zip
+        for filename in archive.namelist():
+            extension = filename[-4:].lower()
+            if (not isGWAS and extension == ".txt" or extension == ".vcf") or (isGWAS and extension == ".txt" or extension == ".tsv"):
+                # TextIOWrapper converts bytes to strings and force_zip64 is for files potentially larger than 2GB
+                return TextIOWrapper(archive.open(filename, force_zip64=True))
+    elif tarfile.is_tarfile(inputFile):
+        # open the file
+        archive = tarfile.open(inputFile)
+        # get the vcf or txt file in the tar
+        for tarInfo in archive:
+            extension = tarInfo.name[-4:].lower()
+            if (not isGWAS and extension == ".txt" or extension == ".vcf") or (isGWAS and extension == ".txt" or extension == ".tsv"):
+                # TextIOWrapper converts bytes to strings
+                return TextIOWrapper(archive.extractfile(tarInfo))
+    elif inputFile.lower().endswith(".gz") or inputFile.lower().endswith(".gzip"):
+        return TextIOWrapper(gzip.open(inputFile, 'r'))
+    else:
+        # default option for regular vcf and txt files
+        return open(inputFile, 'r')
+
+
+def checkForAllAssociFile(refGen):
     # assume we will need to download new files
     dnldNewAllAssociFile = True
     # check to see if the workingFiles directory is there, if not make the directory
     scriptPath = os.path.dirname(os.path.abspath(__file__))
     workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+    # path to a file containing all the associations from the database
+    associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
+    allAssociationsFile = os.path.join(workingFilesPath, associFileName)
 
-    # if the directory doesn't exist, make it, and we will need to download the files
-    if not os.path.exists(workingFilesPath):
-        os.mkdir(workingFilesPath)
-        return dnldNewAllAssociFile
-    
-    else:
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allAssociationsFile):
+
         # get date the database was last updated
-        response = requests.get(url="https://prs.byu.edu/last_database_update")
+        params = {
+            "refGen": refGen
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_database_update", params=params)
         response.close()
         assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
         lastDatabaseUpdate = response.text
         lastDatabaseUpdate = lastDatabaseUpdate.split("-")
         lastDBUpdateDate = datetime.date(int(lastDatabaseUpdate[0]), int(lastDatabaseUpdate[1]), int(lastDatabaseUpdate[2]))
 
-        # path to a file containing all the associations from the database
-        allAssociationsFile = os.path.join(workingFilesPath, "allAssociations_{refGen}_{sex}.txt".format(refGen=refGen, sex=defaultSex[0]))
+        fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastDBUpdateDate < fileModDate):
+            dnldNewAllAssociFile = False
 
-        # if the path exists, check if we don't need to download a new one
-        if os.path.exists(allAssociationsFile):
-            fileModDateObj = time.localtime(os.path.getmtime(allAssociationsFile))
-            fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
-            # if the file is newer than the database update, we don't need to download a new file
-            if (lastDBUpdateDate < fileModDate):
-                dnldNewAllAssociFile = False
-        
-        return dnldNewAllAssociFile
+    return dnldNewAllAssociFile
+
+
+def checkForAllClumps(pop, refGen):
+    # assume we need to download new file
+    dnldNewClumps = True
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+
+    # path to a file containing all the clumps from the database
+    allClumpsFile = os.path.join(workingFilesPath, "{0}_clumps_{1}.txt".format(pop, refGen))
+
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allClumpsFile):
+        params = {
+            "refGen": refGen,
+            "superPop": pop
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_clumps_update", params=params)
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
+        lastClumpsUpdate = response.text
+        lastClumpsUpdate = lastClumpsUpdate.split('-')
+        lastClumpsUpdate = datetime.date(int(lastClumpsUpdate[0]), int(lastClumpsUpdate[1]), int(lastClumpsUpdate[2]))
+
+        fileModDateObj = time.localtime(os.path.getmtime(allClumpsFile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastClumpsUpdate <= fileModDate):
+            dnldNewClumps = False
+
+    return dnldNewClumps
+
+
+def checkForAllMAFFiles(mafCohort, refGen):
+    dnldNewMaf = True
+    pathExists = False
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+
+    # path to a file containing all maf for the cohort from the database
+    allMAFfile = os.path.join(workingFilesPath, "{0}_maf_{1}.txt".format(mafCohort, refGen))
+
+    # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allMAFfile):
+        pathExists = True
+        params = {
+            "cohort": mafCohort,
+            "refGen": refGen
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_maf_update", params=params)
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
+        lastMafUpdate = response.text
+        lastMafUpdate = lastMafUpdate.split('-')
+        lastMafUpdate = datetime.date(int(lastMafUpdate[0]), int(lastMafUpdate[1]), int(lastMafUpdate[2]))
+
+        fileModDateObj = time.localtime(os.path.getmtime(allMAFfile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastMafUpdate <= fileModDate):
+            dnldNewMaf = False
+
+    return dnldNewMaf, pathExists
+
+
+def checkForAllPercentilesFiles(percentilesCohort):
+    dnldNewPercentiles = True
+    # check to see if the workingFiles directory is there, if not make the directory
+    scriptPath = os.path.dirname(os.path.abspath(__file__))
+    workingFilesPath = os.path.join(scriptPath, ".workingFiles")
+    # path to a file containing all maf for the cohort from the database
+    allPercentilesfile = os.path.join(workingFilesPath, "allPercentiles_{}.txt".format(percentilesCohort))
+
+     # if the path exists, check if we don't need to download a new one
+    if os.path.exists(allPercentilesfile):
+        params = {
+            "cohort": percentilesCohort
+        }
+
+        response = requests.get(url="https://prs.byu.edu/last_percentiles_update", params=params)
+        response.close()
+        assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason)
+        lastPercentilesUpdate = response.text
+        lastPercentilesUpdate = lastPercentilesUpdate.split('-')
+        lastPercentilesUpdate = datetime.date(int(lastPercentilesUpdate[0]), int(lastPercentilesUpdate[1]), int(lastPercentilesUpdate[2]))
+
+        fileModDateObj = time.localtime(os.path.getmtime(allPercentilesfile))
+        fileModDate = datetime.date(fileModDateObj.tm_year, fileModDateObj.tm_mon, fileModDateObj.tm_mday)
+        # if the file is newer than the database update, we don't need to download a new file
+        if (lastPercentilesUpdate <= fileModDate):
+            dnldNewPercentiles = False
+
+    return dnldNewPercentiles
 
 
 # gets associations obj download from the Server
-def getAllAssociations(refGen, defaultSex): 
+def getAllAssociations(refGen): 
     params = {
         "refGen": refGen,
-        "defaultSex": defaultSex[0],
     }
     associationsReturnObj = getUrlWithParams("https://prs.byu.edu/get_associations_download_file", params = params)
     # Organized with pos/snp as the Keys
@@ -134,18 +523,90 @@ def getAllClumps(refGen, superPop):
     return clumpsReturnObj
 
 
-# gets associationReturnObj using the given filters
-def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, defaultSex):
-    finalStudyList = []
+def getAllMaf(mafCohort, refGen):
+    if (mafCohort == 'user'): return {}
+    params = {
+        "cohort": mafCohort,
+        "refGen": refGen
+    }
+    mafReturnedObj = getUrlWithParams("https://prs.byu.edu/get_maf_download_file", params=params)
+    return mafReturnedObj
 
-    if (traits is not None or studyTypes is not None or ethnicity is not None):
+
+def getAllPercentiles(percentilesCohort):
+    if (percentilesCohort == 'user'): return {}
+    params = {
+        "cohort": percentilesCohort
+    }
+    percentilesReturnedObj = getUrlWithParams("https://prs.byu.edu/get_percentiles_download_file", params=params)
+    return percentilesReturnedObj
+
+
+# gets study snps file download from the Server
+# gets a list of snps for all of the unique trait/pValueAnnotation/betaAnnotation/valueType/studyID combinations
+def getAllStudySnps(): 
+    studySnpsReturnObj = getUrlWithParams("https://prs.byu.edu/get_traitStudyID_to_snp", params={})
+    # Organized with study as the Keys and snps as values
+    return studySnpsReturnObj
+
+
+def getAllPossibleAlleles():
+    possibleAllelesObj = getUrlWithParams("https://prs.byu.edu/get_all_possible_alleles", params={})
+    return possibleAllelesObj
+
+
+# This function is used to combine json from all the separate calls into one json object. Due to the amount of nesting in the json
+# this is the neccesary way to properly combine
+def combineJson(old, new):
+    studyMeta = new["studyIDsToMetaData"]
+    associations = new["associations"]
+
+    for studyID in studyMeta:
+        if studyID not in old["studyIDsToMetaData"]:
+            old["studyIDsToMetaData"][studyID] = studyMeta[studyID]
+        else:
+            for trait in studyMeta[studyID]["traits"]:
+                if trait not in old["studyIDsToMetaData"][studyID]["traits"]:
+                    old["studyIDsToMetaData"][studyID]["traits"][trait] = studyMeta[studyID]["traits"][trait]
+
+    for snp in associations:
+        if snp not in old["associations"]:
+            old["associations"][snp] = associations[snp]
+        elif snp.startswith("rs"):
+            for trait in associations[snp]["traits"]:
+                if trait not in old["associations"][snp]["traits"]:
+                    old["associations"][snp]["traits"][trait] = associations[snp]["traits"][trait]
+                else:
+                    for studyID in associations[snp]["traits"][trait]:
+                        if studyID not in old["associations"][snp]["traits"][trait]:
+                            old["associations"][snp]["traits"][trait][studyID] = associations[snp]["traits"][trait][studyID]
+                        else:
+                            for pValBetaAnnoValType in associations[snp]["traits"][trait][studyID]:
+                                if pValBetaAnnoValType not in old["associations"][snp]["traits"][trait][studyID]:
+                                    old["associations"][snp]["traits"][trait][studyID][pValBetaAnnoValType] = associations[snp]["traits"][trait][studyID][pValBetaAnnoValType]
+    new = {}
+    return old
+
+
+# gets associationReturnObj using the given filters
+def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, valueTypes, sexes):
+    finalStudyList = []
+    associationData = {
+        "studyIDsToMetaData" : {},
+        "associations": {}
+    }
+
+    if (traits is not None or studyTypes is not None or ethnicity is not None or valueTypes is not None or sexes is not None):
         # get the studies matching the parameters
         body = {
             "traits": traits, 
             "studyTypes": studyTypes,
             "ethnicities": ethnicity,
+            "sexes": sexes,
+            "ogValueTypes": valueTypes
         }
         traitData = {**postUrlWithBody("https://prs.byu.edu/get_studies", body=body)}
+        #TODO it looks like this is timing out (-e "Asian unspecified" -y beta -g female -k HI) Need to do something to handle this later
 
         # select the studyIDs of the studies
         for trait in traitData:
@@ -156,7 +617,10 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
                 else:
                     finalStudyList.append(json.dumps({
                         "trait": trait,
-                        "studyID": study['studyID']
+                        "studyID": study['studyID'],
+                        "pValueAnnotation": study['pValueAnnotation'],
+                        "betaAnnotation": study['betaAnnotation'],
+                        "ogValueTypes" : study['ogValueTypes']
                     }))
 
     # get the data for the specified studyIDs
@@ -165,29 +629,122 @@ def getSpecificAssociations(refGen, traits, studyTypes, studyIDs, ethnicity, def
             "studyIDs": studyIDs
         }
         studyIDDataList = getUrlWithParams("https://prs.byu.edu/get_studies_by_id", params = params)
+        if studyIDDataList == []:
+            print('\n\nWARNING, NO STUDIES MATCHED THE GIVEN STUDY ID(S): {}. \nTHIS MAY CAUSE THE PROGRAM TO QUIT IF THERE WERE NO OTHER FILTERS.\n'.format(studyIDs))
+
         for i in range(len(studyIDDataList)):
             # add the specified studyIDs to the set of studyIDObjs
             finalStudyList.append(json.dumps({
                 "trait": studyIDDataList[i]['trait'],
-                "studyID": studyIDDataList[i]['studyID']
+                "studyID": studyIDDataList[i]['studyID'],
+                "pValueAnnotation": studyIDDataList[i]['pValueAnnotation'],
+                "betaAnnotation": studyIDDataList[i]['betaAnnotation'],
+                "ogValueTypes" : studyIDDataList[i]['ogValueTypes']
             }))
 
-    # get the associations based on the studyIDs
-    body = {
-        "refGen": refGen,
-        "studyIDObjs": finalStudyList,
-        "sex": defaultSex,
-    }
+    if finalStudyList == []:
+        raise SystemExit("No studies with those filters exist because your filters are too narrow or invalid. Check your filters and try again.")
 
-    associationsReturnObj = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
-    return associationsReturnObj
+    # Breaking up the calls to the get_associations endpoint so that we don't got over the Request size limit
+    try:
+        lengthOfList = len(finalStudyList)
+        i = 0
+        j = 1000 if lengthOfList > 1000 else lengthOfList
+        print("Getting associations and studies")
+        print("Total number of studies: {}". format(lengthOfList))
+        runLoop = True
+        while runLoop:
+            if j == lengthOfList:
+                runLoop = False
+            # get the associations based on the studyIDs
+            print("{}...".format(j), end = "", flush=True)
+            body = {
+                "refGen": refGen,
+                "studyIDObjs": finalStudyList[i:j],
+                "sexes": sexes,
+                "ogValueType": valueTypes
+            }
+            tmpAssociationsData = postUrlWithBody("https://prs.byu.edu/get_associations", body=body)
+            associationData = combineJson(associationData, tmpAssociationsData)
+            i = j
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList
+        print('Done\n')
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+    return associationData, finalStudyList
+
+
+def runStrandFlipping(snp, allele):
+    import myvariant
+    from Bio.Seq import Seq
+
+    mv = myvariant.MyVariantInfo()
+
+    possibleAlleles = getVariantAlleles(snp, mv)
+    riskAllele = Seq(allele)
+    if riskAllele not in possibleAlleles:
+        complement = riskAllele.reverse_complement()
+        if complement in possibleAlleles:
+            print("WE MADE A SWITCH", snp, riskAllele, complement)
+            riskAllele = complement
+    
+    return str(riskAllele)
+
+
+def getPossibleAlleles(snpsFromAssociations):
+    mv = myvariant.MyVariantInfo()
+    snpsToPossibleAlleles = {}
+
+    for snp in snpsFromAssociations:
+        if snp.startswith("rs"):
+            possibleAlleles = getVariantAlleles(snp, mv)
+            snpsToPossibleAlleles[snp] = possibleAlleles
+    return snpsToPossibleAlleles
+
+
+def getVariantAlleles(rsID, mv):
+    import contextlib, io
+
+    f=io.StringIO()
+    with contextlib.redirect_stdout(f):
+        queryResult = mv.query('dbsnp.rsid:{}'.format(rsID), fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref')
+    output = f.getvalue()
+
+    objs = queryResult['hits'][0] if len(queryResult['hits']) > 0 else None
+    objsList = []
+    if isinstance(objs, dict):
+        objsList.append(objs)
+        objs = objsList
+
+    alleles = set()
+    if objs is not None:
+        for obj in objs:
+            if ('alleles' in obj['dbsnp']):
+                for alleleObj in obj['dbsnp']['alleles']:
+                    alleles.add(alleleObj['allele'])
+            if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
+                alleles.add(obj['dbsnp']['ref'])
+            if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
+                alleles.add(obj['dbsnp']['alt'])
+            if (len(alleles) == 0):
+                print(obj, "STILL NO ALLELES")
+    else:
+        # TODO maybe: try to find it with a merged snp?
+        pass
+
+    return list(alleles)
 
 
 # for POST urls
 def postUrlWithBody(url, body):
     response = requests.post(url=url, data=body)
     response.close()
+    if response.status_code == 504:
+        print("\n*** The connection timed out. If you haven't already, try running the first step with no additional filters, then running the second step with the filters.")
+        print("(See the README file for an example -- under Applying Step Numbers)\n")
     assert (response), "Error connecting to the server: {0} - {1}".format(response.status_code, response.reason) 
+    if response.status_code == 204:
+        return {}
     return response.json() 
 
 
@@ -205,7 +762,7 @@ def getClumps(refGen, superPop, snpsFromAssociations):
         "refGen": refGen,
         "superPop": superPop,
     }
-    print("Retrieving clumping information")
+    print(f"Retrieving clumping information: {superPop}")
 
     try:
         chromToPosMap = {}
@@ -230,80 +787,169 @@ def getClumps(refGen, superPop, snpsFromAssociations):
     return clumps
 
 
-def handleStrandFlippingAndSave(associationReturnObj, filePath):
-    import myvariant
-    import contextlib, io
+# get maf using the maf cohort
+def getMaf(mafCohort, refGen, snpsFromAssociations):
+    # if the cohort is user, return empty, we will use the user maf
+    if (mafCohort == 'user'): return {}
 
-    # print("Performing strand flipping where needed. Please be patient as we download the needed data")
-
-    # preventing print statements from being outputted to terminal
-    f = io.StringIO()
-    with contextlib.redirect_stdout(f):
-        rsIDs = (x for x in associationReturnObj['associations'].keys() if "rs" in x)
-        # returns info about the rsIDs passed
-        mv = myvariant.MyVariantInfo()
-        queryResultsObj = mv.querymany(rsIDs, scopes='dbsnp.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
-    output = f.getvalue()
-
-    # print("Data downloaded")
-
-    rsIDToAlleles = []
-
-    for obj in queryResultsObj['out']:
-        rsID = obj['query']
-        if (rsID not in rsIDToAlleles and 'dbsnp' in obj):
-            # creating a set of possible alleles for the snp to check our riskAlleles against
-            alleles = set()
-            if ('alleles' in obj['dbsnp']):
-                for alleleObj in obj['dbsnp']['alleles']:
-                    alleles.add(alleleObj['allele'])
-            if ('ref' in obj['dbsnp'] and obj['dbsnp']['ref'] != ""):
-                alleles.add(obj['dbsnp']['ref'])
-            if ('alt' in obj['dbsnp'] and obj['dbsnp']['alt'] != ""):
-                alleles.add(obj['dbsnp']['alt'])
-            if (len(alleles) == 0):
-                print(obj, "STILL NO ALLELES")
-            
-            if (rsID in associationReturnObj['associations']):
-                for trait in associationReturnObj['associations'][rsID]['traits']:
-                    for studyID in associationReturnObj['associations'][rsID]['traits'][trait]:
-                        riskAllele = associationReturnObj['associations'][rsID]['traits'][trait][studyID]['riskAllele']
-                        # if the current risk allele seems like it isn't correct and the length of the risk allele is only one base, try its complement
-                        if riskAllele not in alleles and len(riskAllele) == 1:
-                            complement = getComplement(riskAllele)
-                            if complement in alleles:
-                                associationReturnObj['associations'][rsID]['traits'][trait][studyID]['riskAllele'] = complement
-
-            rsIDToAlleles.append(rsID)
-
-            #TODO: what to do if we have merged rsIDs? 
-            # we could add the rsID of what the old one merged into
-            # queryResultsObj = mv.querymany(queryResultsObj['missing'], scopes='dbsnp.dbsnp_merges.rsid', fields='dbsnp.alleles.allele, dbsnp.dbsnp_merges, dbsnp.gene.strand, dbsnp.alt, dbsnp.ref', returnall=True)
-
-            #loop through the ones we couldn't find
-            #see if we can get them from a dbsnp.dbsnp_merges.rsid
-
-    # write the associations to a file
-    f = open(filePath, 'w', encoding="utf-8")
-    f.write(json.dumps(associationReturnObj))
-    f.close()
-    return 
-
-
-def getComplement(allele):
-    complements = {
-        'G': 'C',
-        'C': 'G',
-        'A': 'T',
-        'T': 'A'
+    body = {
+        "cohort": mafCohort,
+        "refGen": refGen
     }
-    return(complements[allele])
+    print("Retrieving maf information")
+    
+    try:
+        chromToPosMap = {}
+        maf = {}
+        for pos in snpsFromAssociations:
+            if (len(pos.split(":")) > 1):
+                chrom,posit = pos.split(":")
+                if (chrom not in chromToPosMap.keys()):
+                    chromToPosMap[chrom] = [posit]
+                else:
+                    chromToPosMap[chrom].append(posit)
+
+        for chrom in chromToPosMap:
+            print("{0}...".format(chrom), end="", flush=True)
+            body['chrom'] = chrom
+            body['pos'] = chromToPosMap[chrom]
+            maf = {**postUrlWithBody("https://prs.byu.edu/get_maf", body), **maf}
+        print('\n')
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+
+    return maf
+
+
+def getPercentiles(percentilesCohort, finalStudyList):
+    # if the cohort is user, return empty, we will use the user maf
+    if (percentilesCohort == 'user'): return {}
+
+    print("Retrieving Percentile information for studies")
+
+    percentiles = {}
+
+    lengthOfList = len(finalStudyList)
+    # i and j allow us to cut the list of items sent into chunks of 1000
+    i = 0
+    j = 1000 if lengthOfList > 1000 else lengthOfList
+    runLoop = True
+    try:
+        while runLoop:
+            if j == lengthOfList:
+                runLoop = False
+            # get the associations based on the studyIDs
+            print("{}...".format(j), end = "", flush=True)
+            body = {
+                "cohort": percentilesCohort,
+                "studyIDObjs":finalStudyList[i:j]
+            }
+            tmpPercentiles = postUrlWithBody("https://prs.byu.edu/get_percentiles", body)
+            for key in tmpPercentiles:
+                if key not in percentiles:
+                    percentiles[key] = tmpPercentiles[key]
+            i = j
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList
+        print("Done\n")
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+
+    return percentiles
+
+
+# gets associationReturnObj using the given filters
+def getSpecificStudySnps(finalStudyList):
+    # get the studies matching the parameters
+    studySnps = {}
+    lengthOfList = len(finalStudyList)
+    i = 0
+    j = 1000 if lengthOfList > 1000 else lengthOfList
+    print("Getting snps to studies map")
+    print("Total number of studies: {}". format(lengthOfList))
+    runLoop = True
+    try:
+        while runLoop:
+            if j == lengthOfList:
+                runLoop = False
+            # get the associations based on the studyIDs
+            print("{}...".format(j), end = "", flush=True)
+            body = {
+                "studyIDObjs":finalStudyList[i:j]
+            }
+            tmpStudySnps = postUrlWithBody("https://prs.byu.edu/snps_to_trait_studyID", body)
+            for key in tmpStudySnps:
+                if key not in studySnps:
+                    studySnps[key] = tmpStudySnps[key]
+            i = j
+            j = j + 1000 if lengthOfList > j + 1000 else lengthOfList
+        print("Done\n")
+
+    except AssertionError:
+        raise SystemExit("ERROR: 504 - Connection to the server timed out")
+    
+    return studySnps
 
 
 def checkInternetConnection():
-    import socket
-    IPaddress=socket.gethostbyname(socket.gethostname())
-    if IPaddress=="127.0.0.1":
-        raise SystemExit("ERROR: No internet - Check your connection")
-    else:
+    try:
+        import socket
+        # using an arbitrary connection to check if we can make one
+        socket.create_connection(("8.8.8.8", 53))
         return
+    except OSError:
+        raise SystemExit("ERROR: No internet - Check your connection")
+
+
+def formatMafCohort(mafCohort):
+    mafCohort = mafCohort.replace("-", "_")
+    if mafCohort == "adni_cn":
+        mafCohort = "adni_controls"
+
+    return mafCohort
+
+
+def getPopList(popListStr):
+    if isinstance(popListStr, list):
+        if len(popListStr) == 1 and "|" in popListStr[0]:
+            popListStr = popListStr[0].upper()
+        else:
+            return [pop.upper() for pop in popListStr]
+
+    popList = []
+    popListStr = popListStr.upper()
+    # split the string on bars if they are present, otherwise add the string to a list of length 1
+    if "|" in popListStr:
+        popList = popListStr.split("|")
+    else:
+        popList = [popListStr]
+    return popList
+
+
+def getPreferredPop(popList, superPop):
+    popList = getPopList(popList)
+    # convert all populations listed in the gwas to lower case
+    if len(popList) == 1 and str(popList[0]).lower() == 'na':
+        return(superPop)
+    else:
+        superPopHeirarchy = {
+            'EUR': ['EUR', 'AMR', 'SAS', 'EAS', 'AFR'],
+            'AMR': ['AMR', 'EUR', 'SAS', 'EAS', 'AFR'],
+            'SAS': ['SAS', 'EAS', 'AMR', 'EUR', 'AFR'],
+            'EAS': ['EAS', 'SAS', 'AMR', 'EUR', 'AFR'],
+            'AFR': ['AFR', 'AMR', 'SAS', 'EUR', 'EAS']
+        }
+        keys = superPopHeirarchy[superPop]
+        for pop in keys:
+            if pop in popList:
+                # return the first pop from the heirarchy that is in the pop list
+                return pop
+    
+    # if none of the pops from the heirarchy are in the pop list, return the requested super pop
+    return superPop
+
+
+if __name__ == "__main__":
+    if argv[1] == "GWAS":
+        formatGWASAndRetrieveClumps(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10])
+    else:
+        retrieveAssociationsAndClumps(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11])

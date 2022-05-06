@@ -5,8 +5,8 @@
 # where "associationTableFolderPath" is the path to the folder where the association table TSV is stored (default: "../tables/")
 
 # get args from the commandline
-args = commandArgs(trailingOnly=TRUE)
-if (length(args)==0) {
+args = commandArgs(trailingOnly = TRUE)
+if (length(args) == 0) {
   args[1] <- "../tables/"
 }
 
@@ -14,17 +14,18 @@ if (length(args)==0) {
 suppressMessages(library(tidyverse))
 #----------------------------------------------------------------------------------------------
 
-
 associationTablePath <- file.path(args[1], "associations_table.tsv")
-associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_guess(), hg38 = col_character(), hg19 = col_character(), hg18 = col_character(), hg17 = col_character(), sex = col_character()))
+associationsTibble <- read_tsv(associationTablePath, col_types = cols(.default = col_character()))
 
 # if the id column already exists, remove it for sorting purposes
 if (names(associationsTibble)[1] == "id") {
-  associationsTibble <- select(associationsTibble, -id)
+  associationsTibble <- dplyr::select(associationsTibble, -id)
 }
 
 # sort the table by trait, then citation, then snp
-associationsTibble <- arrange(associationsTibble, trait, citation, snp) %>%
+associationsTibble <- arrange(associationsTibble, trait, citation, studyID, pValueAnnotation, betaAnnotation, ogValueTypes, snp) %>%
   tibble::rowid_to_column("id")
 
 write_tsv(associationsTibble, associationTablePath, append = FALSE)
+
+print(paste(associationTablePath, "sorted"))

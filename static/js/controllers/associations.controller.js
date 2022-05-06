@@ -6,14 +6,10 @@ var Request = require('request');
 exports.getFromTables = (req, res) => {
     var studyIDObjs = req.body.studyIDObjs
     var refGen = req.body.refGen;
-    var defaultSex = req.body.sex;
+    var sexes = req.body.sexes;
+    var ogValueType = req.ogValueType;
 
-    // if not given a defaultSex, default to female
-    if (defaultSex == undefined){
-        defaultSex = "f"
-    }
-
-    Association.getFromTables(studyIDObjs, refGen, async (err, data) => {
+    Association.getFromTables(studyIDObjs, refGen, sexes, ogValueType, async (err, data) => {
         if (err) {
             res.status(500).send({
                 message: `Error retrieving associations: ${err}`
@@ -24,7 +20,7 @@ exports.getFromTables = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            returnData = await separateStudies(associations, traits, refGen, defaultSex)
+            returnData = await separateStudies(associations, traits, refGen)
             res.send(returnData);
         }
     });
@@ -32,12 +28,6 @@ exports.getFromTables = (req, res) => {
 
 exports.getAll = (req, res) => {
     var refGen = req.query.refGen;
-    var defaultSex = req.query.sex;
-
-    // if not given a defaultSex, default to female
-    if (defaultSex == undefined){
-        defaultSex = "f"
-    }
 
     Association.getAll(refGen, async (err, data) => {
         if (err) {
@@ -50,7 +40,7 @@ exports.getAll = (req, res) => {
             associations = data[0]
             traits = data[1]
 
-            returnData = await separateStudies(associations, traits, refGen, defaultSex)
+            returnData = await separateStudies(associations, traits, refGen)
             
             res.send(returnData);
         }
@@ -80,6 +70,29 @@ exports.getAllSnps = (req, res) => {
     })
 }
 
+exports.getSnpsToChromPos = (req, res) => {
+    var refGen = req.query.refGen;
+    var snps = req.query.snps
+
+    Association.getSnpsToChromPos(snps, refGen, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: "Error retrieving chrom:pos"
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            chromPosToSnps = {}
+            for (i=0; i<data.length; i++) {
+                if (!(Object.keys(chromPosToSnps).includes(data[i].pos))) {
+                    chromPosToSnps[data[i].pos] = data[i].snp
+                }
+            }
+            res.send(chromPosToSnps)
+        }
+    })
+}
+
 exports.getAllSnpsToStudyIDs = (req, res) => {
     var refGen = req.query.refGen;
     Association.getAllSnpsToStudyIDs(refGen, async (err, data) => {
@@ -101,6 +114,42 @@ exports.getAllSnpsToStudyIDs = (req, res) => {
             res.send(studyIDsToSnps);
         }
     })
+}
+
+exports.getSnpsToTraitStudyID = (req, res) => {
+    var studyIDObjs = req.body.studyIDObjs
+
+    studyIDTraitsToSnps = {}
+
+    Association.getSnpsToTraitStudyID(studyIDObjs, async (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message: `Error retrieving associations: ${err}`
+            });
+        }
+        else {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            for (i=0; i<data.length; i++) {
+                if (Array.isArray(data[i])) {
+                    for (j=0; j<data[i].length; j++) {
+                        key = [data[i][j].trait, data[i][j].pValueAnnotation, data[i][j].betaAnnotation, data[i][j].ogValueTypes, data[i][j].studyID].join("|")
+                        if (!(Object.keys(studyIDTraitsToSnps).includes(key))) {
+                            studyIDTraitsToSnps[key] = []
+                        }
+                        studyIDTraitsToSnps[key].push(data[i][j].snp)
+                    }
+                }
+                else {
+                    key=[data[i].trait, data[i].pValueAnnotation, data[i].betaAnnotation, data[i].ogValueTypes, data[i].studyID].join("|")
+                    if (!(Object.keys(studyIDTraitsToSnps).includes(key))) {
+                        studyIDTraitsToSnps[key] = []
+                    }
+                    studyIDTraitsToSnps[key].push(data[i].snp)
+                }
+            }
+            res.send(studyIDTraitsToSnps);
+        }
+    });
 }
 
 exports.getSingleSnpFromEachStudy = (req, res) => {
@@ -155,37 +204,23 @@ exports.snpsByEthnicity = (req, res) => {
     })
 }
 
-exports.joinTest = (req, res) => {
-    Association.joinTest((err,data) => {
-        if (err) {
-            res.status(500).send({
-                message: "Error retrieving join"
-            });
-        }
-        else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            // formating returned data
-            res.send(data);
-        }
-    })
-}
-
-// gets the last time the associations tsv was updated. Used for the cli to check if the user needs to re-download association data
+// gets the last time the allAssociations file was updated. Used for the cli to check if the user needs to re-download association data
 exports.getLastAssociationsUpdate = (req, res) => {
-    associationsPath = path.join(__dirname, '../../..', "tables/associations_table.tsv")
+    refGen = req.query.refGen
+
+    associationsPath = path.join(__dirname, '../..', `downloadables/preppedServerFiles/allAssociations_${refGen}.txt`)
     statsObj = fs.statSync(associationsPath)
     updateTime = statsObj.mtime
     res.send(`${updateTime.getFullYear()}-${updateTime.getMonth() + 1}-${updateTime.getDate()}`)
 }
 
 exports.getAssociationsDownloadFile = (req, res) => {
-    sex = req.query.defaultSex
     refGen = req.query.refGen
-    downloadPath = path.join(__dirname, '../..', 'downloadables', 'associationsAndClumpsFiles')
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
     var options = { 
         root: downloadPath
     };
-    var fileName = `allAssociations_${refGen}_${sex}.txt`; 
+    var fileName = `allAssociations_${refGen}.txt`; 
     res.sendFile(fileName, options, function (err) { 
         if (err) { 
             console.log(err); 
@@ -198,74 +233,43 @@ exports.getAssociationsDownloadFile = (req, res) => {
     }); 
 }
 
-exports.strandFlipping = (req, res) => {
-    rsIDs = req.body.snps.filter(function (snp) {
-        return snp.includes("rs")
-    })
-
-    callMyVariantAPI(rsIDs, (err, data) => {
-        if (err) {
+exports.getAllPossibleAllelesDownloadFile = (req, res) => {
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `allPossibleAlleles.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
             res.status(500).send({
-                message: "Could not perform strand flipping"
+                message: "Error finding file"
             });
-        }
-        else {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            // formating returned data
-            res.send(data);
-        }
-    })
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    }); 
 }
 
-function callMyVariantAPI(snps, result) {
-    try {
-        Request.post({
-            "headers": { 'content-type': 'application/json' },
-            "url": 'http://myvariant.info/v1/query',
-            "body": JSON.stringify({
-                "q": snps.toString(),
-                "scopes": 'dbsnp.rsid',
-                "fields": 'dbsnp.alleles.allele,dbsnp.dbsnp_merges,dbsnp.gene.strand,dbsnp.alt,dbsnp.ref'
-            })
-        }, (error, response, body) => {
-            if (error) {
-                console.log(error)
-                result(error, null);
-                return
-            }
-
-            body = JSON.parse(body);
-            returnObj = {};
-
-            for (i = 0; i < body.length; i++) {
-                obj = body[i];
-                if (!(obj.query in returnObj) && 'dbsnp' in obj) {
-                    alleles = new Set();
-                    if ('alleles' in obj.dbsnp) {
-                        for (j = 0; j < obj.dbsnp.alleles.length; j++) {
-                            alleles.add(obj.dbsnp.alleles[j].allele);
-                        }
-                    }
-                    if ('ref' in obj.dbsnp && obj.dbsnp.ref != "") {
-                        alleles.add(obj.dbsnp.ref);
-                    }
-                    if ('alt' in obj.dbsnp && obj.dbsnp.alt != "") {
-                        alleles.add(obj.dbsnp.alt);
-                    }
-                    returnObj[obj.query] = Array.from(alleles);
-                }
-            }
-            result(null, returnObj)
-        })
-
-    } catch (e) {
-        console.log("Error: ", e)
-        result(e, null)
-    }
-    
+exports.getTraitStudyIDToSnpsDownloadFile = (req, res) => {
+    downloadPath = path.join(__dirname, '../..', 'downloadables', 'preppedServerFiles')
+    var options = { 
+        root: downloadPath
+    };
+    var fileName = `traitStudyIDToSnps.txt`; 
+    res.sendFile(fileName, options, function (err) { 
+        if (err) { 
+            console.log(err); 
+            res.status(500).send({
+                message: "Error finding file"
+            });
+        } else { 
+            console.log('Sent:', fileName); 
+        } 
+    });
 }
 
-async function separateStudies(associations, traitData, refGen, sex) {
+async function separateStudies(associations, traitData, refGen) {
 
     // store the citation and reported trait for each study
     var studyIDsToMetaData = {}
@@ -281,7 +285,10 @@ async function separateStudies(associations, traitData, refGen, sex) {
         if (traitStudyTypes.length == 0) {
             traitStudyTypes.push("O")
         }
-        ethnicities = studyObj.ethnicity.replace(" or ", "|").split("|")
+        ethnicities = studyObj.ethnicity.split("|")
+        pvalBetaAnnoValType = studyObj.pValueAnnotation + "|" + studyObj.betaAnnotation + "|" + studyObj.ogValueTypes
+        superPopulations = studyObj.superPopulation.split("|")
+        sex = studyObj.sex
         if (!(studyObj.studyID in studyIDsToMetaData)) {
             studyTypes = []
             if (studyObj.rthi != ""){
@@ -294,11 +301,21 @@ async function separateStudies(associations, traitData, refGen, sex) {
                 studyTypes.push("O")
             }
             studyIDsToMetaData[studyObj.studyID] = { citation: studyObj.citation, reportedTrait: studyObj.reportedTrait, studyTypes: studyTypes, traits: {}, ethnicity: ethnicities != "" ? ethnicities : []}
-            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
+            
+        }
+        if (!(studyObj.trait in studyIDsToMetaData[studyObj.studyID]['traits'])) {
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = {
+                studyTypes: traitStudyTypes,
+                pValBetaAnnoValType: [pvalBetaAnnoValType],
+                superPopulations: superPopulations,
+                sexes: [sex]
+            }
         }
         else {
-            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait] = traitStudyTypes
-            studyIDsToMetaData[studyObj.studyID]['ethnicity'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['ethnicity'], ...ethnicities]))
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['studyTypes'], ...traitStudyTypes]))
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['pValBetaAnnoValType'].push(pvalBetaAnnoValType)
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'] = Array.from(new Set([...studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['superPopulations'], ...superPopulations]))
+            studyIDsToMetaData[studyObj.studyID]['traits'][studyObj.trait]['sexes'].push(sex)
         }
     }
 
@@ -309,49 +326,41 @@ async function separateStudies(associations, traitData, refGen, sex) {
         var associations = [].concat.apply([], associations);
     }
 
+    // array of info for the snps that are duplicated
+    arrayOfDupliSnpsInfo = []
+    // array of info for snps that might be duplicated, but we don't know for certain at the time
+    potentialDupliSnpsInfo = []
+
     // format the associations with rsIDs (and positions) as keys
     for (j = 0; j < associations.length; j++) {
         var association = associations[j]
-        // if the pos/snp already exists in our map
-        if (association.snp in AssociationsBySnp){
-            // if the trait already exists for the pos/snp
-            if (association.trait in AssociationsBySnp[association.snp]['traits']){
-                // if the studyID already exists for the pos/snp - trait, check if we should replace the current allele/oddsRatio/pValue
-                if (association.studyID in AssociationsBySnp[association.snp]['traits'][association.trait]){
-                    var replace = compareDuplicateAssociations(AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID], association, sex)
-                    if (replace) {
-                        AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
-                    }
-		    //Add an indication of which traits/studies have duplicated snps
-                    if (!('traitsWithDuplicateSnps' in studyIDsToMetaData[association.studyID])) {
-                        studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'] = [association.trait]
-                    }
-                    else if (!(studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].includes(association.trait))) {
-                        studyIDsToMetaData[association.studyID]['traitsWithDuplicateSnps'].push(association.trait)
-                    }
+        if (association.studyID in studyIDsToMetaData){
+            // if the pos/snp does not exist in our map and the studyID is in the associations
+            if (!(association.snp in AssociationsBySnp)){
+                AssociationsBySnp[association[refGen]] = association.snp // adds the pos to the object as a key to the snp
+                AssociationsBySnp[association.snp] = {
+                    pos: association[refGen],
+                    traits: {}
                 }
-                else {
-                    // add the studyID and data
-                    AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
-                }
+            }
+            // if the trait is not in the object for the snp
+            if (!(association.trait in AssociationsBySnp[association.snp]['traits'])){
+                AssociationsBySnp[association.snp]['traits'][association.trait] = {}
+            }
+            // if the studyID is not in the snp/trait obj
+            if (!(association.studyID in AssociationsBySnp[association.snp]['traits'][association.trait])){
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = {}
+            }
+            // if the pValBetaAnno not in the snp/trait/studyID obj
+            pValBetaAnnoValType = association.pValueAnnotation + "|" + association.betaAnnotation + "|" + association.ogValueTypes
+            if (!(pValBetaAnnoValType in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID])){
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType] = {}
+            }
+            if (!(association.riskAllele in AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType])){
+                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID][pValBetaAnnoValType][association.riskAllele] = createStudyIDObj(association)
             }
             else {
-                // add the trait and studyID data
-                AssociationsBySnp[association.snp]['traits'][association.trait] = {}
-                AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
-            }
-        }
-        // else add the pos->trait->studyID 
-        else if (association.studyID in studyIDsToMetaData){
-            AssociationsBySnp[association.snp] = {
-                pos: association[refGen],
-                traits: {}
-            }
-            AssociationsBySnp[association.snp]['traits'][association.trait] = {}
-            AssociationsBySnp[association.snp]['traits'][association.trait][association.studyID] = createStudyIDObj(association, studyIDsToMetaData[association.studyID])
-            //adds the position as a key to an rsID, if needed
-            if (association[refGen] != ""){
-                AssociationsBySnp[association[refGen]] = association.snp
+                console.log("Okay, we have a serious problem...")
             }
         }
         else {
@@ -369,50 +378,11 @@ async function separateStudies(associations, traitData, refGen, sex) {
 
 function createStudyIDObj(association){
     return {
-        riskAllele: association.riskAllele,
         pValue: association.pValue,
         oddsRatio: association.oddsRatio,
+        betaValue: association.betaValue,
+        betaUnit: association.betaUnit,
         sex: association.sex,
-    }
-}
-
-// if returns true: replace oldAssoci with newAssoci, if returns false: keep the oldAssoci
-function compareDuplicateAssociations(oldAssoci, newAssoci, defaultSex) {
-    oldAssociScore = getSexScore(oldAssoci.sex, defaultSex)
-    newAssociScore = getSexScore(newAssoci.sex, defaultSex)
-
-    // if associ2 has a better score, replace associ1
-    if (oldAssociScore < newAssociScore){
-        return true
-    }
-    // if associ1 has a better score, keep associ1
-    else if (oldAssociScore > newAssociScore){
-        return false
-    }
-    // if the two have equal scores
-    else {
-        // compare their pValues. keep the one with the most significant (lowest) pValue
-        switch(oldAssoci.pValue <= newAssoci.pvalue){
-            // keep associ1
-            case true:
-                return false;
-            // replace associ1 with associ2
-            default:
-                return true;
-        }
-    }
-}
-
-// creates a way to compare associations by sex
-// if the association doesn't have anything in the sex column, we want to prefer that association so we give it a higher score
-// if the association sex matches the defaultSex, we prefer that over not matching but we prefer that less than the association being 'sex free'
-function getSexScore(sex, defaultSex) {
-    switch(sex[0]){
-        case "": 
-            return 3;
-        case defaultSex[0]:
-            return 2;
-        default:
-            return 1;
+        ogValueTypes: association.ogValueTypes,
     }
 }
