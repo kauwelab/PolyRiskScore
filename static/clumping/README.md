@@ -182,5 +182,5 @@ Required input parameters:
 3. Path to CSV file (created in step 10)
 
 ```
-python step12_uploadCSVToDatabase.py <password> <tableName> <pathToCSVFile>
+python step11_uploadCSVToDatabase.py <password> <tableName> <pathToCSVFile>
 ```
