@@ -309,7 +309,7 @@ To perform linkage disequilibrium clumping on an individual level, include the -
 Imputation Threshold (-h)
 """"""""""""""""""""""""""
 
-This allows the user to set a threshold for how many SNPs are allowed to be imputed. We divide the numnber of imputed SNPs by the total number of SNPs in the calculation and if that number exceedes the threshold we do not report that study. The default value is 0.5
+This allows the user to set a threshold for how many SNPs are allowed to be imputed. We divide the numnber of imputed SNPs by the total number of SNPs in the calculation and if that number exceedes the threshold we do not report that study. The default value is 0.5. 1.0 means that 100% of the SNPs can be imputed and 0.0 means that no imputed SNPs are allowed in the calculation. We do require all studies to have at least one non-imputed SNP in the user file in order to be reported.
 
 .. code-block:: bash
 

@@ -70,7 +70,7 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         if not omitPercentiles:
             percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
         possibleAllelesPath = os.path.join(basePath, "possibleAlleles_{ahash}.txt".format(ahash=fileHash))
-    elif (fileHash == requiredParamsHash or not os.path.isfile(specificAssociPath)):
+    else:
         associFileName = "allAssociations_{refGen}.txt".format(refGen=refGen)
         associationsPath = os.path.join(basePath, associFileName)
         filteredStudySnpsPath = os.path.join(basePath, "filteredStudySnps_{ahash}_{uniq}.txt".format(ahash=fileHash, uniq=timestamp))
@@ -82,14 +82,6 @@ def getDownloadedFiles(fileHash, requiredParamsHash, superPop, mafCohort, refGen
         if not omitPercentiles:
             percentilePath = os.path.join(basePath, "allPercentiles_{m}.txt".format(m=percentileCohort)) 
         possibleAllelesPath = os.path.join(basePath, "allPossibleAlleles.txt".format(ahash=fileHash))
-    else:
-        isFilters = True
-        associationsPath = specificAssociPath
-        studySnpsPath = os.path.join(basePath, "traitStudyIDToSnps_{ahash}.txt".format(ahash=fileHash))
-        mafCohortPath = os.path.join(basePath, "{m}_maf_{ahash}.txt".format(m=mafCohort, ahash=fileHash))
-        if not omitPercentiles:
-            percentilePath = os.path.join(basePath, "percentiles_{c}_{ahash}.txt".format(c=percentileCohort, ahash=fileHash))
-        possibleAllelesPath = os.path.join(basePath, "possibleAlleles_{ahash}.txt".format(ahash=fileHash))
 
     ext = "txt" if isRSids else "vcf"
     filteredInputPath = os.path.join(basePath, "filteredInput_{ahash}_{uniq}.{ext}".format(ahash = fileHash, uniq = timestamp, ext = ext))
@@ -715,9 +707,9 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             os.remove(outputFilePath)
-            jsonOutput = open(outputFilePath, 'w')
-            jsonOutput.write("[]")
-            jsonOutput.close()
+        jsonOutput = open(outputFilePath, 'w')
+        jsonOutput.write("[]")
+        jsonOutput.close()
 
     else:
         # we need to write out the header depending on the output type
