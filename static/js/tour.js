@@ -14,7 +14,7 @@ var refGenTourIndex = 3
 var superPopTourIndex = 4
 var sexTourIndex = 5
 var gwasFileTourIndex = 10
-var gwasRefGenTourIndex = 11
+var gwasRefGenTourIndex = 9
 
 
 
@@ -59,7 +59,7 @@ function startTour() {
                 Choose the \"GRCh37/hg19\" option for the example VCF."
             },
             {
-                element: "#GWAStypeSelector",
+                element: "#GWAStypeContainer",
                 title: "GWAS",
                 content: "Users have the option of either calculating polygenic risk scores from \
                 GWAS data in the database or uploading their own GWAS data. Choose which one you \
@@ -75,13 +75,13 @@ function startTour() {
                 button to continue the tour.",
             },
             {
-                element: "#additionalFiltersContainer",
+                element: "#applyFiltersTourContainer",
                 title: "Select additional study filters",
                 content: "Studies about the traits you selected can be further filtered by choosing \
-                study type, study ethnicity, original value type, or sex. \"High impact\" is measured by Altmetric score while \
-                \"large cohort\" is measured \ by the size of a study's initial sample size plus its \
-                replication sample size. Once you have finished selecting your filters, press the \
-                \"Apply Filters\" button to update the studies list.",
+                study type, study ethnicity, sex, or original value type. \"High impact\" is measured \
+                by Altmetric score while \"large cohort\" is measured by the size of a study's initial \
+                sample size plus its replication sample size. Once you have finished selecting your \
+                filters, press the \"Apply Filters\" button to update the studies list.",
                 reflex: true
             },
             {
@@ -118,7 +118,7 @@ function startTour() {
                 Choose the super population that best describes individual(s) in your file."
             },
             {
-                element: "#ldContainer",
+                element: "#ldTourContainer",
                 title: "Select LD Clumping Type",
                 content: "Choose whether LD clumping should be performed sample-wide or by individual. See the \
                 <a href=\"https://polyriskscore.readthedocs.io/en/latest/\">PRSKB's documentation</a> \
@@ -134,8 +134,18 @@ function startTour() {
             },
             {
                 element: "#mafThreshContainer",
-                title: "Select MAF Threshold",
-                content: "This will filter out SNPs below the specified MAF threshold."
+                title: "Select MAF threshold",
+                content: "SNPs with a MAF less than the threshold in the MAF population will be excluded \
+                from calculations."
+            },
+            {
+                element: "#imputationTourContainer",
+                title: "Select imputation threshold",
+                content: "Select the maximum fraction of SNPs in a study that can be imputed. \
+                For the tour, change it to 1.0 for best results. 1.0 means 100% of the SNPs can be \
+                imputed and 0.0 means no imputation is permitted and all snps from each study must \
+                be in the input file. Note: regardless of the threshold, studies must have at least \
+                one non-imputed SNP to be reported."
             },
             {
                 element: "#fileType",
@@ -195,6 +205,7 @@ function startTour() {
 function moveToNextTourIndex(stepName) {
     //if the tour has been initialized before (isn't undefined)
     if (typeof tour !== "undefined") {
+        console.log(tour.getCurrentStep())
         //check if the tour is at the refGen selection point to prevent advances at the wrong times 
         if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
             tour.next()
