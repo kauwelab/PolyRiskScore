@@ -36,7 +36,7 @@ function startTour() {
         steps: [
             {
                 element: "#startTour",
-                title: "Welcome to PRSKB!",
+                title: "Welcome to the PRSKB!",
                 content: "Calculating polygenic risk scores with PRSKB is easy! This is a brief tutorial to get you started."
             },
             {
@@ -68,11 +68,11 @@ function startTour() {
             {
                 element: "#traitSelectContainer",
                 title: "Select traits",
-                content: "Use the search bar to search specific traits for which you would like to \
-                calulate polygenic risk scores. Click on one or more traits to include them in your \
-                results. Note: you can select all traits using the \"Select all\" button. However, \
-                calculations may take some time depending on the size of your VCF file. When you are\
-                done selecting traits, press the \"next\" button to continue the tour.",
+                content: "Use the search bar and click on one more more traits to include them in your results. \
+                Note: a maximum of 50 traits at a time is recommended, but 10 or fewer is better for faster results. \
+                Use the CLI found in the \"Download\" tab above to run more traits simultaneously. Calculations may take some \
+                time depending on the size of your VCF file and the number of traits selected. Press the \"next\" \
+                button to continue the tour.",
             },
             {
                 element: "#applyFiltersTourContainer",
@@ -85,10 +85,10 @@ function startTour() {
                 reflex: true
             },
             {
-                element: "#studySelectContainer",
+                element: "#tourStudySelectContainer",
                 title: "Select studies",
                 content: "Search and select studies to include in your results. A separate polygenic risk score \
-                will be calculated for each study/trait pair. Once you have finished selecting your filters, press \
+                will be calculated for each study/trait pair. Once you have finished selecting your studies, press \
                 the \"next\" button to continue the tour."
             },
             {
@@ -106,7 +106,36 @@ function startTour() {
                 element: "#pvalContainer",
                 title: "Enter p-value cutoff",
                 content: "Enter the p-value cutoff for odds ratios you wish to include in your polygenic risk score \
-                using the two text boxes."
+                using the two text boxes. The default value is 1.0x10^-5."
+            },
+            {
+                element: "#superPopContainer",
+                title: "Select preferred super population",
+                content: "This determines which super population will be used to perform LD clumping on your data \
+                (see the About page). When the preferred super population is not observed in the study, an \
+                alternative is chosen from the study's included super populations based on a predetermined order \
+                found in the <a href=\"https://polyriskscore.readthedocs.io/en/latest/#super-population-p\">PRSKB's documentation</a>. \
+                Choose the super population that best describes individual(s) in your file."
+            },
+            {
+                element: "#ldContainer",
+                title: "Select LD Clumping Type",
+                content: "Choose whether LD clumping should be performed sample-wide or by individual. See the \
+                <a href=\"https://polyriskscore.readthedocs.io/en/latest/\">PRSKB's documentation</a> \
+                for the differences between these two options. Choose an option and press \"next.\""
+            },
+            {
+                element: "#mafContainer",
+                title: "Select MAF population",
+                content: "The population chosen will be used to impute genotypes missing from your input data using their \
+                minor allele frequency (MAF). It is also used to determine the percentile rank of the calculated risk scores, \
+                which are available in the full and json output formats. Choose the population most representative of your \
+                input file for best results."
+            },
+            {
+                element: "#mafThreshContainer",
+                title: "Select MAF Threshold",
+                content: "This will filter out SNPs below the specified MAF threshold."
             },
             {
                 element: "#superPopTourContainer",
@@ -143,15 +172,17 @@ function startTour() {
             {
                 element: "#fileType",
                 title: "Select output format (pt 1)",
-                content: "Choose between TSV or JSON output format."
+                content: "Choose between TSV and JSON output format."
             },
             {
                 element: "#fileFormat",
                 title: "Select output format (pt 2)",
-                content: "Choose either a condensed results version or a full results version. The condensed version displays \
-                the polygenic risk scores for each sample for each trait/study combination. The full version additionally gives \
-                information for each sample on which SNPs contribute to the trait, which are protective against the trait, and \
-                which are neutral or have unknown contributions."
+                content: "Choose either condensed results version or a full results version. The condensed version displays \
+                each study on a separate line with the sample polygenic risk scores as columns. The full version in tsv format \
+                displays each sample/study pair on a separate line and additionally gives each sample's percentile compared \
+                to the selected MAF population as well as bar (|) separated lists of the protective, risk, non risk, and \
+                high LD SNPs involved in the calculation of the sample's score. The json format includes each sample nested \
+                under a trait/study object."
             },
             {
                 element: "#feedbackSubmit",
@@ -194,7 +225,7 @@ function startTour() {
  * @param {*} stepName- currently only expected to be "refGen" (we can add other steps later), corresponding to refGenTourIndex
  */
 function moveToNextTourIndex(stepName) {
-    //if the tour has been initialized before (isn't undefinded)
+    //if the tour has been initialized before (isn't undefined)
     if (typeof tour !== "undefined") {
         //check if the tour is at the refGen selection point to prevent advances at the wrong times 
         if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
