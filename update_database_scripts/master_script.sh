@@ -50,6 +50,7 @@ optUsage () {
     echo "  [-d: disables downloading new raw data]"
     echo "  [-a: disables creating new associations table]"
     echo "  [-o: disables ordering associations table]"
+    echo "  [-b: disables beta unit filtering of associations table]"
     echo "  [-s: disables creating new studies table]"
     echo "  [-r: disables removing downloaded raw data]"
     echo "  [-f: disables strand flipping]"
@@ -113,6 +114,7 @@ echo "Start time: $(date)"
 downloadRawData="true"
 associationsTable="true"
 orderAssociations="true"
+filterBetaUnits="true"
 studiesTable="true"
 removeRawData="true"
 strandFlipping="true"
@@ -135,6 +137,8 @@ for arg do
                 echo "Creating new associations table disabled";;
             -o) orderAssociations="false"
                 echo "Ordering associations table disabled";;
+            -b) filterBetaUnits="false"
+                echo "Filtering beta units disabled";;
             -s) studiesTable="false"
                 echo "Creating new studies table disabled";;
             -r) removeRawData="false"
@@ -261,12 +265,16 @@ if [ $downloadRawData == "true" ]; then
 fi
 
 if [ $associationsTable == "true" ]; then
-    echo "Running GWAS database unpacker. This will take up to 1.5 hrs depending on the number of nodes you specified to download data."
+    echo "Running GWAS database unpacker. This will take 8 hrs or more depending on the number of nodes you specified to download data."
     for ((groupNum=1;groupNum<=numGroups;groupNum++)); do
         Rscript unpackDatabaseCommandLine.R $associationTableFolderPath $studyAndPubTSVFolderPath $chainFileFolderPath $groupNum $numGroups &> "$consoleOutputFolder/output$groupNum.txt" &
     done
     wait
     echo -e "Finished unpacking the GWAS database. The associations table can be found at" $associationTableFolderPath "\n"
+    echo "Started normalizing associations table characters."
+    python3 normalizeChars.py $associationTableFolderPath
+    wait
+    print("Normalizing complete!")
 fi
 
 if [ $orderAssociations == "true" ]; then
@@ -274,9 +282,15 @@ if [ $orderAssociations == "true" ]; then
     wait
 fi
 
+if [ $filterBetaUnits == "true" ]; then
+    echo "Filtering out SNPs with rogue beta units"
+    python3 filterBetaUnits.py $associationTableFolderPath
+    echo "Finished filtering beta units"
+fi 
+
 #===============Study Table Code============================================================
 if [ $studiesTable == "true" ]; then
-    echo "Creating the study table. This should take up to 15 min, but is often faster."
+    echo "Creating the study table. This should take about an hour."
     Rscript createStudyTable.R $associationTableFolderPath $studyTableFolderPath $studyAndPubTSVFolderPath
     wait
 fi
