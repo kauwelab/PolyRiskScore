@@ -14,7 +14,7 @@ var refGenTourIndex = 3
 var superPopTourIndex = 4
 var sexTourIndex = 5
 var gwasFileTourIndex = 10
-var gwasRefGenTourIndex = 11
+var gwasRefGenTourIndex = 9
 
 
 
@@ -205,6 +205,7 @@ function startTour() {
 function moveToNextTourIndex(stepName) {
     //if the tour has been initialized before (isn't undefined)
     if (typeof tour !== "undefined") {
+        console.log(tour.getCurrentStep())
         //check if the tour is at the refGen selection point to prevent advances at the wrong times 
         if ((stepName == "refGen" && tour.getCurrentStep() == refGenTourIndex)) {
             tour.next()
