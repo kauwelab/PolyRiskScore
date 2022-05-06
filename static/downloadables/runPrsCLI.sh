@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.8.0"
+version="1.9.0"
 #
 # 
 # 
@@ -84,6 +84,9 @@ version="1.8.0"
 #   added in a flag to omit percentiles from the output (-m)
 #   added a parameter to set a cutoff value for minor allele frequencies (-x)
 #
+#   5/5/2022
+#   
+#   various bug fixes and improvements
 #
 # ########################################################################
 
@@ -376,6 +379,7 @@ learnAboutParameters () {
                 echo ""
                 echo -e "To use the minor allele frequencies from the user vcf, use ${GREEN}-q user ${NC}."
                 echo "Note that this option will not report percentile rank."
+                echo -e " The default is ukbb."
                 echo "" ;;
             19 ) echo -e "${MYSTERYCOLOR} -m omit percentiles from output: ${NC}"
                 echo "This flag allows the user to remove the Percentile column/property from the verbose output file."
@@ -927,14 +931,17 @@ calculatePRS () {
     if [ -z "$step" ]; then
         step=0
     fi
+
     # if no GWAS refgen is specified but a path to a gwas file is give, set GWASrefgen to the samples refgen
     if [ -z "${GWASrefgen}" ] && ! [ -z "${GWASfilename}" ]; then
         GWASrefgen=${refgen}
+        echo "GWASrefgen defaulting to ${GWASrefgen}"
     fi
 
     # default the mafCohort to UKBB
     if [ -z "${mafCohort}" ]; then
         mafCohort='ukbb'
+        echo "mafCohort defaulting to ${mafCohort}"
     fi
 
     # default the maf cutoff to zero
@@ -942,7 +949,6 @@ calculatePRS () {
         mafCutoff=0
     fi
 
-    # TODO: actually finish including the imputationLevel threshold
     if [ -z "${imputationLevel}" ]; then
         imputationLevel=0.5
     fi
@@ -955,6 +961,14 @@ calculatePRS () {
     export valueTypes=${valueTypesForCalc[@]}
     export sexes=${sexForCalc[@]}
     export files=${files[@]}
+
+    if ! [ -z "${GWASfilename}" ]; then
+        if ! [ -z "${traits}" ] || ! [ -z "${studyTypes}" ] || ! [ -z "${studyIDs}" ] || ! [ -z "${ethnicities}" ] || ! [ -z "${valueTypes}" ] || ! [ -z "${sexes}" ]; then
+            echo -e "${LIGHTRED}WARNING:${NC} If you upload your own GWAS data, you cannot specify any other additional study filters. Remove the study filters and try again."
+            echo -e "${LIGHTRED}Quitting...${NC}"
+            exit 1
+        fi
+    fi
 
     # Creates a hash to put on the associations file if needed or to call the correct associations file
     fileHash=$(cksum <<< "${files}${output}${cutoff}${refgen}${superPop}${traits}${studyTypes}${studyIDs}${ethnicities}${valueTypes}${sexes}${mafCohort}" | cut -f 1 -d ' ')
@@ -1187,14 +1201,14 @@ calculatePRS () {
         fi
 
         #TODO make an option for users to remove these files if they want
-        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]]; then
+        if [[ $fileHash != $requiredParamsHash ]] && [[ -f "$FILE" ]] && [[ $step -ne 2 ]]; then
             rm "$FILE"
             rm "${SCRIPT_DIR}/.workingFiles/${superPop}_clumps_${refgen}_${fileHash}.txt"
             rm "${SCRIPT_DIR}/.workingFiles/traitStudyIDToSnps_${fileHash}.txt"
         fi
 
         [ -e "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" ] && rm "${SCRIPT_DIR}/.workingFiles/clumpNumDict_${refgen}_${fileHash}.txt" 
-        [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${filehash}_${TIMESTAMP}.txt"
+        [ -e "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${fileHash}_${TIMESTAMP}.txt" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredStudySnps_${fileHash}_${TIMESTAMP}.txt"
         [ -e "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}" ] && rm -- "${SCRIPT_DIR}/.workingFiles/filteredInput_${fileHash}_${TIMESTAMP}${extension}"
         
         [ -d "${SCRIPT_DIR}/__pycache__" ] && rm -r "${SCRIPT_DIR}/__pycache__"

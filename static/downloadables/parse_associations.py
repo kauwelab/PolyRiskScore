@@ -254,7 +254,7 @@ def parse_txt(filteredFilePath, clumpsObjDict, tableObjDict, snpSet, clumpNumDic
                                             usedSnps.discard(index_snp)
                                         else:
                                             clumpedVariants.add(snp)
-                                            usedSnps.discard(index_snp)
+                                            usedSnps.discard(snp)
                                     else:
                                         # Since the clump number for this snp position and studyID
                                         # doesn't already exist, add it to the index map
@@ -750,11 +750,13 @@ def runParsingAndCalculations(inputFilePath, fileHash, requiredParamsHash, super
         # we need to make sure the outputFile doesn't already exist so that we don't append to an old file
         if os.path.exists(outputFilePath):
             jsonOutput = open(outputFilePath, 'r+')
-            jsonOutput.seek(0,2)
-            position = jsonOutput.tell() -2
-            jsonOutput.seek(position)
-            jsonOutput.write(" ")
-            jsonOutput.close()
+            checkChar = jsonOutput.readlines()[-1][-2]
+            if checkChar == ",":
+                jsonOutput.seek(0,2)
+                position = jsonOutput.tell() -2
+                jsonOutput.seek(position)
+                jsonOutput.write(" ")
+                jsonOutput.close()
 
 if __name__ == "__main__":
     useGWASupload = True if sys.argv[18] == "True" or sys.argv[18] == True else False
