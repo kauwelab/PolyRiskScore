@@ -129,9 +129,10 @@ function startTour() {
                 element: "#imputationTourContainer",
                 title: "Select imputation threshold",
                 content: "Select the maximum fraction of SNPs in a study that can be imputed. \
-                1.0 means 100% of the SNPs can be imputed and 0.0 means no imputation is permitted \
-                and all snps from each study must be in the input file. Note: regardless of the \
-                threshold, studies must have at least one non-imputed SNP to be reported."
+                For the tour, change it to 1.0 for best results. 1.0 means 100% of the SNPs can be \
+                imputed and 0.0 means no imputation is permitted and all snps from each study must \
+                be in the input file. Note: regardless of the threshold, studies must have at least \
+                one non-imputed SNP to be reported."
             },
             {
                 element: "#mafThreshTourContainer",
