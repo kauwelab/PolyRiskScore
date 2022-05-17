@@ -229,8 +229,8 @@ def vcfcalculations(snpSet, vcfObj, tableObjDict, mafDict, percentileDict, isJso
                     'percentile': percentileRank,
                     'snpOverlap': snpOverlap[samp],
                     'includedSnps': includedSnps[samp],
-                    'protectiveAlleles': "|".join(protectiveVariants),
-                    'riskAlleles': "|".join(riskVariants),
+                    'protectiveVariants': "|".join(protectiveVariants),
+                    'riskVariants': "|".join(riskVariants),
                     'variantsWithoutRiskAllele': "|".join(unmatchedAlleleVariants),
                     'variantsInHighLD': "|".join(clumpedVariants)
                 }

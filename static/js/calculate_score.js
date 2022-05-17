@@ -139,7 +139,6 @@ var getStudyData = async (selectedTraits, selectedTypes, selectedEthnicities, se
     }
     runLoop = true
     while (runLoop) {
-        console.log(`Working on grabbing studies for traits ${i}-${j}`)
         if (j == lenOfList) {
             runLoop = false
         }
@@ -719,7 +718,6 @@ async function getGWASUploadData(gwasUploadFile, gwasRefGen, refGen, gwasValueTy
             bai = cols.indexOf('beta annotation')
 
             if (sii == -1 || ti == -1 || si == -1 || ci == -1 || pi == -1 || rai == -1 || ori == -1  && gwasValueType.toLowerCase() == 'or' || bvi == -1 && bui == -1 && gwasValueType.toLowerCase() == 'beta' || pvi == -1 || spi == -1) {
-                console.log(sii, ti, si, ci, pi, rai, ori, bvi, bui, pvi, spi)
                 msg = "The GWAS file format is not correct. Please check your file to ensure the required columns are present in a tab separated format."
                 updateResultBoxAndStoredValue(msg)
                 alert(msg)
@@ -1077,7 +1075,6 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                                     numAllelesMatch++;
                                                 }
                                                 else if (allele == '.') {
-                                                    console.log(key)
                                                     numAlleleMissingGenotype++;
                                                     resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsWithMissingGenotypes'].push(key)
                                                 }
@@ -1085,8 +1082,6 @@ var calculateScore = async (associationData, mafData, presentSnps, preferredPop,
                                                     resultObj[printStudyID][trait][pValBetaAnnoValType][individualName]['variantsWithUnmatchedAlleles'].push(key)
                                                 }
                                             }
-
-                                            console.log(mafData[key]['alleles'][riskAllele])
     
                                             // If there is a matching risk allele for this SNP or sample-wide LD clumping was requested, move forward
                                             if ((numAllelesMatch > 0) || (clumpingType === 'sample')) {

@@ -1,9 +1,7 @@
 import requests
 import myvariant
 import sys
-from sys import argv
 import os
-import math
 
 # This script creates a test VCF using one SNP from every study in the database. The VCF has 3 samples, 
 # one that is homozygous for the reference allele, one that is homozygous for the alternate allele and
@@ -14,9 +12,9 @@ import math
 
 
 # name of sample output vcf
-output = argv[1] if len(sys.argv) > 1 else "sample"
+output = sys.argv[1] if len(sys.argv) > 1 else "sample"
 # path to sample output vcf folder
-sampleVCFFolderPath = argv[2] if len(sys.argv) > 2 else "../static/"
+sampleVCFFolderPath = sys.argv[2] if len(sys.argv) > 2 else "../static/"
 # combine path and vcf name
 sampleVCFPath = os.path.join(sampleVCFFolderPath, output + ".vcf")
 print(sampleVCFPath)
