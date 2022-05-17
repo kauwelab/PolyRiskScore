@@ -171,7 +171,7 @@ function startTour() {
             {
                 element: "#startTour",
                 title: "You're all set!",
-                content: "Now give it a try with your own data! If you have any questions, contact us at kauwe@gmail.com",
+                content: "Now give it a try with your own data! If you have any questions, contact us at kauwe@byu.edu or justin.miller@uky.edu",
                 template: templateWithoutNext
             }
         ]
