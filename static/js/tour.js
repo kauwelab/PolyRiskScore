@@ -142,10 +142,12 @@ function startTour() {
                 element: "#imputationTourContainer",
                 title: "Select imputation threshold",
                 content: "Select the maximum fraction of SNPs in a study that can be imputed. \
-                For the tour, change it to 1.0 for best results. 1.0 means 100% of the SNPs can be \
+                For the tour, change it to 1.0 for the most results. 1.0 means 100% of the SNPs can be \
                 imputed and 0.0 means no imputation is permitted and all snps from each study must \
                 be in the input file. Note: regardless of the threshold, studies must have at least \
-                one non-imputed SNP to be reported."
+                one non-imputed SNP to be reported. The default is 0.5 for VCF input and 1.0 for text \
+                input. The text input default differs from the CLI because we anticipate web text \
+                calculations to be exploratory and thus have lower overlap with most studies."
             },
             {
                 element: "#fileType",
@@ -181,7 +183,7 @@ function startTour() {
             {
                 element: "#startTour",
                 title: "You're all set!",
-                content: "Now give it a try with your own data! If you have any questions, contact us at kauwe@byu.edu or justin.miller@uky.edu",
+                content: "Now give it a try with your own data! If you have any questions, contact us at kauwe@byu.edu or justin.miller@uky.edu. If you encounter any bugs, please report them on <a href=\"https://github.com/kauwelab/PolyRiskScore/\">Github</a>.",
                 template: templateWithoutNext
             }
         ]
