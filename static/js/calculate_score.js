@@ -1463,12 +1463,12 @@ function formatTSV(jsonObject, isCondensed) {
     //Look for a csv writer npm module
     sampleKeys = []
 
-    isRsid = document.getElementById('textInputButton').checked
+    isRsids = document.getElementById('textInputButton').checked
 
-    if (isCondensed && !isRsid) {
+    if (isCondensed && !isRsids) {
         headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs']
     }
-    else if (isCondensed && isRsid) {
+    else if (isCondensed && isRsids) {
         headerInit = ['Study ID', 'Reported Trait', 'Trait', 'Citation', 'P-Value Annotation', 'Beta Annotation', 'Score Type', 'Units (if applicable)', 'Used Super Population', 'SNPs Excluded Due To Cutoffs', 'SNP Overlap', 'Included SNPs', 'Polygenic Risk Score', 'Percentile']
     }
     else {
@@ -1496,7 +1496,7 @@ function formatTSV(jsonObject, isCondensed) {
                 listOfIncluded.push(sampleObj['includedSnps'])
                 listOfOverlaps.push(sampleObj['snpOverlap'])
                 listOfPrs.push(sampleObj['polygenicRiskScore'])
-                if (isRsid) {
+                if (isRsids) {
                     listOfPercentiles.push(sampleObj['percentile'])
                 }
             }
@@ -1531,7 +1531,7 @@ function formatTSV(jsonObject, isCondensed) {
             if (setOfIncluded.size == 1) {
                 listOfIncluded = Array.from(setOfIncluded)
             }
-            if (isRsid) {
+            if (isRsids) {
                 lineResults = `${lineInfo.join("\t")}\t${listOfOverlaps.join('|')}\t${listOfIncluded.join('|')}\t${listOfPrs.join("|")}\t${listOfPercentiles.join("|")}`
             } else {
                 lineResults = `${lineInfo.join("\t")}\t${listOfOverlaps.join('|')}\t${listOfIncluded.join('|')}\t${listOfPrs.join("\t")}`
