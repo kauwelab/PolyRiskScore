@@ -1768,6 +1768,7 @@ function clickTextInput() {
 
         $("#mafCohort option[value=user]").remove()
         document.getElementById("sample-info").style.display = "none";
+        document.getElementById("imputationThresholdIn").value = 1;
     }
 }
 
@@ -1801,6 +1802,7 @@ function clickFileUpload() {
         opt.value = "user";
         mafSelector.appendChild(opt);
         document.getElementById("sample-info").style.display = "initial";
+        document.getElementById("imputationThresholdIn").value = 0.5;
     }
 
 }

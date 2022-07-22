@@ -385,10 +385,10 @@
                 <!--This div id is used for the bootstrap tour-->
                 <div id='imputationTourContainer' class='child'>
                   <div class="col-lg-12 mb-.5 mt-2 text-left" style="background-color: whitesmoke; padding: .5em;">
-                    <h5><span title="The default is 0.5. This threshold allows users to decide the ratio of imputed SNPs to those present in the sample. If the ratio of imputed SNPs exceedes the given threshold, the study is not reported. 1.0 means that 100% of the SNPs can be imputed and 0.0 means that no imputed SNPs are allowed in the calculation. We do require all studies to have at least one non-imputed SNP in the user file in order to be reported.">6.
+                    <h5><span title="This threshold allows users to decide the ratio of imputed SNPs to those present in the sample. If the ratio of imputed SNPs exceedes the given threshold, the study is not reported. 1.0 means that 100% of the SNPs can be imputed and 0.0 means that no imputed SNPs are allowed in the calculation. We do require all studies to have at least one non-imputed SNP in the user file in order to be reported. The default is 0.5 for VCF input and 1.0 for text input. The text input default differs from the CLI default because we anticipate anticipate web text calculations to be exploratory and thus have lower overlap with most studies.">6.
                         Imputation&nbsp;Threshold<sup>?</sup></span></h5>
                     <div id="imputationThreshold">
-                      <input type="number" value="0.5" name="imputationThresholdIn" id="imputationThresholdIn" size=5
+                      <input type="number" value="1" name="imputationThresholdIn" id="imputationThresholdIn" size=5
                         min=0.0 max=1.0 step=0.1>
                     </div>
                   </div>
