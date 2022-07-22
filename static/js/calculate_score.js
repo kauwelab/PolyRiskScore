@@ -586,6 +586,9 @@ var calculatePolyScore = async () => {
         for (var i = 0; i < arrayOfInputtedSnps.length; ++i) {
             var snpObj;
             snp = arrayOfInputtedSnps[i]
+	    if (snp === "") {
+	    	continue
+	    }
             //snp entry is split into two elements, the snpid (0) and the alleles (1)
             snpArray = snp.split(':');
             //if the snpid is invalid, return error
@@ -885,7 +888,7 @@ var getGreppedSnpsAndTotalInputVariants = async (snpsInput, associationData, isV
 
             //converts the vcf lines into an object that can be parsed
             greppedSNPsAndMAF = vcf_parser.getVCFObj(reducedVCFLines, userMAF, allNeededSnps, associMap);
-            return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], greppedSNPsAndMAF[2]]
+            return [greppedSNPsAndMAF[0], greppedSNPsAndMAF[1], greppedSNPsAndMAF[2]];
         }
         catch (err) {
             updateResultBoxAndStoredValue(getErrorMessage(err))
@@ -934,7 +937,14 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, percentil
     var userMAFData = greppedSNPsMAFAndtotalInputVariants[1]
     var presentSnps = greppedSNPsMAFAndtotalInputVariants[2]
     
-    if (!(Object.keys(userMAFData).length === 0) && userMAF) {
+    if (greppedSNPs === null) {
+        msg = "None of the SNPs in the input overlap with the SNPs of the studies chosen. Please check your input or try other studies."
+        updateResultBoxAndStoredValue(msg)
+        alert(msg)
+        return
+    }
+    
+    if (userMAFData !== null && !(Object.keys(userMAFData).length === 0) && userMAF) {
         mafData = userMAFData
     }
 
@@ -944,7 +954,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, percentil
             $('#response').html("None of the snps from the input file were found.");
         }
         else if (result == "No results to display") {
-            msg = "We were not able to caluclate results using the given values. Try adjusting the p-value cutoff or the MAF threshold."
+            msg = "We were unable to calculate results using the given values. Try adjusting the p-value cutoff or the MAF threshold."
             updateResultBoxAndStoredValue(msg)
             alert(msg)
             return
