@@ -280,7 +280,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                         if chromPos in allPosInInput:
                             raise SystemExit(f'Found multiple lines for position {chromPos}. Please consolidate into a single line in the input file and run again. This can be done with the following command:\n\tbcftools norm -Ov -m+any original.vcf > original-merged.vcf\nwhere original.vcf is your input file and original-merged.vcf is your new vcf file.')
                         else:
-                            allPosInInput.add(rsID)
+                            allPosInInput.add(chromPos)
                         # a record exists, so the file was not empty
                         fileEmpty = False
                         if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
