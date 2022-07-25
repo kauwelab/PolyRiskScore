@@ -88,7 +88,6 @@ version="1.9.0"
 #   
 #   various bug fixes and improvements
 #
-#
 # ########################################################################
 
 # colors for text printing
