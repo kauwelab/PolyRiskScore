@@ -263,7 +263,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
             inputVCF = openFileForParsing(aFile)
 
             try:
-                allSnpsInInput = set()
+                allPosInInput = set()
                 for line in inputVCF:
                     # cut the line so that we don't use memory to tab split a huge file
                     shortLine = line[0:500]
@@ -275,12 +275,12 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                         cols = shortLine.split('\t')
                         # get the rsid and chrompos
                         rsID = cols[2]
-                        # ensure we don't have duplicate lines of SNPs in input file
-                        if rsID in allSnpsInInput:
-                            raise SystemExit(f'Found multiple lines for single SNP {rsID}. Please consolidate into a single line in the input file and run again. This can be done with the following command:\n\tbcftools norm -Ov -m+any original.vcf > original-merged.vcf\nwhere original.vcf is your input file and original-merged.vcf is your new vcf file.')
-                        else:
-                            allSnpsInInput.add(rsID)
                         chromPos = str(cols[0]) + ':' + str(cols[1])
+                        # ensure we don't have duplicate lines of SNPs in input file
+                        if chromPos in allPosInInput:
+                            raise SystemExit(f'Found multiple lines for position {chromPos}. Please consolidate into a single line in the input file and run again. This can be done with the following command:\n\tbcftools norm -Ov -m+any original.vcf > original-merged.vcf\nwhere original.vcf is your input file and original-merged.vcf is your new vcf file.')
+                        else:
+                            allPosInInput.add(rsID)
                         # a record exists, so the file was not empty
                         fileEmpty = False
                         if (chromPos in tableObjDict['associations'] and (rsID is None or rsID not in tableObjDict['associations'])):
@@ -299,7 +299,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                             w.write(line)
                             w.write("\n")
                             inputInFilters = True
-                allSnpsInInput = set()
+                allPosInInput = set()
 
             except ValueError:
                 raise SystemExit("The VCF file is not formatted correctly. Each line must have 'GT' (genotype) formatting and a non-Null value for the chromosome and position.")
