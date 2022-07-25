@@ -277,7 +277,7 @@ def filterVCF(tableObjDict, allClumpsObjDict, allSnps, inputFiles, filteredFileP
                         rsID = cols[2]
                         # ensure we don't have duplicate lines of SNPs in input file
                         if rsID in allSnpsInInput:
-                            raise SystemExit(f'Found multiple lines for single SNP {rsID}. Please consolidate into a single line in the input file and run again.')
+                            raise SystemExit(f'Found multiple lines for single SNP {rsID}. Please consolidate into a single line in the input file and run again. This can be done with the following command:\n\tbcftools norm -Ov -m+any original.vcf > original-merged.vcf\nwhere original.vcf is your input file and original-merged.vcf is your new vcf file.')
                         else:
                             allSnpsInInput.add(rsID)
                         chromPos = str(cols[0]) + ':' + str(cols[1])

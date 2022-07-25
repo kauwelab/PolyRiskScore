@@ -2,7 +2,7 @@
 
 # ########################################################################
 # 
-version="1.9.0"
+version="1.9.1"
 #
 # 
 # 
@@ -87,6 +87,10 @@ version="1.9.0"
 #   5/5/2022
 #   
 #   various bug fixes and improvements
+#
+#   7/25/22
+#
+#   clarified cli error message when there are multiple SNPs in the input file with the same RsID
 #
 # ########################################################################
 
