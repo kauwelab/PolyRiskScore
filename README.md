@@ -148,7 +148,7 @@ This version outputs the results in a json object format. The output automatical
 
 ## Citing this work
 
-Please visit the [Studies](https://prs.byu.edu/studies.htm) page of the website for information on how to cite this tool and GWAS publications used. 
+Please visit the [Studies](https://prs.byu.edu/studies.html) page of the website for information on how to cite this tool and GWAS publications used. 
 
 ##License
 
