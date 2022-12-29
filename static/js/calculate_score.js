@@ -562,9 +562,15 @@ var calculatePolyScore = async () => {
     }
 
     clumpsData = {}
+    // create set so we don't make unnecessary calls
+    allSuperPopsSet = new Set(allSuperPops)
 
-    for (i=0; i<allSuperPops.length; i++) {
-        clumpsData[allSuperPops[i]] = await getClumpsFromPositions(associationData['associations'], refGen, allSuperPops[i]);
+    for (i=0; i<allSuperPopsSet.length; i++) {
+        console.log('HEREEEEEE')
+        console.log(allSuperPopsSet[i])
+        test = await getClumpsFromPositions(associationData['associations'], refGen, allSuperPopsSet[i]);
+        console.log(test)
+        clumpsData[allSuperPopsSet[i]] = test
     }
 
     mafData = (mafCohort == 'user' ? {} : await getMafData(associationData['associations'], mafCohort, refGen))
