@@ -544,7 +544,7 @@ var calculatePolyScore = async () => {
                 studyID: studies[i][0],
                 pValueAnnotation: studies[i][2],
                 betaAnnotation: studies[i][3],
-                ogValueType: studies[i][4]
+                ogValueTypes: studies[i][4]
             });
         }
         //send a get request to the server with the specified traits and studies
@@ -563,13 +563,10 @@ var calculatePolyScore = async () => {
 
     clumpsData = {}
     // create set so we don't make unnecessary calls
-    allSuperPopsSet = new Set(allSuperPops)
+    allSuperPopsSet = Array.from(new Set(allSuperPops))
 
     for (i=0; i<allSuperPopsSet.length; i++) {
-        console.log('HEREEEEEE')
-        console.log(allSuperPopsSet[i])
         test = await getClumpsFromPositions(associationData['associations'], refGen, allSuperPopsSet[i]);
-        console.log(test)
         clumpsData[allSuperPopsSet[i]] = test
     }
 
@@ -960,7 +957,7 @@ var handleCalculateScore = async (snpsInput, associationData, mafData, percentil
             $('#response').html("None of the snps from the input file were found.");
         }
         else if (result == "No results to display") {
-            msg = "We were unable to calculate results using the given values. Try adjusting the p-value cutoff or the MAF threshold."
+            msg = "We were unable to calculate results using the given values. Try adjusting the p-value cutoff, the MAF threshold, and/or the imputation threshold."
             updateResultBoxAndStoredValue(msg)
             alert(msg)
             return
