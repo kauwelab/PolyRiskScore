@@ -15,6 +15,15 @@ pip install biopython
 pip install biothings_client
 ```
 
+Since PyVCF requires Python2 to Python3 conversion that is no longer supported in Python setuptools, 
+you will need to specify setuptools version <=57.5.0. Installing PyVCF can be done with the following
+commands:
+
+```
+pip install --upgrade pip setuptools==57.5.0
+pip install --upgrade PyVCF
+```
+
 For certain tool functions accessed through the tool's menu, bash ***jq*** is required. To download on Ubuntu or Debian run:
 
 ```bash
