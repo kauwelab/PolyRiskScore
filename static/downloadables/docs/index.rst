@@ -295,7 +295,7 @@ This flag prevents the calculation of percentile rank in the full output version
 
 .. code-block:: bash
 
-   -q adni-ad
+   -m adni-ad
 
 Individual-specific LD clumping (-l)
 """"""""""""""""""""""""""""""""""""
