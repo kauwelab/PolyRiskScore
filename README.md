@@ -40,6 +40,7 @@ Required installed programs: Bash and jq for bash, Python3 and the PyVCF, filelo
 *Note*: PyVCF currently requires an additional step to install due to compatibility issues with setuptools v58+, which no longer supports use_2to3. PyVCF can be installed as follows:
 
 ```pip install "setuptools<58" --upgrade
+pip install "setuptools<58" --upgrade
 pip uninstall pyvcf
 pip install pyvcf
 ```
